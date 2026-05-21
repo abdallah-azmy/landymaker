@@ -70,6 +70,16 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+CREATE OR REPLACE FUNCTION public.is_super_admin(user_id UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM public.profiles 
+        WHERE id = user_id AND role = 'super_admin'
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Automatically update updated_at on Landing Page changes
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -95,10 +105,7 @@ CREATE POLICY "Users can view own profile"
 CREATE POLICY "Super admins can view all profiles" 
     ON public.profiles FOR SELECT 
     USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'super_admin'
-        )
+        public.is_super_admin(auth.uid())
     );
 
 -- 2. Landing Pages Policies

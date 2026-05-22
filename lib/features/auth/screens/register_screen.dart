@@ -58,6 +58,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
           listener: (context, state) {
             if (state is Authenticated) {
               widget.onRegisterSuccess();
+            } else if (state is RegistrationSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    context.read<LocalizationCubit>().isRtl
+                        ? "تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول باستخدام بياناتك."
+                        : "Account created successfully! Please log in with your credentials.",
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  backgroundColor: Colors.teal.shade700,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  margin: const EdgeInsets.all(16),
+                  duration: const Duration(seconds: 4),
+                ),
+              );
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => LoginScreen(onLoginSuccess: widget.onRegisterSuccess),
+                ),
+              );
             }
           },
           builder: (context, state) {

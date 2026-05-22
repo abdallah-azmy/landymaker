@@ -57,11 +57,9 @@ class AuthCubit extends Cubit<AuthState> {
         role: role,
       );
       if (success) {
-        emit(Authenticated(
-          userId: _authService.currentUserId!,
-          email: _authService.currentUserEmail!,
-          role: _authService.currentUserRole,
-        ));
+        // Prevent auto-login by logging out the newly registered user session
+        await _authService.logout();
+        emit(RegistrationSuccess("Registration successful! Please login with your credentials."));
       } else {
         emit(AuthFailure("Registration failed"));
       }

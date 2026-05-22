@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import '../core/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import '../core/constants/db_constants.dart';
@@ -24,14 +25,22 @@ class SupabaseService extends ChangeNotifier {
   bool get isAuthenticated => _currentUserId != null;
 
   // Placeholder keys (replaced at run-time or compile-time)
-  static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-  static const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+  static const String supabaseUrl = String.fromEnvironment(
+    'SUPABASE_URL',
+    defaultValue: '',
+  );
+  static const String supabaseAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+    defaultValue: '',
+  );
 
   /// Initialize Supabase Flutter Client
   Future<void> initialize() async {
     if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
       if (kDebugMode) {
-        print("Supabase Key credentials empty. Initializing in mock/offline mode.");
+        print(
+          "Supabase Key credentials empty. Initializing in mock/offline mode.",
+        );
       }
       _isMockMode = true;
       _initializeMockUser();
@@ -39,10 +48,7 @@ class SupabaseService extends ChangeNotifier {
     }
 
     try {
-      await Supabase.initialize(
-        url: supabaseUrl,
-        anonKey: supabaseAnonKey,
-      );
+      await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
       _client = Supabase.instance.client;
       _isMockMode = false;
 
@@ -91,17 +97,25 @@ class SupabaseService extends ChangeNotifier {
   // AUTHENTICATION OPERATIONS
   // ----------------------------------------------------
 
-  Future<bool> register({required String email, required String password, required String fullName, String role = 'user'}) async {
+  Future<bool> register({
+    required String email,
+    required String password,
+    required String fullName,
+    String role = 'user',
+  }) async {
+    Logger.info('Attempting registration for email: $email');
     if (_isMockMode) {
       // Simulate registration
       _currentUserId = 'mock-user-uuid-12345';
       _currentUserEmail = email;
       _currentUserRole = role;
       notifyListeners();
+      Logger.info('Mock registration successful for role: $role');
       return true;
     }
 
     try {
+      Logger.info('Register request sent to Supabase');
       final response = await _client!.auth.signUp(
         email: email,
         password: password,
@@ -112,6 +126,7 @@ class SupabaseService extends ChangeNotifier {
         _currentUserEmail = response.user!.email;
         _currentUserRole = role;
         notifyListeners();
+        Logger.info('Registration successful, userId: $_currentUserId');
         return true;
       }
       return false;
@@ -119,11 +134,13 @@ class SupabaseService extends ChangeNotifier {
       if (kDebugMode) {
         print("Register exception: $e");
       }
+      Logger.error('Register exception: $e');
       rethrow;
     }
   }
 
   Future<bool> login({required String email, required String password}) async {
+    Logger.info('Attempting login for email: $email');
     if (_isMockMode) {
       // Direct mock login simulations
       _currentUserId = 'mock-user-uuid-12345';
@@ -134,6 +151,7 @@ class SupabaseService extends ChangeNotifier {
         _currentUserRole = 'user';
       }
       notifyListeners();
+      Logger.info('Mock login successful, role: $_currentUserRole');
       return true;
     }
 
@@ -147,18 +165,22 @@ class SupabaseService extends ChangeNotifier {
         _currentUserEmail = response.user!.email;
         await _fetchUserRole(response.user!.id);
         notifyListeners();
+        Logger.info('Login successful for userId: $_currentUserId, role: $_currentUserRole');
         return true;
       }
+      Logger.warn('Login failed: no user returned');
       return false;
     } catch (e) {
       if (kDebugMode) {
         print("Login exception: $e");
       }
+      Logger.error('Login exception: $e');
       rethrow;
     }
   }
 
   Future<void> logout() async {
+    Logger.info('Logging out user');
     if (!_isMockMode) {
       await _client!.auth.signOut();
     }
@@ -166,6 +188,7 @@ class SupabaseService extends ChangeNotifier {
     _currentUserEmail = null;
     _currentUserRole = 'user';
     notifyListeners();
+    Logger.info('Logout completed');
   }
 
   // ----------------------------------------------------
@@ -185,27 +208,41 @@ class SupabaseService extends ChangeNotifier {
           {
             'type': 'hero',
             'title': 'Build Beautiful SaaS Pages in Seconds',
-            'subtitle': 'The fast, responsive solution for your startup validation.',
+            'subtitle':
+                'The fast, responsive solution for your startup validation.',
             'button_text': 'Get Started Free',
-            'image_url': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'
+            'image_url':
+                'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
           },
           {
             'type': 'features',
             'title': 'Power Packed Features',
             'items': [
-              {'title': 'Lightning Fast', 'description': 'Optimized structure loading instantly on any Vercel domain.'},
-              {'title': 'Arabic Default RTL', 'description': 'Seamless localizations built straight into Flutter widgets.'},
-              {'title': 'Integrated Leads', 'description': 'Track and download every visitor request on the fly.'}
-            ]
+              {
+                'title': 'Lightning Fast',
+                'description':
+                    'Optimized structure loading instantly on any Vercel domain.',
+              },
+              {
+                'title': 'Arabic Default RTL',
+                'description':
+                    'Seamless localizations built straight into Flutter widgets.',
+              },
+              {
+                'title': 'Integrated Leads',
+                'description':
+                    'Track and download every visitor request on the fly.',
+              },
+            ],
           },
           {
             'type': 'lead_form',
             'title': 'Sign Up For Early Access',
-            'button_text': 'Submit Request'
-          }
-        ]
-      })
-    }
+            'button_text': 'Submit Request',
+          },
+        ],
+      }),
+    },
   };
 
   Future<Map<String, dynamic>?> getLandingPageByUserId(String userId) async {
@@ -228,7 +265,10 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>?> getLandingPageByDomain(String domain, {bool isCustom = false}) async {
+  Future<Map<String, dynamic>?> getLandingPageByDomain(
+    String domain, {
+    bool isCustom = false,
+  }) async {
     if (_isMockMode) {
       // Find mock page match by subdomain or custom domain
       for (var page in _mockPages.values) {
@@ -284,13 +324,16 @@ class SupabaseService extends ChangeNotifier {
       final existingPage = await getLandingPageByUserId(userId);
       if (existingPage != null) {
         // Update existing page
-        await _client!.from(DbConstants.landingPagesTable).update({
-          'subdomain': subdomain,
-          'custom_domain': customDomain,
-          'design_json': designJsonStr,
-          'is_published': isPublished,
-          'updated_at': DateTime.now().toIso8601String(),
-        }).eq('id', existingPage['id']);
+        await _client!
+            .from(DbConstants.landingPagesTable)
+            .update({
+              'subdomain': subdomain,
+              'custom_domain': customDomain,
+              'design_json': designJsonStr,
+              'is_published': isPublished,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', existingPage['id']);
       } else {
         // Insert new page record
         await _client!.from(DbConstants.landingPagesTable).insert({
@@ -318,18 +361,33 @@ class SupabaseService extends ChangeNotifier {
     {
       'id': 'lead-1',
       'landing_page_id': 'page-uuid-11111',
-      'form_data': {'name': 'Ahmed Ali', 'email': 'ahmed@mail.com', 'message': 'I want a demo!'},
-      'created_at': DateTime.now().subtract(const Duration(hours: 3)).toIso8601String()
+      'form_data': {
+        'name': 'Ahmed Ali',
+        'email': 'ahmed@mail.com',
+        'message': 'I want a demo!',
+      },
+      'created_at': DateTime.now()
+          .subtract(const Duration(hours: 3))
+          .toIso8601String(),
     },
     {
       'id': 'lead-2',
       'landing_page_id': 'page-uuid-11111',
-      'form_data': {'name': 'Sarah Smith', 'email': 'sarah@web.org', 'message': 'Pricing details please.'},
-      'created_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String()
-    }
+      'form_data': {
+        'name': 'Sarah Smith',
+        'email': 'sarah@web.org',
+        'message': 'Pricing details please.',
+      },
+      'created_at': DateTime.now()
+          .subtract(const Duration(days: 1))
+          .toIso8601String(),
+    },
   ];
 
-  Future<bool> submitLead({required String landingPageId, required Map<String, dynamic> formData}) async {
+  Future<bool> submitLead({
+    required String landingPageId,
+    required Map<String, dynamic> formData,
+  }) async {
     if (_isMockMode) {
       _mockLeads.add({
         'id': 'lead-mock-${DateTime.now().millisecondsSinceEpoch}',
@@ -338,7 +396,10 @@ class SupabaseService extends ChangeNotifier {
         'created_at': DateTime.now().toIso8601String(),
       });
       // Simulate conversion analytics increment
-      await recordAnalyticsEvent(landingPageId: landingPageId, eventType: 'conversion');
+      await recordAnalyticsEvent(
+        landingPageId: landingPageId,
+        eventType: 'conversion',
+      );
       return true;
     }
 
@@ -348,7 +409,10 @@ class SupabaseService extends ChangeNotifier {
         'form_data': formData,
       });
       // Trigger analytics conversion event record
-      await recordAnalyticsEvent(landingPageId: landingPageId, eventType: 'conversion');
+      await recordAnalyticsEvent(
+        landingPageId: landingPageId,
+        eventType: 'conversion',
+      );
       return true;
     } catch (e) {
       if (kDebugMode) {
@@ -358,9 +422,13 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getLeadsByLandingPage(String landingPageId) async {
+  Future<List<Map<String, dynamic>>> getLeadsByLandingPage(
+    String landingPageId,
+  ) async {
     if (_isMockMode) {
-      return _mockLeads.where((lead) => lead['landing_page_id'] == landingPageId).toList();
+      return _mockLeads
+          .where((lead) => lead['landing_page_id'] == landingPageId)
+          .toList();
     }
 
     try {
@@ -383,12 +451,30 @@ class SupabaseService extends ChangeNotifier {
   // ----------------------------------------------------
 
   final List<Map<String, dynamic>> _mockAnalytics = [
-    {'id': 'a-1', 'landing_page_id': 'page-uuid-11111', 'event_type': 'view', 'created_at': DateTime.now().toIso8601String()},
-    {'id': 'a-2', 'landing_page_id': 'page-uuid-11111', 'event_type': 'view', 'created_at': DateTime.now().toIso8601String()},
-    {'id': 'a-3', 'landing_page_id': 'page-uuid-11111', 'event_type': 'conversion', 'created_at': DateTime.now().toIso8601String()},
+    {
+      'id': 'a-1',
+      'landing_page_id': 'page-uuid-11111',
+      'event_type': 'view',
+      'created_at': DateTime.now().toIso8601String(),
+    },
+    {
+      'id': 'a-2',
+      'landing_page_id': 'page-uuid-11111',
+      'event_type': 'view',
+      'created_at': DateTime.now().toIso8601String(),
+    },
+    {
+      'id': 'a-3',
+      'landing_page_id': 'page-uuid-11111',
+      'event_type': 'conversion',
+      'created_at': DateTime.now().toIso8601String(),
+    },
   ];
 
-  Future<void> recordAnalyticsEvent({required String landingPageId, required String eventType}) async {
+  Future<void> recordAnalyticsEvent({
+    required String landingPageId,
+    required String eventType,
+  }) async {
     if (_isMockMode) {
       _mockAnalytics.add({
         'id': 'analytic-mock-${DateTime.now().millisecondsSinceEpoch}',
@@ -413,8 +499,20 @@ class SupabaseService extends ChangeNotifier {
 
   Future<Map<String, int>> getPageAnalyticsStats(String landingPageId) async {
     if (_isMockMode) {
-      final views = _mockAnalytics.where((a) => a['landing_page_id'] == landingPageId && a['event_type'] == 'view').length;
-      final conversions = _mockAnalytics.where((a) => a['landing_page_id'] == landingPageId && a['event_type'] == 'conversion').length;
+      final views = _mockAnalytics
+          .where(
+            (a) =>
+                a['landing_page_id'] == landingPageId &&
+                a['event_type'] == 'view',
+          )
+          .length;
+      final conversions = _mockAnalytics
+          .where(
+            (a) =>
+                a['landing_page_id'] == landingPageId &&
+                a['event_type'] == 'conversion',
+          )
+          .length;
       return {'views': views, 'conversions': conversions};
     }
 
@@ -454,7 +552,8 @@ class SupabaseService extends ChangeNotifier {
     try {
       final userId = _currentUserId!;
       final fileExtension = file.name.split('.').last;
-      final filePath = '$userId/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
+      final filePath =
+          '$userId/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
 
       // Upload binary to Supabase bucket
       await _client!.storage
@@ -489,8 +588,13 @@ class SupabaseService extends ChangeNotifier {
     }
 
     try {
-      final usersRes = await _client!.from(DbConstants.profilesTable).select('id');
-      final pagesRes = await _client!.from(DbConstants.landingPagesTable).select('id').eq('is_published', true);
+      final usersRes = await _client!
+          .from(DbConstants.profilesTable)
+          .select('id');
+      final pagesRes = await _client!
+          .from(DbConstants.landingPagesTable)
+          .select('id')
+          .eq('is_published', true);
       final leadsRes = await _client!.from(DbConstants.leadsTable).select('id');
       return {
         'total_users': usersRes.length,
@@ -501,11 +605,7 @@ class SupabaseService extends ChangeNotifier {
       if (kDebugMode) {
         print("Error fetching super admin metrics: $e");
       }
-      return {
-        'total_users': 0,
-        'active_pages': 0,
-        'total_leads': 0,
-      };
+      return {'total_users': 0, 'active_pages': 0, 'total_leads': 0};
     }
   }
 }

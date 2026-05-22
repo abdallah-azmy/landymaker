@@ -23,3 +23,9 @@ class AuthFailure extends AuthState {
 
   AuthFailure(this.message);
 }
+
+class RegistrationSuccess extends AuthState {
+  final String message;
+
+  RegistrationSuccess(this.message);
+}

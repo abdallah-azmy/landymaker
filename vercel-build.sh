@@ -14,3 +14,6 @@ echo "Building Flutter Web..."
 ./flutter/bin/flutter build web --release
 
 echo "Build Completed Successfully!"
+
+mkdir -p web && cp -r build/web/* web/
+

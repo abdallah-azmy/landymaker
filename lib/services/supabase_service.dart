@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import '../core/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import '../core/constants/db_constants.dart';
+import '../core/logger.dart';
 
+/// Singleton service wrapping Supabase with Supabase SDK
 class SupabaseService extends ChangeNotifier {
   static final SupabaseService instance = SupabaseService._internal();
 
@@ -38,8 +39,8 @@ class SupabaseService extends ChangeNotifier {
   Future<void> initialize() async {
     if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
       if (kDebugMode) {
-        print(
-          "Supabase Key credentials empty. Initializing in mock/offline mode.",
+        debugPrint(
+          "Supabase credentials empty. Initializing in mock/offline mode.",
         );
       }
       _isMockMode = true;
@@ -48,9 +49,15 @@ class SupabaseService extends ChangeNotifier {
     }
 
     try {
-      await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+      await Supabase.initialize(
+        url: supabaseUrl,
+        anonKey: supabaseAnonKey,
+        debug: false,
+      );
       _client = Supabase.instance.client;
       _isMockMode = false;
+
+      Logger.info('Supabase initialized successfully');
 
       // Check current session
       final session = _client!.auth.currentSession;
@@ -60,16 +67,17 @@ class SupabaseService extends ChangeNotifier {
         await _fetchUserRole(session.user.id);
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Failed to initialize Supabase: $e. Falling back to mock mode.");
-      }
+      Logger.error(
+        "Failed to initialize Supabase. Falling back to mock mode.",
+        e,
+        StackTrace.current,
+      );
       _isMockMode = true;
       _initializeMockUser();
     }
   }
 
   void _initializeMockUser() {
-    // Default mock user logged out initially
     _currentUserEmail = null;
     _currentUserId = null;
     _currentUserRole = 'user';
@@ -87,9 +95,7 @@ class SupabaseService extends ChangeNotifier {
         _currentUserRole = response['role'] as String;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching user role: $e");
-      }
+      debugPrint("Error fetching user role: $e");
     }
   }
 
@@ -103,19 +109,16 @@ class SupabaseService extends ChangeNotifier {
     required String fullName,
     String role = 'user',
   }) async {
-    Logger.info('Attempting registration for email: $email');
     if (_isMockMode) {
-      // Simulate registration
       _currentUserId = 'mock-user-uuid-12345';
       _currentUserEmail = email;
       _currentUserRole = role;
       notifyListeners();
-      Logger.info('Mock registration successful for role: $role');
+      debugPrint('Mock registration successful for role: $role');
       return true;
     }
 
     try {
-      Logger.info('Register request sent to Supabase');
       final response = await _client!.auth.signUp(
         email: email,
         password: password,
@@ -126,32 +129,22 @@ class SupabaseService extends ChangeNotifier {
         _currentUserEmail = response.user!.email;
         _currentUserRole = role;
         notifyListeners();
-        Logger.info('Registration successful, userId: $_currentUserId');
         return true;
       }
       return false;
     } catch (e) {
-      if (kDebugMode) {
-        print("Register exception: $e");
-      }
-      Logger.error('Register exception: $e');
+      debugPrint('Register exception: $e');
       rethrow;
     }
   }
 
   Future<bool> login({required String email, required String password}) async {
-    Logger.info('Attempting login for email: $email');
     if (_isMockMode) {
-      // Direct mock login simulations
       _currentUserId = 'mock-user-uuid-12345';
       _currentUserEmail = email;
-      if (email.contains('admin')) {
-        _currentUserRole = 'super_admin';
-      } else {
-        _currentUserRole = 'user';
-      }
+      _currentUserRole = email.contains('admin') ? 'super_admin' : 'user';
       notifyListeners();
-      Logger.info('Mock login successful, role: $_currentUserRole');
+      debugPrint('Mock login successful, role: $_currentUserRole');
       return true;
     }
 
@@ -165,22 +158,17 @@ class SupabaseService extends ChangeNotifier {
         _currentUserEmail = response.user!.email;
         await _fetchUserRole(response.user!.id);
         notifyListeners();
-        Logger.info('Login successful for userId: $_currentUserId, role: $_currentUserRole');
         return true;
       }
-      Logger.warn('Login failed: no user returned');
+      debugPrint('Login failed: no user returned');
       return false;
     } catch (e) {
-      if (kDebugMode) {
-        print("Login exception: $e");
-      }
-      Logger.error('Login exception: $e');
+      debugPrint('Login exception: $e');
       rethrow;
     }
   }
 
   Future<void> logout() async {
-    Logger.info('Logging out user');
     if (!_isMockMode) {
       await _client!.auth.signOut();
     }
@@ -188,14 +176,12 @@ class SupabaseService extends ChangeNotifier {
     _currentUserEmail = null;
     _currentUserRole = 'user';
     notifyListeners();
-    Logger.info('Logout completed');
   }
 
   // ----------------------------------------------------
   // LANDING PAGES OPERATIONS
   // ----------------------------------------------------
 
-  // Local storage mock page mapping
   final Map<String, Map<String, dynamic>> _mockPages = {
     'mock-user-uuid-12345': {
       'id': 'page-uuid-11111',
@@ -251,16 +237,13 @@ class SupabaseService extends ChangeNotifier {
     }
 
     try {
-      final response = await _client!
+      return await _client!
           .from(DbConstants.landingPagesTable)
           .select()
           .eq('user_id', userId)
           .maybeSingle();
-      return response;
     } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching landing page by user ID: $e");
-      }
+      debugPrint("Error fetching landing page by user ID: $e");
       return null;
     }
   }
@@ -270,7 +253,6 @@ class SupabaseService extends ChangeNotifier {
     bool isCustom = false,
   }) async {
     if (_isMockMode) {
-      // Find mock page match by subdomain or custom domain
       for (var page in _mockPages.values) {
         if (isCustom) {
           if (page['custom_domain'] == domain) return page;
@@ -278,23 +260,19 @@ class SupabaseService extends ChangeNotifier {
           if (page['subdomain'] == domain) return page;
         }
       }
-      // Return first mock page as default match if no match is found on localhost
       return _mockPages.values.first;
     }
 
     try {
       final column = isCustom ? 'custom_domain' : 'subdomain';
-      final response = await _client!
+      return await _client!
           .from(DbConstants.landingPagesTable)
           .select()
           .eq(column, domain)
           .eq('is_published', true)
           .maybeSingle();
-      return response;
     } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching landing page by domain: $e");
-      }
+      debugPrint("Error fetching landing page by domain: $e");
       return null;
     }
   }
@@ -306,15 +284,19 @@ class SupabaseService extends ChangeNotifier {
     required Map<String, dynamic> designMap,
     required bool isPublished,
   }) async {
-    final designJsonStr = jsonEncode(designMap);
+    // Convert empty string to null to satisfy DB check constraint
+    final effectiveCustomDomain =
+        customDomain == null || customDomain.trim().isEmpty
+        ? null
+        : customDomain;
 
     if (_isMockMode) {
       _mockPages[userId] = {
         'id': _mockPages[userId]?['id'] ?? 'page-uuid-11111',
         'user_id': userId,
         'subdomain': subdomain,
-        'custom_domain': customDomain,
-        'design_json': designJsonStr,
+        'custom_domain': effectiveCustomDomain,
+        'design_json': jsonEncode(designMap),
         'is_published': isPublished,
       };
       return true;
@@ -323,32 +305,28 @@ class SupabaseService extends ChangeNotifier {
     try {
       final existingPage = await getLandingPageByUserId(userId);
       if (existingPage != null) {
-        // Update existing page
         await _client!
             .from(DbConstants.landingPagesTable)
             .update({
               'subdomain': subdomain,
-              'custom_domain': customDomain,
-              'design_json': designJsonStr,
+              'custom_domain': effectiveCustomDomain,
+              'design_json': jsonEncode(designMap),
               'is_published': isPublished,
               'updated_at': DateTime.now().toIso8601String(),
             })
             .eq('id', existingPage['id']);
       } else {
-        // Insert new page record
         await _client!.from(DbConstants.landingPagesTable).insert({
           'user_id': userId,
           'subdomain': subdomain,
-          'custom_domain': customDomain,
-          'design_json': designJsonStr,
+          'custom_domain': effectiveCustomDomain,
+          'design_json': jsonEncode(designMap),
           'is_published': isPublished,
         });
       }
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print("Error saving landing page config: $e");
-      }
+      debugPrint("Error saving landing page config: $e");
       rethrow;
     }
   }
@@ -395,7 +373,6 @@ class SupabaseService extends ChangeNotifier {
         'form_data': formData,
         'created_at': DateTime.now().toIso8601String(),
       });
-      // Simulate conversion analytics increment
       await recordAnalyticsEvent(
         landingPageId: landingPageId,
         eventType: 'conversion',
@@ -408,16 +385,13 @@ class SupabaseService extends ChangeNotifier {
         'landing_page_id': landingPageId,
         'form_data': formData,
       });
-      // Trigger analytics conversion event record
       await recordAnalyticsEvent(
         landingPageId: landingPageId,
         eventType: 'conversion',
       );
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print("Error submitting lead form: $e");
-      }
+      debugPrint("Error submitting lead form: $e");
       return false;
     }
   }
@@ -439,9 +413,7 @@ class SupabaseService extends ChangeNotifier {
           .order('created_at', ascending: false);
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      if (kDebugMode) {
-        print("Error retrieving page leads: $e");
-      }
+      debugPrint("Error retrieving page leads: $e");
       return [];
     }
   }
@@ -491,9 +463,7 @@ class SupabaseService extends ChangeNotifier {
         'event_type': eventType,
       });
     } catch (e) {
-      if (kDebugMode) {
-        print("Error recording analytics event: $e");
-      }
+      debugPrint("Error recording analytics event: $e");
     }
   }
 
@@ -527,14 +497,13 @@ class SupabaseService extends ChangeNotifier {
           .select('id')
           .eq('landing_page_id', landingPageId)
           .eq('event_type', 'conversion');
+
       return {
         'views': viewsResponse.length,
         'conversions': conversionsResponse.length,
       };
     } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching analytics stats: $e");
-      }
+      debugPrint("Error fetching analytics stats: $e");
       return {'views': 0, 'conversions': 0};
     }
   }
@@ -545,7 +514,6 @@ class SupabaseService extends ChangeNotifier {
 
   Future<String?> uploadImage(PlatformFile file) async {
     if (_isMockMode) {
-      // Return a fixed unsplash mockup URL for design preview purposes
       return "https://images.unsplash.com/photo-1542744094-3a31f103e35f?q=80&w=800&auto=format&fit=crop";
     }
 
@@ -555,21 +523,15 @@ class SupabaseService extends ChangeNotifier {
       final filePath =
           '$userId/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
 
-      // Upload binary to Supabase bucket
       await _client!.storage
           .from(DbConstants.landingAssetsBucket)
           .uploadBinary(filePath, file.bytes!);
 
-      // Get public URL
-      final publicUrl = _client!.storage
+      return _client!.storage
           .from(DbConstants.landingAssetsBucket)
           .getPublicUrl(filePath);
-
-      return publicUrl;
     } catch (e) {
-      if (kDebugMode) {
-        print("Error uploading image: $e");
-      }
+      debugPrint("Error uploading image: $e");
       rethrow;
     }
   }
@@ -596,15 +558,14 @@ class SupabaseService extends ChangeNotifier {
           .select('id')
           .eq('is_published', true);
       final leadsRes = await _client!.from(DbConstants.leadsTable).select('id');
+
       return {
         'total_users': usersRes.length,
         'active_pages': pagesRes.length,
         'total_leads': leadsRes.length,
       };
     } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching super admin metrics: $e");
-      }
+      debugPrint("Error fetching super admin metrics: $e");
       return {'total_users': 0, 'active_pages': 0, 'total_leads': 0};
     }
   }

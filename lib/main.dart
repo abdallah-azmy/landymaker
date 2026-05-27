@@ -33,13 +33,9 @@ class MyLandyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         // Singleton — shared app-wide locale instance
-        BlocProvider<LocalizationCubit>(
-          create: (_) => sl<LocalizationCubit>(),
-        ),
+        BlocProvider<LocalizationCubit>(create: (_) => sl<LocalizationCubit>()),
         // Factory — fresh cubit per session, constructor-injected AuthService
-        BlocProvider<AuthCubit>(
-          create: (_) => sl<AuthCubit>(),
-        ),
+        BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>()),
         // Factory — constructor-injected DatabaseService + StorageService
         BlocProvider<LandingPageBuilderCubit>(
           create: (_) => sl<LandingPageBuilderCubit>(),
@@ -49,13 +45,9 @@ class MyLandyApp extends StatelessWidget {
           create: (_) => sl<LeadsAnalyticsCubit>(),
         ),
         // Factory — constructor-injected DatabaseService for Super Admin
-        BlocProvider<SuperAdminCubit>(
-          create: (_) => sl<SuperAdminCubit>(),
-        ),
+        BlocProvider<SuperAdminCubit>(create: (_) => sl<SuperAdminCubit>()),
         // Factory — constructor-injected DatabaseService and LeadsAnalyticsCubit for Public viewer
-        BlocProvider<PublicPageCubit>(
-          create: (_) => sl<PublicPageCubit>(),
-        ),
+        BlocProvider<PublicPageCubit>(create: (_) => sl<PublicPageCubit>()),
       ],
       child: BlocBuilder<LocalizationCubit, Locale>(
         builder: (context, locale) {
@@ -65,10 +57,7 @@ class MyLandyApp extends StatelessWidget {
 
             // Locale Configurations
             locale: locale,
-            supportedLocales: const [
-              Locale('ar'),
-              Locale('en'),
-            ],
+            supportedLocales: const [Locale('ar'), Locale('en')],
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -128,4 +117,4 @@ class RootTenantRouter extends StatelessWidget {
   }
 }
 
- //* flutter run -d chrome --dart-define=SUPABASE_URL=رابط_مشروعك --dart-define=SUPABASE_ANON_KEY=مفتاحك
+//* flutter run -d chrome --dart-define=SUPABASE_URL=رابط_مشروعك --dart-define=SUPABASE_ANON_KEY=مفتاحك

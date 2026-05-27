@@ -22,16 +22,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: 'azmy@gmail.com');
+  final _passwordController = TextEditingController(text: '123456');
 
   void _handleLogin(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
 
     context.read<AuthCubit>().login(
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
   }
 
   @override
@@ -46,9 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.darkGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.darkGradient),
         child: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
@@ -70,13 +68,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       // Language Toggle at Top Right/Left
                       Align(
-                        alignment: loc.isRtl ? Alignment.topLeft : Alignment.topRight,
+                        alignment: loc.isRtl
+                            ? Alignment.topLeft
+                            : Alignment.topRight,
                         child: TextButton.icon(
                           onPressed: () => loc.toggleLanguage(),
-                          icon: const Icon(Icons.language, color: AppColors.secondary, size: 18),
+                          icon: const Icon(
+                            Icons.language,
+                            color: AppColors.secondary,
+                            size: 18,
+                          ),
                           label: Text(
                             loc.translate('switch_language'),
-                            style: AppTypography.button.copyWith(color: AppColors.secondary),
+                            style: AppTypography.button.copyWith(
+                              color: AppColors.secondary,
+                            ),
                           ),
                         ),
                       ),
@@ -92,12 +98,19 @@ class _LoginScreenState extends State<LoginScreen> {
                               gradient: AppColors.primaryGradient,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
+                            child: const Icon(
+                              Icons.auto_awesome,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Text(
                             loc.translate('app_title'),
-                            style: AppTypography.h1.copyWith(fontSize: 32, fontWeight: FontWeight.w900),
+                            style: AppTypography.h1.copyWith(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ],
                       ),
@@ -123,10 +136,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _emailController,
                                   hintText: 'name@domain.com',
                                   keyboardType: TextInputType.emailAddress,
-                                  prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary),
+                                  prefixIcon: const Icon(
+                                    Icons.email_outlined,
+                                    color: AppColors.textSecondary,
+                                  ),
                                   validator: (val) {
-                                    if (val == null || val.isEmpty) return 'Required';
-                                    if (!val.contains('@')) return 'Invalid Email';
+                                    if (val == null || val.isEmpty)
+                                      return 'Required';
+                                    if (!val.contains('@'))
+                                      return 'Invalid Email';
                                     return null;
                                   },
                                 ),
@@ -140,10 +158,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _passwordController,
                                   hintText: '••••••••',
                                   obscureText: true,
-                                  prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                                  prefixIcon: const Icon(
+                                    Icons.lock_outline,
+                                    color: AppColors.textSecondary,
+                                  ),
                                   validator: (val) {
-                                    if (val == null || val.isEmpty) return 'Required';
-                                    if (val.length < 6) return 'Password must be at least 6 characters';
+                                    if (val == null || val.isEmpty)
+                                      return 'Required';
+                                    if (val.length < 6)
+                                      return 'Password must be at least 6 characters';
                                     return null;
                                   },
                                 ),
@@ -153,7 +176,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               if (errorMessage != null) ...[
                                 Text(
                                   errorMessage,
-                                  style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed),
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: AppColors.dangerRed,
+                                  ),
                                 ),
                                 const SizedBox(height: 16),
                               ],
@@ -173,13 +198,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                 children: [
                                   Text(
                                     "Don't have an account? ",
-                                    style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
                                   ),
                                   GestureDetector(
                                     onTap: () {
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
-                                          builder: (_) => RegisterScreen(onRegisterSuccess: widget.onLoginSuccess),
+                                          builder: (_) => RegisterScreen(
+                                            onRegisterSuccess:
+                                                widget.onLoginSuccess,
+                                          ),
                                         ),
                                       );
                                     },

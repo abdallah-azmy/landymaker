@@ -1,0 +1,61 @@
+import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_typography.dart';
+import '../atoms/custom_text_field.dart';
+
+class DataTableHeader extends StatelessWidget {
+  final String title;
+  final Function(String) onSearch;
+  final Function(String?) onSort;
+  final List<String> sortOptions;
+  final String? currentSort;
+
+  const DataTableHeader({
+    super.key,
+    required this.title,
+    required this.onSearch,
+    required this.onSort,
+    this.sortOptions = const [],
+    this.currentSort,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        children: [
+          Text(title, style: AppTypography.h3),
+          const Spacer(),
+          SizedBox(
+            width: 300,
+            child: CustomTextField(
+              hintText: "بحث...",
+              prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.textSecondary),
+              onChanged: onSearch,
+            ),
+          ),
+          if (sortOptions.isNotEmpty) ...[
+            const SizedBox(width: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: DropdownButton<String>(
+                value: currentSort,
+                underline: const SizedBox(),
+                icon: const Icon(Icons.sort_rounded, color: AppColors.secondary),
+                hint: const Text("ترتيب حسب"),
+                items: sortOptions.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
+                onChanged: onSort,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}

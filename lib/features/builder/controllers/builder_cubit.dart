@@ -75,7 +75,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           {
             'type': 'hero',
             'title': 'ابنِ صفحتك الاحترافية في دقائق',
-            'subtitle': 'منصة ماي لاندي توفر لك كل الأدوات التي تحتاجها للنمو.',
+            'subtitle': 'منصة لاندي ميكر توفر لك كل الأدوات التي تحتاجها للنمو.',
             'button_text': 'ابدأ الآن',
             'image_url': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'
           }
@@ -417,7 +417,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'type': 'contact_info',
             'title': 'تواصل مع مستشارنا العقاري',
             'phone': '+201100000000',
-            'email': 'sales@mylandyestate.com',
+            'email': 'sales@landymakerestate.com',
             'location': 'التجمع الخامس، القاهرة الجديدة'
           }
         ];

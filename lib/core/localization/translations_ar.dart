@@ -1,5 +1,5 @@
 const Map<String, String> translationsAr = {
-  'app_title': 'ماي لاندي',
+  'app_title': 'لاندي ميكر',
   'login': 'تسجيل الدخول',
   'register': 'إنشاء حساب',
   'email': 'البريد الإلكتروني',

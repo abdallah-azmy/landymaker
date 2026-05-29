@@ -29,6 +29,8 @@ class TenantRoutingService {
     final host = uri.host.toLowerCase();
     final isCoreDomain = host == 'localhost' ||
         host == '127.0.0.1' ||
+        host == 'landymaker.com' ||
+        host == 'landymaker.vercel.app' ||
         host == 'mylandy.com' ||
         host == 'mylandy-builder.vercel.app' ||
         host.startsWith('dashboard.') ||
@@ -47,6 +49,8 @@ class TenantRoutingService {
     // 1. Check for path-based slug on core domains or localhost
     final isCoreDomain = host == 'localhost' ||
         host == '127.0.0.1' ||
+        host == 'landymaker.com' ||
+        host == 'landymaker.vercel.app' ||
         host == 'mylandy.com' ||
         host == 'mylandy-builder.vercel.app' ||
         host.startsWith('dashboard.') ||
@@ -70,8 +74,18 @@ class TenantRoutingService {
       return null;
     }
 
-    // 2. Parse tenant subdomain (e.g. "tenant.mylandy.com" or "tenant.mylandy-builder.vercel.app")
-    if (host.endsWith('.mylandy.com')) {
+    // 2. Parse tenant subdomain (e.g. "tenant.landymaker.com")
+    if (host.endsWith('.landymaker.com')) {
+      final parts = host.split('.');
+      if (parts.isNotEmpty && parts[0] != 'www') {
+        return parts[0];
+      }
+    } else if (host.endsWith('.landymaker.vercel.app')) {
+      final parts = host.split('.');
+      if (parts.isNotEmpty && parts[0] != 'www') {
+        return parts[0];
+      }
+    } else if (host.endsWith('.mylandy.com')) {
       final parts = host.split('.');
       if (parts.isNotEmpty && parts[0] != 'www') {
         return parts[0];
@@ -91,7 +105,9 @@ class TenantRoutingService {
   static bool isCustomDomain(String identifier) {
     // If it contains a dot and is not a local host/domain name, classify as custom domain
     if (identifier.contains('.')) {
-      if (identifier.endsWith('.mylandy.com') ||
+      if (identifier.endsWith('.landymaker.com') ||
+          identifier.endsWith('.landymaker.vercel.app') ||
+          identifier.endsWith('.mylandy.com') ||
           identifier.endsWith('.mylandy-builder.vercel.app') ||
           identifier == 'localhost' ||
           identifier == '127.0.0.1') {

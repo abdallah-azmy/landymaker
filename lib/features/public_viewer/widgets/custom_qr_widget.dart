@@ -32,7 +32,7 @@ class CustomQrWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final String? subdomain = TenantRoutingService.getTenantIdentifier();
     final String baseUrl = Uri.base.origin;
-    // Construct the live URL based on current routing (mylandy.com/subdomain)
+    // Construct the live URL based on current routing (landymaker.com/subdomain)
     final String liveUrl = subdomain != null ? '$baseUrl/$subdomain' : baseUrl;
 
     final bgColor = theme?.background ?? AppColors.background;

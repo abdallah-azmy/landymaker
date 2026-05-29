@@ -22,7 +22,7 @@ class HomeFooter extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "© 2026 mylandy. All rights reserved.",
+                    "© 2026 landymaker. All rights reserved.",
                     style: AppTypography.caption,
                   ),
                   Row(

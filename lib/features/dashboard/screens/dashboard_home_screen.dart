@@ -70,7 +70,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
 
     final subdomain = _subdomainController.text.trim().toLowerCase();
     final baseUrl = Uri.base.origin;
-    // Use path-based slug routing: mylandy.com/restaurant-x
+    // Use path-based slug routing: landymaker.com/restaurant-x
     final liveUrl = '$baseUrl/$subdomain';
 
     launchUrl(Uri.parse(liveUrl), webOnlyWindowName: '_blank');
@@ -234,7 +234,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
           // Subdomain field input (Renamed to Brand Name for users)
           FormGroup(
             label: "اسم البراند (Brand Name)",
-            helperText: "هذا الاسم سيظهر في رابط صفحتك: brand.mylandy.com",
+            helperText: "هذا الاسم سيظهر في رابط صفحتك: brand.landymaker.com",
             child: CustomTextField(
               controller: _subdomainController,
               hintText: 'my-brand-name',

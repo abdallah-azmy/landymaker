@@ -1,10 +1,10 @@
-# mylandy 🚀
+# landymaker 🚀
 
 A professional Landing Page Builder built with Flutter and Supabase.
 
 ## Project Overview
 
-"mylandy" allows users to build, customize, and deploy responsive landing pages in minutes using a modular block-based builder.
+"landymaker" allows users to build, customize, and deploy responsive landing pages in minutes using a modular block-based builder.
 
 ### Current Features
 

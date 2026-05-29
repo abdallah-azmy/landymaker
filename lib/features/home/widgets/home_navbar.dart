@@ -52,7 +52,7 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        "mylandy",
+                        "landymaker",
                         style: AppTypography.h3.copyWith(
                           fontWeight: FontWeight.w900,
                           letterSpacing: -0.5,

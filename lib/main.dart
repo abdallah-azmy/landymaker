@@ -14,7 +14,7 @@ import 'features/builder/controllers/builder_cubit.dart';
 import 'features/dashboard/controllers/leads_analytics_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
-import 'features/home/screens/mylandy_home_screen.dart';
+import 'features/home/screens/landymaker_home_screen.dart';
 
 import 'package:toastification/toastification.dart';
 
@@ -26,7 +26,7 @@ void main() async {
     // (Supabase init is handled inside initDependencies)
     await initDependencies();
 
-    runApp(const MyLandyApp());
+    runApp(const LandyMakerApp());
   } catch (e) {
     runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -64,8 +64,8 @@ void main() async {
   }
 }
 
-class MyLandyApp extends StatelessWidget {
-  const MyLandyApp({super.key});
+class LandyMakerApp extends StatelessWidget {
+  const LandyMakerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +92,7 @@ class MyLandyApp extends StatelessWidget {
         builder: (context, locale) {
           return ToastificationWrapper(
             child: MaterialApp(
-              title: 'MyLandy',
+              title: 'LandyMaker',
             debugShowCheckedModeBanner: false,
 
             // Locale Configurations
@@ -147,7 +147,7 @@ class RootTenantRouter extends StatelessWidget {
           );
         }
 
-        return const MylandyHomeScreen();
+        return const LandyMakerHomeScreen();
       },
     );
   }

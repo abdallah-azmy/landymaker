@@ -32,7 +32,7 @@ class _DashboardShellState extends State<DashboardShell> {
     final authState = context.watch<AuthCubit>().state;
 
     bool isSuperAdmin = false;
-    String userEmail = 'user@mylandy.com';
+    String userEmail = 'user@landymaker.com';
 
     if (authState is Authenticated) {
       isSuperAdmin = authState.role == 'super_admin';

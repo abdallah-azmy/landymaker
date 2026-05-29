@@ -1,4 +1,4 @@
-# mylandy Constitution
+# LandyMaker Constitution
 
 ## Core Principles
 

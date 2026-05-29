@@ -94,7 +94,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
           backgroundColor: Colors.black,
           elevation: 0,
           title: Text(
-            identifier?.toUpperCase() ?? 'MYLANDY',
+            identifier?.toUpperCase() ?? 'LANDYMAKER',
             style: AppTypography.h3.copyWith(
               fontWeight: FontWeight.w900,
               color: AppColors.textPrimary,
@@ -268,7 +268,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                 const Icon(Icons.auto_awesome_rounded, color: AppColors.secondary, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  "MYLANDY",
+                  "LANDYMAKER",
                   style: AppTypography.bodyLarge.copyWith(
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2.0,
@@ -280,8 +280,8 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
             const SizedBox(height: 12),
             Text(
               loc.isRtl
-                  ? "صنع بفخر باستخدام منصة ماي لاندي لبناء الصفحات الهابطة."
-                  : "Proudly powered by MyLandy SaaS Landing Page Builder.",
+                  ? "صنع بفخر باستخدام منصة لاندي ميكر لبناء الصفحات الهابطة."
+                  : "Proudly powered by LandyMaker SaaS Landing Page Builder.",
               style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),

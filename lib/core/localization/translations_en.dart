@@ -1,5 +1,5 @@
 const Map<String, String> translationsEn = {
-  'app_title': 'MyLandy',
+  'app_title': 'LandyMaker',
   'login': 'Log In',
   'register': 'Create Account',
   'email': 'Email',

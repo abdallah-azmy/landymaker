@@ -546,7 +546,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                                               alignment: Alignment.centerLeft,
                                               padding: const EdgeInsets.symmetric(horizontal: 8),
                                               child: Text(
-                                                "https://${subdomain.isEmpty ? 'your-brand' : subdomain}.mylandy.com",
+                                                "https://${subdomain.isEmpty ? 'your-brand' : subdomain}.landymaker.com",
                                                 style: const TextStyle(fontSize: 9, color: Colors.grey, overflow: TextOverflow.ellipsis),
                                               ),
                                             ),

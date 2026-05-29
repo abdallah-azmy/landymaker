@@ -153,7 +153,7 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
                               _buildActionButton(
                                 icon: Icons.download_rounded,
                                 label: "تحميل QR",
-                                onTap: () => _downloadQrCode('mylandy_qr_${subdomain ?? 'page'}'),
+                                onTap: () => _downloadQrCode('landymaker_qr_${subdomain ?? 'page'}'),
                                 textColor: textColor,
                                 subTextColor: subTextColor,
                                 isMobile: isMobile,

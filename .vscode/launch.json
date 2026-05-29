@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "mylandy (Web Debug with Supabase)",
+      "name": "landymaker (Web Debug with Supabase)",
       "request": "launch",
       "type": "dart",
       "args": [

@@ -31,8 +31,6 @@ class TenantRoutingService {
         host == '127.0.0.1' ||
         host == 'landymaker.com' ||
         host == 'landymaker.vercel.app' ||
-        host == 'mylandy.com' ||
-        host == 'mylandy-builder.vercel.app' ||
         host.startsWith('dashboard.') ||
         host.startsWith('app.');
     if (isCoreDomain) {
@@ -51,8 +49,6 @@ class TenantRoutingService {
         host == '127.0.0.1' ||
         host == 'landymaker.com' ||
         host == 'landymaker.vercel.app' ||
-        host == 'mylandy.com' ||
-        host == 'mylandy-builder.vercel.app' ||
         host.startsWith('dashboard.') ||
         host.startsWith('app.');
 
@@ -74,29 +70,6 @@ class TenantRoutingService {
       return null;
     }
 
-    // 2. Parse tenant subdomain (e.g. "tenant.landymaker.com")
-    if (host.endsWith('.landymaker.com')) {
-      final parts = host.split('.');
-      if (parts.isNotEmpty && parts[0] != 'www') {
-        return parts[0];
-      }
-    } else if (host.endsWith('.landymaker.vercel.app')) {
-      final parts = host.split('.');
-      if (parts.isNotEmpty && parts[0] != 'www') {
-        return parts[0];
-      }
-    } else if (host.endsWith('.mylandy.com')) {
-      final parts = host.split('.');
-      if (parts.isNotEmpty && parts[0] != 'www') {
-        return parts[0];
-      }
-    } else if (host.endsWith('.mylandy-builder.vercel.app')) {
-      final parts = host.split('.');
-      if (parts.isNotEmpty && parts[0] != 'www') {
-        return parts[0];
-      }
-    }
-
     // 3. Otherwise, treat host as custom domain (e.g. "myrestaurant.com")
     return host;
   }
@@ -107,8 +80,6 @@ class TenantRoutingService {
     if (identifier.contains('.')) {
       if (identifier.endsWith('.landymaker.com') ||
           identifier.endsWith('.landymaker.vercel.app') ||
-          identifier.endsWith('.mylandy.com') ||
-          identifier.endsWith('.mylandy-builder.vercel.app') ||
           identifier == 'localhost' ||
           identifier == '127.0.0.1') {
         return false;

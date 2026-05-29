@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'core/theme/app_colors.dart';
 import 'core/localization/localization_cubit.dart';
 import 'injection_container.dart';
@@ -20,6 +21,7 @@ import 'package:toastification/toastification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
 
   try {
     // Initialize all dependencies via GetIt Service Locator

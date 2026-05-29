@@ -36,7 +36,7 @@ class _DataCardState extends State<DataCard> {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         padding: const EdgeInsets.all(24),
-        transform: Matrix4.identity()..translate(0.0, _isHovered ? -4.0 : 0.0),
+        transform: Matrix4.translationValues(0.0, _isHovered ? -4.0 : 0.0, 0.0),
         decoration: BoxDecoration(
           color: _isHovered ? AppColors.cardBgHover : AppColors.cardBg,
           border: Border.all(

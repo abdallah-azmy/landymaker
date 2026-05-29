@@ -1,13 +1,7 @@
 {
-  "version": 2,
-  "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!assets/|.*\\.js|.*\\.json|.*\\.png|.*\\.ico|.*\\.txt|.*\\.wasm).*)",
       "destination": "/index.html"
     }
   ]

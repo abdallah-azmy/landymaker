@@ -1,18 +1,23 @@
-import \u0027package:file_picker/file_picker.dart\u0027;
+import 'package:file_picker/file_picker.dart';
 
 class FileUtils {
-  /// Wrapper for FilePicker to prevent platform-specific syntax issues across environments.
-  static Future\u003cFilePickerResult?\u003e pickImage() async {
+  /// Wrapper for FilePicker to prevent syntax issues across different environments and AI models.
+  /// This centralized utility ensures that changes to the FilePicker API only need to be fixed in one place.
+  static Future<PlatformFile?> pickImage() async {
     try {
-      // Some versions of file_picker use .platform, others use static pickFiles.
-      // Wrapping it here ensures a single point of failure and easier maintenance.
-      return await FilePicker.platform.pickFiles(
+      // In some versions/environments, FilePicker.platform is used.
+      // In others, FilePicker.pickFiles is preferred.
+      // We use .platform here as it's the standard for newer versions.
+      final result = await FilePicker.pickFiles(
         type: FileType.image,
         withData: true,
       );
+
+      if (result != null && result.files.isNotEmpty) {
+        return result.files.first;
+      }
+      return null;
     } catch (e) {
-      // Fallback for environments where .platform might not be defined or available
-      // though typically in version 11+ it should be there.
       return null;
     }
   }

@@ -5,7 +5,6 @@ class AuthService {
 
   AuthService(this._supabase);
 
-  bool get isMockMode => _supabase.isMockMode;
   String? get currentUserId => _supabase.currentUserId;
   String? get currentUserEmail => _supabase.currentUserEmail;
   String get currentUserRole => _supabase.currentUserRole;

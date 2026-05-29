@@ -1,3 +1,5 @@
+import '../models/landing_page_theme.dart';
+
 sealed class BuilderState {}
 
 class BuilderInitial extends BuilderState {}
@@ -5,6 +7,7 @@ class BuilderInitial extends BuilderState {}
 class BuilderLoading extends BuilderState {}
 
 class BuilderLoaded extends BuilderState {
+  final String? pageId; // null when page not yet created in DB
   final Map<String, dynamic> designMap;
   final String subdomain;
   final String? customDomain;
@@ -12,8 +15,10 @@ class BuilderLoaded extends BuilderState {
   final bool isSaving;
   final String? errorMessage;
   final String? successMessage;
+  final LandingPageTheme theme;
 
   BuilderLoaded({
+    this.pageId,
     required this.designMap,
     required this.subdomain,
     this.customDomain,
@@ -21,9 +26,11 @@ class BuilderLoaded extends BuilderState {
     this.isSaving = false,
     this.errorMessage,
     this.successMessage,
+    required this.theme,
   });
 
   BuilderLoaded copyWith({
+    String? pageId,
     Map<String, dynamic>? designMap,
     String? subdomain,
     String? customDomain,
@@ -31,9 +38,12 @@ class BuilderLoaded extends BuilderState {
     bool? isSaving,
     String? errorMessage,
     String? successMessage,
+    LandingPageTheme? theme,
     bool clearCustomDomain = false,
+    bool clearPageId = false,
   }) {
     return BuilderLoaded(
+      pageId: clearPageId ? null : (pageId ?? this.pageId),
       designMap: designMap ?? this.designMap,
       subdomain: subdomain ?? this.subdomain,
       customDomain: clearCustomDomain ? null : (customDomain ?? this.customDomain),
@@ -41,6 +51,7 @@ class BuilderLoaded extends BuilderState {
       isSaving: isSaving ?? this.isSaving,
       errorMessage: errorMessage,
       successMessage: successMessage,
+      theme: theme ?? this.theme,
     );
   }
 }

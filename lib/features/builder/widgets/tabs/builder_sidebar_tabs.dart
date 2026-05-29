@@ -5,9 +5,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../core/widgets/molecules/status_pill.dart';
-import '../models/landing_page_theme.dart';
-import '../controllers/builder_cubit.dart';
-import '../controllers/builder_state.dart';
+import '../../models/landing_page_theme.dart';
+import '../../controllers/builder_cubit.dart';
+import '../../controllers/builder_state.dart';
 
 class TemplatesTab extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -110,20 +110,40 @@ class DesignTab extends StatelessWidget {
             ),
             child: ListTile(
               onTap: () => cubit.updateTheme(palette),
-              title: Text(palette.name, style: AppTypography.bodyMedium),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+              isThreeLine: true,
+              title: Row(
                 children: [
-                  _colorBox(palette.primary),
-                  _colorBox(palette.secondary),
-                  _colorBox(palette.background),
-                  if (state.theme.name == palette.name)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Icon(Icons.check_circle_rounded, color: AppColors.secondary, size: 20),
+                  Text(palette.name, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 8),
+                  if (palette.category != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(palette.category!, style: const TextStyle(fontSize: 9, color: AppColors.secondary)),
                     ),
                 ],
               ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (palette.description != null)
+                    Text(palette.description!, style: AppTypography.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      _colorBox(palette.primary),
+                      _colorBox(palette.secondary),
+                      _colorBox(palette.background),
+                    ],
+                  ),
+                ],
+              ),
+              trailing: state.theme.name == palette.name
+                  ? Icon(Icons.check_circle_rounded, color: AppColors.secondary, size: 20)
+                  : null,
             ),
           )),
           const SizedBox(height: 24),

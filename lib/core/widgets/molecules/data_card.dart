@@ -40,14 +40,14 @@ class _DataCardState extends State<DataCard> {
         decoration: BoxDecoration(
           color: _isHovered ? AppColors.cardBgHover : AppColors.cardBg,
           border: Border.all(
-            color: _isHovered ? AppColors.secondary.withOpacity(0.5) : AppColors.border,
+            color: _isHovered ? AppColors.secondary.withValues(alpha: 0.5) : AppColors.border,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: _isHovered
               ? [
                   BoxShadow(
-                    color: AppColors.secondary.withOpacity(0.08),
+                    color: AppColors.secondary.withValues(alpha: 0.08),
                     blurRadius: 16,
                     offset: const Offset(0, 8),
                   )
@@ -104,10 +104,10 @@ class _DataCardState extends State<DataCard> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: widget.iconColor.withOpacity(0.1),
+                color: widget.iconColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: widget.iconColor.withOpacity(0.2),
+                  color: widget.iconColor.withValues(alpha: 0.2),
                   width: 1.5,
                 ),
               ),

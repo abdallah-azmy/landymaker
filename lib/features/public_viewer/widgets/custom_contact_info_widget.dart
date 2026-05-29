@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
+import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
 
 class CustomContactInfoWidget extends StatelessWidget {
@@ -10,6 +11,10 @@ class CustomContactInfoWidget extends StatelessWidget {
   final String? phone;
   final String? location;
   final LandingPageTheme? theme;
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final double? bgBlur;
 
   const CustomContactInfoWidget({
     super.key,
@@ -18,6 +23,10 @@ class CustomContactInfoWidget extends StatelessWidget {
     this.phone,
     this.location,
     this.theme,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.bgBlur,
   });
 
   @override
@@ -32,10 +41,13 @@ class CustomContactInfoWidget extends StatelessWidget {
         final bool isMobile = constraints.maxWidth < 600;
         final double verticalPadding = isMobile ? 40 : 80;
 
-        return Container(
-          width: double.infinity,
+        return SectionBackground(
+          bgImageUrl: bgImageUrl,
+          bgOverlayColor: bgOverlayColor,
+          bgOverlayOpacity: bgOverlayOpacity,
+          bgBlur: bgBlur,
+          theme: theme,
           padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
-          color: bgColor,
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),

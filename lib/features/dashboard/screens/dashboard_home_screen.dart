@@ -10,7 +10,10 @@ import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../core/widgets/molecules/form_group.dart';
 import '../../../core/widgets/molecules/status_pill.dart';
-// Removed sl/AuthService imports to maintain architectural boundary
+import '../../../core/utils/toast_service.dart';
+import '../../auth/controllers/auth_cubit.dart';
+import '../../auth/controllers/auth_state.dart';
+import '../../../services/tenant_routing_service.dart';
 import '../../builder/controllers/builder_cubit.dart';
 import '../../builder/controllers/builder_state.dart';
 
@@ -50,9 +53,12 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
   void _saveConfig(LandingPageBuilderCubit cubit) {
     if (!_formKey.currentState!.validate()) return;
 
+    final rawCustomDomain = _customDomainController.text.trim().toLowerCase();
+
     cubit.updateSettings(
       subdomain: _subdomainController.text.trim().toLowerCase(),
-      customDomain: _customDomainController.text.trim().isEmpty ? '' : _customDomainController.text.trim().toLowerCase(),
+      // Pass null (not empty string '') so Postgres CHECK constraint is satisfied
+      customDomain: rawCustomDomain.isEmpty ? '' : rawCustomDomain,
       isPublished: _isPublished,
     );
 
@@ -63,11 +69,11 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
     if (_subdomainController.text.isEmpty) return;
 
     final subdomain = _subdomainController.text.trim().toLowerCase();
-    // In mock mode or dev we append ?subdomain=xxx
     final baseUrl = Uri.base.origin;
-    final testUrl = "$baseUrl/?tenant=$subdomain";
+    // Use path-based slug routing: mylandy.com/restaurant-x
+    final liveUrl = '$baseUrl/$subdomain';
 
-    launchUrl(Uri.parse(testUrl));
+    launchUrl(Uri.parse(liveUrl), webOnlyWindowName: '_blank');
   }
 
   @override
@@ -109,8 +115,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
 
     final loadedState = state as BuilderLoaded;
     final isSaving = loadedState.isSaving;
-    final successMessage = loadedState.successMessage;
-    final errorMessage = loadedState.errorMessage;
+    
+    // Check if user is super admin to show/hide custom domain
+    final authState = context.read<AuthCubit>().state;
+    final bool isSuperAdmin = authState is Authenticated && authState.role == 'super_admin';
 
     return BlocListener<LandingPageBuilderCubit, BuilderState>(
       listener: (context, state) {
@@ -124,6 +132,27 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
           setState(() {
             _isPublished = state.isPublished;
           });
+          // Show save feedback as Toast
+          if (state.successMessage != null) {
+            ToastService.showSuccess(context, message: state.successMessage!);
+            builderCubit.clearMessages();
+          } else if (state.errorMessage != null) {
+            ToastService.showError(context, message: state.errorMessage!);
+            builderCubit.clearMessages();
+          }
+
+          // Apply pending template if any
+          if (TenantRoutingService.pendingTemplateId != null) {
+            final templateId = TenantRoutingService.pendingTemplateId!;
+            TenantRoutingService.pendingTemplateId = null; // Clear immediately
+            
+            // Wait until current frame is done to avoid nested state updates
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              builderCubit.applyTemplate(templateId);
+              builderCubit.saveForCurrentUser(); // Automatically save the new template to DB
+              ToastService.showSuccess(context, message: "تم تطبيق القالب بنجاح!");
+            });
+          }
         }
       },
       child: SingleChildScrollView(
@@ -162,7 +191,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
               child: ResponsiveLayout(
                 mobile: Column(
                   children: [
-                    _buildDomainSettingsCard(loc, builderCubit, isSaving, successMessage, errorMessage),
+                    _buildDomainSettingsCard(loc, builderCubit, isSaving, isSuperAdmin),
                     const SizedBox(height: 24),
                     _buildQuickActionsCard(loc),
                   ],
@@ -170,7 +199,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                 desktop: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 3, child: _buildDomainSettingsCard(loc, builderCubit, isSaving, successMessage, errorMessage)),
+                    Expanded(flex: 3, child: _buildDomainSettingsCard(loc, builderCubit, isSaving, isSuperAdmin)),
                     const SizedBox(width: 24),
                     Expanded(flex: 2, child: _buildQuickActionsCard(loc)),
                   ],
@@ -187,8 +216,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
     LocalizationCubit loc,
     LandingPageBuilderCubit cubit,
     bool isSaving,
-    String? successMessage,
-    String? errorMessage,
+    bool isSuperAdmin,
   ) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -203,16 +231,16 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
           Text(loc.translate('landing_page_url'), style: AppTypography.h3),
           const SizedBox(height: 20),
 
-          // Subdomain field input
+          // Subdomain field input (Renamed to Brand Name for users)
           FormGroup(
-            label: loc.translate('subdomain'),
-            helperText: "Format: subdomain.mylandy.com",
+            label: "اسم البراند (Brand Name)",
+            helperText: "هذا الاسم سيظهر في رابط صفحتك: brand.mylandy.com",
             child: CustomTextField(
               controller: _subdomainController,
               hintText: 'my-brand-name',
-              prefixIcon: const Icon(Icons.link_rounded, color: AppColors.textSecondary),
+              prefixIcon: const Icon(Icons.stars_rounded, color: AppColors.secondary),
               validator: (val) {
-                if (val == null || val.isEmpty) return 'Subdomain is required';
+                if (val == null || val.isEmpty) return 'Brand name is required';
                 if (val.contains('.') || val.contains(' ')) return 'No dots or spaces allowed';
                 return null;
               },
@@ -220,51 +248,61 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Custom Domain input
-          FormGroup(
-            label: loc.translate('custom_domain'),
-            helperText: "Configure custom CNAME pointer to your Vercel instance",
-            child: CustomTextField(
-              controller: _customDomainController,
-              hintText: 'www.my-brand.com',
-              prefixIcon: const Icon(Icons.language_rounded, color: AppColors.textSecondary),
+          // Custom Domain input - Only visible to Super Admin for now
+          if (isSuperAdmin) ...[
+            FormGroup(
+              label: loc.translate('custom_domain'),
+              helperText: "Configure custom CNAME pointer to your Vercel instance",
+              child: CustomTextField(
+                controller: _customDomainController,
+                hintText: 'www.my-brand.com',
+                prefixIcon: const Icon(Icons.language_rounded, color: AppColors.textSecondary),
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
+          ],
 
           // Toggle page publication status
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Publish Page", style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text("Make this landing page accessible online.", style: AppTypography.caption),
-                ],
-              ),
-              Switch(
-                value: _isPublished,
-                onChanged: (val) => setState(() => _isPublished = val),
-                activeColor: AppColors.secondary,
-                activeTrackColor: AppColors.secondary.withValues(alpha: 0.3),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.background.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "نشر الصفحة (Publish Page)",
+                        style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "عند التفعيل، ستكون صفحتك متاحة للجميع عبر الرابط.",
+                        style: AppTypography.caption,
+                      ),
+                    ],
+                  ),
+                ),
+                Switch(
+                  value: _isPublished,
+                  onChanged: (val) => setState(() => _isPublished = val),
+                  activeThumbColor: AppColors.secondary,
+                  activeTrackColor: AppColors.secondary.withValues(alpha: 0.3),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
 
-          if (errorMessage != null) ...[
-            Text(errorMessage, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
-            const SizedBox(height: 16),
-          ],
-          if (successMessage != null) ...[
-            Text(successMessage, style: AppTypography.bodyMedium.copyWith(color: AppColors.activeGreen)),
-            const SizedBox(height: 16),
-          ],
-
           PrimaryButton(
-            text: loc.translate('save'),
+            text: "حفظ التغييرات (Save Changes)",
+            icon: Icons.save_rounded,
             onPressed: () => _saveConfig(cubit),
             isLoading: isSaving,
             width: double.infinity,

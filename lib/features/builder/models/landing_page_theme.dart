@@ -7,6 +7,8 @@ class LandingPageTheme {
   final Color textPrimary;
   final Color textSecondary;
   final String name;
+  final String? category;
+  final String? description;
 
   const LandingPageTheme({
     required this.primary,
@@ -15,6 +17,8 @@ class LandingPageTheme {
     required this.textPrimary,
     required this.textSecondary,
     required this.name,
+    this.category,
+    this.description,
   });
 
   Map<String, dynamic> toJson() => {
@@ -24,6 +28,8 @@ class LandingPageTheme {
         'textPrimary': textPrimary.value,
         'textSecondary': textSecondary.value,
         'name': name,
+        'category': category,
+        'description': description,
       };
 
   factory LandingPageTheme.fromJson(Map<String, dynamic> json) {
@@ -34,6 +40,8 @@ class LandingPageTheme {
       textPrimary: Color(json['textPrimary'] ?? 0xFFF8FAFC),
       textSecondary: Color(json['textSecondary'] ?? 0xFF94A3B8),
       name: json['name'] ?? 'Default Dark',
+      category: json['category'],
+      description: json['description'],
     );
   }
 
@@ -44,6 +52,8 @@ class LandingPageTheme {
     Color? textPrimary,
     Color? textSecondary,
     String? name,
+    String? category,
+    String? description,
   }) {
     return LandingPageTheme(
       primary: primary ?? this.primary,
@@ -52,12 +62,16 @@ class LandingPageTheme {
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
       name: name ?? this.name,
+      category: category ?? this.category,
+      description: description ?? this.description,
     );
   }
 
   static List<LandingPageTheme> get palettes => [
         const LandingPageTheme(
-          name: 'Lux-Earth (Store)',
+          name: 'Lux-Earth',
+          category: 'التجارة / متجر',
+          description: 'ألوان ترابية دافئة توحي بالفخامة والثقة.',
           primary: Color(0xFF5E3023),
           secondary: Color(0xFFA86A24),
           background: Color(0xFFFEFAE0),
@@ -65,31 +79,39 @@ class LandingPageTheme {
           textSecondary: Color(0xFF5E3023),
         ),
         const LandingPageTheme(
-          name: 'Vibrant Urgency',
-          primary: Color(0xFFE96950),
-          secondary: Color(0xFFFACF55),
-          background: Color(0xFFFDF6EF),
-          textPrimary: Color(0xFF2D1410),
-          textSecondary: Color(0xFFE96950),
+          name: 'Fresh Mint',
+          category: 'مطاعم / صحة',
+          description: 'ألوان هادئة ومنعشة تناسب المحتوى الغذائي والصحي.',
+          primary: Color(0xFF064E3B),
+          secondary: Color(0xFF10B981),
+          background: Color(0xFFECFDF5),
+          textPrimary: Color(0xFF064E3B),
+          textSecondary: Color(0xFF047857),
         ),
         const LandingPageTheme(
-          name: 'Butter & Sky (Personal)',
-          primary: Color(0xFF31393C),
-          secondary: Color(0xFFCAE4DB),
-          background: Color(0xFFFFF4D6),
-          textPrimary: Color(0xFF31393C),
-          textSecondary: Color(0xFF5A666B),
+          name: 'Tech Indigo',
+          category: 'تكنولوجيا / SaaS',
+          description: 'نمط عصري احترافي للشركات التقنية والبرمجيات.',
+          primary: Color(0xFF4338CA),
+          secondary: Color(0xFF818CF8),
+          background: Color(0xFFEEF2FF),
+          textPrimary: Color(0xFF312E81),
+          textSecondary: Color(0xFF4338CA),
         ),
         const LandingPageTheme(
-          name: 'Trusted Innovator',
-          primary: Color(0xFF133C55),
-          secondary: Color(0xFFF2C14E),
-          background: Color(0xFFF7F9FB),
-          textPrimary: Color(0xFF133C55),
-          textSecondary: Color(0xFF4B6E82),
+          name: 'Royal Gold',
+          category: 'عقارات / فخامة',
+          description: 'مزيج الكحلي والذهبي لإعطاء طابع ملكي وراقي.',
+          primary: Color(0xFF0F1E36),
+          secondary: Color(0xFFD4AF37),
+          background: Color(0xFFF4F6F9),
+          textPrimary: Color(0xFF0F1E36),
+          textSecondary: Color(0xFF5A6678),
         ),
         const LandingPageTheme(
-          name: 'Stadium Neon (TV Bar)',
+          name: 'Stadium Neon',
+          category: 'ترفيه / رياضة',
+          description: 'تباين عالي وألوان صارخة للفعاليات والأنشطة الليلية.',
           primary: Color(0xFF00d084),
           secondary: Color(0xFF3E96F4),
           background: Color(0xFF000000),
@@ -97,7 +119,69 @@ class LandingPageTheme {
           textSecondary: Color(0xFFB0B0B0),
         ),
         const LandingPageTheme(
+          name: 'Butter & Sky',
+          category: 'شخصي / إبداعي',
+          description: 'ألوان لطيفة ومشرقة تناسب معرض الأعمال الشخصي.',
+          primary: Color(0xFF31393C),
+          secondary: Color(0xFFCAE4DB),
+          background: Color(0xFFFFF4D6),
+          textPrimary: Color(0xFF31393C),
+          textSecondary: Color(0xFF5A666B),
+        ),
+        const LandingPageTheme(
+          name: 'Minimal Slate',
+          category: 'عام / بسيط',
+          description: 'تصميم بسيط ونظيف يركز على المحتوى.',
+          primary: Color(0xFF334155),
+          secondary: Color(0xFF64748B),
+          background: Color(0xFFF8FAFC),
+          textPrimary: Color(0xFF0F172A),
+          textSecondary: Color(0xFF475569),
+        ),
+        const LandingPageTheme(
+          name: 'Deep Forest',
+          category: 'طبيعة / تعليم',
+          description: 'ألوان داكنة مستوحاة من الطبيعة تعطي انطباعاً بالهدوء.',
+          primary: Color(0xFF14532D),
+          secondary: Color(0xFF22C55E),
+          background: Color(0xFFF0FDF4),
+          textPrimary: Color(0xFF064E3B),
+          textSecondary: Color(0xFF14532D),
+        ),
+        const LandingPageTheme(
+          name: 'Coral Dream',
+          category: 'جمال / تجميل',
+          description: 'ألوان أنثوية وناعمة لخدمات التجميل والأناقة.',
+          primary: Color(0xFF991B1B),
+          secondary: Color(0xFFF87171),
+          background: Color(0xFFFEF2F2),
+          textPrimary: Color(0xFF7F1D1D),
+          textSecondary: Color(0xFF991B1B),
+        ),
+        const LandingPageTheme(
+          name: 'Midnight Ocean',
+          category: 'شركات / رسمي',
+          description: 'أزرق داكن رسمي يوحي بالاستقرار والاحترافية.',
+          primary: Color(0xFF1E3A8A),
+          secondary: Color(0xFF3B82F6),
+          background: Color(0xFFEFF6FF),
+          textPrimary: Color(0xFF1E3A8A),
+          textSecondary: Color(0xFF2563EB),
+        ),
+        const LandingPageTheme(
+          name: 'Cyber Slate',
+          category: 'ألعاب / برمجة',
+          description: 'نمط داكن مع إضاءات نيون لمحبي التكنولوجيا الحديثة.',
+          primary: Color(0xFF8B5CF6),
+          secondary: Color(0xFFD946EF),
+          background: Color(0xFF020617),
+          textPrimary: Color(0xFFF8FAFC),
+          textSecondary: Color(0xFF94A3B8),
+        ),
+        const LandingPageTheme(
           name: 'Default Dark',
+          category: 'عام',
+          description: 'النمط الافتراضي الداكن للمنصة.',
           primary: Color(0xFF6366F1),
           secondary: Color(0xFF06B6D4),
           background: Color(0xFF0F172A),

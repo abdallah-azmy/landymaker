@@ -1,0 +1,127 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../../features/builder/models/landing_page_theme.dart';
+
+class SectionBackground extends StatelessWidget {
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final double? bgBlur;
+  final LandingPageTheme? theme;
+  final EdgeInsetsGeometry? padding;
+  final Widget child;
+
+  const SectionBackground({
+    super.key,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.bgBlur,
+    this.theme,
+    this.padding,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bgColor = theme?.background ?? AppColors.background;
+    final primaryColor = theme?.primary ?? AppColors.primary;
+    final double blurValue = bgBlur ?? 0.0;
+    final double overlayOpacity = bgOverlayOpacity ?? 0.4;
+
+    // Parse overlay color from hex string
+    Color overlayColorVal = Colors.black;
+    if (bgOverlayColor != null && bgOverlayColor!.isNotEmpty) {
+      try {
+        final hexStr = bgOverlayColor!.replaceAll('#', '');
+        if (hexStr.length == 6) {
+          overlayColorVal = Color(int.parse('FF$hexStr', radix: 16));
+        } else if (hexStr.length == 8) {
+          overlayColorVal = Color(int.parse(hexStr, radix: 16));
+        }
+      } catch (_) {
+        // Fallback to black
+      }
+    }
+
+    final hasBgImage = bgImageUrl != null && bgImageUrl!.trim().isNotEmpty;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: hasBgImage ? null : bgColor,
+      ),
+      child: ClipRRect(
+        child: Stack(
+          children: [
+            // Mesh/Texture effect (Subtle)
+            if (!hasBgImage)
+              Positioned.fill(
+                child: Opacity(
+                  opacity: 0.03,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment.topRight,
+                        radius: 1.5,
+                        colors: [primaryColor, Colors.transparent],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            // Layer 1: Background Image
+            if (hasBgImage)
+              Positioned.fill(
+                child: Image.network(
+                  bgImageUrl!,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, imgChild, loadingProgress) {
+                    if (loadingProgress == null) return imgChild;
+                    return Container(
+                      color: bgColor,
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: bgColor,
+                    child: const Icon(
+                      Icons.image_not_supported_rounded,
+                      color: Colors.white24,
+                      size: 48,
+                    ),
+                  ),
+                ),
+              ),
+
+            // Layer 2: Color Overlay
+            if (bgOverlayColor != null && bgOverlayColor!.isNotEmpty)
+              Positioned.fill(
+                child: Container(
+                  color: overlayColorVal.withValues(alpha: overlayOpacity),
+                ),
+              ),
+
+            // Layer 3: Blur
+            if (blurValue > 0)
+              Positioned.fill(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: blurValue, sigmaY: blurValue),
+                  child: const SizedBox.shrink(),
+                ),
+              ),
+
+            // Layer 4: Content
+            Padding(
+              padding: padding ?? const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
+              child: child,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

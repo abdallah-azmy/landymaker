@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'logger.dart';
+import 'utils/toast_service.dart';
 
 class ErrorHandler {
   static void logError(String message, dynamic error, [StackTrace? stackTrace]) {
@@ -31,12 +32,10 @@ class ErrorHandler {
   }
 
   static void showAppSnackBar(BuildContext context, String message, {bool isError = true}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.redAccent : Colors.green,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    if (isError) {
+      ToastService.showError(context, message: message);
+    } else {
+      ToastService.showSuccess(context, message: message);
+    }
   }
 }

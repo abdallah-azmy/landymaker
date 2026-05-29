@@ -46,6 +46,12 @@ dependencies:
   http: ^1.6.0
   dio: ^5.9.2
   pretty_dio_logger: ^1.4.0
+  toastification: ^2.3.0
+  pretty_qr_code: ^3.3.0
+  uuid: ^4.5.1
+  file_saver: ^0.2.14
+  image_gallery_saver_plus: ^4.0.1
+  permission_handler: ^11.0.0
 
 dev_dependencies:
   flutter_test:

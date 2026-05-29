@@ -12,17 +12,29 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/toast_service.dart';
 import '../../../services/tenant_routing_service.dart';
+import '../../../core/widgets/section_background.dart';
+import '../../builder/models/landing_page_theme.dart';
 
 class CustomSocialQrWidget extends StatefulWidget {
   final String title;
   final String subtitle;
   final List<Map<String, dynamic>> links;
+  final LandingPageTheme? theme;
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final double? bgBlur;
 
   const CustomSocialQrWidget({
     super.key,
     required this.title,
     required this.subtitle,
     required this.links,
+    this.theme,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.bgBlur,
   });
 
   @override
@@ -69,135 +81,154 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
     final String baseUrl = Uri.base.origin;
     final String liveUrl = subdomain != null ? '$baseUrl/$subdomain' : baseUrl;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        border: Border.symmetric(
-          horizontal: BorderSide(color: AppColors.textSecondary.withValues(alpha: 0.05)),
-        ),
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: Column(
-            children: [
-              Text(widget.title, style: AppTypography.h2.copyWith(fontSize: 32), textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              Text(widget.subtitle, style: AppTypography.bodyMedium, textAlign: TextAlign.center),
-              const SizedBox(height: 64),
-              
-              Wrap(
-                spacing: 40,
-                runSpacing: 40,
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
+    final bgColor = widget.theme?.background ?? AppColors.background;
+    final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
+    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
+    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isMobile = constraints.maxWidth < 600;
+        final double verticalPadding = isMobile ? 40 : 80;
+
+        return SectionBackground(
+          bgImageUrl: widget.bgImageUrl,
+          bgOverlayColor: widget.bgOverlayColor,
+          bgOverlayOpacity: widget.bgOverlayOpacity,
+          bgBlur: widget.bgBlur,
+          theme: widget.theme,
+          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: Column(
                 children: [
-                  // QR Card
-                  Column(
+                  Text(widget.title, style: AppTypography.h2.copyWith(fontSize: isMobile ? 24 : 32, color: textColor), textAlign: TextAlign.center),
+                  const SizedBox(height: 8),
+                  Text(widget.subtitle, style: AppTypography.bodyMedium.copyWith(color: subTextColor, fontSize: isMobile ? 12 : 14), textAlign: TextAlign.center),
+                  SizedBox(height: isMobile ? 32 : 64),
+                  
+                  Wrap(
+                    spacing: isMobile ? 24 : 40,
+                    runSpacing: isMobile ? 24 : 40,
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      RepaintBoundary(
-                        key: _qrKey,
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(32),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.secondary.withValues(alpha: 0.2),
-                                blurRadius: 40,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: SizedBox(
-                            width: 200,
-                            height: 200,
-                            child: PrettyQrView.data(
-                              data: liveUrl,
-                              decoration: const PrettyQrDecoration(
-                                shape: PrettyQrSmoothSymbol(
-                                  color: AppColors.background,
+                      // QR Card
+                      Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(isMobile ? 16 : 24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(isMobile ? 20 : 32),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: secondaryColor.withValues(alpha: 0.2),
+                                  blurRadius: 40,
+                                  offset: const Offset(0, 10),
                                 ),
-                                image: PrettyQrDecorationImage(
-                                  image: AssetImage('assets/logo.png'),
-                                  position: PrettyQrDecorationImagePosition.embedded,
+                              ],
+                            ),
+                            child: RepaintBoundary(
+                              key: _qrKey,
+                              child: SizedBox(
+                                width: isMobile ? 150 : 200,
+                                height: isMobile ? 150 : 200,
+                                child: PrettyQrView.data(
+                                  data: liveUrl,
+                                  decoration: PrettyQrDecoration(
+                                    shape: PrettyQrSmoothSymbol(
+                                      color: bgColor,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildActionButton(
-                            icon: Icons.download_rounded,
-                            label: "تحميل QR",
-                            onTap: () => _downloadQrCode('mylandy_qr_${subdomain ?? 'page'}'),
-                          ),
-                          const SizedBox(width: 12),
-                          _buildActionButton(
-                            icon: Icons.copy_rounded,
-                            label: "نسخ الرابط",
-                            onTap: () {
-                              Clipboard.setData(ClipboardData(text: liveUrl));
-                              ToastService.showSuccess(context, message: "تم نسخ الرابط");
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // Links List
-                  Container(
-                    width: 320,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("روابط سريعة", style: AppTypography.h3.copyWith(color: AppColors.secondary)),
-                        const SizedBox(height: 24),
-                        ...widget.links.map((link) => _buildSocialLink(link)),
-                        const SizedBox(height: 16),
-                        // Direct Page Link
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.cardBg,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
-                          ),
-                          child: Row(
+                          SizedBox(height: isMobile ? 16 : 32),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.link_rounded, color: AppColors.secondary, size: 20),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  liveUrl.replaceFirst('https://', ''),
-                                  style: AppTypography.caption.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              _buildActionButton(
+                                icon: Icons.download_rounded,
+                                label: "تحميل QR",
+                                onTap: () => _downloadQrCode('mylandy_qr_${subdomain ?? 'page'}'),
+                                textColor: textColor,
+                                subTextColor: subTextColor,
+                                isMobile: isMobile,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildActionButton(
+                                icon: Icons.copy_rounded,
+                                label: "نسخ الرابط",
+                                onTap: () {
+                                  Clipboard.setData(ClipboardData(text: liveUrl));
+                                  ToastService.showSuccess(context, message: "تم نسخ الرابط");
+                                },
+                                textColor: textColor,
+                                subTextColor: subTextColor,
+                                isMobile: isMobile,
                               ),
                             ],
                           ),
+                        ],
+                      ),
+
+                      // Links List
+                      Container(
+                        width: isMobile ? double.infinity : 320,
+                        child: Column(
+                          crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "روابط سريعة", 
+                              style: AppTypography.h3.copyWith(
+                                color: secondaryColor,
+                                fontSize: isMobile ? 18 : 22,
+                              )
+                            ),
+                            const SizedBox(height: 16),
+                            ...widget.links.map((link) => _buildSocialLink(link, textColor, subTextColor, isMobile)),
+                            const SizedBox(height: 8),
+                            // Direct Page Link
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: subTextColor.withValues(alpha: 0.05),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: secondaryColor.withValues(alpha: 0.3)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.link_rounded, color: secondaryColor, size: 18),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    child: Text(
+                                      liveUrl.replaceFirst('https://', ''),
+                                      style: AppTypography.caption.copyWith(color: textColor, fontWeight: FontWeight.bold, fontSize: isMobile ? 11 : 12),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildSocialLink(Map<String, dynamic> link) {
+  Widget _buildSocialLink(Map<String, dynamic> link, Color textColor, Color subTextColor, bool isMobile) {
     final String platform = link['platform'] ?? 'website';
     final String url = link['url'] ?? '';
     
@@ -219,7 +250,7 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
         break;
       case 'tiktok':
         iconData = Icons.music_note_rounded;
-        color = const Color(0xFF000000);
+        color = textColor;
         break;
       default:
         iconData = Icons.language_rounded;
@@ -227,28 +258,28 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
         onTap: () => launchUrl(Uri.parse(url)),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 16, vertical: isMobile ? 10 : 14),
           decoration: BoxDecoration(
-            color: AppColors.cardBg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            color: subTextColor.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: subTextColor.withValues(alpha: 0.1)),
           ),
           child: Row(
             children: [
-              Icon(iconData, color: color, size: 22),
-              const SizedBox(width: 16),
+              Icon(iconData, color: color, size: isMobile ? 18 : 22),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   platform.toUpperCase(),
-                  style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: textColor, fontSize: isMobile ? 13 : 14),
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textMuted),
+              Icon(Icons.arrow_forward_ios_rounded, size: 12, color: subTextColor),
             ],
           ),
         ),
@@ -256,16 +287,16 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
     );
   }
 
-  Widget _buildActionButton({required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildActionButton({required IconData icon, required String label, required VoidCallback onTap, required Color textColor, required Color subTextColor, required bool isMobile}) {
     return ElevatedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 18),
-      label: Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold)),
+      icon: Icon(icon, size: isMobile ? 14 : 18),
+      label: Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: isMobile ? 10 : 12)),
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.cardBg,
-        foregroundColor: AppColors.textPrimary,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: AppColors.border)),
+        backgroundColor: subTextColor.withValues(alpha: 0.1),
+        foregroundColor: textColor,
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 16, vertical: isMobile ? 10 : 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: subTextColor.withValues(alpha: 0.1))),
         elevation: 0,
       ),
     );

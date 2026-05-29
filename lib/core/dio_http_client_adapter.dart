@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,58 +12,82 @@ class DioHttpClientAdapter extends http.BaseClient {
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    // 1. Prepare Dio options based on the http.BaseRequest
+    // 1. Determine if we should send a body (avoid bodies for GET/HEAD as per Web constraints)
+    final bool canHaveBody = request.method != 'GET' && request.method != 'HEAD';
+
+    // 2. Prepare Dio options based on the http.BaseRequest
     final options = Options(
       method: request.method,
       headers: request.headers,
-      responseType: ResponseType.stream,
-      // We let Supabase handle redirects
+      // Change to plain so PrettyDioLogger can intercept and log it
+      responseType: ResponseType.plain,
       followRedirects: false,
-      // Do not throw on status code errors; let the SDK handle them
-      validateStatus: (status) => true, 
+      validateStatus: (status) => true,
     );
 
     try {
-      // 2. Finalize the request body if it exists
+      // 3. Prepare the body data
       dynamic body;
-      if (request is http.Request && request.bodyBytes.isNotEmpty) {
-        body = Stream.value(request.bodyBytes);
-      } else {
-        body = request.finalize();
+      if (canHaveBody) {
+        if (request is http.Request && request.bodyBytes.isNotEmpty) {
+          body = request.bodyBytes;
+          // Ensure Content-Type is set if missing to avoid Dio warning
+          options.headers ??= {};
+          
+          // Case-insensitive check for content-type
+          final hasContentType = options.headers!.keys.any(
+            (k) => k.toLowerCase() == 'content-type',
+          );
+          
+          if (!hasContentType) {
+            options.headers!['content-type'] = 'application/json; charset=utf-8';
+          }
+        } else {
+          final finalized = await request.finalize().toBytes();
+          if (finalized.isNotEmpty) {
+            body = finalized;
+          }
+        }
       }
 
-      // 3. Execute request via Dio
-      final response = await dio.requestUri<ResponseBody>(
+      // 4. Execute request via Dio
+      final response = await dio.requestUri<dynamic>(
         request.url,
         data: body,
         options: options,
       );
 
-      final dioStream = response.data!;
+      final dynamic responseData = response.data;
+      final List<int> bytes;
 
-      // 4. Convert Dio response back to http.StreamedResponse for Supabase SDK
+      if (responseData is String) {
+        bytes = utf8.encode(responseData);
+      } else if (responseData is List<int>) {
+        bytes = responseData;
+      } else {
+        bytes = [];
+      }
+
+      // 5. Convert Dio response back to http.StreamedResponse for Supabase SDK
       return http.StreamedResponse(
-        dioStream.stream,
+        Stream.value(bytes),
         response.statusCode ?? 0,
-        contentLength: response.headers.value('content-length') != null 
-            ? int.tryParse(response.headers.value('content-length')!) 
-            : null,
+        contentLength: bytes.length,
         headers: response.headers.map.map((k, v) => MapEntry(k, v.join(','))),
         reasonPhrase: response.statusMessage,
         request: request,
       );
     } on DioException catch (e) {
-      // If Dio throws an error, we try to wrap its response or rethrow
-      if (e.response != null && e.response!.data is ResponseBody) {
-        final dioStream = e.response!.data as ResponseBody;
-        return http.StreamedResponse(
-          dioStream.stream,
-          e.response!.statusCode ?? 0,
-          headers: e.response!.headers.map.map((k, v) => MapEntry(k, v.join(','))),
-          request: request,
-        );
-      }
-      rethrow;
+      // Handle Dio errors by returning an empty or captured response body
+      final errorData = e.response?.data;
+      final List<int> bytes = errorData is String ? utf8.encode(errorData) : [];
+
+      return http.StreamedResponse(
+        Stream.value(bytes),
+        e.response?.statusCode ?? 500,
+        headers: e.response?.headers.map.map((k, v) => MapEntry(k, v.join(','))) ?? {},
+        request: request,
+      );
     }
   }
 }

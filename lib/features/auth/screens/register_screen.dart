@@ -7,6 +7,7 @@ import '../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../core/widgets/atoms/glass_container.dart';
 import '../../../core/widgets/molecules/form_group.dart';
 import '../../../core/localization/localization_cubit.dart';
+import '../../../core/utils/toast_service.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
 import 'login_screen.dart';
@@ -50,6 +51,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: AppColors.darkGradient,
@@ -59,20 +69,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             if (state is Authenticated) {
               widget.onRegisterSuccess();
             } else if (state is RegistrationSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    context.read<LocalizationCubit>().isRtl
-                        ? "تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول باستخدام بياناتك."
-                        : "Account created successfully! Please log in with your credentials.",
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                  backgroundColor: Colors.teal.shade700,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  margin: const EdgeInsets.all(16),
-                  duration: const Duration(seconds: 4),
-                ),
+              ToastService.showSuccess(
+                context,
+                message: context.read<LocalizationCubit>().isRtl
+                    ? "تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول باستخدام بياناتك."
+                    : "Account created successfully! Please log in with your credentials.",
               );
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(

@@ -6,12 +6,14 @@ class FormGroup extends StatelessWidget {
   final String label;
   final Widget child;
   final String? helperText;
+  final TextStyle? labelStyle;
 
   const FormGroup({
     super.key,
     required this.label,
     required this.child,
     this.helperText,
+    this.labelStyle,
   });
 
   @override
@@ -22,7 +24,7 @@ class FormGroup extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppTypography.h3.copyWith(
+          style: labelStyle ?? AppTypography.h3.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,

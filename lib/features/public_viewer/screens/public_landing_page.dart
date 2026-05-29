@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,6 +8,8 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../services/tenant_routing_service.dart';
 import '../controllers/public_page_cubit.dart';
 import '../controllers/public_page_state.dart';
+import '../controllers/cart_cubit.dart';
+import '../widgets/floating_cart_widget.dart';
 import '../widgets/section_renderer.dart';
 
 class PublicLandingPage extends StatefulWidget {
@@ -17,10 +20,22 @@ class PublicLandingPage extends StatefulWidget {
 }
 
 class _PublicLandingPageState extends State<PublicLandingPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  /// Shared map of product keys populated by CustomProductsWidget.
+  /// Supports both UUID keys ("abc-123-...") and slug keys ("smart-watch-pro").
+  final Map<String, GlobalKey> _productKeys = {};
+
   @override
   void initState() {
     super.initState();
     _loadTenantPage();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _loadTenantPage() {
@@ -31,6 +46,39 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
     }
   }
 
+  /// Called after PublicPageLoaded — reads `?product=` query param.
+  /// Supports both UUIDs and human-readable slugs (e.g. "smart-watch-pro").
+  void _handleDeepLinking() {
+    final uri = Uri.base;
+    final String? productParam = uri.queryParameters['product'];
+    if (productParam == null || productParam.trim().isEmpty) return;
+
+    // Small delay ensures the widget tree has been laid out.
+    Timer(const Duration(milliseconds: 600), () {
+      _scrollToProduct(productParam.trim());
+    });
+  }
+
+  /// Scrolls to a product using its registered GlobalKey (UUID or slug).
+  void _scrollToProduct(String idOrSlug) {
+    // Normalize to lowercase slug for slug lookups
+    final slug = idOrSlug.toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u0600-\u06ff]+'), '-');
+
+    // Try UUID first, then slug
+    final GlobalKey? key = _productKeys[idOrSlug] ?? _productKeys[slug];
+    if (key == null) return;
+
+    final ctx = key.currentContext;
+    if (ctx == null) return;
+
+    Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeInOutCubic,
+      alignment: 0.1, // slight offset from top for visual comfort
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = context.watch<LocalizationCubit>();
@@ -38,8 +86,10 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
 
     return Directionality(
       textDirection: loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
-      child: Scaffold(
-        backgroundColor: Colors.black,
+      child: BlocProvider(
+        create: (_) => CartCubit(),
+        child: Scaffold(
+          backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
           elevation: 0,
@@ -68,12 +118,20 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(1),
             child: Container(
-              color: AppColors.textSecondary.withOpacity(0.08),
+              color: AppColors.textSecondary.withValues(alpha: 0.08),
               height: 1,
             ),
           ),
         ),
-        body: BlocBuilder<PublicPageCubit, PublicPageState>(
+        body: Stack(
+          children: [
+            BlocConsumer<PublicPageCubit, PublicPageState>(
+              listener: (context, state) {
+            if (state is PublicPageLoaded) {
+              // Wait one frame for widgets to mount before attempting scroll
+              WidgetsBinding.instance.addPostFrameCallback((_) => _handleDeepLinking());
+            }
+          },
           builder: (context, state) {
             if (state is PublicPageLoading || state is PublicPageInitial) {
               return const Center(
@@ -88,11 +146,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.search_off_rounded,
-                        size: 80,
-                        color: AppColors.dangerRed,
-                      ),
+                      const Icon(Icons.search_off_rounded, size: 80, color: AppColors.dangerRed),
                       const SizedBox(height: 24),
                       Text(
                         loc.isRtl ? "الصفحة غير موجودة" : "404 - Page Not Found",
@@ -113,9 +167,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
                         child: Text(
                           loc.isRtl ? "الذهاب إلى بوابة المنصة" : "Go to Platform Portal",
@@ -135,22 +187,16 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.error_outline_rounded,
-                        size: 80,
-                        color: AppColors.dangerRed,
-                      ),
+                      const Icon(Icons.error_outline_rounded, size: 80, color: AppColors.dangerRed),
                       const SizedBox(height: 24),
                       Text(
                         loc.isRtl ? "حدث خطأ ما" : "Something Went Wrong",
                         style: AppTypography.h1.copyWith(color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 12),
-                      Text(
-                        state.message,
-                        style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
-                        textAlign: TextAlign.center,
-                      ),
+                      Text(state.message,
+                          style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+                          textAlign: TextAlign.center),
                       const SizedBox(height: 32),
                       ElevatedButton(
                         onPressed: _loadTenantPage,
@@ -158,9 +204,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                           backgroundColor: AppColors.secondary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
                         child: Text(
                           loc.isRtl ? "إعادة المحاولة" : "Retry Loading",
@@ -177,11 +221,14 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
               final pageId = state.pageData['id'] as String;
 
               return SingleChildScrollView(
+                controller: _scrollController,
                 child: Column(
                   children: [
                     SectionRenderer(
                       blocks: state.blocks,
                       pageId: pageId,
+                      // Pass the shared productKeys map — CustomProductsWidget populates it
+                      productKeys: _productKeys,
                     ),
                     _buildFooter(loc),
                   ],
@@ -189,11 +236,14 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
               );
             }
 
-            return const SizedBox.shrink();
-          },
+                return const SizedBox.shrink();
+              },
+            ),
+            const FloatingCartWidget(),
+          ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildFooter(LocalizationCubit loc) {
@@ -204,7 +254,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
         color: Colors.black,
         border: Border(
           top: BorderSide(
-            color: AppColors.textSecondary.withOpacity(0.05),
+            color: AppColors.textSecondary.withValues(alpha: 0.05),
             width: 1,
           ),
         ),
@@ -215,11 +265,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.auto_awesome_rounded,
-                  color: AppColors.secondary,
-                  size: 20,
-                ),
+                const Icon(Icons.auto_awesome_rounded, color: AppColors.secondary, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   "MYLANDY",
@@ -233,12 +279,10 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
             ),
             const SizedBox(height: 12),
             Text(
-              loc.isRtl 
+              loc.isRtl
                   ? "صنع بفخر باستخدام منصة ماي لاندي لبناء الصفحات الهابطة."
                   : "Proudly powered by MyLandy SaaS Landing Page Builder.",
-              style: AppTypography.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],

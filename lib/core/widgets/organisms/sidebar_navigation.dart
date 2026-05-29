@@ -95,10 +95,10 @@ class SidebarNavigation extends StatelessWidget {
                     duration: const Duration(milliseconds: 150),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary.withOpacity(0.15) : Colors.transparent,
+                      color: isSelected ? AppColors.primary.withValues(alpha: 0.15) : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isSelected ? AppColors.primary.withOpacity(0.3) : Colors.transparent,
+                        color: isSelected ? AppColors.primary.withValues(alpha: 0.3) : Colors.transparent,
                         width: 1.2,
                       ),
                     ),
@@ -164,7 +164,7 @@ class SidebarNavigation extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor: AppColors.primary.withOpacity(0.2),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                   child: Text(
                     userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
                     style: AppTypography.bodyLarge.copyWith(

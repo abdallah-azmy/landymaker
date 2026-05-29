@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:file_picker/file_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
-import '../../../core/widgets/atoms/custom_text_field.dart';
-import '../../../core/widgets/molecules/form_group.dart';
-import '../../../core/widgets/molecules/status_pill.dart';
-// Removed sl/AuthService imports to maintain architectural boundary
+import '../../../core/responsive/responsive_layout.dart';
+import '../../../core/utils/toast_service.dart';
+import '../../public_viewer/widgets/section_renderer.dart';
 import '../controllers/builder_cubit.dart';
 import '../controllers/builder_state.dart';
+import '../widgets/editors/block_properties_editor.dart';
+import '../widgets/tabs/builder_sidebar_tabs.dart';
 
 class BuilderWorkspaceScreen extends StatefulWidget {
   final VoidCallback onBackToDashboard;
@@ -23,6 +23,7 @@ class BuilderWorkspaceScreen extends StatefulWidget {
 
 class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   int? _editingBlockIndex;
+  bool _isMobilePreview = true;
 
   @override
   void initState() {
@@ -30,34 +31,284 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     context.read<LandingPageBuilderCubit>().loadForCurrentUser();
   }
 
-  void _addBlock(LandingPageBuilderCubit cubit, String type) {
-    cubit.addBlock(type);
-    final currentState = cubit.state;
-    if (currentState is BuilderLoaded) {
-      final blocksCount = (currentState.designMap['blocks'] as List).length;
-      setState(() => _editingBlockIndex = blocksCount - 1);
-    }
+  void _openEditBottomSheet(BuildContext context, LocalizationCubit loc, LandingPageBuilderCubit cubit, BuilderLoaded state, int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return BlocBuilder<LandingPageBuilderCubit, BuilderState>(
+          builder: (context, currentState) {
+            if (currentState is! BuilderLoaded) return const SizedBox.shrink();
+            
+            final blocks = currentState.designMap['blocks'] as List? ?? [];
+            if (index >= blocks.length) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (Navigator.canPop(context)) Navigator.pop(context);
+              });
+              return const SizedBox.shrink();
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.textSecondary.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    Flexible(
+                      child: BlockPropertiesEditor(
+                        index: index,
+                        state: currentState,
+                        isBottomSheet: true,
+                        onDone: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
-  void _deleteBlock(LandingPageBuilderCubit cubit, int index) {
-    cubit.deleteBlock(index);
-    setState(() => _editingBlockIndex = null);
+  void _showAddBlockMenu(BuildContext context, LandingPageBuilderCubit cubit) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("إضافة أقسام للصفحة", style: AppTypography.h3),
+                const SizedBox(height: 24),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    _buildAddBlockItem(
+                      icon: Icons.auto_awesome_rounded,
+                      label: "هيرو",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('hero');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.list_alt_rounded,
+                      label: "مميزات",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('features');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.chat_bubble_outline_rounded,
+                      label: "واتساب",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('whatsapp');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.shopping_bag_outlined,
+                      label: "منتجات",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('products');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.qr_code_2_rounded,
+                      label: "QR كود",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('qr_code');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.share_rounded,
+                      label: "روابط تواصل",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('social_qr');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.payments_rounded,
+                      label: "الأسعار",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('pricing');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.question_answer_rounded,
+                      label: "الأسئلة الشائعة",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('faq');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.reviews_rounded,
+                      label: "آراء العملاء",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('testimonials');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.contact_mail_rounded,
+                      label: "معلومات الاتصال",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('contact_info');
+                      },
+                    ),
+                    _buildAddBlockItem(
+                      icon: Icons.collections_rounded,
+                      label: "معرض الصور",
+                      onTap: () {
+                        Navigator.pop(context);
+                        cubit.addBlock('gallery');
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                PrimaryButton(
+                  text: "إلغاء",
+                  isSecondary: true,
+                  width: double.infinity,
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  void _moveBlock(LandingPageBuilderCubit cubit, int index, bool up) {
-    cubit.moveBlock(index, up);
-    setState(() => _editingBlockIndex = null);
+  Widget _buildAddBlockItem({required IconData icon, required String label, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 100,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border, width: 1.5),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.secondary, size: 32),
+            const SizedBox(height: 12),
+            Text(label, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+    );
   }
 
-  Future<void> _pickAndUploadImage(LandingPageBuilderCubit cubit, int blockIndex) async {
-    try {
-      final result = await FilePicker.pickFiles(type: FileType.image);
-      if (result != null && result.files.isNotEmpty) {
-        await cubit.uploadBlockImage(blockIndex, result.files.first);
-      }
-    } catch (_) {
-      // Handled inside cubit state error message
-    }
+  void _showTemplatesMenu(BuildContext context, LandingPageBuilderCubit cubit) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.textSecondary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Flexible(child: TemplatesTab(cubit: cubit)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDesignMenu(BuildContext context, LocalizationCubit loc, LandingPageBuilderCubit cubit) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return BlocBuilder<LandingPageBuilderCubit, BuilderState>(
+          builder: (context, state) {
+            if (state is! BuilderLoaded) return const SizedBox.shrink();
+            
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.textSecondary.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Flexible(child: DesignTab(loc: loc, cubit: cubit, state: state)),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -97,572 +348,257 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     }
 
     final loadedState = state as BuilderLoaded;
-    final List blocksList = loadedState.designMap['blocks'] as List? ?? [];
+    final List<Map<String, dynamic>> blocksList = (loadedState.designMap['blocks'] as List? ?? [])
+        .map((e) => Map<String, dynamic>.from(e as Map))
+        .toList();
     final subdomain = loadedState.subdomain;
     final isSaving = loadedState.isSaving;
-    final successMessage = loadedState.successMessage;
-    final errorMessage = loadedState.errorMessage;
+    final String? pageId = loadedState.pageId;
+    final bool isMobile = ResponsiveLayout.isMobile(context);
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: AppColors.cardBg,
-        title: Row(
-          children: [
-            IconButton(
-              icon: Icon(loc.isRtl ? Icons.arrow_forward : Icons.arrow_back, color: AppColors.textPrimary),
-              onPressed: widget.onBackToDashboard,
-            ),
+    return BlocListener<LandingPageBuilderCubit, BuilderState>(
+      listener: (context, state) {
+        if (state is BuilderLoaded) {
+          if (state.successMessage != null) {
+            ToastService.showSuccess(context, message: state.successMessage!);
+            builderCubit.clearMessages();
+          }
+          if (state.errorMessage != null) {
+            ToastService.showError(context, message: state.errorMessage!);
+            builderCubit.clearMessages();
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: AppColors.cardBg,
+          title: Text(isMobile ? "Workspace" : "Section Builder Workspace", style: AppTypography.h3),
+          leading: IconButton(
+            icon: Icon(loc.isRtl ? Icons.arrow_forward : Icons.arrow_back, color: AppColors.textPrimary),
+            onPressed: widget.onBackToDashboard,
+          ),
+          actions: [
+            if (isMobile) ...[
+              IconButton(
+                icon: const Icon(Icons.auto_awesome_rounded, color: AppColors.secondary),
+                onPressed: () => _showTemplatesMenu(context, builderCubit),
+                tooltip: "القوالب",
+              ),
+              IconButton(
+                icon: const Icon(Icons.color_lens_rounded, color: AppColors.secondary),
+                onPressed: () => _showDesignMenu(context, loc, builderCubit),
+                tooltip: "التصميم",
+              ),
+            ],
+            if (!isMobile)
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.smartphone_rounded, color: _isMobilePreview ? AppColors.secondary : AppColors.textSecondary),
+                    onPressed: () => setState(() => _isMobilePreview = true),
+                    tooltip: "Mobile Preview",
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.desktop_windows_rounded, color: !_isMobilePreview ? AppColors.secondary : AppColors.textSecondary),
+                    onPressed: () => setState(() => _isMobilePreview = false),
+                    tooltip: "Desktop Preview",
+                  ),
+                ],
+              ),
             const SizedBox(width: 8),
-            Text("Section Builder Workspace", style: AppTypography.h3),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: PrimaryButton(
+                text: isMobile ? "Save" : "Save & Deploy",
+                icon: Icons.rocket_launch_rounded,
+                onPressed: () {
+                  builderCubit.saveForCurrentUser();
+                },
+                isLoading: isSaving,
+              ),
+            ),
+            const SizedBox(width: 16),
           ],
         ),
-        actions: [
-          PrimaryButton(
-            text: "Save & Deploy",
-            icon: Icons.rocket_launch_rounded,
-            onPressed: () {
-              builderCubit.saveForCurrentUser();
-            },
-            isLoading: isSaving,
-          ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: Row(
-        children: [
-          // Sidebar: Block properties and order controls
-          Container(
-            width: 380,
-            decoration: const BoxDecoration(
-              color: AppColors.background,
-              border: Border(right: BorderSide(color: AppColors.border, width: 1.5)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top control: Add block
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Add Page Sections", style: AppTypography.h3),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.cardBg),
-                              onPressed: () => _addBlock(builderCubit, 'hero'),
-                              child: Text("+ Hero", style: AppTypography.caption.copyWith(color: Colors.white)),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.cardBg),
-                              onPressed: () => _addBlock(builderCubit, 'features'),
-                              child: Text("+ Features", style: AppTypography.caption.copyWith(color: Colors.white)),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.cardBg),
-                              onPressed: () => _addBlock(builderCubit, 'lead_form'),
-                              child: Text("+ Form", style: AppTypography.caption.copyWith(color: Colors.white)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+        floatingActionButton: isMobile
+            ? FloatingActionButton(
+                onPressed: () => _showAddBlockMenu(context, builderCubit),
+                backgroundColor: AppColors.secondary,
+                child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
+              )
+            : null,
+        body: Row(
+          children: [
+            if (!isMobile)
+              Container(
+                width: 380,
+                decoration: const BoxDecoration(
+                  color: AppColors.background,
+                  border: Border(right: BorderSide(color: AppColors.border, width: 1.5)),
                 ),
-                const Divider(color: AppColors.border, height: 1.2),
-
-                // Editor Panel: Renders lists of blocks or active editing properties
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: _editingBlockIndex != null && _editingBlockIndex! < blocksList.length
-                        ? _buildBlockPropertiesEditor(loc, builderCubit, loadedState, _editingBlockIndex!)
-                        : _buildBlocksOrderList(loc, builderCubit, blocksList),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Main Canvas Preview Pane
-          Expanded(
-            child: Container(
-              color: const Color(0xFF0F172A), // Slate 900
-              child: Stack(
-                children: [
-                  // Rendering of public mockup blocks in simulated web canvas viewport
-                  Center(
-                    child: Container(
-                      width: 1000,
-                      margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.5),
-                            blurRadius: 36,
-                          )
-                        ],
+                child: _editingBlockIndex != null && _editingBlockIndex! < blocksList.length
+                    ? BlockPropertiesEditor(
+                        index: _editingBlockIndex!,
+                        state: loadedState,
+                        onDone: () => setState(() => _editingBlockIndex = null),
+                      )
+                    : DefaultTabController(
+                        length: 3,
+                        child: Column(
+                          children: [
+                            Container(
+                              color: AppColors.cardBg,
+                              child: const TabBar(
+                                labelColor: AppColors.secondary,
+                                unselectedLabelColor: AppColors.textSecondary,
+                                indicatorColor: AppColors.secondary,
+                                tabs: [
+                                  Tab(icon: Icon(Icons.auto_awesome_rounded, size: 20), text: "القوالب"),
+                                  Tab(icon: Icon(Icons.color_lens_rounded, size: 20), text: "التصميم"),
+                                  Tab(icon: Icon(Icons.layers_rounded, size: 20), text: "المحتوى"),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: TabBarView(
+                                children: [
+                                  TemplatesTab(cubit: builderCubit),
+                                  DesignTab(loc: loc, cubit: builderCubit, state: loadedState),
+                                  ContentTab(
+                                    cubit: builderCubit,
+                                    blocks: blocksList,
+                                    onEditBlock: (index) => setState(() => _editingBlockIndex = index),
+                                    onAddBlock: _showAddBlockMenu,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Column(
-                        children: [
-                          // Mock Browser Header
-                          Container(
-                            height: 36,
-                            color: const Color(0xFFE2E8F0),
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              children: [
-                                Row(
-                                  children: List.generate(3, (i) => Container(
-                                    width: 10,
-                                    height: 10,
-                                    margin: const EdgeInsets.only(right: 6),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: i == 0 ? Colors.red : (i == 1 ? Colors.orange : Colors.green),
-                                    ),
-                                  )),
+              ),
+
+            Expanded(
+              child: Container(
+                color: const Color(0xFF0F172A),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Stack(
+                      children: [
+                        Center(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            width: isMobile ? constraints.maxWidth : (_isMobilePreview ? 375 : constraints.maxWidth.clamp(0.0, 1000.0)),
+                            height: isMobile ? constraints.maxHeight : null,
+                            margin: isMobile ? EdgeInsets.zero : const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+                            decoration: BoxDecoration(
+                              color: loadedState.theme.background,
+                              borderRadius: isMobile ? BorderRadius.zero : BorderRadius.circular(12),
+                              boxShadow: isMobile
+                                  ? []
+                                  : [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.5),
+                                        blurRadius: 36,
+                                      )
+                                    ],
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: MediaQuery(
+                              data: MediaQuery.of(context).copyWith(
+                                size: Size(
+                                  isMobile 
+                                      ? constraints.maxWidth 
+                                      : (_isMobilePreview ? 375 : constraints.maxWidth.clamp(0.0, 1000.0)), 
+                                  isMobile ? constraints.maxHeight : MediaQuery.of(context).size.height
                                 ),
-                                const SizedBox(width: 24),
-                                Expanded(
-                                  child: Container(
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Column(
+                                children: [
+                                  if (!isMobile)
+                                    Container(
+                                      height: 36,
+                                      color: const Color(0xFFE2E8F0),
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      child: Row(
+                                        children: [
+                                          Row(
+                                            children: List.generate(3, (i) => Container(
+                                              width: 8,
+                                              height: 8,
+                                              margin: const EdgeInsets.only(right: 6),
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: i == 0 ? Colors.red : (i == 1 ? Colors.orange : Colors.green),
+                                              ),
+                                            )),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Container(
+                                              height: 20,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              alignment: Alignment.centerLeft,
+                                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                                              child: Text(
+                                                "https://${subdomain.isEmpty ? 'your-brand' : subdomain}.mylandy.com",
+                                                style: const TextStyle(fontSize: 9, color: Colors.grey, overflow: TextOverflow.ellipsis),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    alignment: Alignment.centerLeft,
-                                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                                    child: Text(
-                                      "https://${subdomain.isEmpty ? 'your-brand' : subdomain}.mylandy.com",
-                                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+
+                                  Expanded(
+                                    child: Container(
+                                      color: loadedState.theme.background,
+                                      child: SingleChildScrollView(
+                                        child: ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            minHeight: isMobile ? constraints.maxHeight : (constraints.maxHeight - 36),
+                                          ),
+                                          child: Directionality(
+                                            textDirection: loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
+                                            child: SectionRenderer(
+                                              key: ValueKey(blocksList.hashCode ^ loadedState.theme.hashCode),
+                                              blocks: blocksList,
+                                              pageId: pageId ?? 'preview',
+                                              theme: loadedState.theme,
+                                              onBlockTapped: (index) {
+                                                if (isMobile) {
+                                                  _openEditBottomSheet(context, loc, builderCubit, loadedState, index);
+                                                } else {
+                                                  setState(() {
+                                                    _editingBlockIndex = index;
+                                                  });
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Live rendering canvas of blocks
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: Directionality(
-                                textDirection: loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
-                                child: Column(
-                                  children: blocksList.map((block) {
-                                    return _renderMockBlockOnCanvas(block);
-                                  }).toList(),
-                                ),
+                                ],
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Overlay Success / Error banners
-                  if (successMessage != null)
-                    Positioned(
-                      top: 16,
-                      left: 16,
-                      right: 16,
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: AppColors.activeGreen, borderRadius: BorderRadius.circular(8)),
-                        child: Text(successMessage, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  if (errorMessage != null)
-                    Positioned(
-                      top: 16,
-                      left: 16,
-                      right: 16,
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: AppColors.dangerRed, borderRadius: BorderRadius.circular(8)),
-                        child: Text(errorMessage, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Renders the list of blocks with Order actions (Move Up / Down, Edit, Delete)
-  Widget _buildBlocksOrderList(LocalizationCubit loc, LandingPageBuilderCubit cubit, List blocks) {
-    if (blocks.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(
-          "No blocks added yet. Click an option at the top to insert a section.",
-          style: AppTypography.bodyMedium,
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Manage Block Hierarchy", style: AppTypography.h3.copyWith(fontSize: 15)),
-          const SizedBox(height: 16),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: blocks.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final block = blocks[index] as Map;
-              final String type = block['type'] ?? '';
-              final String title = block['title'] ?? 'Section';
-
-              return Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border, width: 1.2),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          StatusPill(
-                            label: type.toUpperCase(),
-                            color: type == 'hero'
-                                ? AppColors.secondary
-                                : (type == 'features' ? AppColors.primary : AppColors.accent),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            title,
-                            style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-
-                    // Actions Row
-                    IconButton(
-                      icon: const Icon(Icons.arrow_upward_rounded, size: 18, color: AppColors.textSecondary),
-                      onPressed: index > 0 ? () => _moveBlock(cubit, index, true) : null,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_downward_rounded, size: 18, color: AppColors.textSecondary),
-                      onPressed: index < blocks.length - 1 ? () => _moveBlock(cubit, index, false) : null,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.edit_rounded, size: 18, color: AppColors.secondary),
-                      onPressed: () => setState(() => _editingBlockIndex = index),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.dangerRed),
-                      onPressed: () => _deleteBlock(cubit, index),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Renders editing configurations panel for the selected block
-  Widget _buildBlockPropertiesEditor(LocalizationCubit loc, LandingPageBuilderCubit cubit, BuilderLoaded state, int index) {
-    final List blocks = state.designMap['blocks'] as List;
-    final block = blocks[index] as Map<String, dynamic>;
-    final String type = block['type'] ?? '';
-
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Edit Section Details", style: AppTypography.h3),
-              TextButton(
-                onPressed: () => setState(() => _editingBlockIndex = null),
-                child: Text("Done", style: AppTypography.button.copyWith(color: AppColors.secondary)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // Common Fields: Title
-          FormGroup(
-            label: "Title Context",
-            child: CustomTextField(
-              controller: TextEditingController(text: block['title'] ?? '')..selection = TextSelection.collapsed(offset: (block['title'] ?? '').length),
-              onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Hero Specific Fields: Subtitle, ButtonText, ImageUrl
-          if (type == 'hero') ...[
-            FormGroup(
-              label: "Subtitle Context",
-              child: CustomTextField(
-                controller: TextEditingController(text: block['subtitle'] ?? '')..selection = TextSelection.collapsed(offset: (block['subtitle'] ?? '').length),
-                maxLines: 3,
-                onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
-              ),
-            ),
-            const SizedBox(height: 16),
-            FormGroup(
-              label: "Button Label Text",
-              child: CustomTextField(
-                controller: TextEditingController(text: block['button_text'] ?? '')..selection = TextSelection.collapsed(offset: (block['button_text'] ?? '').length),
-                onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
-              ),
-            ),
-            const SizedBox(height: 16),
-            FormGroup(
-              label: "Hero Image Resource",
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomTextField(
-                    controller: TextEditingController(text: block['image_url'] ?? '')..selection = TextSelection.collapsed(offset: (block['image_url'] ?? '').length),
-                    onChanged: (val) => cubit.updateBlockProperty(index, 'image_url', val),
-                  ),
-                  const SizedBox(height: 10),
-                  PrimaryButton(
-                    text: loc.translate('upload_image'),
-                    icon: Icons.upload_file_rounded,
-                    isSecondary: true,
-                    onPressed: () => _pickAndUploadImage(cubit, index),
-                    width: double.infinity,
-                  ),
-                ],
-              ),
-            ),
-          ],
-
-          // Lead Form Specific Fields: ButtonText
-          if (type == 'lead_form') ...[
-            FormGroup(
-              label: "Submit Button Text",
-              child: CustomTextField(
-                controller: TextEditingController(text: block['button_text'] ?? '')..selection = TextSelection.collapsed(offset: (block['button_text'] ?? '').length),
-                onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
-              ),
-            ),
-          ],
-
-          // Features Specific Fields: editing list of feature items
-          if (type == 'features') ...[
-            const SizedBox(height: 12),
-            Text("Feature Items list", style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            ...List.generate((block['items'] as List).length, (fIndex) {
-              final item = (block['items'] as List)[fIndex] as Map<String, dynamic>;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBgHover,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  children: [
-                    CustomTextField(
-                      hintText: "Item Title",
-                      controller: TextEditingController(text: item['title'] ?? '')..selection = TextSelection.collapsed(offset: (item['title'] ?? '').length),
-                      onChanged: (val) => cubit.updateFeatureItem(index, fIndex, 'title', val),
-                    ),
-                    const SizedBox(height: 8),
-                    CustomTextField(
-                      hintText: "Item Description",
-                      controller: TextEditingController(text: item['description'] ?? '')..selection = TextSelection.collapsed(offset: (item['description'] ?? '').length),
-                      maxLines: 2,
-                      onChanged: (val) => cubit.updateFeatureItem(index, fIndex, 'description', val),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // Renders the mockup section blocks inside the simulated HTML Canvas
-  Widget _renderMockBlockOnCanvas(Map<dynamic, dynamic> block) {
-    final String type = block['type'] ?? '';
-    final String title = block['title'] ?? '';
-
-    if (type == 'hero') {
-      final String subtitle = block['subtitle'] ?? '';
-      final String btnText = block['button_text'] ?? '';
-      final String imageUrl = block['image_url'] ?? '';
-
-      return Container(
-        color: const Color(0xFFF8FAFC), // Off-white clean layout
-        padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 36),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), height: 1.2),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF475569), height: 1.4),
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(btnText, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ),
-            if (imageUrl.isNotEmpty) ...[
-              const SizedBox(width: 24),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  imageUrl,
-                  width: 240,
-                  height: 180,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 240,
-                    height: 180,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.broken_image, color: Colors.grey),
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      );
-    }
-
-    if (type == 'features') {
-      final List items = block['items'] as List? ?? [];
-
-      return Container(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 36),
-        child: Column(
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: items.map((item) {
-                final String itemTitle = item['title'] ?? '';
-                final String itemDesc = item['description'] ?? '';
-
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.check_circle_rounded, color: AppColors.secondary, size: 24),
-                        const SizedBox(height: 12),
-                        Text(itemTitle, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F172A))),
-                        const SizedBox(height: 8),
-                        Text(itemDesc, style: const TextStyle(fontSize: 12, color: Color(0xFF475569), height: 1.4)),
+                        ),
                       ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (type == 'lead_form') {
-      final String btnText = block['button_text'] ?? '';
-
-      return Container(
-        color: const Color(0xFFF1F5F9), // Light Slate grey
-        padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 36),
-        child: Column(
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: 380,
-              child: Column(
-                children: [
-                  Container(
-                    height: 36,
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: const Text("Email Address", style: TextStyle(color: Colors.grey, fontSize: 11)),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(btnText, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  ),
-                ],
+                    );
+                  },
+                ),
               ),
             ),
           ],
         ),
-      );
-    }
-
-    return const SizedBox();
+      ),
+    );
   }
 }

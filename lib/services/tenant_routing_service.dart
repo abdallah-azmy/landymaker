@@ -1,64 +1,104 @@
-enum RouteMode { dashboard, publicViewer }
+enum RouteMode { dashboard, publicViewer, homePage }
 
 class TenantRoutingService {
-  /// Determines if the application should load the builder dashboard or the public viewer
+  static const String publicViewerIdentifier = 'public_viewer';
+
+  /// Stores a template ID if the user clicked "Use this template" before logging in
+  static String? pendingTemplateId;
+
+  /// Defines reserved paths that are used for dashboard/auth and cannot be used as landing page slugs.
+  static const Set<String> _reservedPaths = {
+    '',
+    'login',
+    'register',
+    'dashboard',
+    'builder',
+    'home',
+    'pricing',
+  };
+
+  /// Determines if the application should load the builder dashboard,
+  /// the public viewer, or the marketing home page.
   static RouteMode getRouteMode() {
+    final identifier = getTenantIdentifier();
+    if (identifier != null) {
+      return RouteMode.publicViewer;
+    }
+    // No tenant identifier AND we are on a core domain → show home page
     final uri = Uri.base;
     final host = uri.host.toLowerCase();
-
-    // 1. Localhost development/testing fallback
-    if (host == 'localhost' || host == '127.0.0.1') {
-      if (uri.queryParameters.containsKey('tenant') || uri.queryParameters.containsKey('subdomain')) {
-        return RouteMode.publicViewer;
-      }
-      return RouteMode.dashboard;
-    }
-
-    // 2. Core platform subdomains or root domain
-    if (host.startsWith('dashboard.') || 
-        host.startsWith('app.') || 
+    final isCoreDomain = host == 'localhost' ||
+        host == '127.0.0.1' ||
         host == 'mylandy.com' ||
-        host == 'mylandy-builder.vercel.app') {
-      return RouteMode.dashboard;
+        host == 'mylandy-builder.vercel.app' ||
+        host.startsWith('dashboard.') ||
+        host.startsWith('app.');
+    if (isCoreDomain) {
+      return RouteMode.homePage;
     }
-
-    // 3. Any other host is classified as a tenant public page (e.g. tenant.mylandy.com or a custom domain)
-    return RouteMode.publicViewer;
+    return RouteMode.dashboard;
   }
 
-  /// Extracts the subdomain string or custom domain from the current host
+  /// Extracts the slug, subdomain, or custom domain to load the correct landing page configuration
   static String? getTenantIdentifier() {
     final uri = Uri.base;
     final host = uri.host.toLowerCase();
 
-    // 1. Localhost development query fallback
-    if (host == 'localhost' || host == '127.0.0.1') {
-      return uri.queryParameters['tenant'] ?? uri.queryParameters['subdomain'];
+    // 1. Check for path-based slug on core domains or localhost
+    final isCoreDomain = host == 'localhost' ||
+        host == '127.0.0.1' ||
+        host == 'mylandy.com' ||
+        host == 'mylandy-builder.vercel.app' ||
+        host.startsWith('dashboard.') ||
+        host.startsWith('app.');
+
+    if (isCoreDomain) {
+      if (uri.pathSegments.isNotEmpty) {
+        final firstSegment = uri.pathSegments.first.trim();
+        if (firstSegment.isNotEmpty && !_reservedPaths.contains(firstSegment)) {
+          return firstSegment;
+        }
+      }
+
+      // Localhost development query parameter fallback (?tenant=restaurant-x)
+      if (host == 'localhost' || host == '127.0.0.1') {
+        final queryVal = uri.queryParameters['tenant'] ?? uri.queryParameters['subdomain'];
+        if (queryVal != null && queryVal.trim().isNotEmpty) {
+          return queryVal.trim();
+        }
+      }
+      return null;
     }
 
     // 2. Parse tenant subdomain (e.g. "tenant.mylandy.com" or "tenant.mylandy-builder.vercel.app")
     if (host.endsWith('.mylandy.com')) {
       final parts = host.split('.');
-      return parts[0]; // Returns "tenant"
+      if (parts.isNotEmpty && parts[0] != 'www') {
+        return parts[0];
+      }
     } else if (host.endsWith('.mylandy-builder.vercel.app')) {
       final parts = host.split('.');
-      return parts[0]; // Returns "tenant"
+      if (parts.isNotEmpty && parts[0] != 'www') {
+        return parts[0];
+      }
     }
 
-    // 3. Otherwise, return full hostname to match custom_domain column in Supabase
-    if (host != 'mylandy.com' && !host.startsWith('dashboard.') && !host.startsWith('app.')) {
-      return host; 
-    }
-
-    return null;
+    // 3. Otherwise, treat host as custom domain (e.g. "myrestaurant.com")
+    return host;
   }
 
-  /// Check if the parsed tenant is a custom domain instead of a subdomain
+  /// Check if the parsed tenant is a custom domain instead of a subdomain/slug
   static bool isCustomDomain(String identifier) {
-    // If it does not contain a dot, or it's a localhost, it is a subdomain
-    if (!identifier.contains('.')) {
-      return false;
+    // If it contains a dot and is not a local host/domain name, classify as custom domain
+    if (identifier.contains('.')) {
+      if (identifier.endsWith('.mylandy.com') ||
+          identifier.endsWith('.mylandy-builder.vercel.app') ||
+          identifier == 'localhost' ||
+          identifier == '127.0.0.1') {
+        return false;
+      }
+      return true;
     }
-    return true;
+    return false;
   }
 }

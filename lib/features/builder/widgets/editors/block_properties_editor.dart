@@ -13,6 +13,8 @@ import '../../../../core/utils/toast_service.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 
+import '../../../../core/utils/file_utils.dart';
+
 class BlockPropertiesEditor extends StatefulWidget {
   final int index;
   final BuilderLoaded state;
@@ -42,24 +44,18 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
 
   Future<void> _pickAndUploadImage(LandingPageBuilderCubit cubit, int blockIndex) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        withData: true,
-      );
-      if (result != null && result.files.isNotEmpty) {
-        await cubit.uploadBlockImage(blockIndex, result.files.first);
+      final file = await FileUtils.pickImage();
+      if (file != null) {
+        await cubit.uploadBlockImage(blockIndex, file);
       }
     } catch (_) {}
   }
 
   Future<void> _pickAndUploadBackgroundImage(LandingPageBuilderCubit cubit, int blockIndex) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        withData: true,
-      );
-      if (result != null && result.files.isNotEmpty) {
-        await cubit.uploadBlockBackgroundImage(blockIndex, result.files.first);
+      final file = await FileUtils.pickImage();
+      if (file != null) {
+        await cubit.uploadBlockBackgroundImage(blockIndex, file);
       }
     } catch (_) {}
   }
@@ -890,6 +886,115 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 controller: TextEditingController(text: block['location'] ?? '')..selection = TextSelection.collapsed(offset: (block['location'] ?? '').length),
                 onChanged: (val) => cubit.updateBlockProperty(widget.index, 'location', val),
               ),
+            ),
+          ],
+
+          if (type == 'social_qr') ...[
+            const SizedBox(height: 16),
+            FormGroup(
+              label: "العنوان الفرعي (Subtitle)",
+              child: CustomTextField(
+                controller: TextEditingController(text: block['subtitle'] ?? '')..selection = TextSelection.collapsed(offset: (block['subtitle'] ?? '').length),
+                onChanged: (val) => cubit.updateBlockProperty(widget.index, 'subtitle', val),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("روابط التواصل", style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
+                TextButton.icon(
+                  onPressed: () {
+                    final List links = List.from(block['links'] ?? []);
+                    links.add({'platform': 'website', 'url': 'https://'});
+                    cubit.updateBlockProperty(widget.index, 'links', links);
+                  },
+                  icon: const Icon(Icons.add_link_rounded, size: 16),
+                  label: const Text("أضف رابط"),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ...List.generate((block['links'] as List).length, (lIndex) {
+              final link = (block['links'] as List)[lIndex] as Map<String, dynamic>;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBgHover,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: link['platform'] ?? 'website',
+                              items: const [
+                                DropdownMenuItem(value: 'website', child: Text("موقع إلكتروني")),
+                                DropdownMenuItem(value: 'instagram', child: Text("انستجرام")),
+                                DropdownMenuItem(value: 'facebook', child: Text("فيسبوك")),
+                                DropdownMenuItem(value: 'twitter', child: Text("تويتر (X)")),
+                                DropdownMenuItem(value: 'linkedin', child: Text("لينكد إن")),
+                                DropdownMenuItem(value: 'whatsapp', child: Text("واتساب")),
+                              ],
+                              onChanged: (val) {
+                                final List links = List.from(block['links']);
+                                final Map<String, dynamic> updatedLink = Map<String, dynamic>.from(links[lIndex]);
+                                updatedLink['platform'] = val;
+                                links[lIndex] = updatedLink;
+                                cubit.updateBlockProperty(widget.index, 'links', links);
+                              },
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+                          onPressed: () {
+                            final List links = List.from(block['links']);
+                            links.removeAt(lIndex);
+                            cubit.updateBlockProperty(widget.index, 'links', links);
+                          },
+                        ),
+                      ],
+                    ),
+                    CustomTextField(
+                      hintText: "الرابط (URL)",
+                      controller: TextEditingController(text: link['url'] ?? '')..selection = TextSelection.collapsed(offset: (link['url'] ?? '').length),
+                      onChanged: (val) {
+                        final List links = List.from(block['links']);
+                        final Map<String, dynamic> updatedLink = Map<String, dynamic>.from(links[lIndex]);
+                        updatedLink['url'] = val;
+                        links[lIndex] = updatedLink;
+                        cubit.updateBlockProperty(widget.index, 'links', links);
+                      },
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+
+          if (type == 'qr_code') ...[
+            const SizedBox(height: 16),
+            FormGroup(
+              label: "العنوان الفرعي (Subtitle)",
+              child: CustomTextField(
+                controller: TextEditingController(text: block['subtitle'] ?? '')..selection = TextSelection.collapsed(offset: (block['subtitle'] ?? '').length),
+                onChanged: (val) => cubit.updateBlockProperty(widget.index, 'subtitle', val),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text("حجم الكود: ${((block['qr_size'] ?? 200.0) as num).toStringAsFixed(0)}px", style: AppTypography.caption),
+            Slider(
+              value: ((block['qr_size'] ?? 200.0) as num).toDouble(),
+              min: 100.0,
+              max: 350.0,
+              divisions: 25,
+              activeColor: AppColors.secondary,
+              onChanged: (val) => cubit.updateBlockProperty(widget.index, 'qr_size', val),
             ),
           ],
 

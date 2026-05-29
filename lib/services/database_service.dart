@@ -13,12 +13,13 @@ class DatabaseService {
     return _supabase.getLandingPageByDomain(domain, isCustom: isCustom);
   }
 
-  Future<bool> saveLandingPage({
+  Future<String?> saveLandingPage({
     required String userId,
     required String subdomain,
     String? customDomain,
     required Map<String, dynamic> designMap,
     required bool isPublished,
+    String? pageId,
   }) {
     return _supabase.saveLandingPage(
       userId: userId,
@@ -26,6 +27,7 @@ class DatabaseService {
       customDomain: customDomain,
       designMap: designMap,
       isPublished: isPublished,
+      pageId: pageId,
     );
   }
 

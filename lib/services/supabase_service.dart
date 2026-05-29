@@ -2,8 +2,12 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:dio/dio.dart';
 import '../core/constants/db_constants.dart';
+import '../core/error_handler.dart';
 import '../core/logger.dart';
+import '../core/dio_http_client_adapter.dart';
+import '../core/http_client.dart';
 
 /// Singleton service wrapping Supabase with Supabase SDK
 class SupabaseService extends ChangeNotifier {
@@ -12,50 +16,70 @@ class SupabaseService extends ChangeNotifier {
   SupabaseService._internal();
 
   SupabaseClient? _client;
-  bool _isMockMode = true;
 
-  // Track currently authenticated mock/real user info
+  // Track currently authenticated user info
   String? _currentUserEmail;
   String? _currentUserId;
   String _currentUserRole = 'user'; // 'user' or 'super_admin'
 
-  bool get isMockMode => _isMockMode;
   String? get currentUserEmail => _currentUserEmail;
   String? get currentUserId => _currentUserId;
   String get currentUserRole => _currentUserRole;
   bool get isAuthenticated => _currentUserId != null;
 
-  // Placeholder keys (replaced at run-time or compile-time)
-  static const String supabaseUrl = String.fromEnvironment(
-    'SUPABASE_URL',
-    defaultValue: '',
-  );
-  static const String supabaseAnonKey = String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-    defaultValue: '',
-  );
+  // ─────────────────────────────────────────────────────────────────────────
+  // ⚠️  SECURITY NOTE — READ BEFORE SHIPPING
+  //
+  // The credentials below use `kDebugMode` fallbacks so that local `flutter
+  // run` works without extra flags during development. These defaults are
+  // intentionally NEVER compiled into release builds:
+  //
+  //   • `flutter run --release` ignores kDebugMode defaults → credentials
+  //     MUST be supplied via --dart-define or CI environment variables.
+  //   • `flutter build web --release` likewise requires --dart-define.
+  //
+  // 🔒 FUTURE TODO: Move these to a secrets manager (e.g. GitHub Secrets,
+  //    Vercel environment variables) and rotate the anon key if it has been
+  //    committed to a public repo previously.
+  //
+  // Run command (development):
+  //   flutter run -d chrome \
+  //     --dart-define=SUPABASE_URL=https://xxxx.supabase.co \
+  //     --dart-define=SUPABASE_ANON_KEY=eyJ...
+  // ─────────────────────────────────────────────────────────────────────────
+
+  static final String supabaseUrl = const String.fromEnvironment('SUPABASE_URL').isNotEmpty
+      ? const String.fromEnvironment('SUPABASE_URL')
+      : kDebugMode
+          ? 'https://zajcnkpcdsvswfmsmqpt.supabase.co' // ⚠️ DEBUG ONLY — not compiled into release
+          : '';
+
+  static final String supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY').isNotEmpty
+      ? const String.fromEnvironment('SUPABASE_ANON_KEY')
+      : kDebugMode
+          ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphamNua3BjZHN2c3dmbXNtcXB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNTgzMDMsImV4cCI6MjA5NDkzNDMwM30.oreTJAHB33FcTkJutIlLxgiPj-rERVFfB7n2pnzPj4w' // ⚠️ DEBUG ONLY
+          : '';
 
   /// Initialize Supabase Flutter Client
   Future<void> initialize() async {
     if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
-      if (kDebugMode) {
-        debugPrint(
-          "Supabase credentials empty. Initializing in mock/offline mode.",
-        );
-      }
-      _isMockMode = true;
-      _initializeMockUser();
-      return;
+      throw Exception(
+        "Supabase credentials are missing. Please provide SUPABASE_URL and SUPABASE_ANON_KEY.",
+      );
     }
 
     try {
+      // Get the configured Dio instance (with PrettyDioLogger)
+      final dio = await DioFactory.getDio();
+
       await Supabase.initialize(
         url: supabaseUrl,
         anonKey: supabaseAnonKey,
         debug: false,
+        // Wrap Dio into the adapter to be used as Supabase's client
+        httpClient: DioHttpClientAdapter(dio),
       );
       _client = Supabase.instance.client;
-      _isMockMode = false;
 
       Logger.info('Supabase initialized successfully');
 
@@ -66,21 +90,29 @@ class SupabaseService extends ChangeNotifier {
         _currentUserEmail = session.user.email;
         await _fetchUserRole(session.user.id);
       }
+
+      // Listen to auth state updates to handle updates reactively
+      _client!.auth.onAuthStateChange.listen((data) async {
+        final session = data.session;
+        if (session != null) {
+          _currentUserId = session.user.id;
+          _currentUserEmail = session.user.email;
+          await _fetchUserRole(session.user.id);
+        } else {
+          _currentUserId = null;
+          _currentUserEmail = null;
+          _currentUserRole = 'user';
+        }
+        notifyListeners();
+      });
     } catch (e) {
       Logger.error(
-        "Failed to initialize Supabase. Falling back to mock mode.",
+        "Failed to initialize Supabase.",
         e,
         StackTrace.current,
       );
-      _isMockMode = true;
-      _initializeMockUser();
+      rethrow;
     }
-  }
-
-  void _initializeMockUser() {
-    _currentUserEmail = null;
-    _currentUserId = null;
-    _currentUserRole = 'user';
   }
 
   // Fetch the role of authenticated user from profiles table
@@ -109,15 +141,6 @@ class SupabaseService extends ChangeNotifier {
     required String fullName,
     String role = 'user',
   }) async {
-    if (_isMockMode) {
-      _currentUserId = 'mock-user-uuid-12345';
-      _currentUserEmail = email;
-      _currentUserRole = role;
-      notifyListeners();
-      debugPrint('Mock registration successful for role: $role');
-      return true;
-    }
-
     try {
       final response = await _client!.auth.signUp(
         email: email,
@@ -139,15 +162,6 @@ class SupabaseService extends ChangeNotifier {
   }
 
   Future<bool> login({required String email, required String password}) async {
-    if (_isMockMode) {
-      _currentUserId = 'mock-user-uuid-12345';
-      _currentUserEmail = email;
-      _currentUserRole = email.contains('admin') ? 'super_admin' : 'user';
-      notifyListeners();
-      debugPrint('Mock login successful, role: $_currentUserRole');
-      return true;
-    }
-
     try {
       final response = await _client!.auth.signInWithPassword(
         email: email,
@@ -169,9 +183,7 @@ class SupabaseService extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    if (!_isMockMode) {
-      await _client!.auth.signOut();
-    }
+    await _client!.auth.signOut();
     _currentUserId = null;
     _currentUserEmail = null;
     _currentUserRole = 'user';
@@ -182,68 +194,39 @@ class SupabaseService extends ChangeNotifier {
   // LANDING PAGES OPERATIONS
   // ----------------------------------------------------
 
-  final Map<String, Map<String, dynamic>> _mockPages = {
-    'mock-user-uuid-12345': {
-      'id': 'page-uuid-11111',
-      'user_id': 'mock-user-uuid-12345',
-      'subdomain': 'saasgo',
-      'custom_domain': 'saasgo.com',
-      'is_published': true,
-      'design_json': jsonEncode({
-        'blocks': [
-          {
-            'type': 'hero',
-            'title': 'Build Beautiful SaaS Pages in Seconds',
-            'subtitle':
-                'The fast, responsive solution for your startup validation.',
-            'button_text': 'Get Started Free',
-            'image_url':
-                'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
-          },
-          {
-            'type': 'features',
-            'title': 'Power Packed Features',
-            'items': [
-              {
-                'title': 'Lightning Fast',
-                'description':
-                    'Optimized structure loading instantly on any Vercel domain.',
-              },
-              {
-                'title': 'Arabic Default RTL',
-                'description':
-                    'Seamless localizations built straight into Flutter widgets.',
-              },
-              {
-                'title': 'Integrated Leads',
-                'description':
-                    'Track and download every visitor request on the fly.',
-              },
-            ],
-          },
-          {
-            'type': 'lead_form',
-            'title': 'Sign Up For Early Access',
-            'button_text': 'Submit Request',
-          },
-        ],
-      }),
-    },
-  };
+  Future<List<Map<String, dynamic>>> getLandingPagesByUserId(String userId) async {
+    try {
+      final response = await _client!
+          .from(DbConstants.landingPagesTable)
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint("Error fetching landing pages for user ID: $e");
+      return [];
+    }
+  }
 
   Future<Map<String, dynamic>?> getLandingPageByUserId(String userId) async {
-    if (_isMockMode) {
-      return _mockPages[userId];
+    try {
+      final pages = await getLandingPagesByUserId(userId);
+      return pages.isNotEmpty ? pages.first : null;
+    } catch (e) {
+      debugPrint("Error fetching default landing page: $e");
+      return null;
     }
+  }
 
+  Future<Map<String, dynamic>?> getLandingPageById(String pageId) async {
     try {
       return await _client!
           .from(DbConstants.landingPagesTable)
           .select()
-          .eq('user_id', userId)
+          .eq('id', pageId)
           .maybeSingle();
     } catch (e) {
-      debugPrint("Error fetching landing page by user ID: $e");
+      debugPrint("Error fetching landing page by ID: $e");
       return null;
     }
   }
@@ -252,17 +235,6 @@ class SupabaseService extends ChangeNotifier {
     String domain, {
     bool isCustom = false,
   }) async {
-    if (_isMockMode) {
-      for (var page in _mockPages.values) {
-        if (isCustom) {
-          if (page['custom_domain'] == domain) return page;
-        } else {
-          if (page['subdomain'] == domain) return page;
-        }
-      }
-      return _mockPages.values.first;
-    }
-
     try {
       final column = isCustom ? 'custom_domain' : 'subdomain';
       return await _client!
@@ -272,39 +244,28 @@ class SupabaseService extends ChangeNotifier {
           .eq('is_published', true)
           .maybeSingle();
     } catch (e) {
-      debugPrint("Error fetching landing page by domain: $e");
+      debugPrint("Error fetching landing page by domain/subdomain: $e");
       return null;
     }
   }
 
-  Future<bool> saveLandingPage({
+  /// Saves the landing page and returns the page ID (whether existing or newly created).
+  /// On INSERT, the ID is returned directly from Supabase (no second round-trip needed).
+  Future<String?> saveLandingPage({
     required String userId,
     required String subdomain,
     String? customDomain,
     required Map<String, dynamic> designMap,
     required bool isPublished,
+    String? pageId,
   }) async {
-    // Convert empty string to null to satisfy DB check constraint
     final effectiveCustomDomain =
         customDomain == null || customDomain.trim().isEmpty
         ? null
-        : customDomain;
-
-    if (_isMockMode) {
-      _mockPages[userId] = {
-        'id': _mockPages[userId]?['id'] ?? 'page-uuid-11111',
-        'user_id': userId,
-        'subdomain': subdomain,
-        'custom_domain': effectiveCustomDomain,
-        'design_json': jsonEncode(designMap),
-        'is_published': isPublished,
-      };
-      return true;
-    }
+        : customDomain.trim();
 
     try {
-      final existingPage = await getLandingPageByUserId(userId);
-      if (existingPage != null) {
+      if (pageId != null) {
         await _client!
             .from(DbConstants.landingPagesTable)
             .update({
@@ -314,17 +275,23 @@ class SupabaseService extends ChangeNotifier {
               'is_published': isPublished,
               'updated_at': DateTime.now().toIso8601String(),
             })
-            .eq('id', existingPage['id']);
+            .eq('id', pageId);
+        return pageId; // existing ID unchanged
       } else {
-        await _client!.from(DbConstants.landingPagesTable).insert({
-          'user_id': userId,
-          'subdomain': subdomain,
-          'custom_domain': effectiveCustomDomain,
-          'design_json': jsonEncode(designMap),
-          'is_published': isPublished,
-        });
+        // INSERT and retrieve the newly generated ID in one round-trip
+        final result = await _client!
+            .from(DbConstants.landingPagesTable)
+            .insert({
+              'user_id': userId,
+              'subdomain': subdomain,
+              'custom_domain': effectiveCustomDomain,
+              'design_json': jsonEncode(designMap),
+              'is_published': isPublished,
+            })
+            .select('id')
+            .single();
+        return result['id'] as String?;
       }
-      return true;
     } catch (e) {
       debugPrint("Error saving landing page config: $e");
       rethrow;
@@ -335,51 +302,10 @@ class SupabaseService extends ChangeNotifier {
   // LEADS CAPTURE OPERATIONS
   // ----------------------------------------------------
 
-  final List<Map<String, dynamic>> _mockLeads = [
-    {
-      'id': 'lead-1',
-      'landing_page_id': 'page-uuid-11111',
-      'form_data': {
-        'name': 'Ahmed Ali',
-        'email': 'ahmed@mail.com',
-        'message': 'I want a demo!',
-      },
-      'created_at': DateTime.now()
-          .subtract(const Duration(hours: 3))
-          .toIso8601String(),
-    },
-    {
-      'id': 'lead-2',
-      'landing_page_id': 'page-uuid-11111',
-      'form_data': {
-        'name': 'Sarah Smith',
-        'email': 'sarah@web.org',
-        'message': 'Pricing details please.',
-      },
-      'created_at': DateTime.now()
-          .subtract(const Duration(days: 1))
-          .toIso8601String(),
-    },
-  ];
-
   Future<bool> submitLead({
     required String landingPageId,
     required Map<String, dynamic> formData,
   }) async {
-    if (_isMockMode) {
-      _mockLeads.add({
-        'id': 'lead-mock-${DateTime.now().millisecondsSinceEpoch}',
-        'landing_page_id': landingPageId,
-        'form_data': formData,
-        'created_at': DateTime.now().toIso8601String(),
-      });
-      await recordAnalyticsEvent(
-        landingPageId: landingPageId,
-        eventType: 'conversion',
-      );
-      return true;
-    }
-
     try {
       await _client!.from(DbConstants.leadsTable).insert({
         'landing_page_id': landingPageId,
@@ -399,12 +325,6 @@ class SupabaseService extends ChangeNotifier {
   Future<List<Map<String, dynamic>>> getLeadsByLandingPage(
     String landingPageId,
   ) async {
-    if (_isMockMode) {
-      return _mockLeads
-          .where((lead) => lead['landing_page_id'] == landingPageId)
-          .toList();
-    }
-
     try {
       final response = await _client!
           .from(DbConstants.leadsTable)
@@ -422,41 +342,10 @@ class SupabaseService extends ChangeNotifier {
   // ANALYTICS & STATS OPERATIONS
   // ----------------------------------------------------
 
-  final List<Map<String, dynamic>> _mockAnalytics = [
-    {
-      'id': 'a-1',
-      'landing_page_id': 'page-uuid-11111',
-      'event_type': 'view',
-      'created_at': DateTime.now().toIso8601String(),
-    },
-    {
-      'id': 'a-2',
-      'landing_page_id': 'page-uuid-11111',
-      'event_type': 'view',
-      'created_at': DateTime.now().toIso8601String(),
-    },
-    {
-      'id': 'a-3',
-      'landing_page_id': 'page-uuid-11111',
-      'event_type': 'conversion',
-      'created_at': DateTime.now().toIso8601String(),
-    },
-  ];
-
   Future<void> recordAnalyticsEvent({
     required String landingPageId,
     required String eventType,
   }) async {
-    if (_isMockMode) {
-      _mockAnalytics.add({
-        'id': 'analytic-mock-${DateTime.now().millisecondsSinceEpoch}',
-        'landing_page_id': landingPageId,
-        'event_type': eventType,
-        'created_at': DateTime.now().toIso8601String(),
-      });
-      return;
-    }
-
     try {
       await _client!.from(DbConstants.analyticsTable).insert({
         'landing_page_id': landingPageId,
@@ -468,24 +357,6 @@ class SupabaseService extends ChangeNotifier {
   }
 
   Future<Map<String, int>> getPageAnalyticsStats(String landingPageId) async {
-    if (_isMockMode) {
-      final views = _mockAnalytics
-          .where(
-            (a) =>
-                a['landing_page_id'] == landingPageId &&
-                a['event_type'] == 'view',
-          )
-          .length;
-      final conversions = _mockAnalytics
-          .where(
-            (a) =>
-                a['landing_page_id'] == landingPageId &&
-                a['event_type'] == 'conversion',
-          )
-          .length;
-      return {'views': views, 'conversions': conversions};
-    }
-
     try {
       final viewsResponse = await _client!
           .from(DbConstants.analyticsTable)
@@ -513,25 +384,38 @@ class SupabaseService extends ChangeNotifier {
   // ----------------------------------------------------
 
   Future<String?> uploadImage(PlatformFile file) async {
-    if (_isMockMode) {
-      return "https://images.unsplash.com/photo-1542744094-3a31f103e35f?q=80&w=800&auto=format&fit=crop";
-    }
-
     try {
-      final userId = _currentUserId!;
+      final userId = _currentUserId;
+      if (userId == null) {
+        throw Exception("User session not found. Please login again.");
+      }
+
+      // Check current quota (maximum 5 uploads per user)
+      final existingFiles = await _client!.storage
+          .from(DbConstants.landingAssetsBucket)
+          .list(path: userId);
+      if (existingFiles.length >= 5) {
+        throw Exception("لقد وصلت للحد الأقصى للرفع (5 صور). يرجى حذف بعض الملفات لتتمكن من رفع صور جديدة.");
+      }
+
+      final bytes = file.bytes;
+      if (bytes == null) {
+        throw Exception("File data is missing. Unexpected null value.");
+      }
+
       final fileExtension = file.name.split('.').last;
       final filePath =
           '$userId/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
 
       await _client!.storage
           .from(DbConstants.landingAssetsBucket)
-          .uploadBinary(filePath, file.bytes!);
+          .uploadBinary(filePath, bytes);
 
       return _client!.storage
           .from(DbConstants.landingAssetsBucket)
           .getPublicUrl(filePath);
-    } catch (e) {
-      debugPrint("Error uploading image: $e");
+    } catch (e, stack) {
+      ErrorHandler.logError("Error uploading image", e, stack);
       rethrow;
     }
   }
@@ -541,14 +425,6 @@ class SupabaseService extends ChangeNotifier {
   // ----------------------------------------------------
 
   Future<Map<String, dynamic>> getSuperAdminMetrics() async {
-    if (_isMockMode) {
-      return {
-        'total_users': 14,
-        'active_pages': _mockPages.length,
-        'total_leads': _mockLeads.length,
-      };
-    }
-
     try {
       final usersRes = await _client!
           .from(DbConstants.profilesTable)

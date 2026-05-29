@@ -7,6 +7,12 @@ ON CONFLICT (id) DO NOTHING;
 -- ROW LEVEL SECURITY POLICIES FOR STORAGE
 -- -----------------------------------------------------------------------------
 
+-- Drop existing policies if they exist to avoid "already exists" errors
+DROP POLICY IF EXISTS "Public Access" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated users can upload" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update own images" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete own images" ON storage.objects;
+
 -- 1. Allow public access to view images (as bucket is marked public, this is often default but good to be explicit)
 CREATE POLICY "Public Access"
 ON storage.objects FOR SELECT

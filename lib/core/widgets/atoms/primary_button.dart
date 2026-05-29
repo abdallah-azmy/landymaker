@@ -70,7 +70,7 @@ class _PrimaryButtonState extends State<PrimaryButton> {
             boxShadow: _isHovered && !isDisabled
                 ? [
                     BoxShadow(
-                      color: AppColors.secondary.withOpacity(0.3),
+                      color: AppColors.secondary.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     )

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
 
@@ -31,7 +30,6 @@ class CustomContactInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = theme?.background ?? AppColors.background;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;

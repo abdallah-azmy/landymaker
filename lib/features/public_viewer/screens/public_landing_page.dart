@@ -219,6 +219,11 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
 
             if (state is PublicPageLoaded) {
               final pageId = state.pageData['id'] as String;
+              final bool isActive = state.pageData['is_active'] ?? true;
+
+              if (!isActive) {
+                return _buildSuspendedState(loc);
+              }
 
               return SingleChildScrollView(
                 controller: _scrollController,
@@ -291,3 +296,47 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
     );
   }
 }
+
+  Widget _buildSuspendedState(LocalizationCubit loc) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(40),
+        margin: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.dangerRed.withOpacity(0.3)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.block_rounded, color: AppColors.dangerRed, size: 64),
+            const SizedBox(height: 24),
+            Text(loc.isRtl ? "الصفحة معطلة حالياً" : "Page Currently Suspended", style: AppTypography.h2),
+            const SizedBox(height: 8),
+            Text(
+              loc.isRtl 
+                  ? "نعتذر، هذه الصفحة لم تعد متاحة حالياً. ربما انتهت فترة الاشتراك أو تم إيقافها يدوياً."
+                  : "We apologize, this page is no longer available. The subscription might have expired or it was manually disabled.",
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () => launchUrl(Uri.parse(Uri.base.origin)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text(
+                loc.isRtl ? "ابدأ بناء صفحتك الخاصة" : "Start building your own page",
+                style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }

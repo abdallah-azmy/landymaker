@@ -13,20 +13,21 @@ import '../../public_viewer/widgets/custom_social_qr_widget.dart';
 import '../../public_viewer/widgets/custom_working_hours_widget.dart';
 import '../../public_viewer/widgets/custom_location_map_widget.dart';
 import '../../public_viewer/widgets/custom_logo_header_widget.dart';
+import '../../public_viewer/widgets/basic_section_renderer.dart';
 import '../models/landing_page_theme.dart';
 
-typedef BlockBuilder = Widget Function(Map<String, dynamic> data, LandingPageTheme? theme, String pageId, Key? key);
+typedef BlockBuilder = Widget Function(Map<String, dynamic> data, LandingPageTheme? theme, String pageId, Key? key, Map<String, GlobalKey>? productKeys, int sectionIndex);
 
 class BlockRegistry {
   static final Map<String, BlockBuilder> _registry = {
-    'logo_header': (data, theme, _, key) => CustomLogoHeaderWidget(
+    'logo_header': (data, theme, _, key, productKeys, __) => CustomLogoHeaderWidget(
       key: key,
       title: data['title'] ?? '',
       logoUrl: data['logo_url'],
       logoHeight: (data['logo_height'] ?? 40.0).toDouble(),
       alignment: data['alignment'] ?? 'center',
     ),
-    'hero': (data, theme, _, key) => CustomHeroWidget(
+    'hero': (data, theme, _, key, productKeys, __) => CustomHeroWidget(
       key: key,
       title: data['title'] ?? '',
       subtitle: data['subtitle'] ?? '',
@@ -34,37 +35,19 @@ class BlockRegistry {
       imageUrl: data['image_url'] ?? '',
       theme: theme,
     ),
-    'features': (data, theme, _, key) => CustomFeaturesWidget(
+    'basic_section': (data, theme, _, key, productKeys, index) => BasicSectionRenderer(
       key: key,
-      title: data['title'] ?? '',
-      items: List<Map<String, dynamic>>.from(data['items'] ?? []),
-      layoutStyle: data['layout_style'] ?? 'grid',
-      theme: theme,
+      sectionData: data,
+      theme: theme ?? LandingPageTheme.palettes.last,
+      sectionIndex: index,
     ),
-    'lead_form': (data, theme, pageId, key) => CustomLeadFormWidget(
-      key: key,
-      title: data['title'] ?? '',
-      buttonText: data['button_text'] ?? '',
-      pageId: pageId,
-      theme: theme,
-    ),
-    'working_hours': (data, theme, _, key) => CustomWorkingHoursWidget(
-      key: key,
-      blockData: data,
-    ),
-    'location_map': (data, theme, _, key) => CustomLocationMapWidget(
-      key: key,
-      title: data['title'] ?? 'موقعنا',
-      address: data['address'] ?? '',
-      mapIframeUrl: data['map_iframe_url'] ?? '',
-    ),
-    // ... add more as needed following the pattern
+    // ... products, features etc follow same pattern
   };
 
-  static Widget render(String type, Map<String, dynamic> data, LandingPageTheme? theme, String pageId, {Key? key}) {
+  static Widget render(String type, Map<String, dynamic> data, LandingPageTheme? theme, String pageId, int sectionIndex, {Key? key, Map<String, GlobalKey>? productKeys}) {
     final builder = _registry[type.toLowerCase()];
     if (builder != null) {
-      return builder(data, theme, pageId, key);
+      return builder(data, theme, pageId, key, productKeys, sectionIndex);
     }
     return const SizedBox.shrink();
   }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
+import 'package:landymaker/features/builder/controllers/builder_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../core/widgets/molecules/form_group.dart';
-import '../controllers/builder_cubit.dart';
-import '../controllers/builder_state.dart';
 
 class AdvancedSettingsPanel extends StatelessWidget {
   const AdvancedSettingsPanel({super.key});
@@ -46,9 +46,11 @@ class AdvancedSettingsPanel extends StatelessWidget {
           const SizedBox(height: 24),
           FormGroup(
             label: "عنوان الصفحة في البحث (SEO Title)",
-            helperText: "اجعله قصيراً وجذاباً (مثال: صالون الحلاقة الأفضل في القاهرة)",
+            helperText:
+                "اجعله قصيراً وجذاباً (مثال: صالون الحلاقة الأفضل في القاهرة)",
             child: CustomTextField(
-              controller: TextEditingController(text: metaTitle)..selection = TextSelection.collapsed(offset: metaTitle.length),
+              controller: TextEditingController(text: metaTitle)
+                ..selection = TextSelection.collapsed(offset: metaTitle.length),
               onChanged: (val) => cubit.updateMetadata('meta_title', val),
               hintText: "أدخل عنواناً جذاباً لجوجل",
             ),
@@ -56,9 +58,11 @@ class AdvancedSettingsPanel extends StatelessWidget {
           const SizedBox(height: 20),
           FormGroup(
             label: "وصف الصفحة (SEO Description)",
-            helperText: "اشرح باختصار ما تقدمه لكي يتشجع الناس على الضغط على رابطك.",
+            helperText:
+                "اشرح باختصار ما تقدمه لكي يتشجع الناس على الضغط على رابطك.",
             child: CustomTextField(
-              controller: TextEditingController(text: metaDesc)..selection = TextSelection.collapsed(offset: metaDesc.length),
+              controller: TextEditingController(text: metaDesc)
+                ..selection = TextSelection.collapsed(offset: metaDesc.length),
               onChanged: (val) => cubit.updateMetadata('meta_description', val),
               hintText: "اكتب وصفاً مختصراً لخدماتك...",
               maxLines: 3,
@@ -80,9 +84,21 @@ class AdvancedSettingsPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: AppColors.secondary)),
+          Text(
+            title,
+            style: AppTypography.bodyLarge.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.secondary,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(content, style: AppTypography.caption.copyWith(color: AppColors.textSecondary, height: 1.5)),
+          Text(
+            content,
+            style: AppTypography.caption.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.5,
+            ),
+          ),
         ],
       ),
     );

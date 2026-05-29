@@ -150,10 +150,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: AppColors.textSecondary,
                                   ),
                                   validator: (val) {
-                                    if (val == null || val.isEmpty)
+                                    if (val == null || val.isEmpty) {
                                       return 'Required';
-                                    if (!val.contains('@'))
+                                    }
+                                    if (!val.contains('@')) {
                                       return 'Invalid Email';
+                                    }
                                     return null;
                                   },
                                 ),
@@ -172,10 +174,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: AppColors.textSecondary,
                                   ),
                                   validator: (val) {
-                                    if (val == null || val.isEmpty)
+                                    if (val == null || val.isEmpty) {
                                       return 'Required';
-                                    if (val.length < 6)
+                                    }
+                                    if (val.length < 6) {
                                       return 'Password must be at least 6 characters';
+                                    }
                                     return null;
                                   },
                                 ),

@@ -13,13 +13,38 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
     emit(SuperAdminLoading());
     try {
       final metrics = await _databaseService.getSuperAdminMetrics();
+      final users = await _databaseService.getAdminUsers();
+      final pages = await _databaseService.getAdminPages();
+      final requests = await _databaseService.getAdminSubscriptionRequests();
+
       emit(SuperAdminLoaded(
         totalUsers: metrics['total_users'] ?? 0,
         activePages: metrics['active_pages'] ?? 0,
         totalLeads: metrics['total_leads'] ?? 0,
+        users: users,
+        pages: pages,
+        requests: requests,
       ));
     } catch (e) {
-      emit(SuperAdminFailure("Error loading admin metrics: $e"));
+      emit(SuperAdminFailure("Error loading admin metrics: \$e"));
+    }
+  }
+
+  Future<void> approveRequest(String requestId) async {
+    try {
+      await _databaseService.updateSubscriptionStatus(requestId, 'approved');
+      await fetchAdminMetrics(); // Refresh data
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to approve: \$e"));
+    }
+  }
+
+  Future<void> rejectRequest(String requestId) async {
+    try {
+      await _databaseService.updateSubscriptionStatus(requestId, 'rejected');
+      await fetchAdminMetrics(); // Refresh data
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to reject: \$e"));
     }
   }
 }

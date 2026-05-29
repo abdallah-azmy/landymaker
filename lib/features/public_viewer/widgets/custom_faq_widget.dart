@@ -26,7 +26,6 @@ class CustomFaqWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = theme?.background ?? AppColors.background;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
@@ -54,7 +53,7 @@ class CustomFaqWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: isMobile ? 24 : 48),
-                  ...items.map((item) => _buildFaqItem(item, secondaryColor, textColor, subTextColor, isMobile)).toList(),
+                  ...items.map((item) => _buildFaqItem(item, secondaryColor, textColor, subTextColor, isMobile)),
                 ],
               ),
             ),

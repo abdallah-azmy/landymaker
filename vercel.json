@@ -1,8 +1,14 @@
 {
+  "version": 2,
   "rewrites": [
     {
-      "source": "/((?!assets/|.*\\.js|.*\\.json|.*\\.png|.*\\.ico|.*\\.txt|.*\\.wasm).*)",
+      "source": "/(?!api/)(.*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/seo-middleware.js": {
+      "runtime": "edge"
+    }
+  }
 }

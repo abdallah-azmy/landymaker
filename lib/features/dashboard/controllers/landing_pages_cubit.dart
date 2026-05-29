@@ -24,7 +24,17 @@ class LandingPagesCubit extends Cubit<LandingPagesState> {
     emit(LandingPagesLoading());
     try {
       final pages = await _databaseService.getLandingPagesByUserId(userId);
-      emit(LandingPagesLoaded(pages: pages));
+      
+      // Enforce Tier Limits (SPEC 2)
+      final profile = await _databaseService.getProfile(userId);
+      final String tier = profile?['tier'] ?? 'free';
+      final int maxPages = profile?['custom_max_pages'] ?? (tier == 'pro' ? 5 : (tier == 'enterprise' ? 999 : 1));
+
+      emit(LandingPagesLoaded(
+        pages: pages,
+        maxPages: maxPages,
+        currentTier: tier,
+      ));
     } catch (e) {
       emit(LandingPagesFailure(e.toString()));
     }

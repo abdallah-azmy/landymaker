@@ -51,6 +51,10 @@ class CustomProductsWidget extends StatefulWidget {
 
 class _CustomProductsWidgetState extends State<CustomProductsWidget>
     with SingleTickerProviderStateMixin {
+  // ── Pagination ────────────────────────────────────────────────────────────
+  int _currentPage = 1;
+  static const int _itemsPerPage = 6;
+
   // ── Sort ──────────────────────────────────────────────────────────────────
   _SortMode _sortMode = _SortMode.defaultOrder;
 
@@ -76,6 +80,16 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     }
     return filtered;
   }
+
+  List<Map<String, dynamic>> get _paginatedItems {
+    final allSorted = _sortedItems;
+    final startIndex = (_currentPage - 1) * _itemsPerPage;
+    if (startIndex >= allSorted.length) return [];
+    final endIndex = (startIndex + _itemsPerPage).clamp(0, allSorted.length);
+    return allSorted.sublist(startIndex, endIndex);
+  }
+
+  int get _totalPages => (_sortedItems.length / _itemsPerPage).ceil();
 
   double _parsePrice(dynamic raw) {
     if (raw == null) return 0;
@@ -232,10 +246,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
   }
 
   Widget _buildProductLayout(BuildContext context) {
-    final items = _sortedItems;
     final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
 
-    if (items.isEmpty) {
+    if (_paginatedItems.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(32),
         child: Text('لا توجد منتجات', style: AppTypography.caption.copyWith(color: subTextColor)),
@@ -248,13 +261,19 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
         final bool isMobile = width < 600;
 
         if (widget.layoutStyle == 'list' || widget.layoutStyle == 'list_large') {
-          return ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: items.length,
-            separatorBuilder: (_, __) => SizedBox(height: isMobile ? 16 : 24),
-            itemBuilder: (context, index) =>
-                _buildProductListItem(context, items[index], isMobile),
+          return Column(
+            children: [
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _paginatedItems.length,
+                separatorBuilder: (_, __) => SizedBox(height: isMobile ? 16 : 24),
+                itemBuilder: (context, index) =>
+                    _buildProductListItem(context, _paginatedItems[index], isMobile),
+              ),
+              const SizedBox(height: 32),
+              _buildPagination(context),
+            ],
           );
         }
 
@@ -268,19 +287,53 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
           childAspectRatio = isMobile ? 0.7 : 1.0;
         }
 
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: items.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: isMobile ? 12 : 20,
-            mainAxisSpacing: isMobile ? 12 : 20,
-            childAspectRatio: childAspectRatio,
-          ),
-          itemBuilder: (context, index) => _buildProductCard(context, items[index], isMobile),
+        return Column(
+          children: [
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _paginatedItems.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: isMobile ? 12 : 20,
+                mainAxisSpacing: isMobile ? 12 : 20,
+                childAspectRatio: childAspectRatio,
+              ),
+              itemBuilder: (context, index) => _buildProductCard(context, _paginatedItems[index], isMobile),
+            ),
+            const SizedBox(height: 32),
+            _buildPagination(context),
+          ],
         );
       },
+    );
+  }
+
+  Widget _buildPagination(BuildContext context) {
+    if (_totalPages <= 1) return const SizedBox.shrink();
+    final secondary = widget.theme?.secondary ?? AppColors.secondary;
+    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
+          icon: const Icon(Icons.chevron_left_rounded),
+          color: secondary,
+        ),
+        const SizedBox(width: 16),
+        Text(
+          "Page \$_currentPage of \$_totalPages",
+          style: AppTypography.bodyMedium.copyWith(color: textColor),
+        ),
+        const SizedBox(width: 16),
+        IconButton(
+          onPressed: _currentPage < _totalPages ? () => setState(() => _currentPage++) : null,
+          icon: const Icon(Icons.chevron_right_rounded),
+          color: secondary,
+        ),
+      ],
     );
   }
 

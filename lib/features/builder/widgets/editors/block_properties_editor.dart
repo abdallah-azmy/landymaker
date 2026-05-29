@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/localization/localization_cubit.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../core/widgets/molecules/form_group.dart';
@@ -182,7 +180,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<LandingPageBuilderCubit>();
-    final loc = context.watch<LocalizationCubit>();
     final blocks = widget.state.designMap['blocks'] as List;
     
     if (widget.index >= blocks.length) return const SizedBox.shrink();
@@ -522,7 +519,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
               onChanged: (val) => cubit.updateBlockProperty(widget.index, 'show_category_filter', val),
               title: Text("إظهار أزرار تصفية الفئات", style: AppTypography.bodyMedium),
               contentPadding: EdgeInsets.zero,
-              activeColor: AppColors.secondary,
+              activeThumbColor: AppColors.secondary,
             ),
             const SizedBox(height: 16),
             FormGroup(
@@ -740,7 +737,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                       title: Text("خطة مميزة؟", style: AppTypography.caption),
                       value: item['is_popular'] ?? false,
                       onChanged: (val) => cubit.updatePricingPlan(widget.index, pIndex, 'is_popular', val),
-                      activeColor: AppColors.secondary,
+                      activeThumbColor: AppColors.secondary,
                     ),
                   ],
                 ),
@@ -890,6 +887,27 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           ],
 
           if (type == 'social_qr') ...[
+            FormGroup(
+              label: "رابط صفحتك المباشر (Live Page URL)",
+              child: Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      controller: TextEditingController(text: "https://landymaker.com/${widget.state.subdomain}"),
+                      readOnly: true,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.copy_rounded, color: AppColors.secondary),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: "https://landymaker.com/${widget.state.subdomain}"));
+                      ToastService.showSuccess(context, message: "تم نسخ الرابط بنجاح!");
+                    },
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             FormGroup(
               label: "العنوان الفرعي (Subtitle)",
@@ -978,6 +996,27 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           ],
 
           if (type == 'qr_code') ...[
+            FormGroup(
+              label: "رابط صفحتك المباشر (Live Page URL)",
+              child: Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      controller: TextEditingController(text: "https://landymaker.com/${widget.state.subdomain}"),
+                      readOnly: true,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.copy_rounded, color: AppColors.secondary),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: "https://landymaker.com/${widget.state.subdomain}"));
+                      ToastService.showSuccess(context, message: "تم نسخ الرابط بنجاح!");
+                    },
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             FormGroup(
               label: "العنوان الفرعي (Subtitle)",

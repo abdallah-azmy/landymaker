@@ -43,43 +43,62 @@ class _StockImagePickerState extends State<StockImagePicker> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("بحث عن صور احترافية", style: AppTypography.h3),
-              IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded)),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close_rounded),
+              ),
             ],
           ),
           const SizedBox(height: 16),
           CustomTextField(
             controller: _searchController,
-            hintText: "ابحث عن (مثلاً: حلاق، مطعم، رياضة...)",
-            prefixIcon: const Icon(Icons.search_rounded, color: AppColors.secondary),
+            hintText: "ابحث عن (مثلاً: مطعم، رياضة، سيارات...)",
+            prefixIcon: const Icon(
+              Icons.search_rounded,
+              color: AppColors.secondary,
+            ),
             onSubmitted: _search,
           ),
           const SizedBox(height: 24),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.secondary))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.secondary,
+                    ),
+                  )
                 : _images.isEmpty
-                    ? Center(child: Text("ابدأ البحث للعثور على صور رائعة", style: AppTypography.caption))
-                    : GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                ? Center(
+                    child: Text(
+                      "ابدأ البحث للعثور على صور رائعة",
+                      style: AppTypography.caption,
+                    ),
+                  )
+                : GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
                           childAspectRatio: 1,
                         ),
-                        itemCount: _images.length,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              widget.onImageSelected(_images[index]);
-                              Navigator.pop(context);
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.network(_images[index], fit: BoxFit.cover),
-                            ),
-                          );
+                    itemCount: _images.length,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          widget.onImageSelected(_images[index]);
+                          Navigator.pop(context);
                         },
-                      ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            _images[index],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

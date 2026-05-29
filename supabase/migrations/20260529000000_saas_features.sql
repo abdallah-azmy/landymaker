@@ -4,7 +4,7 @@
 
 -- Extend profiles with subscription data
 ALTER TABLE public.profiles
-ADD COLUMN IF NOT EXISTS tier TEXT DEFAULT 'free' CHECK (tier IN ('free', 'pro', 'enterprise')),
+ADD COLUMN IF NOT EXISTS tier TEXT DEFAULT 'free',
 ADD COLUMN IF NOT EXISTS tier_expires_at TIMESTAMP WITH TIME ZONE;
 
 -- Table for manual payment verification
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS public.subscription_requests (
     user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
     plan_name TEXT NOT NULL,
     price_paid NUMERIC(10, 2) NOT NULL,
-    payment_method TEXT NOT NULL, -- e.g. 'vodafone_cash', 'instapay'
+    payment_method TEXT NOT NULL, -- e.g. 'vodafone_cash', 'we_cash', 'instapay'
     proof_screenshot_url TEXT NOT NULL,
     promo_code_used TEXT, -- tracking if an affiliate code was used
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
@@ -39,9 +39,9 @@ CREATE POLICY "Super admins can manage all subscription requests"
     USING (public.is_super_admin(auth.uid()));
 
 -- Indices
-CREATE INDEX idx_subscription_requests_user_id ON public.subscription_requests(user_id);
-CREATE INDEX idx_subscription_requests_status ON public.subscription_requests(status);
-CREATE INDEX idx_subscription_requests_created_at ON public.subscription_requests(created_at);
+CREATE INDEX IF NOT EXISTS idx_subscription_requests_user_id ON public.subscription_requests(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscription_requests_status ON public.subscription_requests(status);
+CREATE INDEX IF NOT EXISTS idx_subscription_requests_created_at ON public.subscription_requests(created_at);
 
 
 -- ==========================================
@@ -51,7 +51,7 @@ CREATE INDEX idx_subscription_requests_created_at ON public.subscription_request
 -- Affiliate user profiles
 CREATE TABLE IF NOT EXISTS public.affiliate_profiles (
     user_id UUID PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
-    promo_code TEXT UNIQUE NOT NULL CHECK (promo_code ~* '^[a-z0-9]+$'), -- no special chars
+    promo_code TEXT UNIQUE NOT NULL CHECK (promo_code ~* '^[a-zA-Z0-9]+$'), -- alphanumeric, no special chars
     discount_percent NUMERIC(5, 2) DEFAULT 10.0 NOT NULL,
     commission_percent NUMERIC(5, 2) DEFAULT 15.0 NOT NULL,
     balance NUMERIC(12, 2) DEFAULT 0.0 NOT NULL,
@@ -115,9 +115,10 @@ CREATE POLICY "Super admins can manage all affiliate payouts"
     USING (public.is_super_admin(auth.uid()));
 
 -- Indices
-CREATE INDEX idx_affiliate_referrals_affiliate_id ON public.affiliate_referrals(affiliate_id);
-CREATE INDEX idx_affiliate_payouts_affiliate_id ON public.affiliate_payouts(affiliate_id);
-CREATE INDEX idx_affiliate_payouts_status ON public.affiliate_payouts(status);
+CREATE INDEX IF NOT EXISTS idx_affiliate_referrals_affiliate_id ON public.affiliate_referrals(affiliate_id);
+CREATE INDEX IF NOT EXISTS idx_affiliate_referrals_subscription_request_id ON public.affiliate_referrals(subscription_request_id);
+CREATE INDEX IF NOT EXISTS idx_affiliate_payouts_affiliate_id ON public.affiliate_payouts(affiliate_id);
+CREATE INDEX IF NOT EXISTS idx_affiliate_payouts_status ON public.affiliate_payouts(status);
 
 -- Trigger for Commission logic
 CREATE OR REPLACE FUNCTION public.handle_subscription_approval()
@@ -129,12 +130,14 @@ BEGIN
     -- Check if status changed to approved
     IF (OLD.status = 'pending' AND NEW.status = 'approved') THEN
 
-        -- Update user tier if needed (optional logic depending on UI, but safe to set here)
-        -- This ensures the verification immediately upgrades the user
+        -- Update user tier
         UPDATE public.profiles
         SET tier = NEW.plan_name,
-            tier_expires_at = now() + INTERVAL '1 month' -- default 1 month for simple manual logic
+            tier_expires_at = now() + INTERVAL '1 month'
         WHERE id = NEW.user_id;
+
+        -- Update reviewed_at
+        NEW.reviewed_at = now();
 
         -- Check if an affiliate promo code was used
         IF (NEW.promo_code_used IS NOT NULL) THEN
@@ -174,8 +177,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Re-create trigger if it exists (or just drop and create)
+DROP TRIGGER IF EXISTS on_subscription_request_approved ON public.subscription_requests;
 CREATE TRIGGER on_subscription_request_approved
-    AFTER UPDATE ON public.subscription_requests
+    BEFORE UPDATE ON public.subscription_requests
     FOR EACH ROW EXECUTE FUNCTION public.handle_subscription_approval();
 
 
@@ -224,6 +229,17 @@ CREATE POLICY "Page owners can delete bookings"
     );
 
 -- Indices
-CREATE INDEX idx_barber_bookings_landing_page_id ON public.barber_bookings(landing_page_id);
-CREATE INDEX idx_barber_bookings_status ON public.barber_bookings(status);
-CREATE INDEX idx_barber_bookings_created_at ON public.barber_bookings(created_at);
+CREATE INDEX IF NOT EXISTS idx_barber_bookings_landing_page_id ON public.barber_bookings(landing_page_id);
+CREATE INDEX IF NOT EXISTS idx_barber_bookings_status ON public.barber_bookings(status);
+CREATE INDEX IF NOT EXISTS idx_barber_bookings_created_at ON public.barber_bookings(created_at);
+
+-- وظيفة لتسجيل عمليات الشراء وزيادة العداد (SPEC 3)
+CREATE OR REPLACE FUNCTION public.record_page_purchase(page_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.landing_pages 
+    SET purchases_count = purchases_count + 1 
+    WHERE id = page_id;
+    INSERT INTO public.page_analytics_logs (landing_page_id, event_type) VALUES (page_id, 'purchase');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

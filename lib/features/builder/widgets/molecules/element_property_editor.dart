@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
@@ -19,7 +20,7 @@ class ElementPropertyEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = context.read<LocalizationCubit>();
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -66,7 +67,10 @@ class ElementPropertyEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("نوع الخط", style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        const Text(
+          "نوع الخط",
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -76,10 +80,13 @@ class ElementPropertyEditor extends StatelessWidget {
             border: Border.all(color: AppColors.border),
           ),
           child: DropdownButton<String>(
-            value: styleOverrides['fontFamily'] ?? FontRegistry.defaultArabicFont,
+            value:
+                styleOverrides['fontFamily'] ?? FontRegistry.defaultArabic,
             isExpanded: true,
             underline: const SizedBox(),
-            items: FontRegistry.fonts.map((f) => DropdownMenuItem(value: f, child: Text(f))).toList(),
+            items: FontRegistry.fonts
+                .map((f) => DropdownMenuItem(value: f, child: Text(f)))
+                .toList(),
             onChanged: (val) => onUpdate('fontFamily', val),
           ),
         ),
@@ -92,7 +99,10 @@ class ElementPropertyEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("\$label: \${value.toInt()}", style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Text(
+          "\$label: \${value.toInt()}",
+          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
         Slider(
           value: value.clamp(min, max),
           min: min,
@@ -109,11 +119,14 @@ class ElementPropertyEditor extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text("خط عريض", style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        const Text(
+          "خط عريض",
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
         Switch(
           value: isBold,
           onChanged: (val) => onUpdate('fontWeight', val ? 'bold' : 'normal'),
-          activeColor: AppColors.secondary,
+          activeThumbColor: AppColors.secondary,
         ),
       ],
     );

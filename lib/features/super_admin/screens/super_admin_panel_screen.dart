@@ -4,9 +4,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
-import '../../../core/widgets/molecules/data_card.dart';
-import '../../../core/widgets/molecules/status_pill.dart';
 import '../../../core/widgets/organisms/responsive_data_table.dart';
+import '../../../core/widgets/molecules/status_pill.dart';
 import '../controllers/super_admin_cubit.dart';
 import '../controllers/super_admin_state.dart';
 
@@ -17,129 +16,176 @@ class SuperAdminPanelScreen extends StatefulWidget {
   State<SuperAdminPanelScreen> createState() => _SuperAdminPanelScreenState();
 }
 
-class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen> {
+class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  String _searchQuery = '';
+  String? _currentSort;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 5, vsync: this);
     context.read<SuperAdminCubit>().fetchAdminMetrics();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = context.watch<LocalizationCubit>();
-    final cubit = context.watch<SuperAdminCubit>();
-    final state = cubit.state;
+    final state = context.watch<SuperAdminCubit>().state;
 
-    // Prepare table mock platform users data for administration display
-    final List<Map<String, String>> mockUsers = [
-      {'name': 'Alex Carter', 'email': 'alex@carter.com', 'role': 'user', 'status': 'active'},
-      {'name': 'Fatima Omar', 'email': 'fatima@admin.com', 'role': 'super_admin', 'status': 'active'},
-      {'name': 'Tariq Ziad', 'email': 'tariq@build.org', 'role': 'user', 'status': 'inactive'},
-    ];
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        indicatorColor: AppColors.secondary,
+        labelColor: AppColors.secondary,
+        unselectedLabelColor: AppColors.textSecondary,
+        tabs: const [
+          Tab(text: "Users & Limits", icon: Icon(Icons.people_rounded)),
+          Tab(text: "Global Stats", icon: Icon(Icons.analytics_rounded)),
+          Tab(text: "Page Manager", icon: Icon(Icons.web_rounded)),
+          Tab(text: "Pending Payments", icon: Icon(Icons.payments_rounded)),
+          Tab(text: "Affiliates", icon: Icon(Icons.group_add_rounded)),
+        ],
+      ),
+      body: state is SuperAdminLoaded
+          ? TabBarView(
+              controller: _tabController,
+              children: [
+                _buildUsersTab(state),
+                _buildStatsTab(state),
+                _buildPagesTab(state),
+                _buildPaymentsTab(state),
+                _buildAffiliatesTab(state),
+              ],
+            )
+          : const Center(child: CircularProgressIndicator()),
+    );
+  }
 
-    final headers = [
-      loc.translate('full_name'),
-      loc.translate('email'),
-      loc.translate('role'),
-      "Status"
-    ];
-
-    final rows = mockUsers.map((u) {
-      final role = u['role'] == 'super_admin' ? 'super_admin' : 'user';
-      final isActive = u['status'] == 'active';
-
-      return [
-        Text(u['name']!, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
-        Text(u['email']!, style: AppTypography.bodyMedium),
-        StatusPill(
-          label: role == 'super_admin' ? loc.translate('super_admin') : loc.translate('dashboard'),
-          color: role == 'super_admin' ? AppColors.primary : AppColors.secondary,
-        ),
-        StatusPill(
-          label: isActive ? 'Active' : 'Inactive',
-          color: isActive ? AppColors.activeGreen : AppColors.dangerRed,
-        ),
-      ];
-    }).toList();
+  Widget _buildUsersTab(SuperAdminLoaded state) {
+    final filteredUsers = state.users
+        .where(
+          (u) => u['full_name'].toString().toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ),
+        )
+        .toList();
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(ResponsiveUtils.getPadding(context)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(24),
+      child: ResponsiveDataTable(
+        title: "إدارة المستخدمين",
+        headers: const ["الاسم", "البريد", "المستوى", "الحالة"],
+        rows: filteredUsers
+            .map(
+              (u) => [
+                Text(u['full_name'], style: AppTypography.bodyLarge),
+                Text(u['email'], style: AppTypography.bodyMedium),
+                StatusPill(
+                  label: u['tier'].toString().toUpperCase(),
+                  color: AppColors.primary,
+                ),
+                StatusPill(label: "نشط", color: AppColors.activeGreen),
+              ],
+            )
+            .toList(),
+        emptyMessage: "لا يوجد مستخدمين بهذا الاسم",
+        onSearch: (val) => setState(() => _searchQuery = val),
+        onSort: (val) => setState(() => _currentSort = val),
+        sortOptions: const ["الاسم", "التاريخ"],
+        onPageChanged: (p) {},
+      ),
+    );
+  }
+
+  Widget _buildPagesTab(SuperAdminLoaded state) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: ResponsiveDataTable(
+        title: "إدارة الصفحات",
+        headers: const ["الرابط", "المالك", "المشاهدات", "الحالة"],
+        rows: state.pages.map((p) {
+          final owner = p['profiles']?['full_name'] ?? 'Unknown';
+          return [
+            Text(p['subdomain'], style: AppTypography.bodyLarge),
+            Text(owner, style: AppTypography.bodyMedium),
+            Text(p['views_count'].toString()),
+            StatusPill(
+              label: p['is_published'] ? "منشورة" : "مسودة",
+              color: p['is_published'] ? AppColors.activeGreen : AppColors.textMuted,
+            ),
+          ];
+        }).toList(),
+        emptyMessage: "لا توجد صفحات",
+        onSearch: (val) {},
+        onSort: (val) {},
+        onPageChanged: (p) {},
+      ),
+    );
+  }
+
+  Widget _buildPaymentsTab(SuperAdminLoaded state) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: ResponsiveDataTable(
+        title: "طلبات الاشتراك",
+        headers: const ["المستخدم", "الخطة", "المبلغ", "الحالة", "إجراء"],
+        rows: state.requests.map((r) {
+          final user = r['profiles']?['full_name'] ?? 'Unknown';
+          final status = r['status'] ?? 'pending';
+          return [
+            Text(user, style: AppTypography.bodyLarge),
+            Text(r['plan_name'], style: AppTypography.bodyMedium),
+            Text("${r['price_paid']} EGP"),
+            StatusPill(
+              label: status.toUpperCase(),
+              color: status == 'approved' ? AppColors.activeGreen : (status == 'rejected' ? AppColors.dangerRed : AppColors.warningOrange),
+            ),
+            if (status == 'pending')
+              Row(
                 children: [
-                  Text(
-                    loc.translate('super_admin'),
-                    style: AppTypography.h1.copyWith(fontSize: 28),
+                  IconButton(
+                    icon: const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen),
+                    onPressed: () => context.read<SuperAdminCubit>().approveRequest(r['id']),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Global platform administration and multi-tenant performance audits.",
-                    style: AppTypography.bodyMedium,
+                  IconButton(
+                    icon: const Icon(Icons.cancel_rounded, color: AppColors.dangerRed),
+                    onPressed: () => context.read<SuperAdminCubit>().rejectRequest(r['id']),
                   ),
                 ],
-              ),
-              IconButton(
-                onPressed: () => context.read<SuperAdminCubit>().fetchAdminMetrics(),
-                icon: const Icon(Icons.refresh_rounded, color: AppColors.secondary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
+              )
+            else
+              const Text("-"),
+          ];
+        }).toList(),
+        emptyMessage: "لا توجد طلبات معلقة",
+        onSearch: (val) {},
+        onSort: (val) {},
+        onPageChanged: (p) {},
+      ),
+    );
+  }
 
-          if (state is SuperAdminFailure) ...[
-            Text(state.message, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
-            const SizedBox(height: 16),
-          ],
+  Widget _buildStatsTab(SuperAdminLoaded state) => _buildPlaceholder("إحصائيات المنصة");
+  Widget _buildAffiliatesTab(SuperAdminLoaded state) => _buildPlaceholder("نظام المسوقين");
 
-          if (state is SuperAdminLoading || state is SuperAdminInitial)
-            const Center(child: CircularProgressIndicator(color: AppColors.secondary))
-          else if (state is SuperAdminLoaded) ...[
-            // Metrics Cards row
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(context, desktop: 3, tablet: 2, mobile: 1),
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 2.2,
-              children: [
-                DataCard(
-                  title: loc.translate('total_users'),
-                  value: '${state.totalUsers}',
-                  icon: Icons.people_alt_rounded,
-                  iconColor: AppColors.secondary,
-                ),
-                DataCard(
-                  title: loc.translate('active_pages'),
-                  value: '${state.activePages}',
-                  icon: Icons.web_rounded,
-                  iconColor: AppColors.primary,
-                ),
-                DataCard(
-                  title: loc.translate('total_leads'),
-                  value: '${state.totalLeads}',
-                  icon: Icons.hub_rounded,
-                  iconColor: AppColors.accent,
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // Registered tenant user profiles table
-            Text("Registered Platform Profiles", style: AppTypography.h3),
-            const SizedBox(height: 16),
-            ResponsiveDataTable(
-              headers: headers,
-              rows: rows,
-              emptyMessage: "No profiles registered",
-            ),
-          ],
+  Widget _buildPlaceholder(String title) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(title, style: AppTypography.h3),
+          const SizedBox(height: 8),
+          Text("جاري العمل على هذا القسم...", style: AppTypography.caption),
         ],
       ),
     );

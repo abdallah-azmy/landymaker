@@ -16,6 +16,8 @@ class BuilderLoaded extends BuilderState {
   final String? errorMessage;
   final String? successMessage;
   final LandingPageTheme theme;
+  final String? focusedElementId; // Track long-pressed element
+  final int? focusedSectionIndex;
 
   BuilderLoaded({
     this.pageId,
@@ -27,6 +29,8 @@ class BuilderLoaded extends BuilderState {
     this.errorMessage,
     this.successMessage,
     required this.theme,
+    this.focusedElementId,
+    this.focusedSectionIndex,
   });
 
   BuilderLoaded copyWith({
@@ -39,6 +43,9 @@ class BuilderLoaded extends BuilderState {
     String? errorMessage,
     String? successMessage,
     LandingPageTheme? theme,
+    String? focusedElementId,
+    int? focusedSectionIndex,
+    bool clearFocusedElement = false,
     bool clearCustomDomain = false,
     bool clearPageId = false,
   }) {
@@ -52,6 +59,8 @@ class BuilderLoaded extends BuilderState {
       errorMessage: errorMessage,
       successMessage: successMessage,
       theme: theme ?? this.theme,
+      focusedElementId: clearFocusedElement ? null : (focusedElementId ?? this.focusedElementId),
+      focusedSectionIndex: clearFocusedElement ? null : (focusedSectionIndex ?? this.focusedSectionIndex),
     );
   }
 }

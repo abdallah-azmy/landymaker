@@ -89,7 +89,11 @@ class _PrimaryButtonState extends State<PrimaryButton> {
           curve: Curves.easeOut,
           width: widget.width,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          transform: Matrix4.identity()..scale(_isHovered && !isDisabled ? 1.03 : 1.0),
+          transform: Matrix4.diagonal3Values(
+            _isHovered && !isDisabled ? 1.03 : 1.0,
+            _isHovered && !isDisabled ? 1.03 : 1.0,
+            1.0,
+          ),
           alignment: Alignment.center,
           decoration: decoration,
           child: buttonContent,

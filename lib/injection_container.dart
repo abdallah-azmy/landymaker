@@ -8,6 +8,7 @@ import 'core/http_client.dart';
 import 'features/auth/controllers/auth_cubit.dart';
 import 'features/builder/controllers/builder_cubit.dart';
 import 'features/dashboard/controllers/leads_analytics_cubit.dart';
+import 'features/dashboard/controllers/landing_pages_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
 
@@ -40,6 +41,14 @@ Future<void> initDependencies() async {
       authService: sl<AuthService>(),
       databaseService: sl<DatabaseService>(),
       storageService: sl<StorageService>(),
+    ),
+  );
+
+  // Page Listing Manager
+  sl.registerFactory<LandingPagesCubit>(
+    () => LandingPagesCubit(
+      databaseService: sl<DatabaseService>(),
+      authService: sl<AuthService>(),
     ),
   );
 

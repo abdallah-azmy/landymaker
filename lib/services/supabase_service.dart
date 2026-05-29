@@ -347,10 +347,15 @@ class SupabaseService extends ChangeNotifier {
     required String eventType,
   }) async {
     try {
-      await _client!.from(DbConstants.analyticsTable).insert({
-        'landing_page_id': landingPageId,
-        'event_type': eventType,
-      });
+      if (eventType == 'view') {
+        // Use the smart RPC to increment view count and update last_visited_at
+        await _client!.rpc('increment_page_view', params: {'page_id': landingPageId});
+      } else {
+        await _client!.from('page_analytics_logs').insert({
+          'landing_page_id': landingPageId,
+          'event_type': eventType,
+        });
+      }
     } catch (e) {
       debugPrint("Error recording analytics event: $e");
     }
@@ -358,20 +363,15 @@ class SupabaseService extends ChangeNotifier {
 
   Future<Map<String, int>> getPageAnalyticsStats(String landingPageId) async {
     try {
-      final viewsResponse = await _client!
-          .from(DbConstants.analyticsTable)
-          .select('id')
-          .eq('landing_page_id', landingPageId)
-          .eq('event_type', 'view');
-      final conversionsResponse = await _client!
-          .from(DbConstants.analyticsTable)
-          .select('id')
-          .eq('landing_page_id', landingPageId)
-          .eq('event_type', 'conversion');
+      final res = await _client!
+          .from(DbConstants.landingPagesTable)
+          .select('views_count, purchases_count')
+          .eq('id', landingPageId)
+          .single();
 
       return {
-        'views': viewsResponse.length,
-        'conversions': conversionsResponse.length,
+        'views': res['views_count'] ?? 0,
+        'conversions': res['purchases_count'] ?? 0,
       };
     } catch (e) {
       debugPrint("Error fetching analytics stats: $e");
@@ -421,8 +421,47 @@ class SupabaseService extends ChangeNotifier {
   }
 
   // ----------------------------------------------------
-  // SUPER ADMIN METRICS
+  // SUPER ADMIN OPERATIONS (REAL DATA)
   // ----------------------------------------------------
+
+  Future<List<Map<String, dynamic>>> getAdminUsers() async {
+    try {
+      final res = await _client!.from(DbConstants.profilesTable).select().order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching admin users: $e");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAdminPages() async {
+    try {
+      final res = await _client!.from(DbConstants.landingPagesTable).select('*, profiles(full_name, email)').order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching admin pages: $e");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAdminSubscriptionRequests() async {
+    try {
+      final res = await _client!.from('subscription_requests').select('*, profiles(full_name, email)').order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching admin subscription requests: $e");
+      return [];
+    }
+  }
+
+  Future<void> updateSubscriptionStatus(String id, String status) async {
+    try {
+      await _client!.from('subscription_requests').update({'status': status}).eq('id', id);
+    } catch (e) {
+      debugPrint("Error updating subscription status: $e");
+      rethrow;
+    }
+  }
 
   Future<Map<String, dynamic>> getSuperAdminMetrics() async {
     try {
@@ -443,6 +482,14 @@ class SupabaseService extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error fetching super admin metrics: $e");
       return {'total_users': 0, 'active_pages': 0, 'total_leads': 0};
+    }
+  }
+  Future<Map<String, dynamic>?> getProfile(String userId) async {
+    try {
+      return await _client!.from(DbConstants.profilesTable).select().eq('id', userId).maybeSingle();
+    } catch (e) {
+      debugPrint("Error fetching profile: $e");
+      return null;
     }
   }
 }

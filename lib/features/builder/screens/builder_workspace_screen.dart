@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:landymaker/features/builder/widgets/molecules/element_property_editor.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
@@ -31,7 +32,13 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     context.read<LandingPageBuilderCubit>().loadForCurrentUser();
   }
 
-  void _openEditBottomSheet(BuildContext context, LocalizationCubit loc, LandingPageBuilderCubit cubit, BuilderLoaded state, int index) {
+  void _openEditBottomSheet(
+    BuildContext context,
+    LocalizationCubit loc,
+    LandingPageBuilderCubit cubit,
+    BuilderLoaded state,
+    int index,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -43,7 +50,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
         return BlocBuilder<LandingPageBuilderCubit, BuilderState>(
           builder: (context, currentState) {
             if (currentState is! BuilderLoaded) return const SizedBox.shrink();
-            
+
             final blocks = currentState.designMap['blocks'] as List? ?? [];
             if (index >= blocks.length) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -216,7 +223,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     );
   }
 
-  Widget _buildAddBlockItem({required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildAddBlockItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -232,7 +243,13 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
           children: [
             Icon(icon, color: AppColors.secondary, size: 32),
             const SizedBox(height: 12),
-            Text(label, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            Text(
+              label,
+              style: AppTypography.bodyMedium.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -272,7 +289,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     );
   }
 
-  void _showDesignMenu(BuildContext context, LocalizationCubit loc, LandingPageBuilderCubit cubit) {
+  void _showDesignMenu(
+    BuildContext context,
+    LocalizationCubit loc,
+    LandingPageBuilderCubit cubit,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -284,7 +305,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
         return BlocBuilder<LandingPageBuilderCubit, BuilderState>(
           builder: (context, state) {
             if (state is! BuilderLoaded) return const SizedBox.shrink();
-            
+
             return Container(
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -301,7 +322,9 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  Flexible(child: DesignTab(loc: loc, cubit: cubit, state: state)),
+                  Flexible(
+                    child: DesignTab(loc: loc, cubit: cubit, state: state),
+                  ),
                 ],
               ),
             );
@@ -320,7 +343,9 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     if (state is BuilderLoading || state is BuilderInitial) {
       return const Scaffold(
         backgroundColor: Colors.black,
-        body: Center(child: CircularProgressIndicator(color: AppColors.secondary)),
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.secondary),
+        ),
       );
     }
 
@@ -333,7 +358,12 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             children: [
               Text("Error loading builder canvas", style: AppTypography.h2),
               const SizedBox(height: 8),
-              Text(state.message, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
+              Text(
+                state.message,
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.dangerRed,
+                ),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -348,9 +378,10 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     }
 
     final loadedState = state as BuilderLoaded;
-    final List<Map<String, dynamic>> blocksList = (loadedState.designMap['blocks'] as List? ?? [])
-        .map((e) => Map<String, dynamic>.from(e as Map))
-        .toList();
+    final List<Map<String, dynamic>> blocksList =
+        (loadedState.designMap['blocks'] as List? ?? [])
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
     final subdomain = loadedState.subdomain;
     final isSaving = loadedState.isSaving;
     final String? pageId = loadedState.pageId;
@@ -373,34 +404,57 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: AppColors.cardBg,
-          title: Text(isMobile ? "Workspace" : "Section Builder Workspace", style: AppTypography.h3),
+          title: Text(
+            isMobile
+                ? loc.translate('workspace')
+                : loc.translate('workspace_full'),
+            style: AppTypography.h3,
+          ),
           leading: IconButton(
-            icon: Icon(loc.isRtl ? Icons.arrow_forward : Icons.arrow_back, color: AppColors.textPrimary),
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+            ), // Material handles mirroring if configured
             onPressed: widget.onBackToDashboard,
           ),
           actions: [
             if (isMobile) ...[
               IconButton(
-                icon: const Icon(Icons.auto_awesome_rounded, color: AppColors.secondary),
+                icon: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: AppColors.secondary,
+                ),
                 onPressed: () => _showTemplatesMenu(context, builderCubit),
-                tooltip: "القوالب",
+                tooltip: loc.translate('templates'),
               ),
               IconButton(
-                icon: const Icon(Icons.color_lens_rounded, color: AppColors.secondary),
+                icon: const Icon(
+                  Icons.color_lens_rounded,
+                  color: AppColors.secondary,
+                ),
                 onPressed: () => _showDesignMenu(context, loc, builderCubit),
-                tooltip: "التصميم",
+                tooltip: loc.translate('design'),
               ),
             ],
             if (!isMobile)
               Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.smartphone_rounded, color: _isMobilePreview ? AppColors.secondary : AppColors.textSecondary),
+                    icon: Icon(
+                      Icons.smartphone_rounded,
+                      color: _isMobilePreview
+                          ? AppColors.secondary
+                          : AppColors.textSecondary,
+                    ),
                     onPressed: () => setState(() => _isMobilePreview = true),
                     tooltip: "Mobile Preview",
                   ),
                   IconButton(
-                    icon: Icon(Icons.desktop_windows_rounded, color: !_isMobilePreview ? AppColors.secondary : AppColors.textSecondary),
+                    icon: Icon(
+                      Icons.desktop_windows_rounded,
+                      color: !_isMobilePreview
+                          ? AppColors.secondary
+                          : AppColors.textSecondary,
+                    ),
                     onPressed: () => setState(() => _isMobilePreview = false),
                     tooltip: "Desktop Preview",
                   ),
@@ -425,7 +479,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             ? FloatingActionButton(
                 onPressed: () => _showAddBlockMenu(context, builderCubit),
                 backgroundColor: AppColors.secondary,
-                child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
+                child: const Icon(
+                  Icons.add_rounded,
+                  color: Colors.white,
+                  size: 32,
+                ),
               )
             : null,
         body: Row(
@@ -435,48 +493,26 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                 width: 380,
                 decoration: const BoxDecoration(
                   color: AppColors.background,
-                  border: Border(right: BorderSide(color: AppColors.border, width: 1.5)),
+                  border: Border(
+                    right: BorderSide(color: AppColors.border, width: 1.5),
+                  ),
                 ),
-                child: _editingBlockIndex != null && _editingBlockIndex! < blocksList.length
-                    ? BlockPropertiesEditor(
-                        index: _editingBlockIndex!,
-                        state: loadedState,
-                        onDone: () => setState(() => _editingBlockIndex = null),
-                      )
-                    : DefaultTabController(
-                        length: 3,
-                        child: Column(
-                          children: [
-                            Container(
-                              color: AppColors.cardBg,
-                              child: const TabBar(
-                                labelColor: AppColors.secondary,
-                                unselectedLabelColor: AppColors.textSecondary,
-                                indicatorColor: AppColors.secondary,
-                                tabs: [
-                                  Tab(icon: Icon(Icons.auto_awesome_rounded, size: 20), text: "القوالب"),
-                                  Tab(icon: Icon(Icons.color_lens_rounded, size: 20), text: "التصميم"),
-                                  Tab(icon: Icon(Icons.layers_rounded, size: 20), text: "المحتوى"),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: TabBarView(
-                                children: [
-                                  TemplatesTab(cubit: builderCubit),
-                                  DesignTab(loc: loc, cubit: builderCubit, state: loadedState),
-                                  ContentTab(
-                                    cubit: builderCubit,
-                                    blocks: blocksList,
-                                    onEditBlock: (index) => setState(() => _editingBlockIndex = index),
-                                    onAddBlock: _showAddBlockMenu,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                child: loadedState.focusedElementId != null
+                    ? _buildElementEditor(builderCubit, loadedState)
+                    : (_editingBlockIndex != null &&
+                              _editingBlockIndex! < blocksList.length
+                          ? BlockPropertiesEditor(
+                              index: _editingBlockIndex!,
+                              state: loadedState,
+                              onDone: () =>
+                                  setState(() => _editingBlockIndex = null),
+                            )
+                          : _buildDefaultSidebar(
+                              loc,
+                              builderCubit,
+                              loadedState,
+                              blocksList,
+                            )),
               ),
 
             Expanded(
@@ -490,29 +526,52 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
-                            width: isMobile ? constraints.maxWidth : (_isMobilePreview ? 375 : constraints.maxWidth.clamp(0.0, 1000.0)),
+                            width: isMobile
+                                ? constraints.maxWidth
+                                : (_isMobilePreview
+                                      ? 375
+                                      : constraints.maxWidth.clamp(
+                                          0.0,
+                                          1000.0,
+                                        )),
                             height: isMobile ? constraints.maxHeight : null,
-                            margin: isMobile ? EdgeInsets.zero : const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+                            margin: isMobile
+                                ? EdgeInsets.zero
+                                : const EdgeInsets.symmetric(
+                                    vertical: 24,
+                                    horizontal: 24,
+                                  ),
                             decoration: BoxDecoration(
                               color: loadedState.theme.background,
-                              borderRadius: isMobile ? BorderRadius.zero : BorderRadius.circular(12),
+                              borderRadius: isMobile
+                                  ? BorderRadius.zero
+                                  : BorderRadius.circular(12),
                               boxShadow: isMobile
                                   ? []
                                   : [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.5),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.5,
+                                        ),
                                         blurRadius: 36,
-                                      )
+                                      ),
                                     ],
                             ),
                             clipBehavior: Clip.antiAlias,
                             child: MediaQuery(
                               data: MediaQuery.of(context).copyWith(
                                 size: Size(
-                                  isMobile 
-                                      ? constraints.maxWidth 
-                                      : (_isMobilePreview ? 375 : constraints.maxWidth.clamp(0.0, 1000.0)), 
-                                  isMobile ? constraints.maxHeight : MediaQuery.of(context).size.height
+                                  isMobile
+                                      ? constraints.maxWidth
+                                      : (_isMobilePreview
+                                            ? 375
+                                            : constraints.maxWidth.clamp(
+                                                0.0,
+                                                1000.0,
+                                              )),
+                                  isMobile
+                                      ? constraints.maxHeight
+                                      : MediaQuery.of(context).size.height,
                                 ),
                               ),
                               child: Column(
@@ -521,19 +580,30 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                                     Container(
                                       height: 36,
                                       color: const Color(0xFFE2E8F0),
-                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                      ),
                                       child: Row(
                                         children: [
                                           Row(
-                                            children: List.generate(3, (i) => Container(
-                                              width: 8,
-                                              height: 8,
-                                              margin: const EdgeInsets.only(right: 6),
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: i == 0 ? Colors.red : (i == 1 ? Colors.orange : Colors.green),
+                                            children: List.generate(
+                                              3,
+                                              (i) => Container(
+                                                width: 8,
+                                                height: 8,
+                                                margin: const EdgeInsets.only(
+                                                  right: 6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: i == 0
+                                                      ? Colors.red
+                                                      : (i == 1
+                                                            ? Colors.orange
+                                                            : Colors.green),
+                                                ),
                                               ),
-                                            )),
+                                            ),
                                           ),
                                           const SizedBox(width: 12),
                                           Expanded(
@@ -541,13 +611,22 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                                               height: 20,
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
-                                                borderRadius: BorderRadius.circular(4),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
                                               ),
                                               alignment: Alignment.centerLeft,
-                                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                  ),
                                               child: Text(
                                                 "https://${subdomain.isEmpty ? 'your-brand' : subdomain}.landymaker.com",
-                                                style: const TextStyle(fontSize: 9, color: Colors.grey, overflow: TextOverflow.ellipsis),
+                                                style: const TextStyle(
+                                                  fontSize: 9,
+                                                  color: Colors.grey,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -561,18 +640,31 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                                       child: SingleChildScrollView(
                                         child: ConstrainedBox(
                                           constraints: BoxConstraints(
-                                            minHeight: isMobile ? constraints.maxHeight : (constraints.maxHeight - 36),
+                                            minHeight: isMobile
+                                                ? constraints.maxHeight
+                                                : (constraints.maxHeight - 36),
                                           ),
                                           child: Directionality(
-                                            textDirection: loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
+                                            textDirection: loc.isRtl
+                                                ? TextDirection.rtl
+                                                : TextDirection.ltr,
                                             child: SectionRenderer(
-                                              key: ValueKey(blocksList.hashCode ^ loadedState.theme.hashCode),
+                                              key: ValueKey(
+                                                blocksList.hashCode ^
+                                                    loadedState.theme.hashCode,
+                                              ),
                                               blocks: blocksList,
                                               pageId: pageId ?? 'preview',
                                               theme: loadedState.theme,
                                               onBlockTapped: (index) {
                                                 if (isMobile) {
-                                                  _openEditBottomSheet(context, loc, builderCubit, loadedState, index);
+                                                  _openEditBottomSheet(
+                                                    context,
+                                                    loc,
+                                                    builderCubit,
+                                                    loadedState,
+                                                    index,
+                                                  );
                                                 } else {
                                                   setState(() {
                                                     _editingBlockIndex = index;
@@ -598,6 +690,94 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildElementEditor(LandingPageBuilderCubit cubit, BuilderLoaded state) {
+    final section = state.designMap['blocks'][state.focusedSectionIndex];
+    final element = (section['elements'] as List).firstWhere(
+      (e) => e['id'] == state.focusedElementId,
+    );
+
+    return Column(
+      children: [
+        AppBar(
+          backgroundColor: AppColors.cardBg,
+          title: const Text("تعديل العنصر", style: TextStyle(fontSize: 16)),
+          leading: IconButton(
+            icon: const Icon(Icons.close_rounded),
+            onPressed: () => cubit.focusElement(0, null),
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: ElementPropertyEditor(
+              type: element['type'],
+              styleOverrides: element['style_overrides'] ?? {},
+              onUpdate: (key, val) => cubit.updateElementProperty(
+                state.focusedSectionIndex!,
+                state.focusedElementId!,
+                key,
+                val,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDefaultSidebar(
+    LocalizationCubit loc,
+    LandingPageBuilderCubit builderCubit,
+    BuilderLoaded loadedState,
+    List<Map<String, dynamic>> blocksList,
+  ) {
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          Container(
+            color: AppColors.cardBg,
+            child: TabBar(
+              labelColor: AppColors.secondary,
+              unselectedLabelColor: AppColors.textSecondary,
+              indicatorColor: AppColors.secondary,
+              tabs: [
+                Tab(
+                  icon: const Icon(Icons.auto_awesome_rounded, size: 20),
+                  text: loc.translate('templates'),
+                ),
+                Tab(
+                  icon: const Icon(Icons.color_lens_rounded, size: 20),
+                  text: loc.translate('design'),
+                ),
+                Tab(
+                  icon: const Icon(Icons.layers_rounded, size: 20),
+                  text: loc.translate('content'),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                TemplatesTab(cubit: builderCubit),
+                DesignTab(loc: loc, cubit: builderCubit, state: loadedState),
+                ContentTab(
+                  cubit: builderCubit,
+                  loc: loc,
+                  blocks: blocksList,
+                  onEditBlock: (index) =>
+                      setState(() => _editingBlockIndex = index),
+                  onAddBlock: _showAddBlockMenu,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

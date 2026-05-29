@@ -12,9 +12,17 @@ class LandingPagesLoading extends LandingPagesState {}
 
 class LandingPagesLoaded extends LandingPagesState {
   final List<Map<String, dynamic>> pages;
-  const LandingPagesLoaded({required this.pages});
+  final int maxPages;
+  final String currentTier;
+
+  const LandingPagesLoaded({
+    required this.pages,
+    required this.maxPages,
+    required this.currentTier,
+  });
+
   @override
-  List<Object?> get props => [pages];
+  List<Object?> get props => [pages, maxPages, currentTier];
 }
 
 class LandingPagesFailure extends LandingPagesState {

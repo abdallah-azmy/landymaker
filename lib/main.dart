@@ -13,6 +13,7 @@ import 'features/dashboard/screens/dashboard_shell.dart';
 import 'features/public_viewer/screens/public_landing_page.dart';
 import 'features/builder/controllers/builder_cubit.dart';
 import 'features/dashboard/controllers/leads_analytics_cubit.dart';
+import 'features/dashboard/controllers/landing_pages_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
 import 'features/home/screens/landymaker_home_screen.dart';
@@ -80,6 +81,10 @@ class LandyMakerApp extends StatelessWidget {
         // Factory — constructor-injected DatabaseService + StorageService
         BlocProvider<LandingPageBuilderCubit>(
           create: (_) => sl<LandingPageBuilderCubit>(),
+        ),
+        // Factory — constructor-injected DatabaseService
+        BlocProvider<LandingPagesCubit>(
+          create: (_) => sl<LandingPagesCubit>(),
         ),
         // Factory — constructor-injected DatabaseService
         BlocProvider<LeadsAnalyticsCubit>(

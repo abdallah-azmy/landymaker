@@ -29,8 +29,14 @@ class TemplateRegistry {
         return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Butter & Sky');
       case 'professional':
         return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Midnight Ocean');
+      case 'real_estate':
+        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Royal Gold');
+      case 'digital_course':
+        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Deep Forest');
+      case 'event':
+        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Stadium Neon');
       default:
-        return LandingPageTheme.palettes.last;
+        return LandingPageTheme.palettes.last; // Default Dark with Cairo
     }
   }
 

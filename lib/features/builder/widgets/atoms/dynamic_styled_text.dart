@@ -18,7 +18,7 @@ class DynamicStyledText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String fontFamily = styleOverrides['fontFamily'] ?? theme.defaultFont ?? 'Cairo';
+    final String fontFamily = styleOverrides['fontFamily'] ?? 'Cairo';
     final double fontSize = (styleOverrides['fontSize'] ?? 16.0).toDouble();
     final Color color = _parseColor(styleOverrides['color']) ?? theme.textPrimary;
     final FontWeight fontWeight = _parseFontWeight(styleOverrides['fontWeight']);

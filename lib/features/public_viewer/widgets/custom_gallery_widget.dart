@@ -45,7 +45,6 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = widget.theme?.background ?? AppColors.background;
     final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
     final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;

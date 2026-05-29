@@ -134,9 +134,13 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
 
           Expanded(
             child: ResponsiveDataTable(
+              title: "العملاء المحتملين",
               headers: headers,
               rows: rows,
               emptyMessage: loc.translate('no_data'),
+              onSearch: (_) {},
+              onSort: (_) {},
+              onPageChanged: (_) {},
             ),
           ),
         ],

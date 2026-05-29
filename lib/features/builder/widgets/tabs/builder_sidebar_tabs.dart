@@ -8,6 +8,7 @@ import '../../../../core/widgets/molecules/status_pill.dart';
 import '../../models/landing_page_theme.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
+import '../organisms/advanced_settings_panel.dart';
 
 class TemplatesTab extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -38,6 +39,7 @@ class TemplatesTab extends StatelessWidget {
   }
 
   Widget _buildTemplateCard(BuildContext context, String type, String label, IconData icon, String desc) {
+    final loc = context.read<LocalizationCubit>();
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -54,22 +56,22 @@ class TemplatesTab extends StatelessWidget {
         ),
         title: Text(label, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
         subtitle: Text(desc, style: AppTypography.caption),
-        onTap: () => _showTemplateConfirmation(context, type),
+        onTap: () => _showTemplateConfirmation(context, type, loc),
       ),
     );
   }
 
-  void _showTemplateConfirmation(BuildContext context, String type) {
+  void _showTemplateConfirmation(BuildContext context, String type, LocalizationCubit loc) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.background,
-        title: const Text("تأكيد تغيير القالب"),
-        content: const Text("هل أنت متأكد؟ سيتم حذف جميع الأقسام الحالية واستبدالها بالقالب الجديد."),
+        title: Text(loc.translate('confirm_template')),
+        content: Text(loc.translate('confirm_template_msg')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("إلغاء")),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(loc.translate('cancel'))),
           PrimaryButton(
-            text: "تطبيق",
+            text: loc.translate('apply'),
             width: 100,
             onPressed: () {
               cubit.applyTemplate(type);
@@ -155,6 +157,10 @@ class DesignTab extends StatelessWidget {
           _buildColorPickerItem(context, cubit, "اللون الثانوي", "secondary", state.theme.secondary),
           _buildColorPickerItem(context, cubit, "لون الخلفية", "background", state.theme.background),
           _buildColorPickerItem(context, cubit, "لون النص الرئيسي", "textPrimary", state.theme.textPrimary),
+          const SizedBox(height: 32),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: 32),
+          const AdvancedSettingsPanel(),
         ],
       ),
     );
@@ -235,6 +241,7 @@ class DesignTab extends StatelessWidget {
 
 class ContentTab extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
+  final LocalizationCubit loc;
   final List<Map<String, dynamic>> blocks;
   final Function(int) onEditBlock;
   final Function(BuildContext, LandingPageBuilderCubit) onAddBlock;
@@ -242,6 +249,7 @@ class ContentTab extends StatelessWidget {
   const ContentTab({
     super.key,
     required this.cubit,
+    required this.loc,
     required this.blocks,
     required this.onEditBlock,
     required this.onAddBlock,
@@ -257,11 +265,11 @@ class ContentTab extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("إضافة قسم جديد", style: AppTypography.h3),
+              Text(loc.translate('add_block'), style: AppTypography.h3),
               TextButton.icon(
                 onPressed: () => onAddBlock(context, cubit),
                 icon: const Icon(Icons.grid_view_rounded, size: 16),
-                label: const Text("كل الأقسام"),
+                label: Text(loc.translate('all_blocks')),
               ),
             ],
           ),
@@ -270,23 +278,23 @@ class ContentTab extends StatelessWidget {
             spacing: 10,
             runSpacing: 10,
             children: [
-              _buildQuickAddButton(cubit, 'hero', "+ هيرو"),
-              _buildQuickAddButton(cubit, 'features', "+ مميزات"),
-              _buildQuickAddButton(cubit, 'whatsapp', "+ واتساب"),
-              _buildQuickAddButton(cubit, 'products', "+ منتجات"),
+              _buildQuickAddButton(cubit, 'hero', "+ ${loc.translate('hero_short')}"),
+              _buildQuickAddButton(cubit, 'features', "+ ${loc.translate('features_short')}"),
+              _buildQuickAddButton(cubit, 'whatsapp', "+ ${loc.translate('whatsapp')}"),
+              _buildQuickAddButton(cubit, 'products', "+ ${loc.translate('products_short')}"),
               _buildQuickAddButton(cubit, 'qr_code', "+ QR"),
-              _buildQuickAddButton(cubit, 'social_qr', "+ روابط"),
-              _buildQuickAddButton(cubit, 'pricing', "+ الأسعار"),
-              _buildQuickAddButton(cubit, 'faq', "+ أسئلة"),
-              _buildQuickAddButton(cubit, 'testimonials', "+ آراء"),
-              _buildQuickAddButton(cubit, 'contact_info', "+ تواصل"),
-              _buildQuickAddButton(cubit, 'gallery', "+ صور"),
+              _buildQuickAddButton(cubit, 'social_qr', "+ ${loc.translate('links_short')}"),
+              _buildQuickAddButton(cubit, 'pricing', "+ ${loc.translate('pricing_short')}"),
+              _buildQuickAddButton(cubit, 'faq', "+ ${loc.translate('faq_short')}"),
+              _buildQuickAddButton(cubit, 'testimonials', "+ ${loc.translate('reviews_short')}"),
+              _buildQuickAddButton(cubit, 'contact_info', "+ ${loc.translate('contact_short')}"),
+              _buildQuickAddButton(cubit, 'gallery', "+ ${loc.translate('gallery_short')}"),
             ],
           ),
           const SizedBox(height: 32),
           const Divider(color: AppColors.border),
           const SizedBox(height: 32),
-          Text("الأقسام المضافة", style: AppTypography.h3),
+          Text(loc.translate('added_sections'), style: AppTypography.h3),
           const SizedBox(height: 16),
           if (blocks.isEmpty)
             const Padding(

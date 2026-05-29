@@ -50,4 +50,27 @@ class DatabaseService {
   Future<Map<String, dynamic>> getSuperAdminMetrics() {
     return _supabase.getSuperAdminMetrics();
   }
+  Future<List<Map<String, dynamic>>> getLandingPagesByUserId(String userId) {
+    return _supabase.getLandingPagesByUserId(userId);
+  }
+
+  Future<Map<String, dynamic>?> getProfile(String userId) {
+    return _supabase.getProfile(userId);
+  }
+
+  Future<List<Map<String, dynamic>>> getAdminUsers() {
+    return _supabase.getAdminUsers();
+  }
+
+  Future<List<Map<String, dynamic>>> getAdminPages() {
+    return _supabase.getAdminPages();
+  }
+
+  Future<List<Map<String, dynamic>>> getAdminSubscriptionRequests() {
+    return _supabase.getAdminSubscriptionRequests();
+  }
+
+  Future<void> updateSubscriptionStatus(String id, String status) {
+    return _supabase.updateSubscriptionStatus(id, status);
+  }
 }

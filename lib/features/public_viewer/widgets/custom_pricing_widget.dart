@@ -27,7 +27,6 @@ class CustomPricingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = theme?.background ?? AppColors.background;
     final primaryColor = theme?.primary ?? AppColors.primary;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;

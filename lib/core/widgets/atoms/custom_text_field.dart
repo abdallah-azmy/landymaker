@@ -9,6 +9,7 @@ class CustomTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final int maxLines;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
   final String? Function(String?)? validator;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
@@ -22,6 +23,7 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
     this.onChanged,
+    this.onSubmitted,
     this.validator,
     this.prefixIcon,
     this.suffixIcon,
@@ -36,6 +38,7 @@ class CustomTextField extends StatelessWidget {
       keyboardType: keyboardType,
       maxLines: maxLines,
       onChanged: onChanged,
+      onFieldSubmitted: onSubmitted,
       validator: validator,
       readOnly: readOnly,
       style: AppTypography.bodyLarge.copyWith(color: AppColors.textPrimary),

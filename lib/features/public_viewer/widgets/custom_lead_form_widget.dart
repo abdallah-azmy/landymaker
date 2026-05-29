@@ -81,7 +81,6 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final bgColor = widget.theme?.background ?? AppColors.background;
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
     final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;

@@ -6,6 +6,7 @@ on:
 
 env:
   FLUTTER_VERSION: "3.35.3"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # حل مشكلة تحذير الـ Node.js
 
 jobs:
   build-and-deploy:
@@ -33,8 +34,10 @@ jobs:
       - name: 🔧 Install Vercel CLI
         run: npm install -g vercel@latest
 
+      # الخطوة دي بتجيب إعدادات مشروعك من فيرسيل عشان الرفع يروح للمكان الصح
+      - name: 🔗 Pull Vercel Project Info
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      # الرفع النهائي مع التأكيد إنه Production
       - name: 🚀 Deploy to Vercel Production
-        # We deploy the build/web directory directly instead of using --prebuilt
-        # This is more reliable for simple static deployments like Flutter Web
-        run: |
-          vercel deploy build/web --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy build/web --prod --yes --token=${{ secrets.VERCEL_TOKEN }}

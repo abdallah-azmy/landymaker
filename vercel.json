@@ -2,12 +2,12 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/(?!api/)(.*)",
+      "source": "/(?!seo-middleware)(.*)",
       "destination": "/index.html"
     }
   ],
   "functions": {
-    "api/seo-middleware.js": {
+    "seo-middleware.js": {
       "runtime": "edge"
     }
   }

@@ -3,22 +3,17 @@ name: Build & Deploy to Vercel
 on:
   push:
     branches: [main]
-  # Uncomment below to also deploy on PRs (as preview deployments)
-  # pull_request:
-  #   branches: [main]
 
 env:
-  FLUTTER_VERSION: "3.35.3"  # Must match your local Flutter SDK version
+  FLUTTER_VERSION: "3.35.3"
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # 1. Checkout repo
       - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Setup Flutter SDK (cached for speed)
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -26,31 +21,20 @@ jobs:
           channel: stable
           cache: true
 
-      # 3. Install dependencies
       - name: 📥 Install dependencies
         run: flutter pub get
 
-      # 4. Build Flutter Web (release mode with Supabase env vars)
       - name: 🔨 Build Flutter Web
         run: |
           flutter build web --release \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
 
-      # 5. Copy vercel.json into build output so Vercel picks up rewrites
-      - name: 📋 Copy vercel.json to build output
-        run: cp vercel.json build/web/vercel.json
-
-      # 6. Install Vercel CLI
       - name: 🔧 Install Vercel CLI
         run: npm install -g vercel@latest
 
-      # 7. Pull Vercel project settings
-      - name: 🔗 Pull Vercel project settings
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      # 8. Deploy pre-built files to Vercel (production)
       - name: 🚀 Deploy to Vercel Production
+        # We deploy the build/web directory directly instead of using --prebuilt
+        # This is more reliable for simple static deployments like Flutter Web
         run: |
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} \
-            || vercel deploy build/web --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy build/web --prod --yes --token=${{ secrets.VERCEL_TOKEN }}

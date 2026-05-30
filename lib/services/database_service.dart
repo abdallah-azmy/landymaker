@@ -70,7 +70,17 @@ class DatabaseService {
     return _supabase.getAdminSubscriptionRequests();
   }
 
+  Future<List<Map<String, dynamic>>> getAdminAffiliates() {
+    return _supabase.getAdminAffiliates();
+  }
+
   Future<void> updateSubscriptionStatus(String id, String status) {
     return _supabase.updateSubscriptionStatus(id, status);
   }
+
+  Future<Map<String, dynamic>> getAdminGlobalStats() {
+    return _supabase.getAdminGlobalStats();
+  }
 }
+
+

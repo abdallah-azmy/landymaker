@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Theme Backgrounds
-  static const Color background = Color(0xFF0F172A); // Deep Slate 900
-  static const Color cardBg = Color(0xFF1E293B);      // Slate 800
-  static const Color cardBgHover = Color(0xFF2E3B4E); // Slate 750
-  static const Color border = Color(0xFF334155);      // Slate 700
-  static const Color borderGlow = Color(0xFF475569);  // Slate 600
+  static const Color background = Color(0xFF030712); // Deep Space Black
+  static const Color cardBg = Color(0xFF111827);      // Dark Slate (Surface)
+  static const Color cardBgHover = Color(0xFF1E293B); // Slate 800 (for hover)
+  static const Color border = Color(0xFF1F2937);      // Deep Slate Border
+  static const Color borderGlow = Color(0xFF00E5FF);  // Cyan Glow
 
   // Brand Primaries & Accents
-  static const Color primary = Color(0xFF6366F1);     // Electric Indigo
-  static const Color secondary = Color(0xFF06B6D4);   // Neon Cyan
-  static const Color accent = Color(0xFFEC4899);      // Hot Pink
+  static const Color primary = Color(0xFF00E5FF);     // Cyan Glow
+  static const Color secondary = Color(0xFF1E3A8A);   // Deep Tech Blue
+  static const Color accent = Color(0xFF00E5FF);      // Cyan Glow
   static const Color activeGreen = Color(0xFF10B981);  // Emerald Success
   static const Color dangerRed = Color(0xFFEF4444);    // Crimson Error
   static const Color warningOrange = Color(0xFFF59E0B); // Amber Warning
 
   // Text Hierarchy
-  static const Color textPrimary = Color(0xFFF8FAFC);   // Slate 50
+  static const Color textPrimary = Color(0xFFF3F4F6);   // Ice White
   static const Color textSecondary = Color(0xFF94A3B8); // Slate 400
   static const Color textMuted = Color(0xFF64748B);     // Slate 500
 

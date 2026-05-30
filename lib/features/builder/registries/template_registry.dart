@@ -13,6 +13,12 @@ class TemplateRegistry {
         return _getPersonalTemplate();
       case 'professional':
         return _getProfessionalTemplate();
+      case 'real_estate':
+        return _getRealEstateTemplate();
+      case 'digital_course':
+        return _getDigitalCourseTemplate();
+      case 'event':
+        return _getEventTemplate();
       default:
         return {'blocks': []};
     }
@@ -22,19 +28,33 @@ class TemplateRegistry {
   static LandingPageTheme getTemplateTheme(String templateType) {
     switch (templateType) {
       case 'barber_shop':
-        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Midnight Ocean');
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Midnight Ocean',
+        );
       case 'store':
-        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Lux-Earth');
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Lux-Earth',
+        );
       case 'personal':
-        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Butter & Sky');
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Butter & Sky',
+        );
       case 'professional':
-        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Midnight Ocean');
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Midnight Ocean',
+        );
       case 'real_estate':
-        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Royal Gold');
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Royal Gold',
+        );
       case 'digital_course':
-        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Deep Forest');
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Deep Forest',
+        );
       case 'event':
-        return LandingPageTheme.palettes.firstWhere((e) => e.name == 'Stadium Neon');
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Stadium Neon',
+        );
       default:
         return LandingPageTheme.palettes.last; // Default Dark with Cairo
     }
@@ -46,17 +66,19 @@ class TemplateRegistry {
         {
           'type': 'hero',
           'title': 'أناقة وفخامة تليق بك',
-          'subtitle': 'نحن لا نقص الشعر فقط، بل نصنع الثقة والمظهر المثالي الذي تستحقه بأحدث القصات العالمية.',
+          'subtitle':
+              'نحن لا نقص الشعر فقط، بل نصنع الثقة والمظهر المثالي الذي تستحقه بأحدث القصات العالمية.',
           'button_text': 'احجز مقعدك الآن عبر واتساب',
-          'image_url': 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800'
+          'image_url':
+              'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800',
         },
         {
           'type': 'working_hours',
           'title': 'مواعيد العمل الرسمية',
           'schedule': {
             'السبت - الخميس': '10:00 AM - 11:00 PM',
-            'الجمعة': '2:00 PM - 12:00 AM'
-          }
+            'الجمعة': '2:00 PM - 12:00 AM',
+          },
         },
         {
           'type': 'pricing',
@@ -66,24 +88,24 @@ class TemplateRegistry {
               'name': 'قص شعر ستايل عالي الجودة',
               'price': '200 EGP',
               'features': ['غسيل شعر بشامبو طبي', 'استشوار وتصفيف سيروم'],
-              'is_popular': true
+              'is_popular': true,
             },
             {
               'name': 'تحديد وحلاقة ذقن ملكي بالبخار',
               'price': '150 EGP',
               'features': ['فوطة ساخنة مرطبة', 'ماسك الصبار الطبيعي'],
-              'is_popular': false
-            }
-          ]
+              'is_popular': false,
+            },
+          ],
         },
         {
           'type': 'whatsapp',
           'title': 'تواصل مباشر مع الإدارة',
           'phone_number': '201000000000',
           'message': 'مرحباً، أود الاستفسار عن المواعيد المتاحة اليوم للحجز.',
-          'button_text': 'تواصل معنا الآن'
-        }
-      ]
+          'button_text': 'تواصل معنا الآن',
+        },
+      ],
     };
   }
 
@@ -93,9 +115,11 @@ class TemplateRegistry {
         {
           'type': 'hero',
           'title': 'أفضل المنتجات بين يديك',
-          'subtitle': 'اكتشف مجموعتنا الحصرية من المنتجات عالية الجودة التي تناسب ذوقك الرفيع.',
+          'subtitle':
+              'اكتشف مجموعتنا الحصرية من المنتجات عالية الجودة التي تناسب ذوقك الرفيع.',
           'button_text': 'تسوق الآن',
-          'image_url': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800'
+          'image_url':
+              'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800',
         },
         {
           'type': 'products',
@@ -107,12 +131,13 @@ class TemplateRegistry {
               'name': 'ساعة ذكية فاخرة',
               'price': '1200 EGP',
               'description': 'تتبع نشاطك وصحتك بكل سهولة مع تصميم عصري.',
-              'image_url': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
-              'button_text': 'اشترِ الآن'
-            }
-          ]
-        }
-      ]
+              'image_url':
+                  'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+              'button_text': 'اشترِ الآن',
+            },
+          ],
+        },
+      ],
     };
   }
 
@@ -122,9 +147,11 @@ class TemplateRegistry {
         {
           'type': 'hero',
           'title': 'مرحباً، أنا مصمم مبدع',
-          'subtitle': 'أساعد الشركات على بناء هويات بصرية مذهلة وتجارب مستخدم فريدة.',
+          'subtitle':
+              'أساعد الشركات على بناء هويات بصرية مذهلة وتجارب مستخدم فريدة.',
           'button_text': 'شاهد أعمالي',
-          'image_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800'
+          'image_url':
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
         },
         {
           'type': 'social_qr',
@@ -132,10 +159,10 @@ class TemplateRegistry {
           'subtitle': 'تابعني على المنصات التالية',
           'links': [
             {'platform': 'instagram', 'url': 'https://instagram.com'},
-            {'platform': 'linkedin', 'url': 'https://linkedin.com'}
-          ]
-        }
-      ]
+            {'platform': 'linkedin', 'url': 'https://linkedin.com'},
+          ],
+        },
+      ],
     };
   }
 
@@ -145,16 +172,132 @@ class TemplateRegistry {
         {
           'type': 'hero',
           'title': 'حلول استشارية لنمو عملك',
-          'subtitle': 'نقدم استشارات مبنية على البيانات لتحقيق أهدافك التجارية.',
+          'subtitle':
+              'نقدم استشارات مبنية على البيانات لتحقيق أهدافك التجارية.',
           'button_text': 'احجز استشارة مجانية',
-          'image_url': 'https://images.unsplash.com/photo-1454165833767-027ffea9e77b?w=800'
+          'image_url':
+              'https://images.unsplash.com/photo-1454165833767-027ffea9e77b?w=800',
         },
         {
           'type': 'lead_form',
           'title': 'تواصل مع فريق الخبراء',
-          'button_text': 'إرسال الطلب'
-        }
-      ]
+          'button_text': 'إرسال الطلب',
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> _getRealEstateTemplate() {
+    return {
+      'blocks': [
+        {
+          'type': 'logo_header',
+          'title': 'Landy Real Estate',
+          'alignment': 'left',
+        },
+        {
+          'type': 'hero',
+          'title': 'Find Your Dream Home',
+          'subtitle':
+              'Discover the finest properties in the most prestigious neighborhoods with flexible payment plans.',
+          'button_text': 'Browse Units',
+          'image_url':
+              'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
+        },
+        {
+          'type': 'features',
+          'title': 'Why Invest With Us?',
+          'layout_style': 'grid',
+          'items': [
+            {
+              'title': 'Prime Locations',
+              'description': 'Strategic spots with high ROI potential.',
+            },
+            {
+              'title': 'Modern Design',
+              'description': 'Smart homes with luxury finishes.',
+            },
+          ],
+        },
+        {
+          'type': 'contact_info',
+          'title': 'Contact Our Sales Team',
+          'phone': '+201100000000',
+          'location': 'New Cairo, Egypt',
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> _getDigitalCourseTemplate() {
+    return {
+      'blocks': [
+        {
+          'type': 'hero',
+          'title': 'Master Modern Web Development',
+          'subtitle':
+              'An intensive, hands-on course to take you from zero to pro in 12 weeks.',
+          'button_text': 'Enroll Now',
+          'image_url':
+              'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800',
+        },
+        {
+          'type': 'pricing',
+          'title': 'Choose Your Learning Path',
+          'items': [
+            {
+              'name': 'Standard',
+              'price': '2000 EGP',
+              'features': ['Lifetime access', 'Course files'],
+            },
+            {
+              'name': 'Pro',
+              'price': '4500 EGP',
+              'features': ['1-on-1 Mentorship', 'Job assistance'],
+              'is_popular': true,
+            },
+          ],
+        },
+        {
+          'type': 'faq',
+          'title': 'Course FAQs',
+          'items': [
+            {
+              'question': 'Is it for beginners?',
+              'answer': 'Yes, we start from the basics.',
+            },
+          ],
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> _getEventTemplate() {
+    return {
+      'blocks': [
+        {
+          'type': 'hero',
+          'title': 'TechFlow 2026 Conference',
+          'subtitle':
+              'The biggest annual gathering for developers and AI enthusiasts in the region.',
+          'button_text': 'Get Your Ticket',
+          'image_url':
+              'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+        },
+        {
+          'type': 'qr_code',
+          'title': 'Quick Registration',
+          'subtitle': 'Scan this code at the gate.',
+          'qr_size': 200.0,
+        },
+        {
+          'type': 'location_map',
+          'title': 'Event Venue',
+          'address': 'Cairo International Convention Centre',
+          'map_iframe_url':
+              'https://maps.google.com/maps?q=CICC&t=&z=13&ie=UTF8&iwloc=&output=embed',
+        },
+      ],
     };
   }
 }

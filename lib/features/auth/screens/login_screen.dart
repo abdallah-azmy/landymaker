@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
@@ -9,12 +10,11 @@ import '../../../core/widgets/molecules/form_group.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
-import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback onLoginSuccess;
+  final VoidCallback? onLoginSuccess;
 
-  const LoginScreen({super.key, required this.onLoginSuccess});
+  const LoginScreen({super.key, this.onLoginSuccess});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -51,7 +51,13 @@ class _LoginScreenState extends State<LoginScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go('/');
+            }
+          },
         ),
       ),
       body: Container(
@@ -59,7 +65,11 @@ class _LoginScreenState extends State<LoginScreen> {
         child: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
-              widget.onLoginSuccess();
+              if (widget.onLoginSuccess != null) {
+                widget.onLoginSuccess!();
+              } else {
+                context.go('/');
+              }
             }
           },
           builder: (context, state) {
@@ -101,17 +111,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              gradient: AppColors.primaryGradient,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.auto_awesome,
-                              color: Colors.white,
-                              size: 28,
-                            ),
+                          Image.asset(
+                            'assets/images/logo.webp',
+                            height: 64,
+                            width: 64,
                           ),
                           const SizedBox(width: 16),
                           Text(
@@ -217,14 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                          builder: (_) => RegisterScreen(
-                                            onRegisterSuccess:
-                                                widget.onLoginSuccess,
-                                          ),
-                                        ),
-                                      );
+                                      context.go('/register');
                                     },
                                     child: Text(
                                       loc.translate('register'),

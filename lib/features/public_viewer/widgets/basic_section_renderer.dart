@@ -22,19 +22,57 @@ class BasicSectionRenderer extends StatelessWidget {
   Widget build(BuildContext context) {
     final List elements = sectionData['elements'] ?? [];
     final String direction = sectionData['layout_direction'] ?? 'column';
+    final String mainAlign = sectionData['main_axis_alignment'] ?? 'center';
+    final String crossAlign = sectionData['cross_axis_alignment'] ?? 'center';
+    final double spacing = (sectionData['spacing'] ?? 16.0).toDouble();
+
+    final List<Widget> elementWidgets = elements.map((e) => _buildElement(context, e)).toList();
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
       width: double.infinity,
       child: direction == 'row'
           ? Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: elements.map((e) => _buildElement(context, e)).toList(),
+              mainAxisAlignment: _parseMainAlign(mainAlign),
+              crossAxisAlignment: _parseCrossAlign(crossAlign),
+              children: _addSpacing(elementWidgets, spacing, true),
             )
           : Column(
-              children: elements.map((e) => _buildElement(context, e)).toList(),
+              mainAxisAlignment: _parseMainAlign(mainAlign),
+              crossAxisAlignment: _parseCrossAlign(crossAlign),
+              children: _addSpacing(elementWidgets, spacing, false),
             ),
     );
+  }
+
+  MainAxisAlignment _parseMainAlign(String value) {
+    switch (value) {
+      case 'start': return MainAxisAlignment.start;
+      case 'end': return MainAxisAlignment.end;
+      case 'spaceBetween': return MainAxisAlignment.spaceBetween;
+      default: return MainAxisAlignment.center;
+    }
+  }
+
+  CrossAxisAlignment _parseCrossAlign(String value) {
+    switch (value) {
+      case 'start': return CrossAxisAlignment.start;
+      case 'end': return CrossAxisAlignment.end;
+      case 'stretch': return CrossAxisAlignment.stretch;
+      default: return CrossAxisAlignment.center;
+    }
+  }
+
+  List<Widget> _addSpacing(List<Widget> widgets, double spacing, bool isRow) {
+    if (widgets.isEmpty) return [];
+    List<Widget> result = [];
+    for (int i = 0; i < widgets.length; i++) {
+      result.add(widgets[i]);
+      if (i < widgets.length - 1) {
+        result.add(isRow ? SizedBox(width: spacing) : SizedBox(height: spacing));
+      }
+    }
+    return result;
   }
 
   Widget _buildElement(BuildContext context, Map<String, dynamic> element) {

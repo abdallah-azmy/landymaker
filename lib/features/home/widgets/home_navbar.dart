@@ -40,17 +40,12 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
                   // Logo
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primary, AppColors.secondary],
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.rocket_launch_rounded, color: Colors.white, size: 20),
+                      Image.asset(
+                        'assets/images/logo_small.webp',
+                        height: 40,
+                        width: 40,
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       Text(
                         "landymaker",
                         style: AppTypography.h3.copyWith(
@@ -78,13 +73,15 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
                       ElevatedButton(
                         onPressed: onGetStartedPressed,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.secondary,
-                          foregroundColor: Colors.white,
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(24),
                           ),
                           elevation: 0,
+                        ).copyWith(
+                          shadowColor: WidgetStateProperty.all(AppColors.primary.withValues(alpha: 0.5)),
                         ),
                         child: Text(
                           "ابدأ مجاناً",

@@ -47,7 +47,8 @@ class _PrimaryButtonState extends State<PrimaryButton> {
         Text(
           widget.text,
           style: AppTypography.button.copyWith(
-            color: widget.isSecondary ? AppColors.textPrimary : Colors.white,
+            color: widget.isSecondary ? AppColors.textPrimary : Colors.black,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ],
@@ -58,21 +59,18 @@ class _PrimaryButtonState extends State<PrimaryButton> {
         ? BoxDecoration(
             color: _isHovered ? AppColors.cardBgHover : AppColors.cardBg,
             border: Border.all(color: AppColors.border, width: 1.5),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(24),
           )
         : BoxDecoration(
-            gradient: isDisabled
-                ? const LinearGradient(
-                    colors: [AppColors.border, AppColors.border],
-                  )
-                : AppColors.primaryGradient,
-            borderRadius: BorderRadius.circular(10),
+            color: isDisabled ? AppColors.border : AppColors.primary,
+            borderRadius: BorderRadius.circular(24),
             boxShadow: _isHovered && !isDisabled
                 ? [
                     BoxShadow(
-                      color: AppColors.secondary.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: AppColors.primary.withValues(alpha: 0.6),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 0),
                     )
                   ]
                 : [],

@@ -53,17 +53,10 @@ class SidebarNavigation extends StatelessWidget {
           // Platform Brand Logo
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.auto_awesome,
-                  color: Colors.white,
-                  size: 20,
-                ),
+              Image.asset(
+                'assets/images/logo_small.webp',
+                height: 32,
+                width: 32,
               ),
               const SizedBox(width: 12),
               Text(

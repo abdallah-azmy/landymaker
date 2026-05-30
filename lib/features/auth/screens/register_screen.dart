@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
@@ -13,9 +14,9 @@ import '../controllers/auth_state.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
-  final VoidCallback onRegisterSuccess;
+  final VoidCallback? onRegisterSuccess;
 
-  const RegisterScreen({super.key, required this.onRegisterSuccess});
+  const RegisterScreen({super.key, this.onRegisterSuccess});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -32,11 +33,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     context.read<AuthCubit>().register(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-          fullName: _nameController.text.trim(),
-          role: _selectedRole,
-        );
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      fullName: _nameController.text.trim(),
+      role: _selectedRole,
+    );
   }
 
   @override
@@ -57,17 +58,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go('/');
+            }
+          },
         ),
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.darkGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.darkGradient),
         child: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
-              widget.onRegisterSuccess();
+              if (widget.onRegisterSuccess != null) {
+                widget.onRegisterSuccess!();
+              } else {
+                context.go('/');
+              }
             } else if (state is RegistrationSuccess) {
               ToastService.showSuccess(
                 context,
@@ -75,11 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ? "تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول باستخدام بياناتك."
                     : "Account created successfully! Please log in with your credentials.",
               );
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (_) => LoginScreen(onLoginSuccess: widget.onRegisterSuccess),
-                ),
-              );
+              context.go('/login');
             }
           },
           builder: (context, state) {
@@ -97,13 +102,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       // Language Toggle
                       Align(
-                        alignment: loc.isRtl ? Alignment.topLeft : Alignment.topRight,
+                        alignment: loc.isRtl
+                            ? Alignment.topLeft
+                            : Alignment.topRight,
                         child: TextButton.icon(
                           onPressed: () => loc.toggleLanguage(),
-                          icon: const Icon(Icons.language, color: AppColors.secondary, size: 18),
+                          icon: const Icon(
+                            Icons.language,
+                            color: AppColors.secondary,
+                            size: 18,
+                          ),
                           label: Text(
                             loc.translate('switch_language'),
-                            style: AppTypography.button.copyWith(color: AppColors.secondary),
+                            style: AppTypography.button.copyWith(
+                              color: AppColors.secondary,
+                            ),
                           ),
                         ),
                       ),
@@ -119,12 +132,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               gradient: AppColors.primaryGradient,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(Icons.auto_awesome, color: Colors.white, size: 24),
+                            child: const Icon(
+                              Icons.auto_awesome,
+                              color: Colors.white,
+                              size: 24,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Text(
                             loc.translate('app_title'),
-                            style: AppTypography.h1.copyWith(fontSize: 28, fontWeight: FontWeight.bold),
+                            style: AppTypography.h1.copyWith(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -149,9 +169,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: CustomTextField(
                                   controller: _nameController,
                                   hintText: 'John Doe',
-                                  prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
+                                  prefixIcon: const Icon(
+                                    Icons.person_outline,
+                                    color: AppColors.textSecondary,
+                                  ),
                                   validator: (val) {
-                                    if (val == null || val.isEmpty) return 'Required';
+                                    if (val == null || val.isEmpty)
+                                      return 'Required';
                                     return null;
                                   },
                                 ),
@@ -165,10 +189,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   controller: _emailController,
                                   hintText: 'name@domain.com',
                                   keyboardType: TextInputType.emailAddress,
-                                  prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary),
+                                  prefixIcon: const Icon(
+                                    Icons.email_outlined,
+                                    color: AppColors.textSecondary,
+                                  ),
                                   validator: (val) {
-                                    if (val == null || val.isEmpty) return 'Required';
-                                    if (!val.contains('@')) return 'Invalid Email';
+                                    if (val == null || val.isEmpty)
+                                      return 'Required';
+                                    if (!val.contains('@'))
+                                      return 'Invalid Email';
                                     return null;
                                   },
                                 ),
@@ -182,10 +211,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   controller: _passwordController,
                                   hintText: '••••••••',
                                   obscureText: true,
-                                  prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                                  prefixIcon: const Icon(
+                                    Icons.lock_outline,
+                                    color: AppColors.textSecondary,
+                                  ),
                                   validator: (val) {
-                                    if (val == null || val.isEmpty) return 'Required';
-                                    if (val.length < 6) return 'Password must be at least 6 characters';
+                                    if (val == null || val.isEmpty)
+                                      return 'Required';
+                                    if (val.length < 6)
+                                      return 'Password must be at least 6 characters';
                                     return null;
                                   },
                                 ),
@@ -196,11 +230,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               FormGroup(
                                 label: loc.translate('role'),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.cardBg,
                                     borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: AppColors.border, width: 1.5),
+                                    border: Border.all(
+                                      color: AppColors.border,
+                                      width: 1.5,
+                                    ),
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<String>(
@@ -208,15 +248,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       dropdownColor: AppColors.cardBg,
                                       isExpanded: true,
                                       style: AppTypography.bodyLarge,
-                                      icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
+                                      icon: const Icon(
+                                        Icons.arrow_drop_down,
+                                        color: AppColors.textSecondary,
+                                      ),
                                       items: [
                                         DropdownMenuItem(
                                           value: 'user',
-                                          child: Text(loc.translate('dashboard')),
+                                          child: Text(
+                                            loc.translate('dashboard'),
+                                          ),
                                         ),
                                         DropdownMenuItem(
                                           value: 'super_admin',
-                                          child: Text(loc.translate('super_admin')),
+                                          child: Text(
+                                            loc.translate('super_admin'),
+                                          ),
                                         ),
                                       ],
                                       onChanged: (val) {
@@ -233,7 +280,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               if (errorMessage != null) ...[
                                 Text(
                                   errorMessage,
-                                  style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed),
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: AppColors.dangerRed,
+                                  ),
                                 ),
                                 const SizedBox(height: 16),
                               ],
@@ -253,15 +302,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 children: [
                                   Text(
                                     "Already have an account? ",
-                                    style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                          builder: (_) => LoginScreen(onLoginSuccess: widget.onRegisterSuccess),
-                                        ),
-                                      );
+                                      context.go('/login');
                                     },
                                     child: Text(
                                       loc.translate('login'),

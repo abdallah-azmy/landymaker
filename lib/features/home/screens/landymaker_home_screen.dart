@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../features/auth/screens/login_screen.dart';
+import 'package:go_router/go_router.dart';
 import '../../../services/tenant_routing_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../widgets/home_navbar.dart';
@@ -16,36 +16,24 @@ class LandyMakerHomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: HomeNavbar(
-        onLoginPressed: () => _navigateToLogin(context),
-        onGetStartedPressed: () => _navigateToLogin(context),
+        onLoginPressed: () => context.go('/login'),
+        onGetStartedPressed: () => context.go('/login'),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             HomeHeroSection(
-              onGetStartedPressed: () => _navigateToLogin(context),
+              onGetStartedPressed: () => context.go('/login'),
             ),
             const HomeFeatureBento(),
             HomeTemplateStrip(
               onGetStartedPressed: (templateId) {
                 TenantRoutingService.pendingTemplateId = templateId;
-                _navigateToLogin(context);
+                context.go('/login');
               },
             ),
             const HomeFooter(),
           ],
-        ),
-      ),
-    );
-  }
-
-  void _navigateToLogin(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => LoginScreen(
-          onLoginSuccess: () {
-            Navigator.of(context).pop(); // pop login screen so root router handles auth state
-          },
         ),
       ),
     );

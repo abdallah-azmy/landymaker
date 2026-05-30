@@ -16,6 +16,8 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
       final users = await _databaseService.getAdminUsers();
       final pages = await _databaseService.getAdminPages();
       final requests = await _databaseService.getAdminSubscriptionRequests();
+      final affiliates = await _databaseService.getAdminAffiliates();
+      final globalStats = await _databaseService.getAdminGlobalStats();
 
       emit(SuperAdminLoaded(
         totalUsers: metrics['total_users'] ?? 0,
@@ -24,6 +26,8 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
         users: users,
         pages: pages,
         requests: requests,
+        affiliates: affiliates,
+        globalStats: globalStats,
       ));
     } catch (e) {
       emit(SuperAdminFailure("Error loading admin metrics: \$e"));

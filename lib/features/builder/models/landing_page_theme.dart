@@ -183,6 +183,17 @@ class LandingPageTheme {
       textSecondary: Color(0xFF2563EB),
     ),
     const LandingPageTheme(
+      name: 'glowingNexusPalette',
+      category: 'تكنولوجيا / Premium',
+      description: 'تصميم عالي التقنية مع إضاءات نيون سيان وظلال عميقة.',
+      defaultFont: 'Cairo',
+      primary: Color(0xFF00E5FF),
+      secondary: Color(0xFF1E3A8A),
+      background: Color(0xFF030712),
+      textPrimary: Color(0xFFF3F4F6),
+      textSecondary: Color(0xFF94A3B8),
+    ),
+    const LandingPageTheme(
       name: 'Cyber Slate',
       category: 'ألعاب / برمجة',
       description: 'نمط داكن مع إضاءات نيون لمحبي التكنولوجيا الحديثة.',

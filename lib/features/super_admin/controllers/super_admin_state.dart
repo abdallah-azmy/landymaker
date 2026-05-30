@@ -12,6 +12,7 @@ class SuperAdminLoaded extends SuperAdminState {
   final List<Map<String, dynamic>> pages;
   final List<Map<String, dynamic>> requests;
   final List<Map<String, dynamic>> affiliates;
+  final Map<String, dynamic> globalStats;
 
   SuperAdminLoaded({
     required this.totalUsers,
@@ -21,6 +22,7 @@ class SuperAdminLoaded extends SuperAdminState {
     this.pages = const [],
     this.requests = const [],
     this.affiliates = const [],
+    this.globalStats = const {},
   });
 
   SuperAdminLoaded copyWith({
@@ -31,6 +33,7 @@ class SuperAdminLoaded extends SuperAdminState {
     List<Map<String, dynamic>>? pages,
     List<Map<String, dynamic>>? requests,
     List<Map<String, dynamic>>? affiliates,
+    Map<String, dynamic>? globalStats,
   }) {
     return SuperAdminLoaded(
       totalUsers: totalUsers ?? this.totalUsers,
@@ -40,6 +43,7 @@ class SuperAdminLoaded extends SuperAdminState {
       pages: pages ?? this.pages,
       requests: requests ?? this.requests,
       affiliates: affiliates ?? this.affiliates,
+      globalStats: globalStats ?? this.globalStats,
     );
   }
 }

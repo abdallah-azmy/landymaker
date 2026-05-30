@@ -1,5 +1,5 @@
 -- ==========================================
--- 1. SUBSCRIPTIONS & PAYMENT PROOFS
+-- 1. SUBSCRIPTIONS & PAYMENT PROOFS (SPEC 4 & 5)
 -- ==========================================
 
 -- Extend profiles with subscription data
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.subscription_requests (
     plan_name TEXT NOT NULL,
     price_paid NUMERIC(10, 2) NOT NULL,
     payment_method TEXT NOT NULL, -- e.g. 'vodafone_cash', 'we_cash', 'instapay'
-    proof_screenshot_url TEXT NOT NULL,
+    proof_screenshot_url TEXT, -- Can be null if using WhatsApp flow primarily
     promo_code_used TEXT, -- tracking if an affiliate code was used
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
@@ -45,7 +45,7 @@ CREATE INDEX IF NOT EXISTS idx_subscription_requests_created_at ON public.subscr
 
 
 -- ==========================================
--- 2. AFFILIATE MARKETING SYSTEM
+-- 2. AFFILIATE MARKETING SYSTEM (SPEC 5)
 -- ==========================================
 
 -- Affiliate user profiles
@@ -177,61 +177,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Re-create trigger if it exists (or just drop and create)
+-- Re-create trigger
 DROP TRIGGER IF EXISTS on_subscription_request_approved ON public.subscription_requests;
 CREATE TRIGGER on_subscription_request_approved
     BEFORE UPDATE ON public.subscription_requests
     FOR EACH ROW EXECUTE FUNCTION public.handle_subscription_approval();
 
-
 -- ==========================================
--- 3. LANDING PAGE BARBER BOOKING SCHEMA
+-- 3. ANALYTICS & PURCHASES (SPEC 3)
 -- ==========================================
-
-CREATE TABLE IF NOT EXISTS public.barber_bookings (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    landing_page_id UUID REFERENCES public.landing_pages(id) ON DELETE CASCADE NOT NULL,
-    customer_name TEXT NOT NULL,
-    customer_phone TEXT NOT NULL,
-    queue_number INTEGER NOT NULL,
-    status TEXT NOT NULL DEFAULT 'waiting' CHECK (status IN ('waiting', 'serving', 'completed', 'cancelled')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
-);
-
--- Enable RLS
-ALTER TABLE public.barber_bookings ENABLE ROW LEVEL SECURITY;
-
--- Policies
-CREATE POLICY "Anyone can book online"
-    ON public.barber_bookings FOR INSERT
-    WITH CHECK (true);
-
-CREATE POLICY "Anyone can view current wait queue"
-    ON public.barber_bookings FOR SELECT
-    USING (true);
-
-CREATE POLICY "Page owners can manage bookings"
-    ON public.barber_bookings FOR UPDATE
-    USING (
-        EXISTS (
-            SELECT 1 FROM public.landing_pages
-            WHERE id = landing_page_id AND user_id = auth.uid()
-        )
-    );
-
-CREATE POLICY "Page owners can delete bookings"
-    ON public.barber_bookings FOR DELETE
-    USING (
-        EXISTS (
-            SELECT 1 FROM public.landing_pages
-            WHERE id = landing_page_id AND user_id = auth.uid()
-        )
-    );
-
--- Indices
-CREATE INDEX IF NOT EXISTS idx_barber_bookings_landing_page_id ON public.barber_bookings(landing_page_id);
-CREATE INDEX IF NOT EXISTS idx_barber_bookings_status ON public.barber_bookings(status);
-CREATE INDEX IF NOT EXISTS idx_barber_bookings_created_at ON public.barber_bookings(created_at);
 
 -- وظيفة لتسجيل عمليات الشراء وزيادة العداد (SPEC 3)
 CREATE OR REPLACE FUNCTION public.record_page_purchase(page_id UUID)
@@ -240,6 +194,6 @@ BEGIN
     UPDATE public.landing_pages 
     SET purchases_count = purchases_count + 1 
     WHERE id = page_id;
-    INSERT INTO public.page_analytics_logs (landing_page_id, event_type) VALUES (page_id, 'purchase');
+    -- Note: Log table page_analytics_logs should exist from init or previous steps
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

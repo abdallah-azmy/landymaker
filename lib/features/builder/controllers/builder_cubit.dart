@@ -618,7 +618,19 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (index >= 0 && index < blocks.length) {
       final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[index]);
-      updatedBlock[key] = value;
+      
+      // Support nested updates like 'layout_config.direction'
+      if (key.contains('.')) {
+        final parts = key.split('.');
+        final parentKey = parts[0];
+        final childKey = parts[1];
+        final Map<String, dynamic> parent = Map<String, dynamic>.from(updatedBlock[parentKey] ?? {});
+        parent[childKey] = value;
+        updatedBlock[parentKey] = parent;
+      } else {
+        updatedBlock[key] = value;
+      }
+
       blocks[index] = updatedBlock;
     }
 

@@ -237,12 +237,27 @@ class SupabaseService extends ChangeNotifier {
   }) async {
     try {
       final column = isCustom ? 'custom_domain' : 'subdomain';
-      return await _client!
+      final res = await _client!
           .from(DbConstants.landingPagesTable)
-          .select()
+          .select('*, profiles(tier)')
           .eq(column, domain)
           .eq('is_published', true)
           .maybeSingle();
+
+      if (res != null) {
+        // SPEC 2: Lifetime Expiry Policy
+        final tier = res['profiles']?['tier'] ?? 'free';
+        final lastVisited = DateTime.parse(res['last_visited_at'] ?? res['created_at']);
+        final isActive = res['is_active'] ?? true;
+        
+        if (tier == 'free' && DateTime.now().difference(lastVisited).inDays > 30) {
+          // Auto-suspend inactive free pages
+          return {...res, 'is_active': false};
+        }
+        
+        return res;
+      }
+      return null;
     } catch (e) {
       debugPrint("Error fetching landing page by domain/subdomain: $e");
       return null;
@@ -460,6 +475,41 @@ class SupabaseService extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error updating subscription status: $e");
       rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAdminAffiliates() async {
+    try {
+      final res = await _client!.from('affiliate_profiles').select('*, profiles(full_name, email)').order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching admin affiliates: \$e");
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> getAdminGlobalStats() async {
+    try {
+      final pagesRes = await _client!.from(DbConstants.landingPagesTable).select('views_count, purchases_count');
+      
+      int totalViews = 0;
+      int totalPurchases = 0;
+      
+      for (var p in pagesRes) {
+        totalViews += (p['views_count'] as int? ?? 0);
+        totalPurchases += (p['purchases_count'] as int? ?? 0);
+      }
+
+      final logsRes = await _client!.from('page_analytics_logs').select().order('created_at', ascending: false).limit(100);
+
+      return {
+        'total_views': totalViews,
+        'total_purchases': totalPurchases,
+        'recent_logs': List<Map<String, dynamic>>.from(logsRes),
+      };
+    } catch (e) {
+      debugPrint("Error fetching admin global stats: $e");
+      return {'total_views': 0, 'total_purchases': 0, 'recent_logs': []};
     }
   }
 

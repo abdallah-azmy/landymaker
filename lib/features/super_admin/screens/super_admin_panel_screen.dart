@@ -175,8 +175,80 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     );
   }
 
-  Widget _buildStatsTab(SuperAdminLoaded state) => _buildPlaceholder("إحصائيات المنصة");
-  Widget _buildAffiliatesTab(SuperAdminLoaded state) => _buildPlaceholder("نظام المسوقين");
+  Widget _buildStatsTab(SuperAdminLoaded state) {
+    final stats = state.globalStats;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("إحصائيات المنصة الشاملة", style: AppTypography.h3),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(child: _buildMetricMiniCard("إجمالي المشاهدات", stats['total_views'].toString(), Icons.visibility_rounded, AppColors.secondary)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildMetricMiniCard("إجمالي المبيعات", stats['total_purchases'].toString(), Icons.shopping_cart_rounded, AppColors.activeGreen)),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Text("آخر النشاطات", style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          ResponsiveDataTable(
+            title: "سجل العمليات",
+            headers: const ["نوع الحدث", "رقم الصفحة", "الوقت"],
+            rows: (stats['recent_logs'] as List).map((l) => [
+              StatusPill(label: l['event_type'].toString().toUpperCase(), color: l['event_type'] == 'view' ? AppColors.secondary : AppColors.activeGreen),
+              Text(l['landing_page_id'].toString().substring(0, 8) + "..."),
+              Text(l['created_at'].toString().split('T').last.substring(0, 5)),
+            ]).toList(),
+            emptyMessage: "لا يوجد نشاط مؤخراً",
+            onSearch: (v) {},
+            onSort: (v) {},
+            onPageChanged: (p) {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricMiniCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 12),
+          Text(title, style: AppTypography.caption),
+          Text(value, style: AppTypography.h3),
+        ],
+      ),
+    );
+  }
+  Widget _buildAffiliatesTab(SuperAdminLoaded state) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: ResponsiveDataTable(
+        title: "إدارة المسوقين",
+        headers: const ["المسوق", "الكود", "العمولة (%)", "الرصيد"],
+        rows: state.affiliates.map((a) {
+          final user = a['profiles']?['full_name'] ?? 'Unknown';
+          return [
+            Text(user, style: AppTypography.bodyLarge),
+            Text(a['promo_code'], style: AppTypography.bodyMedium.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold)),
+            Text("${a['commission_percent']}%"),
+            Text("${a['balance']} EGP", style: const TextStyle(color: AppColors.activeGreen, fontWeight: FontWeight.bold)),
+          ];
+        }).toList(),
+        emptyMessage: "لا يوجد مسوقين مسجلين",
+        onSearch: (val) {},
+        onSort: (val) {},
+        onPageChanged: (p) {},
+      ),
+    );
+  }
 
   Widget _buildPlaceholder(String title) {
     return Center(

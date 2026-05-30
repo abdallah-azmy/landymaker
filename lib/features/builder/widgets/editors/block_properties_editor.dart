@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+import '../modals/stock_image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
@@ -38,6 +39,30 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
   void dispose() {
     _newCategoryController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickStockImage(LandingPageBuilderCubit cubit, int blockIndex, {String? itemKey, int? itemIndex}) async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        maxChildSize: 0.9,
+        minChildSize: 0.5,
+        expand: false,
+        builder: (context, scrollController) => StockImagePicker(
+          onImageSelected: (url) {
+            if (itemKey != null && itemIndex != null) {
+              cubit.updateProductItem(blockIndex, itemIndex, itemKey, url);
+            } else {
+              cubit.updateBlockProperty(blockIndex, 'image_url', url);
+            }
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _pickAndUploadImage(LandingPageBuilderCubit cubit, int blockIndex) async {
@@ -189,6 +214,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
     String sectionName = "السكشن";
     
     switch (type) {
+      case 'basic_section': sectionName = "القسم المرن (Flex Section)"; break;
       case 'navbar': sectionName = "شريط التنقل (Navbar)"; break;
       case 'hero': sectionName = "قسم البطل (Hero)"; break;
       case 'features': sectionName = "المميزات"; break;
@@ -398,6 +424,14 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                   ),
                   const SizedBox(height: 10),
                   PrimaryButton(
+                    text: "ابحث في الصور (Stock Images)",
+                    icon: Icons.search_rounded,
+                    isSecondary: true,
+                    onPressed: () => _pickStockImage(cubit, widget.index),
+                    width: double.infinity,
+                  ),
+                  const SizedBox(height: 10),
+                  PrimaryButton(
                     text: "ارفع صورة (Upload Image)",
                     icon: Icons.upload_file_rounded,
                     isSecondary: true,
@@ -496,6 +530,14 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                       controller: TextEditingController(text: item['description'] ?? '')..selection = TextSelection.collapsed(offset: (item['description'] ?? '').length),
                       maxLines: 2,
                       onChanged: (val) => cubit.updateFeatureItem(widget.index, fIndex, 'description', val),
+                    ),
+                    const SizedBox(height: 12),
+                    PrimaryButton(
+                      text: "ابحث في الصور (Stock Images)",
+                      icon: Icons.search_rounded,
+                      isSecondary: true,
+                      onPressed: () => _pickStockImage(cubit, widget.index, itemIndex: fIndex, itemKey: 'image_url'),
+                      width: double.infinity,
                     ),
                   ],
                 ),
@@ -679,6 +721,14 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                       controller: TextEditingController(text: item['image_url'] ?? '')..selection = TextSelection.collapsed(offset: (item['image_url'] ?? '').length),
                       onChanged: (val) => cubit.updateProductItem(widget.index, pIndex, 'image_url', val),
                     ),
+                    const SizedBox(height: 12),
+                    PrimaryButton(
+                      text: "ابحث في الصور (Stock Images)",
+                      icon: Icons.search_rounded,
+                      isSecondary: true,
+                      onPressed: () => _pickStockImage(cubit, widget.index, itemIndex: pIndex, itemKey: 'image_url'),
+                      width: double.infinity,
+                    ),
                   ],
                 ),
               );
@@ -739,6 +789,14 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                       onChanged: (val) => cubit.updatePricingPlan(widget.index, pIndex, 'is_popular', val),
                       activeThumbColor: AppColors.secondary,
                     ),
+                    const SizedBox(height: 12),
+                    PrimaryButton(
+                      text: "ابحث في الصور (Stock Images)",
+                      icon: Icons.search_rounded,
+                      isSecondary: true,
+                      onPressed: () => _pickStockImage(cubit, widget.index, itemIndex: pIndex, itemKey: 'image_url'),
+                      width: double.infinity,
+                    ),
                   ],
                 ),
               );
@@ -792,6 +850,14 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                       maxLines: 3,
                       controller: TextEditingController(text: item['answer'] ?? '')..selection = TextSelection.collapsed(offset: (item['answer'] ?? '').length),
                       onChanged: (val) => cubit.updateFaqItem(widget.index, fIndex, 'answer', val),
+                    ),
+                    const SizedBox(height: 12),
+                    PrimaryButton(
+                      text: "ابحث في الصور (Stock Images)",
+                      icon: Icons.search_rounded,
+                      isSecondary: true,
+                      onPressed: () => _pickStockImage(cubit, widget.index, itemIndex: fIndex, itemKey: 'image_url'),
+                      width: double.infinity,
                     ),
                   ],
                 ),
@@ -852,6 +918,14 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                       maxLines: 3,
                       controller: TextEditingController(text: item['quote'] ?? '')..selection = TextSelection.collapsed(offset: (item['quote'] ?? '').length),
                       onChanged: (val) => cubit.updateTestimonialItem(widget.index, tIndex, 'quote', val),
+                    ),
+                    const SizedBox(height: 12),
+                    PrimaryButton(
+                      text: "ابحث في الصور (Stock Images)",
+                      icon: Icons.search_rounded,
+                      isSecondary: true,
+                      onPressed: () => _pickStockImage(cubit, widget.index, itemIndex: tIndex, itemKey: 'image_url'),
+                      width: double.infinity,
                     ),
                   ],
                 ),
@@ -989,6 +1063,14 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                         cubit.updateBlockProperty(widget.index, 'links', links);
                       },
                     ),
+                    const SizedBox(height: 12),
+                    PrimaryButton(
+                      text: "ابحث في الصور (Stock Images)",
+                      icon: Icons.search_rounded,
+                      isSecondary: true,
+                      onPressed: () => _pickStockImage(cubit, widget.index, itemIndex: lIndex, itemKey: 'image_url'),
+                      width: double.infinity,
+                    ),
                   ],
                 ),
               );
@@ -1035,6 +1117,16 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
               activeColor: AppColors.secondary,
               onChanged: (val) => cubit.updateBlockProperty(widget.index, 'qr_size', val),
             ),
+          ],
+
+          if (type == 'basic_section') ...[
+            const SizedBox(height: 16),
+            Text("إعدادات التخطيط", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            _buildDropdown("اتجاه التخطيط", 'layout_direction', ['column', 'row'], (val) => cubit.updateBlockProperty(widget.index, 'layout_direction', val)),
+            _buildDropdown("المحاذاة الرأسية", 'main_axis_alignment', ['start', 'center', 'end', 'spaceBetween'], (val) => cubit.updateBlockProperty(widget.index, 'main_axis_alignment', val)),
+            _buildDropdown("المحاذاة الأفقية", 'cross_axis_alignment', ['start', 'center', 'end', 'stretch'], (val) => cubit.updateBlockProperty(widget.index, 'cross_axis_alignment', val)),
+            _buildSlider("المسافة بين العناصر", 'spacing', 0, 100, (val) => cubit.updateBlockProperty(widget.index, 'spacing', val)),
           ],
 
           if (type == 'gallery') ...[
@@ -1131,6 +1223,53 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildDropdown(String label, String key, List<String> options, Function(String?) onChanged) {
+    final block = widget.state.designMap['blocks'][widget.index];
+    final value = block[key] as String? ?? options.first;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: DropdownButton<String>(
+            value: options.contains(value) ? value : options.first,
+            isExpanded: true,
+            underline: const SizedBox(),
+            items: options.map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
+            onChanged: onChanged,
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildSlider(String label, String key, double min, double max, Function(double) onChanged) {
+    final block = widget.state.designMap['blocks'][widget.index];
+    final value = ((block[key] ?? min) as num).toDouble();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("$label: ${value.toInt()}", style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Slider(
+          value: value.clamp(min, max),
+          min: min,
+          max: max,
+          activeColor: AppColors.secondary,
+          onChanged: onChanged,
+        ),
+      ],
     );
   }
 }

@@ -13,7 +13,8 @@ import '../widgets/floating_cart_widget.dart';
 import '../widgets/section_renderer.dart';
 
 class PublicLandingPage extends StatefulWidget {
-  const PublicLandingPage({super.key});
+  final String? identifier;
+  const PublicLandingPage({super.key, this.identifier});
 
   @override
   State<PublicLandingPage> createState() => _PublicLandingPageState();
@@ -39,7 +40,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
   }
 
   void _loadTenantPage() {
-    final identifier = TenantRoutingService.getTenantIdentifier();
+    final identifier = widget.identifier ?? TenantRoutingService.getTenantIdentifier();
     if (identifier != null) {
       final isCustom = TenantRoutingService.isCustomDomain(identifier);
       context.read<PublicPageCubit>().loadByIdentifier(identifier, isCustom);

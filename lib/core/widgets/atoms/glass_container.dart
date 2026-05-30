@@ -19,7 +19,7 @@ class GlassContainer extends StatelessWidget {
     this.height,
     this.padding = const EdgeInsets.all(20.0),
     this.margin,
-    this.borderRadius = 16.0,
+    this.borderRadius = 24.0,
     this.blur = 12.0,
     this.border,
   });

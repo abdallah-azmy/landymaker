@@ -48,7 +48,7 @@ jobs:
           mkdir -p .vercel/output/static
           cp -r build/web/* .vercel/output/static/
           # Create Build Output config with proper routing
-          echo '{"version":3,"routes":[{"src":"/((?!seo-middleware).*)","dest":"/index.html"}]}' > .vercel/output/config.json
+          echo '{"version":3,"routes":[{"handle":"filesystem"},{"src":"/((?!seo-middleware).*)","dest":"/index.html"}]}' > .vercel/output/config.json
 
       - name: 🚀 Deploy to Vercel Production
         run: vercel deploy --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}

@@ -174,8 +174,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     color: AppColors.textSecondary,
                                   ),
                                   validator: (val) {
-                                    if (val == null || val.isEmpty)
+                                    if (val == null || val.isEmpty) {
                                       return 'Required';
+                                    }
                                     return null;
                                   },
                                 ),

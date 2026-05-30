@@ -1,0 +1,7 @@
+{
+  "name": "landymaker",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "bash vercel.sh"
+  }
+}

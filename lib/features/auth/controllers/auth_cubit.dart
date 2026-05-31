@@ -48,7 +48,6 @@ class AuthCubit extends Cubit<AuthState> {
     required String email,
     required String password,
     required String fullName,
-    String role = 'user',
   }) async {
     emit(AuthLoading());
     try {
@@ -56,7 +55,6 @@ class AuthCubit extends Cubit<AuthState> {
         email: email,
         password: password,
         fullName: fullName,
-        role: role,
       );
       if (success) {
         // Prevent auto-login by logging out the newly registered user session

@@ -14,13 +14,11 @@ class AuthService {
     required String email,
     required String password,
     required String fullName,
-    String role = 'user',
   }) {
     return _supabase.register(
       email: email,
       password: password,
       fullName: fullName,
-      role: role,
     );
   }
 

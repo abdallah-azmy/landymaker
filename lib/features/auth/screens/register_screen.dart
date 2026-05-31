@@ -27,7 +27,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  String _selectedRole = 'user'; // Defaults to 'user' role
 
   void _handleRegister(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
@@ -36,7 +35,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email: _emailController.text.trim(),
       password: _passwordController.text,
       fullName: _nameController.text.trim(),
-      role: _selectedRole,
     );
   }
 
@@ -227,55 +225,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(height: 16),
 
-                              // Role selection dropdown for convenience
-                              FormGroup(
-                                label: loc.translate('role'),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.cardBg,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: AppColors.border,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      value: _selectedRole,
-                                      dropdownColor: AppColors.cardBg,
-                                      isExpanded: true,
-                                      style: AppTypography.bodyLarge,
-                                      icon: const Icon(
-                                        Icons.arrow_drop_down,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                      items: [
-                                        DropdownMenuItem(
-                                          value: 'user',
-                                          child: Text(
-                                            loc.translate('dashboard'),
-                                          ),
-                                        ),
-                                        DropdownMenuItem(
-                                          value: 'super_admin',
-                                          child: Text(
-                                            loc.translate('super_admin'),
-                                          ),
-                                        ),
-                                      ],
-                                      onChanged: (val) {
-                                        if (val != null) {
-                                          setState(() => _selectedRole = val);
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
                               const SizedBox(height: 20),
 
                               if (errorMessage != null) ...[

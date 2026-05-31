@@ -139,18 +139,17 @@ class SupabaseService extends ChangeNotifier {
     required String email,
     required String password,
     required String fullName,
-    String role = 'user',
   }) async {
     try {
       final response = await _client!.auth.signUp(
         email: email,
         password: password,
-        data: {'full_name': fullName, 'role': role},
+        data: {'full_name': fullName, 'role': 'user'},
       );
       if (response.user != null) {
         _currentUserId = response.user!.id;
         _currentUserEmail = response.user!.email;
-        _currentUserRole = role;
+        _currentUserRole = 'user';
         notifyListeners();
         return true;
       }

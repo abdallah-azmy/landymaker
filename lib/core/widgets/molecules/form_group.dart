@@ -7,6 +7,7 @@ class FormGroup extends StatelessWidget {
   final Widget child;
   final String? helperText;
   final TextStyle? labelStyle;
+  final TextStyle? helperStyle;
 
   const FormGroup({
     super.key,
@@ -14,6 +15,7 @@ class FormGroup extends StatelessWidget {
     required this.child,
     this.helperText,
     this.labelStyle,
+    this.helperStyle,
   });
 
   @override
@@ -36,7 +38,7 @@ class FormGroup extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             helperText!,
-            style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+            style: helperStyle ?? AppTypography.caption.copyWith(color: AppColors.textMuted),
           ),
         ],
       ],

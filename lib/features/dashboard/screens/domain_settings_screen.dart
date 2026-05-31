@@ -1,0 +1,195 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:landymaker/injection_container.dart';
+import 'package:landymaker/services/auth_service.dart';
+import 'package:landymaker/services/subscription_service.dart';
+
+import '../../../core/localization/localization_cubit.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/atoms/glass_container.dart';
+import '../../../core/widgets/atoms/primary_button.dart';
+import '../../../core/widgets/molecules/website_switcher.dart';
+import '../../subscription/widgets/manual_payment_modal.dart';
+import '../controllers/active_website_cubit.dart';
+import '../controllers/landing_pages_cubit.dart';
+import '../widgets/domain_setup_widget.dart';
+
+class DomainSettingsScreen extends StatelessWidget {
+  const DomainSettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = context.watch<LocalizationCubit>();
+    final activeState = context.watch<ActiveWebsiteCubit>().state;
+    final pagesState = context.watch<LandingPagesCubit>().state;
+
+    return FutureBuilder<bool>(
+      future: sl<SubscriptionService>().canAccessPremiumFeatures(
+        sl<AuthService>().currentUserId!,
+      ),
+      builder: (context, snapshot) {
+        final bool hasPremiumAccess = snapshot.data ?? false;
+        final bool isLoadingAccess =
+            snapshot.connectionState == ConnectionState.waiting;
+
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  loc.translate('custom_domain_menu'),
+                  style: AppTypography.h1,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Manage professional custom domains for your landing pages.",
+                  style: AppTypography.bodyLarge.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 48),
+
+                if (isLoadingAccess)
+                  const Center(child: CircularProgressIndicator())
+                else if (activeState.website == null)
+                  _buildNoSelectionState(context, loc)
+                else if (!hasPremiumAccess)
+                  _buildUpgradeRequiredState(
+                    context,
+                    loc,
+                    sl<AuthService>().currentUserId!,
+                  )
+                else
+                  _buildDomainManagementWorkspace(context, loc, activeState),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNoSelectionState(BuildContext context, LocalizationCubit loc) {
+    return Center(
+      child: GlassContainer(
+        padding: const EdgeInsets.all(48),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.touch_app_rounded,
+              size: 64,
+              color: AppColors.secondary,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "يرجى اختيار الصفحة التي تريد تخصيص نطاق مستقل لها أولاً",
+              style: AppTypography.h3,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            const SizedBox(width: 300, child: WebsiteSwitcher()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpgradeRequiredState(
+    BuildContext context,
+    LocalizationCubit loc,
+    String userId,
+  ) {
+    return Center(
+      child: GlassContainer(
+        padding: const EdgeInsets.all(48),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.lock_rounded,
+              size: 64,
+              color: AppColors.warningOrange,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "ميزة النطاقات الخاصة متاحة فقط للمشتركين في باقة برو",
+              style: AppTypography.h3,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "اربط موقعك بدومين خاص مثل (yourbrand.com) لتعزيز احترافية علامتك التجارية.",
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            PrimaryButton(
+              text: "اشترك الآن في باقة برو",
+              icon: Icons.star_rounded,
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => ManualPaymentModal(
+                    planName: "Pro",
+                    price: 299.0,
+                    userId: userId,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDomainManagementWorkspace(
+    BuildContext context,
+    LocalizationCubit loc,
+    ActiveWebsiteState state,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.secondary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.language_rounded,
+                color: AppColors.secondary,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "إعدادات الدومين لصفحة: ${state.subdomain}",
+                  style: AppTypography.h3,
+                ),
+                Text(
+                  "تخصيص نطاق مستقل لهذه الصفحة فقط.",
+                  style: AppTypography.caption,
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 40),
+        const DomainSetupWidget(),
+      ],
+    );
+  }
+}

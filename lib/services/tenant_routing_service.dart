@@ -7,14 +7,50 @@ class TenantRoutingService {
   static String? pendingTemplateId;
 
   /// Defines reserved paths that are used for dashboard/auth and cannot be used as landing page slugs.
-  static const Set<String> _reservedPaths = {
+  static const Set<String> reservedPaths = {
     '',
     'login',
     'register',
+    'signup',
+    'signin',
+    'forgot-password',
+    'reset-password',
     'dashboard',
-    'builder',
-    'home',
+    'admin',
+    'settings',
+    'profile',
     'pricing',
+    'plans',
+    'billing',
+    'checkout',
+    'success',
+    'cancel',
+    'api',
+    'auth',
+    'app',
+    'editor',
+    'builder',
+    'pages',
+    'page',
+    'store',
+    'products',
+    'orders',
+    'analytics',
+    'support',
+    'help',
+    'about',
+    'contact',
+    'privacy',
+    'terms',
+    'sitemap',
+    'robots.txt',
+    'favicon.ico',
+    'home',
+    'public_viewer',
+    'assets',
+    'images',
+    'icons',
+    'web',
   };
 
   /// Determines if the application should load the builder dashboard,
@@ -55,7 +91,7 @@ class TenantRoutingService {
     if (isCoreDomain) {
       if (uri.pathSegments.isNotEmpty) {
         final firstSegment = uri.pathSegments.first.trim();
-        if (firstSegment.isNotEmpty && !_reservedPaths.contains(firstSegment)) {
+        if (firstSegment.isNotEmpty && !reservedPaths.contains(firstSegment)) {
           return firstSegment;
         }
       }

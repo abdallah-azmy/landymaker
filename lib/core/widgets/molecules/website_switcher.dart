@@ -1,0 +1,227 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_typography.dart';
+import '../../../features/dashboard/controllers/landing_pages_cubit.dart';
+import '../../../features/dashboard/controllers/landing_pages_state.dart';
+import '../../../features/dashboard/controllers/active_website_cubit.dart';
+
+class WebsiteSwitcher extends StatefulWidget {
+  const WebsiteSwitcher({super.key});
+
+  @override
+  State<WebsiteSwitcher> createState() => _WebsiteSwitcherState();
+}
+
+class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ActiveWebsiteCubit, ActiveWebsiteState>(
+      builder: (context, activeState) {
+        final activeSite = activeState.website;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            InkWell(
+              onTap: () => _showSwitcherModal(context),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border, width: 1.2),
+                ),
+                child: Row(
+                  children: [
+                    _buildTypeIcon(activeState.websiteType),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        activeSite?['subdomain'] ?? "Select Website",
+                        style: AppTypography.bodyLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: activeSite != null ? AppColors.textPrimary : AppColors.textMuted,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(Icons.unfold_more_rounded, color: AppColors.textMuted, size: 20),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTypeIcon(String? type) {
+    IconData icon;
+    Color color;
+
+    switch (type) {
+      case 'store':
+        icon = Icons.shopping_bag_rounded;
+        color = AppColors.activeGreen;
+        break;
+      case 'cv':
+        icon = Icons.person_rounded;
+        color = AppColors.secondary;
+        break;
+      default:
+        icon = Icons.language_rounded;
+        color = AppColors.primary;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(icon, size: 16, color: color),
+    );
+  }
+
+  void _showSwitcherModal(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: AppColors.background,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              child: Container(
+                width: 400,
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Switch Website", style: AppTypography.h3),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+                      decoration: InputDecoration(
+                        hintText: "Search websites...",
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        filled: true,
+                        fillColor: AppColors.cardBg,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 400),
+                      child: BlocBuilder<LandingPagesCubit, LandingPagesState>(
+                        builder: (context, state) {
+                          if (state is LandingPagesLoaded) {
+                            final filtered = state.pages.where((p) {
+                              final name = (p['subdomain'] as String).toLowerCase();
+                              return name.contains(_searchQuery);
+                            }).toList();
+
+                            if (filtered.isEmpty) {
+                              return _buildEmptyResults();
+                            }
+
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: filtered.length,
+                              separatorBuilder: (_, __) => const SizedBox(height: 8),
+                              itemBuilder: (context, index) {
+                                final site = filtered[index];
+                                return _buildSiteItem(context, site);
+                              },
+                            );
+                          }
+                          return const Center(child: CircularProgressIndicator());
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSiteItem(BuildContext context, Map<String, dynamic> site) {
+    final activeCubit = context.read<ActiveWebsiteCubit>();
+    final isActive = activeCubit.state.websiteId == site['id'];
+
+    return InkWell(
+      onTap: () {
+        activeCubit.selectWebsite(site);
+        Navigator.pop(context);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isActive ? AppColors.primary.withValues(alpha: 0.3) : Colors.transparent,
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          children: [
+            _buildTypeIcon(site['website_type']),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    site['subdomain'],
+                    style: AppTypography.bodyLarge.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    (site['website_type'] ?? 'landing_page').toString().toUpperCase(),
+                    style: AppTypography.caption.copyWith(fontSize: 10),
+                  ),
+                ],
+              ),
+            ),
+            if (isActive)
+              const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyResults() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(Icons.search_off_rounded, size: 48, color: AppColors.textMuted),
+            const SizedBox(height: 12),
+            Text("No websites found", style: AppTypography.bodyMedium),
+          ],
+        ),
+      ),
+    );
+  }
+}

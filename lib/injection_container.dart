@@ -3,12 +3,14 @@ import 'services/supabase_service.dart';
 import 'services/auth_service.dart';
 import 'services/storage_service.dart';
 import 'services/database_service.dart';
+import 'services/subscription_service.dart';
 import 'core/localization/localization_cubit.dart';
 import 'core/http_client.dart';
 import 'features/auth/controllers/auth_cubit.dart';
 import 'features/builder/controllers/builder_cubit.dart';
 import 'features/dashboard/controllers/leads_analytics_cubit.dart';
 import 'features/dashboard/controllers/landing_pages_cubit.dart';
+import 'features/dashboard/controllers/active_website_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
 
@@ -27,10 +29,14 @@ Future<void> initDependencies() async {
   sl.registerSingleton<AuthService>(AuthService(sl<SupabaseService>()));
   sl.registerSingleton<StorageService>(StorageService(sl<SupabaseService>()));
   sl.registerSingleton<DatabaseService>(DatabaseService(sl<SupabaseService>()));
+  sl.registerSingleton<SubscriptionService>(SubscriptionService(sl<DatabaseService>()));
 
   // 4. Global Cubits / State Managers (Registered as Singletons / Factories)
   // Localization: App-wide language toggle persists globally
   sl.registerSingleton<LocalizationCubit>(LocalizationCubit());
+
+  // Active Website: Tracks which site the user is currently managing
+  sl.registerSingleton<ActiveWebsiteCubit>(ActiveWebsiteCubit());
 
   // Auth: Governs user profile status
   sl.registerFactory<AuthCubit>(() => AuthCubit(sl<AuthService>()));
@@ -41,6 +47,7 @@ Future<void> initDependencies() async {
       authService: sl<AuthService>(),
       databaseService: sl<DatabaseService>(),
       storageService: sl<StorageService>(),
+      subscriptionService: sl<SubscriptionService>(),
     ),
   );
 
@@ -49,6 +56,7 @@ Future<void> initDependencies() async {
     () => LandingPagesCubit(
       databaseService: sl<DatabaseService>(),
       authService: sl<AuthService>(),
+      subscriptionService: sl<SubscriptionService>(),
     ),
   );
 

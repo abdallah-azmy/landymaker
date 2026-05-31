@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../services/database_service.dart';
 import '../../../../services/storage_service.dart';
+import '../../../../services/subscription_service.dart';
 import '../../../../core/error_handler.dart';
 import '../models/landing_page_theme.dart';
 import '../registries/template_registry.dart';
@@ -16,14 +17,17 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
   final AuthService _authService;
   final DatabaseService _databaseService;
   final StorageService _storageService;
+  final SubscriptionService _subscriptionService;
 
   LandingPageBuilderCubit({
     required AuthService authService,
     required DatabaseService databaseService,
     required StorageService storageService,
+    required SubscriptionService subscriptionService,
   })  : _authService = authService,
         _databaseService = databaseService,
         _storageService = storageService,
+        _subscriptionService = subscriptionService,
         super(BuilderInitial());
 
   Future<void> loadForCurrentUser() async {
@@ -45,54 +49,66 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     emit(BuilderLoading());
     try {
       final page = await _databaseService.getLandingPageByUserId(userId);
-      Map<String, dynamic> designMap = {'blocks': []};
-      String subdomain = '';
-      String? customDomain;
-      bool isPublished = false;
-      String? pageId;
+      _handleLoadedPage(page);
+    } catch (e) {
+      emit(BuilderFailure(e.toString()));
+    }
+  }
 
-      if (page != null) {
-        pageId = page['id'] as String?;
-        subdomain = page['subdomain'] ?? '';
-        customDomain = page['custom_domain'];
-        isPublished = page['is_published'] ?? false;
+  Future<void> loadPageById(String pageId) async {
+    emit(BuilderLoading());
+    try {
+      // We need a method in database_service for this
+      final page = await _databaseService.getLandingPageById(pageId);
+      _handleLoadedPage(page);
+    } catch (e) {
+      emit(BuilderFailure(e.toString()));
+    }
+  }
 
-        final dynamic rawDesign = page['design_json'];
-        if (rawDesign != null) {
-          if (rawDesign is String) {
-            designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
-          } else {
-            designMap = Map<String, dynamic>.from(rawDesign);
-          }
+  void _handleLoadedPage(Map<String, dynamic>? page) {
+    Map<String, dynamic> designMap = {'blocks': []};
+    String subdomain = '';
+    String? customDomain;
+    bool isPublished = false;
+    String? pageId;
+
+    if (page != null) {
+      pageId = page['id'] as String?;
+      subdomain = page['subdomain'] ?? '';
+      customDomain = page['custom_domain'];
+      isPublished = page['is_published'] ?? false;
+      final String websiteType = page['website_type'] ?? 'landing_page';
+
+      final dynamic rawDesign = page['design_json'];
+      if (rawDesign != null) {
+        if (rawDesign is String) {
+          designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
+        } else {
+          designMap = Map<String, dynamic>.from(rawDesign);
         }
       }
-
-      final theme = designMap['theme'] != null
-          ? LandingPageTheme.fromJson(designMap['theme'])
-          : LandingPageTheme.palettes.last;
-
-      if (designMap['blocks'] == null || (designMap['blocks'] as List).isEmpty) {
-        designMap['blocks'] = [
-          {
-            'type': 'hero',
-            'title': 'ابنِ صفحتك الاحترافية في دقائق',
-            'subtitle': 'منصة لاندي ميكر توفر لك كل الأدوات التي تحتاجها للنمو.',
-            'button_text': 'ابدأ الآن',
-            'image_url': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'
-          }
-        ];
-      }
-
+      
       emit(BuilderLoaded(
         pageId: pageId,
         designMap: designMap,
         subdomain: subdomain,
         customDomain: customDomain,
         isPublished: isPublished,
-        theme: theme,
+        websiteType: websiteType,
+        theme: designMap['theme'] != null
+            ? LandingPageTheme.fromJson(designMap['theme'])
+            : LandingPageTheme.palettes.last,
       ));
-    } catch (e) {
-      emit(BuilderFailure(e.toString()));
+    } else {
+      // Handle new page
+      emit(BuilderLoaded(
+        designMap: designMap,
+        subdomain: subdomain,
+        isPublished: isPublished,
+        websiteType: 'landing_page',
+        theme: LandingPageTheme.palettes.last,
+      ));
     }
   }
 
@@ -109,14 +125,13 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
 
     emit(currentState.copyWith(isSaving: true));
     try {
-      // 1. Check Multi-Page Guard (SPEC 3)
+      // 1. Check Multi-Page Guard with Super Admin Bypass
       if (currentState.pageId == null) {
         final profile = await _databaseService.getProfile(userId);
-        final existingPages = await _databaseService.getLandingPagesByUserId(userId);
         final String tier = profile?['tier'] ?? 'free';
-        final int limit = profile?['custom_max_pages'] ?? (tier == 'pro' ? 5 : (tier == 'enterprise' ? 999 : 1));
+        final bool reachedLimit = await _subscriptionService.hasReachedLimit(userId);
 
-        if (existingPages.length >= limit) {
+        if (reachedLimit) {
           emit(currentState.copyWith(
             isSaving: false,
             errorMessage: "لقد وصلت للحد الأقصى لعدد الصفحات المسموح به في خطتك الحالية (\$tier).",
@@ -134,6 +149,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         customDomain: currentState.customDomain,
         designMap: finalDesign,
         isPublished: currentState.isPublished,
+        websiteType: currentState.websiteType,
         pageId: currentState.pageId,
       );
 
@@ -737,14 +753,31 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     emit(currentState.copyWith(designMap: newDesign));
   }
 
-  void focusElement(int sectionIndex, String? elementId) {
+  void selectSection(int? index) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
-    
-    emit(currentState.copyWith(
-      focusedSectionIndex: sectionIndex,
-      focusedElementId: elementId,
-    ));
+    emit(currentState.copyWith(focusedSectionIndex: index, clearFocusedElement: index == null));
+  }
+
+  void focusElement(int sectionIndex, String elementId) {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return;
+    emit(currentState.copyWith(focusedSectionIndex: sectionIndex, focusedElementId: elementId));
+  }
+
+  void duplicateBlock(int index) {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return;
+
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final List blocks = List.from(newDesign['blocks'] ?? []);
+    if (index >= 0 && index < blocks.length) {
+      final duplicate = Map<String, dynamic>.from(blocks[index]);
+      blocks.insert(index + 1, duplicate);
+    }
+
+    newDesign['blocks'] = blocks;
+    emit(currentState.copyWith(designMap: newDesign));
   }
 
   void updateElementProperty(int sectionIndex, String elementId, String key, dynamic value) {

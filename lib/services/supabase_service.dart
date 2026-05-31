@@ -245,8 +245,15 @@ class SupabaseService extends ChangeNotifier {
           .maybeSingle();
 
       if (res != null) {
-        // SPEC 2: Lifetime Expiry Policy
         final tier = res['profiles']?['tier'] ?? 'free';
+
+        // Security Guard: Only Pro/Enterprise can use custom domains
+        if (isCustom && tier == 'free') {
+          debugPrint("Access denied: Custom domain accessed on free tier.");
+          return null;
+        }
+
+        // SPEC 2: Lifetime Expiry Policy
         final lastVisited = DateTime.parse(res['last_visited_at'] ?? res['created_at']);
         final isActive = res['is_active'] ?? true;
         
@@ -272,6 +279,7 @@ class SupabaseService extends ChangeNotifier {
     String? customDomain,
     required Map<String, dynamic> designMap,
     required bool isPublished,
+    String? websiteType,
     String? pageId,
   }) async {
     final effectiveCustomDomain =
@@ -288,6 +296,7 @@ class SupabaseService extends ChangeNotifier {
               'custom_domain': effectiveCustomDomain,
               'design_json': jsonEncode(designMap),
               'is_published': isPublished,
+              'website_type': websiteType ?? 'landing_page',
               'updated_at': DateTime.now().toIso8601String(),
             })
             .eq('id', pageId);
@@ -302,6 +311,7 @@ class SupabaseService extends ChangeNotifier {
               'custom_domain': effectiveCustomDomain,
               'design_json': jsonEncode(designMap),
               'is_published': isPublished,
+              'website_type': websiteType ?? 'landing_page',
             })
             .select('id')
             .single();
@@ -478,6 +488,42 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  Future<void> updateCustomDomain(String pageId, String? domain) async {
+    try {
+      await _client!.from(DbConstants.landingPagesTable).update({
+        'custom_domain': domain,
+        'domain_status': 'pending',
+      }).eq('id', pageId);
+    } catch (e) {
+      debugPrint("Error updating custom domain: $e");
+      rethrow;
+    }
+  }
+
+  Future<String> refreshDomainVerificationToken(String pageId) async {
+    try {
+      final res = await _client!.rpc('refresh_domain_verification_token', params: {'page_id': pageId});
+      return res as String;
+    } catch (e) {
+      debugPrint("Error refreshing domain token: $e");
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> verifyCustomDomain(String pageId, {String? previousDomain, String action = 'verify'}) async {
+    try {
+      final res = await _client!.functions.invoke('verify-custom-domain', body: {
+        'page_id': pageId,
+        'previous_domain': previousDomain,
+        'action': action,
+      });
+      return res.data as Map<String, dynamic>;
+    } catch (e) {
+      debugPrint("Error invoking domain verification: $e");
+      rethrow;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getAdminAffiliates() async {
     try {
       final res = await _client!.from('affiliate_profiles').select('*, profiles(full_name, email)').order('created_at', ascending: false);
@@ -510,6 +556,62 @@ class SupabaseService extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error fetching admin global stats: $e");
       return {'total_views': 0, 'total_purchases': 0, 'recent_logs': []};
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getSubscriptionPlans() async {
+    try {
+      final res = await _client!.from('subscription_plans').select().order('monthly_price', ascending: true);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching subscription plans: $e");
+      return [];
+    }
+  }
+
+  Future<Map<String, int>> getSystemSecurityLimits() async {
+    try {
+      final res = await _client!.from('system_security_limits').select('key, value_int');
+      final Map<String, int> limits = {};
+      for (var item in res) {
+        limits[item['key']] = item['value_int'];
+      }
+      return limits;
+    } catch (e) {
+      debugPrint("Error fetching security limits: $e");
+      return {};
+    }
+  }
+
+  Future<void> updateSubscriptionPlan(String id, Map<String, dynamic> data) async {
+    try {
+      await _client!.from('subscription_plans').update(data).eq('id', id);
+    } catch (e) {
+      debugPrint("Error updating subscription plan: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserProfile(String userId, Map<String, dynamic> data) async {
+    try {
+      await _client!.from(DbConstants.profilesTable).update(data).eq('id', userId);
+    } catch (e) {
+      debugPrint("Error updating user profile: $e");
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getSystemAuditLogs() async {
+    try {
+      final res = await _client!
+          .from('system_audit_logs')
+          .select('*, profiles(full_name, email)')
+          .order('created_at', ascending: false)
+          .limit(100);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching audit logs: $e");
+      return [];
     }
   }
 

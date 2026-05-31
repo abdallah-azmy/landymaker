@@ -9,6 +9,8 @@ import '../../../core/utils/toast_service.dart';
 import '../controllers/builder_cubit.dart';
 import '../controllers/builder_state.dart';
 import '../widgets/editors/block_properties_editor.dart';
+import '../widgets/modals/section_library_modal.dart';
+import '../widgets/modals/seo_settings_modal.dart';
 import '../widgets/organisms/builder_app_bar.dart';
 import '../widgets/organisms/builder_canvas.dart';
 import '../widgets/organisms/builder_sidebar.dart';
@@ -107,18 +109,14 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
               setState(() => _isMobilePreview = !_isMobilePreview),
           onShowTemplates: () => _showTemplatesMenu(context, builderCubit),
           onShowDesign: () => _showDesignMenu(context, loc, builderCubit),
+          onShowSeo: () => _showSeoMenu(context, builderCubit),
         ),
-        floatingActionButton: isMobile
-            ? FloatingActionButton(
-                onPressed: () => _showAddBlockMenu(context, builderCubit),
-                backgroundColor: AppColors.secondary,
-                child: const Icon(
-                  Icons.add_rounded,
-                  color: Colors.white,
-                  size: 32,
-                ),
-              )
-            : null,
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _showAddBlockMenu(context, builderCubit),
+          backgroundColor: AppColors.secondary,
+          icon: const Icon(Icons.add_rounded, color: Colors.white),
+          label: const Text("إضافة قسم جديد", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
         body: Row(
           children: [
             if (!isMobile)
@@ -163,124 +161,9 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   void _showAddBlockMenu(BuildContext context, LandingPageBuilderCubit cubit) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("إضافة أقسام للصفحة", style: AppTypography.h3),
-              const SizedBox(height: 24),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _buildAddBlockItem(
-                    icon: Icons.auto_awesome_rounded,
-                    label: "هيرو",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('hero');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.list_alt_rounded,
-                    label: "مميزات",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('features');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.chat_bubble_outline_rounded,
-                    label: "واتساب",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('whatsapp');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.shopping_bag_outlined,
-                    label: "منتجات",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('products');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.qr_code_2_rounded,
-                    label: "QR كود",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('qr_code');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.share_rounded,
-                    label: "روابط تواصل",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('social_qr');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.payments_rounded,
-                    label: "الأسعار",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('pricing');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.question_answer_rounded,
-                    label: "الأسئلة الشائعة",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('faq');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.reviews_rounded,
-                    label: "آراء العملاء",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('testimonials');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.contact_mail_rounded,
-                    label: "معلومات الاتصال",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('contact_info');
-                    },
-                  ),
-                  _buildAddBlockItem(
-                    icon: Icons.collections_rounded,
-                    label: "معرض الصور",
-                    onTap: () {
-                      Navigator.pop(context);
-                      cubit.addBlock('gallery');
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              PrimaryButton(
-                text: "إلغاء",
-                isSecondary: true,
-                width: double.infinity,
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-        ),
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const SectionLibraryModal(),
     );
   }
 
@@ -387,6 +270,15 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
           );
         },
       ),
+    );
+  }
+
+  void _showSeoMenu(BuildContext context, LandingPageBuilderCubit cubit) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const SeoSettingsModal(),
     );
   }
 

@@ -12,6 +12,7 @@ class BuilderLoaded extends BuilderState {
   final String subdomain;
   final String? customDomain;
   final bool isPublished;
+  final String websiteType;
   final bool isSaving;
   final String? errorMessage;
   final String? successMessage;
@@ -25,6 +26,7 @@ class BuilderLoaded extends BuilderState {
     required this.subdomain,
     this.customDomain,
     required this.isPublished,
+    this.websiteType = 'landing_page',
     this.isSaving = false,
     this.errorMessage,
     this.successMessage,
@@ -39,6 +41,7 @@ class BuilderLoaded extends BuilderState {
     String? subdomain,
     String? customDomain,
     bool? isPublished,
+    String? websiteType,
     bool? isSaving,
     String? errorMessage,
     String? successMessage,
@@ -55,6 +58,7 @@ class BuilderLoaded extends BuilderState {
       subdomain: subdomain ?? this.subdomain,
       customDomain: clearCustomDomain ? null : (customDomain ?? this.customDomain),
       isPublished: isPublished ?? this.isPublished,
+      websiteType: websiteType ?? this.websiteType,
       isSaving: isSaving ?? this.isSaving,
       errorMessage: errorMessage,
       successMessage: successMessage,

@@ -9,6 +9,10 @@ class DatabaseService {
     return _supabase.getLandingPageByUserId(userId);
   }
 
+  Future<Map<String, dynamic>?> getLandingPageById(String pageId) {
+    return _supabase.getLandingPageById(pageId);
+  }
+
   Future<Map<String, dynamic>?> getLandingPageByDomain(String domain, {bool isCustom = false}) {
     return _supabase.getLandingPageByDomain(domain, isCustom: isCustom);
   }
@@ -19,6 +23,7 @@ class DatabaseService {
     String? customDomain,
     required Map<String, dynamic> designMap,
     required bool isPublished,
+    String? websiteType,
     String? pageId,
   }) {
     return _supabase.saveLandingPage(
@@ -27,6 +32,7 @@ class DatabaseService {
       customDomain: customDomain,
       designMap: designMap,
       isPublished: isPublished,
+      websiteType: websiteType,
       pageId: pageId,
     );
   }
@@ -78,8 +84,40 @@ class DatabaseService {
     return _supabase.updateSubscriptionStatus(id, status);
   }
 
+  Future<void> updateCustomDomain(String pageId, String? domain) {
+    return _supabase.updateCustomDomain(pageId, domain);
+  }
+
+  Future<String> refreshDomainVerificationToken(String pageId) {
+    return _supabase.refreshDomainVerificationToken(pageId);
+  }
+
+  Future<Map<String, dynamic>> verifyCustomDomain(String pageId, {String? previousDomain, String action = 'verify'}) {
+    return _supabase.verifyCustomDomain(pageId, previousDomain: previousDomain, action: action);
+  }
+
   Future<Map<String, dynamic>> getAdminGlobalStats() {
     return _supabase.getAdminGlobalStats();
+  }
+
+  Future<List<Map<String, dynamic>>> getSubscriptionPlans() {
+    return _supabase.getSubscriptionPlans();
+  }
+
+  Future<Map<String, int>> getSystemSecurityLimits() {
+    return _supabase.getSystemSecurityLimits();
+  }
+
+  Future<void> updateSubscriptionPlan(String id, Map<String, dynamic> data) {
+    return _supabase.updateSubscriptionPlan(id, data);
+  }
+
+  Future<void> updateUserProfile(String userId, Map<String, dynamic> data) {
+    return _supabase.updateUserProfile(userId, data);
+  }
+
+  Future<List<Map<String, dynamic>>> getSystemAuditLogs() {
+    return _supabase.getSystemAuditLogs();
   }
 }
 

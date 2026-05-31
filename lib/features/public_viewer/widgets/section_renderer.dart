@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../builder/registries/block_registry.dart';
 
+import '../../builder/widgets/molecules/section_toolbar_overlay.dart';
+
 class SectionRenderer extends StatelessWidget {
   final List<Map<String, dynamic>> blocks;
   final String pageId;
   final LandingPageTheme? theme;
   final Function(int index)? onBlockTapped;
   final Map<String, GlobalKey>? productKeys;
+  final int? selectedIndex;
+  final bool isBuilder;
 
   const SectionRenderer({
     super.key,
@@ -16,6 +20,8 @@ class SectionRenderer extends StatelessWidget {
     this.theme,
     this.onBlockTapped,
     this.productKeys,
+    this.selectedIndex,
+    this.isBuilder = false,
   });
 
   @override
@@ -39,11 +45,16 @@ class SectionRenderer extends StatelessWidget {
           productKeys: productKeys,
         );
 
-        if (onBlockTapped != null) {
-          return GestureDetector(
-            onTap: () => onBlockTapped!(index),
-            behavior: HitTestBehavior.opaque,
-            child: section,
+        if (isBuilder && onBlockTapped != null) {
+          return SectionToolbarOverlay(
+            index: index,
+            isSelected: selectedIndex == index,
+            onEdit: () => onBlockTapped!(index),
+            child: GestureDetector(
+              onTap: () => onBlockTapped!(index),
+              behavior: HitTestBehavior.opaque,
+              child: section,
+            ),
           );
         }
 

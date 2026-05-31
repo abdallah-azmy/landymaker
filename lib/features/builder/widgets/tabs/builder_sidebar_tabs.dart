@@ -158,9 +158,6 @@ class DesignTab extends StatelessWidget {
           _buildColorPickerItem(context, cubit, "لون الخلفية", "background", state.theme.background),
           _buildColorPickerItem(context, cubit, "لون النص الرئيسي", "textPrimary", state.theme.textPrimary),
           const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
-          const SizedBox(height: 32),
-          const AdvancedSettingsPanel(),
         ],
       ),
     );

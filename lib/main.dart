@@ -13,6 +13,7 @@ import 'features/dashboard/controllers/landing_pages_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
 
+import 'features/dashboard/controllers/active_website_cubit.dart';
 import 'package:toastification/toastification.dart';
 
 void main() async {
@@ -69,6 +70,7 @@ class LandyMakerApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<LocalizationCubit>(create: (_) => sl<LocalizationCubit>()),
+        BlocProvider<ActiveWebsiteCubit>(create: (_) => sl<ActiveWebsiteCubit>()),
         BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>()),
         BlocProvider<LandingPageBuilderCubit>(
           create: (_) => sl<LandingPageBuilderCubit>(),

@@ -72,21 +72,28 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
                       const SizedBox(width: 16),
                       ElevatedButton(
                         onPressed: onGetStartedPressed,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          elevation: 0,
-                        ).copyWith(
-                          shadowColor: WidgetStateProperty.all(AppColors.primary.withValues(alpha: 0.5)),
-                        ),
+                        style:
+                            ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              elevation: 0,
+                            ).copyWith(
+                              shadowColor: WidgetStateProperty.all(
+                                AppColors.primary.withValues(alpha: 0.5),
+                              ),
+                            ),
                         child: Text(
                           "ابدأ مجاناً",
                           style: AppTypography.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ),

@@ -17,14 +17,12 @@ class LandyMakerHomeScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: HomeNavbar(
         onLoginPressed: () => context.go('/login'),
-        onGetStartedPressed: () => context.go('/login'),
+        onGetStartedPressed: () => context.go('/register'),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            HomeHeroSection(
-              onGetStartedPressed: () => context.go('/login'),
-            ),
+            HomeHeroSection(onGetStartedPressed: () => context.go('/login')),
             const HomeFeatureBento(),
             HomeTemplateStrip(
               onGetStartedPressed: (templateId) {

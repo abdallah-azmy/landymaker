@@ -33,9 +33,12 @@ class BuilderSidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 380,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.background,
-        border: Border(right: BorderSide(color: AppColors.border, width: 1.5)),
+        border: Border(
+          right: loc.isRtl ? BorderSide.none : const BorderSide(color: AppColors.border, width: 1.5),
+          left: loc.isRtl ? const BorderSide(color: AppColors.border, width: 1.5) : BorderSide.none,
+        ),
       ),
       child: state.focusedElementId != null
           ? _buildElementEditor()
@@ -60,7 +63,7 @@ class BuilderSidebar extends StatelessWidget {
           title: Text(loc.translate('edit_element'), style: const TextStyle(fontSize: 16)),
           leading: IconButton(
             icon: const Icon(Icons.close_rounded),
-            onPressed: () => cubit.focusElement(0, null),
+            onPressed: () => cubit.selectSection(null),
           ),
         ),
         Expanded(

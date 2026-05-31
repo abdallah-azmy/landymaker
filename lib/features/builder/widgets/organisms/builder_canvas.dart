@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../../public_viewer/widgets/section_renderer.dart';
@@ -34,13 +36,28 @@ class BuilderCanvas extends StatelessWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                width: isMobile ? constraints.maxWidth : (isMobilePreview ? 375 : constraints.maxWidth.clamp(0.0, 1000.0)),
+                width: isMobile
+                    ? constraints.maxWidth
+                    : (isMobilePreview
+                          ? 375
+                          : constraints.maxWidth.clamp(0.0, 1000.0)),
                 height: isMobile ? constraints.maxHeight : null,
-                margin: isMobile ? EdgeInsets.zero : const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+                margin: isMobile
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
                 decoration: BoxDecoration(
                   color: state.theme.background,
-                  borderRadius: isMobile ? BorderRadius.zero : BorderRadius.circular(12),
-                  boxShadow: isMobile ? [] : [const BoxShadow(color: Colors.black26, blurRadius: 36)],
+                  borderRadius: isMobile
+                      ? BorderRadius.zero
+                      : BorderRadius.circular(12),
+                  boxShadow: isMobile
+                      ? []
+                      : [
+                          const BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 36,
+                          ),
+                        ],
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Column(
@@ -52,16 +69,29 @@ class BuilderCanvas extends StatelessWidget {
                         child: SingleChildScrollView(
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
-                              minHeight: isMobile ? constraints.maxHeight : (constraints.maxHeight - 36),
+                              minHeight: isMobile
+                                  ? constraints.maxHeight
+                                  : (constraints.maxHeight - 36),
                             ),
                             child: Directionality(
-                              textDirection: loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
+                              textDirection: loc.isRtl
+                                  ? TextDirection.rtl
+                                  : TextDirection.ltr,
                               child: SectionRenderer(
-                                key: ValueKey(blocksList.hashCode ^ state.theme.hashCode),
+                                key: ValueKey(
+                                  blocksList.hashCode ^ state.theme.hashCode,
+                                ),
                                 blocks: blocksList,
                                 pageId: state.pageId ?? 'preview',
                                 theme: state.theme,
-                                onBlockTapped: onBlockTapped,
+                                onBlockTapped: (index) {
+                                  context
+                                      .read<LandingPageBuilderCubit>()
+                                      .selectSection(index);
+                                  onBlockTapped(index);
+                                },
+                                isBuilder: true,
+                                selectedIndex: state.focusedSectionIndex,
                               ),
                             ),
                           ),
@@ -86,20 +116,35 @@ class BuilderCanvas extends StatelessWidget {
       child: Row(
         children: [
           Row(
-            children: List.generate(3, (i) => Container(
-              width: 8, height: 8,
-              margin: const EdgeInsets.only(right: 6),
-              decoration: BoxDecoration(shape: BoxShape.circle, color: i == 0 ? Colors.red : (i == 1 ? Colors.orange : Colors.green)),
-            )),
+            children: List.generate(
+              3,
+              (i) => Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(right: 6),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: i == 0
+                      ? Colors.red
+                      : (i == 1 ? Colors.orange : Colors.green),
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Container(
               height: 20,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text("https://${state.subdomain.isEmpty ? 'your-brand' : state.subdomain}.landymaker.com", style: const TextStyle(fontSize: 9, color: Colors.grey)),
+              child: Text(
+                "https://landymaker.com/${state.subdomain.isEmpty ? 'your-brand' : state.subdomain}",
+                style: const TextStyle(fontSize: 9, color: Colors.grey),
+              ),
             ),
           ),
         ],

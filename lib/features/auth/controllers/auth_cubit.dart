@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../services/auth_service.dart';
+import '../../dashboard/controllers/active_website_cubit.dart';
+import '../../../../injection_container.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -72,6 +74,8 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       await _authService.logout();
+      // Clear active website selection on logout
+      sl<ActiveWebsiteCubit>().clearSelection();
       emit(Unauthenticated());
     } catch (e) {
       emit(AuthFailure(e.toString()));

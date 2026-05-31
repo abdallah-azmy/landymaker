@@ -18,6 +18,11 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
       final requests = await _databaseService.getAdminSubscriptionRequests();
       final affiliates = await _databaseService.getAdminAffiliates();
       final globalStats = await _databaseService.getAdminGlobalStats();
+      
+      // New configurations
+      final plans = await _databaseService.getSubscriptionPlans();
+      final securityLimits = await _databaseService.getSystemSecurityLimits();
+      final auditLogs = await _databaseService.getSystemAuditLogs();
 
       emit(SuperAdminLoaded(
         totalUsers: metrics['total_users'] ?? 0,
@@ -28,9 +33,30 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
         requests: requests,
         affiliates: affiliates,
         globalStats: globalStats,
+        plans: plans,
+        securityLimits: securityLimits,
+        auditLogs: auditLogs,
       ));
     } catch (e) {
-      emit(SuperAdminFailure("Error loading admin metrics: \$e"));
+      emit(SuperAdminFailure("Error loading admin metrics: $e"));
+    }
+  }
+
+  Future<void> updatePlan(String planId, Map<String, dynamic> data) async {
+    try {
+      await _databaseService.updateSubscriptionPlan(planId, data);
+      await fetchAdminMetrics(); // Refresh all data to include audit logs
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to update plan: $e"));
+    }
+  }
+
+  Future<void> updateUserProfile(String userId, Map<String, dynamic> data) async {
+    try {
+      await _databaseService.updateUserProfile(userId, data);
+      await fetchAdminMetrics();
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to update user profile: $e"));
     }
   }
 
@@ -39,7 +65,7 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
       await _databaseService.updateSubscriptionStatus(requestId, 'approved');
       await fetchAdminMetrics(); // Refresh data
     } catch (e) {
-      emit(SuperAdminFailure("Failed to approve: \$e"));
+      emit(SuperAdminFailure("Failed to approve: $e"));
     }
   }
 
@@ -48,7 +74,7 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
       await _databaseService.updateSubscriptionStatus(requestId, 'rejected');
       await fetchAdminMetrics(); // Refresh data
     } catch (e) {
-      emit(SuperAdminFailure("Failed to reject: \$e"));
+      emit(SuperAdminFailure("Failed to reject: $e"));
     }
   }
 }

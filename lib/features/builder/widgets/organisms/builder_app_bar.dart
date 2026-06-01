@@ -127,86 +127,111 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        if (!isMobile) ...[
-          _buildActionButton(
-            icon: state.isPublished
-                ? Icons.visibility_off_rounded
-                : Icons.language_rounded, // Better icon for live status
-            label: state.isPublished
-                ? loc.translate('draft')
-                : loc.translate('go_live'),
-            onPressed: () {
-              cubit.updateSettings(isPublished: !state.isPublished);
-              cubit.saveForCurrentUser();
-            },
-            color: state.isPublished
-                ? AppColors.textPrimary
-                : AppColors.secondary,
-          ),
-          const VerticalDivider(
-            color: AppColors.border,
-            indent: 12,
-            endIndent: 12,
-            width: 32,
-          ),
-          _buildActionButton(
-            icon: Icons.auto_awesome_rounded,
-            label: loc.translate('templates'),
-            onPressed: onShowTemplates,
-          ),
-          _buildActionButton(
-            icon: Icons.color_lens_rounded,
-            label: loc.translate('design'),
-            onPressed: onShowDesign,
-          ),
-          _buildActionButton(
-            icon: Icons.font_download_rounded,
-            label: loc.translate('fonts'),
-            onPressed: onShowFonts,
-          ),
-          _buildActionButton(
-            icon: Icons.search_rounded,
-            label: "SEO",
-            onPressed: onShowSeo,
-          ),
-          const VerticalDivider(
-            color: AppColors.border,
-            indent: 12,
-            endIndent: 12,
-            width: 32,
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.smartphone_rounded,
-              color: previewMode == PreviewMode.mobile
-                  ? AppColors.secondary
-                  : AppColors.textSecondary,
+        if (!isMobile)
+          Flexible(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildActionButton(
+                    icon: state.isPublished
+                        ? Icons.visibility_off_rounded
+                        : Icons.language_rounded, // Better icon for live status
+                    label: state.isPublished
+                        ? loc.translate('draft')
+                        : loc.translate('go_live'),
+                    onPressed: () {
+                      cubit.updateSettings(isPublished: !state.isPublished);
+                      cubit.saveForCurrentUser();
+                    },
+                    color: state.isPublished
+                        ? AppColors.textPrimary
+                        : AppColors.secondary,
+                  ),
+                  const VerticalDivider(
+                    color: AppColors.border,
+                    indent: 12,
+                    endIndent: 12,
+                    width: 32,
+                  ),
+                  _buildActionButton(
+                    icon: Icons.auto_awesome_rounded,
+                    label: loc.translate('templates'),
+                    onPressed: onShowTemplates,
+                  ),
+                  _buildActionButton(
+                    icon: Icons.color_lens_rounded,
+                    label: loc.translate('design'),
+                    onPressed: onShowDesign,
+                  ),
+                  _buildActionButton(
+                    icon: Icons.font_download_rounded,
+                    label: loc.translate('fonts'),
+                    onPressed: onShowFonts,
+                  ),
+                  _buildActionButton(
+                    icon: Icons.search_rounded,
+                    label: "SEO",
+                    onPressed: onShowSeo,
+                  ),
+                  const VerticalDivider(
+                    color: AppColors.border,
+                    indent: 12,
+                    endIndent: 12,
+                    width: 32,
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.smartphone_rounded,
+                      color: previewMode == PreviewMode.mobile
+                          ? AppColors.secondary
+                          : AppColors.textSecondary,
+                    ),
+                    onPressed: () => onChangePreview(PreviewMode.mobile),
+                    tooltip: "Mobile Preview",
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.desktop_windows_rounded,
+                      color: previewMode == PreviewMode.desktop
+                          ? AppColors.secondary
+                          : AppColors.textSecondary,
+                    ),
+                    onPressed: () => onChangePreview(PreviewMode.desktop),
+                    tooltip: "Desktop Preview",
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.visibility_rounded,
+                      color: previewMode == PreviewMode.fullscreen
+                          ? AppColors.secondary
+                          : AppColors.textSecondary,
+                    ),
+                    onPressed: () => onChangePreview(PreviewMode.fullscreen),
+                    tooltip: "Full Screen Preview",
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.open_in_new_rounded,
+                      color: AppColors.secondary,
+                    ),
+                    onPressed: () {
+                      html.window.open('/${state.subdomain}', '_blank');
+                    },
+                    tooltip: loc.translate('view_as_guest'),
+                  ),
+                  const SizedBox(width: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    child: _buildPublishButton(),
+                  ),
+                ],
+              ),
             ),
-            onPressed: () => onChangePreview(PreviewMode.mobile),
-            tooltip: "Mobile Preview",
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.desktop_windows_rounded,
-              color: previewMode == PreviewMode.desktop
-                  ? AppColors.secondary
-                  : AppColors.textSecondary,
-            ),
-            onPressed: () => onChangePreview(PreviewMode.desktop),
-            tooltip: "Desktop Preview",
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.visibility_rounded,
-              color: previewMode == PreviewMode.fullscreen
-                  ? AppColors.secondary
-                  : AppColors.textSecondary,
-            ),
-            onPressed: () => onChangePreview(PreviewMode.fullscreen),
-            tooltip: "Full Screen Preview",
-          ),
-          const SizedBox(width: 16),
-        ] else ...[
+          )
+        else ...[
           IconButton(
             icon: const Icon(
               Icons.auto_awesome_rounded,

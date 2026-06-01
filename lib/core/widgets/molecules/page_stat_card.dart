@@ -43,13 +43,20 @@ class PageStatCard extends StatelessWidget {
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
-              const SizedBox(height: 4),
-              Text(value, style: AppTypography.h3.copyWith(fontSize: 20)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(value, style: AppTypography.h3.copyWith(fontSize: 20)),
+              ],
+            ),
           ),
         ],
       ),

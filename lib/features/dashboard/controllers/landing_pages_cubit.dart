@@ -18,14 +18,16 @@ class LandingPagesCubit extends Cubit<LandingPagesState> {
         _subscriptionService = subscriptionService,
         super(LandingPagesInitial());
 
-  Future<void> loadPages() async {
+  Future<void> loadPages({bool showLoading = true}) async {
     final userId = _authService.currentUserId;
     if (userId == null) {
       emit(const LandingPagesFailure("No authenticated user found."));
       return;
     }
 
-    emit(LandingPagesLoading());
+    if (showLoading) {
+      emit(LandingPagesLoading());
+    }
     try {
       // Warm up the subscription cache first
       await _subscriptionService.refreshCache();
@@ -61,7 +63,7 @@ class LandingPagesCubit extends Cubit<LandingPagesState> {
   Future<void> togglePublishStatus(String pageId, bool newStatus) async {
     try {
       await _databaseService.updatePagePublishStatus(pageId, newStatus);
-      await loadPages(); // Refresh UI
+      await loadPages(showLoading: false); // Refresh UI without full page loader
     } catch (e) {
       emit(LandingPagesFailure(e.toString()));
     }

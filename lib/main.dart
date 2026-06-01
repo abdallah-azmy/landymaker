@@ -15,12 +15,18 @@ import 'features/public_viewer/controllers/public_page_cubit.dart';
 
 import 'features/dashboard/controllers/active_website_cubit.dart';
 import 'package:toastification/toastification.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
 
   try {
+    // Preload primary font to prevent FOUT/FOIT (Tofu effect) on web globally
+    GoogleFonts.config.allowRuntimeFetching = true;
+    GoogleFonts.cairo();
+    await GoogleFonts.pendingFonts();
+
     // Initialize all dependencies via GetIt Service Locator
     await initDependencies();
 
@@ -103,6 +109,7 @@ class LandyMakerApp extends StatelessWidget {
 
               // Theme specifications
               theme: ThemeData(
+                fontFamily: GoogleFonts.cairo().fontFamily,
                 brightness: Brightness.dark,
                 primaryColor: AppColors.primary,
                 scaffoldBackgroundColor: AppColors.background,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:html' as html;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../subscription/widgets/manual_payment_modal.dart';
@@ -14,6 +15,7 @@ import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
 import '../controllers/active_website_cubit.dart';
 import '../../builder/controllers/builder_cubit.dart';
+import '../../../core/utils/toast_service.dart';
 
 class DashboardHomeScreen extends StatefulWidget {
   final Function(String) onOpenBuilder;
@@ -32,7 +34,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
   Future<void> _loadData() async {
     final cubit = context.read<LandingPagesCubit>();
     await cubit.loadPages();
-    
+
     // Auto-select the first website if none is selected
     if (mounted) {
       final state = cubit.state;
@@ -50,9 +52,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => CreatePageModal(
-        onPageCreated: () => widget.onOpenBuilder('new'),
-      ),
+      builder: (context) =>
+          CreatePageModal(onPageCreated: () => widget.onOpenBuilder('new')),
     );
   }
 
@@ -135,7 +136,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(loc.translate('your_landing_pages'), style: AppTypography.h3),
+                Text(
+                  loc.translate('your_landing_pages'),
+                  style: AppTypography.h3,
+                ),
                 const SizedBox(height: 16),
                 PrimaryButton(
                   text: loc.translate('create_new_page'),
@@ -149,7 +153,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(loc.translate('your_landing_pages'), style: AppTypography.h2),
+                Text(
+                  loc.translate('your_landing_pages'),
+                  style: AppTypography.h2,
+                ),
                 PrimaryButton(
                   text: loc.translate('create_new_page'),
                   icon: Icons.add_rounded,
@@ -167,7 +174,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
 
   Widget _buildHeader(LocalizationCubit loc, String tier, bool isMobile) {
     final state = context.read<LandingPagesCubit>().state as LandingPagesLoaded;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -182,7 +189,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -199,7 +209,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                 const SizedBox(height: 4),
                 Text(
                   "${state.pages.length} / ${state.maxPages} ${loc.translate('active_pages')}",
-                  style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textMuted,
+                  ),
                 ),
               ],
             ),
@@ -230,7 +242,11 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.white, size: 32),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
                     const SizedBox(width: 12),
                     Text(
                       loc.translate('upgrade_to_pro'),
@@ -249,7 +265,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => _showUpgradeModal(context, "Pro", 299.0, userId),
+                    onPressed: () =>
+                        _showUpgradeModal(context, "Pro", 299.0, userId),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: AppColors.primary,
@@ -289,11 +306,15 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                 ),
                 const SizedBox(width: 24),
                 ElevatedButton(
-                  onPressed: () => _showUpgradeModal(context, "Pro", 299.0, userId),
+                  onPressed: () =>
+                      _showUpgradeModal(context, "Pro", 299.0, userId),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -343,7 +364,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
             title: loc.translate('avg_conversion_rate'),
             value: conversionRate,
             icon: Icons.analytics_rounded,
-            color: AppColors.accent,
+            color: AppColors.primary,
           ),
         ],
       );
@@ -377,7 +398,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
             title: loc.translate('avg_conversion_rate'),
             value: conversionRate,
             icon: Icons.analytics_rounded,
-            color: AppColors.accent,
+            color: AppColors.primary,
           ),
         ),
       ],
@@ -421,120 +442,138 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
       separatorBuilder: (_, __) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final page = pages[index];
-        return _buildPageItem(page);
+        return _PageItemCard(page: page, onOpenBuilder: widget.onOpenBuilder);
       },
     );
   }
+}
 
-  Widget _buildPageItem(Map<String, dynamic> page) {
+class _PageItemCard extends StatefulWidget {
+  final Map<String, dynamic> page;
+  final Function(String) onOpenBuilder;
+
+  const _PageItemCard({required this.page, required this.onOpenBuilder});
+
+  @override
+  State<_PageItemCard> createState() => _PageItemCardState();
+}
+
+class _PageItemCardState extends State<_PageItemCard> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final page = widget.page;
     final bool isPublished = page['is_published'] ?? false;
     final bool isActive = page['is_active'] ?? true;
     final loc = context.watch<LocalizationCubit>();
-    final isMobile = ResponsiveLayout.isMobile(context);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: AppColors.cardBg,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        side: const BorderSide(color: AppColors.border),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Stack(
+          InkWell(
+            onTap: () {
+              context.read<LandingPageBuilderCubit>().loadPageById(page['id']);
+              widget.onOpenBuilder(page['id']);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
             children: [
-              CircleAvatar(
-                backgroundColor: AppColors.primary.withOpacity(0.1),
-                child: const Icon(Icons.language_rounded, color: AppColors.primary),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    child: const Icon(
+                      Icons.language_rounded,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: !isActive
+                            ? AppColors.dangerRed
+                            : (isPublished
+                                ? AppColors.activeGreen
+                                : AppColors.textMuted),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.cardBg, width: 2),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Positioned(
-                right: 0,
-                bottom: 0,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      page['subdomain'] ?? "Unnamed Page",
+                      style: AppTypography.bodyLarge.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    _CopyableUrlWidget(
+                      url: "https://landymaker.com/${page['subdomain'] ?? 'landymaker.com'}",
+                      subdomain: page['subdomain'] ?? '',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildPublishToggle(page['id'], isPublished, isActive),
+              const SizedBox(width: 16),
+              InkWell(
+                onTap: () {
+                  context.read<LandingPageBuilderCubit>().loadPageById(page['id']);
+                  widget.onOpenBuilder(page['id']);
+                },
+                borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  width: 12,
-                  height: 12,
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: !isActive
-                        ? AppColors.dangerRed
-                        : (isPublished ? AppColors.activeGreen : AppColors.textMuted),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.cardBg, width: 2),
+                    color: AppColors.primary.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.edit_rounded,
+                    color: AppColors.primary,
+                    size: 24,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        page['subdomain'] ?? "Unnamed Page",
-                        style: AppTypography.bodyLarge.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  "Created on ${page['created_at'].toString().split('T').first}",
-                  style: AppTypography.caption,
-                ),
-                const SizedBox(height: 4),
-                InkWell(
-                  onTap: () {
-                    final subdomain = page['subdomain'] ?? '';
-                    html.window.open('/$subdomain', '_blank');
-                  },
-                  borderRadius: BorderRadius.circular(4),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.link_rounded, size: 12, color: AppColors.secondary),
-                        const SizedBox(width: 4),
-                        Text(
-                          "/${page['subdomain'] ?? ''}",
-                          style: AppTypography.caption.copyWith(
-                            color: AppColors.secondary,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          _buildPublishToggle(page['id'], isPublished, isActive, loc),
-          const SizedBox(width: 16),
-          IconButton(
-            icon: const Icon(
-              Icons.edit_note_rounded,
-              color: AppColors.secondary,
-            ),
-            onPressed: () {
-              context.read<LandingPageBuilderCubit>().loadPageById(
-                page['id'],
-              );
-              widget.onOpenBuilder(page['id']);
-            },
-          ),
-        ],
+        ),
+      ),
+      if (_isLoading)
+        const LinearProgressIndicator(
+          minHeight: 3,
+          backgroundColor: Colors.transparent,
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.secondary),
+        ),
+      ],
       ),
     );
   }
 
-  Widget _buildPublishToggle(String pageId, bool isPublished, bool isActive, LocalizationCubit loc) {
+  Widget _buildPublishToggle(String pageId, bool isPublished, bool isActive) {
     if (!isActive) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -561,9 +600,16 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
           scale: 0.8,
           child: Switch(
             value: isPublished,
-            activeColor: AppColors.activeGreen,
-            onChanged: (val) {
-              context.read<LandingPagesCubit>().togglePublishStatus(pageId, val);
+            activeThumbColor: AppColors.activeGreen,
+            onChanged: _isLoading
+                ? null
+                : (val) async {
+              setState(() => _isLoading = true);
+              await context.read<LandingPagesCubit>().togglePublishStatus(
+                    pageId,
+                    val,
+                  );
+              if (mounted) setState(() => _isLoading = false);
             },
           ),
         ),
@@ -573,6 +619,80 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
             color: isPublished ? AppColors.activeGreen : AppColors.textMuted,
             fontSize: 10,
             fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CopyableUrlWidget extends StatefulWidget {
+  final String url;
+  final String subdomain;
+
+  const _CopyableUrlWidget({required this.url, required this.subdomain});
+
+  @override
+  State<_CopyableUrlWidget> createState() => _CopyableUrlWidgetState();
+}
+
+class _CopyableUrlWidgetState extends State<_CopyableUrlWidget> {
+  bool _isCopied = false;
+
+  void _copyToClipboard(BuildContext context) {
+    final loc = context.read<LocalizationCubit>();
+    Clipboard.setData(ClipboardData(text: widget.url));
+    setState(() => _isCopied = true);
+    ToastService.showSuccess(
+      context,
+      message: loc.translate('link_copied_success') ?? "تم نسخ الرابط بنجاح!",
+    );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => _isCopied = false);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkWell(
+          onTap: () {
+            html.window.open('/${widget.subdomain}', '_blank');
+          },
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+            child: Text(
+              widget.url,
+              style: AppTypography.caption.copyWith(
+                color: AppColors.primary,
+                decoration: TextDecoration.underline,
+                decorationColor: AppColors.primary,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        InkWell(
+          onTap: () => _copyToClipboard(context),
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                _isCopied ? Icons.check_circle_rounded : Icons.copy_rounded,
+                key: ValueKey(_isCopied),
+                size: 16,
+                color: _isCopied ? AppColors.activeGreen : AppColors.textSecondary,
+              ),
+            ),
           ),
         ),
       ],

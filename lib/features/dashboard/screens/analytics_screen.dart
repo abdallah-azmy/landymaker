@@ -30,7 +30,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final state = cubit.state;
 
     if (state is LeadsAnalyticsLoading || state is LeadsAnalyticsInitial) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.secondary));
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.secondary),
+      );
     }
 
     if (state is LeadsAnalyticsFailure) {
@@ -40,7 +42,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           children: [
             Text("Failed to load analytics data", style: AppTypography.h2),
             const SizedBox(height: 8),
-            Text(state.message, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
+            Text(
+              state.message,
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.dangerRed,
+              ),
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
@@ -87,7 +94,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 onPressed: () {
                   cubit.fetchStatsForCurrentUser();
                 },
-                icon: const Icon(Icons.refresh_rounded, color: AppColors.secondary),
+                icon: const Icon(
+                  Icons.refresh_rounded,
+                  color: AppColors.secondary,
+                ),
                 tooltip: "Reload Analytics Data",
               ),
             ],
@@ -95,7 +105,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           const SizedBox(height: 32),
 
           if (errorMessage != null) ...[
-            Text(errorMessage, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
+            Text(
+              errorMessage,
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.dangerRed,
+              ),
+            ),
             const SizedBox(height: 16),
           ],
 
@@ -103,7 +118,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(context, desktop: 3, tablet: 2, mobile: 1),
+            crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(
+              context,
+              desktop: 3,
+              tablet: 2,
+              mobile: 1,
+            ),
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
             childAspectRatio: 2.2,
@@ -122,7 +142,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 subtitle: '+8% vs last week',
                 trendUp: true,
                 icon: Icons.ads_click_rounded,
-                iconColor: AppColors.accent,
+                iconColor: AppColors.primary,
               ),
               DataCard(
                 title: loc.translate('conversion_rate'),
@@ -146,10 +166,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Daily Performance Trend",
-                  style: AppTypography.h3,
-                ),
+                Text("Daily Performance Trend", style: AppTypography.h3),
                 const SizedBox(height: 24),
                 SizedBox(
                   height: 240,

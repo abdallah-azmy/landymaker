@@ -15,7 +15,7 @@ import '../controllers/active_website_cubit.dart';
 import '../../builder/controllers/builder_cubit.dart';
 
 class DashboardHomeScreen extends StatefulWidget {
-  final VoidCallback onOpenBuilder;
+  final Function(String) onOpenBuilder;
   const DashboardHomeScreen({super.key, required this.onOpenBuilder});
   @override
   State<DashboardHomeScreen> createState() => _DashboardHomeScreenState();
@@ -50,7 +50,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => CreatePageModal(
-        onPageCreated: widget.onOpenBuilder,
+        onPageCreated: () => widget.onOpenBuilder('new'),
       ),
     );
   }
@@ -500,7 +500,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
               context.read<LandingPageBuilderCubit>().loadPageById(
                 page['id'],
               );
-              widget.onOpenBuilder();
+              widget.onOpenBuilder(page['id']);
             },
           ),
         ],

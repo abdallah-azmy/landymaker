@@ -26,8 +26,9 @@ import '../models/preview_mode.dart';
 
 class BuilderWorkspaceScreen extends StatefulWidget {
   final VoidCallback onBackToDashboard;
+  final String? pageId;
 
-  const BuilderWorkspaceScreen({super.key, required this.onBackToDashboard});
+  const BuilderWorkspaceScreen({super.key, required this.onBackToDashboard, this.pageId});
 
   @override
   State<BuilderWorkspaceScreen> createState() => _BuilderWorkspaceScreenState();
@@ -40,7 +41,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<LandingPageBuilderCubit>().loadForCurrentUser();
+    if (widget.pageId != null && widget.pageId != 'new') {
+      context.read<LandingPageBuilderCubit>().loadPageById(widget.pageId!);
+    } else {
+      context.read<LandingPageBuilderCubit>().loadForCurrentUser();
+    }
     _setupBrowserWarning();
   }
 
@@ -193,6 +198,13 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                       _showTemplatesMenu(context, builderCubit),
                   onShowDesign: () =>
                       _showDesignMenu(context, loc, builderCubit),
+                  onShowFonts: () => _showBuilderOptionsModal(
+                    context,
+                    loc,
+                    builderCubit,
+                    loadedState,
+                    initialView: BuilderOptionView.fonts,
+                  ),
                   onShowSeo: () => _showSeoMenu(context, builderCubit),
                 ),
           bottomNavigationBar: isMobile
@@ -214,6 +226,14 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                     loadedState,
                     initialView: BuilderOptionView.colors,
                   ),
+                  onShowFonts: () => _showBuilderOptionsModal(
+                    context,
+                    loc,
+                    builderCubit,
+                    loadedState,
+                    initialView: BuilderOptionView.fonts,
+                  ),
+                  onChangePreview: (mode) => setState(() => _previewMode = mode),
                   onAddBlock: () => _showAddBlockMenu(context, builderCubit),
                   onPublish: () {
                     // Assuming save logic is similar to _buildSaveButton

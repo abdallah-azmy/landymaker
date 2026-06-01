@@ -66,10 +66,12 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: ':pageId',
           builder: (context, state) {
+            final pageId = state.pathParameters['pageId'];
             return BlocBuilder<AuthCubit, AuthState>(
               builder: (context, authState) {
                 if (authState is Authenticated) {
                   return BuilderWorkspaceScreen(
+                    pageId: pageId,
                     onBackToDashboard: () {
                       context.go('/');
                     },

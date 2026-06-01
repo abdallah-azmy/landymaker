@@ -4,6 +4,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
+import '../../models/preview_mode.dart';
 
 class BuilderMobileToolbar extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -12,8 +13,10 @@ class BuilderMobileToolbar extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onShowOptions;
   final VoidCallback onShowColors;
+  final VoidCallback onShowFonts;
   final VoidCallback onAddBlock;
   final VoidCallback onPublish;
+  final Function(PreviewMode) onChangePreview;
 
   const BuilderMobileToolbar({
     super.key,
@@ -23,8 +26,10 @@ class BuilderMobileToolbar extends StatelessWidget {
     required this.onBack,
     required this.onShowOptions,
     required this.onShowColors,
+    required this.onShowFonts,
     required this.onAddBlock,
     required this.onPublish,
+    required this.onChangePreview,
   });
 
   @override
@@ -33,55 +38,103 @@ class BuilderMobileToolbar extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.fromLTRB(16, 0, 16, 16 + bottomPadding),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.border, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withValues(alpha: 0.4),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Left: Navigation
-          Row(
-            children: [
-              _buildToolButton(
-                icon: Icons.arrow_back_rounded,
-                onPressed: onBack,
-                color: AppColors.textSecondary,
-              ),
-            ],
+          _buildToolButton(
+            icon: Icons.arrow_back_rounded,
+            onPressed: onBack,
+            color: AppColors.textSecondary,
           ),
           
-          // Center: Tools
-          Row(
-            children: [
-              _buildToolButton(
-                icon: Icons.color_lens_rounded,
-                onPressed: onShowColors,
-                color: Colors.white,
+          const SizedBox(width: 4),
+          Container(width: 1, height: 24, color: AppColors.border),
+          const SizedBox(width: 4),
+
+          // Center: Tools (Scrollable to fit everything)
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  _buildToolButton(
+                    icon: Icons.undo_rounded,
+                    onPressed: state.canUndo ? cubit.undo : null,
+                    color: state.canUndo ? Colors.white : AppColors.textMuted,
+                  ),
+                  _buildToolButton(
+                    icon: Icons.redo_rounded,
+                    onPressed: state.canRedo ? cubit.redo : null,
+                    color: state.canRedo ? Colors.white : AppColors.textMuted,
+                  ),
+                  const SizedBox(width: 8),
+                  
+                  _buildToolButton(
+                    icon: Icons.font_download_rounded,
+                    onPressed: onShowFonts,
+                    color: Colors.white,
+                  ),
+                  _buildToolButton(
+                    icon: Icons.color_lens_rounded,
+                    onPressed: onShowColors,
+                    color: Colors.white,
+                  ),
+                  
+                  // Distinct Add Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: InkWell(
+                      onTap: onAddBlock,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.secondary.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+                      ),
+                    ),
+                  ),
+
+                  _buildToolButton(
+                    icon: Icons.visibility_rounded,
+                    onPressed: () => onChangePreview(PreviewMode.fullscreen),
+                    color: Colors.white,
+                  ),
+                  _buildMoreOptionsButton(context),
+                ],
               ),
-              const SizedBox(width: 8),
-              _buildToolButton(
-                icon: Icons.add_rounded,
-                onPressed: onAddBlock,
-                color: Colors.white,
-                isLarge: true,
-              ),
-              const SizedBox(width: 8),
-              _buildMoreOptionsButton(context),
-            ],
+            ),
           ),
 
-          // Right: Save
-          _buildSaveButton(),
+          const SizedBox(width: 4),
+          Container(width: 1, height: 24, color: AppColors.border),
+          const SizedBox(width: 4),
+
+          // Right: Publish (Rocket)
+          _buildPublishButton(),
         ],
       ),
     );
@@ -89,28 +142,30 @@ class BuilderMobileToolbar extends StatelessWidget {
 
   Widget _buildToolButton({
     required IconData icon,
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
     Color? color,
-    bool isLarge = false,
   }) {
     return IconButton(
-      icon: Icon(icon, color: color ?? Colors.white, size: isLarge ? 28 : 22),
+      icon: Icon(icon, color: color ?? Colors.white, size: 22),
       onPressed: onPressed,
-      constraints: BoxConstraints(minWidth: isLarge ? 48 : 40, minHeight: isLarge ? 48 : 40),
+      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
       padding: EdgeInsets.zero,
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildPublishButton() {
+    final bool canPublish = state.hasUnsavedChanges && !state.isSaving;
     return InkWell(
-      onTap: state.isSaving ? null : () => cubit.saveForCurrentUser(),
+      onTap: canPublish ? () => cubit.saveForCurrentUser() : null,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.activeGreen.withOpacity(0.1),
+          color: canPublish ? AppColors.activeGreen.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.activeGreen),
+          border: Border.all(
+            color: canPublish ? AppColors.activeGreen : AppColors.border,
+          ),
         ),
         child: state.isSaving
             ? const SizedBox(
@@ -120,15 +175,21 @@ class BuilderMobileToolbar extends StatelessWidget {
               )
             : Row(
                 children: [
-                  const Icon(Icons.cloud_upload_rounded, color: AppColors.activeGreen, size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    loc.translate('save'),
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.activeGreen,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Icon(
+                    Icons.rocket_launch_rounded,
+                    color: canPublish ? AppColors.activeGreen : AppColors.textMuted,
+                    size: 20,
                   ),
+                  if (canPublish) ...[
+                    const SizedBox(width: 6),
+                    Text(
+                      loc.translate('publish') ?? 'نشر',
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.activeGreen,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ]
                 ],
               ),
       ),

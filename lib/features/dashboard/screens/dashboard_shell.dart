@@ -77,8 +77,8 @@ class _DashboardShellState extends State<DashboardShell> {
       'title_key': 'dashboard',
       'icon': Icons.dashboard_rounded,
       'screen': DashboardHomeScreen(
-        onOpenBuilder: () {
-          context.push('/builder');
+        onOpenBuilder: (pageId) {
+          context.push('/builder/$pageId');
         },
       ),
     });

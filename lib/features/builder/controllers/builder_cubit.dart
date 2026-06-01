@@ -19,19 +19,84 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
   final StorageService _storageService;
   final SubscriptionService _subscriptionService;
 
+  final List<String> _history = [];
+  int _historyIndex = -1;
+
   LandingPageBuilderCubit({
     required AuthService authService,
     required DatabaseService databaseService,
     required StorageService storageService,
     required SubscriptionService subscriptionService,
-  })  : _authService = authService,
-        _databaseService = databaseService,
-        _storageService = storageService,
-        _subscriptionService = subscriptionService,
-        super(BuilderInitial());
+  }) : _authService = authService,
+       _databaseService = databaseService,
+       _storageService = storageService,
+       _subscriptionService = subscriptionService,
+       super(BuilderInitial());
 
-  void _emitDirty(BuilderLoaded state, {bool isClean = false}) {
-    emit(state.copyWith(hasUnsavedChanges: !isClean));
+  void _saveToHistory(BuilderLoaded state) {
+    if (_historyIndex < _history.length - 1) {
+      _history.removeRange(_historyIndex + 1, _history.length);
+    }
+    _history.add(
+      jsonEncode({'designMap': state.designMap, 'theme': state.theme.toJson()}),
+    );
+    _historyIndex = _history.length - 1;
+
+    // Limit history to 50 steps
+    if (_history.length > 50) {
+      _history.removeAt(0);
+      _historyIndex--;
+    }
+  }
+
+  void _emitDirty(
+    BuilderLoaded state, {
+    bool isClean = false,
+    bool skipHistory = false,
+  }) {
+    if (!skipHistory) {
+      _saveToHistory(state);
+    }
+    emit(
+      state.copyWith(
+        hasUnsavedChanges: !isClean,
+        canUndo: _historyIndex > 0,
+        canRedo: _historyIndex < _history.length - 1,
+      ),
+    );
+  }
+
+  void undo() {
+    final currentState = state;
+    if (currentState is! BuilderLoaded || _historyIndex <= 0) return;
+
+    _historyIndex--;
+    final snapshot = jsonDecode(_history[_historyIndex]);
+    _emitDirty(
+      currentState.copyWith(
+        designMap: snapshot['designMap'],
+        theme: LandingPageTheme.fromJson(snapshot['theme']),
+      ),
+      isClean: false,
+      skipHistory: true,
+    );
+  }
+
+  void redo() {
+    final currentState = state;
+    if (currentState is! BuilderLoaded || _historyIndex >= _history.length - 1)
+      return;
+
+    _historyIndex++;
+    final snapshot = jsonDecode(_history[_historyIndex]);
+    _emitDirty(
+      currentState.copyWith(
+        designMap: snapshot['designMap'],
+        theme: LandingPageTheme.fromJson(snapshot['theme']),
+      ),
+      isClean: false,
+      skipHistory: true,
+    );
   }
 
   Future<void> loadForCurrentUser() async {
@@ -92,27 +157,33 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           designMap = Map<String, dynamic>.from(rawDesign);
         }
       }
-      
-      _emitDirty(BuilderLoaded(
-        pageId: pageId,
-        designMap: designMap,
-        subdomain: subdomain,
-        customDomain: customDomain,
-        isPublished: isPublished,
-        websiteType: websiteType,
-        theme: designMap['theme'] != null
-            ? LandingPageTheme.fromJson(designMap['theme'])
-            : LandingPageTheme.palettes.last,
-      ), isClean: true);
+
+      _emitDirty(
+        BuilderLoaded(
+          pageId: pageId,
+          designMap: designMap,
+          subdomain: subdomain,
+          customDomain: customDomain,
+          isPublished: isPublished,
+          websiteType: websiteType,
+          theme: designMap['theme'] != null
+              ? LandingPageTheme.fromJson(designMap['theme'])
+              : LandingPageTheme.palettes.last,
+        ),
+        isClean: true,
+      );
     } else {
       // Handle new page
-      _emitDirty(BuilderLoaded(
-        designMap: designMap,
-        subdomain: subdomain,
-        isPublished: isPublished,
-        websiteType: 'landing_page',
-        theme: LandingPageTheme.palettes.last,
-      ), isClean: true);
+      _emitDirty(
+        BuilderLoaded(
+          designMap: designMap,
+          subdomain: subdomain,
+          isPublished: isPublished,
+          websiteType: 'landing_page',
+          theme: LandingPageTheme.palettes.last,
+        ),
+        isClean: true,
+      );
     }
   }
 
@@ -126,10 +197,12 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         .replaceAll(RegExp(r'^-+|-+$'), '');
 
     if (sanitizedSubdomain.isEmpty) {
-      _emitDirty(currentState.copyWith(
-        isSaving: false,
-        errorMessage: "يرجى إدخال اسم براند صالح.",
-      ));
+      _emitDirty(
+        currentState.copyWith(
+          isSaving: false,
+          errorMessage: "يرجى إدخال اسم براند صالح.",
+        ),
+      );
       return;
     }
 
@@ -139,18 +212,25 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       if (currentState.pageId == null) {
         final profile = await _databaseService.getProfile(userId);
         final String tier = profile?['tier'] ?? 'free';
-        final bool reachedLimit = await _subscriptionService.hasReachedLimit(userId);
+        final bool reachedLimit = await _subscriptionService.hasReachedLimit(
+          userId,
+        );
 
         if (reachedLimit) {
-          _emitDirty(currentState.copyWith(
-            isSaving: false,
-            errorMessage: "لقد وصلت للحد الأقصى لعدد الصفحات المسموح به في خطتك الحالية ($tier).",
-          ));
+          _emitDirty(
+            currentState.copyWith(
+              isSaving: false,
+              errorMessage:
+                  "لقد وصلت للحد الأقصى لعدد الصفحات المسموح به في خطتك الحالية ($tier).",
+            ),
+          );
           return;
         }
       }
 
-      final Map<String, dynamic> finalDesign = Map<String, dynamic>.from(currentState.designMap);
+      final Map<String, dynamic> finalDesign = Map<String, dynamic>.from(
+        currentState.designMap,
+      );
       finalDesign['theme'] = currentState.theme.toJson();
 
       final savedPageId = await _databaseService.saveLandingPage(
@@ -163,31 +243,45 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         pageId: currentState.pageId,
       );
 
-      _emitDirty(currentState.copyWith(
-        pageId: savedPageId ?? currentState.pageId,
-        subdomain: sanitizedSubdomain,
-        isSaving: false,
-        successMessage: "تم الحفظ والنشر بنجاح!",
-      ), isClean: true);
+      _emitDirty(
+        currentState.copyWith(
+          pageId: savedPageId ?? currentState.pageId,
+          subdomain: sanitizedSubdomain,
+          isSaving: false,
+          successMessage: "تم الحفظ والنشر بنجاح!",
+        ),
+        isClean: true,
+      );
     } catch (e) {
-      _emitDirty(currentState.copyWith(
-        isSaving: false,
-        errorMessage: "فشل الحفظ: ${e.toString().replaceAll('Exception: ', '')}",
-      ));
+      _emitDirty(
+        currentState.copyWith(
+          isSaving: false,
+          errorMessage:
+              "فشل الحفظ: ${e.toString().replaceAll('Exception: ', '')}",
+        ),
+      );
     }
   }
 
-  void updateSettings({String? subdomain, String? customDomain, bool? isPublished}) {
+  void updateSettings({
+    String? subdomain,
+    String? customDomain,
+    bool? isPublished,
+  }) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
     final shouldClear = customDomain == '';
-    _emitDirty(currentState.copyWith(
-      subdomain: subdomain ?? currentState.subdomain,
-      customDomain: shouldClear ? null : (customDomain ?? currentState.customDomain),
-      clearCustomDomain: shouldClear,
-      isPublished: isPublished ?? currentState.isPublished,
-    ));
+    _emitDirty(
+      currentState.copyWith(
+        subdomain: subdomain ?? currentState.subdomain,
+        customDomain: shouldClear
+            ? null
+            : (customDomain ?? currentState.customDomain),
+        clearCustomDomain: shouldClear,
+        isPublished: isPublished ?? currentState.isPublished,
+      ),
+    );
   }
 
   void updateTheme(LandingPageTheme theme) {
@@ -201,7 +295,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     if (currentState is! BuilderLoaded) return;
 
     LandingPageTheme newTheme;
-    
+
     if (value is Color) {
       switch (key) {
         case 'primary':
@@ -228,10 +322,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           newTheme = currentState.theme.copyWith(defaultFont: value as String?);
           break;
         case 'globalBgImageUrl':
-          newTheme = currentState.theme.copyWith(globalBgImageUrl: value as String?);
+          newTheme = currentState.theme.copyWith(
+            globalBgImageUrl: value as String?,
+          );
           break;
         case 'globalBgColorHex':
-          newTheme = currentState.theme.copyWith(globalBgColorHex: value as String?);
+          newTheme = currentState.theme.copyWith(
+            globalBgColorHex: value as String?,
+          );
           break;
         default:
           return;
@@ -239,7 +337,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     } else {
       return;
     }
-    
+
     _emitDirty(currentState.copyWith(theme: newTheme));
   }
 
@@ -250,27 +348,37 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final newDesign = TemplateRegistry.getTemplateDesign(templateType);
     final newTheme = TemplateRegistry.getTemplateTheme(templateType);
 
-    _emitDirty(currentState.copyWith(
-      designMap: newDesign,
-      theme: newTheme,
-      successMessage: "تم تطبيق القالب بنجاح!",
-    ));
+    _emitDirty(
+      currentState.copyWith(
+        designMap: newDesign,
+        theme: newTheme,
+        successMessage: "تم تطبيق القالب بنجاح!",
+      ),
+    );
   }
 
   void addBlock(String type) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
 
     if (type == 'hero' || type == 'hero_saas') {
       blocks.add({
         'type': type,
-        'title': type == 'hero_saas' ? 'منصتك الشاملة لإدارة الأعمال' : 'عنوان القسم الرئيسي الجديد',
-        'subtitle': type == 'hero_saas' ? 'نظام متكامل يجمع كل ما تحتاجه لإدارة مشروعك بكفاءة.' : 'اكتب هنا عرض القيمة الأساسي لخدمتك أو منتجك.',
+        'title': type == 'hero_saas'
+            ? 'منصتك الشاملة لإدارة الأعمال'
+            : 'عنوان القسم الرئيسي الجديد',
+        'subtitle': type == 'hero_saas'
+            ? 'نظام متكامل يجمع كل ما تحتاجه لإدارة مشروعك بكفاءة.'
+            : 'اكتب هنا عرض القيمة الأساسي لخدمتك أو منتجك.',
         'button_text': 'ابدأ الآن مجاناً',
-        'image_url': type == 'hero_saas' ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200' : 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800'
+        'image_url': type == 'hero_saas'
+            ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200'
+            : 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800',
       });
     } else if (type == 'features') {
       blocks.add({
@@ -279,22 +387,24 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'layout_style': 'grid',
         'items': [
           {'title': 'ميزة 1', 'description': 'اشرح فوائد هذه الميزة هنا.'},
-          {'title': 'ميزة 2', 'description': 'سلط الضوء على أهمية هذا البند.'}
-        ]
+          {'title': 'ميزة 2', 'description': 'سلط الضوء على أهمية هذا البند.'},
+        ],
       });
     } else if (type == 'lead_form') {
       blocks.add({
         'type': 'lead_form',
         'title': 'تواصل معنا اليوم',
-        'button_text': 'إرسال'
+        'button_text': 'إرسال',
       });
     } else if (type == 'lead_magnet') {
       blocks.add({
         'type': 'lead_magnet',
         'title': 'احصل على دليلك المجاني',
-        'subtitle': 'سجل الآن لتحصل على نسخة مجانية من الدليل الشامل لزيادة مبيعاتك بنسبة 300%.',
+        'subtitle':
+            'سجل الآن لتحصل على نسخة مجانية من الدليل الشامل لزيادة مبيعاتك بنسبة 300%.',
         'button_text': 'أرسل الدليل الآن',
-        'image_url': 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800'
+        'image_url':
+            'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800',
       });
     } else if (type == 'whatsapp') {
       blocks.add({
@@ -302,7 +412,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'title': 'تواصل معنا عبر واتساب',
         'phone_number': '',
         'message': 'أهلاً بك! أريد الاستفسار عن...',
-        'button_text': 'إرسال رسالة'
+        'button_text': 'إرسال رسالة',
       });
     } else if (type == 'products') {
       blocks.add({
@@ -316,10 +426,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'price': '0 EGP',
             'category': 'عام',
             'description': 'وصف مختصر للمنتج.',
-            'image_url': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
-            'button_text': 'اشترِ الآن'
-          }
-        ]
+            'image_url':
+                'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+            'button_text': 'اشترِ الآن',
+          },
+        ],
       });
     } else if (type == 'qr_code') {
       blocks.add({
@@ -335,8 +446,8 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'subtitle': 'تابعنا على منصات التواصل',
         'links': [
           {'platform': 'instagram', 'url': 'https://instagram.com'},
-          {'platform': 'whatsapp', 'url': 'https://wa.me/'}
-        ]
+          {'platform': 'whatsapp', 'url': 'https://wa.me/'},
+        ],
       });
     } else if (type == 'pricing') {
       blocks.add({
@@ -349,24 +460,24 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'features': ['ميزة 1'],
             'button_text': 'ابدأ الآن',
             'is_popular': false,
-          }
-        ]
+          },
+        ],
       });
     } else if (type == 'faq') {
       blocks.add({
         'type': 'faq',
         'title': 'الأسئلة الشائعة',
         'items': [
-          {'question': 'سؤال؟', 'answer': 'إجابة مفصلة.'}
-        ]
+          {'question': 'سؤال؟', 'answer': 'إجابة مفصلة.'},
+        ],
       });
     } else if (type == 'testimonials') {
       blocks.add({
         'type': 'testimonials',
         'title': 'قالوا عنا',
         'items': [
-          {'author': 'الاسم', 'role': 'الوظيفة', 'quote': 'رأيه هنا.'}
-        ]
+          {'author': 'الاسم', 'role': 'الوظيفة', 'quote': 'رأيه هنا.'},
+        ],
       });
     } else if (type == 'contact_info') {
       blocks.add({
@@ -381,8 +492,8 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'type': 'gallery',
         'title': 'معرض الصور',
         'items': [
-          'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800'
-        ]
+          'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800',
+        ],
       });
     } else if (type == 'trust_logos') {
       blocks.add({
@@ -392,7 +503,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
           'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
           'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg',
-        ]
+        ],
       });
     } else if (type == 'animated_counter') {
       blocks.add({
@@ -402,7 +513,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           {'value': '150', 'label': 'عميل سعيد', 'prefix': '+', 'suffix': ''},
           {'value': '99', 'label': 'نسبة الرضا', 'prefix': '', 'suffix': '%'},
           {'value': '24', 'label': 'ساعة دعم', 'prefix': '', 'suffix': '/7'},
-        ]
+        ],
       });
     } else if (type == 'basic_section') {
       blocks.add({
@@ -423,10 +534,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       items.add({
         'name': 'خطة جديدة',
@@ -447,10 +562,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
         items.removeAt(itemIndex);
@@ -463,17 +582,28 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
-  void updatePricingPlan(int blockIndex, int itemIndex, String key, dynamic value) {
+  void updatePricingPlan(
+    int blockIndex,
+    int itemIndex,
+    String key,
+    dynamic value,
+  ) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
-        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(items[itemIndex]);
+        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(
+          items[itemIndex],
+        );
         updatedItem[key] = value;
         items[itemIndex] = updatedItem;
       }
@@ -489,10 +619,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       items.add({'question': 'سؤال جديد؟', 'answer': 'الإجابة هنا.'});
       updatedBlock['items'] = items;
@@ -507,10 +641,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
         items.removeAt(itemIndex);
@@ -527,13 +665,19 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
-        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(items[itemIndex]);
+        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(
+          items[itemIndex],
+        );
         updatedItem[key] = value;
         items[itemIndex] = updatedItem;
       }
@@ -549,12 +693,20 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
-      items.add({'author': 'عميل جديد', 'role': 'وظيفة', 'quote': 'رأي العميل هنا.'});
+      items.add({
+        'author': 'عميل جديد',
+        'role': 'وظيفة',
+        'quote': 'رأي العميل هنا.',
+      });
       updatedBlock['items'] = items;
       blocks[blockIndex] = updatedBlock;
     }
@@ -567,10 +719,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
         items.removeAt(itemIndex);
@@ -583,17 +739,28 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
-  void updateTestimonialItem(int blockIndex, int itemIndex, String key, String value) {
+  void updateTestimonialItem(
+    int blockIndex,
+    int itemIndex,
+    String key,
+    String value,
+  ) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
-        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(items[itemIndex]);
+        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(
+          items[itemIndex],
+        );
         updatedItem[key] = value;
         items[itemIndex] = updatedItem;
       }
@@ -609,12 +776,18 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
-      items.add('https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800');
+      items.add(
+        'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800',
+      );
       updatedBlock['items'] = items;
       blocks[blockIndex] = updatedBlock;
     }
@@ -627,10 +800,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
         items.removeAt(itemIndex);
@@ -647,10 +824,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
         items[itemIndex] = value;
@@ -667,7 +848,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (index >= 0 && index < blocks.length) {
       blocks.removeAt(index);
@@ -681,24 +864,30 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final blocks = List<Map<String, dynamic>>.from(currentState.designMap['blocks']);
+    final blocks = List<Map<String, dynamic>>.from(
+      currentState.designMap['blocks'],
+    );
     final block = blocks.removeAt(oldIndex);
     blocks.insert(newIndex, block);
 
     final newDesign = Map<String, dynamic>.from(currentState.designMap);
     newDesign['blocks'] = blocks;
 
-    _emitDirty(currentState.copyWith(
-      designMap: newDesign,
-      focusedSectionIndex: newIndex,
-    ));
+    _emitDirty(
+      currentState.copyWith(
+        designMap: newDesign,
+        focusedSectionIndex: newIndex,
+      ),
+    );
   }
 
   void moveBlock(int index, bool up) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     final targetIndex = up ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= blocks.length) return;
@@ -715,17 +904,23 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (index >= 0 && index < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[index]);
-      
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[index],
+      );
+
       // Support nested updates like 'layout_config.direction'
       if (key.contains('.')) {
         final parts = key.split('.');
         final parentKey = parts[0];
         final childKey = parts[1];
-        final Map<String, dynamic> parent = Map<String, dynamic>.from(updatedBlock[parentKey] ?? {});
+        final Map<String, dynamic> parent = Map<String, dynamic>.from(
+          updatedBlock[parentKey] ?? {},
+        );
         parent[childKey] = value;
         updatedBlock[parentKey] = parent;
       } else {
@@ -739,17 +934,28 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
-  void updateFeatureItem(int blockIndex, int itemIndex, String key, String value) {
+  void updateFeatureItem(
+    int blockIndex,
+    int itemIndex,
+    String key,
+    String value,
+  ) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
-        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(items[itemIndex]);
+        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(
+          items[itemIndex],
+        );
         updatedItem[key] = value;
         items[itemIndex] = updatedItem;
       }
@@ -765,18 +971,23 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       items.add({
         'id': const Uuid().v4(),
         'name': 'منتج جديد',
         'price': '0.00 EGP',
         'description': 'وصف قصير للمنتج.',
-        'image_url': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
-        'button_text': 'اشترِ الآن'
+        'image_url':
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+        'button_text': 'اشترِ الآن',
       });
       updatedBlock['items'] = items;
       blocks[blockIndex] = updatedBlock;
@@ -790,10 +1001,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
         items.removeAt(itemIndex);
@@ -806,17 +1021,28 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
-  void updateProductItem(int blockIndex, int itemIndex, String key, String value) {
+  void updateProductItem(
+    int blockIndex,
+    int itemIndex,
+    String key,
+    String value,
+  ) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[blockIndex]);
+      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+        blocks[blockIndex],
+      );
       final List items = List.from(updatedBlock['items'] ?? []);
       if (itemIndex >= 0 && itemIndex < items.length) {
-        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(items[itemIndex]);
+        final Map<String, dynamic> updatedItem = Map<String, dynamic>.from(
+          items[itemIndex],
+        );
         updatedItem[key] = value;
         items[itemIndex] = updatedItem;
       }
@@ -832,7 +1058,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     newDesign[key] = value;
 
     _emitDirty(currentState.copyWith(designMap: newDesign));
@@ -841,20 +1069,32 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
   void selectSection(int? index) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
-    _emitDirty(currentState.copyWith(focusedSectionIndex: index, clearFocusedElement: index == null));
+    _emitDirty(
+      currentState.copyWith(
+        focusedSectionIndex: index,
+        clearFocusedElement: index == null,
+      ),
+    );
   }
 
   void focusElement(int sectionIndex, String elementId) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
-    _emitDirty(currentState.copyWith(focusedSectionIndex: sectionIndex, focusedElementId: elementId));
+    _emitDirty(
+      currentState.copyWith(
+        focusedSectionIndex: sectionIndex,
+        focusedElementId: elementId,
+      ),
+    );
   }
 
   void duplicateBlock(int index) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
     if (index >= 0 && index < blocks.length) {
       final duplicate = Map<String, dynamic>.from(blocks[index]);
@@ -869,9 +1109,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final blocks = List<Map<String, dynamic>>.from(currentState.designMap['blocks']);
+    final blocks = List<Map<String, dynamic>>.from(
+      currentState.designMap['blocks'],
+    );
     final block = Map<String, dynamic>.from(blocks[index]);
-    
+
     final bool isVisible = block['is_visible'] ?? true;
     block['is_visible'] = !isVisible;
     blocks[index] = block;
@@ -882,29 +1124,42 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
-  void updateElementProperty(int sectionIndex, String elementId, String key, dynamic value) {
+  void updateElementProperty(
+    int sectionIndex,
+    String elementId,
+    String key,
+    dynamic value,
+  ) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     final List blocks = List.from(newDesign['blocks'] ?? []);
-    
+
     if (sectionIndex >= 0 && sectionIndex < blocks.length) {
-      final Map<String, dynamic> block = Map<String, dynamic>.from(blocks[sectionIndex]);
+      final Map<String, dynamic> block = Map<String, dynamic>.from(
+        blocks[sectionIndex],
+      );
       final List elements = List.from(block['elements'] ?? []);
-      
+
       final int elementIndex = elements.indexWhere((e) => e['id'] == elementId);
       if (elementIndex != -1) {
-        final Map<String, dynamic> element = Map<String, dynamic>.from(elements[elementIndex]);
-        final Map<String, dynamic> styles = Map<String, dynamic>.from(element['style_overrides'] ?? {});
-        
+        final Map<String, dynamic> element = Map<String, dynamic>.from(
+          elements[elementIndex],
+        );
+        final Map<String, dynamic> styles = Map<String, dynamic>.from(
+          element['style_overrides'] ?? {},
+        );
+
         styles[key] = value;
         element['style_overrides'] = styles;
         elements[elementIndex] = element;
         block['elements'] = elements;
         blocks[sectionIndex] = block;
         newDesign['blocks'] = blocks;
-        
+
         _emitDirty(currentState.copyWith(designMap: newDesign));
       }
     }
@@ -913,7 +1168,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
   void clearMessages() {
     final currentState = state;
     if (currentState is BuilderLoaded) {
-      _emitDirty(currentState.copyWith(errorMessage: null, successMessage: null));
+      _emitDirty(
+        currentState.copyWith(errorMessage: null, successMessage: null),
+      );
     }
   }
 
@@ -925,25 +1182,38 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     try {
       final publicUrl = await _storageService.uploadImage(file);
       if (publicUrl != null) {
-        final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+        final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+          currentState.designMap,
+        );
         final List blocks = List.from(newDesign['blocks'] ?? []);
         if (index >= 0 && index < blocks.length) {
-          final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[index]);
+          final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+            blocks[index],
+          );
           updatedBlock['image_url'] = publicUrl;
           blocks[index] = updatedBlock;
         }
         newDesign['blocks'] = blocks;
-        _emitDirty(currentState.copyWith(
-          designMap: newDesign, 
-          isSaving: false,
-          successMessage: "تم رفع الصورة بنجاح!"
-        ));
+        _emitDirty(
+          currentState.copyWith(
+            designMap: newDesign,
+            isSaving: false,
+            successMessage: "تم رفع الصورة بنجاح!",
+          ),
+        );
       } else {
-        _emitDirty(currentState.copyWith(isSaving: false, errorMessage: "فشل رفع الصورة."));
+        _emitDirty(
+          currentState.copyWith(
+            isSaving: false,
+            errorMessage: "فشل رفع الصورة.",
+          ),
+        );
       }
     } catch (e) {
       final humanError = ErrorHandler.getHumanReadableError(e);
-      _emitDirty(currentState.copyWith(isSaving: false, errorMessage: humanError));
+      _emitDirty(
+        currentState.copyWith(isSaving: false, errorMessage: humanError),
+      );
     }
   }
 
@@ -955,25 +1225,38 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     try {
       final publicUrl = await _storageService.uploadImage(file);
       if (publicUrl != null) {
-        final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
+        final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+          currentState.designMap,
+        );
         final List blocks = List.from(newDesign['blocks'] ?? []);
         if (index >= 0 && index < blocks.length) {
-          final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(blocks[index]);
+          final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
+            blocks[index],
+          );
           updatedBlock['bg_image_url'] = publicUrl;
           blocks[index] = updatedBlock;
         }
         newDesign['blocks'] = blocks;
-        _emitDirty(currentState.copyWith(
-          designMap: newDesign, 
-          isSaving: false,
-          successMessage: "تم رفع صورة الخلفية بنجاح!"
-        ));
+        _emitDirty(
+          currentState.copyWith(
+            designMap: newDesign,
+            isSaving: false,
+            successMessage: "تم رفع صورة الخلفية بنجاح!",
+          ),
+        );
       } else {
-        _emitDirty(currentState.copyWith(isSaving: false, errorMessage: "فشل رفع صورة الخلفية."));
+        _emitDirty(
+          currentState.copyWith(
+            isSaving: false,
+            errorMessage: "فشل رفع صورة الخلفية.",
+          ),
+        );
       }
     } catch (e) {
       final humanError = ErrorHandler.getHumanReadableError(e);
-      _emitDirty(currentState.copyWith(isSaving: false, errorMessage: humanError));
+      _emitDirty(
+        currentState.copyWith(isSaving: false, errorMessage: humanError),
+      );
     }
   }
 }

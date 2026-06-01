@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:html' as html;
 import '../../models/preview_mode.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -17,6 +18,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Function(PreviewMode) onChangePreview;
   final VoidCallback onShowTemplates;
   final VoidCallback onShowDesign;
+  final VoidCallback onShowFonts;
   final VoidCallback onShowSeo;
 
   const BuilderAppBar({
@@ -30,6 +32,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onChangePreview,
     required this.onShowTemplates,
     required this.onShowDesign,
+    required this.onShowFonts,
     required this.onShowSeo,
   });
 
@@ -96,6 +99,31 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
           ),
+          if (!isMobile) ...[
+            const SizedBox(width: 16),
+            const VerticalDivider(
+              color: AppColors.border,
+              indent: 12,
+              endIndent: 12,
+              width: 16,
+            ),
+            IconButton(
+              icon: const Icon(Icons.undo_rounded),
+              color: state.canUndo
+                  ? AppColors.textPrimary
+                  : AppColors.textMuted,
+              onPressed: state.canUndo ? cubit.undo : null,
+              tooltip: loc.translate('undo'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.redo_rounded),
+              color: state.canRedo
+                  ? AppColors.textPrimary
+                  : AppColors.textMuted,
+              onPressed: state.canRedo ? cubit.redo : null,
+              tooltip: loc.translate('redo'),
+            ),
+          ],
         ],
       ),
       actions: [
@@ -103,10 +131,10 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           _buildActionButton(
             icon: state.isPublished
                 ? Icons.visibility_off_rounded
-                : Icons.rocket_launch_rounded,
+                : Icons.language_rounded, // Better icon for live status
             label: state.isPublished
                 ? loc.translate('draft')
-                : loc.translate('publish'),
+                : loc.translate('go_live'),
             onPressed: () {
               cubit.updateSettings(isPublished: !state.isPublished);
               cubit.saveForCurrentUser();
@@ -130,6 +158,11 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             icon: Icons.color_lens_rounded,
             label: loc.translate('design'),
             onPressed: onShowDesign,
+          ),
+          _buildActionButton(
+            icon: Icons.font_download_rounded,
+            label: loc.translate('fonts'),
+            onPressed: onShowFonts,
           ),
           _buildActionButton(
             icon: Icons.search_rounded,
@@ -193,20 +226,81 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: onShowSeo,
           ),
         ],
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          child: PrimaryButton(
-            text: isMobile
-                ? loc.translate('save')
-                : loc.translate('save_changes'),
-            icon: Icons.cloud_done_rounded,
-            onPressed: state.isSaving ? null : () => cubit.saveForCurrentUser(),
-            isLoading: state.isSaving,
-            width: isMobile ? 100 : 160,
+        if (!isMobile)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            child: _buildPublishButton(),
           ),
+        IconButton(
+          icon: const Icon(
+            Icons.open_in_new_rounded,
+            color: AppColors.secondary,
+          ),
+          onPressed: () {
+            html.window.open('/${state.subdomain}', '_blank');
+          },
+          tooltip: loc.translate('view_as_guest'),
         ),
         const SizedBox(width: 8),
       ],
+    );
+  }
+
+  Widget _buildPublishButton() {
+    final bool canPublish = state.hasUnsavedChanges && !state.isSaving;
+    return InkWell(
+      onTap: canPublish ? () => cubit.saveForCurrentUser() : null,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: canPublish
+              ? AppColors.activeGreen.withValues(alpha: 0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: canPublish ? AppColors.activeGreen : AppColors.border,
+          ),
+        ),
+        child: state.isSaving
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.activeGreen,
+                ),
+              )
+            : Row(
+                children: [
+                  Icon(
+                    Icons.rocket_launch_rounded,
+                    color: canPublish
+                        ? AppColors.activeGreen
+                        : AppColors.textMuted,
+                    size: 18,
+                  ),
+                  if (canPublish) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      loc.translate('publish'),
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.activeGreen,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ] else ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      loc.translate('published'),
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+      ),
     );
   }
 

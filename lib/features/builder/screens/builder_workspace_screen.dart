@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:html' as html;
@@ -158,6 +159,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             ToastService.showError(context, message: state.errorMessage!);
             builderCubit.clearMessages();
           }
+          // Update URL to reflect the editing page identifier
+          final currentPath = GoRouterState.of(context).uri.path;
+          if (state.subdomain.isNotEmpty && currentPath == '/builder') {
+            context.replace('/builder/${state.subdomain}');
+          }
         }
       },
       child: PopScope(
@@ -235,7 +241,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                 ),
           body: Row(
             children: [
-              if (!isMobile)
+              if (!isMobile && _previewMode != PreviewMode.fullscreen)
                 BuilderSidebar(
                   editingBlockIndex: _editingBlockIndex,
                   state: loadedState,

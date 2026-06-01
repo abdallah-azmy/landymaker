@@ -29,7 +29,12 @@ class SectionRenderer extends StatelessWidget {
     // Filter visible blocks for public viewer, keep all for builder
     final List<Map<String, dynamic>> visibleBlocks = isBuilder
         ? blocks
-        : blocks.where((block) => block['is_visible'] ?? true).toList();
+        : blocks.where((block) {
+            final val = block['is_visible'];
+            if (val is bool) return val;
+            if (val is String) return val.toLowerCase() != 'false';
+            return true;
+          }).toList();
 
     return ListView.builder(
       shrinkWrap: true,

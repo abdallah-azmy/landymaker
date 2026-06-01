@@ -62,6 +62,25 @@ final GoRouter appRouter = GoRouter(
           },
         );
       },
+      routes: [
+        GoRoute(
+          path: ':pageId',
+          builder: (context, state) {
+            return BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, authState) {
+                if (authState is Authenticated) {
+                  return BuilderWorkspaceScreen(
+                    onBackToDashboard: () {
+                      context.go('/');
+                    },
+                  );
+                }
+                return const LoginScreen();
+              },
+            );
+          },
+        ),
+      ],
     ),
     // Dynamic Landing Page Route (Catch-all)
     GoRoute(

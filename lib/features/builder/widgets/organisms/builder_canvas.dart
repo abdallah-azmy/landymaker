@@ -39,6 +39,9 @@ class BuilderCanvas extends StatelessWidget {
           case PreviewMode.desktop:
             canvasWidth = constraints.maxWidth.clamp(0.0, 1000.0);
             break;
+          case PreviewMode.fullscreen:
+            canvasWidth = constraints.maxWidth;
+            break;
         }
 
         Color? globalBgColor;
@@ -52,6 +55,8 @@ class BuilderCanvas extends StatelessWidget {
         }
         final globalBgImage = state.theme.globalBgImageUrl;
         final globalFont = state.theme.defaultFont ?? 'Cairo';
+        
+        final bool isInteractiveBuilder = previewMode != PreviewMode.fullscreen;
 
         Widget content = Directionality(
           textDirection: loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -60,11 +65,11 @@ class BuilderCanvas extends StatelessWidget {
             blocks: blocksList,
             pageId: state.pageId ?? 'preview',
             theme: state.theme,
-            onBlockTapped: (index) {
+            onBlockTapped: isInteractiveBuilder ? (index) {
               context.read<LandingPageBuilderCubit>().selectSection(index);
               onBlockTapped(index);
-            },
-            isBuilder: true,
+            } : null,
+            isBuilder: isInteractiveBuilder,
             selectedIndex: state.focusedSectionIndex,
           ),
         );

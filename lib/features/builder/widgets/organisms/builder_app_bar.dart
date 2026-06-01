@@ -162,6 +162,16 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: () => onChangePreview(PreviewMode.desktop),
             tooltip: "Desktop Preview",
           ),
+          IconButton(
+            icon: Icon(
+              Icons.visibility_rounded,
+              color: previewMode == PreviewMode.fullscreen
+                  ? AppColors.secondary
+                  : AppColors.textSecondary,
+            ),
+            onPressed: () => onChangePreview(PreviewMode.fullscreen),
+            tooltip: "Full Screen Preview",
+          ),
           const SizedBox(width: 16),
         ] else ...[
           IconButton(

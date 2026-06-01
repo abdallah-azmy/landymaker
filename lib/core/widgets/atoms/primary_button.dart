@@ -71,7 +71,7 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                       blurRadius: 20,
                       spreadRadius: 2,
                       offset: const Offset(0, 0),
-                    )
+                    ),
                   ]
                 : [],
           );
@@ -86,7 +86,7 @@ class _PrimaryButtonState extends State<PrimaryButton> {
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
           width: widget.width,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
           transform: Matrix4.diagonal3Values(
             _isHovered && !isDisabled ? 1.03 : 1.0,
             _isHovered && !isDisabled ? 1.03 : 1.0,

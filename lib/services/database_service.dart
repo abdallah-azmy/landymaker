@@ -37,6 +37,10 @@ class DatabaseService {
     );
   }
 
+  Future<void> updatePagePublishStatus(String pageId, bool isPublished) {
+    return _supabase.updatePagePublishStatus(pageId, isPublished);
+  }
+
   Future<bool> submitLead({required String landingPageId, required Map<String, dynamic> formData}) {
     return _supabase.submitLead(landingPageId: landingPageId, formData: formData);
   }

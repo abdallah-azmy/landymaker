@@ -1,7 +1,72 @@
 import 'package:uuid/uuid.dart';
 import '../models/landing_page_theme.dart';
 
+class TemplateMetadata {
+  final String id;
+  final String name;
+  final String description;
+  final String imageUrl;
+
+  const TemplateMetadata({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.imageUrl,
+  });
+}
+
 class TemplateRegistry {
+  static const List<TemplateMetadata> availableTemplates = [
+    TemplateMetadata(
+      id: 'empty',
+      name: 'Empty Page',
+      description: 'Start from scratch with a blank canvas.',
+      imageUrl: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400',
+    ),
+    TemplateMetadata(
+      id: 'barber_shop',
+      name: 'Barber Shop',
+      description: 'Classic barber shop layout with pricing and hours.',
+      imageUrl: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400',
+    ),
+    TemplateMetadata(
+      id: 'store',
+      name: 'Modern Store',
+      description: 'E-commerce focused layout for product showcasing.',
+      imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
+    ),
+    TemplateMetadata(
+      id: 'personal',
+      name: 'Personal Brand',
+      description: 'Showcase your skills and social presence.',
+      imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+    ),
+    TemplateMetadata(
+      id: 'professional',
+      name: 'Professional Consulting',
+      description: 'Clean lead generation for services and consulting.',
+      imageUrl: 'https://images.unsplash.com/photo-1454165833767-027ffea9e77b?w=400',
+    ),
+    TemplateMetadata(
+      id: 'real_estate',
+      name: 'Real Estate',
+      description: 'Showcase properties with high-quality visuals.',
+      imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400',
+    ),
+    TemplateMetadata(
+      id: 'digital_course',
+      name: 'Digital Course',
+      description: 'Sell courses with pricing tables and FAQs.',
+      imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400',
+    ),
+    TemplateMetadata(
+      id: 'event',
+      name: 'Event Landing',
+      description: 'Promote events with maps and QR codes.',
+      imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400',
+    ),
+  ];
+
   /// Get initial design JSON for a template type
   static Map<String, dynamic> getTemplateDesign(String templateType) {
     switch (templateType) {

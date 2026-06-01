@@ -322,6 +322,18 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  Future<void> updatePagePublishStatus(String pageId, bool isPublished) async {
+    try {
+      await _client!
+          .from(DbConstants.landingPagesTable)
+          .update({'is_published': isPublished})
+          .eq('id', pageId);
+    } catch (e) {
+      debugPrint("Error updating page publish status: $e");
+      rethrow;
+    }
+  }
+
   // ----------------------------------------------------
   // LEADS CAPTURE OPERATIONS
   // ----------------------------------------------------

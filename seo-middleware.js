@@ -35,9 +35,19 @@ export default async function handler(request) {
       if (pages.length > 0) {
         const page = pages[0];
         const design = typeof page.design_json === 'string' ? JSON.parse(page.design_json) : page.design_json;
+        const blocks = design.blocks || [];
+        const visibleBlocks = blocks.filter(b => b.is_visible !== false);
 
         const title = design.meta_title || `${slug} | LandyMaker`;
         const description = design.meta_description || "Created with LandyMaker.com";
+
+        // Generate dynamic content for bots from visible sections only
+        const bodyContent = visibleBlocks.map(b => {
+          if (b.type === 'hero' || b.type === 'features' || b.type === 'faq') {
+            return `<h2>${b.title || ''}</h2><p>${b.subtitle || b.description || ''}</p>`;
+          }
+          return '';
+        }).join('');
 
         // 2. Return lightweight HTML for bots
         return new Response(
@@ -48,11 +58,13 @@ export default async function handler(request) {
               <meta name="description" content="${description}">
               <meta property="og:title" content="${title}">
               <meta property="og:description" content="${description}">
-              <style>body { font-family: sans-serif; padding: 40px; text-align: center; }</style>
+              <style>body { font-family: sans-serif; padding: 40px; line-height: 1.6; max-width: 800px; margin: 0 auto; }</style>
             </head>
             <body>
               <h1>${title}</h1>
               <p>${description}</p>
+              <hr>
+              ${bodyContent}
               <hr>
               <p>This is a dynamic landing page created on LandyMaker. Visit the link in a browser to see the full interactive version.</p>
             </body>

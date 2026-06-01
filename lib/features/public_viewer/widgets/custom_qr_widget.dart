@@ -87,9 +87,9 @@ class CustomQrWidget extends StatelessWidget {
                     height: isMobile ? 160 : qrSize,
                     child: PrettyQrView.data(
                       data: liveUrl,
-                      decoration: PrettyQrDecoration(
+                      decoration: const PrettyQrDecoration(
                         shape: PrettyQrSmoothSymbol(
-                          color: bgColor, // QR pixels in background color
+                          color: Colors.black87, // Fixed dark color for standard scannability
                         ),
                       ),
                     ),

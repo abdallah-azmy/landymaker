@@ -453,8 +453,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                   width: 12,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: !isActive 
-                        ? AppColors.dangerRed 
+                    color: !isActive
+                        ? AppColors.dangerRed
                         : (isPublished ? AppColors.activeGreen : AppColors.textMuted),
                     shape: BoxShape.circle,
                     border: Border.all(color: AppColors.cardBg, width: 2),
@@ -489,7 +489,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          if (!isMobile) _buildStatusChip(isPublished, isActive, loc),
+          _buildPublishToggle(page['id'], isPublished, isActive, loc),
           const SizedBox(width: 16),
           IconButton(
             icon: const Icon(
@@ -508,28 +508,48 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
     );
   }
 
-  Widget _buildStatusChip(bool isPublished, bool isActive, LocalizationCubit loc) {
-    final String label = !isActive 
-        ? "معطلة" 
-        : (isPublished ? loc.translate('published') : loc.translate('draft'));
-    final Color color = !isActive 
-        ? AppColors.dangerRed 
-        : (isPublished ? AppColors.activeGreen : AppColors.textMuted);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color),
-      ),
-      child: Text(
-        label,
-        style: AppTypography.caption.copyWith(
-          color: color,
-          fontWeight: FontWeight.bold,
+  Widget _buildPublishToggle(String pageId, bool isPublished, bool isActive, LocalizationCubit loc) {
+    if (!isActive) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.dangerRed.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.dangerRed),
         ),
-      ),
+        child: const Text(
+          "معطلة",
+          style: TextStyle(
+            color: AppColors.dangerRed,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Transform.scale(
+          scale: 0.8,
+          child: Switch(
+            value: isPublished,
+            activeColor: AppColors.activeGreen,
+            onChanged: (val) {
+              context.read<LandingPagesCubit>().togglePublishStatus(pageId, val);
+            },
+          ),
+        ),
+        Text(
+          isPublished ? "نشط" : "غير نشط",
+          style: TextStyle(
+            color: isPublished ? AppColors.activeGreen : AppColors.textMuted,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }

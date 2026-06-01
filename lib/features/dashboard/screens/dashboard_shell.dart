@@ -10,7 +10,7 @@ import '../../auth/controllers/auth_state.dart';
 import 'dashboard_home_screen.dart';
 import 'leads_tracker_screen.dart';
 import 'analytics_screen.dart';
-import '../../builder/screens/builder_workspace_screen.dart';
+import 'package:go_router/go_router.dart';
 import '../../super_admin/screens/super_admin_panel_screen.dart';
 import 'product_feed_screen.dart';
 import 'domain_settings_screen.dart';
@@ -78,15 +78,7 @@ class _DashboardShellState extends State<DashboardShell> {
       'icon': Icons.dashboard_rounded,
       'screen': DashboardHomeScreen(
         onOpenBuilder: () {
-          // Dynamic calculation for robustness
-          int current = 0;
-          for (var item in navigationItems) {
-            if (item['title_key'] == 'hero') {
-              setState(() => _currentTabIndex = current);
-              return;
-            }
-            current++;
-          }
+          context.push('/builder');
         },
       ),
     });
@@ -96,7 +88,7 @@ class _DashboardShellState extends State<DashboardShell> {
         'title_key': 'Products',
         'icon': Icons.inventory_2_rounded,
         'is_store_only': true,
-        'screen': BuilderWorkspaceScreen(onBackToDashboard: () => setState(() => _currentTabIndex = 0)),
+        'is_builder': true,
       });
     }
 
@@ -118,7 +110,7 @@ class _DashboardShellState extends State<DashboardShell> {
       {
         'title_key': 'hero',
         'icon': Icons.construction_rounded,
-        'screen': BuilderWorkspaceScreen(onBackToDashboard: () => setState(() => _currentTabIndex = 0)),
+        'is_builder': true,
       },
       {'title_key': 'custom_domain_menu', 'icon': Icons.language_rounded, 'screen': const DomainSettingsScreen()},
     ]);
@@ -146,7 +138,10 @@ class _DashboardShellState extends State<DashboardShell> {
 
     // 4. Final lists
     final List<Map<String, dynamic>> sidebarMenu = [...navigationItems, ...roadmapItems, ...adminItems];
-    final List<Widget> screens = [...navigationItems.map((e) => e['screen'] as Widget), ...adminItems.map((e) => e['screen'] as Widget)];
+    final List<Widget> screens = [
+      ...navigationItems.where((e) => e.containsKey('screen')).map((e) => e['screen'] as Widget),
+      ...adminItems.where((e) => e.containsKey('screen')).map((e) => e['screen'] as Widget),
+    ];
 
     final sidebar = SidebarNavigation(
       currentIndex: _currentTabIndex,
@@ -160,9 +155,17 @@ class _DashboardShellState extends State<DashboardShell> {
         final selectedItem = sidebarMenu[index];
         if (selectedItem['is_locked'] == true) return;
 
+        if (selectedItem['is_builder'] == true) {
+          if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+            Navigator.of(context).pop();
+          }
+          context.push('/builder');
+          return;
+        }
+
         int screenIdx = 0;
         for (int i = 0; i < index; i++) {
-          if (sidebarMenu[i]['is_locked'] != true) screenIdx++;
+          if (sidebarMenu[i]['is_locked'] != true && sidebarMenu[i]['is_builder'] != true) screenIdx++;
         }
 
         setState(() => _currentTabIndex = screenIdx);

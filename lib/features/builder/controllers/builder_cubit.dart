@@ -30,6 +30,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         _subscriptionService = subscriptionService,
         super(BuilderInitial());
 
+  void _emitDirty(BuilderLoaded state, {bool isClean = false}) {
+    emit(state.copyWith(hasUnsavedChanges: !isClean));
+  }
+
   Future<void> loadForCurrentUser() async {
     final userId = _authService.currentUserId;
     if (userId == null) {
@@ -89,7 +93,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         }
       }
       
-      emit(BuilderLoaded(
+      _emitDirty(BuilderLoaded(
         pageId: pageId,
         designMap: designMap,
         subdomain: subdomain,
@@ -99,16 +103,16 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         theme: designMap['theme'] != null
             ? LandingPageTheme.fromJson(designMap['theme'])
             : LandingPageTheme.palettes.last,
-      ));
+      ), isClean: true);
     } else {
       // Handle new page
-      emit(BuilderLoaded(
+      _emitDirty(BuilderLoaded(
         designMap: designMap,
         subdomain: subdomain,
         isPublished: isPublished,
         websiteType: 'landing_page',
         theme: LandingPageTheme.palettes.last,
-      ));
+      ), isClean: true);
     }
   }
 
@@ -116,25 +120,31 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    if (currentState.subdomain.trim().isEmpty) {
-      emit(currentState.copyWith(
-        errorMessage: "يرجى إدخال اسم البراند (subdomain) قبل الحفظ.",
+    final String sanitizedSubdomain = currentState.subdomain
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+
+    if (sanitizedSubdomain.isEmpty) {
+      _emitDirty(currentState.copyWith(
+        isSaving: false,
+        errorMessage: "يرجى إدخال اسم براند صالح.",
       ));
       return;
     }
 
     emit(currentState.copyWith(isSaving: true));
     try {
-      // 1. Check Multi-Page Guard with Super Admin Bypass
+      // 2. Check Multi-Page Guard with Super Admin Bypass
       if (currentState.pageId == null) {
         final profile = await _databaseService.getProfile(userId);
         final String tier = profile?['tier'] ?? 'free';
         final bool reachedLimit = await _subscriptionService.hasReachedLimit(userId);
 
         if (reachedLimit) {
-          emit(currentState.copyWith(
+          _emitDirty(currentState.copyWith(
             isSaving: false,
-            errorMessage: "لقد وصلت للحد الأقصى لعدد الصفحات المسموح به في خطتك الحالية (\$tier).",
+            errorMessage: "لقد وصلت للحد الأقصى لعدد الصفحات المسموح به في خطتك الحالية ($tier).",
           ));
           return;
         }
@@ -145,7 +155,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
 
       final savedPageId = await _databaseService.saveLandingPage(
         userId: userId,
-        subdomain: currentState.subdomain,
+        subdomain: sanitizedSubdomain,
         customDomain: currentState.customDomain,
         designMap: finalDesign,
         isPublished: currentState.isPublished,
@@ -153,13 +163,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         pageId: currentState.pageId,
       );
 
-      emit(currentState.copyWith(
+      _emitDirty(currentState.copyWith(
         pageId: savedPageId ?? currentState.pageId,
+        subdomain: sanitizedSubdomain,
         isSaving: false,
         successMessage: "تم الحفظ والنشر بنجاح!",
-      ));
+      ), isClean: true);
     } catch (e) {
-      emit(currentState.copyWith(
+      _emitDirty(currentState.copyWith(
         isSaving: false,
         errorMessage: "فشل الحفظ: ${e.toString().replaceAll('Exception: ', '')}",
       ));
@@ -171,7 +182,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     if (currentState is! BuilderLoaded) return;
 
     final shouldClear = customDomain == '';
-    emit(currentState.copyWith(
+    _emitDirty(currentState.copyWith(
       subdomain: subdomain ?? currentState.subdomain,
       customDomain: shouldClear ? null : (customDomain ?? currentState.customDomain),
       clearCustomDomain: shouldClear,
@@ -182,34 +193,54 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
   void updateTheme(LandingPageTheme theme) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
-    emit(currentState.copyWith(theme: theme));
+    _emitDirty(currentState.copyWith(theme: theme));
   }
 
-  void updateThemeProperty(String key, Color color) {
+  void updateThemeProperty(String key, dynamic value) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
     LandingPageTheme newTheme;
-    switch (key) {
-      case 'primary':
-        newTheme = currentState.theme.copyWith(primary: color);
-        break;
-      case 'secondary':
-        newTheme = currentState.theme.copyWith(secondary: color);
-        break;
-      case 'background':
-        newTheme = currentState.theme.copyWith(background: color);
-        break;
-      case 'textPrimary':
-        newTheme = currentState.theme.copyWith(textPrimary: color);
-        break;
-      case 'textSecondary':
-        newTheme = currentState.theme.copyWith(textSecondary: color);
-        break;
-      default:
-        return;
+    
+    if (value is Color) {
+      switch (key) {
+        case 'primary':
+          newTheme = currentState.theme.copyWith(primary: value);
+          break;
+        case 'secondary':
+          newTheme = currentState.theme.copyWith(secondary: value);
+          break;
+        case 'background':
+          newTheme = currentState.theme.copyWith(background: value);
+          break;
+        case 'textPrimary':
+          newTheme = currentState.theme.copyWith(textPrimary: value);
+          break;
+        case 'textSecondary':
+          newTheme = currentState.theme.copyWith(textSecondary: value);
+          break;
+        default:
+          return;
+      }
+    } else if (value is String || value == null) {
+      switch (key) {
+        case 'defaultFont':
+          newTheme = currentState.theme.copyWith(defaultFont: value as String?);
+          break;
+        case 'globalBgImageUrl':
+          newTheme = currentState.theme.copyWith(globalBgImageUrl: value as String?);
+          break;
+        case 'globalBgColorHex':
+          newTheme = currentState.theme.copyWith(globalBgColorHex: value as String?);
+          break;
+        default:
+          return;
+      }
+    } else {
+      return;
     }
-    emit(currentState.copyWith(theme: newTheme));
+    
+    _emitDirty(currentState.copyWith(theme: newTheme));
   }
 
   void applyTemplate(String templateType) {
@@ -219,7 +250,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final newDesign = TemplateRegistry.getTemplateDesign(templateType);
     final newTheme = TemplateRegistry.getTemplateTheme(templateType);
 
-    emit(currentState.copyWith(
+    _emitDirty(currentState.copyWith(
       designMap: newDesign,
       theme: newTheme,
       successMessage: "تم تطبيق القالب بنجاح!",
@@ -233,13 +264,13 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
     final List blocks = List.from(newDesign['blocks'] ?? []);
 
-    if (type == 'hero') {
+    if (type == 'hero' || type == 'hero_saas') {
       blocks.add({
-        'type': 'hero',
-        'title': 'عنوان القسم الرئيسي الجديد',
-        'subtitle': 'اكتب هنا عرض القيمة الأساسي لخدمتك أو منتجك.',
-        'button_text': 'ابدأ الآن',
-        'image_url': 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800'
+        'type': type,
+        'title': type == 'hero_saas' ? 'منصتك الشاملة لإدارة الأعمال' : 'عنوان القسم الرئيسي الجديد',
+        'subtitle': type == 'hero_saas' ? 'نظام متكامل يجمع كل ما تحتاجه لإدارة مشروعك بكفاءة.' : 'اكتب هنا عرض القيمة الأساسي لخدمتك أو منتجك.',
+        'button_text': 'ابدأ الآن مجاناً',
+        'image_url': type == 'hero_saas' ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200' : 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800'
       });
     } else if (type == 'features') {
       blocks.add({
@@ -256,6 +287,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'type': 'lead_form',
         'title': 'تواصل معنا اليوم',
         'button_text': 'إرسال'
+      });
+    } else if (type == 'lead_magnet') {
+      blocks.add({
+        'type': 'lead_magnet',
+        'title': 'احصل على دليلك المجاني',
+        'subtitle': 'سجل الآن لتحصل على نسخة مجانية من الدليل الشامل لزيادة مبيعاتك بنسبة 300%.',
+        'button_text': 'أرسل الدليل الآن',
+        'image_url': 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800'
       });
     } else if (type == 'whatsapp') {
       blocks.add({
@@ -345,10 +384,39 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800'
         ]
       });
+    } else if (type == 'trust_logos') {
+      blocks.add({
+        'type': 'trust_logos',
+        'title': 'شركاء نعتز بهم',
+        'items': [
+          'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
+          'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
+          'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg',
+        ]
+      });
+    } else if (type == 'animated_counter') {
+      blocks.add({
+        'type': 'animated_counter',
+        'title': 'أرقام تتحدث عن نفسها',
+        'items': [
+          {'value': '150', 'label': 'عميل سعيد', 'prefix': '+', 'suffix': ''},
+          {'value': '99', 'label': 'نسبة الرضا', 'prefix': '', 'suffix': '%'},
+          {'value': '24', 'label': 'ساعة دعم', 'prefix': '', 'suffix': '/7'},
+        ]
+      });
+    } else if (type == 'basic_section') {
+      blocks.add({
+        'type': 'basic_section',
+        'title': 'قسم مرن جديد',
+        'layout_direction': 'column',
+        'main_axis_alignment': 'center',
+        'cross_axis_alignment': 'center',
+        'spacing': 20.0,
+      });
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void addPricingPlan(int blockIndex) {
@@ -372,7 +440,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void deletePricingPlan(int blockIndex, int itemIndex) {
@@ -392,7 +460,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void updatePricingPlan(int blockIndex, int itemIndex, String key, dynamic value) {
@@ -414,7 +482,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void addFaqItem(int blockIndex) {
@@ -432,7 +500,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void deleteFaqItem(int blockIndex, int itemIndex) {
@@ -452,7 +520,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void updateFaqItem(int blockIndex, int itemIndex, String key, String value) {
@@ -474,7 +542,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void addTestimonialItem(int blockIndex) {
@@ -492,7 +560,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void deleteTestimonialItem(int blockIndex, int itemIndex) {
@@ -512,7 +580,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void updateTestimonialItem(int blockIndex, int itemIndex, String key, String value) {
@@ -534,7 +602,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void addGalleryImage(int blockIndex) {
@@ -552,7 +620,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void deleteGalleryImage(int blockIndex, int itemIndex) {
@@ -572,7 +640,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void updateGalleryImage(int blockIndex, int itemIndex, String value) {
@@ -592,7 +660,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void deleteBlock(int index) {
@@ -606,7 +674,24 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
+  }
+
+  void reorderBlocks(int oldIndex, int newIndex) {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return;
+
+    final blocks = List<Map<String, dynamic>>.from(currentState.designMap['blocks']);
+    final block = blocks.removeAt(oldIndex);
+    blocks.insert(newIndex, block);
+
+    final newDesign = Map<String, dynamic>.from(currentState.designMap);
+    newDesign['blocks'] = blocks;
+
+    _emitDirty(currentState.copyWith(
+      designMap: newDesign,
+      focusedSectionIndex: newIndex,
+    ));
   }
 
   void moveBlock(int index, bool up) {
@@ -623,7 +708,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     blocks[targetIndex] = temp;
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void updateBlockProperty(int index, String key, dynamic value) {
@@ -651,7 +736,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void updateFeatureItem(int blockIndex, int itemIndex, String key, String value) {
@@ -673,7 +758,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void addProductItem(int blockIndex) {
@@ -698,7 +783,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void deleteProductItem(int blockIndex, int itemIndex) {
@@ -718,7 +803,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void updateProductItem(int blockIndex, int itemIndex, String key, String value) {
@@ -740,7 +825,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void updateMetadata(String key, String value) {
@@ -750,19 +835,19 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final Map<String, dynamic> newDesign = Map<String, dynamic>.from(currentState.designMap);
     newDesign[key] = value;
 
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void selectSection(int? index) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
-    emit(currentState.copyWith(focusedSectionIndex: index, clearFocusedElement: index == null));
+    _emitDirty(currentState.copyWith(focusedSectionIndex: index, clearFocusedElement: index == null));
   }
 
   void focusElement(int sectionIndex, String elementId) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
-    emit(currentState.copyWith(focusedSectionIndex: sectionIndex, focusedElementId: elementId));
+    _emitDirty(currentState.copyWith(focusedSectionIndex: sectionIndex, focusedElementId: elementId));
   }
 
   void duplicateBlock(int index) {
@@ -777,7 +862,24 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     newDesign['blocks'] = blocks;
-    emit(currentState.copyWith(designMap: newDesign));
+    _emitDirty(currentState.copyWith(designMap: newDesign));
+  }
+
+  void toggleBlockVisibility(int index) {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return;
+
+    final blocks = List<Map<String, dynamic>>.from(currentState.designMap['blocks']);
+    final block = Map<String, dynamic>.from(blocks[index]);
+    
+    final bool isVisible = block['is_visible'] ?? true;
+    block['is_visible'] = !isVisible;
+    blocks[index] = block;
+
+    final newDesign = Map<String, dynamic>.from(currentState.designMap);
+    newDesign['blocks'] = blocks;
+
+    _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
   void updateElementProperty(int sectionIndex, String elementId, String key, dynamic value) {
@@ -803,7 +905,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         blocks[sectionIndex] = block;
         newDesign['blocks'] = blocks;
         
-        emit(currentState.copyWith(designMap: newDesign));
+        _emitDirty(currentState.copyWith(designMap: newDesign));
       }
     }
   }
@@ -811,7 +913,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
   void clearMessages() {
     final currentState = state;
     if (currentState is BuilderLoaded) {
-      emit(currentState.copyWith(errorMessage: null, successMessage: null));
+      _emitDirty(currentState.copyWith(errorMessage: null, successMessage: null));
     }
   }
 
@@ -819,7 +921,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    emit(currentState.copyWith(isSaving: true, errorMessage: null));
+    _emitDirty(currentState.copyWith(isSaving: true, errorMessage: null));
     try {
       final publicUrl = await _storageService.uploadImage(file);
       if (publicUrl != null) {
@@ -831,17 +933,17 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           blocks[index] = updatedBlock;
         }
         newDesign['blocks'] = blocks;
-        emit(currentState.copyWith(
+        _emitDirty(currentState.copyWith(
           designMap: newDesign, 
           isSaving: false,
           successMessage: "تم رفع الصورة بنجاح!"
         ));
       } else {
-        emit(currentState.copyWith(isSaving: false, errorMessage: "فشل رفع الصورة."));
+        _emitDirty(currentState.copyWith(isSaving: false, errorMessage: "فشل رفع الصورة."));
       }
     } catch (e) {
       final humanError = ErrorHandler.getHumanReadableError(e);
-      emit(currentState.copyWith(isSaving: false, errorMessage: humanError));
+      _emitDirty(currentState.copyWith(isSaving: false, errorMessage: humanError));
     }
   }
 
@@ -849,7 +951,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    emit(currentState.copyWith(isSaving: true, errorMessage: null));
+    _emitDirty(currentState.copyWith(isSaving: true, errorMessage: null));
     try {
       final publicUrl = await _storageService.uploadImage(file);
       if (publicUrl != null) {
@@ -861,17 +963,17 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           blocks[index] = updatedBlock;
         }
         newDesign['blocks'] = blocks;
-        emit(currentState.copyWith(
+        _emitDirty(currentState.copyWith(
           designMap: newDesign, 
           isSaving: false,
           successMessage: "تم رفع صورة الخلفية بنجاح!"
         ));
       } else {
-        emit(currentState.copyWith(isSaving: false, errorMessage: "فشل رفع صورة الخلفية."));
+        _emitDirty(currentState.copyWith(isSaving: false, errorMessage: "فشل رفع صورة الخلفية."));
       }
     } catch (e) {
       final humanError = ErrorHandler.getHumanReadableError(e);
-      emit(currentState.copyWith(isSaving: false, errorMessage: humanError));
+      _emitDirty(currentState.copyWith(isSaving: false, errorMessage: humanError));
     }
   }
 }

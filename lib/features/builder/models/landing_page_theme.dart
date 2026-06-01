@@ -8,6 +8,8 @@ class LandingPageTheme {
   final Color textSecondary;
   final String name;
   final String? defaultFont; // New: Assign a default font per theme
+  final String? globalBgImageUrl; // New: Global Page Background Image
+  final String? globalBgColorHex; // New: Global Page Background Color
   final String? category;
   final String? description;
 
@@ -19,6 +21,8 @@ class LandingPageTheme {
     required this.textSecondary,
     required this.name,
     this.defaultFont,
+    this.globalBgImageUrl,
+    this.globalBgColorHex,
     this.category,
     this.description,
   });
@@ -31,6 +35,8 @@ class LandingPageTheme {
     'textSecondary': textSecondary.toARGB32(),
     'name': name,
     'defaultFont': defaultFont,
+    'globalBgImageUrl': globalBgImageUrl,
+    'globalBgColorHex': globalBgColorHex,
     'category': category,
     'description': description,
   };
@@ -44,6 +50,8 @@ class LandingPageTheme {
       textSecondary: Color(json['textSecondary'] ?? 0xFF94A3B8),
       name: json['name'] ?? 'Default Dark',
       defaultFont: json['defaultFont'],
+      globalBgImageUrl: json['globalBgImageUrl'],
+      globalBgColorHex: json['globalBgColorHex'],
       category: json['category'],
       description: json['description'],
     );
@@ -56,6 +64,9 @@ class LandingPageTheme {
     Color? textPrimary,
     Color? textSecondary,
     String? name,
+    String? defaultFont,
+    String? globalBgImageUrl,
+    String? globalBgColorHex,
     String? category,
     String? description,
   }) {
@@ -66,10 +77,30 @@ class LandingPageTheme {
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
       name: name ?? this.name,
+      defaultFont: defaultFont ?? this.defaultFont,
+      globalBgImageUrl: globalBgImageUrl ?? this.globalBgImageUrl,
+      globalBgColorHex: globalBgColorHex ?? this.globalBgColorHex,
       category: category ?? this.category,
       description: description ?? this.description,
     );
   }
+
+  static const List<Map<String, String>> availableFonts = [
+    {'family': 'Cairo', 'category': 'تقني وعصري / Modern Tech', 'desc': 'خط عصري وحاد يناسب واجهات المستخدم والمنصات التقنية والمتاجر.'},
+    {'family': 'Tajawal', 'category': 'قراءة ومحتوى / Reading', 'desc': 'خط نقي وسهل القراءة جداً، مثالي للمدونات والمقالات والنصوص الطويلة.'},
+    {'family': 'Almarai', 'category': 'رسمي واحترافي / Professional', 'desc': 'خط احترافي وهادئ ممتاز للشركات والمؤسسات والـ SaaS.'},
+    {'family': 'Changa', 'category': 'عناوين بارزة / Bold Display', 'desc': 'خط عريض ومميز للإعلانات والعناوين الكبيرة لجذب الانتباه.'},
+    {'family': 'Readex Pro', 'category': 'هندسي حديث / Geometric', 'desc': 'خط هندسي متطور مناسب للمنتجات الرقمية والتطبيقات الحديثة.'},
+    {'family': 'Amiri', 'category': 'كلاسيكي وأصيل / Classic', 'desc': 'خط عربي أصيل ورسمي (نسخ) للجرائد، الكتب، والمحتوى الكلاسيكي.'},
+    {'family': 'Lalezar', 'category': 'مرح وترفيه / Fun Display', 'desc': 'خط عريض ومرح مناسب جداً للفعاليات، الألعاب، والأنشطة الترفيهية.'},
+    {'family': 'Zain', 'category': 'إبداعي وشخصي / Creative', 'desc': 'خط إبداعي وحديث ممتاز للمحافظ الشخصية، المصممين، والمبدعين.'},
+    {'family': 'Alexandria', 'category': 'أعمال وتجارة / Business', 'desc': 'خط هندسي متزن ورسمي بقوة، مناسب جداً للمتاجر الإلكترونية والشركات.'},
+    {'family': 'El Messiri', 'category': 'فخامة وأناقة / Luxury', 'desc': 'خط أنيق جداً بلمسة تقليدية رائعة للعلامات التجارية الفاخرة والعقارات.'},
+    {'family': 'Aref Ruqaa', 'category': 'فني وتراثي / Artistic', 'desc': 'خط مستوحى من خط الرقعة الكلاسيكي، يضيف لمسة فنية وتراثية جميلة.'},
+    {'family': 'Reem Kufi', 'category': 'ثقافي وهندسي / Cultural', 'desc': 'خط كوفي هندسي جذاب يعطي طابعاً ثقافياً عربياً مميزاً للتصميم.'},
+    {'family': 'Lemonada', 'category': 'لطيف وشبابي / Friendly', 'desc': 'خط لطيف وغير رسمي (Casual) مناسب للأنشطة الشبابية والهوايات.'},
+    {'family': 'Roboto', 'category': 'عالمي / Global Standard', 'desc': 'الخط الافتراضي لأنظمة أندرويد، عملي وسريع القراءة بأي حجم.'},
+  ];
 
   static List<LandingPageTheme> get palettes => [
     const LandingPageTheme(

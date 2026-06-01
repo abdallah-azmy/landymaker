@@ -14,6 +14,7 @@ class BuilderLoaded extends BuilderState {
   final bool isPublished;
   final String websiteType;
   final bool isSaving;
+  final bool hasUnsavedChanges;
   final String? errorMessage;
   final String? successMessage;
   final LandingPageTheme theme;
@@ -28,6 +29,7 @@ class BuilderLoaded extends BuilderState {
     required this.isPublished,
     this.websiteType = 'landing_page',
     this.isSaving = false,
+    this.hasUnsavedChanges = false,
     this.errorMessage,
     this.successMessage,
     required this.theme,
@@ -43,6 +45,7 @@ class BuilderLoaded extends BuilderState {
     bool? isPublished,
     String? websiteType,
     bool? isSaving,
+    bool? hasUnsavedChanges,
     String? errorMessage,
     String? successMessage,
     LandingPageTheme? theme,
@@ -60,6 +63,7 @@ class BuilderLoaded extends BuilderState {
       isPublished: isPublished ?? this.isPublished,
       websiteType: websiteType ?? this.websiteType,
       isSaving: isSaving ?? this.isSaving,
+      hasUnsavedChanges: hasUnsavedChanges ?? this.hasUnsavedChanges,
       errorMessage: errorMessage,
       successMessage: successMessage,
       theme: theme ?? this.theme,

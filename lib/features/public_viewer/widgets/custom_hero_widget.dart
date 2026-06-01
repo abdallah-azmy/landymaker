@@ -181,14 +181,14 @@ class CustomHeroWidget extends StatelessWidget {
             if (loadingProgress == null) return child;
             return Container(
               height: isMobile ? 200 : 300,
-              color: Colors.white10,
+              color: theme?.textPrimary.withValues(alpha: 0.05) ?? Colors.white10,
               child: const Center(child: CircularProgressIndicator()),
             );
           },
-          errorBuilder: (context, error, stackTrace) => Container(
+          errorBuilder: (_, __, ___) => Container(
             height: 150,
-            color: Colors.white10,
-            child: const Icon(Icons.image_not_supported_rounded, color: Colors.white24, size: 48),
+            color: theme?.textPrimary.withValues(alpha: 0.05) ?? Colors.white10,
+            child: Icon(Icons.image_not_supported_rounded, color: theme?.textPrimary.withValues(alpha: 0.2) ?? Colors.white24, size: 48),
           ),
         ),
       ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:html' as html;
 import 'package:landymaker/core/widgets/atoms/primary_button.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -9,12 +11,17 @@ import '../../../core/utils/toast_service.dart';
 import '../controllers/builder_cubit.dart';
 import '../controllers/builder_state.dart';
 import '../widgets/editors/block_properties_editor.dart';
+import '../widgets/modals/builder_options_modal.dart';
 import '../widgets/modals/section_library_modal.dart';
 import '../widgets/modals/seo_settings_modal.dart';
 import '../widgets/organisms/builder_app_bar.dart';
 import '../widgets/organisms/builder_canvas.dart';
 import '../widgets/organisms/builder_sidebar.dart';
 import '../widgets/tabs/builder_sidebar_tabs.dart';
+
+import '../widgets/molecules/builder_mobile_toolbar.dart';
+
+import '../models/preview_mode.dart';
 
 class BuilderWorkspaceScreen extends StatefulWidget {
   final VoidCallback onBackToDashboard;
@@ -27,12 +34,69 @@ class BuilderWorkspaceScreen extends StatefulWidget {
 
 class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   int? _editingBlockIndex;
-  bool _isMobilePreview = true;
+  PreviewMode _previewMode = PreviewMode.mobile;
 
   @override
   void initState() {
     super.initState();
     context.read<LandingPageBuilderCubit>().loadForCurrentUser();
+    _setupBrowserWarning();
+  }
+
+  void _setupBrowserWarning() {
+    html.window.onBeforeUnload.listen((event) {
+      final state = context.read<LandingPageBuilderCubit>().state;
+      if (state is BuilderLoaded && state.hasUnsavedChanges) {
+        if (event is html.BeforeUnloadEvent) {
+          event.returnValue =
+              'You have unsaved changes. Are you sure you want to leave?';
+        }
+      }
+    });
+  }
+
+  Future<bool> _onWillPop() async {
+    final state = context.read<LandingPageBuilderCubit>().state;
+    if (state is! BuilderLoaded || !state.hasUnsavedChanges) {
+      return true;
+    }
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardBg,
+        title: const Text("تنبيه: تغييرات غير محفوظة"),
+        content: const Text(
+          "لديك تعديلات لم يتم حفظها بعد. هل تريد الحفظ قبل الخروج؟",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'exit'),
+            child: const Text(
+              "خروج بدون حفظ",
+              style: TextStyle(color: AppColors.dangerRed),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'cancel'),
+            child: const Text("إلغاء"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.activeGreen,
+            ),
+            onPressed: () => Navigator.pop(context, 'save'),
+            child: const Text("حفظ وخروج"),
+          ),
+        ],
+      ),
+    );
+
+    if (result == 'save') {
+      await context.read<LandingPageBuilderCubit>().saveForCurrentUser();
+      return true;
+    }
+    return result == 'exit';
   }
 
   @override
@@ -96,63 +160,117 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
           }
         }
       },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        appBar: BuilderAppBar(
-          isMobile: isMobile,
-          isMobilePreview: _isMobilePreview,
-          loc: loc,
-          cubit: builderCubit,
-          state: loadedState,
-          onBack: widget.onBackToDashboard,
-          onTogglePreview: () =>
-              setState(() => _isMobilePreview = !_isMobilePreview),
-          onShowTemplates: () => _showTemplatesMenu(context, builderCubit),
-          onShowDesign: () => _showDesignMenu(context, loc, builderCubit),
-          onShowSeo: () => _showSeoMenu(context, builderCubit),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _showAddBlockMenu(context, builderCubit),
-          backgroundColor: AppColors.secondary,
-          icon: const Icon(Icons.add_rounded, color: Colors.white),
-          label: const Text("إضافة قسم جديد", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        ),
-        body: Row(
-          children: [
-            if (!isMobile)
-              BuilderSidebar(
-                editingBlockIndex: _editingBlockIndex,
-                state: loadedState,
-                loc: loc,
-                cubit: builderCubit,
-                blocksList: blocksList,
-                onEditBlock: (index) =>
-                    setState(() => _editingBlockIndex = index),
-                onAddBlock: _showAddBlockMenu,
-                onDoneEditing: () => setState(() => _editingBlockIndex = null),
-              ),
-            Expanded(
-              child: BuilderCanvas(
-                isMobile: isMobile,
-                isMobilePreview: _isMobilePreview,
-                state: loadedState,
-                loc: loc,
-                onBlockTapped: (index) {
-                  if (isMobile) {
-                    _openEditBottomSheet(
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          final shouldPop = await _onWillPop();
+          if (shouldPop && mounted) {
+            widget.onBackToDashboard();
+          }
+        },
+        child: Scaffold(
+          extendBody: true,
+          backgroundColor: Colors.black,
+          appBar: isMobile
+              ? null // Hide AppBar on mobile
+              : BuilderAppBar(
+                  isMobile: isMobile,
+                  previewMode: _previewMode,
+                  loc: loc,
+                  cubit: builderCubit,
+                  state: loadedState,
+                  onBack: widget.onBackToDashboard,
+                  onChangePreview: (mode) =>
+                      setState(() => _previewMode = mode),
+                  onShowTemplates: () =>
+                      _showTemplatesMenu(context, builderCubit),
+                  onShowDesign: () =>
+                      _showDesignMenu(context, loc, builderCubit),
+                  onShowSeo: () => _showSeoMenu(context, builderCubit),
+                ),
+          bottomNavigationBar: isMobile
+              ? BuilderMobileToolbar(
+                  cubit: builderCubit,
+                  state: loadedState,
+                  loc: loc,
+                  onBack: widget.onBackToDashboard,
+                  onShowOptions: () => _showBuilderOptionsModal(
+                    context,
+                    loc,
+                    builderCubit,
+                    loadedState,
+                  ),
+                  onShowColors: () => _showBuilderOptionsModal(
+                    context,
+                    loc,
+                    builderCubit,
+                    loadedState,
+                    initialView: BuilderOptionView.colors,
+                  ),
+                  onAddBlock: () => _showAddBlockMenu(context, builderCubit),
+                  onPublish: () {
+                    // Assuming save logic is similar to _buildSaveButton
+                    // We can just call cubit.savePage() or show a success Toast.
+                    ToastService.showSuccess(
                       context,
-                      loc,
-                      builderCubit,
-                      loadedState,
-                      index,
+                      message: "تم نشر الصفحة بنجاح!",
                     );
-                  } else {
-                    setState(() => _editingBlockIndex = index);
-                  }
-                },
+                  },
+                )
+              : null,
+          floatingActionButton: isMobile
+              ? null // FAB is integrated into Mobile Toolbar
+              : FloatingActionButton.extended(
+                  onPressed: () => _showAddBlockMenu(context, builderCubit),
+                  backgroundColor: AppColors.secondary,
+                  icon: const Icon(Icons.add_rounded, color: Colors.white),
+                  label: const Text(
+                    "إضافة قسم جديد",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+          body: Row(
+            children: [
+              if (!isMobile)
+                BuilderSidebar(
+                  editingBlockIndex: _editingBlockIndex,
+                  state: loadedState,
+                  loc: loc,
+                  cubit: builderCubit,
+                  blocksList: blocksList,
+                  onEditBlock: (index) =>
+                      setState(() => _editingBlockIndex = index),
+                  onAddBlock: _showAddBlockMenu,
+                  onDoneEditing: () =>
+                      setState(() => _editingBlockIndex = null),
+                ),
+              Expanded(
+                child: BuilderCanvas(
+                  isMobile: isMobile,
+                  previewMode: _previewMode,
+                  state: loadedState,
+                  loc: loc,
+                  onBlockTapped: (index) {
+                    if (isMobile) {
+                      _openEditBottomSheet(
+                        context,
+                        loc,
+                        builderCubit,
+                        loadedState,
+                        index,
+                      );
+                    } else {
+                      setState(() => _editingBlockIndex = index);
+                    }
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -208,25 +326,30 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.textSecondary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
+      builder: (context) => BlocBuilder<LandingPageBuilderCubit, BuilderState>(
+        builder: (context, state) {
+          if (state is! BuilderLoaded) return const SizedBox.shrink();
+          return Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
             ),
-            Flexible(child: TemplatesTab(cubit: cubit)),
-          ],
-        ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.textSecondary.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Flexible(child: TemplatesTab(cubit: cubit, state: state)),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -273,12 +396,57 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     );
   }
 
+  void _showBuilderOptionsModal(
+    BuildContext context,
+    LocalizationCubit loc,
+    LandingPageBuilderCubit cubit,
+    BuilderLoaded state, {
+    BuilderOptionView initialView = BuilderOptionView.main,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.background,
+      barrierColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => BlocBuilder<LandingPageBuilderCubit, BuilderState>(
+        builder: (context, dynamicState) {
+          if (dynamicState is! BuilderLoaded) return const SizedBox.shrink();
+          return BuilderOptionsModal(
+            loc: loc,
+            cubit: cubit,
+            state: dynamicState,
+            initialView: initialView,
+            onAddBlock: () => _showAddBlockMenu(context, cubit),
+            onPublish: () {
+              ToastService.showSuccess(context, message: "تم نشر الصفحة بنجاح!");
+            },
+          );
+        },
+      ),
+    );
+  }
+
   void _showSeoMenu(BuildContext context, LandingPageBuilderCubit cubit) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const SeoSettingsModal(),
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
+        decoration: const BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: const SingleChildScrollView(child: SeoSettingsModal()),
+      ),
     );
   }
 

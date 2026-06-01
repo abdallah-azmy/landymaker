@@ -16,12 +16,16 @@ class SectionLibraryModal extends StatefulWidget {
 class _SectionLibraryModalState extends State<SectionLibraryModal> {
   String _searchQuery = "";
   String _selectedCategory = "all";
-
   final List<Map<String, dynamic>> _sections = [
-    {'type': 'hero', 'name': 'القسم الرئيسي (Hero)', 'icon': Icons.auto_awesome_rounded, 'category': 'basic', 'desc': 'واجهة الموقع مع عنوان وزر جذاب.'},
-    {'type': 'features', 'name': 'المميزات', 'icon': Icons.list_alt_rounded, 'category': 'content', 'desc': 'عرض مميزات خدمتك أو منتجك.'},
+    {'type': 'hero', 'name': 'القسم الرئيسي (Hero)', 'icon': Icons.auto_awesome_rounded, 'category': 'basic', 'desc': 'واجهة الموقع مع عنوان وزر جذاب.', 'popular': true},
+    {'type': 'basic_section', 'name': 'قسم مرن متقدم', 'icon': Icons.view_quilt_rounded, 'category': 'basic', 'desc': 'صمم أي شكل بحرية كاملة.', 'popular': true},
+    {'type': 'hero_saas', 'name': 'بطل تطبيقات (SaaS)', 'icon': Icons.dashboard_customize_rounded, 'category': 'basic', 'desc': 'قسم رئيسي مثالي للبرمجيات والتطبيقات.'},
+    {'type': 'trust_logos', 'name': 'شركاء النجاح', 'icon': Icons.verified_user_rounded, 'category': 'trust', 'desc': 'عرض شعارات الشركات لزيادة الثقة.', 'popular': true},
+    {'type': 'animated_counter', 'name': 'عداد أرقام', 'icon': Icons.onetwothree_rounded, 'category': 'conversion', 'desc': 'عداد متحرك للإحصائيات.'},
+    {'type': 'lead_magnet', 'name': 'التقاط العملاء', 'icon': Icons.person_add_rounded, 'category': 'conversion', 'desc': 'نموذج مغناطيس لجمع البيانات.', 'popular': true},
+    {'type': 'features', 'name': 'المميزات', 'icon': Icons.list_alt_rounded, 'category': 'content', 'desc': 'عرض مميزات خدمتك أو منتجك.', 'popular': true},
     {'type': 'whatsapp', 'name': 'تواصل واتساب', 'icon': Icons.chat_bubble_outline_rounded, 'category': 'contact', 'desc': 'زر سريع للتواصل عبر الواتساب.'},
-    {'type': 'products', 'name': 'المنتجات', 'icon': Icons.shopping_bag_outlined, 'category': 'ecommerce', 'desc': 'عرض منتجاتك مع الأسعار وصور.'},
+    {'type': 'products', 'name': 'المنتجات', 'icon': Icons.shopping_bag_outlined, 'category': 'ecommerce', 'desc': 'عرض منتجاتك مع الأسعار وصور.', 'popular': true},
     {'type': 'pricing', 'name': 'خطط الأسعار', 'icon': Icons.payments_rounded, 'category': 'ecommerce', 'desc': 'جداول الأسعار والاشتراكات.'},
     {'type': 'faq', 'name': 'الأسئلة الشائعة', 'icon': Icons.question_answer_rounded, 'category': 'content', 'desc': 'إجابات على استفسارات العملاء.'},
     {'type': 'testimonials', 'name': 'آراء العملاء', 'icon': Icons.reviews_rounded, 'category': 'content', 'desc': 'عرض تجارب عملائك الإيجابية.'},
@@ -38,7 +42,10 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
 
     final categories = {
       'all': 'الكل',
+      'popular': 'شائع ومهم',
       'basic': 'أساسي',
+      'conversion': 'مبيعات',
+      'trust': 'ثقة',
       'content': 'محتوى',
       'ecommerce': 'تجارة',
       'contact': 'تواصل',
@@ -46,7 +53,9 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
 
     final filteredSections = _sections.where((s) {
       final matchesSearch = s['name'].toLowerCase().contains(_searchQuery.toLowerCase());
-      final matchesCategory = _selectedCategory == 'all' || s['category'] == _selectedCategory;
+      final matchesCategory = _selectedCategory == 'all' || 
+                              s['category'] == _selectedCategory || 
+                              (_selectedCategory == 'popular' && s['popular'] == true);
       return matchesSearch && matchesCategory;
     }).toList();
 
@@ -90,12 +99,17 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                 return Padding(
                   padding: const EdgeInsets.only(left: 8),
                   child: ChoiceChip(
-                    label: Text(cat.value),
+                    label: Text(cat.value, style: AppTypography.caption.copyWith(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
                     selected: isSelected,
                     onSelected: (s) => setState(() => _selectedCategory = cat.key),
                     selectedColor: AppColors.secondary,
                     backgroundColor: AppColors.cardBg,
                     labelStyle: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(color: isSelected ? Colors.transparent : AppColors.border),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 );
               }).toList(),
@@ -109,11 +123,11 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
             child: filteredSections.isEmpty 
               ? _buildEmptyState()
               : GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.85,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 180,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.9,
                   ),
                   itemCount: filteredSections.length,
                   itemBuilder: (context, index) {
@@ -144,24 +158,31 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         decoration: BoxDecoration(
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border, width: 1.5),
+          border: Border.all(color: AppColors.border, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: AppColors.secondary.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: Icon(section['icon'], color: AppColors.secondary, size: 28),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: AppColors.secondary.withOpacity(0.1), shape: BoxShape.circle),
+              child: Icon(section['icon'], color: AppColors.secondary, size: 24),
             ),
             const SizedBox(height: 12),
-            Text(section['name'], style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            Text(section['name'], style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 4),
-            Text(section['desc'], style: AppTypography.caption, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(section['desc'], style: const TextStyle(fontSize: 10, color: AppColors.textSecondary, height: 1.3), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
           ],
         ),
       ),

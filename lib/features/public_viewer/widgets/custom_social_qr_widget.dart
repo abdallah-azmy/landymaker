@@ -137,9 +137,9 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
                                 height: isMobile ? 150 : 200,
                                 child: PrettyQrView.data(
                                   data: liveUrl,
-                                  decoration: PrettyQrDecoration(
+                                  decoration: const PrettyQrDecoration(
                                     shape: PrettyQrSmoothSymbol(
-                                      color: bgColor,
+                                      color: Colors.black87, // Fixed dark color for standard scannability
                                     ),
                                   ),
                                 ),

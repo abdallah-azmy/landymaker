@@ -40,103 +40,79 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
     final loc = context.watch<LocalizationCubit>();
     final cubit = context.read<LandingPageBuilderCubit>();
 
-    return Container(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 24,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 12),
+        Row(
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                const Icon(Icons.search_rounded, color: AppColors.secondary, size: 28),
-                const SizedBox(width: 12),
-                Text(loc.translate('advanced_settings'), style: AppTypography.h2),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              loc.translate('seo_help'),
-              style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 32),
-            
-            // Google Preview
-            Text(loc.translate('google_preview'), style: AppTypography.h3),
-            const SizedBox(height: 16),
-            _buildGoogleSnippet(loc),
-            
-            const SizedBox(height: 32),
-            
-            // Form Fields
-            FormGroup(
-              label: loc.translate('seo_title'),
-              helperText: loc.translate('chars_limit')
-                  .replaceAll('{current}', _titleController.text.length.toString())
-                  .replaceAll('{max}', '60'),
-              helperStyle: TextStyle(
-                color: _titleController.text.length > 60 ? AppColors.dangerRed : AppColors.textSecondary,
-                fontWeight: _titleController.text.length > 60 ? FontWeight.bold : FontWeight.normal,
-              ),
-              child: CustomTextField(
-                controller: _titleController,
-                onChanged: (val) {
-                  cubit.updateMetadata('meta_title', val);
-                  setState(() {});
-                },
-                hintText: "e.g. My Awesome Shop",
-              ),
-            ),
-            const SizedBox(height: 24),
-            FormGroup(
-              label: loc.translate('seo_description'),
-              helperText: loc.translate('chars_limit')
-                  .replaceAll('{current}', _descController.text.length.toString())
-                  .replaceAll('{max}', '155'),
-              helperStyle: TextStyle(
-                color: _descController.text.length > 155 ? AppColors.dangerRed : AppColors.textSecondary,
-                fontWeight: _descController.text.length > 155 ? FontWeight.bold : FontWeight.normal,
-              ),
-              child: CustomTextField(
-                controller: _descController,
-                maxLines: 3,
-                onChanged: (val) {
-                  cubit.updateMetadata('meta_description', val);
-                  setState(() {});
-                },
-                hintText: "Describe what you offer in a few words...",
-              ),
-            ),
-            
-            const SizedBox(height: 40),
-            PrimaryButton(
-              text: loc.translate('save_and_close'),
-              width: double.infinity,
-              onPressed: () => Navigator.pop(context),
-            ),
+            const Icon(Icons.search_rounded, color: AppColors.secondary, size: 28),
+            const SizedBox(width: 12),
+            Text(loc.translate('advanced_settings'), style: AppTypography.h2),
           ],
         ),
-      ),
+        const SizedBox(height: 12),
+        Text(
+          loc.translate('seo_help'),
+          style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 32),
+        
+        // Google Preview
+        Text(loc.translate('google_preview'), style: AppTypography.h3),
+        const SizedBox(height: 16),
+        _buildGoogleSnippet(loc),
+        
+        const SizedBox(height: 32),
+        
+        // Form Fields
+        FormGroup(
+          label: loc.translate('seo_title'),
+          helperText: loc.translate('chars_limit')
+              .replaceAll('{current}', _titleController.text.length.toString())
+              .replaceAll('{max}', '60'),
+          helperStyle: TextStyle(
+            color: _titleController.text.length > 60 ? AppColors.dangerRed : AppColors.textSecondary,
+            fontWeight: _titleController.text.length > 60 ? FontWeight.bold : FontWeight.normal,
+          ),
+          child: CustomTextField(
+            controller: _titleController,
+            onChanged: (val) {
+              cubit.updateMetadata('meta_title', val);
+              setState(() {});
+            },
+            hintText: "e.g. My Awesome Shop",
+          ),
+        ),
+        const SizedBox(height: 24),
+        FormGroup(
+          label: loc.translate('seo_description'),
+          helperText: loc.translate('chars_limit')
+              .replaceAll('{current}', _descController.text.length.toString())
+              .replaceAll('{max}', '155'),
+          helperStyle: TextStyle(
+            color: _descController.text.length > 155 ? AppColors.dangerRed : AppColors.textSecondary,
+            fontWeight: _descController.text.length > 155 ? FontWeight.bold : FontWeight.normal,
+          ),
+          child: CustomTextField(
+            controller: _descController,
+            maxLines: 3,
+            onChanged: (val) {
+              cubit.updateMetadata('meta_description', val);
+              setState(() {});
+            },
+            hintText: "Describe what you offer in a few words...",
+          ),
+        ),
+        
+        const SizedBox(height: 40),
+        PrimaryButton(
+          text: loc.translate('save_and_close'),
+          width: double.infinity,
+          onPressed: () => Navigator.pop(context),
+        ),
+      ],
     );
   }
 

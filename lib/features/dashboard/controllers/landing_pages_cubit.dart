@@ -57,4 +57,13 @@ class LandingPagesCubit extends Cubit<LandingPagesState> {
       emit(LandingPagesFailure(e.toString()));
     }
   }
+
+  Future<void> togglePublishStatus(String pageId, bool newStatus) async {
+    try {
+      await _databaseService.updatePagePublishStatus(pageId, newStatus);
+      await loadPages(); // Refresh UI
+    } catch (e) {
+      emit(LandingPagesFailure(e.toString()));
+    }
+  }
 }

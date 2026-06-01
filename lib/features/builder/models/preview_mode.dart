@@ -1,0 +1,1 @@
+enum PreviewMode { mobile, desktop }

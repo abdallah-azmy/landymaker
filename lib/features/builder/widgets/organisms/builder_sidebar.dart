@@ -36,31 +36,40 @@ class BuilderSidebar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.background,
         border: Border(
-          right: loc.isRtl ? BorderSide.none : const BorderSide(color: AppColors.border, width: 1.5),
-          left: loc.isRtl ? const BorderSide(color: AppColors.border, width: 1.5) : BorderSide.none,
+          right: loc.isRtl
+              ? BorderSide.none
+              : const BorderSide(color: AppColors.border, width: 1.5),
+          left: loc.isRtl
+              ? const BorderSide(color: AppColors.border, width: 1.5)
+              : BorderSide.none,
         ),
       ),
       child: state.focusedElementId != null
           ? _buildElementEditor()
           : (editingBlockIndex != null && editingBlockIndex! < blocksList.length
-              ? BlockPropertiesEditor(
-                  index: editingBlockIndex!,
-                  state: state,
-                  onDone: onDoneEditing,
-                )
-              : _buildTabs()),
+                ? BlockPropertiesEditor(
+                    index: editingBlockIndex!,
+                    state: state,
+                    onDone: onDoneEditing,
+                  )
+                : _buildTabs()),
     );
   }
 
   Widget _buildElementEditor() {
     final section = state.designMap['blocks'][state.focusedSectionIndex];
-    final element = (section['elements'] as List).firstWhere((e) => e['id'] == state.focusedElementId);
+    final element = (section['elements'] as List).firstWhere(
+      (e) => e['id'] == state.focusedElementId,
+    );
 
     return Column(
       children: [
         AppBar(
           backgroundColor: AppColors.cardBg,
-          title: Text(loc.translate('edit_element'), style: const TextStyle(fontSize: 16)),
+          title: Text(
+            loc.translate('edit_element'),
+            style: const TextStyle(fontSize: 16),
+          ),
           leading: IconButton(
             icon: const Icon(Icons.close_rounded),
             onPressed: () => cubit.selectSection(null),
@@ -72,7 +81,12 @@ class BuilderSidebar extends StatelessWidget {
             child: ElementPropertyEditor(
               type: element['type'],
               styleOverrides: element['style_overrides'] ?? {},
-              onUpdate: (key, val) => cubit.updateElementProperty(state.focusedSectionIndex!, state.focusedElementId!, key, val),
+              onUpdate: (key, val) => cubit.updateElementProperty(
+                state.focusedSectionIndex!,
+                state.focusedElementId!,
+                key,
+                val,
+              ),
             ),
           ),
         ),
@@ -82,7 +96,7 @@ class BuilderSidebar extends StatelessWidget {
 
   Widget _buildTabs() {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Column(
         children: [
           Container(
@@ -91,17 +105,39 @@ class BuilderSidebar extends StatelessWidget {
               labelColor: AppColors.secondary,
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.secondary,
+              isScrollable: true,
               tabs: [
-                Tab(icon: const Icon(Icons.auto_awesome_rounded, size: 20), text: loc.translate('templates')),
-                Tab(icon: const Icon(Icons.color_lens_rounded, size: 20), text: loc.translate('design')),
-                Tab(icon: const Icon(Icons.layers_rounded, size: 20), text: loc.translate('content')),
+                Tab(
+                  icon: const Icon(Icons.layers_rounded, size: 20),
+                  text: loc.translate('added_sections'),
+                ),
+                Tab(
+                  icon: const Icon(Icons.auto_awesome_rounded, size: 20),
+                  text: loc.translate('templates'),
+                ),
+                Tab(
+                  icon: const Icon(Icons.color_lens_rounded, size: 20),
+                  text: loc.translate('design'),
+                ),
+                Tab(
+                  icon: const Icon(Icons.edit_note_rounded, size: 20),
+                  text: loc.translate('content'),
+                ),
               ],
             ),
           ),
           Expanded(
             child: TabBarView(
               children: [
-                TemplatesTab(cubit: cubit),
+                OutlineTab(
+                  cubit: cubit,
+                  loc: loc,
+                  blocks: blocksList,
+                  onEditBlock: onEditBlock,
+                  onAddBlock: onAddBlock,
+                  selectedIndex: state.focusedSectionIndex,
+                ),
+                TemplatesTab(cubit: cubit, state: state),
                 DesignTab(loc: loc, cubit: cubit, state: state),
                 ContentTab(
                   cubit: cubit,

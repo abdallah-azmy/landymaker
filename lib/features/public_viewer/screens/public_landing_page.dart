@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../builder/models/landing_page_theme.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../services/tenant_routing_service.dart';
 import '../controllers/public_page_cubit.dart';
@@ -226,19 +228,60 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                 return _buildSuspendedState(loc);
               }
 
-              return SingleChildScrollView(
+              final designJson = state.pageData['design_json'] as Map<String, dynamic>? ?? {};
+              final themeJson = designJson['theme'] as Map<String, dynamic>? ?? {};
+              final theme = LandingPageTheme.fromJson(themeJson);
+
+              final globalFont = theme.defaultFont ?? 'Cairo';
+              final globalBgImage = theme.globalBgImageUrl;
+              final globalBgColorHex = theme.globalBgColorHex;
+              
+              Color? globalBgColor;
+              if (globalBgColorHex != null && globalBgColorHex.isNotEmpty) {
+                 try {
+                   final hexStr = globalBgColorHex.replaceAll('#', '');
+                   if (hexStr.length == 6) globalBgColor = Color(int.parse('FF$hexStr', radix: 16));
+                   else if (hexStr.length == 8) globalBgColor = Color(int.parse(hexStr, radix: 16));
+                 } catch (_) {}
+              }
+
+              Widget content = SingleChildScrollView(
                 controller: _scrollController,
                 child: Column(
                   children: [
                     SectionRenderer(
                       blocks: state.blocks,
                       pageId: pageId,
-                      // Pass the shared productKeys map — CustomProductsWidget populates it
                       productKeys: _productKeys,
                     ),
                     _buildFooter(loc),
                   ],
                 ),
+              );
+
+              try {
+                content = DefaultTextStyle(
+                  style: GoogleFonts.getFont(globalFont).copyWith(color: theme.textPrimary),
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      textTheme: GoogleFonts.getTextTheme(globalFont, Theme.of(context).textTheme),
+                    ),
+                    child: content,
+                  ),
+                );
+              } catch (_) {
+                // Fallback
+              }
+
+              return Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: globalBgColor ?? Colors.black,
+                  image: (globalBgImage != null && globalBgImage.isNotEmpty)
+                      ? DecorationImage(image: NetworkImage(globalBgImage), fit: BoxFit.cover)
+                      : null,
+                ),
+                child: content,
               );
             }
 

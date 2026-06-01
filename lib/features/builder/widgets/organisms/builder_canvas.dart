@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:landymaker/features/builder/models/preview_mode.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../../public_viewer/widgets/section_renderer.dart';
 import '../../controllers/builder_state.dart';
 
 class BuilderCanvas extends StatelessWidget {
   final bool isMobile;
-  final bool isMobilePreview;
+  final PreviewMode previewMode;
   final BuilderLoaded state;
   final LocalizationCubit loc;
   final Function(int) onBlockTapped;
@@ -16,7 +17,7 @@ class BuilderCanvas extends StatelessWidget {
   const BuilderCanvas({
     super.key,
     required this.isMobile,
-    required this.isMobilePreview,
+    required this.previewMode,
     required this.state,
     required this.loc,
     required this.onBlockTapped,
@@ -30,71 +31,86 @@ class BuilderCanvas extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        double canvasWidth;
+        switch (previewMode) {
+          case PreviewMode.mobile:
+            canvasWidth = 375;
+            break;
+          case PreviewMode.desktop:
+            canvasWidth = constraints.maxWidth.clamp(0.0, 1000.0);
+            break;
+        }
+
+        Color? globalBgColor;
+        final globalBgColorHex = state.theme.globalBgColorHex;
+        if (globalBgColorHex != null && globalBgColorHex.isNotEmpty) {
+           try {
+             final hexStr = globalBgColorHex.replaceAll('#', '');
+             if (hexStr.length == 6) globalBgColor = Color(int.parse('FF$hexStr', radix: 16));
+             else if (hexStr.length == 8) globalBgColor = Color(int.parse(hexStr, radix: 16));
+           } catch (_) {}
+        }
+        final globalBgImage = state.theme.globalBgImageUrl;
+        final globalFont = state.theme.defaultFont ?? 'Cairo';
+
+        Widget content = Directionality(
+          textDirection: loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
+          child: SectionRenderer(
+            key: ValueKey(blocksList.hashCode ^ state.theme.hashCode),
+            blocks: blocksList,
+            pageId: state.pageId ?? 'preview',
+            theme: state.theme,
+            onBlockTapped: (index) {
+              context.read<LandingPageBuilderCubit>().selectSection(index);
+              onBlockTapped(index);
+            },
+            isBuilder: true,
+            selectedIndex: state.focusedSectionIndex,
+          ),
+        );
+
+        try {
+          content = DefaultTextStyle(
+            style: GoogleFonts.getFont(globalFont).copyWith(color: state.theme.textPrimary),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                textTheme: GoogleFonts.getTextTheme(globalFont, Theme.of(context).textTheme),
+              ),
+              child: content,
+            ),
+          );
+        } catch (_) {}
+
         return Stack(
           children: [
             Center(
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                width: isMobile
-                    ? constraints.maxWidth
-                    : (isMobilePreview
-                          ? 375
-                          : constraints.maxWidth.clamp(0.0, 1000.0)),
+                width: isMobile ? constraints.maxWidth : canvasWidth,
                 height: isMobile ? constraints.maxHeight : null,
                 margin: isMobile
                     ? EdgeInsets.zero
                     : const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
                 decoration: BoxDecoration(
-                  color: state.theme.background,
-                  borderRadius: isMobile
-                      ? BorderRadius.zero
-                      : BorderRadius.circular(12),
-                  boxShadow: isMobile
-                      ? []
-                      : [
-                          const BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 36,
-                          ),
-                        ],
+                  color: globalBgColor ?? state.theme.background,
+                  image: (globalBgImage != null && globalBgImage.isNotEmpty)
+                      ? DecorationImage(image: NetworkImage(globalBgImage), fit: BoxFit.cover)
+                      : null,
+                  borderRadius: isMobile ? BorderRadius.zero : BorderRadius.circular(12),
+                  boxShadow: isMobile ? [] : [const BoxShadow(color: Colors.black26, blurRadius: 36)],
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
                     if (!isMobile) _buildBrowserChrome(),
                     Expanded(
-                      child: Container(
-                        color: state.theme.background,
-                        child: SingleChildScrollView(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: isMobile
-                                  ? constraints.maxHeight
-                                  : (constraints.maxHeight - 36),
-                            ),
-                            child: Directionality(
-                              textDirection: loc.isRtl
-                                  ? TextDirection.rtl
-                                  : TextDirection.ltr,
-                              child: SectionRenderer(
-                                key: ValueKey(
-                                  blocksList.hashCode ^ state.theme.hashCode,
-                                ),
-                                blocks: blocksList,
-                                pageId: state.pageId ?? 'preview',
-                                theme: state.theme,
-                                onBlockTapped: (index) {
-                                  context
-                                      .read<LandingPageBuilderCubit>()
-                                      .selectSection(index);
-                                  onBlockTapped(index);
-                                },
-                                isBuilder: true,
-                                selectedIndex: state.focusedSectionIndex,
-                              ),
-                            ),
+                      child: SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: isMobile ? constraints.maxHeight : (constraints.maxHeight - 36),
                           ),
+                          child: content,
                         ),
                       ),
                     ),

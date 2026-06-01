@@ -25,10 +25,15 @@ class SectionBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = theme?.background ?? AppColors.background;
+    final bool hasGlobalBg = (theme?.globalBgImageUrl?.isNotEmpty ?? false) || 
+                             (theme?.globalBgColorHex?.isNotEmpty ?? false);
+                             
+    final bgColor = hasGlobalBg ? Colors.transparent : (theme?.background ?? AppColors.background);
     final primaryColor = theme?.primary ?? AppColors.primary;
     final double blurValue = bgBlur ?? 0.0;
-    final double overlayOpacity = bgOverlayOpacity ?? 0.4;
+    
+    final hasBgImage = bgImageUrl != null && bgImageUrl!.trim().isNotEmpty;
+    final double overlayOpacity = bgOverlayOpacity ?? (hasBgImage ? 0.4 : 1.0);
 
     // Parse overlay color from hex string
     Color overlayColorVal = Colors.black;
@@ -44,8 +49,6 @@ class SectionBackground extends StatelessWidget {
         // Fallback to black
       }
     }
-
-    final hasBgImage = bgImageUrl != null && bgImageUrl!.trim().isNotEmpty;
 
     return Container(
       width: double.infinity,

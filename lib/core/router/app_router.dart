@@ -8,6 +8,7 @@ import '../../features/auth/screens/register_screen.dart';
 import '../../features/dashboard/screens/dashboard_shell.dart';
 import '../../features/home/screens/landymaker_home_screen.dart';
 import '../../features/public_viewer/screens/public_landing_page.dart';
+import '../../features/builder/screens/builder_workspace_screen.dart';
 import '../../services/tenant_routing_service.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -44,6 +45,23 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/builder',
+      builder: (context, state) {
+        return BlocBuilder<AuthCubit, AuthState>(
+          builder: (context, authState) {
+            if (authState is Authenticated) {
+              return BuilderWorkspaceScreen(
+                onBackToDashboard: () {
+                  context.go('/');
+                },
+              );
+            }
+            return const LoginScreen();
+          },
+        );
+      },
     ),
     // Dynamic Landing Page Route (Catch-all)
     GoRoute(

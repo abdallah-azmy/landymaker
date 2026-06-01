@@ -26,32 +26,41 @@ class SectionRenderer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Filter visible blocks for public viewer, keep all for builder
+    final List<Map<String, dynamic>> visibleBlocks = isBuilder
+        ? blocks
+        : blocks.where((block) => block['is_visible'] ?? true).toList();
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: blocks.length,
+      itemCount: visibleBlocks.length,
       itemBuilder: (context, index) {
-        final block = blocks[index];
+        final block = visibleBlocks[index];
         final String type = (block['type'] ?? '').toString().toLowerCase();
-        final Key sectionKey = ValueKey("${type}_${index}_${block.hashCode}");
+        
+        // Find original index for builder actions
+        final int originalIndex = isBuilder ? index : blocks.indexOf(block);
+        
+        final Key sectionKey = ValueKey("${type}_${originalIndex}_${block.hashCode}");
 
         Widget section = BlockRegistry.render(
           type,
           block,
           theme,
           pageId,
-          index,
+          originalIndex,
           key: sectionKey,
           productKeys: productKeys,
         );
 
         if (isBuilder && onBlockTapped != null) {
           return SectionToolbarOverlay(
-            index: index,
-            isSelected: selectedIndex == index,
-            onEdit: () => onBlockTapped!(index),
+            index: originalIndex,
+            isSelected: selectedIndex == originalIndex,
+            onEdit: () => onBlockTapped!(originalIndex),
             child: GestureDetector(
-              onTap: () => onBlockTapped!(index),
+              onTap: () => onBlockTapped!(originalIndex),
               behavior: HitTestBehavior.opaque,
               child: section,
             ),

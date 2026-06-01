@@ -218,17 +218,15 @@ class CustomFeaturesWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Expanded(
-            child: Text(
-              itemDesc,
-              style: AppTypography.bodyMedium.copyWith(
-                color: subTextColor,
-                height: 1.3,
-                fontSize: isMobile ? 12 : 14,
-              ),
-              maxLines: isMobile ? 2 : (isBento ? 4 : 3),
-              overflow: TextOverflow.ellipsis,
+          Text(
+            itemDesc,
+            style: AppTypography.bodyMedium.copyWith(
+              color: subTextColor,
+              height: 1.3,
+              fontSize: isMobile ? 12 : 14,
             ),
+            maxLines: isMobile ? 2 : (isBento ? 4 : 3),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

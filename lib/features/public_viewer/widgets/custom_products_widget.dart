@@ -113,12 +113,13 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     if (widget.customCategories != null && widget.customCategories!.isNotEmpty) {
       newCats = ['all', ...widget.customCategories!];
     } else {
-      final itemsCategories = widget.items
-          .map((e) => e['category']?.toString())
-          .where((c) => c != null && c.isNotEmpty)
-          .toSet()
-          .cast<String>()
-          .toList();
+      final itemsCategories = <String>[];
+      for (final e in widget.items) {
+        final c = e['category']?.toString();
+        if (c != null && c.isNotEmpty && !itemsCategories.contains(c)) {
+          itemsCategories.add(c);
+        }
+      }
       newCats = ['all', ...itemsCategories];
     }
 

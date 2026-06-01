@@ -200,11 +200,10 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
                                 border: Border.all(color: secondaryColor.withValues(alpha: 0.3)),
                               ),
                               child: Row(
-                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(Icons.link_rounded, color: secondaryColor, size: 18),
                                   const SizedBox(width: 10),
-                                  Flexible(
+                                  Expanded(
                                     child: Text(
                                       liveUrl.replaceFirst('https://', ''),
                                       style: AppTypography.caption.copyWith(color: textColor, fontWeight: FontWeight.bold, fontSize: isMobile ? 11 : 12),

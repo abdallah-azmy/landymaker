@@ -252,6 +252,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     SectionRenderer(
                       blocks: state.blocks,
                       pageId: pageId,
+                      theme: theme,
                       productKeys: _productKeys,
                     ),
                     _buildFooter(loc),

@@ -89,7 +89,6 @@ class FloatingCartWidget extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.all(24),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Header
                     Row(

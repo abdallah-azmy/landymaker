@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -42,7 +43,8 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
   }
 
   void _loadTenantPage() {
-    final identifier = widget.identifier ?? TenantRoutingService.getTenantIdentifier();
+    final identifier =
+        widget.identifier ?? TenantRoutingService.getTenantIdentifier();
     if (identifier != null) {
       final isCustom = TenantRoutingService.isCustomDomain(identifier);
       context.read<PublicPageCubit>().loadByIdentifier(identifier, isCustom);
@@ -65,7 +67,10 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
   /// Scrolls to a product using its registered GlobalKey (UUID or slug).
   void _scrollToProduct(String idOrSlug) {
     // Normalize to lowercase slug for slug lookups
-    final slug = idOrSlug.toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u0600-\u06ff]+'), '-');
+    final slug = idOrSlug.toLowerCase().replaceAll(
+      RegExp(r'[^a-z0-9\u0600-\u06ff]+'),
+      '-',
+    );
 
     // Try UUID first, then slug
     final GlobalKey? key = _productKeys[idOrSlug] ?? _productKeys[slug];
@@ -93,207 +98,280 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
         create: (_) => CartCubit(),
         child: Scaffold(
           backgroundColor: Colors.black,
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          elevation: 0,
-          title: Text(
-            identifier?.toUpperCase() ?? 'LANDYMAKER',
-            style: AppTypography.h3.copyWith(
-              fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
-              letterSpacing: 1.2,
-            ),
-          ),
-          actions: [
-            TextButton.icon(
-              onPressed: () => loc.toggleLanguage(),
-              icon: const Icon(Icons.language_rounded, color: AppColors.secondary, size: 18),
-              label: Text(
-                loc.translate('switch_language'),
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.secondary,
-                  fontWeight: FontWeight.bold,
-                ),
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            elevation: 0,
+            title: Text(
+              identifier?.toUpperCase() ?? 'LANDYMAKER',
+              style: AppTypography.h3.copyWith(
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimary,
+                letterSpacing: 1.2,
               ),
             ),
-            const SizedBox(width: 16),
-          ],
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(1),
-            child: Container(
-              color: AppColors.textSecondary.withValues(alpha: 0.08),
-              height: 1,
+            actions: [
+              TextButton.icon(
+                onPressed: () => loc.toggleLanguage(),
+                icon: const Icon(
+                  Icons.language_rounded,
+                  color: AppColors.secondary,
+                  size: 18,
+                ),
+                label: Text(
+                  loc.translate('switch_language'),
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+            ],
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(
+                color: AppColors.textSecondary.withValues(alpha: 0.08),
+                height: 1,
+              ),
             ),
           ),
-        ),
-        body: Stack(
-          children: [
-            BlocConsumer<PublicPageCubit, PublicPageState>(
-              listener: (context, state) {
-            if (state is PublicPageLoaded) {
-              // Wait one frame for widgets to mount before attempting scroll
-              WidgetsBinding.instance.addPostFrameCallback((_) => _handleDeepLinking());
-            }
-          },
-          builder: (context, state) {
-            if (state is PublicPageLoading || state is PublicPageInitial) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.secondary),
-              );
-            }
+          body: Stack(
+            children: [
+              BlocConsumer<PublicPageCubit, PublicPageState>(
+                listener: (context, state) {
+                  if (state is PublicPageLoaded) {
+                    // Wait one frame for widgets to mount before attempting scroll
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (_) => _handleDeepLinking(),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  if (state is PublicPageLoading ||
+                      state is PublicPageInitial) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.secondary,
+                      ),
+                    );
+                  }
 
-            if (state is PublicPageNotFound) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.search_off_rounded, size: 80, color: AppColors.dangerRed),
-                      const SizedBox(height: 24),
-                      Text(
-                        loc.isRtl ? "الصفحة غير موجودة" : "404 - Page Not Found",
-                        style: AppTypography.h1.copyWith(color: AppColors.textPrimary),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        loc.isRtl
-                            ? "الصفحة المطلوبة '${state.identifier}' غير متوفرة أو لم يتم نشرها بعد."
-                            : "The requested page '${state.identifier}' could not be found or is not published.",
-                        style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 32),
-                      ElevatedButton(
-                        onPressed: () => launchUrl(Uri.parse(Uri.base.origin)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: Text(
-                          loc.isRtl ? "الذهاب إلى بوابة المنصة" : "Go to Platform Portal",
-                          style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            if (state is PublicPageFailure) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline_rounded, size: 80, color: AppColors.dangerRed),
-                      const SizedBox(height: 24),
-                      Text(
-                        loc.isRtl ? "حدث خطأ ما" : "Something Went Wrong",
-                        style: AppTypography.h1.copyWith(color: AppColors.textPrimary),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(state.message,
-                          style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
-                          textAlign: TextAlign.center),
-                      const SizedBox(height: 32),
-                      ElevatedButton(
-                        onPressed: _loadTenantPage,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.secondary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: Text(
-                          loc.isRtl ? "إعادة المحاولة" : "Retry Loading",
-                          style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                  if (state is PublicPageNotFound) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.search_off_rounded,
+                              size: 80,
+                              color: AppColors.dangerRed,
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              loc.isRtl
+                                  ? "الصفحة غير موجودة"
+                                  : "404 - Page Not Found",
+                              style: AppTypography.h1.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              loc.isRtl
+                                  ? "الصفحة المطلوبة '${state.identifier}' غير متوفرة أو لم يتم نشرها بعد."
+                                  : "The requested page '${state.identifier}' could not be found or is not published.",
+                              style: AppTypography.bodyLarge.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+                            ElevatedButton(
+                              onPressed: () =>
+                                  launchUrl(Uri.parse(Uri.base.origin)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                loc.isRtl
+                                    ? "الذهاب إلى بوابة المنصة"
+                                    : "Go to Platform Portal",
+                                style: AppTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              );
-            }
+                    );
+                  }
 
-            if (state is PublicPageLoaded) {
-              final pageId = state.pageData['id'] as String;
-              final bool isActive = state.pageData['is_active'] ?? true;
+                  if (state is PublicPageFailure) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline_rounded,
+                              size: 80,
+                              color: AppColors.dangerRed,
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              loc.isRtl ? "حدث خطأ ما" : "Something Went Wrong",
+                              style: AppTypography.h1.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              state.message,
+                              style: AppTypography.bodyLarge.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+                            ElevatedButton(
+                              onPressed: _loadTenantPage,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.secondary,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                loc.isRtl ? "إعادة المحاولة" : "Retry Loading",
+                                style: AppTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
 
-              if (!isActive) {
-                return _buildSuspendedState(loc);
-              }
+                  if (state is PublicPageLoaded) {
+                    final pageId = state.pageData['id'] as String;
+                    final bool isActive = state.pageData['is_active'] ?? true;
 
-              final designJson = state.pageData['design_json'] as Map<String, dynamic>? ?? {};
-              final themeJson = designJson['theme'] as Map<String, dynamic>? ?? {};
-              final theme = LandingPageTheme.fromJson(themeJson);
+                    if (!isActive) {
+                      return _buildSuspendedState(loc);
+                    }
 
-              final globalFont = theme.defaultFont ?? 'Cairo';
-              final globalBgImage = theme.globalBgImageUrl;
-              final globalBgColorHex = theme.globalBgColorHex;
-              
-              Color? globalBgColor;
-              if (globalBgColorHex != null && globalBgColorHex.isNotEmpty) {
-                 try {
-                   final hexStr = globalBgColorHex.replaceAll('#', '');
-                   if (hexStr.length == 6) globalBgColor = Color(int.parse('FF$hexStr', radix: 16));
-                   else if (hexStr.length == 8) globalBgColor = Color(int.parse(hexStr, radix: 16));
-                 } catch (_) {}
-              }
+                    final rawDesign = state.pageData['design_json'];
+                    Map<String, dynamic> designJson = {};
+                    if (rawDesign is String) {
+                      try {
+                        designJson = Map<String, dynamic>.from(
+                          jsonDecode(rawDesign),
+                        );
+                      } catch (_) {}
+                    } else if (rawDesign is Map) {
+                      designJson = Map<String, dynamic>.from(rawDesign);
+                    }
 
-              Widget content = SingleChildScrollView(
-                controller: _scrollController,
-                child: Column(
-                  children: [
-                    SectionRenderer(
-                      blocks: state.blocks,
-                      pageId: pageId,
-                      theme: theme,
-                      productKeys: _productKeys,
-                    ),
-                    _buildFooter(loc),
-                  ],
-                ),
-              );
+                    final themeJson =
+                        designJson['theme'] as Map<String, dynamic>? ?? {};
+                    final theme = LandingPageTheme.fromJson(themeJson);
 
-              try {
-                content = DefaultTextStyle(
-                  style: GoogleFonts.getFont(globalFont).copyWith(color: theme.textPrimary),
-                  child: Theme(
-                    data: Theme.of(context).copyWith(
-                      textTheme: GoogleFonts.getTextTheme(globalFont, Theme.of(context).textTheme),
-                    ),
-                    child: content,
-                  ),
-                );
-              } catch (_) {
-                // Fallback
-              }
+                    final globalFont = theme.defaultFont ?? 'Cairo';
+                    final globalBgImage = theme.globalBgImageUrl;
+                    final globalBgColorHex = theme.globalBgColorHex;
 
-              return Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: globalBgColor ?? Colors.black,
-                  image: (globalBgImage != null && globalBgImage.isNotEmpty)
-                      ? DecorationImage(image: NetworkImage(globalBgImage), fit: BoxFit.cover)
-                      : null,
-                ),
-                child: content,
-              );
-            }
+                    Color? globalBgColor;
+                    if (globalBgColorHex != null &&
+                        globalBgColorHex.isNotEmpty) {
+                      try {
+                        final hexStr = globalBgColorHex.replaceAll('#', '');
+                        if (hexStr.length == 6)
+                          globalBgColor = Color(
+                            int.parse('FF$hexStr', radix: 16),
+                          );
+                        else if (hexStr.length == 8)
+                          globalBgColor = Color(int.parse(hexStr, radix: 16));
+                      } catch (_) {}
+                    }
 
-                return const SizedBox.shrink();
-              },
-            ),
-            const FloatingCartWidget(),
-          ],
+                    Widget content = SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [
+                          SectionRenderer(
+                            blocks: state.blocks,
+                            pageId: pageId,
+                            theme: theme,
+                            productKeys: _productKeys,
+                          ),
+                          _buildFooter(loc),
+                        ],
+                      ),
+                    );
+
+                    try {
+                      content = DefaultTextStyle(
+                        style: GoogleFonts.getFont(
+                          globalFont,
+                        ).copyWith(color: theme.textPrimary),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            textTheme: GoogleFonts.getTextTheme(
+                              globalFont,
+                              Theme.of(context).textTheme,
+                            ),
+                          ),
+                          child: content,
+                        ),
+                      );
+                    } catch (_) {
+                      // Fallback
+                    }
+
+                    return Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: globalBgColor ?? Colors.black,
+                        image:
+                            (globalBgImage != null && globalBgImage.isNotEmpty)
+                            ? DecorationImage(
+                                image: NetworkImage(globalBgImage),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: content,
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                },
+              ),
+              const FloatingCartWidget(),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   Widget _buildFooter(LocalizationCubit loc) {
@@ -315,7 +393,11 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.auto_awesome_rounded, color: AppColors.secondary, size: 20),
+                const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: AppColors.secondary,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   "LANDYMAKER",
@@ -332,7 +414,9 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
               loc.isRtl
                   ? "صنع بفخر باستخدام منصة لاندي ميكر لبناء الصفحات الهابطة."
                   : "Proudly powered by LandyMaker SaaS Landing Page Builder.",
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -342,46 +426,57 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
   }
 }
 
-  Widget _buildSuspendedState(LocalizationCubit loc) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(40),
-        margin: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.dangerRed.withOpacity(0.3)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.block_rounded, color: AppColors.dangerRed, size: 64),
-            const SizedBox(height: 24),
-            Text(loc.isRtl ? "الصفحة معطلة حالياً" : "Page Currently Suspended", style: AppTypography.h2),
-            const SizedBox(height: 8),
-            Text(
-              loc.isRtl 
-                  ? "نعتذر، هذه الصفحة لم تعد متاحة حالياً. ربما انتهت فترة الاشتراك أو تم إيقافها يدوياً."
-                  : "We apologize, this page is no longer available. The subscription might have expired or it was manually disabled.",
-              textAlign: TextAlign.center,
-              style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () => launchUrl(Uri.parse(Uri.base.origin)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: Text(
-                loc.isRtl ? "ابدأ بناء صفحتك الخاصة" : "Start building your own page",
-                style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
+Widget _buildSuspendedState(LocalizationCubit loc) {
+  return Center(
+    child: Container(
+      padding: const EdgeInsets.all(40),
+      margin: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.dangerRed.withOpacity(0.3)),
       ),
-    );
-  }
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.block_rounded, color: AppColors.dangerRed, size: 64),
+          const SizedBox(height: 24),
+          Text(
+            loc.isRtl ? "الصفحة معطلة حالياً" : "Page Currently Suspended",
+            style: AppTypography.h2,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            loc.isRtl
+                ? "نعتذر، هذه الصفحة لم تعد متاحة حالياً. ربما انتهت فترة الاشتراك أو تم إيقافها يدوياً."
+                : "We apologize, this page is no longer available. The subscription might have expired or it was manually disabled.",
+            textAlign: TextAlign.center,
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () => launchUrl(Uri.parse(Uri.base.origin)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              loc.isRtl
+                  ? "ابدأ بناء صفحتك الخاصة"
+                  : "Start building your own page",
+              style: AppTypography.bodyMedium.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}

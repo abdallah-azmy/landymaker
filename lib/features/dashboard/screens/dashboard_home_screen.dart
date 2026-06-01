@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:html' as html;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../subscription/widgets/manual_payment_modal.dart';
 import '../widgets/create_page_modal.dart';
@@ -484,6 +485,31 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                 Text(
                   "Created on ${page['created_at'].toString().split('T').first}",
                   style: AppTypography.caption,
+                ),
+                const SizedBox(height: 4),
+                InkWell(
+                  onTap: () {
+                    final subdomain = page['subdomain'] ?? '';
+                    html.window.open('/$subdomain', '_blank');
+                  },
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.link_rounded, size: 12, color: AppColors.secondary),
+                        const SizedBox(width: 4),
+                        Text(
+                          "/${page['subdomain'] ?? ''}",
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.secondary,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

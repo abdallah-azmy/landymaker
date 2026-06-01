@@ -183,8 +183,8 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
         child: Scaffold(
           extendBody: true,
           backgroundColor: Colors.black,
-          appBar: isMobile
-              ? null // Hide AppBar on mobile
+          appBar: isMobile || _previewMode == PreviewMode.fullscreen
+              ? null // Hide AppBar on mobile or in fullscreen preview
               : BuilderAppBar(
                   isMobile: isMobile,
                   previewMode: _previewMode,
@@ -207,7 +207,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                   ),
                   onShowSeo: () => _showSeoMenu(context, builderCubit),
                 ),
-          bottomNavigationBar: isMobile
+          bottomNavigationBar: isMobile && _previewMode != PreviewMode.fullscreen
               ? BuilderMobileToolbar(
                   cubit: builderCubit,
                   state: loadedState,
@@ -245,8 +245,8 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                   },
                 )
               : null,
-          floatingActionButton: isMobile
-              ? null // FAB is integrated into Mobile Toolbar
+          floatingActionButton: isMobile || _previewMode == PreviewMode.fullscreen
+              ? null // FAB is integrated into Mobile Toolbar or hidden in fullscreen
               : FloatingActionButton.extended(
                   onPressed: () => _showAddBlockMenu(context, builderCubit),
                   backgroundColor: AppColors.secondary,
@@ -259,42 +259,65 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                     ),
                   ),
                 ),
-          body: Row(
+          body: Stack(
             children: [
-              if (!isMobile && _previewMode != PreviewMode.fullscreen)
-                BuilderSidebar(
-                  editingBlockIndex: _editingBlockIndex,
-                  state: loadedState,
-                  loc: loc,
-                  cubit: builderCubit,
-                  blocksList: blocksList,
-                  onEditBlock: (index) =>
-                      setState(() => _editingBlockIndex = index),
-                  onAddBlock: _showAddBlockMenu,
-                  onDoneEditing: () =>
-                      setState(() => _editingBlockIndex = null),
-                ),
-              Expanded(
-                child: BuilderCanvas(
-                  isMobile: isMobile,
-                  previewMode: _previewMode,
-                  state: loadedState,
-                  loc: loc,
-                  onBlockTapped: (index) {
-                    if (isMobile) {
-                      _openEditBottomSheet(
-                        context,
-                        loc,
-                        builderCubit,
-                        loadedState,
-                        index,
-                      );
-                    } else {
-                      setState(() => _editingBlockIndex = index);
-                    }
-                  },
-                ),
+              Row(
+                children: [
+                  if (!isMobile && _previewMode != PreviewMode.fullscreen)
+                    BuilderSidebar(
+                      editingBlockIndex: _editingBlockIndex,
+                      state: loadedState,
+                      loc: loc,
+                      cubit: builderCubit,
+                      blocksList: blocksList,
+                      onEditBlock: (index) =>
+                          setState(() => _editingBlockIndex = index),
+                      onAddBlock: _showAddBlockMenu,
+                      onDoneEditing: () =>
+                          setState(() => _editingBlockIndex = null),
+                    ),
+                  Expanded(
+                    child: BuilderCanvas(
+                      isMobile: isMobile,
+                      previewMode: _previewMode,
+                      state: loadedState,
+                      loc: loc,
+                      onBlockTapped: (index) {
+                        if (isMobile) {
+                          _openEditBottomSheet(
+                            context,
+                            loc,
+                            builderCubit,
+                            loadedState,
+                            index,
+                          );
+                        } else {
+                          setState(() => _editingBlockIndex = index);
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
+              if (_previewMode == PreviewMode.fullscreen)
+                Positioned(
+                  top: 24,
+                  left: loc.isRtl ? null : 24,
+                  right: loc.isRtl ? 24 : null,
+                  child: FloatingActionButton(
+                    heroTag: 'exit_fullscreen_btn',
+                    backgroundColor: AppColors.cardBg,
+                    foregroundColor: AppColors.textPrimary,
+                    elevation: 4,
+                    onPressed: () {
+                      setState(() {
+                        _previewMode =
+                            isMobile ? PreviewMode.mobile : PreviewMode.desktop;
+                      });
+                    },
+                    child: const Icon(Icons.close_rounded),
+                  ),
+                ),
             ],
           ),
         ),

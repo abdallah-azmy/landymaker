@@ -71,6 +71,29 @@ class BuilderMobileToolbar extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               child: Row(
                 children: [
+                  // Distinct Add Button
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: InkWell(
+                      onTap: onAddBlock,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.secondary.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+                      ),
+                    ),
+                  ),
                   _buildToolButton(
                     icon: Icons.undo_rounded,
                     onPressed: state.canUndo ? cubit.undo : null,
@@ -94,29 +117,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                     color: Colors.white,
                   ),
                   
-                  // Distinct Add Button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: InkWell(
-                      onTap: onAddBlock,
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.secondary.withValues(alpha: 0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
-                      ),
-                    ),
-                  ),
+
 
                   _buildToolButton(
                     icon: Icons.visibility_rounded,

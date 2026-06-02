@@ -2,13 +2,28 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/((?!seo-middleware).*)",
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/llms.txt",
+      "destination": "/llms.txt"
+    },
+    {
+      "source": "/blog",
+      "destination": "https://landymaker-blog.vercel.app/blog"
+    },
+    {
+      "source": "/blog/:match*",
+      "destination": "https://landymaker-blog.vercel.app/blog/:match*"
+    },
+    {
+      "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "functions": {
-    "seo-middleware.js": {
-      "runtime": "edge"
-    }
-  }
+  ]
 }

@@ -12,6 +12,7 @@ import 'leads_tracker_screen.dart';
 import 'analytics_screen.dart';
 import 'package:go_router/go_router.dart';
 import '../../super_admin/screens/super_admin_panel_screen.dart';
+import '../../blog_admin/screens/blog_management_screen.dart';
 import 'product_feed_screen.dart';
 import 'domain_settings_screen.dart';
 import '../controllers/active_website_cubit.dart';
@@ -123,21 +124,16 @@ class _DashboardShellState extends State<DashboardShell> {
         'icon': Icons.admin_panel_settings_rounded,
         'screen': const SuperAdminPanelScreen(),
       });
+      adminItems.add({
+        'title_key': 'blog_management',
+        'icon': Icons.article_rounded,
+        'screen': const BlogManagementScreen(),
+      });
     }
 
 
-    // 3. Roadmap (Locked)
-    final List<Map<String, dynamic>> roadmapItems = [
-      {'title_key': 'crm_customer_mgmt', 'icon': Icons.people_alt_rounded, 'is_locked': true},
-      {'title_key': 'marketing_tools', 'icon': Icons.campaign_rounded, 'is_locked': true},
-      {'title_key': 'coupons_promos', 'icon': Icons.local_offer_rounded, 'is_locked': true},
-      {'title_key': 'conversion_tracking', 'icon': Icons.track_changes_rounded, 'is_locked': true},
-      {'title_key': 'team_management', 'icon': Icons.group_add_rounded, 'is_locked': true},
-      {'title_key': 'integrations', 'icon': Icons.hub_rounded, 'is_locked': true},
-    ];
-
     // 4. Final lists
-    final List<Map<String, dynamic>> sidebarMenu = [...navigationItems, ...roadmapItems, ...adminItems];
+    final List<Map<String, dynamic>> sidebarMenu = [...navigationItems, ...adminItems];
     final List<Widget> screens = [
       ...navigationItems.where((e) => e.containsKey('screen')).map((e) => e['screen'] as Widget),
       ...adminItems.where((e) => e.containsKey('screen')).map((e) => e['screen'] as Widget),

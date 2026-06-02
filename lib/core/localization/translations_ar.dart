@@ -138,4 +138,5 @@ const Map<String, String> translationsAr = {
   'coupons_promos': 'الكوبونات والعروض',
   'conversion_tracking': 'تتبع التحويلات (Pixel)',
   'team_management': 'إدارة الفريق والوصول',
+  'blog_management': 'إدارة المدونة (SEO Blog)',
 };

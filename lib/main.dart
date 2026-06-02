@@ -12,16 +12,20 @@ import 'features/dashboard/controllers/leads_analytics_cubit.dart';
 import 'features/dashboard/controllers/landing_pages_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
+import 'features/blog_admin/controllers/blog_cubit.dart';
 
 import 'features/dashboard/controllers/active_website_cubit.dart';
 import 'package:toastification/toastification.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'core/seo/app_seo.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
 
   try {
+    // Initialize SEO
+    AppSEO.config();
     // Preload primary font to prevent FOUT/FOIT (Tofu effect) on web globally
     GoogleFonts.config.allowRuntimeFetching = true;
     GoogleFonts.cairo();
@@ -89,6 +93,7 @@ class LandyMakerApp extends StatelessWidget {
         ),
         BlocProvider<SuperAdminCubit>(create: (_) => sl<SuperAdminCubit>()),
         BlocProvider<PublicPageCubit>(create: (_) => sl<PublicPageCubit>()),
+        BlocProvider<BlogCubit>(create: (_) => sl<BlogCubit>()),
       ],
       child: BlocBuilder<LocalizationCubit, Locale>(
         builder: (context, locale) {

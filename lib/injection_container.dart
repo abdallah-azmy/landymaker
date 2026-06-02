@@ -13,6 +13,8 @@ import 'features/dashboard/controllers/landing_pages_cubit.dart';
 import 'features/dashboard/controllers/active_website_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
+import 'features/blog_admin/data/repositories/blog_repository.dart';
+import 'features/blog_admin/controllers/blog_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -72,6 +74,10 @@ Future<void> initDependencies() async {
   sl.registerFactory<SuperAdminCubit>(
     () => SuperAdminCubit(databaseService: sl<DatabaseService>()),
   );
+
+  // Blog Admin
+  sl.registerSingleton<BlogRepository>(BlogRepository(sl<SupabaseService>().client));
+  sl.registerFactory<BlogCubit>(() => BlogCubit(sl<BlogRepository>()));
 
   // Public Landing Page cubit
   sl.registerFactory<PublicPageCubit>(

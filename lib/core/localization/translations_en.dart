@@ -136,6 +136,7 @@ const Map<String, String> translationsEn = {
   'refresh_token': 'Refresh Token',
   'crm_customer_mgmt': 'Customer Mgmt (CRM)',
   'coupons_promos': 'Coupons & Promos',
-  'conversion_tracking': 'Conversion Tracking',
+  'conversion_tracking': 'Conversion Tracking (Pixel)',
   'team_management': 'Team Management',
+  'blog_management': 'Blog Management (SEO)',
 };

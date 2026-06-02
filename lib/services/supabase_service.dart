@@ -26,6 +26,7 @@ class SupabaseService extends ChangeNotifier {
   String? get currentUserId => _currentUserId;
   String get currentUserRole => _currentUserRole;
   bool get isAuthenticated => _currentUserId != null;
+  SupabaseClient get client => _client!;
 
   // ─────────────────────────────────────────────────────────────────────────
   // ⚠️  SECURITY NOTE — READ BEFORE SHIPPING

@@ -9,6 +9,8 @@ class TenantRoutingService {
   /// Defines reserved paths that are used for dashboard/auth and cannot be used as landing page slugs.
   static const Set<String> reservedPaths = {
     '',
+    'blog',
+    '_next',
     'login',
     'register',
     'signup',

@@ -69,6 +69,8 @@ class LandingPageTheme {
     String? globalBgColorHex,
     String? category,
     String? description,
+    bool clearBgImage = false,
+    bool clearBgColor = false,
   }) {
     return LandingPageTheme(
       primary: primary ?? this.primary,
@@ -78,8 +80,8 @@ class LandingPageTheme {
       textSecondary: textSecondary ?? this.textSecondary,
       name: name ?? this.name,
       defaultFont: defaultFont ?? this.defaultFont,
-      globalBgImageUrl: globalBgImageUrl ?? this.globalBgImageUrl,
-      globalBgColorHex: globalBgColorHex ?? this.globalBgColorHex,
+      globalBgImageUrl: clearBgImage ? null : (globalBgImageUrl ?? this.globalBgImageUrl),
+      globalBgColorHex: clearBgColor ? null : (globalBgColorHex ?? this.globalBgColorHex),
       category: category ?? this.category,
       description: description ?? this.description,
     );

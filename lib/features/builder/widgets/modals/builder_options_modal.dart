@@ -36,11 +36,19 @@ class BuilderOptionsModal extends StatefulWidget {
 
 class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
   late BuilderOptionView _currentView;
+  late TextEditingController _nameController;
 
   @override
   void initState() {
     super.initState();
     _currentView = widget.initialView;
+    _nameController = TextEditingController(text: widget.state.subdomain);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 
   void _changeView(BuilderOptionView view) {
@@ -170,10 +178,7 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
           state: widget.state,
         );
       case BuilderOptionView.background:
-        return BackgroundPickerTab(
-          cubit: widget.cubit,
-          state: widget.state,
-        );
+        return BackgroundPickerTab(cubit: widget.cubit, state: widget.state);
       case BuilderOptionView.seo:
         return const SeoSettingsModal();
     }
@@ -182,7 +187,73 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
   Widget _buildMainOptions() {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("اسم الصفحة (الرابط)", style: AppTypography.h3),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _nameController,
+                style: AppTypography.bodyLarge,
+                decoration: InputDecoration(
+                  hintText: "أدخل اسم الصفحة بالإنجليزية",
+                  hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
+                  prefixIcon: const Icon(Icons.link_rounded, color: AppColors.textSecondary),
+                  suffixText: ".landymaker.com",
+                  suffixStyle: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                  filled: true,
+                  fillColor: AppColors.background,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                ),
+                onChanged: (val) {
+                  widget.cubit.updateSettings(subdomain: val);
+                },
+              ),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: SwitchListTile(
+                  title: Text("حالة النشر", style: AppTypography.bodyLarge),
+                  subtitle: Text(
+                    widget.state.isPublished ? "الصفحة منشورة ومتاحة للزوار" : "الصفحة مسودة غير مرئية",
+                    style: AppTypography.caption,
+                  ),
+                  value: widget.state.isPublished,
+                  activeColor: AppColors.activeGreen,
+                  onChanged: (val) {
+                    widget.cubit.updateSettings(isPublished: val);
+                  },
+                  secondary: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: (widget.state.isPublished ? AppColors.activeGreen : AppColors.textSecondary).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      widget.state.isPublished ? Icons.public_rounded : Icons.public_off_rounded,
+                      color: widget.state.isPublished ? AppColors.activeGreen : AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
         _buildOptionTile(
           icon: Icons.auto_awesome_rounded,
           title: "تغيير القالب",
@@ -218,15 +289,31 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
           },
         ),
         const Divider(color: AppColors.border, height: 32),
-        _buildOptionTile(
-          icon: Icons.publish_rounded,
-          title: "نشر الصفحة",
-          color: AppColors.secondary,
-          onTap: () {
-            Navigator.pop(context);
-            widget.onPublish();
-          },
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              widget.onPublish();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              elevation: 4,
+              shadowColor: AppColors.primary.withValues(alpha: 0.4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            icon: const Icon(Icons.rocket_launch_rounded),
+            label: Text(
+              "حفظ ونشر التغييرات",
+              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
         ),
+        const SizedBox(height: 24),
       ],
     );
   }

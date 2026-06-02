@@ -488,87 +488,93 @@ class _PageItemCardState extends State<_PageItemCard> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
-            children: [
-              Stack(
                 children: [
-                  CircleAvatar(
-                    backgroundColor: AppColors.primary.withOpacity(0.1),
-                    child: const Icon(
-                      Icons.language_rounded,
-                      color: AppColors.primary,
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        child: const Icon(
+                          Icons.language_rounded,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: !isActive
+                                ? AppColors.dangerRed
+                                : (isPublished
+                                      ? AppColors.activeGreen
+                                      : AppColors.textMuted),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.cardBg,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          page['subdomain'] ?? "Unnamed Page",
+                          style: AppTypography.bodyLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        _CopyableUrlWidget(
+                          url:
+                              "https://landymaker.com/${page['subdomain'] ?? 'landymaker.com'}",
+                          subdomain: page['subdomain'] ?? '',
+                        ),
+                      ],
                     ),
                   ),
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
+                  const SizedBox(width: 8),
+                  _buildPublishToggle(page['id'], isPublished, isActive),
+                  const SizedBox(width: 16),
+                  InkWell(
+                    onTap: () {
+                      context.read<LandingPageBuilderCubit>().loadPageById(
+                        page['id'],
+                      );
+                      widget.onOpenBuilder(page['id']);
+                    },
+                    borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      width: 12,
-                      height: 12,
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: !isActive
-                            ? AppColors.dangerRed
-                            : (isPublished
-                                ? AppColors.activeGreen
-                                : AppColors.textMuted),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.cardBg, width: 2),
+                        color: AppColors.primary.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.edit_rounded,
+                        color: AppColors.primary,
+                        size: 24,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      page['subdomain'] ?? "Unnamed Page",
-                      style: AppTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    _CopyableUrlWidget(
-                      url: "https://landymaker.com/${page['subdomain'] ?? 'landymaker.com'}",
-                      subdomain: page['subdomain'] ?? '',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              _buildPublishToggle(page['id'], isPublished, isActive),
-              const SizedBox(width: 16),
-              InkWell(
-                onTap: () {
-                  context.read<LandingPageBuilderCubit>().loadPageById(page['id']);
-                  widget.onOpenBuilder(page['id']);
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.edit_rounded,
-                    color: AppColors.primary,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-      if (_isLoading)
-        const LinearProgressIndicator(
-          minHeight: 3,
-          backgroundColor: Colors.transparent,
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.secondary),
-        ),
-      ],
+          if (_isLoading)
+            const LinearProgressIndicator(
+              minHeight: 3,
+              backgroundColor: Colors.transparent,
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+            ),
+        ],
       ),
     );
   }
@@ -604,13 +610,13 @@ class _PageItemCardState extends State<_PageItemCard> {
             onChanged: _isLoading
                 ? null
                 : (val) async {
-              setState(() => _isLoading = true);
-              await context.read<LandingPagesCubit>().togglePublishStatus(
-                    pageId,
-                    val,
-                  );
-              if (mounted) setState(() => _isLoading = false);
-            },
+                    setState(() => _isLoading = true);
+                    await context.read<LandingPagesCubit>().togglePublishStatus(
+                      pageId,
+                      val,
+                    );
+                    if (mounted) setState(() => _isLoading = false);
+                  },
           ),
         ),
         Text(
@@ -690,7 +696,9 @@ class _CopyableUrlWidgetState extends State<_CopyableUrlWidget> {
                 _isCopied ? Icons.check_circle_rounded : Icons.copy_rounded,
                 key: ValueKey(_isCopied),
                 size: 16,
-                color: _isCopied ? AppColors.activeGreen : AppColors.textSecondary,
+                color: _isCopied
+                    ? AppColors.activeGreen
+                    : AppColors.textSecondary,
               ),
             ),
           ),

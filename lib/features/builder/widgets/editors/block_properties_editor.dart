@@ -268,6 +268,9 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
     String sectionName = "السكشن";
 
     switch (type) {
+      case 'logo_header':
+        sectionName = "الترويسة (Logo Header)";
+        break;
       case 'basic_section':
         sectionName = "القسم المرن (Flex Section)";
         break;
@@ -425,7 +428,69 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 ),
                 const SizedBox(height: 16),
 
-                const SizedBox(height: 16),
+                if (type == 'logo_header') ...[
+                  FormGroup(
+                    label: "لوجو الموقع (Logo Image)",
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomTextField(
+                          controller:
+                              TextEditingController(
+                                  text: block['logo_url'] ?? '',
+                                )
+                                ..selection = TextSelection.collapsed(
+                                  offset: (block['logo_url'] ?? '').length,
+                                ),
+                          onChanged: (val) => cubit.updateBlockProperty(
+                            widget.index,
+                            'logo_url',
+                            val,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        PrimaryButton(
+                          text: "ابحث في الصور (Stock Images)",
+                          icon: Icons.search_rounded,
+                          isSecondary: true,
+                          onPressed: () => _pickStockImage(cubit, widget.index, itemKey: 'logo_url'),
+                          width: double.infinity,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  FormGroup(
+                    label: "محاذاة الترويسة (Alignment)",
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardBg,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: block['alignment'] ?? 'center',
+                          dropdownColor: AppColors.cardBg,
+                          isExpanded: true,
+                          style: AppTypography.bodyMedium,
+                          items: const [
+                            DropdownMenuItem(value: 'right', child: Text("يمين (Right)")),
+                            DropdownMenuItem(value: 'center', child: Text("المنتصف (Center)")),
+                            DropdownMenuItem(value: 'left', child: Text("يسار (Left)")),
+                          ],
+                          onChanged: (val) => cubit.updateBlockProperty(
+                            widget.index,
+                            'alignment',
+                            val,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
                 if (type == 'hero' || type == 'hero_saas') ...[
                   FormGroup(
@@ -2628,58 +2693,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                   activeColor: AppColors.secondary,
                   onChanged: (val) =>
                       cubit.updateBlockProperty(widget.index, 'bg_blur', val),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-          const Divider(color: AppColors.border, height: 1),
-          Theme(
-            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              title: const Text(
-                "تأثيرات متحركة (Animation)",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              initiallyExpanded: false,
-              childrenPadding: EdgeInsets.zero,
-              tilePadding: EdgeInsets.zero,
-              children: [
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    "سيتم إضافة تأثيرات الدخول قريباً",
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-          const Divider(color: AppColors.border, height: 1),
-          Theme(
-            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              title: const Text(
-                "متقدم (Advanced)",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              initiallyExpanded: false,
-              childrenPadding: EdgeInsets.zero,
-              tilePadding: EdgeInsets.zero,
-              children: [
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    "سيتم إضافة إعدادات التباعد والـ CSS قريباً",
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 16),
               ],

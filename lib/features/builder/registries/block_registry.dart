@@ -30,6 +30,11 @@ class BlockRegistry {
       logoUrl: data['logo_url'],
       logoHeight: (data['logo_height'] ?? 40.0).toDouble(),
       alignment: data['alignment'] ?? 'center',
+      theme: theme,
+      bgImageUrl: data['bg_image_url'],
+      bgOverlayColor: data['bg_overlay_color'],
+      bgOverlayOpacity: data['bg_overlay_opacity']?.toDouble(),
+      bgBlur: data['bg_blur']?.toDouble(),
     ),
     'hero': (data, theme, _, key, __, ___) => CustomHeroWidget(
       key: key,

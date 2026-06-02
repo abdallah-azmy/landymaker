@@ -37,9 +37,17 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     if (_historyIndex < _history.length - 1) {
       _history.removeRange(_historyIndex + 1, _history.length);
     }
-    _history.add(
-      jsonEncode({'designMap': state.designMap, 'theme': state.theme.toJson()}),
-    );
+    
+    final newStateStr = jsonEncode({'designMap': state.designMap, 'theme': state.theme.toJson()});
+    
+    // Do not add duplicate states if the data hasn't actually changed
+    if (_history.isNotEmpty && _historyIndex >= 0 && _historyIndex < _history.length) {
+      if (_history[_historyIndex] == newStateStr) {
+        return;
+      }
+    }
+    
+    _history.add(newStateStr);
     _historyIndex = _history.length - 1;
 
     // Limit history to 50 steps
@@ -136,6 +144,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
   }
 
   void _handleLoadedPage(Map<String, dynamic>? page) {
+    _history.clear();
+    _historyIndex = -1;
+    
     Map<String, dynamic> designMap = {'blocks': []};
     String subdomain = '';
     String? customDomain;
@@ -324,11 +335,13 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         case 'globalBgImageUrl':
           newTheme = currentState.theme.copyWith(
             globalBgImageUrl: value as String?,
+            clearBgImage: value == null,
           );
           break;
         case 'globalBgColorHex':
           newTheme = currentState.theme.copyWith(
             globalBgColorHex: value as String?,
+            clearBgColor: value == null,
           );
           break;
         default:

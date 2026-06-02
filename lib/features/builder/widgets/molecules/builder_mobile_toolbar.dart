@@ -32,6 +32,47 @@ class BuilderMobileToolbar extends StatelessWidget {
     required this.onChangePreview,
   });
 
+  void _handleBack(BuildContext context) {
+    if (state.hasUnsavedChanges) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          backgroundColor: AppColors.cardBg,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            loc.translate('warning') ?? 'تنبيه',
+            style: AppTypography.h3.copyWith(color: AppColors.dangerRed),
+          ),
+          content: Text(
+            loc.translate('unsaved_changes_warning') ?? 'لديك تعديلات لم تقم بحفظها. هل أنت متأكد من الخروج دون حفظ؟',
+            style: AppTypography.bodyMedium,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                loc.translate('cancel') ?? 'إلغاء',
+                style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                onBack();
+              },
+              child: Text(
+                loc.translate('exit') ?? 'خروج',
+                style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      onBack();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -56,77 +97,97 @@ class BuilderMobileToolbar extends StatelessWidget {
           // Left: Navigation
           _buildToolButton(
             icon: Icons.arrow_back_rounded,
-            onPressed: onBack,
+            onPressed: () => _handleBack(context),
             color: AppColors.textSecondary,
           ),
-          
+
           const SizedBox(width: 4),
           Container(width: 1, height: 24, color: AppColors.border),
           const SizedBox(width: 4),
 
-          // Center: Tools (Scrollable to fit everything)
+          // Center: Tools (Scrollable to fit everything, evenly spaced if space permits)
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              child: Row(
-                children: [
-                  // Distinct Add Button
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: InkWell(
-                      onTap: onAddBlock,
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.secondary.withValues(alpha: 0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildMoreOptionsButton(context),
+                        const SizedBox(width: 4),
+                        // Distinct Add Button
+                        Padding(
+                          padding: const EdgeInsets.only(right: 4.0),
+                          child: InkWell(
+                            onTap: onAddBlock,
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.secondary.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.add_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              ),
                             ),
-                          ],
+                          ),
                         ),
-                        child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
-                      ),
+                        const SizedBox(width: 4),
+                        _buildToolButton(
+                          icon: Icons.undo_rounded,
+                          onPressed: state.canUndo ? cubit.undo : null,
+                          color: state.canUndo
+                              ? Colors.white
+                              : AppColors.textMuted,
+                        ),
+                        const SizedBox(width: 4),
+                        _buildToolButton(
+                          icon: Icons.redo_rounded,
+                          onPressed: state.canRedo ? cubit.redo : null,
+                          color: state.canRedo
+                              ? Colors.white
+                              : AppColors.textMuted,
+                        ),
+                        const SizedBox(width: 4),
+                        _buildToolButton(
+                          icon: Icons.font_download_rounded,
+                          onPressed: onShowFonts,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 4),
+                        _buildToolButton(
+                          icon: Icons.color_lens_rounded,
+                          onPressed: onShowColors,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 4),
+                        _buildToolButton(
+                          icon: Icons.visibility_rounded,
+                          onPressed: () =>
+                              onChangePreview(PreviewMode.fullscreen),
+                          color: Colors.white,
+                        ),
+                      ],
                     ),
                   ),
-                  _buildToolButton(
-                    icon: Icons.undo_rounded,
-                    onPressed: state.canUndo ? cubit.undo : null,
-                    color: state.canUndo ? Colors.white : AppColors.textMuted,
-                  ),
-                  _buildToolButton(
-                    icon: Icons.redo_rounded,
-                    onPressed: state.canRedo ? cubit.redo : null,
-                    color: state.canRedo ? Colors.white : AppColors.textMuted,
-                  ),
-                  const SizedBox(width: 8),
-                  
-                  _buildToolButton(
-                    icon: Icons.font_download_rounded,
-                    onPressed: onShowFonts,
-                    color: Colors.white,
-                  ),
-                  _buildToolButton(
-                    icon: Icons.color_lens_rounded,
-                    onPressed: onShowColors,
-                    color: Colors.white,
-                  ),
-                  
-
-
-                  _buildToolButton(
-                    icon: Icons.visibility_rounded,
-                    onPressed: () => onChangePreview(PreviewMode.fullscreen),
-                    color: Colors.white,
-                  ),
-                  _buildMoreOptionsButton(context),
-                ],
-              ),
+                );
+              },
             ),
           ),
 
@@ -162,7 +223,9 @@ class BuilderMobileToolbar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: canPublish ? AppColors.activeGreen.withValues(alpha: 0.1) : Colors.transparent,
+          color: canPublish
+              ? AppColors.activeGreen.withValues(alpha: 0.1)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: canPublish ? AppColors.activeGreen : AppColors.border,
@@ -172,13 +235,18 @@ class BuilderMobileToolbar extends StatelessWidget {
             ? const SizedBox(
                 width: 16,
                 height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.activeGreen),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.activeGreen,
+                ),
               )
             : Row(
                 children: [
                   Icon(
                     Icons.rocket_launch_rounded,
-                    color: canPublish ? AppColors.activeGreen : AppColors.textMuted,
+                    color: canPublish
+                        ? AppColors.activeGreen
+                        : AppColors.textMuted,
                     size: 20,
                   ),
                   if (canPublish) ...[
@@ -190,7 +258,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ]
+                  ],
                 ],
               ),
       ),
@@ -207,7 +275,11 @@ class BuilderMobileToolbar extends StatelessWidget {
           color: AppColors.background.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.more_horiz_rounded, color: AppColors.textPrimary, size: 24),
+        child: const Icon(
+          Icons.more_horiz_rounded,
+          color: AppColors.textPrimary,
+          size: 24,
+        ),
       ),
     );
   }

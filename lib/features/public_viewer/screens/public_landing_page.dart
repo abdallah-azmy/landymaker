@@ -90,7 +90,6 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
   @override
   Widget build(BuildContext context) {
     final loc = context.watch<LocalizationCubit>();
-    final identifier = TenantRoutingService.getTenantIdentifier();
 
     return Directionality(
       textDirection: loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -98,43 +97,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
         create: (_) => CartCubit(),
         child: Scaffold(
           backgroundColor: Colors.black,
-          appBar: AppBar(
-            backgroundColor: Colors.black,
-            elevation: 0,
-            title: Text(
-              identifier?.toUpperCase() ?? 'LANDYMAKER',
-              style: AppTypography.h3.copyWith(
-                fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary,
-                letterSpacing: 1.2,
-              ),
-            ),
-            actions: [
-              TextButton.icon(
-                onPressed: () => loc.toggleLanguage(),
-                icon: const Icon(
-                  Icons.language_rounded,
-                  color: AppColors.secondary,
-                  size: 18,
-                ),
-                label: Text(
-                  loc.translate('switch_language'),
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.secondary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-            ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1),
-              child: Container(
-                color: AppColors.textSecondary.withValues(alpha: 0.08),
-                height: 1,
-              ),
-            ),
-          ),
+
           body: Stack(
             children: [
               BlocConsumer<PublicPageCubit, PublicPageState>(

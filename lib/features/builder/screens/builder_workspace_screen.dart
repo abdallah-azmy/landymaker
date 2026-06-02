@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:html' as html;
+import 'dart:ui';
 import 'package:landymaker/core/widgets/atoms/primary_button.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -28,7 +29,11 @@ class BuilderWorkspaceScreen extends StatefulWidget {
   final VoidCallback onBackToDashboard;
   final String? pageId;
 
-  const BuilderWorkspaceScreen({super.key, required this.onBackToDashboard, this.pageId});
+  const BuilderWorkspaceScreen({
+    super.key,
+    required this.onBackToDashboard,
+    this.pageId,
+  });
 
   @override
   State<BuilderWorkspaceScreen> createState() => _BuilderWorkspaceScreenState();
@@ -207,7 +212,8 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                   ),
                   onShowSeo: () => _showSeoMenu(context, builderCubit),
                 ),
-          bottomNavigationBar: isMobile && _previewMode != PreviewMode.fullscreen
+          bottomNavigationBar:
+              isMobile && _previewMode != PreviewMode.fullscreen
               ? BuilderMobileToolbar(
                   cubit: builderCubit,
                   state: loadedState,
@@ -233,7 +239,8 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                     loadedState,
                     initialView: BuilderOptionView.fonts,
                   ),
-                  onChangePreview: (mode) => setState(() => _previewMode = mode),
+                  onChangePreview: (mode) =>
+                      setState(() => _previewMode = mode),
                   onAddBlock: () => _showAddBlockMenu(context, builderCubit),
                   onPublish: () {
                     // Assuming save logic is similar to _buildSaveButton
@@ -245,7 +252,8 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                   },
                 )
               : null,
-          floatingActionButton: isMobile || _previewMode == PreviewMode.fullscreen
+          floatingActionButton:
+              isMobile || _previewMode == PreviewMode.fullscreen
               ? null // FAB is integrated into Mobile Toolbar or hidden in fullscreen
               : FloatingActionButton.extended(
                   onPressed: () => _showAddBlockMenu(context, builderCubit),
@@ -304,18 +312,31 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                   top: 24,
                   left: loc.isRtl ? null : 24,
                   right: loc.isRtl ? 24 : null,
-                  child: FloatingActionButton(
-                    heroTag: 'exit_fullscreen_btn',
-                    backgroundColor: AppColors.cardBg,
-                    foregroundColor: AppColors.textPrimary,
-                    elevation: 4,
-                    onPressed: () {
-                      setState(() {
-                        _previewMode =
-                            isMobile ? PreviewMode.mobile : PreviewMode.desktop;
-                      });
-                    },
-                    child: const Icon(Icons.close_rounded),
+                  child: ClipOval(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back),
+
+                          color: Colors.white,
+                          iconSize: 22,
+                          padding: const EdgeInsets.all(6),
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            setState(() {
+                              _previewMode = isMobile
+                                  ? PreviewMode.mobile
+                                  : PreviewMode.desktop;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -394,7 +415,9 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                Flexible(child: TemplatesTab(cubit: cubit, state: state)),
+                Flexible(
+                  child: TemplatesTab(cubit: cubit, state: state),
+                ),
               ],
             ),
           );
@@ -470,7 +493,10 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             initialView: initialView,
             onAddBlock: () => _showAddBlockMenu(context, cubit),
             onPublish: () {
-              ToastService.showSuccess(context, message: "تم نشر الصفحة بنجاح!");
+              ToastService.showSuccess(
+                context,
+                message: "تم نشر الصفحة بنجاح!",
+              );
             },
           );
         },

@@ -27,13 +27,17 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
     _isPublished = widget.post?.isPublished ?? false;
   }
 
-  void _savePost() {
+  bool _isLoading = false;
+
+  Future<void> _savePost() async {
     if (_titleController.text.isEmpty || _slugController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('العنوان والرابط (Slug) مطلوبان')),
       );
       return;
     }
+
+    setState(() => _isLoading = true);
 
     final post = BlogPostModel(
       id: widget.post?.id ?? '',
@@ -46,8 +50,23 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
       publishedAt: _isPublished && (widget.post?.publishedAt == null) ? DateTime.now() : widget.post?.publishedAt,
     );
 
-    context.read<BlogCubit>().savePost(post);
-    Navigator.pop(context);
+    try {
+      await context.read<BlogCubit>().savePost(post);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم حفظ المقال بنجاح!'), backgroundColor: Colors.green),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('حدث خطأ: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -56,10 +75,15 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
       appBar: AppBar(
         title: Text(widget.post == null ? "كتابة مقال جديد" : "تعديل المقال"),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _savePost,
-          )
+          _isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.save),
+                  onPressed: _savePost,
+                )
         ],
       ),
       body: Padding(

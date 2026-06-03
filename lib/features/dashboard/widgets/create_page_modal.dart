@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
 import 'package:landymaker/features/builder/controllers/builder_state.dart';
 import 'package:landymaker/features/dashboard/controllers/landing_pages_cubit.dart';
+import 'package:landymaker/features/dashboard/controllers/active_website_cubit.dart';
+import 'package:landymaker/features/dashboard/controllers/landing_pages_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
@@ -198,7 +200,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
       final userId = authService.currentUserId!;
 
       // 1. Initialize builder with clean state
-      await builderCubit.loadPageForUser("");
+      builderCubit.initializeNewPage();
 
       // 2. Set subdomain (normalized in UI, re-normalized in Cubit save)
       builderCubit.updateSettings(
@@ -224,6 +226,16 @@ class _CreatePageModalState extends State<CreatePageModal> {
 
       // 5. Refresh Dashboard list
       await landingPagesCubit.loadPages();
+
+      // Auto-select the newly created page (which will be first due to updated_at ordering)
+      if (landingPagesCubit.state is LandingPagesLoaded) {
+        final pages = (landingPagesCubit.state as LandingPagesLoaded).pages;
+        if (pages.isNotEmpty) {
+          if (context.mounted) {
+            context.read<ActiveWebsiteCubit>().selectWebsite(pages.first);
+          }
+        }
+      }
 
       if (mounted) {
         Navigator.pop(context);

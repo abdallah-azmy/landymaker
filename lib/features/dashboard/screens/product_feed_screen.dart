@@ -11,7 +11,10 @@ import '../../../../services/auth_service.dart';
 import '../../../injection_container.dart';
 import '../../subscription/widgets/manual_payment_modal.dart';
 import '../controllers/active_website_cubit.dart';
+import '../controllers/landing_pages_cubit.dart';
+import '../controllers/landing_pages_state.dart';
 import '../../../core/widgets/molecules/page_context_banner.dart';
+import '../widgets/empty_workspace_state.dart';
 
 class ProductFeedScreen extends StatelessWidget {
   const ProductFeedScreen({super.key});
@@ -19,6 +22,11 @@ class ProductFeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = context.watch<LocalizationCubit>();
+    
+    final pagesState = context.watch<LandingPagesCubit>().state;
+    if (pagesState is LandingPagesLoaded && pagesState.pages.isEmpty) {
+      return const EmptyWorkspaceState();
+    }
 
     return FutureBuilder<bool>(
       future: sl<SubscriptionService>().canAccessPremiumFeatures(

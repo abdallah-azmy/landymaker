@@ -200,7 +200,7 @@ class SupabaseService extends ChangeNotifier {
           .from(DbConstants.landingPagesTable)
           .select()
           .eq('user_id', userId)
-          .order('created_at', ascending: false);
+          .order('updated_at', ascending: false);
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       debugPrint("Error fetching landing pages for user ID: $e");

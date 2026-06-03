@@ -25,28 +25,6 @@ class DashboardHomeScreen extends StatefulWidget {
 }
 
 class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    final cubit = context.read<LandingPagesCubit>();
-    await cubit.loadPages();
-
-    // Auto-select the first website if none is selected
-    if (mounted) {
-      final state = cubit.state;
-      if (state is LandingPagesLoaded && state.pages.isNotEmpty) {
-        final activeCubit = context.read<ActiveWebsiteCubit>();
-        if (activeCubit.state.website == null) {
-          activeCubit.selectWebsite(state.pages.first);
-        }
-      }
-    }
-  }
-
   void _showCreatePageModal(BuildContext context) {
     showModalBottomSheet(
       context: context,

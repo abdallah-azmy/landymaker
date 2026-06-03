@@ -30,10 +30,9 @@ class SidebarNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = context.watch<LocalizationCubit>();
-    final activeSiteType = context
-        .watch<ActiveWebsiteCubit>()
-        .state
-        .websiteType;
+    final activeWebsite = context.watch<ActiveWebsiteCubit>().state;
+    final activeSiteType = activeWebsite.websiteType;
+    final activeSubdomain = activeWebsite.subdomain;
 
     // Build sections
     final List<Map<String, dynamic>> finalItems = [];
@@ -84,7 +83,10 @@ class SidebarNavigation extends StatelessWidget {
         });
       }
 
-      finalItems.add({'title_key': 'hero', 'icon': Icons.construction_rounded, 'is_builder': true, 'route': '/builder'});
+      final builderRoute = activeSubdomain != null && activeSubdomain.isNotEmpty 
+          ? '/builder/$activeSubdomain' 
+          : '/builder';
+      finalItems.add({'title_key': 'hero', 'icon': Icons.construction_rounded, 'is_builder': true, 'route': builderRoute});
       finalItems.add({'title_key': 'custom_domain_menu', 'icon': Icons.language_rounded, 'route': '/dashboard/domain'});
     }
 

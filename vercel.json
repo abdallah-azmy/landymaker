@@ -15,14 +15,17 @@
     },
     {
       "source": "/blog",
+      "missing": [{ "type": "host", "value": "landymaker-blog.vercel.app" }],
       "destination": "https://landymaker-blog.vercel.app/blog"
     },
     {
       "source": "/blog/:match*",
+      "missing": [{ "type": "host", "value": "landymaker-blog.vercel.app" }],
       "destination": "https://landymaker-blog.vercel.app/blog/:match*"
     },
     {
       "source": "/_next/:match*",
+      "missing": [{ "type": "host", "value": "landymaker-blog.vercel.app" }],
       "destination": "https://landymaker-blog.vercel.app/_next/:match*"
     },
     {

@@ -14,7 +14,9 @@ import '../../../core/widgets/molecules/page_context_banner.dart';
 import '../../subscription/widgets/manual_payment_modal.dart';
 import '../controllers/active_website_cubit.dart';
 import '../controllers/landing_pages_cubit.dart';
+import '../controllers/landing_pages_state.dart';
 import '../widgets/domain_setup_widget.dart';
+import '../widgets/empty_workspace_state.dart';
 
 class DomainSettingsScreen extends StatelessWidget {
   const DomainSettingsScreen({super.key});
@@ -24,6 +26,10 @@ class DomainSettingsScreen extends StatelessWidget {
     final loc = context.watch<LocalizationCubit>();
     final activeState = context.watch<ActiveWebsiteCubit>().state;
     final pagesState = context.watch<LandingPagesCubit>().state;
+
+    if (pagesState is LandingPagesLoaded && pagesState.pages.isEmpty) {
+      return const EmptyWorkspaceState();
+    }
 
     return FutureBuilder<bool>(
       future: sl<SubscriptionService>().canAccessPremiumFeatures(

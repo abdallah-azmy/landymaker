@@ -9,6 +9,8 @@ import '../../auth/controllers/auth_cubit.dart';
 import '../../auth/controllers/auth_state.dart';
 import 'package:go_router/go_router.dart';
 import '../controllers/active_website_cubit.dart';
+import '../controllers/landing_pages_cubit.dart';
+import '../controllers/landing_pages_state.dart';
 
 class DashboardShell extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -26,6 +28,27 @@ class DashboardShell extends StatefulWidget {
 
 class _DashboardShellState extends State<DashboardShell> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final cubit = context.read<LandingPagesCubit>();
+    await cubit.loadPages();
+
+    if (mounted) {
+      final state = cubit.state;
+      if (state is LandingPagesLoaded && state.pages.isNotEmpty) {
+        final activeCubit = context.read<ActiveWebsiteCubit>();
+        if (activeCubit.state.website == null) {
+          activeCubit.selectWebsite(state.pages.first);
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +76,7 @@ class _DashboardShellState extends State<DashboardShell> {
       },
     );
 
-    return BlocListener<ActiveWebsiteCubit, ActiveWebsiteState>(
-      listener: (context, state) {
-        context.go('/dashboard');
-      },
-      child: Scaffold(
+    return Scaffold(
         key: _scaffoldKey,
         backgroundColor: AppColors.background,
         appBar: !ResponsiveLayout.isDesktop(context)
@@ -94,7 +113,6 @@ class _DashboardShellState extends State<DashboardShell> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }

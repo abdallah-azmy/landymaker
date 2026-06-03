@@ -9,6 +9,9 @@ import '../../../core/widgets/molecules/page_context_banner.dart';
 // Removed sl/AuthService imports to maintain architectural boundary
 import '../controllers/leads_analytics_cubit.dart';
 import '../controllers/leads_analytics_state.dart';
+import '../controllers/landing_pages_cubit.dart';
+import '../controllers/landing_pages_state.dart';
+import '../widgets/empty_workspace_state.dart';
 
 class LeadsTrackerScreen extends StatefulWidget {
   const LeadsTrackerScreen({super.key});
@@ -29,6 +32,11 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
     final loc = context.watch<LocalizationCubit>();
     final cubit = context.watch<LeadsAnalyticsCubit>();
     final state = cubit.state;
+
+    final pagesState = context.watch<LandingPagesCubit>().state;
+    if (pagesState is LandingPagesLoaded && pagesState.pages.isEmpty) {
+      return const EmptyWorkspaceState();
+    }
 
     if (state is LeadsAnalyticsLoading || state is LeadsAnalyticsInitial) {
       return const Center(child: CircularProgressIndicator(color: AppColors.secondary));

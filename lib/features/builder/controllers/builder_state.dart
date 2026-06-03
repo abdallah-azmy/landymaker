@@ -6,6 +6,8 @@ class BuilderInitial extends BuilderState {}
 
 class BuilderLoading extends BuilderState {}
 
+class BuilderEmptyWorkspace extends BuilderState {}
+
 class BuilderLoaded extends BuilderState {
   final String? pageId; // null when page not yet created in DB
   final Map<String, dynamic> designMap;

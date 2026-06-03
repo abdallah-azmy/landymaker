@@ -143,59 +143,67 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
-  void _handleLoadedPage(Map<String, dynamic>? page) {
+  void initializeNewPage() {
     _history.clear();
     _historyIndex = -1;
     
-    Map<String, dynamic> designMap = {'blocks': []};
-    String subdomain = '';
-    String? customDomain;
-    bool isPublished = false;
-    String? pageId;
+    _emitDirty(
+      BuilderLoaded(
+        designMap: {'blocks': []},
+        subdomain: '',
+        isPublished: false,
+        websiteType: 'landing_page',
+        theme: LandingPageTheme.palettes.last,
+      ),
+      isClean: true,
+    );
+  }
 
-    if (page != null) {
-      pageId = page['id'] as String?;
-      subdomain = page['subdomain'] ?? '';
-      customDomain = page['custom_domain'];
-      isPublished = page['is_published'] ?? false;
-      final String websiteType = page['website_type'] ?? 'landing_page';
+  void _handleLoadedPage(Map<String, dynamic>? page) {
+    _history.clear();
+    _historyIndex = -1;
 
-      final dynamic rawDesign = page['design_json'];
-      if (rawDesign != null) {
-        if (rawDesign is String) {
-          designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
-        } else {
-          designMap = Map<String, dynamic>.from(rawDesign);
-        }
-      }
-
-      _emitDirty(
-        BuilderLoaded(
-          pageId: pageId,
-          designMap: designMap,
-          subdomain: subdomain,
-          customDomain: customDomain,
-          isPublished: isPublished,
-          websiteType: websiteType,
-          theme: designMap['theme'] != null
-              ? LandingPageTheme.fromJson(designMap['theme'])
-              : LandingPageTheme.palettes.last,
-        ),
-        isClean: true,
-      );
-    } else {
-      // Handle new page
-      _emitDirty(
-        BuilderLoaded(
-          designMap: designMap,
-          subdomain: subdomain,
-          isPublished: isPublished,
-          websiteType: 'landing_page',
-          theme: LandingPageTheme.palettes.last,
-        ),
-        isClean: true,
-      );
+    if (page == null) {
+      emit(BuilderEmptyWorkspace());
+      return;
     }
+
+    final currentUserId = _authService.currentUserId;
+    if (page['user_id'] != null && currentUserId != null && page['user_id'] != currentUserId) {
+      emit(BuilderFailure("You do not have permission to access this page."));
+      return;
+    }
+    
+    Map<String, dynamic> designMap = {'blocks': []};
+    String subdomain = page['subdomain'] ?? '';
+    String? customDomain = page['custom_domain'];
+    bool isPublished = page['is_published'] ?? false;
+    String? pageId = page['id'] as String?;
+    final String websiteType = page['website_type'] ?? 'landing_page';
+
+    final dynamic rawDesign = page['design_json'];
+    if (rawDesign != null) {
+      if (rawDesign is String) {
+        designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
+      } else {
+        designMap = Map<String, dynamic>.from(rawDesign);
+      }
+    }
+
+    _emitDirty(
+      BuilderLoaded(
+        pageId: pageId,
+        designMap: designMap,
+        subdomain: subdomain,
+        customDomain: customDomain,
+        isPublished: isPublished,
+        websiteType: websiteType,
+        theme: designMap['theme'] != null
+            ? LandingPageTheme.fromJson(designMap['theme'])
+            : LandingPageTheme.palettes.last,
+      ),
+      isClean: true,
+    );
   }
 
   Future<void> savePage(String userId) async {

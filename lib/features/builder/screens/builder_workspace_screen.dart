@@ -22,6 +22,7 @@ import '../widgets/organisms/builder_sidebar.dart';
 import '../widgets/tabs/builder_sidebar_tabs.dart';
 
 import '../widgets/molecules/builder_mobile_toolbar.dart';
+import '../../dashboard/widgets/empty_workspace_state.dart';
 
 import '../models/preview_mode.dart';
 
@@ -118,10 +119,17 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
 
     if (state is BuilderLoading || state is BuilderInitial) {
       return const Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: AppColors.background,
         body: Center(
           child: CircularProgressIndicator(color: AppColors.secondary),
         ),
+      );
+    }
+
+    if (state is BuilderEmptyWorkspace) {
+      return const Scaffold(
+        backgroundColor: AppColors.background,
+        body: EmptyWorkspaceState(),
       );
     }
 

@@ -1,9 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { Metadata } from 'next'
 import Link from 'next/link'
+import { Calendar, ChevronRight } from 'lucide-react'
 
 export const revalidate = 60
 
@@ -45,33 +44,49 @@ export default async function BlogPost({ params }: Props) {
   }
 
   return (
-    <article className="max-w-3xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-      <Link href="/blog" className="text-blue-600 hover:text-blue-800 mb-8 inline-flex items-center gap-2 transition-colors">
-        <svg className="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-        العودة للمدونة
-      </Link>
+    <div className="relative min-h-screen bg-[#030712] overflow-hidden selection:bg-[#00E5FF]/30 selection:text-white font-sans" dir="rtl">
+      {/* Background Gradients */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#1E3A8A]/20 rounded-full blur-[120px] -translate-y-1/2 -translate-x-1/3 pointer-events-none" />
       
-      <header className="mb-12">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">{post.title}</h1>
-        <div className="flex items-center text-gray-500 text-sm gap-4">
-          <span className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-            نُشر في: {new Date(post.published_at || post.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </span>
-        </div>
-      </header>
-      
-      {post.featured_image_url && (
-        <div className="mb-12 rounded-2xl overflow-hidden shadow-lg">
-          <img src={post.featured_image_url} alt={post.title} className="w-full h-auto object-cover" />
-        </div>
-      )}
-      
-      <div className="prose prose-lg prose-blue prose-slate max-w-none mx-auto prose-img:rounded-xl prose-headings:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-800">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {post.content}
-        </ReactMarkdown>
-      </div>
-    </article>
+      <article className="relative z-10 max-w-4xl mx-auto py-16 px-6 sm:px-8 lg:px-12">
+        <Link 
+          href="/blog" 
+          className="inline-flex items-center gap-2 text-[#00E5FF] hover:text-white mb-12 transition-colors group text-sm font-bold"
+        >
+          <ChevronRight className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          العودة للمدونة
+        </Link>
+        
+        <header className="mb-16">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#F3F4F6] mb-8 leading-tight tracking-tight">
+            {post.title}
+          </h1>
+          <div className="flex items-center text-[#94A3B8] font-medium text-sm gap-4">
+            <span className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#111827] border border-[#1F2937]">
+              <Calendar className="w-4 h-4 text-[#00E5FF]" />
+              نُشر في: {new Date(post.published_at || post.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
+          </div>
+        </header>
+        
+        {post.featured_image_url && (
+          <div className="mb-16 rounded-3xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-[#1F2937]">
+            <img src={post.featured_image_url} alt={post.title} className="w-full h-auto object-cover" />
+          </div>
+        )}
+        
+        {/* Render HTML securely with Tailwind Typography Dark Mode */}
+        <div 
+          className="prose prose-invert prose-lg max-w-none mx-auto 
+          prose-headings:text-[#F3F4F6] prose-headings:font-bold 
+          prose-a:text-[#00E5FF] hover:prose-a:text-white prose-a:transition-colors
+          prose-strong:text-[#F3F4F6] prose-strong:font-black
+          prose-p:text-[#94A3B8] prose-p:leading-relaxed
+          prose-li:text-[#94A3B8] prose-blockquote:border-r-4 prose-blockquote:border-l-0 prose-blockquote:border-[#00E5FF] prose-blockquote:bg-[#111827] prose-blockquote:px-6 prose-blockquote:py-2 prose-blockquote:rounded-l-xl
+          prose-img:rounded-2xl prose-img:shadow-lg"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
+      </article>
+    </div>
   )
 }

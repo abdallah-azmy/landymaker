@@ -107,7 +107,7 @@ export default function BlogListClient({
               مساحتك للإلهام
               <br className="hidden md:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-l from-[#00E5FF] to-[#1E3A8A]">
-                وتطوير أعمالك
+                {" "}وتطوير أعمالك
               </span>
             </h1>
             <p className="text-lg md:text-xl text-[#94A3B8] leading-relaxed font-medium">

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
@@ -135,7 +136,15 @@ class CustomPricingWidget extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                final purchaseUrl = item['purchase_url']?.toString();
+                if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
+                  final uri = Uri.tryParse(purchaseUrl);
+                  if (uri != null) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: isPopular ? secondary : Colors.transparent,
                 foregroundColor: isPopular ? Colors.white : secondary,

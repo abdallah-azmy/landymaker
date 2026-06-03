@@ -83,7 +83,6 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = widget.theme?.primary ?? AppColors.primary;
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
     final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
@@ -103,12 +102,12 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1000),
               decoration: BoxDecoration(
-                color: widget.theme?.background.withOpacity(0.9) ?? AppColors.cardBg,
+                color: widget.theme?.background.withValues(alpha: 0.9) ?? AppColors.cardBg,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: AppColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),

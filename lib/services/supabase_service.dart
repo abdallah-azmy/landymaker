@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:dio/dio.dart';
 import '../core/constants/db_constants.dart';
 import '../core/error_handler.dart';
 import '../core/logger.dart';
@@ -280,7 +279,6 @@ class SupabaseService extends ChangeNotifier {
 
         // SPEC 2: Lifetime Expiry Policy
         final lastVisited = DateTime.parse(res['last_visited_at'] ?? res['created_at']);
-        final isActive = res['is_active'] ?? true;
         
         if (tier == 'free' && DateTime.now().difference(lastVisited).inDays > 30) {
           // Auto-suspend inactive free pages

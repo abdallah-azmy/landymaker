@@ -32,7 +32,6 @@ class CustomLogoHeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     MainAxisAlignment mainAxisAlignment;
     CrossAxisAlignment crossAxisAlignment;
-    TextAlign textAlign;
 
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
@@ -44,7 +43,6 @@ class CustomLogoHeaderWidget extends StatelessWidget {
         crossAxisAlignment = isRtl
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start;
-        textAlign = TextAlign.left;
         break;
       case 'right':
         mainAxisAlignment = isRtl
@@ -53,12 +51,10 @@ class CustomLogoHeaderWidget extends StatelessWidget {
         crossAxisAlignment = isRtl
             ? CrossAxisAlignment.start
             : CrossAxisAlignment.end;
-        textAlign = TextAlign.right;
         break;
       default:
         mainAxisAlignment = MainAxisAlignment.center;
         crossAxisAlignment = CrossAxisAlignment.center;
-        textAlign = TextAlign.center;
     }
 
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;

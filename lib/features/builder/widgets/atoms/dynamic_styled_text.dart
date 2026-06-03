@@ -38,8 +38,7 @@ class DynamicStyledText extends StatelessWidget {
   Color? _parseColor(dynamic value) {
     if (value == null) return null;
     if (value is String) {
-      final hex = value.replaceAll('#', '');
-      return Color(int.parse('FF\$hex', radix: 16));
+      return Color(int.parse('FF${value.replaceAll('#', '')}', radix: 16));
     }
     return null;
   }

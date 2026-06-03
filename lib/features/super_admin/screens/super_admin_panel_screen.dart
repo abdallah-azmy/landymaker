@@ -21,6 +21,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String _searchQuery = '';
+  // ignore: unused_field
   String? _currentSort;
 
   @override
@@ -38,7 +39,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
   @override
   Widget build(BuildContext context) {
-    final loc = context.watch<LocalizationCubit>();
+    context.watch<LocalizationCubit>();
     final state = context.watch<SuperAdminCubit>().state;
 
     return BlocListener<SuperAdminCubit, SuperAdminState>(
@@ -363,9 +364,9 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.dangerRed.withOpacity(0.05),
+        color: AppColors.dangerRed.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.dangerRed.withOpacity(0.2)),
+        border: Border.all(color: AppColors.dangerRed.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

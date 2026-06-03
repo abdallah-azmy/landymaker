@@ -397,7 +397,7 @@ Widget _buildSuspendedState(LocalizationCubit loc) {
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.dangerRed.withOpacity(0.3)),
+        border: Border.all(color: AppColors.dangerRed.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

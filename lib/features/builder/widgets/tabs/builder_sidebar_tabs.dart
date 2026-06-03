@@ -8,10 +8,7 @@ import '../../../../core/widgets/molecules/status_pill.dart';
 import '../../models/landing_page_theme.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
-import '../organisms/advanced_settings_panel.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../molecules/element_property_editor.dart';
 
 class OutlineTab extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -77,7 +74,7 @@ class OutlineTab extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppColors.secondary.withOpacity(0.05)
+                            ? AppColors.secondary.withValues(alpha: 0.05)
                             : AppColors.cardBg,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
@@ -164,7 +161,7 @@ class OutlineTab extends StatelessWidget {
           Icon(
             Icons.layers_clear_rounded,
             size: 48,
-            color: AppColors.textSecondary.withOpacity(0.3),
+            color: AppColors.textSecondary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(

@@ -35,7 +35,6 @@ class CustomQrWidget extends StatelessWidget {
     // Construct the live URL based on current routing (landymaker.com/subdomain)
     final String liveUrl = subdomain != null ? '$baseUrl/$subdomain' : baseUrl;
 
-    final bgColor = theme?.background ?? AppColors.background;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;

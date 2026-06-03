@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
@@ -94,8 +95,20 @@ class CustomFeaturesWidget extends StatelessWidget {
                         final item = items[index];
                         final String itemTitle = item['title'] ?? '';
                         final String itemDesc = item['description'] ?? '';
+                        final String? linkUrl = item['link_url'];
 
-                        return _buildFeatureCard(context, itemTitle, itemDesc, index, primaryColor, secondaryColor, textColor, subTextColor, bgColor, isMobile);
+                        return FeatureCard(
+                          title: itemTitle,
+                          description: itemDesc,
+                          linkUrl: linkUrl,
+                          index: index,
+                          primary: primaryColor,
+                          secondary: secondaryColor,
+                          textColor: textColor,
+                          subTextColor: subTextColor,
+                          bgColor: bgColor,
+                          isMobile: isMobile,
+                        );
                       },
                     ),
                 ],
@@ -110,20 +123,45 @@ class CustomFeaturesWidget extends StatelessWidget {
   Widget _buildBentoGrid(BuildContext context, List<Map<String, dynamic>> items, Color primary, Color secondary, Color textColor, Color subTextColor, Color bgColor) {
     if (items.isEmpty) return const SizedBox.shrink();
 
-    // Bento grid logic: 2 rows, varied column spans
-    // Row 1: Item 0 (flex 3), Item 1 (flex 2)
-    // Row 2: Item 2 (flex 2), Item 3 (flex 3)
-    // Extra items: standard grid
-    
     final List<Widget> rows = [];
     
     if (items.length >= 2) {
       rows.add(
         Row(
           children: [
-            Expanded(flex: 3, child: _buildFeatureCard(context, items[0]['title'] ?? '', items[0]['description'] ?? '', 0, primary, secondary, textColor, subTextColor, bgColor, false, isBento: true)),
+            Expanded(
+              flex: 3,
+              child: FeatureCard(
+                title: items[0]['title'] ?? '',
+                description: items[0]['description'] ?? '',
+                linkUrl: items[0]['link_url'],
+                index: 0,
+                primary: primary,
+                secondary: secondary,
+                textColor: textColor,
+                subTextColor: subTextColor,
+                bgColor: bgColor,
+                isMobile: false,
+                isBento: true,
+              ),
+            ),
             const SizedBox(width: 24),
-            Expanded(flex: 2, child: _buildFeatureCard(context, items[1]['title'] ?? '', items[1]['description'] ?? '', 1, primary, secondary, textColor, subTextColor, bgColor, false, isBento: true)),
+            Expanded(
+              flex: 2,
+              child: FeatureCard(
+                title: items[1]['title'] ?? '',
+                description: items[1]['description'] ?? '',
+                linkUrl: items[1]['link_url'],
+                index: 1,
+                primary: primary,
+                secondary: secondary,
+                textColor: textColor,
+                subTextColor: subTextColor,
+                bgColor: bgColor,
+                isMobile: false,
+                isBento: true,
+              ),
+            ),
           ],
         )
       );
@@ -134,9 +172,39 @@ class CustomFeaturesWidget extends StatelessWidget {
       rows.add(
         Row(
           children: [
-            Expanded(flex: 2, child: _buildFeatureCard(context, items[2]['title'] ?? '', items[2]['description'] ?? '', 2, primary, secondary, textColor, subTextColor, bgColor, false, isBento: true)),
+            Expanded(
+              flex: 2,
+              child: FeatureCard(
+                title: items[2]['title'] ?? '',
+                description: items[2]['description'] ?? '',
+                linkUrl: items[2]['link_url'],
+                index: 2,
+                primary: primary,
+                secondary: secondary,
+                textColor: textColor,
+                subTextColor: subTextColor,
+                bgColor: bgColor,
+                isMobile: false,
+                isBento: true,
+              ),
+            ),
             const SizedBox(width: 24),
-            Expanded(flex: 3, child: _buildFeatureCard(context, items[3]['title'] ?? '', items[3]['description'] ?? '', 3, primary, secondary, textColor, subTextColor, bgColor, false, isBento: true)),
+            Expanded(
+              flex: 3,
+              child: FeatureCard(
+                title: items[3]['title'] ?? '',
+                description: items[3]['description'] ?? '',
+                linkUrl: items[3]['link_url'],
+                index: 3,
+                primary: primary,
+                secondary: secondary,
+                textColor: textColor,
+                subTextColor: subTextColor,
+                bgColor: bgColor,
+                isMobile: false,
+                isBento: true,
+              ),
+            ),
           ],
         )
       );
@@ -159,78 +227,195 @@ class CustomFeaturesWidget extends StatelessWidget {
           ),
           itemBuilder: (context, index) {
             final item = remaining[index];
-            return _buildFeatureCard(context, item['title'] ?? '', item['description'] ?? '', index + 4, primary, secondary, textColor, subTextColor, bgColor, false);
+            return FeatureCard(
+              title: item['title'] ?? '',
+              description: item['description'] ?? '',
+              linkUrl: item['link_url'],
+              index: index + 4,
+              primary: primary,
+              secondary: secondary,
+              textColor: textColor,
+              subTextColor: subTextColor,
+              bgColor: bgColor,
+              isMobile: false,
+            );
           },
         )
       );
     } else if (items.length == 3) {
        rows.add(const SizedBox(height: 24));
-       rows.add(_buildFeatureCard(context, items[2]['title'] ?? '', items[2]['description'] ?? '', 2, primary, secondary, textColor, subTextColor, bgColor, false));
+       rows.add(
+         FeatureCard(
+           title: items[2]['title'] ?? '',
+           description: items[2]['description'] ?? '',
+           linkUrl: items[2]['link_url'],
+           index: 2,
+           primary: primary,
+           secondary: secondary,
+           textColor: textColor,
+           subTextColor: subTextColor,
+           bgColor: bgColor,
+           isMobile: false,
+         ),
+       );
     } else if (items.length == 1) {
-       rows.add(_buildFeatureCard(context, items[0]['title'] ?? '', items[0]['description'] ?? '', 0, primary, secondary, textColor, subTextColor, bgColor, false));
+       rows.add(
+         FeatureCard(
+           title: items[0]['title'] ?? '',
+           description: items[0]['description'] ?? '',
+           linkUrl: items[0]['link_url'],
+           index: 0,
+           primary: primary,
+           secondary: secondary,
+           textColor: textColor,
+           subTextColor: subTextColor,
+           bgColor: bgColor,
+           isMobile: false,
+         ),
+       );
     }
 
     return Column(children: rows);
   }
+}
 
-  Widget _buildFeatureCard(BuildContext context, String itemTitle, String itemDesc, int index, Color primary, Color secondary, Color textColor, Color subTextColor, Color bgColor, bool isMobile, {bool isBento = false}) {
-    final Color accent = index % 2 == 0 ? secondary : primary;
+class FeatureCard extends StatefulWidget {
+  final String title;
+  final String description;
+  final String? linkUrl;
+  final int index;
+  final Color primary;
+  final Color secondary;
+  final Color textColor;
+  final Color subTextColor;
+  final Color bgColor;
+  final bool isMobile;
+  final bool isBento;
 
-    return Container(
-      padding: EdgeInsets.all(isMobile ? 16 : 24),
+  const FeatureCard({
+    super.key,
+    required this.title,
+    required this.description,
+    this.linkUrl,
+    required this.index,
+    required this.primary,
+    required this.secondary,
+    required this.textColor,
+    required this.subTextColor,
+    required this.bgColor,
+    required this.isMobile,
+    this.isBento = false,
+  });
+
+  @override
+  State<FeatureCard> createState() => _FeatureCardState();
+}
+
+class _FeatureCardState extends State<FeatureCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color accent = widget.index % 2 == 0 ? widget.secondary : widget.primary;
+    final bool hasLink = widget.linkUrl != null && widget.linkUrl!.isNotEmpty;
+
+    Widget cardContent = AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      padding: EdgeInsets.all(widget.isMobile ? 16 : 24),
       decoration: BoxDecoration(
-        color: subTextColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(isMobile ? 12 : 20),
+        color: _isHovered && hasLink 
+            ? widget.subTextColor.withValues(alpha: 0.08)
+            : widget.subTextColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(widget.isMobile ? 12 : 20),
         border: Border.all(
-          color: subTextColor.withValues(alpha: 0.1),
-          width: 1,
+          color: _isHovered && hasLink 
+              ? accent.withValues(alpha: 0.5) 
+              : widget.subTextColor.withValues(alpha: 0.1),
+          width: _isHovered && hasLink ? 1.5 : 1,
         ),
-        boxShadow: isBento ? [
-          BoxShadow(
-            color: accent.withValues(alpha: 0.03),
-            blurRadius: 20,
-            spreadRadius: 2,
-          )
-        ] : null,
+        boxShadow: [
+          if (widget.isBento || (_isHovered && hasLink))
+            BoxShadow(
+              color: accent.withValues(alpha: _isHovered && hasLink ? 0.08 : 0.03),
+              blurRadius: _isHovered && hasLink ? 25 : 20,
+              spreadRadius: 2,
+              offset: Offset(0, _isHovered && hasLink ? 4 : 0),
+            )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              _getFeatureIcon(index),
-              color: accent,
-              size: isMobile ? 20 : 24,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  _getFeatureIcon(widget.index),
+                  color: accent,
+                  size: widget.isMobile ? 20 : 24,
+                ),
+              ),
+              if (hasLink)
+                Icon(
+                  Icons.open_in_new_rounded,
+                  size: 16,
+                  color: _isHovered ? accent : widget.subTextColor.withValues(alpha: 0.3),
+                ),
+            ],
           ),
           const SizedBox(height: 16),
           Text(
-            itemTitle,
+            widget.title,
             style: AppTypography.bodyLarge.copyWith(
               fontWeight: FontWeight.bold,
-              fontSize: isMobile ? 15 : 18,
-              color: textColor,
+              fontSize: widget.isMobile ? 15 : 18,
+              color: widget.textColor,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            itemDesc,
+            widget.description,
             style: AppTypography.bodyMedium.copyWith(
-              color: subTextColor,
+              color: widget.subTextColor,
               height: 1.3,
-              fontSize: isMobile ? 12 : 14,
+              fontSize: widget.isMobile ? 12 : 14,
             ),
-            maxLines: isMobile ? 2 : (isBento ? 4 : 3),
+            maxLines: widget.isMobile ? 2 : (widget.isBento ? 4 : 3),
             overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
+
+    if (hasLink) {
+      cardContent = MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedScale(
+          scale: _isHovered ? 1.03 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          child: GestureDetector(
+            onTap: () async {
+              final uri = Uri.tryParse(widget.linkUrl!);
+              if (uri != null) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              }
+            },
+            child: cardContent,
+          ),
+        ),
+      );
+    }
+
+    return cardContent;
   }
 
   IconData _getFeatureIcon(int index) {

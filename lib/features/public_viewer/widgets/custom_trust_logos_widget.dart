@@ -61,7 +61,7 @@ class CustomTrustLogosWidget extends StatelessWidget {
                 children: logoUrls.map((url) {
                   return ColorFiltered(
                     colorFilter: ColorFilter.mode(
-                      textColor.withOpacity(0.5),
+                      textColor.withValues(alpha: 0.5),
                       BlendMode.srcIn,
                     ),
                     child: Image.network(

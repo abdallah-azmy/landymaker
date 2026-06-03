@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
@@ -14,6 +15,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String? buttonUrl;
 
   const CustomHeroSaasWidget({
     super.key,
@@ -26,6 +28,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.buttonUrl,
   });
 
   @override
@@ -52,9 +55,9 @@ class CustomHeroSaasWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
-                  color: secondaryColor.withOpacity(0.1),
+                  color: secondaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: secondaryColor.withOpacity(0.3)),
+                  border: Border.all(color: secondaryColor.withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   isRtl ? "🔥 تحديث جديد متاح الآن" : "🔥 New Update Available",
@@ -93,7 +96,14 @@ class CustomHeroSaasWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      if (buttonUrl != null && buttonUrl!.isNotEmpty) {
+                        final uri = Uri.tryParse(buttonUrl!);
+                        if (uri != null) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: secondaryColor,
                       foregroundColor: Colors.white,
@@ -118,7 +128,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: primaryColor.withOpacity(0.3),
+                      color: primaryColor.withValues(alpha: 0.3),
                       blurRadius: 40,
                       spreadRadius: 10,
                       offset: const Offset(0, 20),

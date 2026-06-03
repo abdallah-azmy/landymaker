@@ -21,9 +21,9 @@ class CustomWorkingHoursWidget extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.cardBg.withOpacity(0.4),
+        color: AppColors.cardBg.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +55,7 @@ class CustomWorkingHoursWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: (isOpen ? AppColors.activeGreen : AppColors.dangerRed).withOpacity(0.1),
+        color: (isOpen ? AppColors.activeGreen : AppColors.dangerRed).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: isOpen ? AppColors.activeGreen : AppColors.dangerRed),
       ),

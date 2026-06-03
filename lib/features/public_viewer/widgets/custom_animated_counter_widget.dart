@@ -26,7 +26,6 @@ class CustomAnimatedCounterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = theme?.primary ?? AppColors.primary;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
@@ -69,7 +68,7 @@ class CustomAnimatedCounterWidget extends StatelessWidget {
                       border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withValues(alpha: 0.2),
                           blurRadius: 24,
                           offset: const Offset(0, 8),
                         ),

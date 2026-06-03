@@ -4,7 +4,6 @@ import '../../models/preview_mode.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
-import '../../../../core/widgets/atoms/primary_button.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 
@@ -44,18 +43,18 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           backgroundColor: AppColors.cardBg,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
-            loc.translate('warning') ?? 'تنبيه',
+            loc.translate('warning'),
             style: AppTypography.h3.copyWith(color: AppColors.dangerRed),
           ),
           content: Text(
-            loc.translate('unsaved_changes_warning') ?? 'لديك تعديلات لم تقم بحفظها. هل أنت متأكد من الخروج دون حفظ؟',
+            loc.translate('unsaved_changes_warning'),
             style: AppTypography.bodyMedium,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
-                loc.translate('cancel') ?? 'إلغاء',
+                loc.translate('cancel'),
                 style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
               ),
             ),
@@ -65,7 +64,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onBack();
               },
               child: Text(
-                loc.translate('exit') ?? 'خروج',
+                loc.translate('exit'),
                 style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed, fontWeight: FontWeight.bold),
               ),
             ),

@@ -86,7 +86,7 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary.withOpacity(0.75),
+                          color: AppColors.secondary.withValues(alpha: 0.75),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -173,7 +173,7 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
             Positioned.fill(
               child: IgnorePointer(
                 child: Container(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.symmetric(

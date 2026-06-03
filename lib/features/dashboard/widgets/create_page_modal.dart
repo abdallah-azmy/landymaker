@@ -339,7 +339,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
                           image: NetworkImage(template.imageUrl),
                           fit: BoxFit.cover,
                           colorFilter: ColorFilter.mode(
-                            Colors.black.withOpacity(isSelected ? 0.2 : 0.5),
+                            Colors.black.withValues(alpha: isSelected ? 0.2 : 0.5),
                             BlendMode.darken,
                           ),
                         ),
@@ -466,7 +466,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
                 border: Border.all(color: AppColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

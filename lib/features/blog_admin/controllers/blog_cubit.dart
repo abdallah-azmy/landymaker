@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/repositories/blog_repository.dart';
 import '../data/models/blog_post_model.dart';
-import '../data/models/blog_category_model.dart';
 import 'blog_state.dart';
 
 class BlogCubit extends Cubit<BlogState> {

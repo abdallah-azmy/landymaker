@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
@@ -161,7 +162,6 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = widget.theme?.background ?? AppColors.background;
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
     final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
@@ -454,7 +454,17 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                           width: double.infinity,
                           height: isTiny ? 24 : (isSmall ? 28 : 32),
                           child: ElevatedButton(
-                            onPressed: () => _showProductDetail(context, item),
+                            onPressed: () async {
+                              final purchaseUrl = item['purchase_url']?.toString();
+                              if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
+                                final uri = Uri.tryParse(purchaseUrl);
+                                if (uri != null) {
+                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                }
+                              } else {
+                                _showProductDetail(context, item);
+                              }
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: secondary,
                               foregroundColor: Colors.white,
@@ -570,7 +580,17 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                       child: SizedBox(
                         height: isMobile ? 32 : 40,
                         child: ElevatedButton(
-                          onPressed: () => _showProductDetail(context, item),
+                          onPressed: () async {
+                            final purchaseUrl = item['purchase_url']?.toString();
+                            if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
+                              final uri = Uri.tryParse(purchaseUrl);
+                              if (uri != null) {
+                                await launchUrl(uri, mode: LaunchMode.externalApplication);
+                              }
+                            } else {
+                              _showProductDetail(context, item);
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: secondary,
                             foregroundColor: Colors.white,
@@ -691,13 +711,22 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                         children: [
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
-                                final cartCubit = context.read<CartCubit>();
-                                if (widget.whatsappNumber != null && widget.whatsappNumber!.isNotEmpty) {
-                                  cartCubit.setWhatsappNumber(widget.whatsappNumber!);
+                              onPressed: () async {
+                                final purchaseUrl = item['purchase_url']?.toString();
+                                if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
+                                  final uri = Uri.tryParse(purchaseUrl);
+                                  if (uri != null) {
+                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                    Navigator.of(ctx).pop();
+                                  }
+                                } else {
+                                  final cartCubit = context.read<CartCubit>();
+                                  if (widget.whatsappNumber != null && widget.whatsappNumber!.isNotEmpty) {
+                                    cartCubit.setWhatsappNumber(widget.whatsappNumber!);
+                                  }
+                                  cartCubit.addItem(item);
+                                  Navigator.of(ctx).pop();
                                 }
-                                cartCubit.addItem(item);
-                                Navigator.of(ctx).pop();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: secondary,

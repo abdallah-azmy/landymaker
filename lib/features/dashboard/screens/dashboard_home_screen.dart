@@ -13,7 +13,6 @@ import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/molecules/page_stat_card.dart';
 import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
-import '../controllers/active_website_cubit.dart';
 import '../../builder/controllers/builder_cubit.dart';
 import '../../../core/utils/toast_service.dart';
 
@@ -236,7 +235,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                 Text(
                   loc.translate('upgrade_msg'),
                   style: AppTypography.bodyMedium.copyWith(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -276,7 +275,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                       Text(
                         loc.translate('upgrade_msg'),
                         style: AppTypography.bodyMedium.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -397,7 +396,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
           Icon(
             Icons.auto_awesome_motion_rounded,
             size: 64,
-            color: AppColors.textMuted.withOpacity(0.5),
+            color: AppColors.textMuted.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(loc.translate('no_pages_created'), style: AppTypography.h3),
@@ -444,7 +443,7 @@ class _PageItemCardState extends State<_PageItemCard> {
     final page = widget.page;
     final bool isPublished = page['is_published'] ?? false;
     final bool isActive = page['is_active'] ?? true;
-    final loc = context.watch<LocalizationCubit>();
+
 
     return Card(
       elevation: 0,
@@ -470,7 +469,7 @@ class _PageItemCardState extends State<_PageItemCard> {
                   Stack(
                     children: [
                       CircleAvatar(
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                         child: const Icon(
                           Icons.language_rounded,
                           color: AppColors.primary,
@@ -532,7 +531,7 @@ class _PageItemCardState extends State<_PageItemCard> {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.15),
+                        color: AppColors.primary.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -562,7 +561,7 @@ class _PageItemCardState extends State<_PageItemCard> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: AppColors.dangerRed.withOpacity(0.1),
+          color: AppColors.dangerRed.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.dangerRed),
         ),
@@ -629,7 +628,7 @@ class _CopyableUrlWidgetState extends State<_CopyableUrlWidget> {
     setState(() => _isCopied = true);
     ToastService.showSuccess(
       context,
-      message: loc.translate('link_copied_success') ?? "تم نسخ الرابط بنجاح!",
+      message: loc.translate('link_copied_success'),
     );
 
     Future.delayed(const Duration(seconds: 2), () {

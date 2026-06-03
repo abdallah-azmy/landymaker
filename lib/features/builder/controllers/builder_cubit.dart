@@ -833,6 +833,12 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800',
       );
       updatedBlock['items'] = items;
+
+      // Sync parallel gallery_links list
+      final List galleryLinks = List.from(updatedBlock['gallery_links'] ?? []);
+      galleryLinks.add('');
+      updatedBlock['gallery_links'] = galleryLinks;
+
       blocks[blockIndex] = updatedBlock;
     }
 
@@ -857,6 +863,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         items.removeAt(itemIndex);
       }
       updatedBlock['items'] = items;
+
+      // Sync parallel gallery_links list
+      final List galleryLinks = List.from(updatedBlock['gallery_links'] ?? []);
+      if (itemIndex >= 0 && itemIndex < galleryLinks.length) {
+        galleryLinks.removeAt(itemIndex);
+      }
+      updatedBlock['gallery_links'] = galleryLinks;
+
       blocks[blockIndex] = updatedBlock;
     }
 

@@ -40,18 +40,18 @@ class BuilderMobileToolbar extends StatelessWidget {
           backgroundColor: AppColors.cardBg,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
-            loc.translate('warning') ?? 'تنبيه',
+            loc.translate('warning'),
             style: AppTypography.h3.copyWith(color: AppColors.dangerRed),
           ),
           content: Text(
-            loc.translate('unsaved_changes_warning') ?? 'لديك تعديلات لم تقم بحفظها. هل أنت متأكد من الخروج دون حفظ؟',
+            loc.translate('unsaved_changes_warning'),
             style: AppTypography.bodyMedium,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
-                loc.translate('cancel') ?? 'إلغاء',
+                loc.translate('cancel'),
                 style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
               ),
             ),
@@ -61,7 +61,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                 onBack();
               },
               child: Text(
-                loc.translate('exit') ?? 'خروج',
+                loc.translate('exit'),
                 style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed, fontWeight: FontWeight.bold),
               ),
             ),
@@ -252,7 +252,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                   if (canPublish) ...[
                     const SizedBox(width: 6),
                     Text(
-                      loc.translate('publish') ?? 'نشر',
+                      loc.translate('publish'),
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.activeGreen,
                         fontWeight: FontWeight.bold,

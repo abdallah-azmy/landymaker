@@ -27,7 +27,6 @@ class CustomTestimonialsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = theme?.background ?? AppColors.background;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;

@@ -137,7 +137,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                loc.translate('reset_password') ?? 'استعادة كلمة المرور',
+                                loc.translate('reset_password'),
                                 style: AppTypography.h2.copyWith(fontSize: 20),
                               ),
                               const SizedBox(height: 20),
@@ -178,7 +178,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                               // Submit Button
                               PrimaryButton(
-                                text: loc.translate('send_reset_link') ?? 'إرسال رابط الاستعادة',
+                                text: loc.translate('send_reset_link'),
                                 onPressed: () => _handleSubmit(context),
                                 isLoading: isLoading,
                                 width: double.infinity,

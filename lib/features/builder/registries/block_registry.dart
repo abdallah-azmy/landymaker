@@ -47,6 +47,7 @@ class BlockRegistry {
       bgOverlayColor: data['bg_overlay_color'],
       bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+      buttonUrl: data['button_url'],
     ),
     'hero_saas': (data, theme, _, key, __, ___) => CustomHeroSaasWidget(
       key: key,
@@ -59,6 +60,7 @@ class BlockRegistry {
       bgOverlayColor: data['bg_overlay_color'],
       bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+      buttonUrl: data['button_url'],
     ),
     'features': (data, theme, _, key, __, ___) => CustomFeaturesWidget(
       key: key,
@@ -164,6 +166,7 @@ class BlockRegistry {
       key: key,
       title: data['title'] ?? '',
       items: List<String>.from(data['items'] ?? []),
+      galleryLinks: data['gallery_links'] != null ? List<String>.from(data['gallery_links']) : null,
       displayMode: data['display_mode'] ?? 'grid',
       gridColumns: data['grid_columns'] ?? 3,
       theme: theme,

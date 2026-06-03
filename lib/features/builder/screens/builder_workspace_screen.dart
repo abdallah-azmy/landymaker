@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:html' as html;
 import 'dart:ui';
-import 'package:landymaker/core/widgets/atoms/primary_button.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
@@ -366,38 +365,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     );
   }
 
-  Widget _buildAddBlockItem({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 100,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border, width: 1.5),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: AppColors.secondary, size: 32),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              style: AppTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   void _showTemplatesMenu(BuildContext context, LandingPageBuilderCubit cubit) {
     showModalBottomSheet(

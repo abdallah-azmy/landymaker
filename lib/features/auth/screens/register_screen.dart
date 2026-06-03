@@ -11,7 +11,7 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../core/utils/toast_service.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
-import 'login_screen.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback? onRegisterSuccess;

@@ -54,7 +54,7 @@ class _DashboardShellState extends State<DashboardShell> {
   Widget build(BuildContext context) {
     final loc = context.watch<LocalizationCubit>();
     final authState = context.watch<AuthCubit>().state;
-    final activeSiteType = context.watch<ActiveWebsiteCubit>().state.websiteType;
+    context.watch<ActiveWebsiteCubit>();
 
     bool isSuperAdmin = false;
     String userEmail = 'user@landymaker.com';

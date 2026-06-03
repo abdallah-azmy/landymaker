@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_layout.dart';
@@ -15,6 +16,7 @@ class CustomHeroWidget extends StatelessWidget {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String? buttonUrl;
 
   const CustomHeroWidget({
     super.key,
@@ -27,6 +29,7 @@ class CustomHeroWidget extends StatelessWidget {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.buttonUrl,
   });
 
   @override
@@ -128,7 +131,14 @@ class CustomHeroWidget extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () async {
+            if (buttonUrl != null && buttonUrl!.isNotEmpty) {
+              final uri = Uri.tryParse(buttonUrl!);
+              if (uri != null) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              }
+            }
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: secondary,
             foregroundColor: Colors.white,

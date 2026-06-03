@@ -7,7 +7,6 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../services/database_service.dart';
-import '../../../core/logger.dart';
 import '../../../injection_container.dart';
 import '../controllers/active_website_cubit.dart';
 

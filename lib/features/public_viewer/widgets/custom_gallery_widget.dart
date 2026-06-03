@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
@@ -8,6 +9,7 @@ import '../../builder/models/landing_page_theme.dart';
 class CustomGalleryWidget extends StatefulWidget {
   final String title;
   final List<String> items;
+  final List<String>? galleryLinks;
   final String displayMode; // 'grid' or 'carousel'
   final int gridColumns;
   final LandingPageTheme? theme;
@@ -20,6 +22,7 @@ class CustomGalleryWidget extends StatefulWidget {
     super.key,
     required this.title,
     required this.items,
+    this.galleryLinks,
     this.displayMode = 'grid',
     this.gridColumns = 3,
     this.theme,
@@ -101,6 +104,11 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
                 itemCount: widget.items.length,
                 onPageChanged: (index) => setState(() => _currentIndex = index),
                 itemBuilder: (context, index) {
+                  final String url = widget.items[index];
+                  final String? linkUrl = widget.galleryLinks != null && widget.galleryLinks!.length > index
+                      ? widget.galleryLinks![index]
+                      : null;
+
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
@@ -108,11 +116,7 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
                       borderRadius: BorderRadius.circular(24),
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: Image.network(
-                      widget.items[index],
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(Icons.broken_image, color: subTextColor, size: 64),
-                    ),
+                    child: _buildGalleryImage(url, linkUrl, subTextColor),
                   );
                 },
               ),
@@ -220,19 +224,109 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
         childAspectRatio: 1,
       ),
       itemBuilder: (context, index) {
+        final String url = widget.items[index];
+        final String? linkUrl = widget.galleryLinks != null && widget.galleryLinks!.length > index
+            ? widget.galleryLinks![index]
+            : null;
+
         return Container(
           decoration: BoxDecoration(
             color: subTextColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
           ),
           clipBehavior: Clip.antiAlias,
-          child: Image.network(
-            widget.items[index],
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Icon(Icons.broken_image, color: subTextColor),
-          ),
+          child: _buildGalleryImage(url, linkUrl, subTextColor),
         );
       },
+    );
+  }
+
+  Widget _buildGalleryImage(String url, String? linkUrl, Color subTextColor) {
+    final bool hasLink = linkUrl != null && linkUrl.isNotEmpty;
+    
+    if (hasLink) {
+      return _HoverableGalleryItem(
+        url: url,
+        linkUrl: linkUrl,
+        subTextColor: subTextColor,
+      );
+    }
+    
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Icon(Icons.broken_image, color: subTextColor),
+    );
+  }
+}
+
+class _HoverableGalleryItem extends StatefulWidget {
+  final String url;
+  final String linkUrl;
+  final Color subTextColor;
+
+  const _HoverableGalleryItem({
+    required this.url,
+    required this.linkUrl,
+    required this.subTextColor,
+  });
+
+  @override
+  State<_HoverableGalleryItem> createState() => _HoverableGalleryItemState();
+}
+
+class _HoverableGalleryItemState extends State<_HoverableGalleryItem> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: () async {
+          final uri = Uri.tryParse(widget.linkUrl);
+          if (uri != null) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        },
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AnimatedScale(
+                scale: _isHovered ? 1.05 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                child: Image.network(
+                  widget.url,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Icon(Icons.broken_image, color: widget.subTextColor),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                color: _isHovered 
+                    ? Colors.black.withValues(alpha: 0.35) 
+                    : Colors.transparent,
+                child: Center(
+                  child: AnimatedOpacity(
+                    opacity: _isHovered ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: const Icon(
+                      Icons.open_in_new_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

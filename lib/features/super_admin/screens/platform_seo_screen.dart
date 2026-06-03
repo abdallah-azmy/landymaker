@@ -34,7 +34,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.background,
-        title: Text(isNew ? "Add New SEO Route" : "Edit SEO: ${seoData?['route_path']}"),
+        title: Text(isNew ? "Add New SEO Route" : "Edit SEO: ${seoData['route_path']}"),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,

@@ -171,14 +171,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                loc.translate('reset_password') ?? 'تعيين كلمة المرور الجديدة',
+                                loc.translate('reset_password'),
                                 style: AppTypography.h2.copyWith(fontSize: 20),
                               ),
                               const SizedBox(height: 20),
 
                               // New Password Input
                               FormGroup(
-                                label: loc.translate('new_password') ?? 'كلمة المرور الجديدة',
+                                label: loc.translate('new_password'),
                                 child: CustomTextField(
                                   controller: _passwordController,
                                   hintText: '••••••••',
@@ -202,7 +202,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                               // Confirm New Password Input
                               FormGroup(
-                                label: loc.translate('confirm_new_password') ?? 'تأكيد كلمة المرور الجديدة',
+                                label: loc.translate('confirm_new_password'),
                                 child: CustomTextField(
                                   controller: _confirmPasswordController,
                                   hintText: '••••••••',
@@ -216,7 +216,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                       return 'Required';
                                     }
                                     if (val != _passwordController.text) {
-                                      return loc.translate('passwords_do_not_match') ?? 'كلمات المرور غير متطابقة';
+                                      return loc.translate('passwords_do_not_match');
                                     }
                                     return null;
                                   },
@@ -236,7 +236,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                               // Submit Button
                               PrimaryButton(
-                                text: loc.translate('update_password') ?? 'تحديث كلمة المرور',
+                                text: loc.translate('update_password'),
                                 onPressed: () => _handleSubmit(context),
                                 isLoading: isLoading,
                                 width: double.infinity,

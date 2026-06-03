@@ -40,32 +40,32 @@ class HomeFeatureBento extends StatelessWidget {
               if (isMobile)
                 Column(
                   children: [
-                    _buildBentoCard(
+                    const BentoCard(
                       icon: Icons.dashboard_customize_rounded,
                       title: "محرر مرن وسريع",
                       desc: "أضف الأقسام التي تريدها ورتبها بسهولة. تحكم كامل في النصوص والصور والأزرار.",
-                      color: const Color(0xFF6366F1),
+                      color: Color(0xFF6366F1),
                     ),
                     const SizedBox(height: 20),
-                    _buildBentoCard(
+                    const BentoCard(
                       icon: Icons.palette_rounded,
                       title: "قوالب وتصاميم ممتازة",
                       desc: "اختر من بين لوحات الألوان الجاهزة لتناسب هويتك التجارية بلمسة زر واحدة.",
-                      color: const Color(0xFF06B6D4),
+                      color: Color(0xFF06B6D4),
                     ),
                     const SizedBox(height: 20),
-                    _buildBentoCard(
+                    const BentoCard(
                       icon: Icons.analytics_rounded,
                       title: "إحصائيات فورية وتتبع العملاء",
                       desc: "اعرف عدد الزوار وتابع طلبات العملاء والرسائل مباشرة من لوحة التحكم الخاصة بك.",
-                      color: const Color(0xFF10B981),
+                      color: Color(0xFF10B981),
                     ),
                     const SizedBox(height: 20),
-                    _buildBentoCard(
+                    const BentoCard(
                       icon: Icons.qr_code_2_rounded,
                       title: "روابط ذكية وكود QR مخصص",
                       desc: "شارك موقعك بروابط مخصصة وكود QR فوري وسهل للمشاركة الميدانية والمطبوعات.",
-                      color: const Color(0xFFF59E0B),
+                      color: Color(0xFFF59E0B),
                     ),
                   ],
                 )
@@ -74,23 +74,23 @@ class HomeFeatureBento extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Expanded(
+                        const Expanded(
                           flex: 3,
-                          child: _buildBentoCard(
+                          child: BentoCard(
                             icon: Icons.dashboard_customize_rounded,
                             title: "محرر مرن وسريع",
                             desc: "أضف الأقسام التي تريدها ورتبها بسهولة. تحكم كامل في النصوص والصور والأزرار والروابط.",
-                            color: const Color(0xFF6366F1),
+                            color: Color(0xFF6366F1),
                           ),
                         ),
                         const SizedBox(width: 20),
-                        Expanded(
+                        const Expanded(
                           flex: 2,
-                          child: _buildBentoCard(
+                          child: BentoCard(
                             icon: Icons.palette_rounded,
                             title: "قوالب وتصاميم ممتازة",
                             desc: "اختر من بين لوحات الألوان والخطوط الجاهزة لتناسب هويتك التجارية في ثوانٍ معدودة.",
-                            color: const Color(0xFF06B6D4),
+                            color: Color(0xFF06B6D4),
                           ),
                         ),
                       ],
@@ -98,23 +98,23 @@ class HomeFeatureBento extends StatelessWidget {
                     const SizedBox(height: 20),
                     Row(
                       children: [
-                        Expanded(
+                        const Expanded(
                           flex: 2,
-                          child: _buildBentoCard(
+                          child: BentoCard(
                             icon: Icons.analytics_rounded,
                             title: "إحصائيات فورية وتتبع العملاء",
                             desc: "اعرف عدد الزوار وتفاعلهم وتابع طلبات العملاء والرسائل الواردة مباشرة.",
-                            color: const Color(0xFF10B981),
+                            color: Color(0xFF10B981),
                           ),
                         ),
                         const SizedBox(width: 20),
-                        Expanded(
+                        const Expanded(
                           flex: 3,
-                          child: _buildBentoCard(
+                          child: BentoCard(
                             icon: Icons.qr_code_2_rounded,
                             title: "روابط ذكية وكود QR مخصص",
                             desc: "شارك موقعك مع عملائك بروابط مخصصة، نطاق فرعي، أو كود QR تفاعلي سهل المسح والمشاركة المباشرة.",
-                            color: const Color(0xFFF59E0B),
+                            color: Color(0xFFF59E0B),
                           ),
                         ),
                       ],
@@ -127,52 +127,85 @@ class HomeFeatureBento extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildBentoCard({
-    required IconData icon,
-    required String title,
-    required String desc,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.03),
-            blurRadius: 20,
-            spreadRadius: 2,
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+class BentoCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String desc;
+  final Color color;
+
+  const BentoCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.desc,
+    required this.color,
+  });
+
+  @override
+  State<BentoCard> createState() => _BentoCardState();
+}
+
+class _BentoCardState extends State<BentoCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.identity()
+          ..translate(_isHovered ? -2.0 : 0.0, _isHovered ? -4.0 : 0.0)
+          ..scale(_isHovered ? 1.02 : 1.0),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: _isHovered ? AppColors.cardBgHover : AppColors.cardBg,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: _isHovered ? widget.color.withValues(alpha: 0.6) : AppColors.border,
+            width: _isHovered ? 2.0 : 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _isHovered
+                  ? widget.color.withValues(alpha: 0.15)
+                  : widget.color.withValues(alpha: 0.02),
+              blurRadius: _isHovered ? 30 : 15,
+              spreadRadius: _isHovered ? 4 : 1,
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: _isHovered ? widget.color.withValues(alpha: 0.2) : widget.color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(widget.icon, color: widget.color, size: 28),
             ),
-            child: Icon(icon, color: color, size: 28),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            title,
-            style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            desc,
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.6,
+            const SizedBox(height: 24),
+            Text(
+              widget.title,
+              style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              widget.desc,
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.6,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

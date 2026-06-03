@@ -203,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   ),
                                   child: Text(
-                                    loc.translate('forgot_password') ?? 'هل نسيت كلمة المرور؟',
+                                    loc.translate('forgot_password'),
                                     style: AppTypography.caption.copyWith(
                                       color: AppColors.secondary,
                                       fontWeight: FontWeight.w600,

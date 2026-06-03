@@ -15,6 +15,7 @@ class CustomTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final bool readOnly;
   final bool enabled;
+  final FocusNode? focusNode;
 
   const CustomTextField({
     super.key,
@@ -30,12 +31,14 @@ class CustomTextField extends StatelessWidget {
     this.suffixIcon,
     this.readOnly = false,
     this.enabled = true,
+    this.focusNode,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       obscureText: obscureText,
       keyboardType: keyboardType,
       maxLines: maxLines,

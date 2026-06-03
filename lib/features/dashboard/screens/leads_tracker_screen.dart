@@ -5,6 +5,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/organisms/responsive_data_table.dart';
+import '../../../core/widgets/molecules/page_context_banner.dart';
 // Removed sl/AuthService imports to maintain architectural boundary
 import '../controllers/leads_analytics_cubit.dart';
 import '../controllers/leads_analytics_state.dart';
@@ -125,7 +126,13 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
+          const PageContextBanner(
+            title: "إدارة العملاء المحتملين",
+            description: "هنا يمكنك استعراض قائمة العملاء الذين قاموا بالتسجيل أو ترك بياناتهم عبر صفحة الهبوط المحددة حالياً.",
+            icon: Icons.contacts_rounded,
+          ),
+          const SizedBox(height: 16),
 
           if (errorMessage != null) ...[
             Text(errorMessage, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),

@@ -11,6 +11,7 @@ import '../../../../services/auth_service.dart';
 import '../../../injection_container.dart';
 import '../../subscription/widgets/manual_payment_modal.dart';
 import '../controllers/active_website_cubit.dart';
+import '../../../core/widgets/molecules/page_context_banner.dart';
 
 class ProductFeedScreen extends StatelessWidget {
   const ProductFeedScreen({super.key});
@@ -41,7 +42,13 @@ class ProductFeedScreen extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 24),
+              const PageContextBanner(
+                title: "مزامنة المنتجات (Product Feed)",
+                description: "التحكم في مزامنة منتجات متجرك الإلكتروني الحالي مع المنصات الإعلانية مثل Google و Facebook.",
+                icon: Icons.rss_feed_rounded,
+              ),
+              const SizedBox(height: 24),
 
               if (isLoadingAccess)
                 const Center(child: CircularProgressIndicator())

@@ -7,14 +7,7 @@ import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/organisms/sidebar_navigation.dart';
 import '../../auth/controllers/auth_cubit.dart';
 import '../../auth/controllers/auth_state.dart';
-import 'dashboard_home_screen.dart';
-import 'leads_tracker_screen.dart';
-import 'analytics_screen.dart';
 import 'package:go_router/go_router.dart';
-import '../../super_admin/screens/super_admin_panel_screen.dart';
-import '../../blog_admin/screens/blog_management_screen.dart';
-import 'product_feed_screen.dart';
-import 'domain_settings_screen.dart';
 import '../controllers/active_website_cubit.dart';
 
 class DashboardShell extends StatefulWidget {
@@ -48,71 +41,10 @@ class _DashboardShellState extends State<DashboardShell> {
       userEmail = authState.email;
     }
 
-    // 1. Core Navigation Items
-    final List<Map<String, dynamic>> navigationItems = [];
-    
-    navigationItems.add({
-      'title_key': 'dashboard',
-      'icon': Icons.dashboard_rounded,
-      'route': '/dashboard',
-    });
-
-    if (activeSiteType == 'store') {
-      navigationItems.add({
-        'title_key': 'Products',
-        'icon': Icons.inventory_2_rounded,
-        'is_store_only': true,
-        'route': '/dashboard/products',
-      });
-    }
-
-    navigationItems.addAll([
-      {'title_key': 'leads', 'icon': Icons.contacts_rounded, 'route': '/dashboard/leads'},
-      {'title_key': 'analytics', 'icon': Icons.analytics_rounded, 'route': '/dashboard/analytics'},
-    ]);
-
-    if (activeSiteType == 'store') {
-      navigationItems.add({
-        'title_key': 'Product Feed',
-        'icon': Icons.rss_feed_rounded,
-        'is_store_only': true,
-        'route': '/dashboard/feed',
-      });
-    }
-
-    navigationItems.addAll([
-      {
-        'title_key': 'hero',
-        'icon': Icons.construction_rounded,
-        'is_builder': true,
-        'route': '/builder',
-      },
-      {'title_key': 'custom_domain_menu', 'icon': Icons.language_rounded, 'route': '/dashboard/domain'},
-    ]);
-
-    // 2. Admin Items
-    final List<Map<String, dynamic>> adminItems = [];
-    if (isSuperAdmin) {
-      adminItems.add({
-        'title_key': 'super_admin',
-        'icon': Icons.admin_panel_settings_rounded,
-        'route': '/dashboard/super-admin',
-      });
-      adminItems.add({
-        'title_key': 'blog_management',
-        'icon': Icons.article_rounded,
-        'route': '/dashboard/blog-admin',
-      });
-    }
-
-    // 4. Final lists
-    final List<Map<String, dynamic>> sidebarMenu = [...navigationItems, ...adminItems];
-
     final sidebar = SidebarNavigation(
       currentIndex: widget.navigationShell.currentIndex,
       isAdmin: isSuperAdmin,
       userEmail: userEmail,
-      menuItemsOverride: sidebarMenu,
       onLogout: () {
         context.read<AuthCubit>().logout();
       },

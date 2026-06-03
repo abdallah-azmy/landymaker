@@ -16,6 +16,7 @@ import '../../features/dashboard/screens/analytics_screen.dart';
 import '../../features/dashboard/screens/product_feed_screen.dart';
 import '../../features/dashboard/screens/domain_settings_screen.dart';
 import '../../features/super_admin/screens/super_admin_panel_screen.dart';
+import '../../features/super_admin/screens/platform_seo_screen.dart';
 import '../../features/blog_admin/screens/blog_management_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -121,6 +122,13 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/dashboard/super-admin',
               builder: (context, state) => const SuperAdminPanelScreen(),
+              redirect: (context, state) {
+                final authState = context.read<AuthCubit>().state;
+                if (authState is Authenticated && authState.role == 'super_admin') {
+                  return null; // allow
+                }
+                return '/dashboard'; // redirect
+              },
             ),
           ],
         ),
@@ -129,6 +137,21 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/dashboard/blog-admin',
               builder: (context, state) => const BlogManagementScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/platform-seo',
+              builder: (context, state) => const PlatformSeoScreen(),
+              redirect: (context, state) {
+                final authState = context.read<AuthCubit>().state;
+                if (authState is Authenticated && authState.role == 'super_admin') {
+                  return null; // allow
+                }
+                return '/dashboard'; // redirect
+              },
             ),
           ],
         ),

@@ -35,44 +35,57 @@ class SidebarNavigation extends StatelessWidget {
         .state
         .websiteType;
 
-    // List of menu configurations (If no override, use default)
-    List<Map<String, dynamic>> menuItems =
-        menuItemsOverride ??
-        [
-          {'title_key': 'dashboard', 'icon': Icons.dashboard_rounded, 'route': '/dashboard'},
-          {'title_key': 'leads', 'icon': Icons.contacts_rounded, 'route': '/dashboard/leads'},
-          {'title_key': 'analytics', 'icon': Icons.analytics_rounded, 'route': '/dashboard/analytics'},
-          {'title_key': 'hero', 'icon': Icons.construction_rounded, 'is_builder': true, 'route': '/builder'}, // Builder
-          {'title_key': 'custom_domain_menu', 'icon': Icons.language_rounded, 'route': '/dashboard/domain'},
-        ];
+    // Build sections
+    final List<Map<String, dynamic>> finalItems = [];
 
-    if (menuItemsOverride == null) {
+    if (isAdmin && menuItemsOverride == null) {
+      finalItems.add({'is_header': true, 'title': 'إدارة المنصة'});
+      finalItems.add({
+        'title_key': 'super_admin',
+        'icon': Icons.admin_panel_settings_rounded,
+        'route': '/dashboard/super-admin',
+      });
+      finalItems.add({
+        'title_key': 'إعدادات المنصة (SEO)', // We can hardcode Arabic here or add it to localization. 'Platform SEO' is fine.
+        'icon': Icons.travel_explore_rounded,
+        'route': '/dashboard/platform-seo',
+      });
+      finalItems.add({
+        'title_key': 'blog_management',
+        'icon': Icons.article_rounded,
+        'route': '/dashboard/blog-admin',
+      });
+      finalItems.add({'is_divider': true});
+    }
+
+    if (menuItemsOverride != null) {
+      finalItems.addAll(menuItemsOverride!);
+    } else {
+      finalItems.add({'is_header': true, 'title': 'مساحة العمل الخاصة بك'});
+      finalItems.add({'is_switcher': true});
+      finalItems.add({'title_key': 'dashboard', 'icon': Icons.dashboard_rounded, 'route': '/dashboard'});
+      
       if (activeSiteType == 'store') {
-        menuItems.insert(1, {
+        finalItems.add({
           'title_key': 'Products',
           'icon': Icons.inventory_2_rounded,
-          'is_store_only': true,
           'route': '/dashboard/products',
         });
-        menuItems.insert(4, {
+      }
+
+      finalItems.add({'title_key': 'leads', 'icon': Icons.contacts_rounded, 'route': '/dashboard/leads'});
+      finalItems.add({'title_key': 'analytics', 'icon': Icons.analytics_rounded, 'route': '/dashboard/analytics'});
+
+      if (activeSiteType == 'store') {
+        finalItems.add({
           'title_key': 'Product Feed',
           'icon': Icons.rss_feed_rounded,
-          'is_store_only': true,
           'route': '/dashboard/feed',
         });
       }
-      if (isAdmin) {
-        menuItems.add({
-          'title_key': 'super_admin',
-          'icon': Icons.admin_panel_settings_rounded,
-          'route': '/dashboard/super-admin',
-        });
-        menuItems.add({
-          'title_key': 'blog_management',
-          'icon': Icons.article_rounded,
-          'route': '/dashboard/blog-admin',
-        });
-      }
+
+      finalItems.add({'title_key': 'hero', 'icon': Icons.construction_rounded, 'is_builder': true, 'route': '/builder'});
+      finalItems.add({'title_key': 'custom_domain_menu', 'icon': Icons.language_rounded, 'route': '/dashboard/domain'});
     }
 
     return Container(
@@ -112,15 +125,42 @@ class SidebarNavigation extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          const WebsiteSwitcher(),
-          const SizedBox(height: 32),
           Expanded(
             child: ListView.separated(
-              itemCount: menuItems.length,
+              itemCount: finalItems.length,
               separatorBuilder: (context, index) => const SizedBox(height: 6),
               itemBuilder: (context, index) {
-                final item = menuItems[index];
-                final String label = item['is_store_only'] == true
+                final item = finalItems[index];
+
+                if (item['is_header'] == true) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 8, left: 8, right: 8),
+                    child: Text(
+                      item['title'] as String,
+                      style: AppTypography.caption.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textSecondary,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  );
+                }
+
+                if (item['is_divider'] == true) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Divider(color: AppColors.border, thickness: 1.2),
+                  );
+                }
+
+                if (item['is_switcher'] == true) {
+                  return const Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: WebsiteSwitcher(),
+                  );
+                }
+
+                final String label = item['title_key'] == 'Platform SEO' || item['title_key'] == 'إعدادات المنصة (SEO)' || item['title_key'] == 'Products' || item['title_key'] == 'Product Feed'
                     ? item['title_key'] as String
                     : loc.translate(item['title_key'] as String);
 
@@ -140,8 +180,11 @@ class SidebarNavigation extends StatelessWidget {
 
                 return InkWell(
                   onTap: isLocked ? null : () {
+                    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+                      Navigator.pop(context);
+                    }
                     if (item['is_builder'] == true) {
-                      context.push('/builder');
+                      context.go('/builder');
                     } else if (route != null) {
                       context.go(route);
                     }

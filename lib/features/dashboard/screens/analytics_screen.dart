@@ -5,6 +5,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/molecules/data_card.dart';
+import '../../../core/widgets/molecules/page_context_banner.dart';
 // Removed sl/AuthService imports to maintain architectural boundary
 import '../controllers/leads_analytics_cubit.dart';
 import '../controllers/leads_analytics_state.dart';
@@ -102,7 +103,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
+          const PageContextBanner(
+            title: "إحصائيات الصفحة",
+            description: "تابع أداء صفحة الهبوط المحددة حالياً من زيارات وتحويلات لمعرفة مدى نجاح حملاتك.",
+            icon: Icons.analytics_rounded,
+          ),
+          const SizedBox(height: 16),
 
           if (errorMessage != null) ...[
             Text(

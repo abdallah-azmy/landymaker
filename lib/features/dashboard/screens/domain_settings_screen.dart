@@ -10,6 +10,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/glass_container.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/molecules/website_switcher.dart';
+import '../../../core/widgets/molecules/page_context_banner.dart';
 import '../../subscription/widgets/manual_payment_modal.dart';
 import '../controllers/active_website_cubit.dart';
 import '../controllers/landing_pages_cubit.dart';
@@ -40,18 +41,12 @@ class DomainSettingsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  loc.translate('custom_domain_menu'),
-                  style: AppTypography.h1,
+                const PageContextBanner(
+                  title: "إعدادات الدومين",
+                  description: "يمكنك من هنا ربط صفحة الهبوط الحالية بدومين احترافي خاص بعلامتك التجارية لتزيد من ثقة عملائك.",
+                  icon: Icons.language_rounded,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  "Manage professional custom domains for your landing pages.",
-                  style: AppTypography.bodyLarge.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 24),
 
                 if (isLoadingAccess)
                   const Center(child: CircularProgressIndicator())
@@ -178,10 +173,6 @@ class DomainSettingsScreen extends StatelessWidget {
                 Text(
                   "إعدادات الدومين لصفحة: ${state.subdomain}",
                   style: AppTypography.h3,
-                ),
-                Text(
-                  "تخصيص نطاق مستقل لهذه الصفحة فقط.",
-                  style: AppTypography.caption,
                 ),
               ],
             ),

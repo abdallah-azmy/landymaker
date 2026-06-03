@@ -14,6 +14,7 @@ class CustomTextField extends StatelessWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final bool readOnly;
+  final bool enabled;
 
   const CustomTextField({
     super.key,
@@ -28,6 +29,7 @@ class CustomTextField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.readOnly = false,
+    this.enabled = true,
   });
 
   @override
@@ -41,7 +43,8 @@ class CustomTextField extends StatelessWidget {
       onFieldSubmitted: onSubmitted,
       validator: validator,
       readOnly: readOnly,
-      style: AppTypography.bodyLarge.copyWith(color: AppColors.textPrimary),
+      enabled: enabled,
+      style: AppTypography.bodyLarge.copyWith(color: enabled ? AppColors.textPrimary : AppColors.textMuted),
       cursorColor: AppColors.secondary,
       decoration: InputDecoration(
         hintText: hintText,

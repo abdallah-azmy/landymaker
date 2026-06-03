@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:landymaker/features/dashboard/controllers/landing_pages_cubit.dart';
 import 'package:landymaker/features/dashboard/controllers/landing_pages_state.dart';
+import 'package:go_router/go_router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../localization/localization_cubit.dart';
@@ -38,11 +39,11 @@ class SidebarNavigation extends StatelessWidget {
     List<Map<String, dynamic>> menuItems =
         menuItemsOverride ??
         [
-          {'title_key': 'dashboard', 'icon': Icons.dashboard_rounded},
-          {'title_key': 'leads', 'icon': Icons.contacts_rounded},
-          {'title_key': 'analytics', 'icon': Icons.analytics_rounded},
-          {'title_key': 'hero', 'icon': Icons.construction_rounded}, // Builder
-          {'title_key': 'custom_domain_menu', 'icon': Icons.language_rounded},
+          {'title_key': 'dashboard', 'icon': Icons.dashboard_rounded, 'route': '/dashboard'},
+          {'title_key': 'leads', 'icon': Icons.contacts_rounded, 'route': '/dashboard/leads'},
+          {'title_key': 'analytics', 'icon': Icons.analytics_rounded, 'route': '/dashboard/analytics'},
+          {'title_key': 'hero', 'icon': Icons.construction_rounded, 'is_builder': true, 'route': '/builder'}, // Builder
+          {'title_key': 'custom_domain_menu', 'icon': Icons.language_rounded, 'route': '/dashboard/domain'},
         ];
 
     if (menuItemsOverride == null) {
@@ -51,17 +52,25 @@ class SidebarNavigation extends StatelessWidget {
           'title_key': 'Products',
           'icon': Icons.inventory_2_rounded,
           'is_store_only': true,
+          'route': '/dashboard/products',
         });
         menuItems.insert(4, {
           'title_key': 'Product Feed',
           'icon': Icons.rss_feed_rounded,
           'is_store_only': true,
+          'route': '/dashboard/feed',
         });
       }
       if (isAdmin) {
         menuItems.add({
           'title_key': 'super_admin',
           'icon': Icons.admin_panel_settings_rounded,
+          'route': '/dashboard/super-admin',
+        });
+        menuItems.add({
+          'title_key': 'blog_management',
+          'icon': Icons.article_rounded,
+          'route': '/dashboard/blog-admin',
         });
       }
     }
@@ -117,21 +126,26 @@ class SidebarNavigation extends StatelessWidget {
 
                 final isPremium = item['title_key'] == 'custom_domain_menu';
                 final isLocked = item['is_locked'] == true;
+                final route = item['route'] as String?;
 
-                // Sync check: only highlight if the screen index matches
-                // For safety when using menuItemsOverride, we rely on the parent's mapping
-                // but visually highlight based on current index logic.
+                final currentPath = GoRouterState.of(context).uri.path;
                 bool isSelected = false;
-                if (isLocked != true) {
-                  int calcScreenIndex = 0;
-                  for (int i = 0; i < index; i++) {
-                    if (menuItems[i]['is_locked'] != true) calcScreenIndex++;
+                if (!isLocked && route != null) {
+                  if (route == '/dashboard') {
+                     isSelected = currentPath == '/dashboard';
+                  } else {
+                     isSelected = currentPath.startsWith(route);
                   }
-                  isSelected = currentIndex == calcScreenIndex;
                 }
 
                 return InkWell(
-                  onTap: isLocked ? null : () => onTabSelected(index),
+                  onTap: isLocked ? null : () {
+                    if (item['is_builder'] == true) {
+                      context.push('/builder');
+                    } else if (route != null) {
+                      context.go(route);
+                    }
+                  },
                   borderRadius: BorderRadius.circular(10),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),

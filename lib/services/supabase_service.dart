@@ -643,7 +643,7 @@ class SupabaseService extends ChangeNotifier {
       final cleanSubdomain = route.startsWith('/') ? route.substring(1) : route;
 
       // 1. Check hardcoded system routes
-      final systemRoutes = ['dashboard', 'admin', 'super_admin', 'login', 'register', 'blog', 'api', '_next', 'index', ''];
+      final systemRoutes = ['dashboard', 'admin', 'super_admin', 'login', 'register', 'builder', 'blog', 'api', '_next', 'index', ''];
       if (systemRoutes.contains(cleanSubdomain.toLowerCase())) {
         return false;
       }

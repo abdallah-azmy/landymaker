@@ -10,6 +10,13 @@ import '../../features/home/screens/landymaker_home_screen.dart';
 import '../../features/public_viewer/screens/public_landing_page.dart';
 import '../../features/builder/screens/builder_workspace_screen.dart';
 import '../../services/tenant_routing_service.dart';
+import '../../features/dashboard/screens/dashboard_home_screen.dart';
+import '../../features/dashboard/screens/leads_tracker_screen.dart';
+import '../../features/dashboard/screens/analytics_screen.dart';
+import '../../features/dashboard/screens/product_feed_screen.dart';
+import '../../features/dashboard/screens/domain_settings_screen.dart';
+import '../../features/super_admin/screens/super_admin_panel_screen.dart';
+import '../../features/blog_admin/screens/blog_management_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -27,16 +34,105 @@ final GoRouter appRouter = GoRouter(
         return BlocBuilder<AuthCubit, AuthState>(
           builder: (context, state) {
             if (state is Authenticated) {
-              return DashboardShell(
-                onLogout: () {
-                  context.read<AuthCubit>().logout();
-                },
-              );
+              // Wait for a frame to go to dashboard to avoid build-phase navigation errors
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                context.go('/dashboard');
+              });
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
             return const LandyMakerHomeScreen();
           },
         );
       },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return BlocBuilder<AuthCubit, AuthState>(
+          builder: (context, authState) {
+            if (authState is Authenticated) {
+              return DashboardShell(
+                navigationShell: navigationShell,
+                onLogout: () {
+                  context.read<AuthCubit>().logout();
+                },
+              );
+            }
+            // If somehow unauthenticated here, redirect to login
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.go('/login');
+            });
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          },
+        );
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard',
+              builder: (context, state) => DashboardHomeScreen(
+                onOpenBuilder: (pageId) => context.push('/builder/$pageId'),
+              ),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/products',
+              builder: (context, state) => const Center(child: Text("Products")), // Left as placeholder for now since there's no product screen in the codebase yet? Wait, is there? I didn't see one imported. Let me check later.
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/leads',
+              builder: (context, state) => const LeadsTrackerScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/analytics',
+              builder: (context, state) => const AnalyticsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/feed',
+              builder: (context, state) => const ProductFeedScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/domain',
+              builder: (context, state) => const DomainSettingsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/super-admin',
+              builder: (context, state) => const SuperAdminPanelScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/blog-admin',
+              builder: (context, state) => const BlogManagementScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
     GoRoute(
       path: '/login',

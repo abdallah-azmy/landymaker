@@ -82,6 +82,17 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
 
   Future<void> updatePlatformSeo(String routePath, Map<String, dynamic> data) async {
     try {
+      // Security Check: Block internal/protected routes from SEO configuration
+      if (routePath.startsWith('/dashboard') || 
+          routePath.startsWith('/login') || 
+          routePath.startsWith('/register') || 
+          routePath.startsWith('/builder')) {
+        emit(SuperAdminFailure("لا يمكن إضافة بيانات SEO لمسارات لوحة التحكم أو النظام الداخلي لأن محركات البحث لا تستطيع الوصول إليها."));
+        await Future.delayed(const Duration(seconds: 2));
+        await fetchAdminMetrics();
+        return;
+      }
+
       final isAvailable = await _databaseService.isRouteAvailable(
         routePath,
         checkPlatform: false, // We don't check platform itself because we might be updating our own route

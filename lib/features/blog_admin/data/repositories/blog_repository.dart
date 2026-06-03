@@ -46,6 +46,18 @@ class BlogRepository {
   }
 
   Future<BlogPostModel> savePost(BlogPostModel post) async {
+    // 1. Check if slug already exists
+    final duplicateCheck = await _supabase
+        .from('blog_posts')
+        .select('id')
+        .eq('slug', post.slug)
+        .limit(1)
+        .maybeSingle();
+
+    if (duplicateCheck != null && duplicateCheck['id'] != post.id) {
+      throw Exception('هذا الرابط (Slug) مستخدم بالفعل! الرجاء تغييره لتجنب تداخل الصفحات.');
+    }
+
     final data = post.toJson();
     if (post.id.isEmpty) {
       // Insert

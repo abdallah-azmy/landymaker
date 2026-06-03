@@ -5,8 +5,16 @@ import { Cairo } from "next/font/google";
 const cairo = Cairo({ subsets: ["arabic"], variable: "--font-cairo" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://landymaker.com'),
   title: "المدونة | LandyMaker",
   description: "مدونة LandyMaker المتخصصة في التجارة الإلكترونية وصفحات الهبوط",
+  openGraph: {
+    title: "المدونة | LandyMaker",
+    description: "مدونة LandyMaker المتخصصة في التجارة الإلكترونية وصفحات الهبوط",
+    siteName: 'LandyMaker',
+    locale: 'ar_AR',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({

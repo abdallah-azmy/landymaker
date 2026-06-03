@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
+import 'package:markdown/markdown.dart' as md;
 import '../../../core/theme/app_colors.dart';
 import '../data/models/blog_post_model.dart';
 import '../controllers/blog_cubit.dart';
@@ -65,6 +66,41 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
   }
 
   bool _isLoading = false;
+
+  Future<void> _importAiContentFromClipboard() async {
+    try {
+      final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+      final text = clipboardData?.text ?? '';
+      
+      if (text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('الحافظة (Clipboard) فارغة! انسخ المقال من ChatGPT أولاً.'), backgroundColor: AppColors.warningOrange),
+        );
+        return;
+      }
+
+      // 1. Convert the plain Markdown text from ChatGPT to HTML
+      final htmlContent = md.markdownToHtml(text, extensionSet: md.ExtensionSet.gitHubFlavored);
+
+      // 2. Convert the HTML to Quill Delta
+      final delta = HtmlToDelta().convert(htmlContent);
+      
+      setState(() {
+        _quillController.document = quill.Document.fromDelta(delta);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('تم استيراد وتنسيق المقال بنجاح! ✨', style: TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: AppColors.activeGreen,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('حدث خطأ أثناء استيراد النص: $e'), backgroundColor: AppColors.dangerRed),
+      );
+    }
+  }
 
   Future<void> _savePost() async {
     if (_titleController.text.isEmpty || _slugController.text.isEmpty) {
@@ -165,7 +201,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Toolbar (Quill) - Wrapped in SingleChildScrollView to prevent horizontal overflow on tiny screens
+            // Toolbar (Quill) & Import Button
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -173,28 +209,48 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                 border: const Border(bottom: BorderSide(color: AppColors.border)),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Theme(
-                data: ThemeData.dark().copyWith(
-                  canvasColor: AppColors.cardBg,
-                ),
-                child: quill.QuillSimpleToolbar(
-                  controller: _quillController,
-                  config: const quill.QuillSimpleToolbarConfig(
-                    multiRowsDisplay: false, // Force single row, let horizontal scroll handle overflow
-                    buttonOptions: quill.QuillSimpleToolbarButtonOptions(
-                      base: quill.QuillToolbarBaseButtonOptions(
-                        iconTheme: quill.QuillIconTheme(
-                          iconButtonUnselectedData: quill.IconButtonData(
-                            color: AppColors.textPrimary,
-                          ),
-                          iconButtonSelectedData: quill.IconButtonData(
-                            color: AppColors.primary,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Theme(
+                      data: ThemeData.dark().copyWith(
+                        canvasColor: AppColors.cardBg,
+                      ),
+                      child: quill.QuillSimpleToolbar(
+                        controller: _quillController,
+                        config: const quill.QuillSimpleToolbarConfig(
+                          multiRowsDisplay: false, // Force single row, let horizontal scroll handle overflow
+                          buttonOptions: quill.QuillSimpleToolbarButtonOptions(
+                            base: quill.QuillToolbarBaseButtonOptions(
+                              iconTheme: quill.QuillIconTheme(
+                                iconButtonUnselectedData: quill.IconButtonData(
+                                  color: AppColors.textPrimary,
+                                ),
+                                iconButtonSelectedData: quill.IconButtonData(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  // Import HTML Button
+                  ElevatedButton.icon(
+                    onPressed: _importAiContentFromClipboard,
+                    icon: const Icon(Icons.auto_awesome, size: 18),
+                    label: const Text("استيراد الذكاء الاصطناعي", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary.withValues(alpha: .1),
+                      foregroundColor: AppColors.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                  ),
+                ],
               ),
             ),
             

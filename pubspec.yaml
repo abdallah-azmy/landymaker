@@ -59,6 +59,7 @@ dependencies:
   meta_seo: ^3.0.9
   flutter_quill: ^11.5.0
   vsc_quill_delta_to_html: ^1.0.5
+  markdown: ^7.3.1
 
 dev_dependencies:
   flutter_test:

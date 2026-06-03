@@ -37,6 +37,11 @@ jobs:
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
 
+      - name: 📂 Prepare Vercel Public Directory
+        run: |
+          rm -rf public/*
+          cp -R build/web/* public/
+
       - name: 🔧 Install Vercel CLI
         run: npm install -g vercel@latest
 

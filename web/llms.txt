@@ -1,0 +1,26 @@
+# LandyMaker
+
+LandyMaker is an AI-powered Landing Page Builder and E-commerce platform targeting the MENA region (Arabic first). It enables SaaS founders, startups, agencies, freelancers, marketers, and small businesses to create, publish, host, and manage high-converting landing pages and fully functional stores without coding.
+
+## Core Value Proposition
+- AI-Driven Generation: Instantly generate semantic, responsive landing pages.
+- E-commerce Ready: Built-in shopping carts and store management.
+- RTL Native: Designed ground-up for Arabic right-to-left UI perfection.
+- High Performance: Hosted on Edge architecture for fast global delivery.
+- Custom Domains: Connect your own domain easily.
+
+## Key Features
+- Drag-and-drop block builder
+- Free templates for portfolios, SaaS, real estate, and more.
+- Built-in Leads & Analytics dashboard.
+- Zero-code environment.
+
+## Use Cases
+- Launching SaaS products quickly
+- Validating startup ideas
+- E-commerce stores with localized payment support
+- Personal portfolios and CVs
+
+## Official Links
+- Website: https://www.landymaker.com
+- Builder: https://www.landymaker.com/builder

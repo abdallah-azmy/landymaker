@@ -19,8 +19,14 @@ export default async function middleware(request) {
     return;
   }
 
-  // 3. Blog Proxy Logic (Flutter Context)
-  if (url.pathname.startsWith('/blog')) {
+  // 3. Blog & Next.js Assets Proxy Logic (Flutter Context)
+  if (
+    url.pathname.startsWith('/blog') || 
+    url.pathname.startsWith('/_next') ||
+    url.pathname === '/sitemap.xml' ||
+    url.pathname === '/robots.txt' ||
+    url.pathname === '/llms.txt'
+  ) {
     // Rewrite to the blog project and inject a proxy header to break loops
     const newUrl = new URL(url.pathname, 'https://landymaker-blog.vercel.app');
     return new Response(null, {

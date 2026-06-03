@@ -2,18 +2,6 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/sitemap.xml",
-      "destination": "/api/sitemap"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
-    },
-    {
-      "source": "/llms.txt",
-      "destination": "/llms.txt"
-    },
-    {
       "source": "/(.*)",
       "has": [{ "type": "header", "key": "x-is-flutter", "value": "1" }],
       "destination": "/index.html"

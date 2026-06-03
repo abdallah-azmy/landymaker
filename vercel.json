@@ -3,7 +3,6 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "has": [{ "type": "header", "key": "x-is-flutter", "value": "1" }],
       "destination": "/index.html"
     }
   ]

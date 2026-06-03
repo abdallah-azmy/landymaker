@@ -179,8 +179,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
           }
           // Update URL to reflect the editing page identifier
           final currentPath = GoRouterState.of(context).uri.path;
-          if (state.subdomain.isNotEmpty && currentPath == '/builder') {
-            context.replace('/builder/${state.subdomain}');
+          if (state.subdomain.isNotEmpty && (currentPath == '/builder' || currentPath.startsWith('/builder/'))) {
+            final expectedPath = '/builder/${state.subdomain}';
+            if (currentPath != expectedPath) {
+              context.replace(expectedPath);
+            }
           }
         }
       },

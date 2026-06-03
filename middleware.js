@@ -35,13 +35,8 @@ export default async function middleware(request) {
   // 4. Early Exit for Dashboard/Builder (Flutter Context)
   const pathSegments = url.pathname.split('/').filter(Boolean);
   if (pathSegments.length > 0 && ['login', 'register', 'dashboard', 'builder'].includes(pathSegments[0])) {
-    // We are in Flutter Context. Rewrite directly to /index.html
-    const rewriteUrl = new URL('/index.html', request.url);
-    return new Response(null, {
-      headers: {
-        'x-middleware-rewrite': rewriteUrl.toString()
-      }
-    });
+    // We are in Flutter Context. Return undefined to let vercel.json rewrite to /index.html
+    return;
   }
 
   const userAgent = request.headers.get('user-agent') || '';
@@ -177,13 +172,8 @@ export default async function middleware(request) {
     }
   }
 
-  // Real humans get the Flutter app - rewrite directly to /index.html
-  const rewriteUrl = new URL('/index.html', request.url);
-  return new Response(null, {
-    headers: {
-      'x-middleware-rewrite': rewriteUrl.toString()
-    }
-  });
+  // Real humans get the Flutter app - returning undefined lets Vercel continue to the filesystem and vercel.json rewrites
+  return;
 }
 
 // Next.js (Vercel) automatically ignores /_next/ requests in middleware by default.

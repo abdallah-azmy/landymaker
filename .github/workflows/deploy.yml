@@ -20,22 +20,15 @@ jobs:
         with:
           node-version: 24
 
-      - name: 🐦 Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
-          cache: true
-
-      - name: 📥 Install dependencies
-        run: flutter pub get
-
-      - name: 🔨 Build Flutter Web
+      - name: 🔗 Link Vercel Project
         run: |
-          flutter build web --release \
-            --base-href "/" \
-            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
-            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+          mkdir -p .vercel
+          echo '{"projectId":"prj_dDwATAOXwcnKLc7nh0wVRIqDjqjV","orgId":"team_BebZFuNyzDuhF2J1GCL41Ahe"}' > .vercel/project.json
+
+      - name: 📂 Copy local public build to build/web
+        run: |
+          mkdir -p build/web
+          cp -R public/* build/web/
 
       - name: 🔧 Install Vercel CLI
         run: npm install -g vercel@latest

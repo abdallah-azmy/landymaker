@@ -132,11 +132,18 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
-  Future<void> loadPageById(String pageId) async {
+  Future<void> loadPageById(String pageIdOrSubdomain) async {
     emit(BuilderLoading());
     try {
-      // We need a method in database_service for this
-      final page = await _databaseService.getLandingPageById(pageId);
+      final uuidRegex = RegExp(
+        r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+      );
+      Map<String, dynamic>? page;
+      if (uuidRegex.hasMatch(pageIdOrSubdomain)) {
+        page = await _databaseService.getLandingPageById(pageIdOrSubdomain);
+      } else {
+        page = await _databaseService.getLandingPageByDomain(pageIdOrSubdomain);
+      }
       _handleLoadedPage(page);
     } catch (e) {
       emit(BuilderFailure(e.toString()));

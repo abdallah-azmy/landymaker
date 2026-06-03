@@ -22,7 +22,7 @@
       "destination": "https://landymaker-blog.vercel.app/blog/:match*"
     },
     {
-      "source": "/(.*)",
+      "source": "/(?!api/|sitemap\\.xml)(.*)",
       "destination": "/index.html"
     }
   ]

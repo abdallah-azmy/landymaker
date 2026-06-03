@@ -1,4 +1,16 @@
 {
   "projectId": "prj_dDwATAOXwcnKLc7nh0wVRIqDjqjV",
-  "orgId": "team_BebZFuNyzDuhF2J1GCL41Ahe"
+  "orgId": "team_BebZFuNyzDuhF2J1GCL41Ahe",
+  "projectName": "landymaker",
+  "settings": {
+    "createdAt": 1779840366940,
+    "framework": null,
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": "build/web",
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
 }

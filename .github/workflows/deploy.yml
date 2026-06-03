@@ -43,12 +43,8 @@ jobs:
       - name: 🔗 Pull Vercel Project Info
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: 🏗️ Prepare Vercel Output
-        run: |
-          mkdir -p .vercel/output/static
-          cp -r build/web/* .vercel/output/static/
-          # Create Build Output config with proper routing and /blog proxy
-          echo '{"version":3,"routes":[{"src":"/blog","dest":"https://landymaker-blog.vercel.app/blog"},{"src":"/blog/(.*)","dest":"https://landymaker-blog.vercel.app/blog/$1"},{"src":"/_next/(.*)","dest":"https://landymaker-blog.vercel.app/_next/$1"},{"handle":"filesystem"},{"src":"/((?!seo-middleware).*)","dest":"/index.html"}]}' > .vercel/output/config.json
+      - name: 🏗️ Build Vercel Project
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: 🚀 Deploy to Vercel Production
         run: vercel deploy --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}

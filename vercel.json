@@ -22,6 +22,10 @@
       "destination": "https://landymaker-blog.vercel.app/blog/:match*"
     },
     {
+      "source": "/_next/:match*",
+      "destination": "https://landymaker-blog.vercel.app/_next/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

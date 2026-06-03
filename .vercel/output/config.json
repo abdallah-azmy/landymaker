@@ -1,0 +1,68 @@
+{
+  "version": 3,
+  "routes": [
+    {
+      "src": "^(?:\\/((?!api|_next\\/static|_next\\/image|favicon.png|manifest.json|icons).*))[\\/#\\?]?$",
+      "middlewareRawSrc": [
+        "/((?!api|_next/static|_next/image|favicon.png|manifest.json|icons).*)"
+      ],
+      "middlewarePath": "middleware",
+      "continue": true,
+      "override": true
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/sitemap\\.xml$",
+      "dest": "/api/sitemap",
+      "check": true
+    },
+    {
+      "src": "^/robots\\.txt$",
+      "dest": "/robots.txt",
+      "check": true
+    },
+    {
+      "src": "^/llms\\.txt$",
+      "dest": "/llms.txt",
+      "check": true
+    },
+    {
+      "src": "^/blog$",
+      "dest": "https://landymaker-blog.vercel.app/blog",
+      "check": true
+    },
+    {
+      "src": "^/blog(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?$",
+      "dest": "https://landymaker-blog.vercel.app/blog/$1",
+      "check": true
+    },
+    {
+      "src": "^(?:/(.*))$",
+      "dest": "/index.html",
+      "check": true
+    },
+    {
+      "src": "^/api(/.*)?$",
+      "status": 404
+    },
+    {
+      "handle": "error"
+    },
+    {
+      "status": 404,
+      "src": "^(?!/api).*$",
+      "dest": "/404.html"
+    },
+    {
+      "handle": "miss"
+    },
+    {
+      "src": "^/api/(.+)(?:\\.(?:js))$",
+      "dest": "/api/$1",
+      "check": true
+    }
+  ],
+  "crons": []
+}

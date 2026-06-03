@@ -5,6 +5,8 @@ import '../../features/auth/controllers/auth_cubit.dart';
 import '../../features/auth/controllers/auth_state.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
+import '../../features/auth/screens/forgot_password_screen.dart';
+import '../../features/auth/screens/reset_password_screen.dart';
 import '../../features/dashboard/screens/dashboard_shell.dart';
 import '../../features/home/screens/landymaker_home_screen.dart';
 import '../../features/public_viewer/screens/public_landing_page.dart';
@@ -164,6 +166,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/reset-password',
+      builder: (context, state) => const ResetPasswordScreen(),
     ),
     GoRoute(
       path: '/builder',

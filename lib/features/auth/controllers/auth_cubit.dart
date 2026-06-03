@@ -57,12 +57,34 @@ class AuthCubit extends Cubit<AuthState> {
         fullName: fullName,
       );
       if (success) {
-        // Prevent auto-login by logging out the newly registered user session
-        await _authService.logout();
-        emit(RegistrationSuccess("Registration successful! Please login with your credentials."));
+        emit(Authenticated(
+          userId: _authService.currentUserId!,
+          email: _authService.currentUserEmail!,
+          role: _authService.currentUserRole,
+        ));
       } else {
         emit(AuthFailure("Registration failed"));
       }
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
+    }
+  }
+
+  Future<void> sendPasswordReset(String email) async {
+    emit(AuthLoading());
+    try {
+      await _authService.sendPasswordResetEmail(email);
+      emit(PasswordResetEmailSent("Password reset link sent to your email."));
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
+    }
+  }
+
+  Future<void> resetPassword(String newPassword) async {
+    emit(AuthLoading());
+    try {
+      await _authService.updatePassword(newPassword);
+      emit(PasswordResetSuccess("Password updated successfully."));
     } catch (e) {
       emit(AuthFailure(e.toString()));
     }

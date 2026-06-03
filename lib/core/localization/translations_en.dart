@@ -139,4 +139,13 @@ const Map<String, String> translationsEn = {
   'conversion_tracking': 'Conversion Tracking (Pixel)',
   'team_management': 'Team Management',
   'blog_management': 'Blog Management (SEO)',
+  'forgot_password': 'Forgot password?',
+  'reset_password': 'Reset Password',
+  'send_reset_link': 'Send reset link',
+  'reset_link_sent': 'Password reset link sent to your email successfully!',
+  'new_password': 'New Password',
+  'confirm_new_password': 'Confirm New Password',
+  'update_password': 'Update Password',
+  'password_updated_success': 'Password updated successfully!',
+  'passwords_do_not_match': 'Passwords do not match',
 };

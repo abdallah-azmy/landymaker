@@ -187,6 +187,30 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                 ),
                               ),
+                              const SizedBox(height: 8),
+
+                              Align(
+                                alignment: loc.isRtl
+                                    ? Alignment.centerLeft
+                                    : Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: () {
+                                    context.go('/forgot-password');
+                                  },
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: const Size(0, 0),
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    loc.translate('forgot_password') ?? 'هل نسيت كلمة المرور؟',
+                                    style: AppTypography.caption.copyWith(
+                                      color: AppColors.secondary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
                               const SizedBox(height: 16),
 
                               if (errorMessage != null) ...[

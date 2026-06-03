@@ -139,4 +139,13 @@ const Map<String, String> translationsAr = {
   'conversion_tracking': 'تتبع التحويلات (Pixel)',
   'team_management': 'إدارة الفريق والوصول',
   'blog_management': 'إدارة المدونة (SEO Blog)',
+  'forgot_password': 'هل نسيت كلمة المرور؟',
+  'reset_password': 'إعادة تعيين كلمة المرور',
+  'send_reset_link': 'إرسال رابط استعادة كلمة المرور',
+  'reset_link_sent': 'تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني بنجاح!',
+  'new_password': 'كلمة المرور الجديدة',
+  'confirm_new_password': 'تأكيد كلمة المرور الجديدة',
+  'update_password': 'تحديث كلمة المرور',
+  'password_updated_success': 'تم تحديث كلمة المرور بنجاح!',
+  'passwords_do_not_match': 'كلمات المرور غير متطابقة',
 };

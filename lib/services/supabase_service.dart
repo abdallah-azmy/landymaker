@@ -186,6 +186,30 @@ class SupabaseService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      final redirectTo = '${Uri.base.origin}/reset-password';
+      await _client!.auth.resetPasswordForEmail(
+        email,
+        redirectTo: redirectTo,
+      );
+    } catch (e) {
+      debugPrint('Reset password email exception: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      await _client!.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+    } catch (e) {
+      debugPrint('Update password exception: $e');
+      rethrow;
+    }
+  }
+
   // ----------------------------------------------------
   // LANDING PAGES OPERATIONS
   // ----------------------------------------------------

@@ -29,3 +29,15 @@ class RegistrationSuccess extends AuthState {
 
   RegistrationSuccess(this.message);
 }
+
+class PasswordResetEmailSent extends AuthState {
+  final String message;
+
+  PasswordResetEmailSent(this.message);
+}
+
+class PasswordResetSuccess extends AuthState {
+  final String message;
+
+  PasswordResetSuccess(this.message);
+}

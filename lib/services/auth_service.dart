@@ -29,4 +29,12 @@ class AuthService {
   Future<void> logout() {
     return _supabase.logout();
   }
+
+  Future<void> sendPasswordResetEmail(String email) {
+    return _supabase.sendPasswordResetEmail(email);
+  }
+
+  Future<void> updatePassword(String newPassword) {
+    return _supabase.updatePassword(newPassword);
+  }
 }

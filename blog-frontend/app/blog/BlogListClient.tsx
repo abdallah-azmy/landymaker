@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Calendar, ChevronLeft, ChevronRight, Clock, TrendingUp, Search, Loader2 } from 'lucide-react';
 
 export default function BlogListClient({ 
@@ -58,12 +58,12 @@ export default function BlogListClient({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }

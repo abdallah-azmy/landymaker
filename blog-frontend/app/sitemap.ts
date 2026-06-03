@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://landymaker.com';
 
-  let blogUrls = [];
+  let blogUrls: MetadataRoute.Sitemap = [];
   try {
     const { data: posts, error } = await supabase
       .from('blog_posts')

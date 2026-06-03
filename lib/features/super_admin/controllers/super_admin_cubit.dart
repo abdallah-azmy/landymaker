@@ -23,6 +23,7 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
       final plans = await _databaseService.getSubscriptionPlans();
       final securityLimits = await _databaseService.getSystemSecurityLimits();
       final auditLogs = await _databaseService.getSystemAuditLogs();
+      final platformSeoSettings = await _databaseService.getPlatformSeoSettings();
 
       emit(SuperAdminLoaded(
         totalUsers: metrics['total_users'] ?? 0,
@@ -36,6 +37,7 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
         plans: plans,
         securityLimits: securityLimits,
         auditLogs: auditLogs,
+        platformSeoSettings: platformSeoSettings,
       ));
     } catch (e) {
       emit(SuperAdminFailure("Error loading admin metrics: $e"));
@@ -75,6 +77,28 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
       await fetchAdminMetrics(); // Refresh data
     } catch (e) {
       emit(SuperAdminFailure("Failed to reject: $e"));
+    }
+  }
+
+  Future<void> updatePlatformSeo(String routePath, Map<String, dynamic> data) async {
+    try {
+      final isAvailable = await _databaseService.isRouteAvailable(
+        routePath,
+        checkPlatform: false, // We don't check platform itself because we might be updating our own route
+      );
+
+      if (!isAvailable) {
+        emit(SuperAdminFailure("هذا المسار مستخدم بالفعل كصفحة هبوط أو محجوز للمنصة."));
+        // We wait a bit then fetch metrics to clear the loading/failure state and reload normal data
+        await Future.delayed(const Duration(seconds: 2));
+        await fetchAdminMetrics();
+        return;
+      }
+
+      await _databaseService.updatePlatformSeoSettings(routePath, data);
+      await fetchAdminMetrics();
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to update SEO settings: $e"));
     }
   }
 }

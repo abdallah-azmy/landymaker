@@ -18,6 +18,7 @@ class SuperAdminLoaded extends SuperAdminState {
   final List<Map<String, dynamic>> plans;
   final Map<String, int> securityLimits;
   final List<Map<String, dynamic>> auditLogs;
+  final List<Map<String, dynamic>> platformSeoSettings;
 
   SuperAdminLoaded({
     required this.totalUsers,
@@ -31,6 +32,7 @@ class SuperAdminLoaded extends SuperAdminState {
     this.plans = const [],
     this.securityLimits = const {},
     this.auditLogs = const [],
+    this.platformSeoSettings = const [],
   });
 
   SuperAdminLoaded copyWith({
@@ -45,6 +47,7 @@ class SuperAdminLoaded extends SuperAdminState {
     List<Map<String, dynamic>>? plans,
     Map<String, int>? securityLimits,
     List<Map<String, dynamic>>? auditLogs,
+    List<Map<String, dynamic>>? platformSeoSettings,
   }) {
     return SuperAdminLoaded(
       totalUsers: totalUsers ?? this.totalUsers,
@@ -58,6 +61,7 @@ class SuperAdminLoaded extends SuperAdminState {
       plans: plans ?? this.plans,
       securityLimits: securityLimits ?? this.securityLimits,
       auditLogs: auditLogs ?? this.auditLogs,
+      platformSeoSettings: platformSeoSettings ?? this.platformSeoSettings,
     );
   }
 }

@@ -123,6 +123,18 @@ class DatabaseService {
   Future<List<Map<String, dynamic>>> getSystemAuditLogs() {
     return _supabase.getSystemAuditLogs();
   }
+
+  Future<List<Map<String, dynamic>>> getPlatformSeoSettings() {
+    return _supabase.getPlatformSeoSettings();
+  }
+
+  Future<void> updatePlatformSeoSettings(String routePath, Map<String, dynamic> data) {
+    return _supabase.updatePlatformSeoSettings(routePath, data);
+  }
+
+  Future<bool> isRouteAvailable(String route, {String? excludePageId, bool checkPlatform = true, bool checkUsers = true}) {
+    return _supabase.isRouteAvailable(route, excludePageId: excludePageId, checkPlatform: checkPlatform, checkUsers: checkUsers);
+  }
 }
 
 

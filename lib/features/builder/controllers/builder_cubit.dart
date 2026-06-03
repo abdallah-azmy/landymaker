@@ -219,6 +219,22 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
 
     emit(currentState.copyWith(isSaving: true));
     try {
+      // 1. Check Route Availability
+      final isAvailable = await _databaseService.isRouteAvailable(
+        sanitizedSubdomain,
+        excludePageId: currentState.pageId,
+      );
+
+      if (!isAvailable) {
+        _emitDirty(
+          currentState.copyWith(
+            isSaving: false,
+            errorMessage: "اسم الرابط ($sanitizedSubdomain) محجوز بالفعل. يرجى اختيار اسم آخر.",
+          ),
+        );
+        return;
+      }
+
       // 2. Check Multi-Page Guard with Super Admin Bypass
       if (currentState.pageId == null) {
         final profile = await _databaseService.getProfile(userId);

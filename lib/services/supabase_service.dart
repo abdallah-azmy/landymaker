@@ -627,6 +627,70 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getPlatformSeoSettings() async {
+    try {
+      final res = await _client!.from('platform_seo_settings').select().order('route_path', ascending: true);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching platform SEO settings: $e");
+      return [];
+    }
+  }
+
+  Future<bool> isRouteAvailable(String route, {String? excludePageId, bool checkPlatform = true, bool checkUsers = true}) async {
+    try {
+      final cleanRoute = route.startsWith('/') ? route : '/$route';
+      final cleanSubdomain = route.startsWith('/') ? route.substring(1) : route;
+
+      // 1. Check hardcoded system routes
+      final systemRoutes = ['dashboard', 'admin', 'super_admin', 'login', 'register', 'blog', 'api', '_next', 'index', ''];
+      if (systemRoutes.contains(cleanSubdomain.toLowerCase())) {
+        return false;
+      }
+
+      // 2. Check platform_seo_settings
+      if (checkPlatform) {
+        final seoRes = await _client!.from('platform_seo_settings')
+            .select('route_path')
+            .eq('route_path', cleanRoute)
+            .maybeSingle();
+        if (seoRes != null) return false;
+      }
+
+      // 3. Check landing_pages
+      if (checkUsers) {
+        var query = _client!.from(DbConstants.landingPagesTable)
+            .select('id')
+            .eq('subdomain', cleanSubdomain);
+        
+        if (excludePageId != null) {
+          query = query.neq('id', excludePageId);
+        }
+        
+        final lpRes = await query.maybeSingle();
+        if (lpRes != null) return false;
+      }
+
+      return true;
+    } catch (e) {
+      debugPrint("Error checking route availability: $e");
+      // Fail safe: if error, don't let them take it just in case
+      return false;
+    }
+  }
+
+  Future<void> updatePlatformSeoSettings(String routePath, Map<String, dynamic> data) async {
+    try {
+      await _client!.from('platform_seo_settings').upsert({
+        'route_path': routePath,
+        ...data,
+      });
+    } catch (e) {
+      debugPrint("Error updating platform SEO settings: $e");
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>> getSuperAdminMetrics() async {
     try {
       final usersRes = await _client!

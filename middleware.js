@@ -1,8 +1,3 @@
-export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.png|manifest.json|icons).*)',
-  ],
-};
 
 export default async function middleware(request) {
   const url = new URL(request.url);

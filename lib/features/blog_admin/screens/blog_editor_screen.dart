@@ -20,6 +20,7 @@ class BlogEditorScreen extends StatefulWidget {
 class _BlogEditorScreenState extends State<BlogEditorScreen> {
   late TextEditingController _titleController;
   late TextEditingController _slugController;
+  late TextEditingController _metaDescController;
   late quill.QuillController _quillController;
   final ScrollController _scrollController = ScrollController();
   bool _isPublished = false;
@@ -32,6 +33,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
     super.initState();
     _titleController = TextEditingController(text: widget.post?.title ?? '');
     _slugController = TextEditingController(text: widget.post?.slug ?? '');
+    _metaDescController = TextEditingController(text: widget.post?.metaDescription ?? '');
     _isPublished = widget.post?.isPublished ?? false;
 
     // Load HTML to Delta for Quill
@@ -56,6 +58,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
   void dispose() {
     _titleController.dispose();
     _slugController.dispose();
+    _metaDescController.dispose();
     _quillController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -94,6 +97,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
       id: widget.post?.id ?? '',
       title: _titleController.text,
       slug: _slugController.text,
+      metaDescription: _metaDescController.text,
       content: htmlContent,
       isPublished: _isPublished,
       createdAt: widget.post?.createdAt ?? DateTime.now(),
@@ -251,6 +255,42 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                         focusedBorder: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // Meta Description Input
+                    TextField(
+                      controller: _metaDescController,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                        height: 1.5,
+                      ),
+                      maxLines: 3,
+                      maxLength: 160,
+                      decoration: InputDecoration(
+                        hintText: "وصف قصير للمقال (يظهر في كروت المدونة ومحركات البحث)...",
+                        hintStyle: TextStyle(
+                          color: AppColors.textMuted.withValues(alpha: .5),
+                          fontSize: 14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: AppColors.border.withValues(alpha: .5)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: AppColors.border.withValues(alpha: .5)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppColors.primary),
+                        ),
+                        filled: true,
+                        fillColor: AppColors.background,
+                        contentPadding: const EdgeInsets.all(16),
+                        counterStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                       ),
                     ),
                     const SizedBox(height: 24),

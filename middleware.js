@@ -190,3 +190,11 @@ export default async function middleware(request) {
     }
   });
 }
+
+// Next.js (Vercel) automatically ignores /_next/ requests in middleware by default.
+// We MUST explicitly tell it to run on EVERYTHING so we can proxy /_next/ to the blog.
+export const config = {
+  matcher: [
+    '/:path*'
+  ],
+};

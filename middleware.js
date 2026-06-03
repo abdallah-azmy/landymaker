@@ -35,11 +35,11 @@ export default async function middleware(request) {
   // 4. Early Exit for Dashboard/Builder (Flutter Context)
   const pathSegments = url.pathname.split('/').filter(Boolean);
   if (pathSegments.length > 0 && ['login', 'register', 'dashboard', 'builder'].includes(pathSegments[0])) {
-    // We are in Flutter Context. Mark it so vercel.json rewrites it to /index.html
+    // We are in Flutter Context. Rewrite directly to /index.html
+    const rewriteUrl = new URL('/index.html', request.url);
     return new Response(null, {
       headers: {
-        'x-middleware-next': '1',
-        'x-middleware-request-x-is-flutter': '1'
+        'x-middleware-rewrite': rewriteUrl.toString()
       }
     });
   }
@@ -177,11 +177,11 @@ export default async function middleware(request) {
     }
   }
 
-  // Real humans get the Flutter app - returning headers allows vercel.json to route to index.html
+  // Real humans get the Flutter app - rewrite directly to /index.html
+  const rewriteUrl = new URL('/index.html', request.url);
   return new Response(null, {
     headers: {
-      'x-middleware-next': '1',
-      'x-middleware-request-x-is-flutter': '1'
+      'x-middleware-rewrite': rewriteUrl.toString()
     }
   });
 }

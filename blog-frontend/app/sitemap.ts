@@ -4,18 +4,24 @@ import { supabase } from '@/lib/supabase';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://landymaker.com';
 
-  // Fetch all published posts
-  const { data: posts } = await supabase
-    .from('blog_posts')
-    .select('slug, updated_at')
-    .eq('is_published', true);
+  let blogUrls = [];
+  try {
+    const { data: posts, error } = await supabase
+      .from('blog_posts')
+      .select('slug, updated_at')
+      .eq('is_published', true);
 
-  const blogUrls = (posts || []).map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.updated_at),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+    if (!error && posts) {
+      blogUrls = posts.map((post) => ({
+        url: `${baseUrl}/blog/${post.slug}`,
+        lastModified: new Date(post.updated_at),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }));
+    }
+  } catch (err) {
+    console.warn('Could not fetch blog posts for sitemap during build:', err);
+  }
 
   return [
     {

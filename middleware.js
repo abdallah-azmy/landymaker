@@ -6,19 +6,46 @@ export const config = {
 
 export default async function middleware(request) {
   const url = new URL(request.url);
-  const userAgent = request.headers.get('user-agent') || '';
-  const botPattern = /bot|googlebot|crawler|spider|robot|crawling|ai|gptbot|perplexity|anthropic/i;
+  const host = request.headers.get('host') || '';
   
-  const isBot = botPattern.test(userAgent);
-  const pathSegments = url.pathname.split('/').filter(Boolean);
-  
-  // Exclude dashboard and builder paths from SEO interception
-  if (pathSegments.length > 0 && ['login', 'register', 'dashboard', 'builder'].includes(pathSegments[0])) {
-    // Return undefined to pass through to Flutter SPA
+  // 1. Determine Context
+  const isDirectBlog = host.includes('landymaker-blog.vercel.app');
+  const isProxiedBlog = request.headers.get('x-blog-proxied') === '1';
+  const isBlogContext = isDirectBlog || isProxiedBlog;
+
+  // 2. Blog Context - Early Exit!
+  // If we are already running on the Next.js blog project, let Next.js handle everything natively.
+  if (isBlogContext) {
     return;
   }
 
-  // Determine if it's the root path or a subdomain
+  // 3. Blog Proxy Logic (Flutter Context)
+  if (url.pathname.startsWith('/blog')) {
+    // Rewrite to the blog project and inject a proxy header to break loops
+    const newUrl = new URL(url.pathname, 'https://landymaker-blog.vercel.app');
+    return new Response(null, {
+      headers: {
+        'x-middleware-rewrite': newUrl.toString(),
+        'x-middleware-request-x-blog-proxied': '1'
+      }
+    });
+  }
+
+  // 4. Early Exit for Dashboard/Builder (Flutter Context)
+  const pathSegments = url.pathname.split('/').filter(Boolean);
+  if (pathSegments.length > 0 && ['login', 'register', 'dashboard', 'builder'].includes(pathSegments[0])) {
+    // We are in Flutter Context. Mark it so vercel.json rewrites it to /index.html
+    return new Response(null, {
+      headers: {
+        'x-middleware-next': '1',
+        'x-middleware-request-x-is-flutter': '1'
+      }
+    });
+  }
+
+  const userAgent = request.headers.get('user-agent') || '';
+  const botPattern = /bot|googlebot|crawler|spider|robot|crawling|ai|gptbot|perplexity|anthropic/i;
+  const isBot = botPattern.test(userAgent);
   const slug = pathSegments.length > 0 ? pathSegments[0] : '/';
 
   if (isBot) {
@@ -149,6 +176,11 @@ export default async function middleware(request) {
     }
   }
 
-  // Real humans get the Flutter app - returning undefined continues the request to index.html
-  return;
+  // Real humans get the Flutter app - returning headers allows vercel.json to route to index.html
+  return new Response(null, {
+    headers: {
+      'x-middleware-next': '1',
+      'x-middleware-request-x-is-flutter': '1'
+    }
+  });
 }

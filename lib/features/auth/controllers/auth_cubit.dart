@@ -8,10 +8,12 @@ class AuthCubit extends Cubit<AuthState> {
   final AuthService _authService;
 
   AuthCubit(this._authService) : super(AuthInitial()) {
+    _authService.addListener(checkAuth);
     checkAuth();
   }
 
   void checkAuth() {
+    if (isClosed) return;
     if (_authService.isAuthenticated) {
       emit(Authenticated(
         userId: _authService.currentUserId!,
@@ -19,8 +21,16 @@ class AuthCubit extends Cubit<AuthState> {
         role: _authService.currentUserRole,
       ));
     } else {
-      emit(Unauthenticated());
+      if (state is! Unauthenticated) {
+        emit(Unauthenticated());
+      }
     }
+  }
+
+  @override
+  Future<void> close() {
+    _authService.removeListener(checkAuth);
+    return super.close();
   }
 
   Future<void> login(String email, String password) async {

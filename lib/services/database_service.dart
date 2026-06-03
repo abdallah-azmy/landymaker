@@ -13,8 +13,8 @@ class DatabaseService {
     return _supabase.getLandingPageById(pageId);
   }
 
-  Future<Map<String, dynamic>?> getLandingPageByDomain(String domain, {bool isCustom = false}) {
-    return _supabase.getLandingPageByDomain(domain, isCustom: isCustom);
+  Future<Map<String, dynamic>?> getLandingPageByDomain(String domain, {bool isCustom = false, bool publishedOnly = true}) {
+    return _supabase.getLandingPageByDomain(domain, isCustom: isCustom, publishedOnly: publishedOnly);
   }
 
   Future<String?> saveLandingPage({

@@ -185,9 +185,7 @@ class SidebarNavigation extends StatelessWidget {
                     if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
                       Navigator.pop(context);
                     }
-                    if (item['is_builder'] == true) {
-                      context.go('/builder');
-                    } else if (route != null) {
+                    if (route != null) {
                       context.go(route);
                     }
                   },

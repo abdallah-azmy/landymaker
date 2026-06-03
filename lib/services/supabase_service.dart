@@ -254,15 +254,20 @@ class SupabaseService extends ChangeNotifier {
   Future<Map<String, dynamic>?> getLandingPageByDomain(
     String domain, {
     bool isCustom = false,
+    bool publishedOnly = true,
   }) async {
     try {
       final column = isCustom ? 'custom_domain' : 'subdomain';
-      final res = await _client!
+      var query = _client!
           .from(DbConstants.landingPagesTable)
           .select('*, profiles(tier)')
-          .eq(column, domain)
-          .eq('is_published', true)
-          .maybeSingle();
+          .eq(column, domain);
+
+      if (publishedOnly) {
+        query = query.eq('is_published', true);
+      }
+
+      final res = await query.maybeSingle();
 
       if (res != null) {
         final tier = res['profiles']?['tier'] ?? 'free';

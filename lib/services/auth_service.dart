@@ -10,6 +10,14 @@ class AuthService {
   String get currentUserRole => _supabase.currentUserRole;
   bool get isAuthenticated => _supabase.isAuthenticated;
 
+  void addListener(void Function() listener) {
+    _supabase.addListener(listener);
+  }
+
+  void removeListener(void Function() listener) {
+    _supabase.removeListener(listener);
+  }
+
   Future<bool> register({
     required String email,
     required String password,

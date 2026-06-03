@@ -142,7 +142,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       if (uuidRegex.hasMatch(pageIdOrSubdomain)) {
         page = await _databaseService.getLandingPageById(pageIdOrSubdomain);
       } else {
-        page = await _databaseService.getLandingPageByDomain(pageIdOrSubdomain);
+        page = await _databaseService.getLandingPageByDomain(pageIdOrSubdomain, publishedOnly: false);
       }
       _handleLoadedPage(page);
     } catch (e) {

@@ -154,16 +154,16 @@ class _CreatePageModalState extends State<CreatePageModal> {
       // FIX: Use sl<DatabaseService>() instead of RepositoryProvider
       final dbService = sl<DatabaseService>();
 
-      Logger.info("Executing Supabase query for slug: $slug");
-      final existingPage = await dbService.getLandingPageByDomain(slug);
+      Logger.info("Checking route availability for slug: $slug");
+      final isAvailable = await dbService.isRouteAvailable(slug);
       Logger.info(
-        "Supabase response: ${existingPage != null ? 'Found existing' : 'Not found'}",
+        "Route availability response: $isAvailable",
       );
 
       if (mounted) {
         setState(() {
           _isCheckingSlug = false;
-          if (existingPage != null) {
+          if (!isAvailable) {
             _slugError = context.translate('slug_taken_error');
             _isSlugAvailable = false;
           } else {

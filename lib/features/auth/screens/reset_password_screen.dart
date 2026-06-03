@@ -68,13 +68,42 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               // Log out the active recovery session to force manual login with new password
               context.read<AuthCubit>().logout();
             } else if (state is Unauthenticated) {
-              context.go('/login');
+              final uri = Uri.base;
+              final hasRecovery = uri.fragment.contains('access_token=') || 
+                                  uri.queryParameters.containsKey('access_token') ||
+                                  uri.fragment.contains('type=recovery');
+              if (!hasRecovery) {
+                context.go('/login');
+              }
             }
           },
           builder: (context, state) {
+            final loc = context.watch<LocalizationCubit>();
+            final uri = Uri.base;
+            final hasRecovery = uri.fragment.contains('access_token=') || 
+                                uri.queryParameters.containsKey('access_token') ||
+                                uri.fragment.contains('type=recovery');
+
+            if ((state is Unauthenticated || state is AuthInitial) && hasRecovery) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(color: AppColors.secondary),
+                    const SizedBox(height: 24),
+                    Text(
+                      loc.isRtl
+                          ? "جاري التحقق من الرابط وتأكيد الجلسة..."
+                          : "Verifying recovery link and establishing session...",
+                      style: AppTypography.bodyLarge.copyWith(color: Colors.white70),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             final isLoading = state is AuthLoading;
             final errorMessage = state is AuthFailure ? state.message : null;
-            final loc = context.watch<LocalizationCubit>();
 
             return Center(
               child: SingleChildScrollView(

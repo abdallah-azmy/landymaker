@@ -32,6 +32,12 @@ export default async function middleware(request) {
     });
   }
 
+  // 3.5. Early Exit for Static Assets (Flutter Context)
+  const staticExtensions = /\.(js|wasm|png|jpg|jpeg|gif|svg|ico|json|css|woff2?|ttf|eot|mp4|webm|mp3|wav|ogg|pdf|txt|xml)$/i;
+  if (staticExtensions.test(url.pathname)) {
+    return;
+  }
+
   // 4. Early Exit for Dashboard/Builder (Flutter Context)
   const pathSegments = url.pathname.split('/').filter(Boolean);
   if (pathSegments.length > 0 && ['login', 'register', 'dashboard', 'builder'].includes(pathSegments[0])) {

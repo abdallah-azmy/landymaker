@@ -1,0 +1,6 @@
+{
+  "name": "landymaker-root",
+  "version": "1.0.0",
+  "description": "LandyMaker Root with Vercel API and Middleware",
+  "dependencies": {}
+}

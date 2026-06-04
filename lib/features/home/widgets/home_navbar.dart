@@ -39,19 +39,36 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   // Logo
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Landy",
+                            style: AppTypography.h3.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 22,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          Text(
+                            "Maker",
+                            style: AppTypography.h3.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF00E5FF),
+                              fontSize: 22,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 10),
                       Image.asset(
                         'assets/images/logo_small.webp',
-                        height: 40,
-                        width: 40,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        "landymaker",
-                        style: AppTypography.h3.copyWith(
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                        ),
+                        height: 38,
+                        width: 38,
                       ),
                     ],
                   ),

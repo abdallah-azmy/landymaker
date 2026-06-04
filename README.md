@@ -36,6 +36,7 @@
 - **Dynamic Google Fonts**: Real-time typography updates via Google Fonts API without application bloat.
 - **Responsive Workspace**: Clean mobile-first simulator, tablet, and desktop real-time viewports.
 - **Entrance & Cycling Effects**: Animated mobile preview cycling and scroll entrance animations on the marketing landing page hero.
+- **Optimized Performance & Gestures**: Symmetrical desktop Bento grid alignment, state-isolated high-frequency animations (typewriter, mockups) to prevent screen-wide rebuilds, and scroll-hijacking prevention inside interactive mobile previews using overscroll propagation.
 
 ### 🏪 E-commerce & Shopping Carts
 - **Integrated Catalog**: Add products, configure descriptions, set prices, and list item feeds.
@@ -112,13 +113,18 @@ LandyMaker features a strict design standard managed under the project's specifi
 
 ## 📈 Edge SEO & Bot Middleware
 
-To circumvent the SEO limitations of client-side single-page Flutter apps, Vercel Edge Middleware (`middleware.js`) operates a bot-detection layer:
+To circumvent the SEO limitations of client-side single-page Flutter apps, Vercel Edge Middleware (`middleware.js`) operates a domain-aware bot-detection and routing proxy:
 
 - **Crawler Detection**: Identifies search bots and AI crawlers (Googlebot, GPTBot, Perplexitybot, Applebot, etc.) using User-Agent headers.
 - **Dynamic Crawler HTML**: 
-  - For **Platform Routes** (`/`, `/login`, etc.): Queries the `public.platform_seo_settings` database table and returns lightweight, rich meta-tagged static HTML.
-  - For **Tenant Landing Pages**: Queries the page design JSON and dynamically renders a semantic HTML page containing only visible headers, feature text, and JSON-LD structured schema metadata.
-- **Next.js Blog Proxy**: Rewrites any requests for `/blog`, `/_next`, `/sitemap.xml`, `/robots.txt`, and `/llms.txt` to the Next.js blog project, appending headers to avoid routing loops.
+  - For **Platform Routes** (on Core Domains like `landymaker.com`): Queries the `public.platform_seo_settings` database table (e.g. `/` or `/login`) and returns lightweight, rich meta-tagged static HTML.
+  - For **Tenant Landing Pages**:
+    - **Path-Based Slugs** (on Core Domains): Queries `landing_pages` where `subdomain = slug` (e.g. `/azmy`).
+    - **Custom Domains** (on Custom Domains): Queries `landing_pages` where `custom_domain = host`.
+    - **Tier Validation**: For custom domains, checks the user profile tier and throws 404 for `free` tier pages.
+    - **Semantic Generation**: Parses all blocks in the page design (`hero_saas`, `pricing`, `testimonials`, `contact_info`, `products`, `lead_magnet`, `basic_section`, etc.) to produce complete semantic HTML (using `<header>`, `<section>`, `<ul>`, `<blockquote>`, etc.) and structured JSON-LD schema metadata for maximum crawler indexing.
+- **Next.js Blog Proxy**: Rewrites requests for `/blog`, `/_next`, `/sitemap.xml`, `/robots.txt`, and `/llms.txt` to the Next.js blog project **only on core domains** (to avoid hijacking custom domain sitemaps).
+- **Dynamic Custom Domain SEO files**: For custom domains, intercepting `/robots.txt` and `/sitemap.xml` returns dynamic, self-referential plain text and XML sitemaps pointing exclusively to the custom domain home route with the database last modified timestamp.
 
 ---
 

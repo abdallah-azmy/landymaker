@@ -7,10 +7,12 @@ import '../../builder/models/landing_page_theme.dart';
 
 class HomeHeroSection extends StatefulWidget {
   final VoidCallback onGetStartedPressed;
+  final ScrollController? parentScrollController;
 
   const HomeHeroSection({
     super.key,
     required this.onGetStartedPressed,
+    this.parentScrollController,
   });
 
   @override
@@ -238,9 +240,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Text and CTA
-                  Expanded(
-                    flex: isMobile ? 0 : 6,
-                    child: AnimatedBuilder(
+                  if (isMobile)
+                    AnimatedBuilder(
                       animation: _entranceController,
                       builder: (context, child) {
                         return Transform.translate(
@@ -252,9 +253,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                         );
                       },
                       child: Column(
-                        crossAxisAlignment: isMobile
-                            ? CrossAxisAlignment.center
-                            : CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -293,20 +292,19 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                           Text(
                             "ابنِ صفحة هبوط احترافية متكاملة لخدماتك",
                             style: AppTypography.h1.copyWith(
-                              fontSize: isMobile ? 36 : 56,
+                              fontSize: 36,
                               fontWeight: FontWeight.w900,
                               height: 1.15,
                               letterSpacing: -1,
                             ),
-                            textAlign:
-                                isMobile ? TextAlign.center : TextAlign.start,
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 18),
                           SizedBox(
                             height: 50,
                             child: _TypewriterText(
                               texts: _typewriterTexts,
-                              isMobile: isMobile,
+                              isMobile: true,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -317,8 +315,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                               height: 1.6,
                               fontSize: 16,
                             ),
-                            textAlign:
-                                isMobile ? TextAlign.center : TextAlign.start,
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 36),
                           MouseRegion(
@@ -361,8 +358,129 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                           ),
                         ],
                       ),
+                    )
+                  else
+                    Expanded(
+                      flex: 6,
+                      child: AnimatedBuilder(
+                        animation: _entranceController,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _entranceSlide.value),
+                            child: Opacity(
+                              opacity: _entranceFade.value,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: AppColors.secondary.withValues(alpha: 0.2),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.auto_awesome_rounded,
+                                    color: AppColors.secondary,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "أطلق موقعك في ٥ دقائق فقط 🚀",
+                                    style: AppTypography.caption.copyWith(
+                                      color: AppColors.secondary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              "ابنِ صفحة هبوط احترافية متكاملة لخدماتك",
+                              style: AppTypography.h1.copyWith(
+                                fontSize: 56,
+                                fontWeight: FontWeight.w900,
+                                height: 1.15,
+                                letterSpacing: -1,
+                              ),
+                              textAlign: TextAlign.start,
+                            ),
+                            const SizedBox(height: 18),
+                            SizedBox(
+                              height: 50,
+                              child: _TypewriterText(
+                                texts: _typewriterTexts,
+                                isMobile: false,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              "بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.",
+                              style: AppTypography.bodyLarge.copyWith(
+                                color: AppColors.textSecondary,
+                                height: 1.6,
+                                fontSize: 16,
+                              ),
+                              textAlign: TextAlign.start,
+                            ),
+                            const SizedBox(height: 36),
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              onEnter: (_) => setState(() => _btnHovered = true),
+                              onExit: (_) => setState(() => _btnHovered = false),
+                              child: AnimatedScale(
+                                scale: _btnHovered ? 1.04 : 1.0,
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeOutCubic,
+                                child: ElevatedButton.icon(
+                                  onPressed: widget.onGetStartedPressed,
+                                  icon: const Icon(
+                                    Icons.flash_on_rounded,
+                                    size: 20,
+                                  ),
+                                  label: const Text(
+                                    "ابدأ الآن مجاناً",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 36,
+                                      vertical: 20,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    elevation: 8,
+                                    shadowColor:
+                                        AppColors.primary.withValues(alpha: 0.4),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
 
                   if (isMobile)
                     const SizedBox(height: 64)
@@ -370,13 +488,21 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                     const SizedBox(width: 64),
 
                   // Phone Preview container with auto-cycling templates
-                  Expanded(
-                    flex: isMobile ? 0 : 5,
-                    child: _PhonePreview(
+                  if (isMobile)
+                    _PhonePreview(
                       isMobile: isMobile,
                       previewPages: _previewPages,
+                      parentScrollController: widget.parentScrollController,
+                    )
+                  else
+                    Expanded(
+                      flex: 5,
+                      child: _PhonePreview(
+                        isMobile: isMobile,
+                        previewPages: _previewPages,
+                        parentScrollController: widget.parentScrollController,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -503,10 +629,12 @@ class _TypewriterTextState extends State<_TypewriterText> with SingleTickerProvi
 class _PhonePreview extends StatefulWidget {
   final bool isMobile;
   final List<Map<String, dynamic>> previewPages;
+  final ScrollController? parentScrollController;
 
   const _PhonePreview({
     required this.isMobile,
     required this.previewPages,
+    this.parentScrollController,
   });
 
   @override
@@ -516,16 +644,19 @@ class _PhonePreview extends StatefulWidget {
 class _PhonePreviewState extends State<_PhonePreview> {
   int _activePreviewIndex = 0;
   Timer? _previewCycleTimer;
+  late ScrollController _innerScrollController;
 
   @override
   void initState() {
     super.initState();
+    _innerScrollController = ScrollController();
     _startPreviewCycling();
   }
 
   @override
   void dispose() {
     _previewCycleTimer?.cancel();
+    _innerScrollController.dispose();
     super.dispose();
   }
 
@@ -541,96 +672,224 @@ class _PhonePreviewState extends State<_PhonePreview> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 320,
-        height: 580,
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(38),
-          border: Border.all(
-            color: const Color(0xFF475569),
-            width: 8,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.secondary.withValues(alpha: 0.25),
-              blurRadius: 40,
-              spreadRadius: 2,
+    // Dynamic sizing: mobile gets slightly smaller mockup to leave comfortable scroll margins on sides
+    final mockupWidth = widget.isMobile ? 260.0 : 320.0;
+    final mockupHeight = widget.isMobile ? 470.0 : 580.0;
+    final outerRadius = widget.isMobile ? 32.0 : 38.0;
+    final innerRadius = widget.isMobile ? 24.0 : 30.0;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Left cycle button (desktop only)
+        if (!widget.isMobile)
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                _previewCycleTimer?.cancel();
+                setState(() {
+                  _activePreviewIndex = (_activePreviewIndex - 1 + widget.previewPages.length) % widget.previewPages.length;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                ),
+                child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white60, size: 14),
+              ),
             ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: [
-            // Status bar mock
-            Container(
-              height: 24,
+          ),
+        if (!widget.isMobile) const SizedBox(width: 16),
+
+        // Phone Frame
+        Container(
+          width: mockupWidth,
+          height: mockupHeight,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E293B),
+            borderRadius: BorderRadius.circular(outerRadius),
+            border: Border.all(
+              color: const Color(0xFF475569),
+              width: 8,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.secondary.withValues(alpha: 0.25),
+                blurRadius: 40,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(innerRadius),
+            child: Container(
               color: const Color(0xFF0F172A),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Stack(
                 children: [
-                  Text(
-                    "9:41",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Row(
+                  Column(
                     children: [
-                      Icon(
-                        Icons.signal_cellular_alt_rounded,
-                        color: Colors.white,
-                        size: 10,
+                      // Status bar mock
+                      Container(
+                        height: 24,
+                        color: const Color(0xFF0F172A),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "9:41",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.signal_cellular_alt_rounded,
+                                  color: Colors.white,
+                                  size: 10,
+                                ),
+                                SizedBox(width: 4),
+                                Icon(
+                                  Icons.wifi_rounded,
+                                  color: Colors.white,
+                                  size: 10,
+                                ),
+                                SizedBox(width: 4),
+                                Icon(
+                                  Icons.battery_std_rounded,
+                                  color: Colors.white,
+                                  size: 10,
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
                       ),
-                      SizedBox(width: 4),
-                      Icon(
-                        Icons.wifi_rounded,
-                        color: Colors.white,
-                        size: 10,
-                      ),
-                      SizedBox(width: 4),
-                      Icon(
-                        Icons.battery_std_rounded,
-                        color: Colors.white,
-                        size: 10,
+                      // Scrollable Preview with dynamic propagation on overscroll
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 600),
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
+                          child: KeyedSubtree(
+                            key: ValueKey<int>(_activePreviewIndex),
+                            child: Container(
+                              color: widget.previewPages[_activePreviewIndex]['theme'].background,
+                              child: NotificationListener<ScrollNotification>(
+                                onNotification: (ScrollNotification notification) {
+                                  if (notification is ScrollUpdateNotification) {
+                                    final parent = widget.parentScrollController;
+                                    if (parent != null && parent.hasClients) {
+                                      final double delta = notification.scrollDelta ?? 0;
+                                      final pos = _innerScrollController.position;
+
+                                      // Overscroll Down: inner view is at bottom, drag down -> scroll parent
+                                      if (pos.pixels >= pos.maxScrollExtent && delta > 0) {
+                                        parent.position.jumpTo((parent.offset + delta).clamp(0.0, parent.position.maxScrollExtent));
+                                      }
+                                      // Overscroll Up: inner view is at top, drag up -> scroll parent
+                                      else if (pos.pixels <= 0 && delta < 0) {
+                                        parent.position.jumpTo((parent.offset + delta).clamp(0.0, parent.position.maxScrollExtent));
+                                      }
+                                    }
+                                  }
+                                  return false;
+                                },
+                                child: SingleChildScrollView(
+                                  controller: _innerScrollController,
+                                  physics: const ClampingScrollPhysics(), // Clamping prevents rubber-banding blocks
+                                  child: SectionRenderer(
+                                    pageId: 'demo',
+                                    theme: widget.previewPages[_activePreviewIndex]['theme'],
+                                    blocks: List<Map<String, dynamic>>.from(
+                                      widget.previewPages[_activePreviewIndex]['blocks'],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
-                  )
+                  ),
+
+                  // Floating page indicator dots
+                  Positioned(
+                    bottom: 16,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(widget.previewPages.length, (index) {
+                        final isActive = index == _activePreviewIndex;
+                        return GestureDetector(
+                          onTap: () {
+                            _previewCycleTimer?.cancel();
+                            setState(() {
+                              _activePreviewIndex = index;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: isActive ? 18 : 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: isActive
+                                  ? AppColors.secondary
+                                  : Colors.white.withValues(alpha: 0.4),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
                 ],
               ),
             ),
-            // Cycling Renderer with cross-fade animation
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 600),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
-                child: KeyedSubtree(
-                  key: ValueKey<int>(_activePreviewIndex),
-                  child: Container(
-                    color: widget.previewPages[_activePreviewIndex]['theme'].background,
-                    child: SectionRenderer(
-                      pageId: 'demo',
-                      theme: widget.previewPages[_activePreviewIndex]['theme'],
-                      blocks: List<Map<String, dynamic>>.from(
-                        widget.previewPages[_activePreviewIndex]['blocks'],
-                      ),
-                    ),
-                  ),
+          ),
+        ),
+
+        // Right cycle button (desktop only)
+        if (!widget.isMobile) const SizedBox(width: 16),
+        if (!widget.isMobile)
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                _previewCycleTimer?.cancel();
+                setState(() {
+                  _activePreviewIndex = (_activePreviewIndex + 1) % widget.previewPages.length;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                 ),
+                child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white60, size: 14),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 }

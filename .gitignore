@@ -48,3 +48,5 @@ app.*.map.json
 .env*
 
 .vercel/
+
+AI_CONTEXT.md

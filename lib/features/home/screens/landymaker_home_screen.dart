@@ -91,7 +91,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
           children: [
             // Hero doesn't need scroll-trigger — it's above the fold
             HomeHeroSection(
-              onGetStartedPressed: () => context.go('/login'),
+              onGetStartedPressed: () => context.go('/register'),
+              parentScrollController: _scrollController,
             ),
 
             HomeFeatureBento(

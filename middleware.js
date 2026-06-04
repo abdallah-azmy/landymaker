@@ -3,111 +3,191 @@ export default async function middleware(request) {
   const url = new URL(request.url);
   const host = request.headers.get('host') || '';
   
-  // 1. Determine Context
-  const isDirectBlog = host.includes('landymaker-blog.vercel.app');
+  // 1. Clean the host and check if it's a core platform domain
+  const cleanHost = host.split(':')[0].toLowerCase();
+  const isCoreDomain = cleanHost === 'landymaker.com' ||
+                       cleanHost === 'landymaker.vercel.app' ||
+                       cleanHost === 'localhost' ||
+                       cleanHost === '127.0.0.1' ||
+                       cleanHost.startsWith('dashboard.') ||
+                       cleanHost.startsWith('app.');
+
+  // 2. Determine Blog Context
+  const isDirectBlog = cleanHost.includes('landymaker-blog.vercel.app');
   const isProxiedBlog = request.headers.get('x-blog-proxied') === '1';
   const isBlogContext = isDirectBlog || isProxiedBlog;
 
-  // 2. Blog Context - Early Exit!
-  // If we are already running on the Next.js blog project, let Next.js handle everything natively.
+  // Blog Context - Early Exit!
   if (isBlogContext) {
     return;
   }
 
-  // 3. Blog & Next.js Assets Proxy Logic (Flutter Context)
-  if (
-    url.pathname.startsWith('/blog') || 
-    url.pathname.startsWith('/_next') ||
-    url.pathname === '/sitemap.xml' ||
-    url.pathname === '/robots.txt' ||
-    url.pathname === '/llms.txt'
-  ) {
-    // Rewrite to the blog project and inject a proxy header to break loops
-    const newUrl = new URL(url.pathname, 'https://landymaker-blog.vercel.app');
-    return new Response(null, {
-      headers: {
-        'x-middleware-rewrite': newUrl.toString(),
-        'x-middleware-request-x-blog-proxied': '1'
+  // 3. Blog & Next.js Assets Proxy Logic (Core Domain Context Only)
+  if (isCoreDomain) {
+    if (
+      url.pathname.startsWith('/blog') || 
+      url.pathname.startsWith('/_next') ||
+      url.pathname === '/sitemap.xml' ||
+      url.pathname === '/robots.txt' ||
+      url.pathname === '/llms.txt'
+    ) {
+      // Rewrite to the blog project and inject a proxy header to break loops
+      const newUrl = new URL(url.pathname, 'https://landymaker-blog.vercel.app');
+      return new Response(null, {
+        headers: {
+          'x-middleware-rewrite': newUrl.toString(),
+          'x-middleware-request-x-blog-proxied': '1'
+        }
+      });
+    }
+  } else {
+    // 4. Custom Domain Context - Dynamic Robots.txt and Sitemap.xml
+    if (url.pathname === '/robots.txt') {
+      return new Response(
+        `User-agent: *\nAllow: /\nSitemap: https://${cleanHost}/sitemap.xml`,
+        {
+          headers: { 'content-type': 'text/plain; charset=UTF-8' }
+        }
+      );
+    }
+
+    if (url.pathname === '/sitemap.xml') {
+      const SUPABASE_URL = process.env.SUPABASE_URL;
+      const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/landing_pages?custom_domain=eq.${cleanHost}&select=updated_at,is_published`,
+          {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            },
+          }
+        );
+        const pages = await response.json();
+        if (pages && pages.length > 0 && pages[0].is_published) {
+          const updatedAt = pages[0].updated_at ? new Date(pages[0].updated_at).toISOString() : new Date().toISOString();
+          const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://${cleanHost}/</loc>
+    <lastmod>${updatedAt}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>`;
+          return new Response(sitemapXml, {
+            headers: { 'content-type': 'application/xml; charset=UTF-8' }
+          });
+        }
+      } catch (err) {
+        console.error("Sitemap Generation Error:", err);
       }
-    });
+      return new Response('Not Found', { status: 404 });
+    }
   }
 
-  // 3.5. Early Exit for Static Assets (Flutter Context)
+  // 5. Early Exit for Static Assets (Ignore bots check for efficiency)
   const staticExtensions = /\.(js|wasm|png|jpg|jpeg|gif|svg|ico|json|css|woff2?|ttf|eot|mp4|webm|mp3|wav|ogg|pdf|txt|xml)$/i;
   if (staticExtensions.test(url.pathname)) {
     return;
   }
 
-  // 4. Early Exit for Dashboard/Builder (Flutter Context)
+  // 6. Early Exit for Core Platform Routes (Dashboard/Builder/Auth)
   const pathSegments = url.pathname.split('/').filter(Boolean);
-  if (pathSegments.length > 0 && ['login', 'register', 'dashboard', 'builder'].includes(pathSegments[0])) {
-    // We are in Flutter Context. Return undefined to let vercel.json rewrite to /index.html
+  if (isCoreDomain && pathSegments.length > 0 && ['login', 'register', 'dashboard', 'builder'].includes(pathSegments[0])) {
     return;
   }
 
+  // 7. Bot & Crawler SEO Interception
   const userAgent = request.headers.get('user-agent') || '';
   const botPattern = /bot|googlebot|crawler|spider|robot|crawling|ai|gptbot|perplexity|anthropic/i;
   const isBot = botPattern.test(userAgent);
-  const slug = pathSegments.length > 0 ? pathSegments[0] : '/';
 
   if (isBot) {
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
     try {
-      // 1. Check PLATFORM SEO HANDLING (Super Admin Settings) first
-      const routePath = slug === '/' ? '/' : `/${slug}`;
-      const platformResponse = await fetch(
-        `${SUPABASE_URL}/rest/v1/platform_seo_settings?route_path=eq.${routePath}&select=*`,
-        {
-          headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          },
-        }
-      );
+      let tenant = null;
+      let isCustom = false;
 
-      const settings = await platformResponse.json();
-      
-      // If we found custom SEO settings for this platform route
-      if (settings && settings.length > 0) {
-        const seo = settings[0];
-        const title = seo.meta_title || "LandyMaker";
-        const description = seo.meta_description || "LandyMaker Platform";
-        const ogImage = seo.og_image_url || "https://landymaker.com/logo_social.webp";
+      if (isCoreDomain) {
+        const slug = pathSegments.length > 0 ? pathSegments[0] : '/';
+        const reservedPaths = new Set([
+          'blog', '_next', 'login', 'register', 'signup', 'signin',
+          'forgot-password', 'reset-password', 'dashboard', 'admin',
+          'settings', 'profile', 'pricing', 'plans', 'billing', 'checkout',
+          'success', 'cancel', 'api', 'auth', 'app', 'editor', 'builder',
+          'pages', 'page', 'store', 'products', 'orders', 'analytics',
+          'support', 'help', 'about', 'contact', 'privacy', 'terms',
+          'sitemap', 'robots.txt', 'favicon.ico', 'home', 'public_viewer',
+          'assets', 'images', 'icons', 'web'
+        ]);
 
-        // Return semantic HTML for the bot representing the platform route
-        return new Response(
-          `<!DOCTYPE html>
-          <html lang="ar">
-            <head>
-              <meta charset="UTF-8">
-              <title>${title}</title>
-              <meta name="description" content="${description}">
-              <meta property="og:title" content="${title}">
-              <meta property="og:description" content="${description}">
-              <meta property="og:image" content="${ogImage}">
-              <meta name="twitter:card" content="summary_large_image">
-              <meta name="twitter:title" content="${title}">
-              <meta name="twitter:description" content="${description}">
-              <meta name="twitter:image" content="${ogImage}">
-            </head>
-            <body>
-              <h1>${title}</h1>
-              <p>${description}</p>
-              <p>Welcome to LandyMaker, the ultimate landing page builder.</p>
-            </body>
-          </html>`,
-          {
-            headers: { 'content-type': 'text/html; charset=UTF-8' },
+        if (slug === '/' || reservedPaths.has(slug)) {
+          // Platform route (e.g. root or page within the main application)
+          const routePath = slug === '/' ? '/' : `/${slug}`;
+          const platformResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/platform_seo_settings?route_path=eq.${routePath}&select=*`,
+            {
+              headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+              },
+            }
+          );
+
+          const settings = await platformResponse.json();
+          if (settings && settings.length > 0) {
+            const seo = settings[0];
+            const title = seo.meta_title || "LandyMaker";
+            const description = seo.meta_description || "LandyMaker Platform";
+            const ogImage = seo.og_image_url || "https://landymaker.com/logo_social.webp";
+
+            return new Response(
+              `<!DOCTYPE html>
+              <html lang="ar">
+                <head>
+                  <meta charset="UTF-8">
+                  <title>${title}</title>
+                  <meta name="description" content="${description}">
+                  <meta property="og:title" content="${title}">
+                  <meta property="og:description" content="${description}">
+                  <meta property="og:image" content="${ogImage}">
+                  <meta name="twitter:card" content="summary_large_image">
+                  <meta name="twitter:title" content="${title}">
+                  <meta name="twitter:description" content="${description}">
+                  <meta name="twitter:image" content="${ogImage}">
+                </head>
+                <body>
+                  <h1>${title}</h1>
+                  <p>${description}</p>
+                  <p>Welcome to LandyMaker, the ultimate landing page builder.</p>
+                </body>
+              </html>`,
+              {
+                headers: { 'content-type': 'text/html; charset=UTF-8' },
+              }
+            );
           }
-        );
+          return;
+        } else {
+          // Path-based slug (e.g. landymaker.com/azmy)
+          tenant = slug;
+          isCustom = false;
+        }
+      } else {
+        // Custom Domain (e.g. customdomain.com)
+        tenant = cleanHost;
+        isCustom = true;
       }
 
-      // 2. Check USER LANDING PAGE SEO HANDLING (Subdomains)
-      if (slug !== '/') {
+      if (tenant) {
+        const queryParam = isCustom ? `custom_domain=eq.${tenant}` : `subdomain=eq.${tenant}`;
         const lpResponse = await fetch(
-          `${SUPABASE_URL}/rest/v1/landing_pages?subdomain=eq.${slug}&select=*&is_published=eq.true`,
+          `${SUPABASE_URL}/rest/v1/landing_pages?${queryParam}&select=*,profiles(tier)&is_published=eq.true`,
           {
             headers: {
               'apikey': SUPABASE_ANON_KEY,
@@ -119,25 +199,71 @@ export default async function middleware(request) {
         const pages = await lpResponse.json();
         if (pages && pages.length > 0) {
           const page = pages[0];
+          
+          // Verify billing tier permissions for custom domains
+          const tier = page.profiles?.tier || 'free';
+          if (isCustom && tier === 'free') {
+            return new Response('Not Found', { status: 404 });
+          }
+
           const design = typeof page.design_json === 'string' ? JSON.parse(page.design_json) : page.design_json;
           const blocks = design.blocks || [];
           const visibleBlocks = blocks.filter(b => b.is_visible !== false);
 
-          const title = design.meta_title || `${slug} | LandyMaker`;
+          const title = design.meta_title || `${page.subdomain || tenant} | LandyMaker`;
           const description = design.meta_description || "Created with LandyMaker - The Ultimate AI Landing Page Builder";
+          const ogImage = design.og_image_url || "https://landymaker.com/logo_social.webp";
 
-          // Generate semantic HTML5 content for bots from visible sections only
+          // Parse and render semantic HTML for all blocks
           const bodyContent = visibleBlocks.map(b => {
-            if (b.type === 'hero') {
-              return `<header><h1>${b.title || ''}</h1><p>${b.subtitle || b.description || ''}</p></header>`;
+            const blockTitle = b.title || '';
+            const blockSub = b.subtitle || b.description || '';
+            
+            switch (b.type) {
+              case 'logo_header':
+                return `<header><h1>${blockTitle || 'LandyMaker Page'}</h1></header>`;
+              case 'hero':
+              case 'hero_saas':
+                return `<header><h1>${blockTitle}</h1><p>${blockSub}</p>${b.button_text ? `<button>${b.button_text}</button>` : ''}</header>`;
+              case 'features': {
+                const listItems = (b.items || []).map(item => `<li><h3>${item.title || ''}</h3><p>${item.description || ''}</p></li>`).join('');
+                return `<section><h2>${blockTitle}</h2><ul>${listItems}</ul></section>`;
+              }
+              case 'products': {
+                const listItems = (b.items || []).map(item => `<li><h3>${item.name || item.title || ''}</h3><p>${item.description || ''}</p><span>${item.price || ''}</span></li>`).join('');
+                return `<section><h2>${blockTitle}</h2><ul>${listItems}</ul></section>`;
+              }
+              case 'pricing': {
+                const listItems = (b.items || []).map(item => `<li><h3>${item.name || item.title || ''}</h3><p>${item.price || ''}</p></li>`).join('');
+                return `<section><h2>${blockTitle}</h2><ul>${listItems}</ul></section>`;
+              }
+              case 'faq': {
+                const listItems = (b.items || []).map(item => `<div><h3>${item.question || item.title || ''}</h3><p>${item.answer || item.description || ''}</p></div>`).join('');
+                return `<section><h2>${blockTitle}</h2>${listItems}</section>`;
+              }
+              case 'testimonials': {
+                const listItems = (b.items || []).map(item => `<blockquote><p>${item.quote || item.feedback || item.description || ''}</p><cite>- ${item.name || ''} (${item.role || ''})</cite></blockquote>`).join('');
+                return `<section><h2>${blockTitle}</h2>${listItems}</section>`;
+              }
+              case 'contact_info':
+                return `<section><h2>${blockTitle}</h2><p>Email: ${b.email || ''}</p><p>Phone: ${b.phone || ''}</p><p>Location: ${b.location || ''}</p></section>`;
+              case 'lead_form':
+              case 'lead_magnet':
+                return `<section><h2>${blockTitle}</h2><p>${blockSub}</p></section>`;
+              case 'basic_section':
+                return `<section><h2>${blockTitle}</h2><p>${b.content || b.description || ''}</p></section>`;
+              case 'working_hours':
+                return `<section><h2>${blockTitle || 'Working Hours'}</h2></section>`;
+              case 'location_map':
+                return `<section><h2>${blockTitle || 'Location'}</h2><p>${b.address || ''}</p></section>`;
+              case 'qr_code':
+              case 'social_qr':
+                return `<section><h2>${blockTitle}</h2><p>${blockSub}</p></section>`;
+              default:
+                return blockTitle ? `<section><h2>${blockTitle}</h2><p>${blockSub}</p></section>` : '';
             }
-            if (b.type === 'features' || b.type === 'faq') {
-              return `<section><h2>${b.title || ''}</h2><p>${b.subtitle || b.description || ''}</p></section>`;
-            }
-            return '';
-          }).join('');
+          }).join('\n');
 
-          // Return lightweight semantic HTML for bots and AI crawlers
           return new Response(
             `<!DOCTYPE html>
             <html lang="ar">
@@ -147,12 +273,18 @@ export default async function middleware(request) {
                 <meta name="description" content="${description}">
                 <meta property="og:title" content="${title}">
                 <meta property="og:description" content="${description}">
+                <meta property="og:image" content="${ogImage}">
+                <meta name="twitter:card" content="summary_large_image">
+                <meta name="twitter:title" content="${title}">
+                <meta name="twitter:description" content="${description}">
+                <meta name="twitter:image" content="${ogImage}">
                 <script type="application/ld+json">
                 {
                   "@context": "https://schema.org",
                   "@type": "WebPage",
                   "name": "${title}",
-                  "description": "${description}"
+                  "description": "${description}",
+                  "image": "${ogImage}"
                 }
                 </script>
               </head>
@@ -177,10 +309,8 @@ export default async function middleware(request) {
       console.error("SEO Middleware Error:", e);
     }
   }
-
-  // Real humans get the Flutter app - returning undefined lets Vercel continue to the filesystem and vercel.json rewrites
-  return;
 }
+
 
 // Next.js (Vercel) automatically ignores /_next/ requests in middleware by default.
 // We MUST explicitly tell it to run on EVERYTHING so we can proxy /_next/ to the blog.

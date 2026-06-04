@@ -33,26 +33,36 @@ class HomeFooter extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [AppColors.primary, AppColors.secondary],
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "Landy",
+                                    style: AppTypography.h3.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      letterSpacing: -0.5,
+                                    ),
                                   ),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Icon(Icons.bolt_rounded,
-                                    color: Colors.white, size: 20),
+                                  Text(
+                                    "Maker",
+                                    style: AppTypography.h3.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF00E5FF),
+                                      fontSize: 22,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(width: 10),
-                              Text(
-                                "landymaker",
-                                style: AppTypography.h3.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -0.5,
-                                ),
+                              Image.asset(
+                                'assets/images/logo_small.webp',
+                                height: 34,
+                                width: 34,
                               ),
                             ],
                           ),
@@ -110,25 +120,35 @@ class HomeFooter extends StatelessWidget {
               else
                 Column(
                   children: [
-                    Row(
+                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AppColors.primary, AppColors.secondary],
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "Landy",
+                              style: AppTypography.h3.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 20,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(Icons.bolt_rounded,
-                              color: Colors.white, size: 18),
+                            Text(
+                              "Maker",
+                              style: AppTypography.h3.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF00E5FF),
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          "landymaker",
-                          style: AppTypography.h3.copyWith(fontWeight: FontWeight.w900),
+                        Image.asset(
+                          'assets/images/logo_small.webp',
+                          height: 30,
+                          width: 30,
                         ),
                       ],
                     ),

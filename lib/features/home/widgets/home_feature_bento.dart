@@ -219,84 +219,100 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
               else
                 Column(
                   children: [
-                    // Row 1: 3/5 + 2/5
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: FadeTransition(
-                            opacity: _cardFades[0],
-                            child: SlideTransition(
-                              position: _cardSlides[0],
-                              child: _BentoCard(feature: _features[0], tall: true),
+                    // Row 1: 3/5 + 2/5 (Height fixed at 440 to fit all text and icons beautifully)
+                    SizedBox(
+                      height: 440,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: FadeTransition(
+                              opacity: _cardFades[0],
+                              child: SlideTransition(
+                                position: _cardSlides[0],
+                                child: _BentoCard(feature: _features[0], tall: true),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            children: [
-                              FadeTransition(
-                                opacity: _cardFades[1],
-                                child: SlideTransition(
-                                  position: _cardSlides[1],
-                                  child: _BentoCard(feature: _features[1]),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: FadeTransition(
+                                    opacity: _cardFades[1],
+                                    child: SlideTransition(
+                                      position: _cardSlides[1],
+                                      child: _BentoCard(feature: _features[1]),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              FadeTransition(
-                                opacity: _cardFades[2],
-                                child: SlideTransition(
-                                  position: _cardSlides[2],
-                                  child: _BentoCard(feature: _features[2]),
+                                const SizedBox(height: 16),
+                                Expanded(
+                                  child: FadeTransition(
+                                    opacity: _cardFades[2],
+                                    child: SlideTransition(
+                                      position: _cardSlides[2],
+                                      child: _BentoCard(feature: _features[2]),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16),
                     // Row 2: 2/5 + 3/5
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            children: [
-                              FadeTransition(
-                                opacity: _cardFades[3],
-                                child: SlideTransition(
-                                  position: _cardSlides[3],
-                                  child: _BentoCard(feature: _features[3]),
+                    SizedBox(
+                      height: 440,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: FadeTransition(
+                                    opacity: _cardFades[3],
+                                    child: SlideTransition(
+                                      position: _cardSlides[3],
+                                      child: _BentoCard(feature: _features[3]),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              FadeTransition(
-                                opacity: _cardFades[4],
-                                child: SlideTransition(
-                                  position: _cardSlides[4],
-                                  child: _BentoCard(feature: _features[4]),
+                                const SizedBox(height: 16),
+                                Expanded(
+                                  child: FadeTransition(
+                                    opacity: _cardFades[4],
+                                    child: SlideTransition(
+                                      position: _cardSlides[4],
+                                      child: _BentoCard(feature: _features[4]),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 3,
-                          child: FadeTransition(
-                            opacity: _cardFades[5],
-                            child: SlideTransition(
-                              position: _cardSlides[5],
-                              child: _BentoCard(feature: _features[5], tall: true),
+                              ],
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 3,
+                            child: FadeTransition(
+                              opacity: _cardFades[5],
+                              child: SlideTransition(
+                                position: _cardSlides[5],
+                                child: _BentoCard(feature: _features[5], tall: true),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

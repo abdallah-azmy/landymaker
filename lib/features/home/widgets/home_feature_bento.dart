@@ -2,119 +2,298 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 
-class HomeFeatureBento extends StatelessWidget {
-  const HomeFeatureBento({super.key});
+class HomeFeatureBento extends StatefulWidget {
+  final bool isVisible;
+
+  const HomeFeatureBento({
+    super.key,
+    required this.isVisible,
+  });
+
+  @override
+  State<HomeFeatureBento> createState() => _HomeFeatureBentoState();
+}
+
+class _HomeFeatureBentoState extends State<HomeFeatureBento>
+    with TickerProviderStateMixin {
+  late AnimationController _headerController;
+  late AnimationController _cardsController;
+
+  late Animation<double> _headerFade;
+  late Animation<Offset> _headerSlide;
+
+  // Staggered card animations
+  late List<Animation<double>> _cardFades;
+  late List<Animation<Offset>> _cardSlides;
+
+  static const _features = [
+    _FeatureData(
+      icon: Icons.dashboard_customize_rounded,
+      title: "محرر مرن وسريع",
+      desc: "أضف الأقسام التي تريدها ورتبها بسهولة. تحكم كامل في النصوص والصور والأزرار والروابط.",
+      color: Color(0xFF6366F1),
+      emoji: "⚡",
+    ),
+    _FeatureData(
+      icon: Icons.palette_rounded,
+      title: "قوالب وتصاميم ممتازة",
+      desc: "اختر من بين لوحات الألوان والخطوط الجاهزة لتناسب هويتك التجارية في ثوانٍ معدودة.",
+      color: Color(0xFF06B6D4),
+      emoji: "🎨",
+    ),
+    _FeatureData(
+      icon: Icons.analytics_rounded,
+      title: "إحصائيات فورية وتتبع العملاء",
+      desc: "اعرف عدد الزوار وتفاعلهم وتابع طلبات العملاء والرسائل الواردة مباشرة من لوحة التحكم.",
+      color: Color(0xFF10B981),
+      emoji: "📊",
+    ),
+    _FeatureData(
+      icon: Icons.qr_code_2_rounded,
+      title: "روابط ذكية وكود QR مخصص",
+      desc: "شارك موقعك بروابط مخصصة، نطاق فرعي مميز، وكود QR تفاعلي سهل المسح والمشاركة.",
+      color: Color(0xFFF59E0B),
+      emoji: "🔗",
+    ),
+    _FeatureData(
+      icon: Icons.smartphone_rounded,
+      title: "تجاوب تام مع الجوال",
+      desc: "صفحاتك تبدو مثالية على جميع الأجهزة تلقائياً. لا حاجة لأي ضبط إضافي.",
+      color: Color(0xFFEC4899),
+      emoji: "📱",
+    ),
+    _FeatureData(
+      icon: Icons.rocket_launch_rounded,
+      title: "نشر فوري بضغطة زر",
+      desc: "انشر موقعك في ثوانٍ واحصل على رابط مباشر يمكنك مشاركته فوراً مع عملائك.",
+      color: Color(0xFF8B5CF6),
+      emoji: "🚀",
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _headerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _cardsController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _headerFade = CurvedAnimation(
+      parent: _headerController,
+      curve: Curves.easeOut,
+    );
+    _headerSlide = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _headerController,
+      curve: Curves.fastOutSlowIn,
+    ));
+
+    // Stagger cards: each gets its own interval
+    _cardFades = List.generate(_features.length, (i) {
+      return CurvedAnimation(
+        parent: _cardsController,
+        curve: Interval(i * 0.12, (i * 0.12) + 0.5, curve: Curves.easeOut),
+      );
+    });
+    _cardSlides = List.generate(_features.length, (i) {
+      return Tween<Offset>(
+        begin: const Offset(0, 0.4),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _cardsController,
+        curve: Interval(i * 0.12, (i * 0.12) + 0.6, curve: Curves.fastOutSlowIn),
+      ));
+    });
+  }
+
+  @override
+  void didUpdateWidget(HomeFeatureBento oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isVisible && !oldWidget.isVisible) {
+      _headerController.forward();
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) _cardsController.forward();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _headerController.dispose();
+    _cardsController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isMobile = size.width < 900;
+    final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-      color: AppColors.background,
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        border: const Border(
+          top: BorderSide(color: AppColors.border, width: 0.5),
+        ),
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                "كل ما تحتاجه للنمو في مكان واحد",
-                style: AppTypography.h2.copyWith(
-                  fontSize: isMobile ? 26 : 36,
-                  fontWeight: FontWeight.bold,
+              // Section Header
+              FadeTransition(
+                opacity: _headerFade,
+                child: SlideTransition(
+                  position: _headerSlide,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Text(
+                          "✨ المميزات",
+                          style: AppTypography.caption.copyWith(
+                            color: const Color(0xFF818CF8),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "كل ما تحتاجه للنمو\nفي مكان واحد",
+                        style: AppTypography.h2.copyWith(
+                          fontSize: isMobile ? 28 : 42,
+                          fontWeight: FontWeight.w900,
+                          height: 1.2,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "أدوات ذكية متكاملة مصممة خصيصاً لمساعدتك على بناء حضورك الرقمي بسرعة واحترافية.",
+                        style: AppTypography.bodyLarge.copyWith(
+                          color: AppColors.textSecondary,
+                          height: 1.6,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
-              Text(
-                "أدوات ذكية متكاملة مصممة خصيصاً لمساعدتك على النجاح.",
-                style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
 
-              // Bento Grid Layout
+              const SizedBox(height: 64),
+
+              // Bento Grid
               if (isMobile)
                 Column(
-                  children: [
-                    const BentoCard(
-                      icon: Icons.dashboard_customize_rounded,
-                      title: "محرر مرن وسريع",
-                      desc: "أضف الأقسام التي تريدها ورتبها بسهولة. تحكم كامل في النصوص والصور والأزرار.",
-                      color: Color(0xFF6366F1),
-                    ),
-                    const SizedBox(height: 20),
-                    const BentoCard(
-                      icon: Icons.palette_rounded,
-                      title: "قوالب وتصاميم ممتازة",
-                      desc: "اختر من بين لوحات الألوان الجاهزة لتناسب هويتك التجارية بلمسة زر واحدة.",
-                      color: Color(0xFF06B6D4),
-                    ),
-                    const SizedBox(height: 20),
-                    const BentoCard(
-                      icon: Icons.analytics_rounded,
-                      title: "إحصائيات فورية وتتبع العملاء",
-                      desc: "اعرف عدد الزوار وتابع طلبات العملاء والرسائل مباشرة من لوحة التحكم الخاصة بك.",
-                      color: Color(0xFF10B981),
-                    ),
-                    const SizedBox(height: 20),
-                    const BentoCard(
-                      icon: Icons.qr_code_2_rounded,
-                      title: "روابط ذكية وكود QR مخصص",
-                      desc: "شارك موقعك بروابط مخصصة وكود QR فوري وسهل للمشاركة الميدانية والمطبوعات.",
-                      color: Color(0xFFF59E0B),
-                    ),
-                  ],
+                  children: List.generate(_features.length, (i) => Column(
+                    children: [
+                      FadeTransition(
+                        opacity: _cardFades[i],
+                        child: SlideTransition(
+                          position: _cardSlides[i],
+                          child: _BentoCard(feature: _features[i]),
+                        ),
+                      ),
+                      if (i < _features.length - 1) const SizedBox(height: 16),
+                    ],
+                  )),
                 )
               else
                 Column(
                   children: [
+                    // Row 1: 3/5 + 2/5
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Expanded(
+                        Expanded(
                           flex: 3,
-                          child: BentoCard(
-                            icon: Icons.dashboard_customize_rounded,
-                            title: "محرر مرن وسريع",
-                            desc: "أضف الأقسام التي تريدها ورتبها بسهولة. تحكم كامل في النصوص والصور والأزرار والروابط.",
-                            color: Color(0xFF6366F1),
+                          child: FadeTransition(
+                            opacity: _cardFades[0],
+                            child: SlideTransition(
+                              position: _cardSlides[0],
+                              child: _BentoCard(feature: _features[0], tall: true),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 20),
-                        const Expanded(
+                        const SizedBox(width: 16),
+                        Expanded(
                           flex: 2,
-                          child: BentoCard(
-                            icon: Icons.palette_rounded,
-                            title: "قوالب وتصاميم ممتازة",
-                            desc: "اختر من بين لوحات الألوان والخطوط الجاهزة لتناسب هويتك التجارية في ثوانٍ معدودة.",
-                            color: Color(0xFF06B6D4),
+                          child: Column(
+                            children: [
+                              FadeTransition(
+                                opacity: _cardFades[1],
+                                child: SlideTransition(
+                                  position: _cardSlides[1],
+                                  child: _BentoCard(feature: _features[1]),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              FadeTransition(
+                                opacity: _cardFades[2],
+                                child: SlideTransition(
+                                  position: _cardSlides[2],
+                                  child: _BentoCard(feature: _features[2]),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
+                    // Row 2: 2/5 + 3/5
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Expanded(
+                        Expanded(
                           flex: 2,
-                          child: BentoCard(
-                            icon: Icons.analytics_rounded,
-                            title: "إحصائيات فورية وتتبع العملاء",
-                            desc: "اعرف عدد الزوار وتفاعلهم وتابع طلبات العملاء والرسائل الواردة مباشرة.",
-                            color: Color(0xFF10B981),
+                          child: Column(
+                            children: [
+                              FadeTransition(
+                                opacity: _cardFades[3],
+                                child: SlideTransition(
+                                  position: _cardSlides[3],
+                                  child: _BentoCard(feature: _features[3]),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              FadeTransition(
+                                opacity: _cardFades[4],
+                                child: SlideTransition(
+                                  position: _cardSlides[4],
+                                  child: _BentoCard(feature: _features[4]),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 20),
-                        const Expanded(
+                        const SizedBox(width: 16),
+                        Expanded(
                           flex: 3,
-                          child: BentoCard(
-                            icon: Icons.qr_code_2_rounded,
-                            title: "روابط ذكية وكود QR مخصص",
-                            desc: "شارك موقعك مع عملائك بروابط مخصصة، نطاق فرعي، أو كود QR تفاعلي سهل المسح والمشاركة المباشرة.",
-                            color: Color(0xFFF59E0B),
+                          child: FadeTransition(
+                            opacity: _cardFades[5],
+                            child: SlideTransition(
+                              position: _cardSlides[5],
+                              child: _BentoCard(feature: _features[5], tall: true),
+                            ),
                           ),
                         ),
                       ],
@@ -129,81 +308,156 @@ class HomeFeatureBento extends StatelessWidget {
   }
 }
 
-class BentoCard extends StatefulWidget {
+// ─────────────────────────── Data class ────────────────────────────
+class _FeatureData {
   final IconData icon;
   final String title;
   final String desc;
   final Color color;
-
-  const BentoCard({
-    super.key,
+  final String emoji;
+  const _FeatureData({
     required this.icon,
     required this.title,
     required this.desc,
     required this.color,
+    required this.emoji,
   });
-
-  @override
-  State<BentoCard> createState() => _BentoCardState();
 }
 
-class _BentoCardState extends State<BentoCard> {
-  bool _isHovered = false;
+// ─────────────────────────── Bento Card ────────────────────────────
+class _BentoCard extends StatefulWidget {
+  final _FeatureData feature;
+  final bool tall;
+
+  const _BentoCard({required this.feature, this.tall = false});
+
+  @override
+  State<_BentoCard> createState() => _BentoCardState();
+}
+
+class _BentoCardState extends State<_BentoCard>
+    with SingleTickerProviderStateMixin {
+  bool _hovered = false;
+  late AnimationController _shimmerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _shimmerController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final f = widget.feature;
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 350),
         curve: Curves.easeOutCubic,
         transform: Matrix4.identity()
-          ..translate(_isHovered ? -2.0 : 0.0, _isHovered ? -4.0 : 0.0)
-          ..scale(_isHovered ? 1.02 : 1.0),
-        padding: const EdgeInsets.all(32),
+          ..translateByDouble(_hovered ? -2.0 : 0.0, _hovered ? -6.0 : 0.0, 0, 1),
+        padding: EdgeInsets.all(widget.tall ? 36 : 28),
+        constraints: widget.tall ? const BoxConstraints(minHeight: 240) : null,
         decoration: BoxDecoration(
-          color: _isHovered ? AppColors.cardBgHover : AppColors.cardBg,
+          color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: _isHovered ? widget.color.withValues(alpha: 0.6) : AppColors.border,
-            width: _isHovered ? 2.0 : 1.5,
+            color: _hovered
+                ? f.color.withValues(alpha: 0.7)
+                : AppColors.border,
+            width: _hovered ? 1.8 : 1.2,
           ),
           boxShadow: [
             BoxShadow(
-              color: _isHovered
-                  ? widget.color.withValues(alpha: 0.15)
-                  : widget.color.withValues(alpha: 0.02),
-              blurRadius: _isHovered ? 30 : 15,
-              spreadRadius: _isHovered ? 4 : 1,
-            )
+              color: _hovered
+                  ? f.color.withValues(alpha: 0.18)
+                  : Colors.black.withValues(alpha: 0.04),
+              blurRadius: _hovered ? 36 : 8,
+              spreadRadius: _hovered ? 2 : 0,
+              offset: Offset(0, _hovered ? 8 : 2),
+            ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Icon with glow
             AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.all(12),
+              duration: const Duration(milliseconds: 350),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: _isHovered ? widget.color.withValues(alpha: 0.2) : widget.color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
+                color: f.color.withValues(alpha: _hovered ? 0.2 : 0.1),
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: _hovered
+                    ? [
+                        BoxShadow(
+                          color: f.color.withValues(alpha: 0.3),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        )
+                      ]
+                    : [],
               ),
-              child: Icon(widget.icon, color: widget.color, size: 28),
+              child: Icon(f.icon, color: f.color, size: 28),
             ),
-            const SizedBox(height: 24),
-            Text(
-              widget.title,
-              style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
+            const SizedBox(height: 20),
+
+            // Emoji + Title
+            Row(
+              children: [
+                Text(f.emoji, style: const TextStyle(fontSize: 18)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    f.title,
+                    style: AppTypography.h3.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
+
             Text(
-              widget.desc,
+              f.desc,
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
-                height: 1.6,
+                height: 1.65,
               ),
             ),
+
+            if (_hovered) ...[
+              const SizedBox(height: 16),
+              AnimatedOpacity(
+                opacity: _hovered ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: Row(
+                  children: [
+                    Text(
+                      "اكتشف أكثر",
+                      style: AppTypography.caption.copyWith(
+                        color: f.color,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_forward_rounded, color: f.color, size: 14),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),

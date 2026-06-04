@@ -112,9 +112,10 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(
                         context,
-                        desktop: 3,
+                        desktop: _model.items.length > 3 ? 3 : _model.items.length,
                         tablet: 2,
                         mobile: 1,
+                        width: constraints.maxWidth,
                       ),
                       crossAxisSpacing: 20,
                       mainAxisSpacing: 20,

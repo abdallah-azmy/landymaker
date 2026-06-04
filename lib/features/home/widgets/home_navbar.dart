@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/atoms/landy_maker_logo.dart';
 
 class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onLoginPressed;
@@ -41,29 +42,7 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Landy",
-                            style: AppTypography.h3.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 22,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          Text(
-                            "Maker",
-                            style: AppTypography.h3.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF00E5FF),
-                              fontSize: 22,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ],
-                      ),
+                      const LandyMakerLogo(fontSize: 22),
                       const SizedBox(width: 10),
                       Image.asset(
                         'assets/images/logo_small.webp',

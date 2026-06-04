@@ -61,7 +61,7 @@ class VideoEmbedEditor extends StatelessWidget {
               child: FormGroup(
                 label: "أبعاد الفيديو (Aspect Ratio)",
                 child: DropdownButtonFormField<String>(
-                  value: block['aspect_ratio'] ?? '16:9',
+                  initialValue: block['aspect_ratio'] ?? '16:9',
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding: EdgeInsets.symmetric(horizontal: 12),

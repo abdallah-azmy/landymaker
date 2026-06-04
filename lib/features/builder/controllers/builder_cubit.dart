@@ -663,6 +663,23 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  void updateStickyCta(String key, dynamic value) {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return;
+
+    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
+    final Map<String, dynamic> stickyCta = Map<String, dynamic>.from(
+      newDesign['sticky_cta'] ?? {},
+    );
+    
+    stickyCta[key] = value;
+    newDesign['sticky_cta'] = stickyCta;
+    
+    _emitDirty(currentState.copyWith(designMap: newDesign));
+  }
+
   void addPricingPlan(int blockIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;

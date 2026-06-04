@@ -5,9 +5,6 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../core/widgets/atoms/primary_button.dart';
-import '../../../../../core/widgets/molecules/form_group.dart';
-import 'package:flutter/services.dart';
-import '../../../../../core/utils/toast_service.dart';
 
 class FaqEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -49,8 +46,8 @@ class FaqEditor extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (fIndex) {
-          final item = (block['items'] as List)[fIndex] as Map<String, dynamic>;
+        ...List.generate(((block['items'] as List?) ?? []).length, (fIndex) {
+          final item = ((block['items'] as List?) ?? [])[fIndex] as Map<String, dynamic>;
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),

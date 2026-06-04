@@ -3,11 +3,6 @@ import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
-import '../../../../../core/widgets/atoms/custom_text_field.dart';
-import '../../../../../core/widgets/atoms/primary_button.dart';
-import '../../../../../core/widgets/molecules/form_group.dart';
-import 'package:flutter/services.dart';
-import '../../../../../core/utils/toast_service.dart';
 
 class GalleryEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -52,7 +47,7 @@ class GalleryEditor extends StatelessWidget {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: (block['items'] as List).length,
+          itemCount: ((block['items'] as List?) ?? []).length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 12,
@@ -60,7 +55,7 @@ class GalleryEditor extends StatelessWidget {
             childAspectRatio: 1,
           ),
           itemBuilder: (context, gIndex) {
-            final String imageUrl = (block['items'] as List)[gIndex];
+            final String imageUrl = ((block['items'] as List?) ?? [])[gIndex];
             return Container(
               decoration: BoxDecoration(
                 color: AppColors.cardBgHover,

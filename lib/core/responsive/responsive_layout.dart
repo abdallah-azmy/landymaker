@@ -14,25 +14,25 @@ class ResponsiveLayout extends StatelessWidget {
     required this.desktop,
   });
 
-  static ScreenType getScreenType(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    if (width < 600) {
+  static ScreenType getScreenType(BuildContext context, {double? width}) {
+    double effectiveWidth = width ?? MediaQuery.of(context).size.width;
+    if (effectiveWidth < 600) {
       return ScreenType.mobile;
-    } else if (width < 1024) {
+    } else if (effectiveWidth < 1024) {
       return ScreenType.tablet;
     } else {
       return ScreenType.desktop;
     }
   }
 
-  static bool isMobile(BuildContext context) =>
-      getScreenType(context) == ScreenType.mobile;
+  static bool isMobile(BuildContext context, {double? width}) =>
+      getScreenType(context, width: width) == ScreenType.mobile;
 
-  static bool isTablet(BuildContext context) =>
-      getScreenType(context) == ScreenType.tablet;
+  static bool isTablet(BuildContext context, {double? width}) =>
+      getScreenType(context, width: width) == ScreenType.tablet;
 
-  static bool isDesktop(BuildContext context) =>
-      getScreenType(context) == ScreenType.desktop;
+  static bool isDesktop(BuildContext context, {double? width}) =>
+      getScreenType(context, width: width) == ScreenType.desktop;
 
   @override
   Widget build(BuildContext context) {

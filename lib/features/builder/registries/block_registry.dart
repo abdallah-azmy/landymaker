@@ -88,6 +88,7 @@ class BlockRegistry {
     ),
     'lead_form': (data, theme, pageId, key, __, ___) => CustomLeadFormWidget(
       key: key,
+      block: data,
       title: data['title'] ?? '',
       buttonText: data['button_text'] ?? '',
       pageId: pageId,
@@ -99,6 +100,7 @@ class BlockRegistry {
     ),
     'lead_magnet': (data, theme, pageId, key, __, ___) => CustomLeadMagnetWidget(
       key: key,
+      block: data,
       title: data['title'] ?? '',
       subtitle: data['subtitle'] ?? '',
       buttonText: data['button_text'] ?? '',

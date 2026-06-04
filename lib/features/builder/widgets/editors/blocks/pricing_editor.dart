@@ -4,8 +4,8 @@ import '../editor_types.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
-import '../../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../../core/utils/localized_text_parser.dart';
+import '../common/dynamic_list_editor.dart';
 
 class PricingEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -46,67 +46,44 @@ class PricingEditor extends StatelessWidget {
           ),
           const Divider(),
         ],
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "خطط الأسعار (Pricing Plans)",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () {
-                final items = List.from(block['items'] ?? []);
-                items.add({
-                  'name': 'خطة جديدة',
-                  'prices': {'monthly': 0, 'yearly': 0},
-                  'currency': 'ج.م',
-                  'periods': {'monthly': '/ شهر', 'yearly': '/ سنة'},
-                  'discount_mode': 'hidden',
-                  'features': ['ميزة 1'],
-                  'button_text': 'اشترك الآن',
-                  'is_popular': false,
-                });
-                cubit.updateBlockProperty(index, 'items', items);
-              },
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: const Text("أضف خطة"),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (pIndex) {
-          final item = (block['items'] as List)[pIndex] as Map<String, dynamic>;
-          final prices = (item['prices'] as Map?) ?? {};
-          
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "الخطة #${pIndex + 1}",
-                      style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
-                      onPressed: () {
-                        final items = List.from(block['items']);
-                        items.removeAt(pIndex);
-                        cubit.updateBlockProperty(index, 'items', items);
-                      },
-                    ),
-                  ],
+        DynamicListEditor(
+          title: "خطط الأسعار (Pricing Plans)",
+          addLabel: "أضف خطة",
+          itemCount: ((block['items'] as List?) ?? []).length,
+          itemTitleBuilder: (pIndex) => "الخطة #${pIndex + 1}",
+          onAdd: () {
+            final items = List.from(block['items'] ?? []);
+            items.add({
+              'name': 'خطة جديدة',
+              'prices': {'monthly': 0, 'yearly': 0},
+              'currency': 'ج.م',
+              'periods': {'monthly': '/ شهر', 'yearly': '/ سنة'},
+              'discount_mode': 'hidden',
+              'features': ['ميزة 1'],
+              'button_text': 'اشترك الآن',
+              'is_popular': false,
+            });
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          onDelete: (pIndex) {
+            final items = List.from(block['items']);
+            items.removeAt(pIndex);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          itemBuilder: (context, pIndex, onDelete) {
+            final item = ((block['items'] as List?) ?? [])[pIndex] as Map<String, dynamic>;
+            final prices = (item['prices'] as Map?) ?? {};
+            return Container(
+              padding: const EdgeInsetsDirectional.only(start: 12, top: 8),
+              decoration: const BoxDecoration(
+                border: BorderDirectional(
+                  start: BorderSide(color: AppColors.border, width: 2),
                 ),
-                CustomTextField(
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomTextField(
                   hintText: "اسم الخطة",
                   controller: getController("${index}_pricing_${pIndex}_name", LocalizedTextParser.extractText(item['name'], 'ar')),
                   focusNode: getFocusNode("${index}_pricing_${pIndex}_name"),
@@ -154,7 +131,7 @@ class PricingEditor extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: ['auto', 'manual', 'hidden'].contains(item['discount_mode']) ? item['discount_mode'] : 'hidden',
+                    initialValue: ['auto', 'manual', 'hidden'].contains(item['discount_mode']) ? item['discount_mode'] : 'hidden',
                     decoration: const InputDecoration(labelText: "وضع الخصم"),
                     items: const [
                       DropdownMenuItem(value: 'hidden', child: Text('مخفي')),
@@ -182,9 +159,10 @@ class PricingEditor extends StatelessWidget {
                   contentPadding: EdgeInsets.zero,
                 ),
               ],
-            ),
-          );
-        }),
+             ),
+            );
+          },
+        ),
       ],
     );
   }

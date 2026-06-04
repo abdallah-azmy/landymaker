@@ -79,7 +79,7 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
                   if (widget.displayMode == 'carousel')
                     _buildCarousel(secondaryColor, subTextColor, isMobile)
                   else
-                    _buildGrid(context, subTextColor),
+                    _buildGrid(context, subTextColor, constraints),
                 ],
               ),
             ),
@@ -207,7 +207,7 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
     );
   }
 
-  Widget _buildGrid(BuildContext context, Color subTextColor) {
+  Widget _buildGrid(BuildContext context, Color subTextColor, BoxConstraints constraints) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -218,6 +218,7 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
           desktop: widget.gridColumns,
           tablet: widget.gridColumns > 1 ? 2 : 1,
           mobile: 1,
+          width: constraints.maxWidth,
         ),
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,

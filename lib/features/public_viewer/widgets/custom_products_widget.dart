@@ -51,7 +51,7 @@ class CustomProductsWidget extends StatefulWidget {
 }
 
 class _CustomProductsWidgetState extends State<CustomProductsWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   // ── Pagination ────────────────────────────────────────────────────────────
   int _currentPage = 1;
   static const int _itemsPerPage = 6;
@@ -148,8 +148,8 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
       for (final p in widget.items) {
         final id = p['id']?.toString() ?? '';
         final slug = _toSlug(p['name']?.toString() ?? '');
-        if (id.isNotEmpty) widget.productKeys![id] ??= GlobalKey();
-        if (slug.isNotEmpty) widget.productKeys![slug] ??= GlobalKey();
+        if (id.isNotEmpty) widget.productKeys!["$id-${widget.hashCode}"] ??= GlobalKey();
+        if (slug.isNotEmpty) widget.productKeys!["$slug-${widget.hashCode}"] ??= GlobalKey();
       }
     }
   }
@@ -215,13 +215,17 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
               ],
 
               // ── Sort Chips ────────────────────────────────────────────────
-              Wrap(
-                spacing: 8,
-                children: [
-                  _sortChip('الافتراضي', _SortMode.defaultOrder, secondaryColor, subTextColor),
-                  _sortChip('السعر: الأقل أولاً', _SortMode.priceLow, secondaryColor, subTextColor),
-                  _sortChip('السعر: الأعلى أولاً', _SortMode.priceHigh, secondaryColor, subTextColor),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _sortChip('الافتراضي', _SortMode.defaultOrder, secondaryColor, subTextColor),
+                    const SizedBox(width: 8),
+                    _sortChip('السعر: الأقل أولاً', _SortMode.priceLow, secondaryColor, subTextColor),
+                    const SizedBox(width: 8),
+                    _sortChip('السعر: الأعلى أولاً', _SortMode.priceHigh, secondaryColor, subTextColor),
+                  ],
+                ),
               ),
               const SizedBox(height: 32),
 
@@ -356,10 +360,10 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
     // Register GlobalKeys for both UUID and slug
     final GlobalKey? cardKey = widget.productKeys != null
-        ? (widget.productKeys![id] ??= GlobalKey())
+        ? (widget.productKeys!["$id-${widget.hashCode}"] ??= GlobalKey())
         : null;
     if (widget.productKeys != null && slug.isNotEmpty) {
-      widget.productKeys![slug] ??= GlobalKey();
+      widget.productKeys!["$slug-${widget.hashCode}"] ??= GlobalKey();
     }
 
     return LayoutBuilder(
@@ -508,10 +512,10 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     final String buttonText = item['button_text']?.toString() ?? 'Buy Now';
 
     final GlobalKey? listKey = widget.productKeys != null
-        ? (widget.productKeys![id] ??= GlobalKey())
+        ? (widget.productKeys!["$id-${widget.hashCode}"] ??= GlobalKey())
         : null;
     if (widget.productKeys != null && slug.isNotEmpty) {
-      widget.productKeys![slug] ??= GlobalKey();
+      widget.productKeys!["$slug-${widget.hashCode}"] ??= GlobalKey();
     }
 
     return GestureDetector(

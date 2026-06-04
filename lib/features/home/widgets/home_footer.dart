@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/atoms/landy_maker_logo.dart';
 
 class HomeFooter extends StatelessWidget {
   const HomeFooter({super.key});
@@ -35,29 +36,7 @@ class HomeFooter extends StatelessWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    "Landy",
-                                    style: AppTypography.h3.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      fontSize: 22,
-                                      letterSpacing: -0.5,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Maker",
-                                    style: AppTypography.h3.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF00E5FF),
-                                      fontSize: 22,
-                                      letterSpacing: -0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              const LandyMakerLogo(fontSize: 22),
                               const SizedBox(width: 10),
                               Image.asset(
                                 'assets/images/logo_small.webp',
@@ -123,27 +102,7 @@ class HomeFooter extends StatelessWidget {
                      Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              "Landy",
-                              style: AppTypography.h3.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 20,
-                              ),
-                            ),
-                            Text(
-                              "Maker",
-                              style: AppTypography.h3.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF00E5FF),
-                                fontSize: 20,
-                              ),
-                            ),
-                          ],
-                        ),
+                            const LandyMakerLogo(fontSize: 20),
                         const SizedBox(width: 8),
                         Image.asset(
                           'assets/images/logo_small.webp',

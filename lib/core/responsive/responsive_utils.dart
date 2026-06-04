@@ -21,8 +21,8 @@ class ResponsiveUtils {
   }
 
   // Cross axis count for grids (e.g., dashboard stats cards or features blocks)
-  static int getGridCrossAxisCount(BuildContext context, {int desktop = 3, int tablet = 2, int mobile = 1}) {
-    ScreenType screenType = ResponsiveLayout.getScreenType(context);
+  static int getGridCrossAxisCount(BuildContext context, {int desktop = 3, int tablet = 2, int mobile = 1, double? width}) {
+    ScreenType screenType = ResponsiveLayout.getScreenType(context, width: width);
     switch (screenType) {
       case ScreenType.mobile:
         return mobile;
@@ -34,8 +34,8 @@ class ResponsiveUtils {
   }
 
   // Responsive card aspect ratio
-  static double getGridAspectRatio(BuildContext context) {
-    ScreenType screenType = ResponsiveLayout.getScreenType(context);
+  static double getGridAspectRatio(BuildContext context, {double? width}) {
+    ScreenType screenType = ResponsiveLayout.getScreenType(context, width: width);
     return screenType == ScreenType.mobile ? 1.5 : 1.3;
   }
 }

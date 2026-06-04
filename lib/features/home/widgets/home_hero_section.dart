@@ -776,41 +776,41 @@ class _PhonePreviewState extends State<_PhonePreview> {
                       ),
                       // Scrollable Preview with dynamic propagation on overscroll
                       Expanded(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 600),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            );
-                          },
-                          child: KeyedSubtree(
-                            key: ValueKey<int>(_activePreviewIndex),
-                            child: Container(
-                              color: widget.previewPages[_activePreviewIndex]['theme'].background,
-                              child: NotificationListener<ScrollNotification>(
-                                onNotification: (ScrollNotification notification) {
-                                  if (notification is ScrollUpdateNotification) {
-                                    final parent = widget.parentScrollController;
-                                    if (parent != null && parent.hasClients) {
-                                      final double delta = notification.scrollDelta ?? 0;
-                                      final pos = _innerScrollController.position;
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (ScrollNotification notification) {
+                            if (notification is ScrollUpdateNotification) {
+                              final parent = widget.parentScrollController;
+                              if (parent != null && parent.hasClients) {
+                                final double delta = notification.scrollDelta ?? 0;
+                                final pos = _innerScrollController.position;
 
-                                      // Overscroll Down: inner view is at bottom, drag down -> scroll parent
-                                      if (pos.pixels >= pos.maxScrollExtent && delta > 0) {
-                                        parent.position.jumpTo((parent.offset + delta).clamp(0.0, parent.position.maxScrollExtent));
-                                      }
-                                      // Overscroll Up: inner view is at top, drag up -> scroll parent
-                                      else if (pos.pixels <= 0 && delta < 0) {
-                                        parent.position.jumpTo((parent.offset + delta).clamp(0.0, parent.position.maxScrollExtent));
-                                      }
-                                    }
-                                  }
-                                  return false;
-                                },
-                                child: SingleChildScrollView(
-                                  controller: _innerScrollController,
-                                  physics: const ClampingScrollPhysics(), // Clamping prevents rubber-banding blocks
+                                // Overscroll Down: inner view is at bottom, drag down -> scroll parent
+                                if (pos.pixels >= pos.maxScrollExtent && delta > 0) {
+                                  parent.position.jumpTo((parent.offset + delta).clamp(0.0, parent.position.maxScrollExtent));
+                                }
+                                // Overscroll Up: inner view is at top, drag up -> scroll parent
+                                else if (pos.pixels <= 0 && delta < 0) {
+                                  parent.position.jumpTo((parent.offset + delta).clamp(0.0, parent.position.maxScrollExtent));
+                                }
+                              }
+                            }
+                            return false;
+                          },
+                          child: SingleChildScrollView(
+                            controller: _innerScrollController,
+                            physics: const ClampingScrollPhysics(), // Clamping prevents rubber-banding blocks
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 600),
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
+                              child: KeyedSubtree(
+                                key: ValueKey<int>(_activePreviewIndex),
+                                child: Container(
+                                  color: widget.previewPages[_activePreviewIndex]['theme'].background,
                                   child: SectionRenderer(
                                     pageId: 'demo',
                                     theme: widget.previewPages[_activePreviewIndex]['theme'],

@@ -86,6 +86,7 @@ class CustomFeaturesWidget extends StatelessWidget {
                           desktop: 3,
                           tablet: 2,
                           mobile: 1,
+                          width: constraints.maxWidth,
                         ),
                         crossAxisSpacing: isMobile ? 16 : 24,
                         mainAxisSpacing: isMobile ? 16 : 24,
@@ -383,6 +384,8 @@ class _FeatureCardState extends State<FeatureCard> {
           const SizedBox(height: 16),
           Text(
             widget.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: AppTypography.bodyLarge.copyWith(
               fontWeight: FontWeight.bold,
               fontSize: widget.isMobile ? 15 : 18,
@@ -390,15 +393,17 @@ class _FeatureCardState extends State<FeatureCard> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            widget.description,
-            style: AppTypography.bodyMedium.copyWith(
-              color: widget.subTextColor,
-              height: 1.3,
-              fontSize: widget.isMobile ? 12 : 14,
+          Expanded(
+            child: Text(
+              widget.description,
+              style: AppTypography.bodyMedium.copyWith(
+                color: widget.subTextColor,
+                height: 1.3,
+                fontSize: widget.isMobile ? 12 : 14,
+              ),
+              maxLines: widget.isMobile ? 2 : (widget.isBento ? 4 : 3),
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: widget.isMobile ? 2 : (widget.isBento ? 4 : 3),
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

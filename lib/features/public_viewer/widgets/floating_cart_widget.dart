@@ -6,7 +6,8 @@ import '../controllers/cart_cubit.dart';
 import 'package:toastification/toastification.dart';
 
 class FloatingCartWidget extends StatelessWidget {
-  const FloatingCartWidget({super.key});
+  final ValueNotifier<bool>? isStickyVisible;
+  const FloatingCartWidget({super.key, this.isStickyVisible});
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +20,15 @@ class FloatingCartWidget extends StatelessWidget {
         final int totalQuantity = state.items.fold(
             0, (sum, item) => sum + (item['cart_quantity'] as int? ?? 1));
 
-        return Positioned(
-          bottom: 24,
-          left: 24, // Assuming RTL, bottom-left is suitable. Or right. Let's use left for LTR and right for RTL.
-          // Let's just use bottom left for floating action button.
-          child: Stack(
+        return ValueListenableBuilder<bool>(
+          valueListenable: isStickyVisible ?? ValueNotifier(false),
+          builder: (context, isSticky, _) {
+            return AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              bottom: isSticky ? 90 : 24,
+              left: 24,
+              child: Stack(
             clipBehavior: Clip.none,
             children: [
               FloatingActionButton(
@@ -57,6 +62,8 @@ class FloatingCartWidget extends StatelessWidget {
                 ),
             ],
           ),
+            );
+          },
         );
       },
     );

@@ -144,8 +144,8 @@ class ProductsEditor extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (pIndex) {
-          final item = (block['items'] as List)[pIndex] as Map<String, dynamic>;
+        ...List.generate(((block['items'] as List?) ?? []).length, (pIndex) {
+          final item = ((block['items'] as List?) ?? [])[pIndex] as Map<String, dynamic>;
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),

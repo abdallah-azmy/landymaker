@@ -114,136 +114,140 @@ class _CustomVideoEmbedWidgetState extends State<CustomVideoEmbedWidget> {
     if (aspectRatioStr == '1:1') ratio = 1;
     if (aspectRatioStr == '9:16') ratio = 9 / 16;
 
-    final bool isMobile = ResponsiveLayout.isMobile(context);
-    final double verticalPadding = isMobile ? 40 : 80;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isMobile = constraints.maxWidth < 600;
+        final double verticalPadding = isMobile ? 40 : 80;
 
-    return SectionBackground(
-      bgImageUrl: widget.block['bg_image_url'],
-      bgOverlayColor: widget.block['bg_overlay_color'],
-      bgOverlayOpacity: (widget.block['bg_overlay_opacity'] ?? 0.5).toDouble(),
-      bgBlur: (widget.block['bg_blur'] ?? 0).toDouble(),
-      theme: widget.theme,
-      padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (title.isNotEmpty) ...[
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: AppTypography.h2.copyWith(
-                    color: textColor,
-                    fontSize: isMobile ? 28 : 40,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-              if (subtitle.isNotEmpty) ...[
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
-                  style: AppTypography.bodyLarge.copyWith(
-                    color: subTextColor,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 40),
-              ],
-              if (rawUrl.isEmpty)
-                Container(
-                  width: double.infinity,
-                  height: isMobile ? 200 : 400,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.video_library_rounded, size: 48, color: subTextColor.withValues(alpha: 0.5)),
-                        const SizedBox(height: 16),
-                        Text(
-                          'قم بإضافة رابط الفيديو من لوحة التحكم',
-                          style: TextStyle(color: subTextColor),
-                        ),
-                      ],
+        return SectionBackground(
+          bgImageUrl: widget.block['bg_image_url'],
+          bgOverlayColor: widget.block['bg_overlay_color'],
+          bgOverlayOpacity: (widget.block['bg_overlay_opacity'] ?? 0.5).toDouble(),
+          bgBlur: (widget.block['bg_blur'] ?? 0).toDouble(),
+          theme: widget.theme,
+          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (title.isNotEmpty) ...[
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: AppTypography.h2.copyWith(
+                        color: textColor,
+                        fontSize: isMobile ? 28 : 40,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                )
-              else
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: AspectRatio(
-                    aspectRatio: ratio,
-                    child: Builder(
-                      builder: (context) {
-                        if (!_isPlaying && useThumbnail) {
-                          String? thumb = customThumbnail.isNotEmpty ? customThumbnail : VideoUrlHelper.getThumbnailUrl(rawUrl);
-                          return Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              if (thumb != null && thumb.isNotEmpty)
-                                Image.network(
-                                  thumb,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(color: Colors.black87),
-                                )
-                              else
-                                Container(color: Colors.black87),
-                              // Play Button Overlay
-                              Container(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                child: Center(
-                                  child: MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _isPlaying = true;
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(20),
-                                        decoration: BoxDecoration(
-                                          color: primaryColor,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: primaryColor.withValues(alpha: 0.5),
-                                              blurRadius: 20,
-                                              spreadRadius: 5,
-                                            )
-                                          ]
-                                        ),
-                                        child: const Icon(
-                                          Icons.play_arrow_rounded,
-                                          color: Colors.white,
-                                          size: 40,
+                    const SizedBox(height: 16),
+                  ],
+                  if (subtitle.isNotEmpty) ...[
+                    Text(
+                      subtitle,
+                      textAlign: TextAlign.center,
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: subTextColor,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                  ],
+                  if (rawUrl.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      height: isMobile ? 200 : 400,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.video_library_rounded, size: 48, color: subTextColor.withValues(alpha: 0.5)),
+                            const SizedBox(height: 16),
+                            Text(
+                              'قم بإضافة رابط الفيديو من لوحة التحكم',
+                              style: TextStyle(color: subTextColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: AspectRatio(
+                        aspectRatio: ratio,
+                        child: Builder(
+                          builder: (context) {
+                            if (!_isPlaying && useThumbnail) {
+                              String? thumb = customThumbnail.isNotEmpty ? customThumbnail : VideoUrlHelper.getThumbnailUrl(rawUrl);
+                              return Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  if (thumb != null && thumb.isNotEmpty)
+                                    Image.network(
+                                      thumb,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(color: Colors.black87),
+                                    )
+                                  else
+                                    Container(color: Colors.black87),
+                                  // Play Button Overlay
+                                  Container(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    child: Center(
+                                      child: MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _isPlaying = true;
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
+                                              color: primaryColor,
+                                              shape: BoxShape.circle,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: primaryColor.withValues(alpha: 0.5),
+                                                  blurRadius: 20,
+                                                  spreadRadius: 5,
+                                                )
+                                              ]
+                                            ),
+                                            child: const Icon(
+                                              Icons.play_arrow_rounded,
+                                              color: Colors.white,
+                                              size: 40,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                        
-                        return HtmlElementView(viewType: _viewId);
-                      }
+                                ],
+                              );
+                            }
+                            
+                            return HtmlElementView(viewType: _viewId);
+                          }
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

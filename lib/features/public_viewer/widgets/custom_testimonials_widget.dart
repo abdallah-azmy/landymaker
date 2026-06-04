@@ -64,6 +64,7 @@ class CustomTestimonialsWidget extends StatelessWidget {
                         desktop: 3,
                         tablet: 2,
                         mobile: 1,
+                        width: constraints.maxWidth,
                       ),
                       crossAxisSpacing: 20,
                       mainAxisSpacing: 20,

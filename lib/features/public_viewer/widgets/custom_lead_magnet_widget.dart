@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../dashboard/controllers/leads_analytics_cubit.dart';
-import '../../../core/utils/toast_service.dart';
+import '../../dashboard/controllers/leads_analytics_state.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/forms/validation_engine.dart';
+import '../../../core/forms/elements/field_renderer.dart';
 
 class CustomLeadMagnetWidget extends StatefulWidget {
+  final Map<String, dynamic> block;
   final String title;
   final String subtitle;
   final String buttonText;
@@ -23,6 +26,7 @@ class CustomLeadMagnetWidget extends StatefulWidget {
 
   const CustomLeadMagnetWidget({
     super.key,
+    required this.block,
     required this.title,
     required this.subtitle,
     required this.buttonText,
@@ -40,46 +44,131 @@ class CustomLeadMagnetWidget extends StatefulWidget {
 }
 
 class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+  final Map<String, TextEditingController> _controllers = {};
+  final Map<String, String> _validationErrors = {};
+  final Map<String, dynamic> _dataPayload = {};
+  final TextEditingController _honeypotController = TextEditingController();
+  
   bool _isSubmitting = false;
+  String? _successMessage;
+  String? _errorMessage;
+
+  List<dynamic> get _fields {
+    final blockFields = widget.block['fields'];
+    if (blockFields != null && blockFields is List && blockFields.isNotEmpty) {
+      return blockFields;
+    }
+    // Fallback schema
+    return [
+      {
+        'field_id': 'name',
+        'field_type': 'text',
+        'label': '',
+        'placeholder': context.translate('full_name'),
+        'is_required': true,
+      },
+      {
+        'field_id': 'email',
+        'field_type': 'email',
+        'label': '',
+        'placeholder': context.translate('email'),
+        'is_required': true,
+      }
+    ];
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _controllers.values) {
+      controller.dispose();
+    }
+    _honeypotController.dispose();
+    super.dispose();
+  }
+
+  void _onFieldValueChanged(String fieldId, String value) {
+    setState(() {
+      _dataPayload[fieldId] = value;
+      if (_validationErrors.containsKey(fieldId)) {
+        _validationErrors.remove(fieldId);
+      }
+    });
+  }
 
   Future<void> _submitLead() async {
-    if (_nameController.text.trim().isEmpty || _emailController.text.trim().isEmpty) {
-      ToastService.showError(context, message: context.translate('lead_error_empty'));
+    if (_honeypotController.text.isNotEmpty) {
+      // Silently discard spam
+      setState(() {
+        _successMessage = context.translate('lead_success');
+        _errorMessage = null;
+      });
+      _clearForm();
       return;
     }
 
-    setState(() => _isSubmitting = true);
+    final fields = _fields;
+    final errors = ValidationEngine.validate(fields, _dataPayload);
+
+    if (errors.isNotEmpty) {
+      setState(() {
+        _validationErrors.clear();
+        _validationErrors.addAll(errors);
+        _errorMessage = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _successMessage = null;
+      _errorMessage = null;
+    });
     
     try {
       final cubit = context.read<LeadsAnalyticsCubit>();
-      await cubit.submitLead(widget.pageId, {
-        'name': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-      });
+      await cubit.submitLead(widget.pageId, Map<String, dynamic>.from(_dataPayload));
       
       if (mounted) {
-        ToastService.showSuccess(context, message: context.translate('lead_success'));
-        _nameController.clear();
-        _emailController.clear();
+        final state = cubit.state;
+        if (state is LeadsAnalyticsLoaded && state.leadErrorMessage != null) {
+          setState(() {
+            _errorMessage = state.leadErrorMessage;
+            _successMessage = null;
+          });
+        } else {
+          setState(() {
+            _successMessage = state is LeadsAnalyticsLoaded 
+                ? (state.leadSuccessMessage ?? context.translate('lead_success'))
+                : context.translate('lead_success');
+            _errorMessage = null;
+          });
+          _clearForm();
+        }
       }
     } catch (e) {
       // In builder mode (where the Cubit might not be provided)
       await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
-        ToastService.showSuccess(context, message: context.translate('lead_preview_success'));
+        setState(() {
+          _successMessage = context.translate('lead_preview_success');
+          _errorMessage = null;
+        });
+        _clearForm();
       }
     }
     
     if (mounted) setState(() => _isSubmitting = false);
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    super.dispose();
+  void _clearForm() {
+    setState(() {
+      _dataPayload.clear();
+      _validationErrors.clear();
+    });
+    for (var controller in _controllers.values) {
+      controller.clear();
+    }
+    _honeypotController.clear();
   }
 
   @override
@@ -127,7 +216,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
                         flex: 1,
                         child: Padding(
                           padding: const EdgeInsets.all(48),
-                          child: _buildFormContent(textColor, subTextColor, secondaryColor),
+                          child: _buildFormContent(textColor, subTextColor, secondaryColor, isMobile: false),
                         ),
                       ),
                     ],
@@ -142,7 +231,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
                         flex: 1,
                         child: Padding(
                           padding: const EdgeInsets.all(24),
-                          child: _buildFormContent(textColor, subTextColor, secondaryColor),
+                          child: _buildFormContent(textColor, subTextColor, secondaryColor, isMobile: false),
                         ),
                       ),
                     ],
@@ -152,7 +241,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
                       _buildImageCover(height: 250),
                       Padding(
                         padding: const EdgeInsets.all(24),
-                        child: _buildFormContent(textColor, subTextColor, secondaryColor),
+                        child: _buildFormContent(textColor, subTextColor, secondaryColor, isMobile: true),
                       ),
                     ],
                   ),
@@ -180,11 +269,18 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
     );
   }
 
-  Widget _buildFormContent(Color textColor, Color subTextColor, Color secondaryColor) {
+  Widget _buildFormContent(Color textColor, Color subTextColor, Color secondaryColor, {required bool isMobile}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Honeypot field (hidden from real users, filled by bots)
+        Offstage(
+          child: TextField(
+            controller: _honeypotController,
+            decoration: const InputDecoration(labelText: 'Leave this field empty'),
+          ),
+        ),
         Text(
           widget.title,
           style: AppTypography.h2.copyWith(
@@ -201,34 +297,90 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
           ),
         ),
         const SizedBox(height: 32),
-        TextField(
-          controller: _nameController,
-          decoration: InputDecoration(
-            hintText: context.translate('full_name'),
-            filled: true,
-            fillColor: textColor.withValues(alpha: 0.05),
-            border: OutlineInputBorder(
+
+        if (_successMessage != null) ...[
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.activeGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+              border: Border.all(color: AppColors.activeGreen.withValues(alpha: 0.3)),
             ),
-            prefixIcon: const Icon(Icons.person_outline_rounded),
+            child: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _successMessage!,
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.activeGreen,
+                      fontWeight: FontWeight.bold,
+                      fontSize: isMobile ? 12 : 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _emailController,
-          decoration: InputDecoration(
-            hintText: context.translate('email'),
-            filled: true,
-            fillColor: textColor.withValues(alpha: 0.05),
-            border: OutlineInputBorder(
+          const SizedBox(height: 20),
+        ],
+
+        if (_errorMessage != null) ...[
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.dangerRed.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+              border: Border.all(color: AppColors.dangerRed.withValues(alpha: 0.3)),
             ),
-            prefixIcon: const Icon(Icons.email_outlined),
+            child: Row(
+              children: [
+                const Icon(Icons.error_outline_rounded, color: AppColors.dangerRed, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _errorMessage!,
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.dangerRed,
+                      fontWeight: FontWeight.bold,
+                      fontSize: isMobile ? 12 : 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          keyboardType: TextInputType.emailAddress,
-        ),
+          const SizedBox(height: 20),
+        ],
+        
+        ..._fields.map((field) {
+          if (field is! Map) return const SizedBox.shrink();
+          final fieldId = field['field_id'] as String?;
+          if (fieldId == null) return const SizedBox.shrink();
+          
+          if (!_controllers.containsKey(fieldId)) {
+            _controllers[fieldId] = TextEditingController();
+          }
+
+          return Theme(
+            data: Theme.of(context).copyWith(
+              textTheme: Theme.of(context).textTheme.copyWith(
+                titleSmall: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+            ),
+            child: FieldRenderer.render(
+              schema: field.cast<String, dynamic>(),
+              controller: _controllers[fieldId]!,
+              currentValue: _dataPayload[fieldId]?.toString(),
+              errorMessage: _validationErrors[fieldId],
+              onChanged: (val) => _onFieldValueChanged(fieldId, val),
+            ),
+          );
+        }),
+
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,

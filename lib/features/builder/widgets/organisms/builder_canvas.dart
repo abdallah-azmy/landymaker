@@ -5,6 +5,7 @@ import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
 import 'package:landymaker/features/builder/models/preview_mode.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../../public_viewer/widgets/section_renderer.dart';
+import '../../../public_viewer/widgets/global/sticky_cta_bar.dart';
 import '../../controllers/builder_state.dart';
 
 class BuilderCanvas extends StatelessWidget {
@@ -110,13 +111,26 @@ class BuilderCanvas extends StatelessWidget {
                   children: [
                     if (!isMobile) _buildBrowserChrome(),
                     Expanded(
-                      child: SingleChildScrollView(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: isMobile ? constraints.maxHeight : (constraints.maxHeight - 36),
+                      child: Stack(
+                        children: [
+                          SingleChildScrollView(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: isMobile ? constraints.maxHeight : (constraints.maxHeight - 36),
+                              ),
+                              child: content,
+                            ),
                           ),
-                          child: content,
-                        ),
+                          if (state.designMap['sticky_cta']?['is_enabled'] == true)
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: StickyCtaBar(
+                                config: Map<String, dynamic>.from(state.designMap['sticky_cta']),
+                                lang: loc.isRtl ? 'ar' : 'en',
+                                primaryColor: state.theme.primary,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ],

@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/services.dart';
-import 'package:landymaker/core/widgets/molecules/status_pill.dart';
 import 'package:landymaker/features/builder/models/landing_page_theme.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
 import '../modals/stock_image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../core/widgets/molecules/form_group.dart';
-import '../../../../core/utils/toast_service.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 import '../../../../core/utils/file_utils.dart';
-import 'editor_types.dart';
 import 'blocks/logo_header_editor.dart';
 import 'blocks/hero_editor.dart';
 import 'blocks/lead_form_editor.dart';
 import 'blocks/lead_magnet_editor.dart';
-import 'blocks/whatsapp_editor.dart';
-import 'blocks/features_editor.dart';
-import 'blocks/products_editor.dart';
+import 'blocks/location_map_editor.dart';
 import 'blocks/pricing_editor.dart';
 import 'blocks/faq_editor.dart';
 import 'blocks/testimonials_editor.dart';
@@ -34,6 +27,7 @@ import 'blocks/trust_logos_editor.dart';
 import 'blocks/animated_counter_editor.dart';
 import 'blocks/video_embed_editor.dart';
 import 'blocks/multi_step_form_editor.dart';
+import 'blocks/working_hours_editor.dart';
 
 class BlockPropertiesEditor extends StatefulWidget {
   final int index;
@@ -168,65 +162,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
     } catch (_) {}
   }
 
-  void _showProductQrShare(
-    BuildContext context,
-    Map<String, dynamic> product,
-    String subdomain,
-  ) {
-    final String baseUrl = Uri.base.origin;
-    final String productUrl = "$baseUrl/$subdomain?product=${product['id']}";
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.background,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text("مشاركة المنتج", style: AppTypography.h3),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: PrettyQrView.data(
-                data: productUrl,
-                decoration: const PrettyQrDecoration(
-                  shape: PrettyQrSmoothSymbol(color: AppColors.background),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              "سيقوم هذا الكود بتوجيه العميل مباشرة إلى منتج: ${product['name']}",
-              textAlign: TextAlign.center,
-              style: AppTypography.caption,
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: productUrl));
-                ToastService.showSuccess(
-                  context,
-                  message: "تم نسخ الرابط بنجاح!",
-                );
-              },
-              icon: const Icon(Icons.copy_rounded, size: 18),
-              label: const Text("نسخ الرابط المباشر"),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("إغلاق"),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildColorPreset(
     LandingPageBuilderCubit cubit,
@@ -416,8 +352,20 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
       ),
     ],
 
-      if (type == 'lead_form' || type == 'lead_magnet') ...[
+      if (type == 'lead_form') ...[
       LeadFormEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
+
+      if (type == 'lead_magnet') ...[
+      LeadMagnetEditor(
         cubit: cubit,
         block: block,
         index: widget.index,
@@ -545,6 +493,30 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         getFocusNode: _getFocusNode,
       ),
     ],
+
+      if (type == 'working_hours') ...[
+      WorkingHoursEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
+
+      if (type == 'location_map') ...[
+      LocationMapEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
     ];
   }
 
@@ -598,7 +570,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         ),
       );
       list.add(const SizedBox(height: 12));
-      final items = block['items'] as List;
+      final items = (block['items'] as List?) ?? [];
       for (int fIndex = 0; fIndex < items.length; fIndex++) {
         final item = items[fIndex] as Map<String, dynamic>;
         list.add(
@@ -643,7 +615,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         ),
         const SizedBox(height: 12),
       ]);
-      final items = block['items'] as List;
+      final items = (block['items'] as List?) ?? [];
       for (int pIndex = 0; pIndex < items.length; pIndex++) {
         final item = items[pIndex] as Map<String, dynamic>;
         list.add(
@@ -678,7 +650,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         ),
       );
       list.add(const SizedBox(height: 12));
-      final items = block['items'] as List;
+      final items = (block['items'] as List?) ?? [];
       final List galleryLinks = List.from(block['gallery_links'] ?? List.filled(items.length, ''));
       while (galleryLinks.length < items.length) {
         galleryLinks.add('');
@@ -1013,7 +985,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<LandingPageBuilderCubit>();
-    final blocks = widget.state.designMap['blocks'] as List;
+    final blocks = (widget.state.designMap['blocks'] as List?) ?? [];
 
     if (widget.index >= blocks.length) return const SizedBox.shrink();
 
@@ -1064,6 +1036,15 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
       case 'lead_form':
         sectionName = "نموذج التواصل";
         break;
+      case 'lead_magnet':
+        sectionName = "مغناطيس العملاء (Lead Magnet)";
+        break;
+      case 'working_hours':
+        sectionName = "مواعيد العمل (Working Hours)";
+        break;
+      case 'location_map':
+        sectionName = "الخريطة والموقع (Location Map)";
+        break;
       case 'contact_info':
         sectionName = "معلومات الاتصال";
         break;
@@ -1078,6 +1059,12 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         break;
       case 'footer':
         sectionName = "التذييل (Footer)";
+        break;
+      case 'trust_logos':
+        sectionName = "شركاء النجاح (Trust Logos)";
+        break;
+      case 'animated_counter':
+        sectionName = "العدادات (Animated Counters)";
         break;
     }
 

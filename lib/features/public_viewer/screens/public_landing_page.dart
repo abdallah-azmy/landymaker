@@ -13,6 +13,7 @@ import '../controllers/public_page_cubit.dart';
 import '../controllers/public_page_state.dart';
 import '../controllers/cart_cubit.dart';
 import '../widgets/floating_cart_widget.dart';
+import '../widgets/global/sticky_cta_bar.dart';
 import '../widgets/section_renderer.dart';
 
 class PublicLandingPage extends StatefulWidget {
@@ -25,6 +26,7 @@ class PublicLandingPage extends StatefulWidget {
 
 class _PublicLandingPageState extends State<PublicLandingPage> {
   final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<bool> _isStickyVisible = ValueNotifier(false);
 
   /// Shared map of product keys populated by CustomProductsWidget.
   /// Supports both UUID keys ("abc-123-...") and slug keys ("smart-watch-pro").
@@ -329,7 +331,37 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                   return const SizedBox.shrink();
                 },
               ),
-              const FloatingCartWidget(),
+              BlocBuilder<PublicPageCubit, PublicPageState>(
+                builder: (context, state) {
+                  if (state is PublicPageLoaded) {
+                    final rawDesign = state.pageData['design_json'];
+                    Map<String, dynamic> designJson = {};
+                    if (rawDesign is String) {
+                      try {
+                        designJson = Map<String, dynamic>.from(jsonDecode(rawDesign));
+                      } catch (_) {}
+                    } else if (rawDesign is Map) {
+                      designJson = Map<String, dynamic>.from(rawDesign);
+                    }
+                    if (designJson['sticky_cta']?['is_enabled'] == true) {
+                      final themeJson = designJson['theme'] as Map<String, dynamic>? ?? {};
+                      final theme = LandingPageTheme.fromJson(themeJson);
+                      return Align(
+                        alignment: Alignment.bottomCenter,
+                        child: StickyCtaBar(
+                          config: Map<String, dynamic>.from(designJson['sticky_cta']),
+                          lang: loc.isRtl ? 'ar' : 'en',
+                          primaryColor: theme.primary,
+                          scrollController: _scrollController,
+                          visibilityNotifier: _isStickyVisible,
+                        ),
+                      );
+                    }
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+              FloatingCartWidget(isStickyVisible: _isStickyVisible),
             ],
           ),
         ),

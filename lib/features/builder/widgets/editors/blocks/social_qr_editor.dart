@@ -88,8 +88,8 @@ class SocialQrEditor extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        ...List.generate((block['links'] as List).length, (lIndex) {
-          final link = (block['links'] as List)[lIndex] as Map<String, dynamic>;
+        ...List.generate(((block['links'] as List?) ?? []).length, (lIndex) {
+          final link = ((block['links'] as List?) ?? [])[lIndex] as Map<String, dynamic>;
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),

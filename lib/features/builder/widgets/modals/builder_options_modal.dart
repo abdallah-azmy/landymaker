@@ -8,8 +8,9 @@ import '../../controllers/builder_state.dart';
 import '../tabs/builder_sidebar_tabs.dart';
 import '../tabs/background_picker_tab.dart';
 import 'seo_settings_modal.dart';
+import '../editors/global/sticky_cta_editor.dart';
 
-enum BuilderOptionView { main, templates, colors, fonts, background, seo }
+enum BuilderOptionView { main, templates, colors, fonts, background, seo, stickyCta }
 
 class BuilderOptionsModal extends StatefulWidget {
   final LocalizationCubit loc;
@@ -153,6 +154,8 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
         return "خلفية الصفحة";
       case BuilderOptionView.seo:
         return "إعدادات السيو";
+      case BuilderOptionView.stickyCta:
+        return "شريط التثبيت (Sticky CTA)";
       default:
         return "";
     }
@@ -180,6 +183,8 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
         return BackgroundPickerTab(cubit: widget.cubit, state: widget.state);
       case BuilderOptionView.seo:
         return const SeoSettingsModal();
+      case BuilderOptionView.stickyCta:
+        return StickyCtaEditor(loc: widget.loc);
     }
   }
 
@@ -278,6 +283,12 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
           icon: Icons.search_rounded,
           title: "إعدادات السيو SEO",
           onTap: () => _changeView(BuilderOptionView.seo),
+        ),
+        _buildOptionTile(
+          icon: Icons.push_pin_rounded,
+          title: "إعدادات شريط التثبيت (Sticky CTA)",
+          subtitle: "شريط شراء أو تواصل ثابت أسفل الشاشة",
+          onTap: () => _changeView(BuilderOptionView.stickyCta),
         ),
         _buildOptionTile(
           icon: Icons.add_circle_outline_rounded,

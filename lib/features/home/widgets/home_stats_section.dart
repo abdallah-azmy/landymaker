@@ -79,7 +79,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
     _statFades = List.generate(_stats.length, (i) {
       return CurvedAnimation(
         parent: _statsController,
-        curve: Interval(i * 0.15, (i * 0.15) + 0.5, curve: Curves.easeOut),
+        curve: Interval((i * 0.15).clamp(0.0, 1.0), ((i * 0.15) + 0.5).clamp(0.0, 1.0), curve: Curves.easeOut),
       );
     });
 
@@ -89,7 +89,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
         end: Offset.zero,
       ).animate(CurvedAnimation(
         parent: _statsController,
-        curve: Interval(i * 0.15, (i * 0.15) + 0.6, curve: Curves.fastOutSlowIn),
+        curve: Interval((i * 0.15).clamp(0.0, 1.0), ((i * 0.15) + 0.6).clamp(0.0, 1.0), curve: Curves.fastOutSlowIn),
       ));
     });
   }
@@ -114,11 +114,13 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 900;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
       decoration: BoxDecoration(
         color: const Color(0xFF030712),
         border: const Border(
@@ -223,6 +225,8 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
         ),
       ),
     );
+  },
+);
   }
 }
 

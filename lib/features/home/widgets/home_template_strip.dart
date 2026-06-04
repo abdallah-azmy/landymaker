@@ -107,13 +107,13 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
 
     _cardFades = List.generate(_templates.length, (i) => CurvedAnimation(
       parent: _cardsController,
-      curve: Interval(i * 0.10, (i * 0.10) + 0.5, curve: Curves.easeOut),
+      curve: Interval((i * 0.10).clamp(0.0, 1.0), ((i * 0.10) + 0.5).clamp(0.0, 1.0), curve: Curves.easeOut),
     ));
     _cardSlides = List.generate(_templates.length, (i) =>
         Tween<Offset>(begin: const Offset(0.15, 0), end: Offset.zero).animate(
           CurvedAnimation(
             parent: _cardsController,
-            curve: Interval(i * 0.10, (i * 0.10) + 0.6, curve: Curves.fastOutSlowIn),
+            curve: Interval((i * 0.10).clamp(0.0, 1.0), ((i * 0.10) + 0.6).clamp(0.0, 1.0), curve: Curves.fastOutSlowIn),
           ),
         ));
   }

@@ -6,8 +6,6 @@ import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
-import 'package:flutter/services.dart';
-import '../../../../../core/utils/toast_service.dart';
 
 class LogoHeaderEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;

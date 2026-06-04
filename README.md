@@ -50,8 +50,9 @@
 - **Account Operations**: Comprehensive sign-in, signup, forgot password, and reset password flows.
 
 ### 📝 Integrated Next.js Blog
-- **Next.js Frontend**: High-performance headless blog located under the `/blog` subdirectory.
+- **Next.js Frontend**: High-performance headless blog located under the `blog-frontend/` subdirectory.
 - **Admin Management Panel**: Core Flutter Dashboard screen allowing admins to manage blog posts and synchronize data.
+- **Monorepo Build Configuration**: The blog project specifies `outputFileTracingRoot: __dirname` in its `next.config.ts`. This configuration restricts file tracing scope to the subproject folder, avoiding Next.js monorepo workspace mismatch warnings and preventing dynamic route resolution errors (404 pages) on Vercel.
 
 ---
 

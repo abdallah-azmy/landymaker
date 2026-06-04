@@ -124,7 +124,21 @@ LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 
 ---
 
-## 🧠 9. Strict AI Assistant Rules (MUST FOLLOW)
+## 📝 9. Next.js Headless Blog Deployment Constraints
+
+The headless blog (located under `blog-frontend/`) is built using Next.js 15+ / 16. Because it is nested within a monorepo containing multiple package files, Next.js can misidentify the workspace root during build processes.
+- **Routing 404 Issue:** In production builds (`next build` / `next start` on Vercel or locally), Next.js's workspace inference can misalign path resolution during file tracing. This leads Next.js to return `404 Not Found` for dynamic routes (like `/blog/[slug]`) without ever invoking the page components or metadata generators.
+- **The Fix (`outputFileTracingRoot`):** To resolve this routing failure, the local directory context must be locked as the tracing root. In [blog-frontend/next.config.ts](file:///Users/abdallahazmy/Projects/mylandy/blog-frontend/next.config.ts), we set:
+  ```typescript
+  const nextConfig: NextConfig = {
+    outputFileTracingRoot: __dirname,
+  };
+  ```
+  This overrides Next.js repository-wide search, confining it to the subproject folder and ensuring proper runtime dynamic routing and page generation (including ISR via `revalidate`).
+
+---
+
+## 🧠 10. Strict AI Assistant Rules (MUST FOLLOW)
 
 When working on this project, you **MUST** follow these rules:
 

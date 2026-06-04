@@ -99,6 +99,16 @@ LandyMaker is designed to be **Arabic-First** but fully bilingual:
 
 ---
 
+## 🎨 Design System & Spacing Constitution
+
+LandyMaker features a strict design standard managed under the project's specification tools:
+- **Visual Theme**: Uses a default **Slate-based dark theme** with high-contrast accent colors (such as cyan and amber) to emphasize primary interactive elements.
+- **Fluid Layouts**: UI widgets avoid hardcoded heights and utilize `LayoutBuilder` and `AspectRatio` to scale dynamically without layout overflows.
+- **Visual Spacing**: Enforces standard vertical spacing margins of **80px on desktop** and **40px on mobile** to maintain breathing room and design balance.
+
+---
+
+
 ## 📈 Edge SEO & Bot Middleware
 
 To circumvent the SEO limitations of client-side single-page Flutter apps, Vercel Edge Middleware (`middleware.js`) operates a bot-detection layer:

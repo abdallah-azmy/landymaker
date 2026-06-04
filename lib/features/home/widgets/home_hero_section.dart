@@ -18,27 +18,19 @@ class HomeHeroSection extends StatefulWidget {
 }
 
 class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderStateMixin {
+  late AnimationController _bgAnimationController;
+  late AnimationController _entranceController;
+  late Animation<double> _entranceFade;
+  late Animation<double> _entranceSlide;
+
+  bool _btnHovered = false;
+
   final List<String> _typewriterTexts = [
     "منيو مطعم إلكتروني تفاعلي",
     "معرض أعمال شخصي للمستقلين",
     "صفحة هبوط تسويقية لخدماتك",
     "متجر إلكتروني لمنتجاتك الخاصة",
   ];
-  int _currentIndex = 0;
-  String _currentText = "";
-  Timer? _timer;
-  bool _isDeleting = false;
-  int _charIndex = 0;
-
-  // Animation controllers for mesh background and elements
-  late AnimationController _bgAnimationController;
-  late AnimationController _entranceController;
-  late Animation<double> _entranceFade;
-  late Animation<double> _entranceSlide;
-
-  // Mobile Mockup cycling state
-  int _activePreviewIndex = 0;
-  Timer? _previewCycleTimer;
 
   final List<Map<String, dynamic>> _previewPages = [
     {
@@ -136,7 +128,6 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    _startTypewriter();
 
     // Background gradient pulse animation
     _bgAnimationController = AnimationController(
@@ -163,64 +154,13 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
     );
 
     _entranceController.forward();
-
-    // Start cycling previews
-    _startPreviewCycling();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _previewCycleTimer?.cancel();
     _bgAnimationController.dispose();
     _entranceController.dispose();
     super.dispose();
-  }
-
-  void _startTypewriter() {
-    final int delayMs = _isDeleting ? 25 : 60;
-    _timer = Timer(Duration(milliseconds: delayMs), () {
-      if (!mounted) return;
-
-      final fullText = _typewriterTexts[_currentIndex];
-
-      setState(() {
-        if (!_isDeleting) {
-          _currentText = fullText.substring(0, _charIndex);
-          _charIndex++;
-          if (_charIndex > fullText.length) {
-            _isDeleting = true;
-            Future.delayed(const Duration(seconds: 2), () {
-              if (mounted) _startTypewriter();
-            });
-            return;
-          }
-        } else {
-          _charIndex -= 2;
-          if (_charIndex < 0) _charIndex = 0;
-          _currentText = fullText.substring(0, _charIndex);
-          if (_charIndex == 0) {
-            _isDeleting = false;
-            _currentIndex = (_currentIndex + 1) % _typewriterTexts.length;
-            Future.delayed(const Duration(milliseconds: 300), () {
-              if (mounted) _startTypewriter();
-            });
-            return;
-          }
-        }
-        _startTypewriter();
-      });
-    });
-  }
-
-  void _startPreviewCycling() {
-    _previewCycleTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (mounted) {
-        setState(() {
-          _activePreviewIndex = (_activePreviewIndex + 1) % _previewPages.length;
-        });
-      }
-    });
   }
 
   @override
@@ -230,53 +170,59 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
 
     return Stack(
       children: [
-        // Mesh Gradient background spot effect
+        // Mesh Gradient background spot effect 1
         Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _bgAnimationController,
-            builder: (context, child) {
-              final val = _bgAnimationController.value;
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: Alignment(
-                      -0.5 + 0.3 * (1.0 - val),
-                      -0.3 + 0.4 * val,
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _bgAnimationController,
+              builder: (context, child) {
+                final val = _bgAnimationController.value;
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment(
+                        -0.5 + 0.3 * (1.0 - val),
+                        -0.3 + 0.4 * val,
+                      ),
+                      radius: 1.2,
+                      colors: [
+                        AppColors.primary.withValues(alpha: 0.15),
+                        const Color(0xFF030712).withValues(alpha: 0.0),
+                      ],
+                      stops: const [0.0, 1.0],
                     ),
-                    radius: 1.2,
-                    colors: [
-                      AppColors.primary.withValues(alpha: 0.15),
-                      const Color(0xFF030712).withValues(alpha: 0.0),
-                    ],
-                    stops: const [0.0, 1.0],
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
+
+        // Mesh Gradient background spot effect 2
         Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _bgAnimationController,
-            builder: (context, child) {
-              final val = _bgAnimationController.value;
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: Alignment(
-                      0.6 - 0.2 * val,
-                      0.5 - 0.3 * (1.0 - val),
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _bgAnimationController,
+              builder: (context, child) {
+                final val = _bgAnimationController.value;
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment(
+                        0.6 - 0.2 * val,
+                        0.5 - 0.3 * (1.0 - val),
+                      ),
+                      radius: 1.0,
+                      colors: [
+                        AppColors.secondary.withValues(alpha: 0.1),
+                        const Color(0xFF030712).withValues(alpha: 0.0),
+                      ],
+                      stops: const [0.0, 1.0],
                     ),
-                    radius: 1.0,
-                    colors: [
-                      AppColors.secondary.withValues(alpha: 0.1),
-                      const Color(0xFF030712).withValues(alpha: 0.0),
-                    ],
-                    stops: const [0.0, 1.0],
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
 
@@ -358,29 +304,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                           const SizedBox(height: 18),
                           SizedBox(
                             height: 50,
-                            child: Row(
-                              mainAxisAlignment: isMobile
-                                  ? MainAxisAlignment.center
-                                  : MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _currentText,
-                                  style: AppTypography.h2.copyWith(
-                                    color: AppColors.secondary,
-                                    fontSize: isMobile ? 22 : 30,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Container(
-                                  width: 3,
-                                  height: isMobile ? 24 : 32,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.secondary,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                              ],
+                            child: _TypewriterText(
+                              texts: _typewriterTexts,
+                              isMobile: isMobile,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -397,39 +323,40 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                           const SizedBox(height: 36),
                           MouseRegion(
                             cursor: SystemMouseCursors.click,
-                            child: TweenAnimationBuilder<double>(
-                              tween: Tween<double>(begin: 1.0, end: 1.05),
+                            onEnter: (_) => setState(() => _btnHovered = true),
+                            onExit: (_) => setState(() => _btnHovered = false),
+                            child: AnimatedScale(
+                              scale: _btnHovered ? 1.04 : 1.0,
                               duration: const Duration(milliseconds: 200),
-                              builder: (context, scale, child) {
-                                return ElevatedButton.icon(
-                                  onPressed: widget.onGetStartedPressed,
-                                  icon: const Icon(
-                                    Icons.flash_on_rounded,
-                                    size: 20,
+                              curve: Curves.easeOutCubic,
+                              child: ElevatedButton.icon(
+                                onPressed: widget.onGetStartedPressed,
+                                icon: const Icon(
+                                  Icons.flash_on_rounded,
+                                  size: 20,
+                                ),
+                                label: const Text(
+                                  "ابدأ الآن مجاناً",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
-                                  label: const Text(
-                                    "ابدأ الآن مجاناً",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 36,
+                                    vertical: 20,
                                   ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 36,
-                                      vertical: 20,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    elevation: 8,
-                                    shadowColor:
-                                        AppColors.primary.withValues(alpha: 0.4),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
-                                );
-                              },
+                                  elevation: 8,
+                                  shadowColor:
+                                      AppColors.primary.withValues(alpha: 0.4),
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -445,99 +372,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                   // Phone Preview container with auto-cycling templates
                   Expanded(
                     flex: isMobile ? 0 : 5,
-                    child: Center(
-                      child: Container(
-                        width: 320,
-                        height: 580,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B),
-                          borderRadius: BorderRadius.circular(38),
-                          border: Border.all(
-                            color: const Color(0xFF475569),
-                            width: 8,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                                  AppColors.secondary.withValues(alpha: 0.25),
-                              blurRadius: 40,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Column(
-                          children: [
-                            // Status bar mock
-                            Container(
-                              height: 24,
-                              color: const Color(0xFF0F172A),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              child: const Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "9:41",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.signal_cellular_alt_rounded,
-                                        color: Colors.white,
-                                        size: 10,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Icon(
-                                        Icons.wifi_rounded,
-                                        color: Colors.white,
-                                        size: 10,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Icon(
-                                        Icons.battery_std_rounded,
-                                        color: Colors.white,
-                                        size: 10,
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                            // Cycling Renderer with cross-fade animation
-                            Expanded(
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 600),
-                                transitionBuilder: (Widget child, Animation<double> animation) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
-                                child: KeyedSubtree(
-                                  key: ValueKey<int>(_activePreviewIndex),
-                                  child: Container(
-                                    color: _previewPages[_activePreviewIndex]['theme'].background,
-                                    child: SectionRenderer(
-                                      pageId: 'demo',
-                                      theme: _previewPages[_activePreviewIndex]['theme'],
-                                      blocks: List<Map<String, dynamic>>.from(
-                                        _previewPages[_activePreviewIndex]['blocks'],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    child: _PhonePreview(
+                      isMobile: isMobile,
+                      previewPages: _previewPages,
                     ),
                   ),
                 ],
@@ -546,6 +383,254 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Isolated Typewriter Widget to prevent rebuilding the entire Hero Section
+// ─────────────────────────────────────────────────────────────────────────────
+class _TypewriterText extends StatefulWidget {
+  final List<String> texts;
+  final bool isMobile;
+
+  const _TypewriterText({
+    required this.texts,
+    required this.isMobile,
+  });
+
+  @override
+  State<_TypewriterText> createState() => _TypewriterTextState();
+}
+
+class _TypewriterTextState extends State<_TypewriterText> with SingleTickerProviderStateMixin {
+  int _currentIndex = 0;
+  String _currentText = "";
+  Timer? _timer;
+  bool _isDeleting = false;
+  int _charIndex = 0;
+  late AnimationController _cursorController;
+
+  @override
+  void initState() {
+    super.initState();
+    _cursorController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..repeat(reverse: true);
+    _startTypewriter();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _cursorController.dispose();
+    super.dispose();
+  }
+
+  void _startTypewriter() {
+    final int delayMs = _isDeleting ? 25 : 60;
+    _timer = Timer(Duration(milliseconds: delayMs), () {
+      if (!mounted) return;
+
+      final fullText = widget.texts[_currentIndex];
+
+      setState(() {
+        if (!_isDeleting) {
+          _currentText = fullText.substring(0, _charIndex);
+          _charIndex++;
+          if (_charIndex > fullText.length) {
+            _isDeleting = true;
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted) _startTypewriter();
+            });
+            return;
+          }
+        } else {
+          _charIndex -= 2;
+          if (_charIndex < 0) _charIndex = 0;
+          _currentText = fullText.substring(0, _charIndex);
+          if (_charIndex == 0) {
+            _isDeleting = false;
+            _currentIndex = (_currentIndex + 1) % widget.texts.length;
+            Future.delayed(const Duration(milliseconds: 300), () {
+              if (mounted) _startTypewriter();
+            });
+            return;
+          }
+        }
+        _startTypewriter();
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: widget.isMobile
+          ? MainAxisAlignment.center
+          : MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          _currentText,
+          style: AppTypography.h2.copyWith(
+            color: AppColors.secondary,
+            fontSize: widget.isMobile ? 22 : 30,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(width: 6),
+        FadeTransition(
+          opacity: _cursorController,
+          child: Container(
+            width: 3,
+            height: widget.isMobile ? 24 : 32,
+            decoration: BoxDecoration(
+              color: AppColors.secondary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Isolated Phone Preview Widget to prevent rebuilding the entire Hero Section
+// ─────────────────────────────────────────────────────────────────────────────
+class _PhonePreview extends StatefulWidget {
+  final bool isMobile;
+  final List<Map<String, dynamic>> previewPages;
+
+  const _PhonePreview({
+    required this.isMobile,
+    required this.previewPages,
+  });
+
+  @override
+  State<_PhonePreview> createState() => _PhonePreviewState();
+}
+
+class _PhonePreviewState extends State<_PhonePreview> {
+  int _activePreviewIndex = 0;
+  Timer? _previewCycleTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startPreviewCycling();
+  }
+
+  @override
+  void dispose() {
+    _previewCycleTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startPreviewCycling() {
+    _previewCycleTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (mounted) {
+        setState(() {
+          _activePreviewIndex = (_activePreviewIndex + 1) % widget.previewPages.length;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        width: 320,
+        height: 580,
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B),
+          borderRadius: BorderRadius.circular(38),
+          border: Border.all(
+            color: const Color(0xFF475569),
+            width: 8,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.secondary.withValues(alpha: 0.25),
+              blurRadius: 40,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            // Status bar mock
+            Container(
+              height: 24,
+              color: const Color(0xFF0F172A),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "9:41",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.signal_cellular_alt_rounded,
+                        color: Colors.white,
+                        size: 10,
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.wifi_rounded,
+                        color: Colors.white,
+                        size: 10,
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.battery_std_rounded,
+                        color: Colors.white,
+                        size: 10,
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            // Cycling Renderer with cross-fade animation
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 600),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                child: KeyedSubtree(
+                  key: ValueKey<int>(_activePreviewIndex),
+                  child: Container(
+                    color: widget.previewPages[_activePreviewIndex]['theme'].background,
+                    child: SectionRenderer(
+                      pageId: 'demo',
+                      theme: widget.previewPages[_activePreviewIndex]['theme'],
+                      blocks: List<Map<String, dynamic>>.from(
+                        widget.previewPages[_activePreviewIndex]['blocks'],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

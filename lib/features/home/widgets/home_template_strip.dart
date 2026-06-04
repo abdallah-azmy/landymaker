@@ -263,7 +263,9 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
   }
 }
 
-// ─────────── Data class ───────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Data Class
+// ─────────────────────────────────────────────────────────────────────────────
 class _TemplateData {
   final String id;
   final String name;
@@ -286,12 +288,15 @@ class _TemplateData {
   });
 }
 
-// ─────────── Template Card ───────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Isolated Template Card Widget to prevent rebuilding the entire strip
+// ─────────────────────────────────────────────────────────────────────────────
 class _TemplateCard extends StatefulWidget {
   final _TemplateData template;
   final VoidCallback onPressed;
 
   const _TemplateCard({required this.template, required this.onPressed});
+
 
   @override
   State<_TemplateCard> createState() => _TemplateCardState();
@@ -308,33 +313,28 @@ class _TemplateCardState extends State<_TemplateCard> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
+      // AnimatedSlide = GPU layer transform, not Dart-side lerp
+      child: AnimatedSlide(
+        offset: _hovered ? const Offset(0, -0.02) : Offset.zero,
+        duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
-        width: cardW,
-        margin: const EdgeInsets.only(left: 20),
-        transform: Matrix4.identity()
-          ..translateByDouble(_hovered ? 0.0 : 0.0, _hovered ? -8.0 : 0.0, 0, 1),
-        decoration: BoxDecoration(
-          color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: _hovered
-                ? widget.template.color.withValues(alpha: 0.7)
-                : AppColors.border,
-            width: _hovered ? 2.0 : 1.2,
-          ),
-          boxShadow: [
-            BoxShadow(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          width: cardW,
+          margin: const EdgeInsets.only(left: 20),
+          // Only animate color + border — no boxShadow blur (expensive)
+          decoration: BoxDecoration(
+            color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
               color: _hovered
-                  ? widget.template.color.withValues(alpha: 0.2)
-                  : Colors.black.withValues(alpha: 0.3),
-              blurRadius: _hovered ? 32 : 12,
-              offset: Offset(0, _hovered ? 12 : 4),
+                  ? widget.template.color.withValues(alpha: 0.6)
+                  : AppColors.border,
+              width: 1.5,
             ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
+          ),
+          clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -492,6 +492,8 @@ class _TemplateCardState extends State<_TemplateCard> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
+}
+

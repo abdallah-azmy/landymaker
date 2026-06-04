@@ -308,7 +308,9 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
   }
 }
 
-// ─────────────────────────── Data class ────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Data Class
+// ─────────────────────────────────────────────────────────────────────────────
 class _FeatureData {
   final IconData icon;
   final String title;
@@ -324,36 +326,23 @@ class _FeatureData {
   });
 }
 
-// ─────────────────────────── Bento Card ────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Isolated Bento Card Widget to prevent rebuilding the entire Bento Section
+// ─────────────────────────────────────────────────────────────────────────────
 class _BentoCard extends StatefulWidget {
   final _FeatureData feature;
   final bool tall;
 
   const _BentoCard({required this.feature, this.tall = false});
 
+
   @override
   State<_BentoCard> createState() => _BentoCardState();
 }
 
-class _BentoCardState extends State<_BentoCard>
-    with SingleTickerProviderStateMixin {
+// No TickerProviderStateMixin needed — AnimatedSlide handles animation internally
+class _BentoCardState extends State<_BentoCard> {
   bool _hovered = false;
-  late AnimationController _shimmerController;
-
-  @override
-  void initState() {
-    super.initState();
-    _shimmerController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _shimmerController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -361,89 +350,74 @@ class _BentoCardState extends State<_BentoCard>
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
+      // AnimatedSlide uses Transform internally = GPU compositing, not Dart lerp
+      child: AnimatedSlide(
+        offset: _hovered ? const Offset(0, -0.015) : Offset.zero,
+        duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
-        transform: Matrix4.identity()
-          ..translateByDouble(_hovered ? -2.0 : 0.0, _hovered ? -6.0 : 0.0, 0, 1),
-        padding: EdgeInsets.all(widget.tall ? 36 : 28),
-        constraints: widget.tall ? const BoxConstraints(minHeight: 240) : null,
-        decoration: BoxDecoration(
-          color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: _hovered
-                ? f.color.withValues(alpha: 0.7)
-                : AppColors.border,
-            width: _hovered ? 1.8 : 1.2,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.all(widget.tall ? 36 : 28),
+          constraints: widget.tall ? const BoxConstraints(minHeight: 240) : null,
+          // Only animate color + border (cheap). NO boxShadow blur change (expensive).
+          decoration: BoxDecoration(
+            color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: _hovered ? f.color.withValues(alpha: 0.55) : AppColors.border,
+              width: 1.5,
+            ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: _hovered
-                  ? f.color.withValues(alpha: 0.18)
-                  : Colors.black.withValues(alpha: 0.04),
-              blurRadius: _hovered ? 36 : 8,
-              spreadRadius: _hovered ? 2 : 0,
-              offset: Offset(0, _hovered ? 8 : 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Icon with glow
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 350),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: f.color.withValues(alpha: _hovered ? 0.2 : 0.1),
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: _hovered
-                    ? [
-                        BoxShadow(
-                          color: f.color.withValues(alpha: 0.3),
-                          blurRadius: 20,
-                          spreadRadius: 2,
-                        )
-                      ]
-                    : [],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // RepaintBoundary: icon glow changes won't repaint the text below
+              RepaintBoundary(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: f.color.withValues(alpha: _hovered ? 0.18 : 0.1),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Icon(f.icon, color: f.color, size: 28),
+                ),
               ),
-              child: Icon(f.icon, color: f.color, size: 28),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // Emoji + Title
-            Row(
-              children: [
-                Text(f.emoji, style: const TextStyle(fontSize: 18)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    f.title,
-                    style: AppTypography.h3.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
+              Row(
+                children: [
+                  Text(f.emoji, style: const TextStyle(fontSize: 18)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      f.title,
+                      style: AppTypography.h3.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            Text(
-              f.desc,
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-                height: 1.65,
+                ],
               ),
-            ),
+              const SizedBox(height: 10),
 
-            if (_hovered) ...[
-              const SizedBox(height: 16),
+              Text(
+                f.desc,
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.65,
+                ),
+              ),
+
+              // Always in tree (no layout jump) — animated via opacity only
+              const SizedBox(height: 14),
               AnimatedOpacity(
                 opacity: _hovered ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 180),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       "اكتشف أكثر",
@@ -458,7 +432,7 @@ class _BentoCardState extends State<_BentoCard>
                 ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );

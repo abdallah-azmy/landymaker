@@ -155,5 +155,11 @@ When developing features related to creating or updating landing pages, validate
 ### 6. Logging Standards
 Use `Logger.info()`, `Logger.debug()`, or `Logger.error()` for diagnostic outputs. If writing database code, utilize `SupabaseLoggingMixin` methods or follow the logging syntax in `API_LOGGING_GUIDE.md` to track query execution duration and errors safely.
 
+### 7. Layout & Spacing Rules (UI Constitution)
+- **Visual Spacing:** Maintain a strict vertical spacing rule of **80px for desktop** views and **40px for mobile** views to ensure a professional "breathable" design.
+- **Heights & Scaling:** Never use hardcoded heights for text containers or cards. Use `LayoutBuilder` and `AspectRatio` to allow responsive scaling and avoid overflows across different screen sizes.
+- **Visual Theme:** The platform uses a default **Slate-based dark theme** with high-contrast accent colors (e.g. cyan, amber) to highlight primary interactive components.
+
 ---
 *Built with ❤️ for creators by LandyMaker Team.*
+

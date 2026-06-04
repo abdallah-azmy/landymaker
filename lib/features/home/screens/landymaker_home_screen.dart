@@ -20,7 +20,6 @@ class LandyMakerHomeScreen extends StatefulWidget {
 class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   final ScrollController _scrollController = ScrollController();
 
-  // Keys to measure positions for scroll-triggered animations
   final GlobalKey _bentoKey = GlobalKey();
   final GlobalKey _templatesKey = GlobalKey();
   final GlobalKey _statsKey = GlobalKey();
@@ -31,11 +30,17 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   bool _statsVisible = false;
   bool _ctaVisible = false;
 
+  // Track how many sections are still waiting — stop listening once all visible
+  int get _pendingCount =>
+      (_bentoVisible ? 0 : 1) +
+      (_templatesVisible ? 0 : 1) +
+      (_statsVisible ? 0 : 1) +
+      (_ctaVisible ? 0 : 1);
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    // Trigger check after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) => _onScroll());
   }
 
@@ -46,31 +51,29 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   }
 
   void _onScroll() {
+    // Stop listening once all sections revealed — no more wasted work
+    if (_pendingCount == 0) {
+      _scrollController.removeListener(_onScroll);
+      return;
+    }
     if (!mounted) return;
     final screenH = MediaQuery.of(context).size.height;
 
-    _checkVisibility(_bentoKey, screenH, () {
-      if (!_bentoVisible) setState(() => _bentoVisible = true);
-    });
-    _checkVisibility(_templatesKey, screenH, () {
-      if (!_templatesVisible) setState(() => _templatesVisible = true);
-    });
-    _checkVisibility(_statsKey, screenH, () {
-      if (!_statsVisible) setState(() => _statsVisible = true);
-    });
-    _checkVisibility(_ctaKey, screenH, () {
-      if (!_ctaVisible) setState(() => _ctaVisible = true);
-    });
+    // Each check is guarded: skip if already visible
+    if (!_bentoVisible) _checkAndReveal(_bentoKey, screenH, () => _bentoVisible = true);
+    if (!_templatesVisible) _checkAndReveal(_templatesKey, screenH, () => _templatesVisible = true);
+    if (!_statsVisible) _checkAndReveal(_statsKey, screenH, () => _statsVisible = true);
+    if (!_ctaVisible) _checkAndReveal(_ctaKey, screenH, () => _ctaVisible = true);
   }
 
-  void _checkVisibility(GlobalKey key, double screenH, VoidCallback onVisible) {
+  void _checkAndReveal(GlobalKey key, double screenH, VoidCallback setFlag) {
     final ctx = key.currentContext;
     if (ctx == null) return;
     final box = ctx.findRenderObject() as RenderBox?;
-    if (box == null) return;
+    if (box == null || !box.attached) return;
     final pos = box.localToGlobal(Offset.zero);
-    if (pos.dy < screenH * 0.92) {
-      onVisible();
+    if (pos.dy < screenH * 0.90) {
+      setState(setFlag);
     }
   }
 
@@ -86,7 +89,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
         controller: _scrollController,
         child: Column(
           children: [
-            HomeHeroSection(onGetStartedPressed: () => context.go('/login')),
+            // Hero doesn't need scroll-trigger — it's above the fold
+            HomeHeroSection(
+              onGetStartedPressed: () => context.go('/login'),
+            ),
 
             HomeFeatureBento(
               key: _bentoKey,

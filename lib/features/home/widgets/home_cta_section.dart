@@ -22,7 +22,6 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
   late AnimationController _bgController;
   late Animation<double> _fade;
   late Animation<Offset> _slide;
-  bool _btnHovered = false;
 
   @override
   void initState() {
@@ -64,45 +63,42 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
       animation: _bgController,
       builder: (context, child) {
         final val = _bgController.value;
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 1100),
-              padding: EdgeInsets.symmetric(
-                vertical: isMobile ? 60 : 90,
-                horizontal: isMobile ? 28 : 80,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
-                gradient: LinearGradient(
-                  begin: Alignment(-0.8 + 0.4 * val, -0.8),
-                  end: Alignment(0.8 - 0.4 * val, 0.8),
-                  colors: const [
-                    Color(0xFF1E1B4B),
-                    Color(0xFF0F172A),
-                    Color(0xFF0C1A3A),
+        return RepaintBoundary(
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 1100),
+                padding: EdgeInsets.symmetric(
+                  vertical: isMobile ? 60 : 90,
+                  horizontal: isMobile ? 28 : 80,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(32),
+                  gradient: LinearGradient(
+                    begin: Alignment(-0.8 + 0.4 * val, -0.8),
+                    end: Alignment(0.8 - 0.4 * val, 0.8),
+                    colors: const [
+                      Color(0xFF1E1B4B),
+                      Color(0xFF0F172A),
+                      Color(0xFF0C1A3A),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3 + 0.1 * val),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.1 + 0.05 * val),
+                      blurRadius: 60,
+                      spreadRadius: 10,
+                    ),
                   ],
                 ),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.3 + 0.1 * val),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.1 + 0.05 * val),
-                    blurRadius: 60,
-                    spreadRadius: 10,
-                  ),
-                  BoxShadow(
-                    color: AppColors.secondary.withValues(alpha: 0.05 + 0.05 * (1 - val)),
-                    blurRadius: 80,
-                    spreadRadius: 5,
-                  ),
-                ],
+                child: child,
               ),
-              child: child,
             ),
           ),
         );
@@ -165,55 +161,8 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
               ),
               const SizedBox(height: 40),
 
-              // CTA Button
-              MouseRegion(
-                onEnter: (_) => setState(() => _btnHovered = true),
-                onExit: (_) => setState(() => _btnHovered = false),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  transform: Matrix4.identity()
-                    ..translateByDouble(0.0, _btnHovered ? -4.0 : 0.0, 0, 1),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.secondary],
-                      begin: Alignment.centerRight,
-                      end: Alignment.centerLeft,
-                    ),
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(
-                            alpha: _btnHovered ? 0.55 : 0.3),
-                        blurRadius: _btnHovered ? 32 : 16,
-                        offset: Offset(0, _btnHovered ? 10 : 4),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton.icon(
-                    onPressed: widget.onGetStartedPressed,
-                    icon: const Icon(Icons.flash_on_rounded, size: 20),
-                    label: const Text(
-                      "ابدأ مجاناً الآن",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Colors.white,
-                      shadowColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 44,
-                        vertical: 20,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // Isolated hover CTA Button to prevent rebuilding the text block
+              _CtaButton(onPressed: widget.onGetStartedPressed),
 
               const SizedBox(height: 32),
 
@@ -236,6 +185,78 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Isolated CTA Button widget to prevent rebuilding the entire CTA Section
+// ─────────────────────────────────────────────────────────────────────────────
+class _CtaButton extends StatefulWidget {
+  final VoidCallback onPressed;
+  const _CtaButton({required this.onPressed});
+
+  @override
+  State<_CtaButton> createState() => _CtaButtonState();
+}
+
+class _CtaButtonState extends State<_CtaButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedSlide(
+        offset: _hovered ? const Offset(0, -0.018) : Offset.zero,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColors.primary, AppColors.secondary],
+              begin: Alignment.centerRight,
+              end: Alignment.centerLeft,
+            ),
+            borderRadius: BorderRadius.circular(18),
+            // Static shadow — no expensive dynamic blur changes
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ElevatedButton.icon(
+            onPressed: widget.onPressed,
+            icon: const Icon(Icons.flash_on_rounded, size: 20),
+            label: const Text(
+              "ابدأ مجاناً الآن",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 44,
+                vertical: 20,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Trust Chip widget
+// ─────────────────────────────────────────────────────────────────────────────
 class _TrustChip extends StatelessWidget {
   final IconData icon;
   final String text;

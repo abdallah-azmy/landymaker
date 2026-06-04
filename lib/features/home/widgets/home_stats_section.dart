@@ -226,6 +226,9 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Data Class
+// ─────────────────────────────────────────────────────────────────────────────
 class _StatData {
   final String value;
   final String label;
@@ -240,10 +243,14 @@ class _StatData {
   });
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Isolated Stat Card Widget to prevent rebuilding the entire Stats Section
+// ─────────────────────────────────────────────────────────────────────────────
 class _StatCard extends StatefulWidget {
   final _StatData stat;
 
   const _StatCard({required this.stat});
+
 
   @override
   State<_StatCard> createState() => _StatCardState();
@@ -258,64 +265,58 @@ class _StatCardState extends State<_StatCard> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+      // AnimatedSlide = GPU compositing, not Dart-side lerp
+      child: AnimatedSlide(
+        offset: _hovered ? const Offset(0, -0.015) : Offset.zero,
+        duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
-        transform: Matrix4.identity()
-          ..translateByDouble(_hovered ? 0.0 : 0.0, _hovered ? -6.0 : 0.0, 0, 1),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-        decoration: BoxDecoration(
-          color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: _hovered
-                ? s.color.withValues(alpha: 0.7)
-                : AppColors.border,
-            width: _hovered ? 1.8 : 1.2,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+          // Only animate color + border — no boxShadow blur changes (expensive)
+          decoration: BoxDecoration(
+            color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: _hovered ? s.color.withValues(alpha: 0.55) : AppColors.border,
+              width: 1.5,
+            ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: _hovered
-                  ? s.color.withValues(alpha: 0.15)
-                  : Colors.black.withValues(alpha: 0.05),
-              blurRadius: _hovered ? 30 : 10,
-              offset: Offset(0, _hovered ? 8 : 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              s.value,
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w900,
-                color: s.color,
-                fontFamily: 'Cairo',
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                s.value,
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w900,
+                  color: s.color,
+                  fontFamily: 'Cairo',
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              s.label,
-              style: AppTypography.bodyLarge.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+              const SizedBox(height: 10),
+              Text(
+                s.label,
+                style: AppTypography.bodyLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              s.desc,
-              style: AppTypography.caption.copyWith(
-                color: AppColors.textSecondary,
-                height: 1.5,
+              const SizedBox(height: 6),
+              Text(
+                s.desc,
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

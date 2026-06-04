@@ -14,6 +14,26 @@ import '../../../../core/utils/toast_service.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 import '../../../../core/utils/file_utils.dart';
+import 'editor_types.dart';
+import 'blocks/logo_header_editor.dart';
+import 'blocks/hero_editor.dart';
+import 'blocks/lead_form_editor.dart';
+import 'blocks/lead_magnet_editor.dart';
+import 'blocks/whatsapp_editor.dart';
+import 'blocks/features_editor.dart';
+import 'blocks/products_editor.dart';
+import 'blocks/pricing_editor.dart';
+import 'blocks/faq_editor.dart';
+import 'blocks/testimonials_editor.dart';
+import 'blocks/contact_info_editor.dart';
+import 'blocks/social_qr_editor.dart';
+import 'blocks/qr_code_editor.dart';
+import 'blocks/basic_section_editor.dart';
+import 'blocks/gallery_editor.dart';
+import 'blocks/trust_logos_editor.dart';
+import 'blocks/animated_counter_editor.dart';
+import 'blocks/video_embed_editor.dart';
+import 'blocks/multi_step_form_editor.dart';
 
 class BlockPropertiesEditor extends StatefulWidget {
   final int index;
@@ -124,8 +144,10 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
 
   Future<void> _pickAndUploadImage(
     LandingPageBuilderCubit cubit,
-    int blockIndex,
-  ) async {
+    int blockIndex, {
+    String? itemKey,
+    int? itemIndex,
+  }) async {
     try {
       final file = await FileUtils.pickImage();
       if (file != null) {
@@ -342,6 +364,24 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
 
   List<Widget> _buildContentTab(LandingPageBuilderCubit cubit, Map<String, dynamic> block, String type) {
     return [
+      if (type == 'multi_step_lead_form') ...[
+      MultiStepFormEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+      ),
+    ],
+      if (type == 'video_embed') ...[
+      VideoEmbedEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+      ),
+    ],
       FormGroup(
         label: "عنوان السكشن (Section Title)",
         child: CustomTextField(
@@ -353,1270 +393,158 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
       const SizedBox(height: 16),
 
       if (type == 'logo_header') ...[
-        FormGroup(
-          label: "لوجو الموقع (Logo Image)",
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomTextField(
-                controller: _getController("${widget.index}_logo_url", block['logo_url'] ?? ''),
-                focusNode: _getFocusNode("${widget.index}_logo_url"),
-                onChanged: (val) => cubit.updateBlockProperty(widget.index, 'logo_url', val),
-              ),
-              const SizedBox(height: 10),
-              PrimaryButton(
-                text: "ابحث في الصور (Stock Images)",
-                icon: Icons.search_rounded,
-                isSecondary: true,
-                onPressed: () => _pickStockImage(cubit, widget.index, itemKey: 'logo_url'),
-                width: double.infinity,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: "محاذاة الترويسة (Alignment)",
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: block['alignment'] ?? 'center',
-                dropdownColor: AppColors.cardBg,
-                isExpanded: true,
-                style: AppTypography.bodyMedium,
-                items: const [
-                  DropdownMenuItem(value: 'right', child: Text("يمين (Right)")),
-                  DropdownMenuItem(value: 'center', child: Text("المنتصف (Center)")),
-                  DropdownMenuItem(value: 'left', child: Text("يسار (Left)")),
-                ],
-                onChanged: (val) => cubit.updateBlockProperty(widget.index, 'alignment', val),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
+      LogoHeaderEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'hero' || type == 'hero_saas') ...[
-        FormGroup(
-          label: "العنوان الفرعي (Subtitle)",
-          child: CustomTextField(
-            controller: _getController("${widget.index}_subtitle", block['subtitle'] ?? ''),
-            focusNode: _getFocusNode("${widget.index}_subtitle"),
-            maxLines: 3,
-            onChanged: (val) => cubit.updateBlockProperty(widget.index, 'subtitle', val),
-          ),
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: "نص الزر (Button Label)",
-          child: CustomTextField(
-            controller: _getController("${widget.index}_button_text", block['button_text'] ?? ''),
-            focusNode: _getFocusNode("${widget.index}_button_text"),
-            onChanged: (val) => cubit.updateBlockProperty(widget.index, 'button_text', val),
-          ),
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: "صورة السكشن (Hero Image)",
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomTextField(
-                controller: _getController("${widget.index}_image_url", block['image_url'] ?? ''),
-                focusNode: _getFocusNode("${widget.index}_image_url"),
-                onChanged: (val) => cubit.updateBlockProperty(widget.index, 'image_url', val),
-              ),
-              const SizedBox(height: 10),
-              PrimaryButton(
-                text: "ابحث في الصور (Stock Images)",
-                icon: Icons.search_rounded,
-                isSecondary: true,
-                onPressed: () => _pickStockImage(cubit, widget.index),
-                width: double.infinity,
-              ),
-              const SizedBox(height: 10),
-              PrimaryButton(
-                text: "ارفع صورة (Upload Image)",
-                icon: Icons.upload_file_rounded,
-                isSecondary: true,
-                onPressed: () => _pickAndUploadImage(cubit, widget.index),
-                width: double.infinity,
-              ),
-            ],
-          ),
-        ),
-      ],
+      HeroEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'lead_form' || type == 'lead_magnet') ...[
-        if (type == 'lead_magnet') ...[
-          FormGroup(
-            label: "العنوان الفرعي (Subtitle)",
-            child: CustomTextField(
-              controller: _getController("${widget.index}_subtitle", block['subtitle'] ?? ''),
-              focusNode: _getFocusNode("${widget.index}_subtitle"),
-              maxLines: 2,
-              onChanged: (val) => cubit.updateBlockProperty(widget.index, 'subtitle', val),
-            ),
-          ),
-          const SizedBox(height: 16),
-          FormGroup(
-            label: "صورة الدليل أو الغلاف (Image)",
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomTextField(
-                  controller: _getController("${widget.index}_image_url", block['image_url'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_image_url"),
-                  onChanged: (val) => cubit.updateBlockProperty(widget.index, 'image_url', val),
-                ),
-                const SizedBox(height: 10),
-                PrimaryButton(
-                  text: "ابحث في الصور (Stock Images)",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => _pickStockImage(cubit, widget.index),
-                  width: double.infinity,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-        FormGroup(
-          label: "نص زر الإرسال (Submit Button Text)",
-          child: CustomTextField(
-            controller: _getController("${widget.index}_button_text", block['button_text'] ?? ''),
-            focusNode: _getFocusNode("${widget.index}_button_text"),
-            onChanged: (val) => cubit.updateBlockProperty(widget.index, 'button_text', val),
-          ),
-        ),
-      ],
-
-      if (type == 'whatsapp') ...[
-        FormGroup(
-          label: "نص الزر (Button Text)",
-          child: CustomTextField(
-            controller: _getController("${widget.index}_button_text", block['button_text'] ?? ''),
-            focusNode: _getFocusNode("${widget.index}_button_text"),
-            onChanged: (val) => cubit.updateBlockProperty(widget.index, 'button_text', val),
-          ),
-        ),
-      ],
-
-      if (type == 'features') ...[
-        FormGroup(
-          label: "شكل العرض (Layout Style)",
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: block['layout_style'] ?? 'grid',
-                dropdownColor: AppColors.cardBg,
-                isExpanded: true,
-                style: AppTypography.bodyMedium,
-                items: const [
-                  DropdownMenuItem(
-                    value: 'grid',
-                    child: Text("شبكة كلاسيكية (Classic Grid)"),
-                  ),
-                  DropdownMenuItem(
-                    value: 'bento',
-                    child: Text("شبكة بينتو (Bento Grid 2025)"),
-                  ),
-                ],
-                onChanged: (val) => cubit.updateBlockProperty(widget.index, 'layout_style', val),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          "قائمة المميزات (Feature Items)",
-          style: AppTypography.bodyLarge.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (fIndex) {
-          final item = (block['items'] as List)[fIndex] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                CustomTextField(
-                  hintText: "عنوان الميزة (Feature Title)",
-                  controller: _getController("${widget.index}_feature_${fIndex}_title", item['title'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_feature_${fIndex}_title"),
-                  onChanged: (val) => cubit.updateFeatureItem(widget.index, fIndex, 'title', val),
-                ),
-                const SizedBox(height: 8),
-                CustomTextField(
-                  hintText: "وصف الميزة (Description)",
-                  controller: _getController("${widget.index}_feature_${fIndex}_description", item['description'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_feature_${fIndex}_description"),
-                  maxLines: 2,
-                  onChanged: (val) => cubit.updateFeatureItem(widget.index, fIndex, 'description', val),
-                ),
-                const SizedBox(height: 12),
-                PrimaryButton(
-                  text: "ابحث في الصور (Stock Images)",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => _pickStockImage(
-                    cubit,
-                    widget.index,
-                    itemIndex: fIndex,
-                    itemKey: 'image_url',
-                  ),
-                  width: double.infinity,
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
-
-      if (type == 'products') ...[
-        SwitchListTile(
-          value: block['show_category_filter'] ?? true,
-          onChanged: (val) => cubit.updateBlockProperty(widget.index, 'show_category_filter', val),
-          title: Text(
-            "إظهار أزرار تصفية الفئات",
-            style: AppTypography.bodyMedium,
-          ),
-          contentPadding: EdgeInsets.zero,
-          activeThumbColor: AppColors.secondary,
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: "إدارة الفئات (Manage Categories)",
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      controller: _newCategoryController,
-                      hintText: "اسم الفئة الجديدة...",
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () {
-                      final val = _newCategoryController.text.trim();
-                      if (val.isNotEmpty) {
-                        final List<String> cats = (block['categories'] as List?)?.cast<String>() ?? [];
-                        if (!cats.contains(val)) {
-                          cubit.updateBlockProperty(
-                            widget.index,
-                            'categories',
-                            [...cats, val],
-                          );
-                        }
-                        _newCategoryController.clear();
-                      }
-                    },
-                    icon: const Icon(Icons.add_circle),
-                    color: AppColors.secondary,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: ((block['categories'] as List?)?.cast<String>() ?? []).map((cat) {
-                  return Chip(
-                    label: Text(cat),
-                    onDeleted: () {
-                      final List<String> cats = (block['categories'] as List?)?.cast<String>() ?? [];
-                      cats.remove(cat);
-                      cubit.updateBlockProperty(widget.index, 'categories', cats);
-                    },
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: "شكل العرض (Layout Style)",
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: (block['layout_style'] == 'grid' || block['layout_style'] == null)
-                    ? 'grid_2'
-                    : block['layout_style'],
-                dropdownColor: AppColors.cardBg,
-                isExpanded: true,
-                style: AppTypography.bodyMedium,
-                items: const [
-                  DropdownMenuItem(value: 'grid_2', child: Text("شبكة (عمودين)")),
-                  DropdownMenuItem(value: 'grid_3', child: Text("شبكة (٣ أعمدة)")),
-                  DropdownMenuItem(value: 'list', child: Text("قائمة (List)")),
-                  DropdownMenuItem(value: 'list_large', child: Text("قائمة (صورة كبيرة)")),
-                ],
-                onChanged: (val) => cubit.updateBlockProperty(widget.index, 'layout_style', val),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "قائمة المنتجات (Product List)",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () => cubit.addProductItem(widget.index),
-              icon: const Icon(Icons.add_shopping_cart_rounded, size: 16),
-              label: const Text("أضف منتج"),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (pIndex) {
-          final item = (block['items'] as List)[pIndex] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "المنتج #${pIndex + 1}",
-                      style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.qr_code_2_rounded, color: AppColors.secondary, size: 20),
-                          onPressed: () => _showProductQrShare(context, item, widget.state.subdomain),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
-                          onPressed: () => cubit.deleteProductItem(widget.index, pIndex),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                CustomTextField(
-                  hintText: "اسم المنتج",
-                  controller: _getController("${widget.index}_product_${pIndex}_name", item['name'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_product_${pIndex}_name"),
-                  onChanged: (val) => cubit.updateProductItem(widget.index, pIndex, 'name', val),
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  hintText: "السعر",
-                  controller: _getController("${widget.index}_product_${pIndex}_price", item['price'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_product_${pIndex}_price"),
-                  onChanged: (val) => cubit.updateProductItem(widget.index, pIndex, 'price', val),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  children: ((block['categories'] as List?)?.cast<String>() ?? []).map((cat) {
-                    final bool isSelected = (item['category'] ?? '') == cat;
-                    return ChoiceChip(
-                      label: Text(cat),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        if (selected) {
-                          cubit.updateProductItem(widget.index, pIndex, 'category', cat);
-                        }
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  hintText: "وصف المنتج",
-                  controller: _getController("${widget.index}_product_${pIndex}_description", item['description'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_product_${pIndex}_description"),
-                  maxLines: 2,
-                  onChanged: (val) => cubit.updateProductItem(widget.index, pIndex, 'description', val),
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  hintText: "رابط الصورة",
-                  controller: _getController("${widget.index}_product_${pIndex}_image_url", item['image_url'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_product_${pIndex}_image_url"),
-                  onChanged: (val) => cubit.updateProductItem(widget.index, pIndex, 'image_url', val),
-                ),
-                const SizedBox(height: 12),
-                PrimaryButton(
-                  text: "ابحث في الصور (Stock Images)",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => _pickStockImage(
-                    cubit,
-                    widget.index,
-                    itemIndex: pIndex,
-                    itemKey: 'image_url',
-                  ),
-                  width: double.infinity,
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
-
-      if (type == 'pricing') ...[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "خطط الأسعار (Pricing Plans)",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () => cubit.addPricingPlan(widget.index),
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: const Text("أضف خطة"),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (pIndex) {
-          final item = (block['items'] as List)[pIndex] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "الخطة #${pIndex + 1}",
-                      style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
-                      onPressed: () => cubit.deletePricingPlan(widget.index, pIndex),
-                    ),
-                  ],
-                ),
-                CustomTextField(
-                  hintText: "اسم الخطة",
-                  controller: _getController("${widget.index}_pricing_${pIndex}_name", item['name'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_pricing_${pIndex}_name"),
-                  onChanged: (val) => cubit.updatePricingPlan(widget.index, pIndex, 'name', val),
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  hintText: "السعر",
-                  controller: _getController("${widget.index}_pricing_${pIndex}_price", item['price'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_pricing_${pIndex}_price"),
-                  onChanged: (val) => cubit.updatePricingPlan(widget.index, pIndex, 'price', val),
-                ),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  title: Text("خطة مميزة؟", style: AppTypography.caption),
-                  value: item['is_popular'] ?? false,
-                  onChanged: (val) => cubit.updatePricingPlan(widget.index, pIndex, 'is_popular', val),
-                  activeThumbColor: AppColors.secondary,
-                ),
-                const SizedBox(height: 12),
-                PrimaryButton(
-                  text: "ابحث في الصور (Stock Images)",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => _pickStockImage(
-                    cubit,
-                    widget.index,
-                    itemIndex: pIndex,
-                    itemKey: 'image_url',
-                  ),
-                  width: double.infinity,
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
+      LeadFormEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'faq') ...[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "الأسئلة الشائعة (FAQ Items)",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () => cubit.addFaqItem(widget.index),
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: const Text("أضف سؤال"),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (fIndex) {
-          final item = (block['items'] as List)[fIndex] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "سؤال #${fIndex + 1}",
-                      style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
-                      onPressed: () => cubit.deleteFaqItem(widget.index, fIndex),
-                    ),
-                  ],
-                ),
-                CustomTextField(
-                  hintText: "السؤال",
-                  controller: _getController("${widget.index}_faq_${fIndex}_question", item['question'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_faq_${fIndex}_question"),
-                  onChanged: (val) => cubit.updateFaqItem(widget.index, fIndex, 'question', val),
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  hintText: "الإجابة",
-                  maxLines: 3,
-                  controller: _getController("${widget.index}_faq_${fIndex}_answer", item['answer'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_faq_${fIndex}_answer"),
-                  onChanged: (val) => cubit.updateFaqItem(widget.index, fIndex, 'answer', val),
-                ),
-                const SizedBox(height: 12),
-                PrimaryButton(
-                  text: "ابحث في الصور (Stock Images)",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => _pickStockImage(
-                    cubit,
-                    widget.index,
-                    itemIndex: fIndex,
-                    itemKey: 'image_url',
-                  ),
-                  width: double.infinity,
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
+      FaqEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'testimonials') ...[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "آراء العملاء (Testimonials)",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () => cubit.addTestimonialItem(widget.index),
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: const Text("أضف رأي"),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (tIndex) {
-          final item = (block['items'] as List)[tIndex] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "رأي #${tIndex + 1}",
-                      style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
-                      onPressed: () => cubit.deleteTestimonialItem(widget.index, tIndex),
-                    ),
-                  ],
-                ),
-                CustomTextField(
-                  hintText: "الاسم",
-                  controller: _getController("${widget.index}_testimonial_${tIndex}_author", item['author'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_testimonial_${tIndex}_author"),
-                  onChanged: (val) => cubit.updateTestimonialItem(widget.index, tIndex, 'author', val),
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  hintText: "المنصب/الوصف",
-                  controller: _getController("${widget.index}_testimonial_${tIndex}_role", item['role'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_testimonial_${tIndex}_role"),
-                  onChanged: (val) => cubit.updateTestimonialItem(widget.index, tIndex, 'role', val),
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  hintText: "الرأي",
-                  maxLines: 3,
-                  controller: _getController("${widget.index}_testimonial_${tIndex}_quote", item['quote'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_testimonial_${tIndex}_quote"),
-                  onChanged: (val) => cubit.updateTestimonialItem(widget.index, tIndex, 'quote', val),
-                ),
-                const SizedBox(height: 12),
-                PrimaryButton(
-                  text: "ابحث في الصور (Stock Images)",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => _pickStockImage(
-                    cubit,
-                    widget.index,
-                    itemIndex: tIndex,
-                    itemKey: 'image_url',
-                  ),
-                  width: double.infinity,
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
+      TestimonialsEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'contact_info') ...[
-        FormGroup(
-          label: "البريد الإلكتروني",
-          child: CustomTextField(
-            controller: _getController("${widget.index}_email", block['email'] ?? ''),
-            focusNode: _getFocusNode("${widget.index}_email"),
-            onChanged: (val) => cubit.updateBlockProperty(widget.index, 'email', val),
-          ),
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: "رقم الهاتف",
-          child: CustomTextField(
-            controller: _getController("${widget.index}_phone", block['phone'] ?? ''),
-            focusNode: _getFocusNode("${widget.index}_phone"),
-            onChanged: (val) => cubit.updateBlockProperty(widget.index, 'phone', val),
-          ),
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: "العنوان",
-          child: CustomTextField(
-            controller: _getController("${widget.index}_location", block['location'] ?? ''),
-            focusNode: _getFocusNode("${widget.index}_location"),
-            onChanged: (val) => cubit.updateBlockProperty(widget.index, 'location', val),
-          ),
-        ),
-      ],
+      ContactInfoEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'social_qr') ...[
-        FormGroup(
-          label: "رابط صفحتك المباشر (Live Page URL)",
-          child: Row(
-            children: [
-              Expanded(
-                child: CustomTextField(
-                  controller: _getController("${widget.index}_socialurl_live", "https://landymaker.com/${widget.state.subdomain}"),
-                  readOnly: true,
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.copy_rounded, color: AppColors.secondary),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: "https://landymaker.com/${widget.state.subdomain}"));
-                  ToastService.showSuccess(context, message: "تم نسخ الرابط بنجاح!");
-                },
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: "العنوان الفرعي (Subtitle)",
-          child: CustomTextField(
-            controller: _getController("${widget.index}_subtitle", block['subtitle'] ?? ''),
-            focusNode: _getFocusNode("${widget.index}_subtitle"),
-            onChanged: (val) => cubit.updateBlockProperty(widget.index, 'subtitle', val),
-          ),
-        ),
-        const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "روابط التواصل",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () {
-                final List links = List.from(block['links'] ?? []);
-                links.add({'platform': 'website', 'url': 'https://'});
-                cubit.updateBlockProperty(widget.index, 'links', links);
-              },
-              icon: const Icon(Icons.add_link_rounded, size: 16),
-              label: const Text("أضف رابط"),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...List.generate((block['links'] as List).length, (lIndex) {
-          final link = (block['links'] as List)[lIndex] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: link['platform'] ?? 'website',
-                          dropdownColor: AppColors.cardBg,
-                          items: const [
-                            DropdownMenuItem(value: 'website', child: Text("موقع إلكتروني")),
-                            DropdownMenuItem(value: 'instagram', child: Text("انستجرام")),
-                            DropdownMenuItem(value: 'facebook', child: Text("فيسبوك")),
-                            DropdownMenuItem(value: 'twitter', child: Text("تويتر (X)")),
-                            DropdownMenuItem(value: 'linkedin', child: Text("لينكد إن")),
-                            DropdownMenuItem(value: 'whatsapp', child: Text("واتساب")),
-                          ],
-                          onChanged: (val) {
-                            final List links = List.from(block['links']);
-                            final Map<String, dynamic> updatedLink = Map<String, dynamic>.from(links[lIndex]);
-                            updatedLink['platform'] = val;
-                            links[lIndex] = updatedLink;
-                            cubit.updateBlockProperty(widget.index, 'links', links);
-                          },
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
-                      onPressed: () {
-                        final List links = List.from(block['links']);
-                        links.removeAt(lIndex);
-                        cubit.updateBlockProperty(widget.index, 'links', links);
-                      },
-                    ),
-                  ],
-                ),
-                CustomTextField(
-                  hintText: "الرابط (URL)",
-                  controller: _getController("${widget.index}_sociallink_${lIndex}_url", link['url'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_sociallink_${lIndex}_url"),
-                  onChanged: (val) {
-                    final List links = List.from(block['links']);
-                    final Map<String, dynamic> updatedLink = Map<String, dynamic>.from(links[lIndex]);
-                    updatedLink['url'] = val;
-                    links[lIndex] = updatedLink;
-                    cubit.updateBlockProperty(widget.index, 'links', links);
-                  },
-                ),
-                const SizedBox(height: 12),
-                PrimaryButton(
-                  text: "ابحث في الصور (Stock Images)",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => _pickStockImage(
-                    cubit,
-                    widget.index,
-                    itemIndex: lIndex,
-                    itemKey: 'image_url',
-                  ),
-                  width: double.infinity,
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
+      SocialQrEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'qr_code') ...[
-        FormGroup(
-          label: "رابط صفحتك المباشر (Live Page URL)",
-          child: Row(
-            children: [
-              Expanded(
-                child: CustomTextField(
-                  controller: _getController("${widget.index}_qrurl_live", "https://landymaker.com/${widget.state.subdomain}"),
-                  readOnly: true,
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.copy_rounded, color: AppColors.secondary),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: "https://landymaker.com/${widget.state.subdomain}"));
-                  ToastService.showSuccess(context, message: "تم نسخ الرابط بنجاح!");
-                },
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: "العنوان الفرعي (Subtitle)",
-          child: CustomTextField(
-            controller: _getController("${widget.index}_subtitle", block['subtitle'] ?? ''),
-            focusNode: _getFocusNode("${widget.index}_subtitle"),
-            onChanged: (val) => cubit.updateBlockProperty(widget.index, 'subtitle', val),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          "حجم الكود: ${((block['qr_size'] ?? 200.0) as num).toStringAsFixed(0)}px",
-          style: AppTypography.caption,
-        ),
-        Slider(
-          value: ((block['qr_size'] ?? 200.0) as num).toDouble(),
-          min: 100.0,
-          max: 350.0,
-          divisions: 25,
-          activeColor: AppColors.secondary,
-          onChanged: (val) => cubit.updateBlockProperty(widget.index, 'qr_size', val),
-        ),
-      ],
+      QrCodeEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'basic_section') ...[
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "العناصر (Elements)",
-              style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
-            ),
-            PopupMenuButton<String>(
-              color: AppColors.cardBg,
-              icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.secondary),
-              onSelected: (val) {
-                final elements = List<Map<String, dynamic>>.from(block['elements'] ?? []);
-                final newId = 'elem_${DateTime.now().millisecondsSinceEpoch}';
-                if (val == 'text') {
-                  elements.add({
-                    'id': newId,
-                    'type': 'text',
-                    'content': 'نص جديد',
-                    'style_overrides': {},
-                  });
-                } else if (val == 'image') {
-                  elements.add({
-                    'id': newId,
-                    'type': 'image',
-                    'url': '',
-                    'width': 200,
-                    'height': 200,
-                    'fit': 'cover',
-                  });
-                }
-                cubit.updateBlockProperty(widget.index, 'elements', elements);
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem(value: 'text', child: Text("إضافة نص")),
-                const PopupMenuItem(value: 'image', child: Text("إضافة صورة")),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        ...List.generate((block['elements'] ?? []).length, (i) {
-          final elem = (block['elements'] ?? [])[i] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    StatusPill(
-                      label: elem['type'] == 'text' ? 'نص' : 'صورة',
-                      color: AppColors.secondary,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 18),
-                      onPressed: () {
-                        final elements = List<Map<String, dynamic>>.from(block['elements'] ?? []);
-                        elements.removeAt(i);
-                        cubit.updateBlockProperty(widget.index, 'elements', elements);
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (elem['type'] == 'text')
-                  CustomTextField(
-                    controller: _getController("${widget.index}_element_${i}_content", elem['content'] ?? ''),
-                    focusNode: _getFocusNode("${widget.index}_element_${i}_content"),
-                    maxLines: 3,
-                    onChanged: (val) {
-                      final elements = List<Map<String, dynamic>>.from(block['elements'] ?? []);
-                      elements[i]['content'] = val;
-                      cubit.updateBlockProperty(widget.index, 'elements', elements);
-                    },
-                  )
-                else if (elem['type'] == 'image') ...[
-                  CustomTextField(
-                    hintText: "رابط الصورة...",
-                    controller: _getController("${widget.index}_element_${i}_url", elem['url'] ?? ''),
-                    focusNode: _getFocusNode("${widget.index}_element_${i}_url"),
-                    onChanged: (val) {
-                      final elements = List<Map<String, dynamic>>.from(block['elements'] ?? []);
-                      elements[i]['url'] = val;
-                      cubit.updateBlockProperty(widget.index, 'elements', elements);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomTextField(
-                          hintText: "العرض",
-                          controller: _getController("${widget.index}_element_${i}_width", elem['width']?.toString() ?? '200'),
-                          focusNode: _getFocusNode("${widget.index}_element_${i}_width"),
-                          onChanged: (val) {
-                            final elements = List<Map<String, dynamic>>.from(block['elements'] ?? []);
-                            elements[i]['width'] = double.tryParse(val) ?? 200;
-                            cubit.updateBlockProperty(widget.index, 'elements', elements);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: CustomTextField(
-                          hintText: "الطول",
-                          controller: _getController("${widget.index}_element_${i}_height", elem['height']?.toString() ?? '200'),
-                          focusNode: _getFocusNode("${widget.index}_element_${i}_height"),
-                          onChanged: (val) {
-                            final elements = List<Map<String, dynamic>>.from(block['elements'] ?? []);
-                            elements[i]['height'] = double.tryParse(val) ?? 200;
-                            cubit.updateBlockProperty(widget.index, 'elements', elements);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          );
-        }),
-      ],
+      BasicSectionEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'gallery') ...[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "صور المعرض",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () => cubit.addGalleryImage(widget.index),
-              icon: const Icon(Icons.add_photo_alternate_rounded, size: 16),
-              label: const Text("أضف صورة"),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: (block['items'] as List).length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1,
-          ),
-          itemBuilder: (context, gIndex) {
-            final String imageUrl = (block['items'] as List)[gIndex];
-            return Container(
-              decoration: BoxDecoration(
-                color: AppColors.cardBgHover,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
-                    ),
-                  ),
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.black.withValues(alpha: 0.5),
-                      radius: 14,
-                      child: IconButton(
-                        icon: const Icon(Icons.delete_rounded, size: 14, color: AppColors.dangerRed),
-                        onPressed: () => cubit.deleteGalleryImage(widget.index, gIndex),
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
+      GalleryEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'trust_logos') ...[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "الشعارات (Logos)",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () {
-                final List items = List.from(block['items'] ?? []);
-                items.add('https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg');
-                cubit.updateBlockProperty(widget.index, 'items', items);
-              },
-              icon: const Icon(Icons.add_photo_alternate_rounded, size: 16),
-              label: const Text("أضف شعار"),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (tIndex) {
-          final String url = (block['items'] as List)[tIndex];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomTextField(
-                        hintText: "رابط الشعار",
-                        controller: _getController("${widget.index}_trustlogo_${tIndex}", url),
-                        focusNode: _getFocusNode("${widget.index}_trustlogo_${tIndex}"),
-                        onChanged: (val) {
-                          final List items = List.from(block['items'] ?? []);
-                          items[tIndex] = val;
-                          cubit.updateBlockProperty(widget.index, 'items', items);
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed),
-                      onPressed: () {
-                        final List items = List.from(block['items'] ?? []);
-                        items.removeAt(tIndex);
-                        cubit.updateBlockProperty(widget.index, 'items', items);
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                PrimaryButton(
-                  text: "ابحث في الصور",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => _pickStockImage(
-                    cubit,
-                    widget.index,
-                    itemIndex: tIndex,
-                    itemKey: 'items_array',
-                  ),
-                  width: double.infinity,
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
+      TrustLogosEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
 
       if (type == 'animated_counter') ...[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "العدادات (Counters)",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () {
-                final List items = List.from(block['items'] ?? []);
-                items.add({'value': '100', 'label': 'تسمية جديدة', 'prefix': '', 'suffix': ''});
-                cubit.updateBlockProperty(widget.index, 'items', items);
-              },
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: const Text("أضف عداد"),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...List.generate((block['items'] as List).length, (tIndex) {
-          final Map<String, dynamic> item = (block['items'] as List)[tIndex];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("عداد #${tIndex + 1}", style: AppTypography.caption),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
-                      onPressed: () {
-                        final List items = List.from(block['items'] ?? []);
-                        items.removeAt(tIndex);
-                        cubit.updateBlockProperty(widget.index, 'items', items);
-                      },
-                    ),
-                  ],
-                ),
-                CustomTextField(
-                  hintText: "القيمة (الرقم)",
-                  controller: _getController("${widget.index}_counter_${tIndex}_value", item['value']?.toString() ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_counter_${tIndex}_value"),
-                  onChanged: (val) {
-                    final List items = List.from(block['items'] ?? []);
-                    final updatedItem = Map<String, dynamic>.from(items[tIndex]);
-                    updatedItem['value'] = val;
-                    items[tIndex] = updatedItem;
-                    cubit.updateBlockProperty(widget.index, 'items', items);
-                  },
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  hintText: "التسمية (مثال: عميل سعيد)",
-                  controller: _getController("${widget.index}_counter_${tIndex}_label", item['label'] ?? ''),
-                  focusNode: _getFocusNode("${widget.index}_counter_${tIndex}_label"),
-                  onChanged: (val) {
-                    final List items = List.from(block['items'] ?? []);
-                    final updatedItem = Map<String, dynamic>.from(items[tIndex]);
-                    updatedItem['label'] = val;
-                    items[tIndex] = updatedItem;
-                    cubit.updateBlockProperty(widget.index, 'items', items);
-                  },
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomTextField(
-                        hintText: "بادئة (Prefix)",
-                        controller: _getController("${widget.index}_counter_${tIndex}_prefix", item['prefix'] ?? ''),
-                        focusNode: _getFocusNode("${widget.index}_counter_${tIndex}_prefix"),
-                        onChanged: (val) {
-                          final List items = List.from(block['items'] ?? []);
-                          final updatedItem = Map<String, dynamic>.from(items[tIndex]);
-                          updatedItem['prefix'] = val;
-                          items[tIndex] = updatedItem;
-                          cubit.updateBlockProperty(widget.index, 'items', items);
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: CustomTextField(
-                        hintText: "خاتمة (Suffix)",
-                        controller: _getController("${widget.index}_counter_${tIndex}_suffix", item['suffix'] ?? ''),
-                        focusNode: _getFocusNode("${widget.index}_counter_${tIndex}_suffix"),
-                        onChanged: (val) {
-                          final List items = List.from(block['items'] ?? []);
-                          final updatedItem = Map<String, dynamic>.from(items[tIndex]);
-                          updatedItem['suffix'] = val;
-                          items[tIndex] = updatedItem;
-                          cubit.updateBlockProperty(widget.index, 'items', items);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
+      AnimatedCounterEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+        pickImage: _pickStockImage,
+        pickAndUploadImage: _pickAndUploadImage,
+      ),
+    ],
+
+      if (type == 'pricing') ...[
+      PricingEditor(
+        cubit: cubit,
+        block: block,
+        index: widget.index,
+        getController: _getController,
+        getFocusNode: _getFocusNode,
+      ),
+    ],
     ];
   }
 
@@ -1734,40 +662,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 controller: _getController("${widget.index}_product_${pIndex}_purchase_url", item['purchase_url'] ?? ''),
                 focusNode: _getFocusNode("${widget.index}_product_${pIndex}_purchase_url"),
                 onChanged: (val) => cubit.updateProductItem(widget.index, pIndex, 'purchase_url', val),
-                keyboardType: TextInputType.url,
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    if (type == 'pricing') {
-      list.add(
-        Text(
-          "روابط شراء خطط الأسعار (Pricing Plan Purchase Links)",
-          style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-        ),
-      );
-      list.add(const SizedBox(height: 12));
-      final items = block['items'] as List;
-      for (int pIndex = 0; pIndex < items.length; pIndex++) {
-        final item = items[pIndex] as Map<String, dynamic>;
-        list.add(
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: FormGroup(
-              label: "رابط الدفع للخطة: ${item['name'] ?? '#${pIndex + 1}'}",
-              child: CustomTextField(
-                hintText: "https://example.com/checkout",
-                controller: _getController("${widget.index}_pricing_${pIndex}_purchase_url", item['purchase_url'] ?? ''),
-                focusNode: _getFocusNode("${widget.index}_pricing_${pIndex}_purchase_url"),
-                onChanged: (val) => cubit.updatePricingPlan(widget.index, pIndex, 'purchase_url', val),
                 keyboardType: TextInputType.url,
               ),
             ),
@@ -2151,6 +1045,12 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         break;
       case 'pricing':
         sectionName = "الأسعار";
+        break;
+      case 'multi_step_lead_form':
+        sectionName = "نموذج خطوات (Multi-Step Form)";
+        break;
+      case 'video_embed':
+        sectionName = "فيديو مضمن (Video Embed)";
         break;
       case 'gallery':
         sectionName = "معرض الصور";

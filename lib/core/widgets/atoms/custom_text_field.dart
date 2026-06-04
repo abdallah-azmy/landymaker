@@ -16,6 +16,7 @@ class CustomTextField extends StatelessWidget {
   final bool readOnly;
   final bool enabled;
   final FocusNode? focusNode;
+  final String? errorText;
 
   const CustomTextField({
     super.key,
@@ -32,6 +33,7 @@ class CustomTextField extends StatelessWidget {
     this.readOnly = false,
     this.enabled = true,
     this.focusNode,
+    this.errorText,
   });
 
   @override
@@ -51,6 +53,7 @@ class CustomTextField extends StatelessWidget {
       cursorColor: AppColors.secondary,
       decoration: InputDecoration(
         hintText: hintText,
+        errorText: errorText,
         hintStyle: AppTypography.bodyLarge.copyWith(color: AppColors.textMuted),
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,

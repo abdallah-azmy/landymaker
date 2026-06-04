@@ -9,6 +9,7 @@ import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../dashboard/controllers/leads_analytics_cubit.dart';
 import '../../dashboard/controllers/leads_analytics_state.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class CustomLeadFormWidget extends StatefulWidget {
   final String title;
@@ -59,9 +60,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
       // Silently discard spam and mimic successful response to bot
       ToastService.showSuccess(
         context,
-        message: Directionality.of(context) == TextDirection.rtl
-            ? "تم إرسال رسالتك بنجاح!"
-            : "Lead submitted successfully!",
+        message: context.translate('form_spam_success'),
       );
       _nameController.clear();
       _emailController.clear();
@@ -148,9 +147,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          isRtl 
-                              ? "املأ النموذج أدناه وسنتواصل معك في أقرب وقت ممكن."
-                              : "Fill out the form below and we will get back to you shortly.",
+                          context.translate('form_subtitle'),
                           style: AppTypography.bodyMedium.copyWith(color: subTextColor, fontSize: isMobile ? 12 : 14),
                         ),
                         SizedBox(height: isMobile ? 24 : 32),
@@ -185,14 +182,14 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
                         ],
 
                         FormGroup(
-                          label: isRtl ? "الاسم الكامل" : "Full Name",
+                          label: context.translate('full_name'),
                           labelStyle: TextStyle(color: textColor, fontSize: isMobile ? 12 : 14, fontWeight: FontWeight.bold),
                           child: CustomTextField(
                             controller: _nameController,
-                            hintText: isRtl ? "أدخل اسمك هنا" : "Enter your full name",
+                            hintText: context.translate('name_hint'),
                             validator: (val) {
                               if (val == null || val.trim().isEmpty) {
-                                return isRtl ? "هذا الحقل مطلوب" : "Name is required";
+                                return context.translate('required_field');
                               }
                               return null;
                             },
@@ -201,19 +198,19 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
                         SizedBox(height: isMobile ? 16 : 20),
 
                         FormGroup(
-                          label: isRtl ? "البريد الإلكتروني" : "Email Address",
+                          label: context.translate('email'),
                           labelStyle: TextStyle(color: textColor, fontSize: isMobile ? 12 : 14, fontWeight: FontWeight.bold),
                           child: CustomTextField(
                             controller: _emailController,
-                            hintText: isRtl ? "name@example.com" : "you@example.com",
+                            hintText: context.translate('email_hint'),
                             keyboardType: TextInputType.emailAddress,
                             validator: (val) {
                               if (val == null || val.trim().isEmpty) {
-                                return isRtl ? "هذا الحقل مطلوب" : "Email is required";
+                                return context.translate('required_field');
                               }
                               final emailRegExp = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
                               if (!emailRegExp.hasMatch(val.trim())) {
-                                return isRtl ? "البريد الإلكتروني غير صالح" : "Enter a valid email address";
+                                return context.translate('invalid_email');
                               }
                               return null;
                             },
@@ -222,15 +219,15 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
                         SizedBox(height: isMobile ? 16 : 20),
 
                         FormGroup(
-                          label: isRtl ? "الرسالة" : "Your Message",
+                          label: context.translate('message_label'),
                           labelStyle: TextStyle(color: textColor, fontSize: isMobile ? 12 : 14, fontWeight: FontWeight.bold),
                           child: CustomTextField(
                             controller: _messageController,
-                            hintText: isRtl ? "كيف يمكننا مساعدتك؟" : "How can we help you?",
+                            hintText: context.translate('message_hint'),
                             maxLines: isMobile ? 3 : 4,
                             validator: (val) {
                               if (val == null || val.trim().isEmpty) {
-                                return isRtl ? "هذا الحقل مطلوب" : "Message is required";
+                                return context.translate('required_field');
                               }
                               return null;
                             },

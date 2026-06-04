@@ -19,11 +19,24 @@ import '../../public_viewer/widgets/custom_animated_counter_widget.dart';
 import '../../public_viewer/widgets/custom_hero_saas_widget.dart';
 import '../../public_viewer/widgets/custom_lead_magnet_widget.dart';
 import '../models/landing_page_theme.dart';
+import '../../public_viewer/widgets/custom_video_embed_widget.dart';
+import '../../public_viewer/widgets/custom_multi_step_form_widget.dart';
 
 typedef BlockBuilder = Widget Function(Map<String, dynamic> data, LandingPageTheme? theme, String pageId, Key? key, Map<String, GlobalKey>? productKeys, int sectionIndex);
 
 class BlockRegistry {
   static final Map<String, BlockBuilder> _registry = {
+    'multi_step_lead_form': (data, theme, pageId, key, __, ___) => CustomMultiStepFormWidget(
+      key: key,
+      block: data,
+      theme: theme,
+      pageId: pageId,
+    ),
+    'video_embed': (data, theme, _, key, __, ___) => CustomVideoEmbedWidget(
+      key: key,
+      block: data,
+      theme: theme,
+    ),
     'logo_header': (data, theme, _, key, __, ___) => CustomLogoHeaderWidget(
       key: key,
       title: data['title'] ?? '',
@@ -120,15 +133,15 @@ class BlockRegistry {
       bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
-    'pricing': (data, theme, _, key, __, ___) => CustomPricingWidget(
+    'pricing': (data, theme, lang, key, __, ___) => CustomPricingWidget(
       key: key,
-      title: data['title'] ?? '',
-      items: List<Map<String, dynamic>>.from(data['items'] ?? []),
+      block: data,
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
       bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+      lang: lang ?? 'ar',
     ),
     'faq': (data, theme, _, key, __, ___) => CustomFaqWidget(
       key: key,
@@ -156,6 +169,9 @@ class BlockRegistry {
       email: data['email'],
       phone: data['phone'],
       location: data['location'],
+      phoneIcon: data['phone_icon'],
+      emailIcon: data['email_icon'],
+      locationIcon: data['location_icon'],
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
@@ -179,6 +195,7 @@ class BlockRegistry {
       key: key,
       title: data['title'] ?? '',
       subtitle: data['subtitle'] ?? '',
+      qrPayload: data['qr_payload'],
       qrSize: (data['qr_size'] ?? 200.0).toDouble(),
       theme: theme,
       bgImageUrl: data['bg_image_url'],

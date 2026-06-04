@@ -7,6 +7,7 @@ import '../../builder/models/landing_page_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../dashboard/controllers/leads_analytics_cubit.dart';
 import '../../../core/utils/toast_service.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class CustomLeadMagnetWidget extends StatefulWidget {
   final String title;
@@ -45,7 +46,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
 
   Future<void> _submitLead() async {
     if (_nameController.text.trim().isEmpty || _emailController.text.trim().isEmpty) {
-      ToastService.showError(context, message: "يرجى إدخال الاسم والبريد الإلكتروني.");
+      ToastService.showError(context, message: context.translate('lead_error_empty'));
       return;
     }
 
@@ -59,7 +60,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
       });
       
       if (mounted) {
-        ToastService.showSuccess(context, message: "تم التسجيل بنجاح! شكراً لك.");
+        ToastService.showSuccess(context, message: context.translate('lead_success'));
         _nameController.clear();
         _emailController.clear();
       }
@@ -67,7 +68,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
       // In builder mode (where the Cubit might not be provided)
       await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
-        ToastService.showSuccess(context, message: "وضع المعاينة: تم استلام البيانات بنجاح.");
+        ToastService.showSuccess(context, message: context.translate('lead_preview_success'));
       }
     }
     
@@ -100,7 +101,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
           padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
           child: Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 1000),
+              constraints: const BoxConstraints(maxWidth: 1200),
               decoration: BoxDecoration(
                 color: widget.theme?.background.withValues(alpha: 0.9) ?? AppColors.cardBg,
                 borderRadius: BorderRadius.circular(24),
@@ -126,6 +127,21 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
                         flex: 1,
                         child: Padding(
                           padding: const EdgeInsets.all(48),
+                          child: _buildFormContent(textColor, subTextColor, secondaryColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                  tablet: Row(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: _buildImageCover(),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
                           child: _buildFormContent(textColor, subTextColor, secondaryColor),
                         ),
                       ),
@@ -188,7 +204,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
         TextField(
           controller: _nameController,
           decoration: InputDecoration(
-            hintText: "الاسم كامل",
+            hintText: context.translate('full_name'),
             filled: true,
             fillColor: textColor.withValues(alpha: 0.05),
             border: OutlineInputBorder(
@@ -202,7 +218,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
         TextField(
           controller: _emailController,
           decoration: InputDecoration(
-            hintText: "البريد الإلكتروني",
+            hintText: context.translate('email'),
             filled: true,
             fillColor: textColor.withValues(alpha: 0.05),
             border: OutlineInputBorder(

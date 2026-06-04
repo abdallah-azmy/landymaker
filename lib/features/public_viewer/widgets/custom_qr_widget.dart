@@ -9,6 +9,7 @@ import '../../builder/models/landing_page_theme.dart';
 class CustomQrWidget extends StatelessWidget {
   final String title;
   final String subtitle;
+  final String? qrPayload;
   final double qrSize;
   final LandingPageTheme? theme;
   final String? bgImageUrl;
@@ -20,6 +21,7 @@ class CustomQrWidget extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
+    this.qrPayload,
     this.qrSize = 200.0,
     this.theme,
     this.bgImageUrl,
@@ -34,6 +36,7 @@ class CustomQrWidget extends StatelessWidget {
     final String baseUrl = Uri.base.origin;
     // Construct the live URL based on current routing (landymaker.com/subdomain)
     final String liveUrl = subdomain != null ? '$baseUrl/$subdomain' : baseUrl;
+    final String finalPayload = (qrPayload != null && qrPayload!.isNotEmpty) ? qrPayload! : liveUrl;
 
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;
@@ -85,7 +88,7 @@ class CustomQrWidget extends StatelessWidget {
                     width: isMobile ? 160 : qrSize,
                     height: isMobile ? 160 : qrSize,
                     child: PrettyQrView.data(
-                      data: liveUrl,
+                      data: finalPayload,
                       decoration: const PrettyQrDecoration(
                         shape: PrettyQrSmoothSymbol(
                           color: Colors.black87, // Fixed dark color for standard scannability
@@ -97,7 +100,7 @@ class CustomQrWidget extends StatelessWidget {
                 
                 SizedBox(height: isMobile ? 24 : 40),
                 Text(
-                  liveUrl.replaceFirst('https://', '').replaceFirst('http://', ''),
+                  finalPayload.replaceFirst('https://', '').replaceFirst('http://', ''),
                   style: AppTypography.caption.copyWith(
                     color: secondaryColor,
                     fontWeight: FontWeight.bold,

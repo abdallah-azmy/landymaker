@@ -31,7 +31,14 @@ class CustomWorkingHoursWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: AppTypography.h3),
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTypography.h3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
               _buildStatusBadge(isOpen),
             ],
           ),
@@ -41,8 +48,22 @@ class CustomWorkingHoursWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary)),
-                Text(entry.value.toString(), style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: Text(
+                    entry.key,
+                    style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    entry.value.toString(),
+                    style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           )),

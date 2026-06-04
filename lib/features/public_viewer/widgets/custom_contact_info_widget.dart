@@ -9,6 +9,9 @@ class CustomContactInfoWidget extends StatelessWidget {
   final String? email;
   final String? phone;
   final String? location;
+  final String? phoneIcon;
+  final String? emailIcon;
+  final String? locationIcon;
   final LandingPageTheme? theme;
   final String? bgImageUrl;
   final String? bgOverlayColor;
@@ -21,6 +24,9 @@ class CustomContactInfoWidget extends StatelessWidget {
     this.email,
     this.phone,
     this.location,
+    this.phoneIcon,
+    this.emailIcon,
+    this.locationIcon,
     this.theme,
     this.bgImageUrl,
     this.bgOverlayColor,
@@ -63,11 +69,11 @@ class CustomContactInfoWidget extends StatelessWidget {
                     alignment: WrapAlignment.center,
                     children: [
                       if (phone != null && phone!.isNotEmpty)
-                        _buildContactCard(Icons.phone_rounded, "Phone", phone!, secondaryColor, textColor, subTextColor, isMobile),
+                        _buildContactCard(_resolveIcon(phoneIcon, Icons.phone_rounded), "Phone", phone!, secondaryColor, textColor, subTextColor, isMobile),
                       if (email != null && email!.isNotEmpty)
-                        _buildContactCard(Icons.email_rounded, "Email", email!, secondaryColor, textColor, subTextColor, isMobile),
+                        _buildContactCard(_resolveIcon(emailIcon, Icons.email_rounded), "Email", email!, secondaryColor, textColor, subTextColor, isMobile),
                       if (location != null && location!.isNotEmpty)
-                        _buildContactCard(Icons.location_on_rounded, "Address", location!, secondaryColor, textColor, subTextColor, isMobile),
+                        _buildContactCard(_resolveIcon(locationIcon, Icons.location_on_rounded), "Address", location!, secondaryColor, textColor, subTextColor, isMobile),
                     ],
                   ),
                 ],
@@ -101,9 +107,28 @@ class CustomContactInfoWidget extends StatelessWidget {
           const SizedBox(height: 16),
           Text(label, style: AppTypography.caption.copyWith(color: subTextColor, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text(value, style: AppTypography.bodyLarge.copyWith(color: textColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(value, style: AppTypography.bodyLarge.copyWith(color: textColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          ),
         ],
       ),
     );
+  }
+
+  IconData _resolveIcon(String? iconName, IconData defaultIcon) {
+    if (iconName != null && iconName.isNotEmpty) {
+      switch (iconName.toLowerCase()) {
+        case 'phone': return Icons.phone_rounded;
+        case 'mobile': return Icons.phone_iphone_rounded;
+        case 'email': return Icons.email_rounded;
+        case 'envelope': return Icons.mail_outline_rounded;
+        case 'location': return Icons.location_on_rounded;
+        case 'map': return Icons.map_rounded;
+        case 'whatsapp': return Icons.chat_rounded; // Assuming chat for WhatsApp if font_awesome isn't used
+        case 'chat': return Icons.chat_rounded;
+      }
+    }
+    return defaultIcon;
   }
 }

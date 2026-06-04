@@ -96,11 +96,13 @@ class CustomFeaturesWidget extends StatelessWidget {
                         final String itemTitle = item['title'] ?? '';
                         final String itemDesc = item['description'] ?? '';
                         final String? linkUrl = item['link_url'];
+                        final String? iconName = item['icon'];
 
                         return FeatureCard(
                           title: itemTitle,
                           description: itemDesc,
                           linkUrl: linkUrl,
+                          iconName: iconName,
                           index: index,
                           primary: primaryColor,
                           secondary: secondaryColor,
@@ -135,6 +137,7 @@ class CustomFeaturesWidget extends StatelessWidget {
                 title: items[0]['title'] ?? '',
                 description: items[0]['description'] ?? '',
                 linkUrl: items[0]['link_url'],
+                iconName: items[0]['icon'],
                 index: 0,
                 primary: primary,
                 secondary: secondary,
@@ -152,6 +155,7 @@ class CustomFeaturesWidget extends StatelessWidget {
                 title: items[1]['title'] ?? '',
                 description: items[1]['description'] ?? '',
                 linkUrl: items[1]['link_url'],
+                iconName: items[1]['icon'],
                 index: 1,
                 primary: primary,
                 secondary: secondary,
@@ -178,6 +182,7 @@ class CustomFeaturesWidget extends StatelessWidget {
                 title: items[2]['title'] ?? '',
                 description: items[2]['description'] ?? '',
                 linkUrl: items[2]['link_url'],
+                iconName: items[2]['icon'],
                 index: 2,
                 primary: primary,
                 secondary: secondary,
@@ -195,6 +200,7 @@ class CustomFeaturesWidget extends StatelessWidget {
                 title: items[3]['title'] ?? '',
                 description: items[3]['description'] ?? '',
                 linkUrl: items[3]['link_url'],
+                iconName: items[3]['icon'],
                 index: 3,
                 primary: primary,
                 secondary: secondary,
@@ -231,6 +237,7 @@ class CustomFeaturesWidget extends StatelessWidget {
               title: item['title'] ?? '',
               description: item['description'] ?? '',
               linkUrl: item['link_url'],
+              iconName: item['icon'],
               index: index + 4,
               primary: primary,
               secondary: secondary,
@@ -249,6 +256,7 @@ class CustomFeaturesWidget extends StatelessWidget {
            title: items[2]['title'] ?? '',
            description: items[2]['description'] ?? '',
            linkUrl: items[2]['link_url'],
+           iconName: items[2]['icon'],
            index: 2,
            primary: primary,
            secondary: secondary,
@@ -264,6 +272,7 @@ class CustomFeaturesWidget extends StatelessWidget {
            title: items[0]['title'] ?? '',
            description: items[0]['description'] ?? '',
            linkUrl: items[0]['link_url'],
+           iconName: items[0]['icon'],
            index: 0,
            primary: primary,
            secondary: secondary,
@@ -283,6 +292,7 @@ class FeatureCard extends StatefulWidget {
   final String title;
   final String description;
   final String? linkUrl;
+  final String? iconName;
   final int index;
   final Color primary;
   final Color secondary;
@@ -297,6 +307,7 @@ class FeatureCard extends StatefulWidget {
     required this.title,
     required this.description,
     this.linkUrl,
+    this.iconName,
     required this.index,
     required this.primary,
     required this.secondary,
@@ -356,7 +367,7 @@ class _FeatureCardState extends State<FeatureCard> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  _getFeatureIcon(widget.index),
+                  _resolveIcon(widget.iconName, widget.index),
                   color: accent,
                   size: widget.isMobile ? 20 : 24,
                 ),
@@ -416,6 +427,28 @@ class _FeatureCardState extends State<FeatureCard> {
     }
 
     return cardContent;
+  }
+
+  IconData _resolveIcon(String? iconName, int index) {
+    if (iconName != null && iconName.isNotEmpty) {
+      // Basic mapping for common icons
+      switch (iconName.toLowerCase()) {
+        case 'bolt': return Icons.bolt_rounded;
+        case 'graph': return Icons.auto_graph_rounded;
+        case 'security': return Icons.security_rounded;
+        case 'star': return Icons.star_rounded;
+        case 'check': return Icons.check_circle_rounded;
+        case 'cloud': return Icons.cloud_rounded;
+        case 'code': return Icons.code_rounded;
+        case 'design': return Icons.brush_rounded;
+        case 'speed': return Icons.speed_rounded;
+        case 'support': return Icons.support_agent_rounded;
+        case 'mobile': return Icons.phone_iphone_rounded;
+        case 'web': return Icons.language_rounded;
+        case 'settings': return Icons.settings_rounded;
+      }
+    }
+    return _getFeatureIcon(index);
   }
 
   IconData _getFeatureIcon(int index) {

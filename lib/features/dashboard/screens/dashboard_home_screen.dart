@@ -47,7 +47,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
             );
           }
           if (state is LandingPagesLoaded) {
-            return _buildContent(context, loc, state.pages);
+            return _buildContent(context, loc, state);
           }
           if (state is LandingPagesFailure) {
             return Center(
@@ -83,9 +83,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
   Widget _buildContent(
     BuildContext context,
     LocalizationCubit loc,
-    List<Map<String, dynamic>> pages,
+    LandingPagesLoaded state,
   ) {
-    final state = context.read<LandingPagesCubit>().state as LandingPagesLoaded;
+    final pages = state.pages;
     final totalViews = pages.fold<int>(
       0,
       (sum, p) => sum + (p['views_count'] as int? ?? 0),
@@ -102,7 +102,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(loc, state.currentTier, isMobile),
+          _buildHeader(loc, state, isMobile),
           const SizedBox(height: 32),
           _buildStatsOverview(totalViews, totalLeads, isMobile),
           const SizedBox(height: 24),
@@ -149,8 +149,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
     );
   }
 
-  Widget _buildHeader(LocalizationCubit loc, String tier, bool isMobile) {
-    final state = context.read<LandingPagesCubit>().state as LandingPagesLoaded;
+  Widget _buildHeader(LocalizationCubit loc, LandingPagesLoaded state, bool isMobile) {
+    final tier = state.currentTier;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

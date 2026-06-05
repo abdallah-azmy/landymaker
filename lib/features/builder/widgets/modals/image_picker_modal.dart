@@ -32,10 +32,12 @@ class _ImagePickerModalContent extends StatefulWidget {
   const _ImagePickerModalContent();
 
   @override
-  State<_ImagePickerModalContent> createState() => _ImagePickerModalContentState();
+  State<_ImagePickerModalContent> createState() =>
+      _ImagePickerModalContentState();
 }
 
-class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with SingleTickerProviderStateMixin {
+class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
@@ -50,9 +52,13 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       if (!context.read<ImagePickerCubit>().isClosed) {
-        context.read<ImagePickerCubit>().searchPixabay(_searchController.text, loadMore: true);
+        context.read<ImagePickerCubit>().searchPixabay(
+          _searchController.text,
+          loadMore: true,
+        );
       }
     }
   }
@@ -75,11 +81,23 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
           Navigator.of(context).pop(state.selectedData);
         } else if (state is ImagePickerUploadError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.white)), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(
+                state.message,
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.red,
+            ),
           );
         } else if (state is ImagePickerPixabayError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.white)), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(
+                state.message,
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       },
@@ -87,7 +105,8 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
         builder: (context, constraints) {
           // Dynamic sizing based on screen constraints (Responsive)
           final isMobile = constraints.maxWidth < 600;
-          final sheetHeight = MediaQuery.of(context).size.height * (isMobile ? 0.9 : 0.7);
+          final sheetHeight =
+              MediaQuery.of(context).size.height * (isMobile ? 0.9 : 0.7);
           final sheetWidth = isMobile ? constraints.maxWidth : 600.0;
 
           return Center(
@@ -97,16 +116,20 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
               margin: isMobile ? EdgeInsets.zero : const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: const Color(0xFF0F172A), // Slate 900
-                borderRadius: isMobile 
+                borderRadius: isMobile
                     ? const BorderRadius.vertical(top: Radius.circular(20))
                     : BorderRadius.circular(20),
                 border: Border.all(color: const Color(0xFF1E293B)), // Slate 800
                 boxShadow: const [
-                  BoxShadow(color: Colors.black54, blurRadius: 24, spreadRadius: 4),
+                  BoxShadow(
+                    color: Colors.black54,
+                    blurRadius: 24,
+                    spreadRadius: 4,
+                  ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: isMobile 
+                borderRadius: isMobile
                     ? const BorderRadius.vertical(top: Radius.circular(20))
                     : BorderRadius.circular(20),
                 child: Stack(
@@ -182,7 +205,11 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.cloud_upload_outlined, size: 64, color: Colors.white24),
+          const Icon(
+            Icons.cloud_upload_outlined,
+            size: 64,
+            color: Colors.white24,
+          ),
           const SizedBox(height: 16),
           const Text(
             'Upload from your device',
@@ -197,7 +224,9 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
               backgroundColor: const Color(0xFF00E5FF),
               foregroundColor: Colors.black,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -234,11 +263,16 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.search, color: Color(0xFF00E5FF)),
                       onPressed: () {
-                        context.read<ImagePickerCubit>().searchPixabay(_searchController.text, imageType: _selectedImageType);
+                        context.read<ImagePickerCubit>().searchPixabay(
+                          _searchController.text,
+                          imageType: _selectedImageType,
+                        );
                       },
                     ),
                   ),
-                  onSubmitted: (val) => context.read<ImagePickerCubit>().searchPixabay(val, imageType: _selectedImageType),
+                  onSubmitted: (val) => context
+                      .read<ImagePickerCubit>()
+                      .searchPixabay(val, imageType: _selectedImageType),
                 ),
               ),
               const SizedBox(width: 8),
@@ -253,17 +287,26 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
                     value: _selectedImageType,
                     dropdownColor: const Color(0xFF1E293B),
                     style: const TextStyle(color: Colors.white),
-                    icon: const Icon(Icons.filter_list, color: Color(0xFF00E5FF)),
+                    icon: const Icon(
+                      Icons.filter_list,
+                      color: Color(0xFF00E5FF),
+                    ),
                     items: const [
                       DropdownMenuItem(value: 'all', child: Text('All')),
                       DropdownMenuItem(value: 'photo', child: Text('Photos')),
-                      DropdownMenuItem(value: 'illustration', child: Text('Illustrations')),
+                      DropdownMenuItem(
+                        value: 'illustration',
+                        child: Text('Illustrations'),
+                      ),
                       DropdownMenuItem(value: 'vector', child: Text('Vectors')),
                     ],
                     onChanged: (val) {
                       if (val != null) {
                         setState(() => _selectedImageType = val);
-                        context.read<ImagePickerCubit>().searchPixabay(_searchController.text, imageType: val);
+                        context.read<ImagePickerCubit>().searchPixabay(
+                          _searchController.text,
+                          imageType: val,
+                        );
                       }
                     },
                   ),
@@ -274,17 +317,24 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
         ),
         Expanded(
           child: BlocBuilder<ImagePickerCubit, ImagePickerState>(
-            buildWhen: (previous, current) => 
-                current is ImagePickerLoadingPixabay || 
-                current is ImagePickerPixabayLoaded || 
+            buildWhen: (previous, current) =>
+                current is ImagePickerLoadingPixabay ||
+                current is ImagePickerPixabayLoaded ||
                 current is ImagePickerPixabayError ||
                 current is ImagePickerInitial,
             builder: (context, state) {
               if (state is ImagePickerLoadingPixabay) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFF00E5FF)));
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
+                );
               } else if (state is ImagePickerPixabayLoaded) {
                 if (state.images.isEmpty) {
-                  return const Center(child: Text('No results found.', style: TextStyle(color: Colors.white54)));
+                  return const Center(
+                    child: Text(
+                      'No results found.',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  );
                 }
                 return Column(
                   children: [
@@ -292,17 +342,23 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
                       child: GridView.builder(
                         controller: _scrollController,
                         padding: const EdgeInsets.all(16),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
                         itemCount: state.images.length,
                         itemBuilder: (context, index) {
                           final image = state.images[index];
                           return GestureDetector(
                             onTap: () {
-                              context.read<ImagePickerCubit>().selectPixabayImage(image.previewUrl, image.webformatUrl);
+                              context
+                                  .read<ImagePickerCubit>()
+                                  .selectPixabayImage(
+                                    image.previewUrl,
+                                    image.webformatUrl,
+                                  );
                             },
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
@@ -318,26 +374,31 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
                     if (state.isFetchingMore)
                       const Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF00E5FF),
+                        ),
                       ),
                   ],
                 );
-            }
-            if (state is ImagePickerPixabayError) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    state.message,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.redAccent),
+              }
+              if (state is ImagePickerPixabayError) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.redAccent),
+                    ),
                   ),
+                );
+              }
+              return const Center(
+                child: Text(
+                  'Search Pixabay to find free stock images.',
+                  style: TextStyle(color: Colors.white54),
                 ),
               );
-            }
-            return const Center(
-              child: Text('Search Pixabay to find free stock images.', style: TextStyle(color: Colors.white54)),
-            );
             },
           ),
         ),
@@ -353,7 +414,11 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
         children: [
           const Text(
             'Insert Image via Direct URL',
-            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -380,20 +445,26 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent> with
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                context.read<ImagePickerCubit>().submitDirectUrl(_urlController.text);
+                context.read<ImagePickerCubit>().submitDirectUrl(
+                  _urlController.text,
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00E5FF),
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              child: const Text('Insert Image', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Insert Image',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],
       ),
     );
   }
-
 }

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../../features/builder/models/landing_page_theme.dart';
+import 'custom_network_image.dart';
 
 class SectionBackground extends StatelessWidget {
   final String? bgImageUrl;
@@ -77,26 +78,11 @@ class SectionBackground extends StatelessWidget {
             // Layer 1: Background Image
             if (hasBgImage)
               Positioned.fill(
-                child: Image.network(
-                  bgImageUrl!,
+                child: CustomNetworkImage(
+                  imageUrl: bgImageUrl!,
                   fit: BoxFit.cover,
-                  loadingBuilder: (context, imgChild, loadingProgress) {
-                    if (loadingProgress == null) return imgChild;
-                    return Container(
-                      color: bgColor,
-                      child: const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: bgColor,
-                    child: const Icon(
-                      Icons.image_not_supported_rounded,
-                      color: Colors.white24,
-                      size: 48,
-                    ),
-                  ),
+                  width: double.infinity,
+                  height: double.infinity,
                 ),
               ),
 

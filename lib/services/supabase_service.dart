@@ -48,13 +48,8 @@ class SupabaseService extends ChangeNotifier {
   //     --dart-define=SUPABASE_ANON_KEY=eyJ...
   // ─────────────────────────────────────────────────────────────────────────
 
-  static final String supabaseUrl = const String.fromEnvironment('SUPABASE_URL').isNotEmpty
-      ? const String.fromEnvironment('SUPABASE_URL')
-      : 'https://zajcnkpcdsvswfmsmqpt.supabase.co';
-
-  static final String supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY').isNotEmpty
-      ? const String.fromEnvironment('SUPABASE_ANON_KEY')
-      : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphamNua3BjZHN2c3dmbXNtcXB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNTgzMDMsImV4cCI6MjA5NDkzNDMwM30.oreTJAHB33FcTkJutIlLxgiPj-rERVFfB7n2pnzPj4w';
+  static final String supabaseUrl = const String.fromEnvironment('SUPABASE_URL');
+  static final String supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY');
 
   /// Initialize Supabase Flutter Client
   Future<void> initialize() async {

@@ -18,6 +18,7 @@ import '../widgets/modals/seo_settings_modal.dart';
 import '../widgets/organisms/builder_app_bar.dart';
 import '../widgets/organisms/builder_canvas.dart';
 import '../widgets/organisms/builder_sidebar.dart';
+import '../widgets/organisms/global_upload_manager_widget.dart';
 import '../widgets/tabs/builder_sidebar_tabs.dart';
 
 import '../widgets/molecules/builder_mobile_toolbar.dart';
@@ -349,6 +350,13 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                     ),
                   ),
                 ),
+              // Global Upload Manager
+              Positioned(
+                top: isMobile ? 80 : 24, // Below mobile appbar or canvas top
+                right: loc.isRtl ? null : (isMobile ? 16 : 380), // 380px clears the sidebar if it's on the right
+                left: loc.isRtl ? (isMobile ? 16 : 380) : null,
+                child: const GlobalUploadManagerWidget(),
+              ),
             ],
           ),
         ),

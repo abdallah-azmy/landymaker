@@ -4,6 +4,7 @@ import 'services/auth_service.dart';
 import 'services/storage_service.dart';
 import 'services/database_service.dart';
 import 'services/subscription_service.dart';
+import 'services/image_media_service.dart';
 import 'core/localization/localization_cubit.dart';
 import 'core/http_client.dart';
 import 'features/auth/controllers/auth_cubit.dart';
@@ -15,6 +16,8 @@ import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
 import 'features/blog_admin/data/repositories/blog_repository.dart';
 import 'features/blog_admin/controllers/blog_cubit.dart';
+
+import 'features/builder/controllers/upload_manager_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -32,6 +35,9 @@ Future<void> initDependencies() async {
   sl.registerSingleton<StorageService>(StorageService(sl<SupabaseService>()));
   sl.registerSingleton<DatabaseService>(DatabaseService(sl<SupabaseService>()));
   sl.registerSingleton<SubscriptionService>(SubscriptionService(sl<DatabaseService>()));
+  sl.registerSingleton<ImageMediaService>(ImageMediaService());
+
+  sl.registerLazySingleton<UploadManagerCubit>(() => UploadManagerCubit(mediaService: sl<ImageMediaService>()));
 
   // 4. Global Cubits / State Managers (Registered as Singletons / Factories)
   // Localization: App-wide language toggle persists globally

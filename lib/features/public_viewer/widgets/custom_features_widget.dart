@@ -90,7 +90,7 @@ class CustomFeaturesWidget extends StatelessWidget {
                         ),
                         crossAxisSpacing: isMobile ? 16 : 24,
                         mainAxisSpacing: isMobile ? 16 : 24,
-                        childAspectRatio: isMobile ? 1.8 : 1.3,
+                        childAspectRatio: isMobile ? 1.2 : 1.3,
                       ),
                       itemBuilder: (context, index) {
                         final item = items[index];

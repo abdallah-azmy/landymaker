@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:landymaker/features/builder/models/landing_page_theme.dart';
-import '../modals/stock_image_picker.dart';
+import '../modals/image_picker_modal.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
@@ -10,6 +10,8 @@ import '../../../../core/widgets/molecules/form_group.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 import '../../../../core/utils/file_utils.dart';
+import '../../controllers/upload_manager_cubit.dart';
+import '../../../../injection_container.dart';
 import 'blocks/logo_header_editor.dart';
 import 'blocks/hero_editor.dart';
 import 'blocks/lead_form_editor.dart';
@@ -105,35 +107,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
     String? itemKey,
     int? itemIndex,
   }) async {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        maxChildSize: 0.9,
-        minChildSize: 0.5,
-        expand: false,
-        builder: (context, scrollController) => StockImagePicker(
-          onImageSelected: (url) {
-            if (itemKey == 'items_array' && itemIndex != null) {
-              final block = (cubit.state as BuilderLoaded)
-                  .designMap['blocks'][blockIndex];
-              final List items = List.from(block['items'] ?? []);
-              items[itemIndex] = url;
-              cubit.updateBlockProperty(blockIndex, 'items', items);
-            } else if (itemKey != null && itemIndex != null) {
-              cubit.updateProductItem(blockIndex, itemIndex, itemKey, url);
-            } else {
-              cubit.updateBlockProperty(blockIndex, 'image_url', url);
-            }
-          },
-        ),
-      ),
-    );
+    _pickMedia(cubit, blockIndex, itemKey: itemKey, itemIndex: itemIndex);
   }
 
   Future<void> _pickAndUploadImage(
@@ -142,24 +116,77 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
     String? itemKey,
     int? itemIndex,
   }) async {
-    try {
-      final file = await FileUtils.pickImage();
-      if (file != null) {
-        await cubit.uploadBlockImage(blockIndex, file);
-      }
-    } catch (_) {}
+    _pickMedia(cubit, blockIndex, itemKey: itemKey, itemIndex: itemIndex);
   }
 
   Future<void> _pickAndUploadBackgroundImage(
     LandingPageBuilderCubit cubit,
     int blockIndex,
   ) async {
-    try {
-      final file = await FileUtils.pickImage();
-      if (file != null) {
-        await cubit.uploadBlockBackgroundImage(blockIndex, file);
+    _pickMedia(cubit, blockIndex, isBackground: true);
+  }
+
+  Future<void> _pickMedia(
+    LandingPageBuilderCubit cubit,
+    int blockIndex, {
+    String? itemKey,
+    int? itemIndex,
+    bool isBackground = false,
+  }) async {
+    final selectedData = await ImagePickerModal.show(context);
+    if (selectedData == null) return;
+
+    final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
+
+    void updateProp(String url) {
+      if (isBackground) {
+        cubit.updateBlockProperty(blockIndex, 'bg_image_url', url);
+      } else if (itemKey == 'items_array' && itemIndex != null) {
+        final block = (cubit.state as BuilderLoaded).designMap['blocks'][blockIndex];
+        final List items = List.from(block['items'] ?? []);
+        items[itemIndex] = url;
+        cubit.updateBlockProperty(blockIndex, 'items', items);
+      } else if (itemKey != null && itemIndex != null) {
+        cubit.updateProductItem(blockIndex, itemIndex, itemKey, url);
+      } else {
+        cubit.updateBlockProperty(blockIndex, 'image_url', url);
       }
-    } catch (_) {}
+    }
+
+    // 1. Capture old URL to revert if cancelled
+    String oldUrl = '';
+    final blockMap = (cubit.state as BuilderLoaded).designMap['blocks'][blockIndex];
+    if (isBackground) {
+      oldUrl = blockMap['bg_image_url'] ?? '';
+    } else if (itemKey == 'items_array' && itemIndex != null) {
+      final items = blockMap['items'] as List? ?? [];
+      if (itemIndex < items.length) {
+        oldUrl = items[itemIndex] ?? '';
+      }
+    } else if (itemKey != null && itemIndex != null) {
+      final items = blockMap[itemKey] as List? ?? [];
+      if (itemIndex < items.length) {
+        oldUrl = items[itemIndex]['image'] ?? ''; // or specific property... fallback to empty if hard to trace
+      }
+    } else {
+      oldUrl = blockMap['image_url'] ?? '';
+    }
+
+    // 2. Optimistically update UI to show uploading
+    updateProp(uploadId);
+
+    // 3. Start background upload
+    sl<UploadManagerCubit>().upload(
+      uploadId: uploadId,
+      data: selectedData,
+      onSuccess: (finalUrl) {
+        updateProp(finalUrl);
+      },
+      onCancel: () {
+        // Revert to old url if the user cancelled
+        updateProp(oldUrl);
+      },
+    );
   }
 
 

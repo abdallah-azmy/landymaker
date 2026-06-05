@@ -26,7 +26,9 @@ class BasicSectionRenderer extends StatelessWidget {
     final String crossAlign = sectionData['cross_axis_alignment'] ?? 'center';
     final double spacing = (sectionData['spacing'] ?? 16.0).toDouble();
 
-    final List<Widget> elementWidgets = elements.map((e) => _buildElement(context, e)).toList();
+    final List<Widget> elementWidgets = elements
+        .map((e) => _buildElement(context, e))
+        .toList();
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
@@ -47,19 +49,27 @@ class BasicSectionRenderer extends StatelessWidget {
 
   MainAxisAlignment _parseMainAlign(String value) {
     switch (value) {
-      case 'start': return MainAxisAlignment.start;
-      case 'end': return MainAxisAlignment.end;
-      case 'spaceBetween': return MainAxisAlignment.spaceBetween;
-      default: return MainAxisAlignment.center;
+      case 'start':
+        return MainAxisAlignment.start;
+      case 'end':
+        return MainAxisAlignment.end;
+      case 'spaceBetween':
+        return MainAxisAlignment.spaceBetween;
+      default:
+        return MainAxisAlignment.center;
     }
   }
 
   CrossAxisAlignment _parseCrossAlign(String value) {
     switch (value) {
-      case 'start': return CrossAxisAlignment.start;
-      case 'end': return CrossAxisAlignment.end;
-      case 'stretch': return CrossAxisAlignment.stretch;
-      default: return CrossAxisAlignment.center;
+      case 'start':
+        return CrossAxisAlignment.start;
+      case 'end':
+        return CrossAxisAlignment.end;
+      case 'stretch':
+        return CrossAxisAlignment.stretch;
+      default:
+        return CrossAxisAlignment.center;
     }
   }
 
@@ -69,38 +79,45 @@ class BasicSectionRenderer extends StatelessWidget {
     for (int i = 0; i < widgets.length; i++) {
       result.add(widgets[i]);
       if (i < widgets.length - 1) {
-        result.add(isRow ? SizedBox(width: spacing) : SizedBox(height: spacing));
+        result.add(
+          isRow ? SizedBox(width: spacing) : SizedBox(height: spacing),
+        );
       }
     }
     return result;
   }
 
-  Widget _buildElement(BuildContext context, Map<String, dynamic> element) {
+  Widget _buildElement(BuildContext context, dynamic rawElement) {
+    final Map<String, dynamic> element = Map<String, dynamic>.from(rawElement as Map);
     final String type = element['type'] ?? 'text';
     final String id = element['id'] ?? '';
-    
+
     return GestureDetector(
       onLongPress: () {
         context.read<LandingPageBuilderCubit>().focusElement(sectionIndex, id);
       },
       child: BlocBuilder<LandingPageBuilderCubit, BuilderState>(
-        buildWhen: (prev, curr) => curr is BuilderLoaded && curr.focusedElementId == id,
+        buildWhen: (prev, curr) =>
+            curr is BuilderLoaded && curr.focusedElementId == id,
         builder: (context, state) {
-          final isFocused = state is BuilderLoaded && state.focusedElementId == id;
-          
+          final isFocused =
+              state is BuilderLoaded && state.focusedElementId == id;
+
           return Container(
             decoration: BoxDecoration(
-              border: isFocused ? Border.all(color: Colors.blue, width: 2) : null,
+              border: isFocused
+                  ? Border.all(color: Colors.blue, width: 2)
+                  : null,
             ),
             child: type == 'text'
                 ? DynamicStyledText(
                     text: element['content'] ?? 'نص جديد',
-                    styleOverrides: element['style_overrides'] ?? {},
+                    styleOverrides: Map<String, dynamic>.from(element['style_overrides'] ?? {}),
                     theme: theme,
                   )
                 : DynamicStyledImage(
                     imageUrl: element['content'] ?? '',
-                    styleOverrides: element['style_overrides'] ?? {},
+                    styleOverrides: Map<String, dynamic>.from(element['style_overrides'] ?? {}),
                   ),
           );
         },

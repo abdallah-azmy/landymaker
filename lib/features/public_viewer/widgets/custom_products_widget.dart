@@ -11,14 +11,17 @@ import '../controllers/cart_cubit.dart';
 // Helper: Convert a product name to a URL-safe slug for deep linking.
 // e.g. "Smart Watch Pro"  →  "smart-watch-pro"
 // ─────────────────────────────────────────────────────────────────────────────
-String _toSlug(String name) =>
-    name.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u0600-\u06ff]+'), '-');
+String _toSlug(String name) => name.trim().toLowerCase().replaceAll(
+  RegExp(r'[^a-z0-9\u0600-\u06ff]+'),
+  '-',
+);
 
 class CustomProductsWidget extends StatefulWidget {
   final String title;
   final List<Map<String, dynamic>> items;
   final String layoutStyle;
   final LandingPageTheme? theme;
+
   /// Map populated by this widget so the parent can scroll to a product.
   /// Key = product UUID **or** slug derived from the product name.
   final Map<String, GlobalKey>? productKeys;
@@ -69,15 +72,21 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     final filtered = _selectedCategory == 'all'
         ? List<Map<String, dynamic>>.from(widget.items)
         : widget.items
-            .where((p) =>
-                _toSlug(p['category']?.toString() ?? '') ==
-                _toSlug(_selectedCategory))
-            .toList();
+              .where(
+                (p) =>
+                    _toSlug(p['category']?.toString() ?? '') ==
+                    _toSlug(_selectedCategory),
+              )
+              .toList();
 
     if (_sortMode == _SortMode.priceLow) {
-      filtered.sort((a, b) => _parsePrice(a['price']).compareTo(_parsePrice(b['price'])));
+      filtered.sort(
+        (a, b) => _parsePrice(a['price']).compareTo(_parsePrice(b['price'])),
+      );
     } else if (_sortMode == _SortMode.priceHigh) {
-      filtered.sort((a, b) => _parsePrice(b['price']).compareTo(_parsePrice(a['price'])));
+      filtered.sort(
+        (a, b) => _parsePrice(b['price']).compareTo(_parsePrice(a['price'])),
+      );
     }
     return filtered;
   }
@@ -94,7 +103,8 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
   double _parsePrice(dynamic raw) {
     if (raw == null) return 0;
-    return double.tryParse(raw.toString().replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0;
+    return double.tryParse(raw.toString().replaceAll(RegExp(r'[^0-9.]'), '')) ??
+        0;
   }
 
   @override
@@ -106,12 +116,15 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
   @override
   void didUpdateWidget(CustomProductsWidget old) {
     super.didUpdateWidget(old);
-    if (old.items != widget.items || old.customCategories != widget.customCategories) _initCategories();
+    if (old.items != widget.items ||
+        old.customCategories != widget.customCategories)
+      _initCategories();
   }
 
   void _initCategories() {
     List<String> newCats;
-    if (widget.customCategories != null && widget.customCategories!.isNotEmpty) {
+    if (widget.customCategories != null &&
+        widget.customCategories!.isNotEmpty) {
       newCats = ['all', ...widget.customCategories!];
     } else {
       final itemsCategories = <String>[];
@@ -148,8 +161,10 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
       for (final p in widget.items) {
         final id = p['id']?.toString() ?? '';
         final slug = _toSlug(p['name']?.toString() ?? '');
-        if (id.isNotEmpty) widget.productKeys!["$id-${widget.hashCode}"] ??= GlobalKey();
-        if (slug.isNotEmpty) widget.productKeys!["$slug-${widget.hashCode}"] ??= GlobalKey();
+        if (id.isNotEmpty)
+          widget.productKeys!["$id-${widget.hashCode}"] ??= GlobalKey();
+        if (slug.isNotEmpty)
+          widget.productKeys!["$slug-${widget.hashCode}"] ??= GlobalKey();
       }
     }
   }
@@ -201,7 +216,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
               const SizedBox(height: 32),
 
               // ── Category Tabs (auto-generated) ────────────────────────────
-              if (widget.showCategoryFilter && _categories.length > 1 && _tabController != null) ...[
+              if (widget.showCategoryFilter &&
+                  _categories.length > 1 &&
+                  _tabController != null) ...[
                 TabBar(
                   controller: _tabController,
                   isScrollable: true,
@@ -209,7 +226,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                   unselectedLabelColor: subTextColor,
                   indicatorColor: secondaryColor,
                   dividerColor: Colors.transparent,
-                  tabs: _categories.map((c) => Tab(text: c == 'all' ? 'الكل' : c)).toList(),
+                  tabs: _categories
+                      .map((c) => Tab(text: c == 'all' ? 'الكل' : c))
+                      .toList(),
                 ),
                 const SizedBox(height: 24),
               ],
@@ -219,11 +238,26 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _sortChip('الافتراضي', _SortMode.defaultOrder, secondaryColor, subTextColor),
+                    _sortChip(
+                      'الافتراضي',
+                      _SortMode.defaultOrder,
+                      secondaryColor,
+                      subTextColor,
+                    ),
                     const SizedBox(width: 8),
-                    _sortChip('السعر: الأقل أولاً', _SortMode.priceLow, secondaryColor, subTextColor),
+                    _sortChip(
+                      'السعر: الأقل أولاً',
+                      _SortMode.priceLow,
+                      secondaryColor,
+                      subTextColor,
+                    ),
                     const SizedBox(width: 8),
-                    _sortChip('السعر: الأعلى أولاً', _SortMode.priceHigh, secondaryColor, subTextColor),
+                    _sortChip(
+                      'السعر: الأعلى أولاً',
+                      _SortMode.priceHigh,
+                      secondaryColor,
+                      subTextColor,
+                    ),
                   ],
                 ),
               ),
@@ -238,14 +272,27 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     );
   }
 
-  Widget _sortChip(String label, _SortMode mode, Color activeColor, Color inactiveColor) {
+  Widget _sortChip(
+    String label,
+    _SortMode mode,
+    Color activeColor,
+    Color inactiveColor,
+  ) {
     final isActive = _sortMode == mode;
     return ChoiceChip(
-      label: Text(label, style: TextStyle(fontSize: 12, color: isActive ? Colors.white : inactiveColor)),
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          color: isActive ? Colors.white : inactiveColor,
+        ),
+      ),
       selected: isActive,
       selectedColor: activeColor,
       backgroundColor: activeColor.withValues(alpha: 0.08),
-      side: BorderSide(color: isActive ? activeColor : inactiveColor.withValues(alpha: 0.3)),
+      side: BorderSide(
+        color: isActive ? activeColor : inactiveColor.withValues(alpha: 0.3),
+      ),
       onSelected: (_) => setState(() => _sortMode = mode),
     );
   }
@@ -256,7 +303,10 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     if (_paginatedItems.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(32),
-        child: Text('لا توجد منتجات', style: AppTypography.caption.copyWith(color: subTextColor)),
+        child: Text(
+          'لا توجد منتجات',
+          style: AppTypography.caption.copyWith(color: subTextColor),
+        ),
       );
     }
 
@@ -265,16 +315,21 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
         final double width = constraints.maxWidth;
         final bool isMobile = width < 600;
 
-        if (widget.layoutStyle == 'list' || widget.layoutStyle == 'list_large') {
+        if (widget.layoutStyle == 'list' ||
+            widget.layoutStyle == 'list_large') {
           return Column(
             children: [
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _paginatedItems.length,
-                separatorBuilder: (_, __) => SizedBox(height: isMobile ? 16 : 24),
-                itemBuilder: (context, index) =>
-                    _buildProductListItem(context, _paginatedItems[index], isMobile),
+                separatorBuilder: (_, __) =>
+                    SizedBox(height: isMobile ? 16 : 24),
+                itemBuilder: (context, index) => _buildProductListItem(
+                  context,
+                  _paginatedItems[index],
+                  isMobile,
+                ),
               ),
               const SizedBox(height: 32),
               _buildPagination(context),
@@ -304,7 +359,8 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                 mainAxisSpacing: isMobile ? 12 : 20,
                 childAspectRatio: childAspectRatio,
               ),
-              itemBuilder: (context, index) => _buildProductCard(context, _paginatedItems[index], isMobile),
+              itemBuilder: (context, index) =>
+                  _buildProductCard(context, _paginatedItems[index], isMobile),
             ),
             const SizedBox(height: 32),
             _buildPagination(context),
@@ -323,7 +379,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-          onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
+          onPressed: _currentPage > 1
+              ? () => setState(() => _currentPage--)
+              : null,
           icon: const Icon(Icons.chevron_left_rounded),
           color: secondary,
         ),
@@ -334,7 +392,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
         ),
         const SizedBox(width: 16),
         IconButton(
-          onPressed: _currentPage < _totalPages ? () => setState(() => _currentPage++) : null,
+          onPressed: _currentPage < _totalPages
+              ? () => setState(() => _currentPage++)
+              : null,
           icon: const Icon(Icons.chevron_right_rounded),
           color: secondary,
         ),
@@ -344,7 +404,11 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
   // ── Product Card (Grid) ───────────────────────────────────────────────────
 
-  Widget _buildProductCard(BuildContext context, Map<String, dynamic> item, bool isMobile) {
+  Widget _buildProductCard(
+    BuildContext context,
+    Map<String, dynamic> item,
+    bool isMobile,
+  ) {
     final secondary = widget.theme?.secondary ?? AppColors.secondary;
     final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
@@ -354,7 +418,8 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     final String slug = _toSlug(name);
     final String price = item['price']?.toString() ?? '';
     final String description = item['description']?.toString() ?? '';
-    final String imageUrl = item['image_url']?.toString() ??
+    final String imageUrl =
+        item['image_url']?.toString() ??
         'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
     final String buttonText = item['button_text']?.toString() ?? 'Buy Now';
 
@@ -387,7 +452,6 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  flex: 5,
                   child: Stack(
                     children: [
                       Positioned.fill(
@@ -396,7 +460,10 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Container(
                             color: subTextColor.withValues(alpha: 0.1),
-                            child: Icon(Icons.broken_image, color: subTextColor),
+                            child: Icon(
+                              Icons.broken_image,
+                              color: subTextColor,
+                            ),
                           ),
                         ),
                       ),
@@ -405,7 +472,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                         right: isTiny ? 4 : 8,
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: isTiny ? 6 : 8, vertical: isTiny ? 2 : 4),
+                            horizontal: isTiny ? 6 : 8,
+                            vertical: isTiny ? 2 : 4,
+                          ),
                           decoration: BoxDecoration(
                             color: secondary,
                             borderRadius: BorderRadius.circular(isTiny ? 4 : 8),
@@ -423,68 +492,76 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                     ],
                   ),
                 ),
-                Expanded(
-                  flex: 4,
-                  child: Padding(
-                    padding: EdgeInsets.all(isTiny ? 6 : (isSmall ? 8 : 12)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                Padding(
+                  padding: EdgeInsets.all(isTiny ? 6 : (isSmall ? 8 : 12)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: isTiny ? 11 : (isSmall ? 13 : 15),
+                          color: textColor,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (!isTiny) ...[
+                        const SizedBox(height: 2),
                         Text(
-                          name,
+                          description,
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: isTiny ? 11 : (isSmall ? 13 : 15),
-                            color: textColor,
+                            color: subTextColor,
+                            fontSize: isSmall ? 9 : 11,
+                            height: 1.1,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (!isTiny) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            description,
-                            style: TextStyle(
-                                color: subTextColor,
-                                fontSize: isSmall ? 9 : 11,
-                                height: 1.1),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          height: isTiny ? 24 : (isSmall ? 28 : 32),
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              final purchaseUrl = item['purchase_url']?.toString();
-                              if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
-                                final uri = Uri.tryParse(purchaseUrl);
-                                if (uri != null) {
-                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                }
-                              } else {
-                                _showProductDetail(context, item);
+                      ],
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        height: isTiny ? 24 : (isSmall ? 28 : 32),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            final purchaseUrl = item['purchase_url']
+                                ?.toString();
+                            if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
+                              final uri = Uri.tryParse(purchaseUrl);
+                              if (uri != null) {
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
                               }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: secondary,
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(isTiny ? 4 : 8)),
-                              elevation: 0,
+                            } else {
+                              _showProductDetail(context, item);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: secondary,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                isTiny ? 4 : 8,
+                              ),
                             ),
-                            child: Text(buttonText,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: isTiny ? 8 : (isSmall ? 10 : 12))),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            buttonText,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: isTiny ? 8 : (isSmall ? 10 : 12),
+                            ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -497,7 +574,11 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
   // ── Product List Item ─────────────────────────────────────────────────────
 
-  Widget _buildProductListItem(BuildContext context, Map<String, dynamic> item, bool isMobile) {
+  Widget _buildProductListItem(
+    BuildContext context,
+    Map<String, dynamic> item,
+    bool isMobile,
+  ) {
     final secondary = widget.theme?.secondary ?? AppColors.secondary;
     final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
@@ -507,7 +588,8 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     final String slug = _toSlug(name);
     final String price = item['price']?.toString() ?? '';
     final String description = item['description']?.toString() ?? '';
-    final String imageUrl = item['image_url']?.toString() ??
+    final String imageUrl =
+        item['image_url']?.toString() ??
         'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
     final String buttonText = item['button_text']?.toString() ?? 'Buy Now';
 
@@ -552,31 +634,40 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                     Row(
                       children: [
                         Expanded(
-                          child: Text(name,
-                              style: AppTypography.bodyLarge.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: isMobile ? 15 : 18,
-                                  color: textColor),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis),
+                          child: Text(
+                            name,
+                            style: AppTypography.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: isMobile ? 15 : 18,
+                              color: textColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         const SizedBox(width: 8),
-                        Text(price,
-                            style: AppTypography.bodyLarge.copyWith(
-                                color: secondary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: isMobile ? 14 : 16)),
+                        Text(
+                          price,
+                          style: AppTypography.bodyLarge.copyWith(
+                            color: secondary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: isMobile ? 14 : 16,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Expanded(
-                      child: Text(description,
-                          style: AppTypography.bodyMedium.copyWith(
-                              color: subTextColor,
-                              fontSize: isMobile ? 11 : 13,
-                              height: 1.2),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        description,
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: subTextColor,
+                          fontSize: isMobile ? 11 : 13,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Align(
@@ -585,11 +676,15 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                         height: isMobile ? 32 : 40,
                         child: ElevatedButton(
                           onPressed: () async {
-                            final purchaseUrl = item['purchase_url']?.toString();
+                            final purchaseUrl = item['purchase_url']
+                                ?.toString();
                             if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
                               final uri = Uri.tryParse(purchaseUrl);
                               if (uri != null) {
-                                await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
                               }
                             } else {
                               _showProductDetail(context, item);
@@ -600,11 +695,17 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(isMobile ? 8 : 10)),
+                              borderRadius: BorderRadius.circular(
+                                isMobile ? 8 : 10,
+                              ),
+                            ),
                           ),
-                          child: Text(buttonText,
-                              style: AppTypography.button
-                                  .copyWith(fontSize: isMobile ? 11 : 13)),
+                          child: Text(
+                            buttonText,
+                            style: AppTypography.button.copyWith(
+                              fontSize: isMobile ? 11 : 13,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -629,7 +730,8 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     final String name = item['name']?.toString() ?? 'Product';
     final String price = item['price']?.toString() ?? '';
     final String description = item['description']?.toString() ?? '';
-    final String imageUrl = item['image_url']?.toString() ??
+    final String imageUrl =
+        item['image_url']?.toString() ??
         'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
     final String buttonText = item['button_text']?.toString() ?? 'إضافة للسلة';
     final String? category = item['category']?.toString();
@@ -648,7 +750,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
               border: Border.all(color: secondary.withValues(alpha: 0.2)),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4), blurRadius: 40)
+                  color: Colors.black.withValues(alpha: 0.4),
+                  blurRadius: 40,
+                ),
               ],
             ),
             clipBehavior: Clip.antiAlias,
@@ -659,10 +763,18 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                 // Image
                 AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: Image.network(imageUrl, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                          color: subTextColor.withValues(alpha: 0.1),
-                          child: Icon(Icons.broken_image, color: subTextColor, size: 48))),
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: subTextColor.withValues(alpha: 0.1),
+                      child: Icon(
+                        Icons.broken_image,
+                        color: subTextColor,
+                        size: 48,
+                      ),
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(24),
@@ -672,61 +784,89 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                       if (category != null && category.isNotEmpty)
                         Container(
                           margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: secondary.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(category,
-                              style: TextStyle(
-                                  color: secondary,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold)),
+                          child: Text(
+                            category,
+                            style: TextStyle(
+                              color: secondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Text(name,
-                                style: AppTypography.h2.copyWith(
-                                    color: textColor, fontSize: 22)),
+                            child: Text(
+                              name,
+                              style: AppTypography.h2.copyWith(
+                                color: textColor,
+                                fontSize: 22,
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: secondary,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Text(price,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16)),
+                            child: Text(
+                              price,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Text(description,
-                          style: AppTypography.bodyMedium
-                              .copyWith(color: subTextColor, height: 1.6)),
+                      Text(
+                        description,
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: subTextColor,
+                          height: 1.6,
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       Row(
                         children: [
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () async {
-                                final purchaseUrl = item['purchase_url']?.toString();
-                                if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
+                                final purchaseUrl = item['purchase_url']
+                                    ?.toString();
+                                if (purchaseUrl != null &&
+                                    purchaseUrl.isNotEmpty) {
                                   final uri = Uri.tryParse(purchaseUrl);
                                   if (uri != null) {
-                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                    await launchUrl(
+                                      uri,
+                                      mode: LaunchMode.externalApplication,
+                                    );
                                     Navigator.of(ctx).pop();
                                   }
                                 } else {
                                   final cartCubit = context.read<CartCubit>();
-                                  if (widget.whatsappNumber != null && widget.whatsappNumber!.isNotEmpty) {
-                                    cartCubit.setWhatsappNumber(widget.whatsappNumber!);
+                                  if (widget.whatsappNumber != null &&
+                                      widget.whatsappNumber!.isNotEmpty) {
+                                    cartCubit.setWhatsappNumber(
+                                      widget.whatsappNumber!,
+                                    );
                                   }
                                   cartCubit.addItem(item);
                                   Navigator.of(ctx).pop();
@@ -735,13 +875,22 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: secondary,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12)),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
-                              child: Text(buttonText == 'Buy Now' ? 'إضافة للسلة' : buttonText,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold, fontSize: 15)),
+                              child: Text(
+                                buttonText == 'Buy Now'
+                                    ? 'إضافة للسلة'
+                                    : buttonText,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -749,10 +898,16 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                             onPressed: () => Navigator.of(ctx).pop(),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: subTextColor,
-                              side: BorderSide(color: subTextColor.withValues(alpha: 0.4)),
-                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                              side: BorderSide(
+                                color: subTextColor.withValues(alpha: 0.4),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                                horizontal: 20,
+                              ),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             child: const Text('إغلاق'),
                           ),

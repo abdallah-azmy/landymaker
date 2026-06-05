@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import '../core/http_client.dart';
+import '../core/constants/secrets.dart';
 
 class PixabayImageModel {
   final String id;
@@ -28,8 +29,10 @@ class PixabayImageModel {
 class ImageMediaService {
   // Best Practice: Fetch API Keys via Dart Environment variables at compile/run time.
   // E.g., flutter run --dart-define-from-file=.env.local
-  static const String _pixabayApiKey = String.fromEnvironment('PIXABAY_API_KEY');
-  static const String _imgbbApiKey = String.fromEnvironment('IMGBB_API_KEY');
+  static const String _pixabayApiKey = String.fromEnvironment('PIXABAY_API_KEY', defaultValue: Secrets.pixabayApiKey);
+  static const String _imgbbApiKey = String.fromEnvironment('IMGBB_API_KEY', defaultValue: Secrets.imgbbApiKey);
+
+
 
   /// Searches Pixabay for images based on the query.
   Future<List<PixabayImageModel>> fetchPixabayImages(String query, {int page = 1, String imageType = 'photo'}) async {

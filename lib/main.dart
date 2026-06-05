@@ -164,4 +164,5 @@ class LandyMakerApp extends StatelessWidget {
  * - ALWAYS maintain the "Source of Truth" in the Bloc/Cubit states.
  * - Mobile-first design for the Builder Workspace is mandatory.
  * - Always use SectionRenderer for any block-based preview to ensure 1:1 consistency.
+ */
 

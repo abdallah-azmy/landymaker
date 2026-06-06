@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/widgets/draggable_modal_sheet.dart';
 import '../../controllers/image_picker_cubit.dart';
 import '../../controllers/image_picker_state.dart';
 import '../../../../core/widgets/custom_network_image.dart';
@@ -11,11 +12,11 @@ class ImagePickerModal extends StatelessWidget {
 
   /// Helper to easily show this modal and await the selected data
   static Future<SelectedImageData?> show(BuildContext context) {
-    return showModalBottomSheet<SelectedImageData>(
+    return DraggableModalSheet.show<SelectedImageData>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const ImagePickerModal(),
+      title: "اختيار صورة",
+      initialChildSize: 0.8,
+      child: const ImagePickerModal(),
     );
   }
 

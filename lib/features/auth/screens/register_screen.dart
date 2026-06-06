@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,11 +7,13 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../core/widgets/atoms/glass_container.dart';
+import '../../../core/widgets/atoms/social_sign_in_button.dart';
 import '../../../core/widgets/molecules/form_group.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/utils/toast_service.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback? onRegisterSuccess;
@@ -45,58 +48,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  Widget _buildGoogleSignInButton(
-    BuildContext context,
-    LocalizationCubit loc,
-    bool isLoading,
-  ) {
-    return Column(
-      children: [
-        Row(
+  Widget _buildLegalNotice(BuildContext context, LocalizationCubit loc) {
+    final text = loc.translate('agree_to_terms');
+    final privacyText = loc.translate('privacy_policy');
+    final termsText = loc.translate('terms_of_service');
+
+    final parts = text.split('{privacy}');
+    final part1 = parts[0];
+    final remaining = parts[1].split('{terms}');
+    final part2 = remaining[0];
+    final part3 = remaining[1];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary, height: 1.5),
           children: [
-            const Expanded(child: Divider(color: AppColors.border)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                loc.translate('or_continue_with'),
-                style: AppTypography.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
+            TextSpan(text: part1),
+            TextSpan(
+              text: privacyText,
+              style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+              recognizer: TapGestureRecognizer()..onTap = () => context.push('/privacy-policy'),
             ),
-            const Expanded(child: Divider(color: AppColors.border)),
+            TextSpan(text: part2),
+            TextSpan(
+              text: termsText,
+              style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+              recognizer: TapGestureRecognizer()..onTap = () => context.push('/terms'),
+            ),
+            TextSpan(text: part3),
           ],
         ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: OutlinedButton.icon(
-            onPressed: isLoading
-                ? null
-                : () => context.read<AuthCubit>().signInWithGoogle(),
-            icon: Image.network(
-              'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
-              height: 20,
-              width: 20,
-              errorBuilder: (_, __, ___) =>
-                  const Icon(Icons.g_mobiledata, color: Colors.white),
-            ),
-            label: Text(
-              loc.translate('sign_in_google'),
-              style: AppTypography.button.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -279,8 +264,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(height: 16),
 
-                              const SizedBox(height: 20),
-
                               if (errorMessage != null) ...[
                                 Text(
                                   errorMessage,
@@ -298,10 +281,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 isLoading: isLoading,
                                 width: double.infinity,
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 16),
+
+                              _buildLegalNotice(context, loc),
+
+                              const SizedBox(height: 8),
 
                               // Google Sign In
-                              _buildGoogleSignInButton(context, loc, isLoading),
+                              SocialSignInButton(
+                                label: loc.translate('sign_in_google'),
+                                isLoading: isLoading,
+                                onPressed: () => context.read<AuthCubit>().signInWithGoogle(),
+                              ),
 
                               const SizedBox(height: 20),
 

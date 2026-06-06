@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class HomeFooter extends StatelessWidget {
   const HomeFooter({super.key});
@@ -73,24 +75,32 @@ class HomeFooter extends StatelessWidget {
                     Expanded(
                       child: _FooterLinks(
                         title: "المنتج",
-                        links: const [
-                          "المميزات", "القوالب", "الأسعار", "الأمان",
+                        items: [
+                          _FooterLinkData(label: "المميزات", path: '/'),
+                          _FooterLinkData(label: "القوالب", path: '/templates'),
+                          _FooterLinkData(label: "الأسعار", path: '/'),
+                          _FooterLinkData(label: "الأمان", path: '/'),
                         ],
                       ),
                     ),
                     Expanded(
                       child: _FooterLinks(
                         title: "الشركة",
-                        links: const [
-                          "من نحن", "المدونة", "تواصل معنا", "الخصوصية",
+                        items: [
+                          _FooterLinkData(label: "من نحن", path: '/'),
+                          _FooterLinkData(label: "المدونة", path: '/blog'),
+                          _FooterLinkData(label: "تواصل معنا", path: '/'),
+                          _FooterLinkData(label: context.translate('privacy_policy'), path: '/privacy-policy'),
                         ],
                       ),
                     ),
                     Expanded(
                       child: _FooterLinks(
                         title: "الدعم",
-                        links: const [
-                          "مركز المساعدة", "الشروط والأحكام", "الإبلاغ عن مشكلة",
+                        items: [
+                          _FooterLinkData(label: "مركز المساعدة", path: '/'),
+                          _FooterLinkData(label: context.translate('terms_of_service'), path: '/terms'),
+                          _FooterLinkData(label: "الإبلاغ عن مشكلة", path: '/'),
                         ],
                       ),
                     ),
@@ -118,6 +128,14 @@ class HomeFooter extends StatelessWidget {
                           .copyWith(color: AppColors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
+                    const SizedBox(height: 24),
+                    Wrap(
+                      spacing: 16,
+                      children: [
+                        _MobileFooterLink(label: context.translate('privacy_policy'), path: '/privacy-policy'),
+                        _MobileFooterLink(label: context.translate('terms_of_service'), path: '/terms'),
+                      ],
+                    )
                   ],
                 ),
 
@@ -209,11 +227,17 @@ class _SocialBtnState extends State<_SocialBtn> {
   }
 }
 
+class _FooterLinkData {
+  final String label;
+  final String path;
+  _FooterLinkData({required this.label, required this.path});
+}
+
 class _FooterLinks extends StatelessWidget {
   final String title;
-  final List<String> links;
+  final List<_FooterLinkData> items;
 
-  const _FooterLinks({required this.title, required this.links});
+  const _FooterLinks({required this.title, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -228,16 +252,36 @@ class _FooterLinks extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        ...links.map((link) => Padding(
+        ...items.map((item) => Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: Text(
-            link,
-            style: AppTypography.caption.copyWith(
-              color: AppColors.textSecondary,
+          child: InkWell(
+            onTap: () => context.go(item.path),
+            child: Text(
+              item.label,
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
         )),
       ],
+    );
+  }
+}
+
+class _MobileFooterLink extends StatelessWidget {
+  final String label;
+  final String path;
+  const _MobileFooterLink({required this.label, required this.path});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => context.go(path),
+      child: Text(
+        label,
+        style: AppTypography.caption.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

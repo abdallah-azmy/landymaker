@@ -10,6 +10,7 @@ import '../../features/auth/screens/reset_password_screen.dart';
 import '../../features/dashboard/screens/dashboard_shell.dart';
 import '../../features/home/screens/landymaker_home_screen.dart';
 import '../../features/home/screens/template_picker_screen.dart';
+import '../../features/home/screens/legal_page.dart';
 import '../../features/public_viewer/screens/public_landing_page.dart';
 import '../../features/builder/screens/builder_workspace_screen.dart';
 import '../../services/tenant_routing_service.dart';
@@ -179,6 +180,22 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/templates',
       builder: (context, state) => const TemplatePickerScreen(),
+    ),
+    GoRoute(
+      path: '/privacy-policy',
+      builder: (context, state) => const LegalPage(
+        titleKey: 'privacy_policy',
+        contentKey: 'privacy_policy_content',
+        path: '/privacy-policy',
+      ),
+    ),
+    GoRoute(
+      path: '/terms',
+      builder: (context, state) => const LegalPage(
+        titleKey: 'terms_of_service',
+        contentKey: 'terms_content',
+        path: '/terms',
+      ),
     ),
     GoRoute(
       path: '/builder',

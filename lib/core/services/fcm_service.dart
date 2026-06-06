@@ -2,25 +2,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import '../../services/supabase_service.dart';
+import '../utils/env_utils.dart';
 
 class FcmService {
   static bool _isInitialized = false;
-
-  /// Helper to clean environment strings that might contain quotes
-  static String _cleanEnv(String value) {
-    if ((value.startsWith('"') && value.endsWith('"')) || 
-        (value.startsWith("'") && value.endsWith("'"))) {
-      return value.substring(1, value.length - 1);
-    }
-    return value;
-  }
 
   /// Initialize Firebase and FCM
   static Future<void> initialize() async {
     if (!kIsWeb) return;
 
     try {
-      final String apiKey = _cleanEnv(const String.fromEnvironment('FIREBASE_API_KEY'));
+      final String apiKey = EnvUtils.get('FIREBASE_API_KEY');
       
       // Safety Guard: If API Key is missing from environment, don't try to initialize Firebase
       if (apiKey.isEmpty) {
@@ -32,12 +24,12 @@ class FcmService {
         await Firebase.initializeApp(
           options: FirebaseOptions(
             apiKey: apiKey,
-            authDomain: _cleanEnv(const String.fromEnvironment('FIREBASE_AUTH_DOMAIN')),
-            projectId: _cleanEnv(const String.fromEnvironment('FIREBASE_PROJECT_ID')),
-            storageBucket: _cleanEnv(const String.fromEnvironment('FIREBASE_STORAGE_BUCKET')),
-            messagingSenderId: _cleanEnv(const String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID')),
-            appId: _cleanEnv(const String.fromEnvironment('FIREBASE_APP_ID')),
-            measurementId: _cleanEnv(const String.fromEnvironment('FIREBASE_MEASUREMENT_ID')),
+            authDomain: EnvUtils.get('FIREBASE_AUTH_DOMAIN'),
+            projectId: EnvUtils.get('FIREBASE_PROJECT_ID'),
+            storageBucket: EnvUtils.get('FIREBASE_STORAGE_BUCKET'),
+            messagingSenderId: EnvUtils.get('FIREBASE_MESSAGING_SENDER_ID'),
+            appId: EnvUtils.get('FIREBASE_APP_ID'),
+            measurementId: EnvUtils.get('FIREBASE_MEASUREMENT_ID'),
           ),
         );
       }
@@ -76,7 +68,7 @@ class FcmService {
     if (!kIsWeb || !_isInitialized) return;
     
     try {
-      final vapidKey = _cleanEnv(const String.fromEnvironment('FIREBASE_VAPID_KEY'));
+      final vapidKey = EnvUtils.get('FIREBASE_VAPID_KEY');
       
       if (vapidKey.isEmpty) {
         debugPrint('FCM: FIREBASE_VAPID_KEY is missing. Token fetch aborted.');

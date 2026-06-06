@@ -6,6 +6,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../core/widgets/atoms/glass_container.dart';
+import '../../../core/widgets/atoms/social_sign_in_button.dart';
 import '../../../core/widgets/molecules/form_group.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../controllers/auth_cubit.dart';
@@ -55,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 loc.translate('or_continue_with'),
-                style: AppTypography.bodyLarge.copyWith(
+                style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -64,33 +65,10 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
         const SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: OutlinedButton.icon(
-            onPressed: isLoading
-                ? null
-                : () => context.read<AuthCubit>().signInWithGoogle(),
-            icon: Image.network(
-              'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
-              height: 20,
-              width: 20,
-              errorBuilder: (_, __, ___) =>
-                  const Icon(Icons.g_mobiledata, color: Colors.white),
-            ),
-            label: Text(
-              loc.translate('sign_in_google'),
-              style: AppTypography.button.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+        SocialSignInButton(
+          label: loc.translate('sign_in_google'),
+          isLoading: isLoading,
+          onPressed: () => context.read<AuthCubit>().signInWithGoogle(),
         ),
       ],
     );

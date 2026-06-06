@@ -9,6 +9,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/utils/toast_service.dart';
+import '../../../core/widgets/draggable_modal_sheet.dart';
 import '../controllers/builder_cubit.dart';
 import '../controllers/builder_state.dart';
 import '../widgets/editors/block_properties_editor.dart';
@@ -179,10 +180,13 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
           }
           // Update URL to reflect the editing page identifier
           final currentPath = GoRouterState.of(context).uri.path;
-          if (state.subdomain.isNotEmpty && (currentPath == '/builder' || currentPath.startsWith('/builder/'))) {
+          if (state.subdomain.isNotEmpty && (currentPath == '/builder' || currentPath == '/builder/new')) {
             final expectedPath = '/builder/${state.subdomain}';
             if (currentPath != expectedPath) {
-              context.replace(expectedPath);
+              // Use a small delay to avoid redirecting during a build phase
+              Future.microtask(() {
+                if (mounted) context.replace(expectedPath);
+              });
             }
           }
         }
@@ -365,49 +369,23 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   }
 
   void _showAddBlockMenu(BuildContext context, LandingPageBuilderCubit cubit) {
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const SectionLibraryModal(),
+      title: "مكتبة الأقسام",
+      initialChildSize: 0.8,
+      child: const SectionLibraryModal(),
     );
   }
 
-
-
   void _showTemplatesMenu(BuildContext context, LandingPageBuilderCubit cubit) {
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => BlocBuilder<LandingPageBuilderCubit, BuilderState>(
+      title: "القوالب الجاهزة",
+      initialChildSize: 0.7,
+      child: BlocBuilder<LandingPageBuilderCubit, BuilderState>(
         builder: (context, state) {
           if (state is! BuilderLoaded) return const SizedBox.shrink();
-          return Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.8,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.textSecondary.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                Flexible(
-                  child: TemplatesTab(cubit: cubit, state: state),
-                ),
-              ],
-            ),
-          );
+          return TemplatesTab(cubit: cubit, state: state);
         },
       ),
     );
@@ -418,38 +396,14 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     LocalizationCubit loc,
     LandingPageBuilderCubit cubit,
   ) {
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => BlocBuilder<LandingPageBuilderCubit, BuilderState>(
+      title: "تصميم الصفحة",
+      initialChildSize: 0.6,
+      child: BlocBuilder<LandingPageBuilderCubit, BuilderState>(
         builder: (context, state) {
           if (state is! BuilderLoaded) return const SizedBox.shrink();
-          return Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.8,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.textSecondary.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                Flexible(
-                  child: DesignTab(loc: loc, cubit: cubit, state: state),
-                ),
-              ],
-            ),
-          );
+          return DesignTab(loc: loc, cubit: cubit, state: state);
         },
       ),
     );
@@ -462,15 +416,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     BuilderLoaded state, {
     BuilderOptionView initialView = BuilderOptionView.main,
   }) {
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.background,
-      barrierColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => BlocBuilder<LandingPageBuilderCubit, BuilderState>(
+      title: "خيارات المحرر",
+      initialChildSize: 0.5,
+      child: BlocBuilder<LandingPageBuilderCubit, BuilderState>(
         builder: (context, dynamicState) {
           if (dynamicState is! BuilderLoaded) return const SizedBox.shrink();
           return BuilderOptionsModal(
@@ -492,22 +442,13 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   }
 
   void _showSeoMenu(BuildContext context, LandingPageBuilderCubit cubit) {
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: EdgeInsets.only(
-          left: 24,
-          right: 24,
-          top: 24,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-        ),
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: const SingleChildScrollView(child: SeoSettingsModal()),
+      title: "إعدادات SEO",
+      initialChildSize: 0.8,
+      child: const Padding(
+        padding: EdgeInsets.all(24.0),
+        child: SingleChildScrollView(child: SeoSettingsModal()),
       ),
     );
   }
@@ -519,14 +460,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     BuilderLoaded state,
     int index,
   ) {
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => BlocBuilder<LandingPageBuilderCubit, BuilderState>(
+      title: "تعديل القسم",
+      initialChildSize: 0.8,
+      child: BlocBuilder<LandingPageBuilderCubit, BuilderState>(
         builder: (context, currentState) {
           if (currentState is! BuilderLoaded) return const SizedBox.shrink();
           final blocks = currentState.designMap['blocks'] as List? ?? [];
@@ -536,37 +474,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             });
             return const SizedBox.shrink();
           }
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: Container(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.8,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.textSecondary.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  Flexible(
-                    child: BlockPropertiesEditor(
-                      index: index,
-                      state: currentState,
-                      isBottomSheet: true,
-                      onDone: () => Navigator.pop(context),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          return BlockPropertiesEditor(
+            index: index,
+            state: currentState,
+            isBottomSheet: true,
+            onDone: () => Navigator.pop(context),
           );
         },
       ),

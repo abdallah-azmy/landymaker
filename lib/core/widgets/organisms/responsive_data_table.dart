@@ -3,6 +3,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../molecules/pagination_control.dart';
 import 'data_table_header.dart';
+import '../../responsive/responsive_layout.dart';
 
 class ResponsiveDataTable extends StatelessWidget {
   final String title;
@@ -34,34 +35,42 @@ class ResponsiveDataTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.5),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          DataTableHeader(
-            title: title,
-            onSearch: onSearch,
-            onSort: onSort,
-            sortOptions: sortOptions,
-            currentSort: currentSort,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isMobile = constraints.maxWidth < 600;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border, width: 1.5),
           ),
-          if (rows.isEmpty)
-            _buildEmptyState()
-          else
-            _buildTable(context),
-          PaginationControl(
-            currentPage: currentPage,
-            totalPages: totalPages,
-            onPageChanged: onPageChanged,
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              DataTableHeader(
+                title: title,
+                onSearch: onSearch,
+                onSort: onSort,
+                sortOptions: sortOptions,
+                currentSort: currentSort,
+              ),
+              if (rows.isEmpty)
+                _buildEmptyState()
+              else if (isMobile)
+                _buildMobileCards(context)
+              else
+                _buildTable(context),
+              PaginationControl(
+                currentPage: currentPage,
+                totalPages: totalPages,
+                onPageChanged: onPageChanged,
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -83,38 +92,84 @@ class ResponsiveDataTable extends StatelessWidget {
     );
   }
 
+  Widget _buildMobileCards(BuildContext context) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: rows.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final row = rows[index];
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            children: List.generate(headers.length, (i) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        headers[i],
+                        style: AppTypography.caption.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 3,
+                      child: Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: row[i],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildTable(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Container(
-        constraints: BoxConstraints(
-          minWidth: MediaQuery.of(context).size.width - 64,
-        ),
-        child: DataTable(
-          headingRowColor: WidgetStateProperty.all(const Color(0xFF0B0F19)),
-          dividerThickness: 1.2,
-          horizontalMargin: 24,
-          columnSpacing: 24,
-          columns: headers.map((header) {
-            return DataColumn(
-              label: Text(
-                header,
-                style: AppTypography.h3.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+      child: DataTable(
+        headingRowColor: WidgetStateProperty.all(const Color(0xFF0B0F19)),
+        dividerThickness: 1.2,
+        horizontalMargin: 24,
+        columnSpacing: 24,
+        columns: headers.map((header) {
+          return DataColumn(
+            label: Text(
+              header,
+              style: AppTypography.h3.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
               ),
-            );
-          }).toList(),
-          rows: rows.map((rowCells) {
-            return DataRow(
-              cells: rowCells.map((cellWidget) {
-                return DataCell(cellWidget);
-              }).toList(),
-            );
-          }).toList(),
-        ),
+            ),
+          );
+        }).toList(),
+        rows: rows.map((rowCells) {
+          return DataRow(
+            cells: rowCells.map((cellWidget) {
+              return DataCell(cellWidget);
+            }).toList(),
+          );
+        }).toList(),
       ),
     );
   }

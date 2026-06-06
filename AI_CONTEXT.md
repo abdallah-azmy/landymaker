@@ -339,8 +339,13 @@ Next.js serves the blog post from Supabase blog_posts table
 
 **⚠️ Do NOT add `blog` as a Flutter route** — it will conflict with the middleware proxy.
 
-**⚠️ CRITICAL MIDDLEWARE RULE:**
-The Blog & Next.js assets routing logic (`/blog` and `/_next`) **MUST** reside at the very top of `middleware.js`. If it is placed below static asset verification (`staticExtensions`), Next.js chunk and script files (like `_next/static/chunks/...js`) will trigger the early-exit check and return the Flutter app index, causing the blog layout to fail and return **404 (This page could not be found)** errors on Next.js resources.
+**⚠️ CRITICAL MIDDLEWARE & VERCEL.JSON ROUTING RULES (MUST FOLLOW):**
+1. **Middleware Precedence**: The Blog & Next.js assets routing logic (`/blog` and `/_next`) **MUST** reside at the very top of `middleware.js`. If it is placed below static asset verification (`staticExtensions`), Next.js chunk and script files (like `_next/static/chunks/...js`) will trigger the early-exit check and return the Flutter app index, causing the blog layout to fail and return **404 (This page could not be found)** errors on Next.js resources.
+2. **vercel.json Blanket Rewrite Bypass**: The `vercel.json` file controls routing at the Vercel server level. The default Flutter rewrite rule **MUST** exclude blog routes and assets:
+   ```json
+   "source": "/((?!blog|_next|sitemap\\.xml|robots\\.txt|llms\\.txt).*)"
+   ```
+   If it is set to a catch-all `/(.*)` without exclusions, Vercel will rewrite Next.js/blog assets back to `/index.html`, leading to persistent black screens and 404 errors on blog posts.
 
 ### 11.7 — Troubleshooting Common CI/CD Problems
 
@@ -349,6 +354,7 @@ The Blog & Next.js assets routing logic (`/blog` and `/_next`) **MUST** reside a
 | Icons/favicon didn't update after push | Vercel auto-deploy (not GitHub Actions) ran last | Disable Vercel Git auto-deploy; push a new commit to trigger GitHub Actions |
 | Blog posts show 404 | `dynamic` not set; Vercel cached the 404 | Ensure `export const dynamic = 'force-dynamic'` is in `[slug]/page.tsx` |
 | Blog posts show 404 / Black screen | Blog assets (`/_next/static/..`) intercepted by Flutter's static checker | Ensure Blog rewrite logic is at the absolute top of `middleware.js` before `staticExtensions` test |
+| Blog posts show 404 / Catch-all rewrite | `vercel.json` overrides middleware and rewrites `/blog` to `/index.html` | Ensure the regex in `vercel.json` excludes `blog`, `_next`, and SEO assets |
 | Flutter app shows blank/broken | `--dart-define` secrets missing from GitHub Secrets | Add `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `IMGBB_API_KEY` to GitHub repo secrets |
 | `vercel deploy` fails with "path not found" | Running `vercel deploy` from inside `blog-frontend/` with Vercel root dir mismatch | Never run `vercel deploy` manually — always use GitHub Actions |
 | Middleware returns 500 errors | Missing Vercel environment variables for `middleware.js` | Add `SUPABASE_URL` + `SUPABASE_ANON_KEY` to Vercel Dashboard for `landymaker` project |

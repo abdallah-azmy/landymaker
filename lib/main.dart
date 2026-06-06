@@ -37,39 +37,44 @@ void main() async {
 
     runApp(const LandyMakerApp());
   } catch (e) {
-    runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 64),
-                const SizedBox(height: 16),
-                const Text(
-                  'Initialization Error',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$e',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.redAccent, fontSize: 14),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Please check your Supabase configuration.',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
+    runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(),
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Initialization Error',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$e',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Please check your Supabase configuration.',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
   }
 }
 
@@ -81,14 +86,14 @@ class LandyMakerApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<LocalizationCubit>(create: (_) => sl<LocalizationCubit>()),
-        BlocProvider<ActiveWebsiteCubit>(create: (_) => sl<ActiveWebsiteCubit>()),
+        BlocProvider<ActiveWebsiteCubit>(
+          create: (_) => sl<ActiveWebsiteCubit>(),
+        ),
         BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>()),
         BlocProvider<LandingPageBuilderCubit>(
           create: (_) => sl<LandingPageBuilderCubit>(),
         ),
-        BlocProvider<LandingPagesCubit>(
-          create: (_) => sl<LandingPagesCubit>(),
-        ),
+        BlocProvider<LandingPagesCubit>(create: (_) => sl<LandingPagesCubit>()),
         BlocProvider<LeadsAnalyticsCubit>(
           create: (_) => sl<LeadsAnalyticsCubit>(),
         ),
@@ -148,21 +153,7 @@ class LandyMakerApp extends StatelessWidget {
   }
 }
 
-//* flutter run -d chrome --dart-define=SUPABASE_URL=رابط_مشروعك --dart-define=SUPABASE_ANON_KEY=مفتاحك
-
-/**
- * 🚀 SPEC-KIT PROJECT GUIDELINES (github.com/github/spec-kit)
- * Use these commands to maintain consistency and prevent AI hallucinations:
- * 
- * 1. /speckit.specify   - Define human intent, user journeys, and "The What".
- * 2. /speckit.plan      - Generate technical blueprint, architecture, and "The How".
- * 3. /speckit.tasks     - Break down the plan into a granular, actionable checklist.
- * 4. /speckit.implement - Execute tasks one by one based on the approved spec/plan.
- * 
- * Rules for this project:
- * - NEVER build a widget from scratch if a custom widget already exists (check lib/core/widgets/ or lib/features/public_viewer/widgets/).
- * - ALWAYS maintain the "Source of Truth" in the Bloc/Cubit states.
- * - Mobile-first design for the Builder Workspace is mandatory.
- * - Always use SectionRenderer for any block-based preview to ensure 1:1 consistency.
- */
-
+//* Debug
+// flutter run -d chrome --dart-define-from-file=.env.local
+//* Production Build
+// flutter build web --release --dart-define-from-file=.env.local

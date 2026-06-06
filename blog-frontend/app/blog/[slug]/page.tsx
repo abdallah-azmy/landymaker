@@ -1,11 +1,12 @@
-// Redeploy: Supabase credentials updated
+// Fix: force dynamic rendering to prevent Vercel from caching 404 responses
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Calendar, ChevronRight } from 'lucide-react'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 type Props = {
   params: Promise<{ slug: string }>

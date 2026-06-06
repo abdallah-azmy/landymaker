@@ -41,9 +41,9 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
 ## 📦 Modular Implementation Phases
 
 ### 📍 PART 1: SEO, Data Export & WhatsApp Actions (Week 1)
-* **Status:** `[Completed: false]`
+* **Status:** `[Completed: true]`
 
-- [ ] **Task 1.1: SEO Image Upload (`og_image_url`)**
+- [x] **Task 1.1: SEO Image Upload (`og_image_url`)**
   - **Objective:** Expand the existing `SeoSettingsModal` to accept an Open Graph (social share) image URL.
   - **Target File:** `lib/features/builder/widgets/modals/seo_settings_modal.dart`
   - **Implementation:**
@@ -53,7 +53,7 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
     4. Call `cubit.updateMetadata('og_image_url', value)` on changes.
   - **Task Verification:** Open the SEO dialog in Builder, upload/type a URL, verify the preview displays via `CustomNetworkImage`, check database to see `og_image_url` saved in `designMap`.
 
-- [ ] **Task 1.2: CSV Leads Export with Arabic Encoding**
+- [x] **Task 1.2: CSV Leads Export with Arabic Encoding**
   - **Objective:** Allow dashboard users to export their captured leads to CSV.
   - **Target File:** `lib/features/dashboard/screens/leads_tracker_screen.dart`
   - **Implementation:**
@@ -63,7 +63,7 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
     4. Add an "Export CSV" button in the screen header row next to the refresh button.
   - **Task Verification:** Go to Leads screen, click "Export CSV", open file in Excel, verify Arabic names and messages display correctly.
 
-- [ ] **Task 1.3: WhatsApp Communication Trigger with Number Normalization**
+- [x] **Task 1.3: WhatsApp Communication Trigger with Number Normalization**
   - **Objective:** Provide a fast "Chat on WhatsApp" action for every lead row.
   - **Target File:** `lib/features/dashboard/screens/leads_tracker_screen.dart`
   - **Implementation:**

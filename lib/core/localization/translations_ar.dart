@@ -159,4 +159,12 @@ const Map<String, String> translationsAr = {
   'invalid_email': 'البريد الإلكتروني غير صالح',
   'message_label': 'الرسالة',
   'message_hint': 'كيف يمكننا مساعدتك؟',
+  'seo_og_image': 'صورة المشاركة الاجتماعية (Open Graph Image)',
+  'seo_og_image_help': 'صورة تظهر عند مشاركة رابط موقعك على وسائل التواصل الاجتماعي مثل فيسبوك وواتساب وتويتر.',
+  'export_csv': 'تصدير CSV',
+  'export_success': 'تم تصدير البيانات بنجاح!',
+  'export_error': 'فشل تصدير البيانات',
+  'chat_on_whatsapp': 'تواصل عبر واتساب',
+  'whatsapp_lead_message': 'مرحباً، نود التواصل معك بخصوص رسالتك/طلبك في موقعنا.',
 };
+

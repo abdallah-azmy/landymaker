@@ -8,6 +8,10 @@ import '../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../core/widgets/molecules/form_group.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
+import '../../../../core/widgets/custom_network_image.dart';
+import '../../controllers/upload_manager_cubit.dart';
+import '../../../../injection_container.dart';
+import 'image_picker_modal.dart';
 
 class SeoSettingsModal extends StatefulWidget {
   const SeoSettingsModal({super.key});
@@ -19,6 +23,7 @@ class SeoSettingsModal extends StatefulWidget {
 class _SeoSettingsModalState extends State<SeoSettingsModal> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
+  late TextEditingController _ogImageController;
 
   @override
   void initState() {
@@ -26,12 +31,14 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
     final state = context.read<LandingPageBuilderCubit>().state as BuilderLoaded;
     _titleController = TextEditingController(text: state.designMap['meta_title'] ?? '');
     _descController = TextEditingController(text: state.designMap['meta_description'] ?? '');
+    _ogImageController = TextEditingController(text: state.designMap['og_image_url'] ?? '');
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
+    _ogImageController.dispose();
     super.dispose();
   }
 
@@ -105,6 +112,82 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
             hintText: "Describe what you offer in a few words...",
           ),
         ),
+        const SizedBox(height: 24),
+        FormGroup(
+          label: loc.translate('seo_og_image'),
+          helperText: loc.translate('seo_og_image_help'),
+          child: Row(
+            children: [
+              Expanded(
+                child: CustomTextField(
+                  controller: _ogImageController,
+                  onChanged: (val) {
+                    cubit.updateMetadata('og_image_url', val);
+                    setState(() {});
+                  },
+                  hintText: "https://example.com/image.jpg",
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final selectedData = await ImagePickerModal.show(context);
+                  if (selectedData == null) return;
+
+                  final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
+                  final oldUrl = _ogImageController.text;
+
+                  _ogImageController.text = uploadId;
+                  cubit.updateMetadata('og_image_url', uploadId);
+                  setState(() {});
+
+                  sl<UploadManagerCubit>().upload(
+                    uploadId: uploadId,
+                    data: selectedData,
+                    onSuccess: (finalUrl) {
+                      _ogImageController.text = finalUrl;
+                      cubit.updateMetadata('og_image_url', finalUrl);
+                      setState(() {});
+                    },
+                    onCancel: () {
+                      _ogImageController.text = oldUrl;
+                      cubit.updateMetadata('og_image_url', oldUrl);
+                      setState(() {});
+                    },
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                icon: const Icon(Icons.image_search, size: 18),
+                label: Text(loc.translate('upload_image')),
+              ),
+            ],
+          ),
+        ),
+        if (_ogImageController.text.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Container(
+            height: 180,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border, width: 1.5),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CustomNetworkImage(
+                imageUrl: _ogImageController.text,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
         
         const SizedBox(height: 40),
         PrimaryButton(

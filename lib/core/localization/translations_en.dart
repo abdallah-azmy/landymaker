@@ -159,4 +159,12 @@ const Map<String, String> translationsEn = {
   'invalid_email': 'Enter a valid email address',
   'message_label': 'Your Message',
   'message_hint': 'How can we help you?',
+  'seo_og_image': 'Social Share Image (Open Graph Image)',
+  'seo_og_image_help': 'This image displays when you share your site link on social media platforms like Facebook, WhatsApp, and Twitter.',
+  'export_csv': 'Export CSV',
+  'export_success': 'Data exported successfully!',
+  'export_error': 'Failed to export data',
+  'chat_on_whatsapp': 'Chat on WhatsApp',
+  'whatsapp_lead_message': 'Hello, we would like to contact you regarding your message/order on our website.',
 };
+

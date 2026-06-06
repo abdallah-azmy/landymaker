@@ -12,6 +12,11 @@ import '../controllers/leads_analytics_state.dart';
 import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
 import '../widgets/empty_workspace_state.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:file_saver/file_saver.dart';
+import 'dart:html' as html;
+import '../../../core/utils/toast_service.dart';
 
 class LeadsTrackerScreen extends StatefulWidget {
   const LeadsTrackerScreen({super.key});
@@ -25,6 +30,78 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
   void initState() {
     super.initState();
     context.read<LeadsAnalyticsCubit>().fetchStatsForCurrentUser();
+  }
+
+  String _normalizePhoneNumber(String phone) {
+    String digits = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.startsWith('00')) {
+      digits = digits.substring(2);
+    }
+    return digits;
+  }
+
+  Future<void> _exportToCsv(List<Map<String, dynamic>> leads) async {
+    try {
+      final StringBuffer csv = StringBuffer();
+      final loc = context.read<LocalizationCubit>();
+      
+      // Headers
+      csv.writeln("Visitor Name,Visitor Email,Visitor Message,Phone Number,Submitted Date");
+      
+      // Rows
+      for (final lead in leads) {
+        final formData = lead['form_data'] is Map ? lead['form_data'] : {};
+        final name = (formData['name'] ?? '').toString().replaceAll('"', '""');
+        final email = (formData['email'] ?? '').toString().replaceAll('"', '""');
+        final message = (formData['message'] ?? '').toString().replaceAll('"', '""');
+        
+        final phoneKey = formData.keys.firstWhere(
+          (k) {
+            final lk = k.toString().toLowerCase();
+            return lk.contains('phone') || lk.contains('mobile') || lk.contains('هاتف') || lk.contains('جوال') || lk.contains('تلفون');
+          },
+          orElse: () => '',
+        );
+        final phone = phoneKey.isNotEmpty ? (formData[phoneKey] ?? '').toString().replaceAll('"', '""') : '';
+
+        final String rawDate = lead['created_at'] ?? '';
+        String formattedDate = '';
+        if (rawDate.isNotEmpty) {
+          try {
+            final parsed = DateTime.parse(rawDate).toLocal();
+            formattedDate = "${parsed.year}-${parsed.month.toString().padLeft(2, '0')}-${parsed.day.toString().padLeft(2, '0')} ${parsed.hour.toString().padLeft(2, '0')}:${parsed.minute.toString().padLeft(2, '0')}";
+          } catch (_) {
+            formattedDate = rawDate;
+          }
+        }
+        
+        csv.writeln('"$name","$email","$message","$phone","$formattedDate"');
+      }
+
+      // Convert to UTF-8 bytes and prepend BOM (\uFEFF)
+      final bytes = Uint8List.fromList([0xEF, 0xBB, 0xBF, ...utf8.encode(csv.toString())]);
+
+      await FileSaver.instance.saveFile(
+        name: 'leads_export_${DateTime.now().millisecondsSinceEpoch}',
+        bytes: bytes,
+        ext: 'csv',
+        mimeType: MimeType.csv,
+      );
+
+      if (mounted) {
+        ToastService.showSuccess(
+          context,
+          message: loc.translate('export_success'),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ToastService.showError(
+          context,
+          message: context.read<LocalizationCubit>().translate('export_error'),
+        );
+      }
+    }
   }
 
   @override
@@ -71,7 +148,8 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
       loc.translate('visitor_name'),
       loc.translate('visitor_email'),
       loc.translate('visitor_message'),
-      "Submitted Date"
+      "Submitted Date",
+      loc.translate('whatsapp'),
     ];
 
     // Rows preparation
@@ -83,6 +161,15 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
       final String email = formData['email'] ?? '';
       final String message = formData['message'] ?? '';
       
+      final phoneKey = formData.keys.firstWhere(
+        (k) {
+          final lk = k.toString().toLowerCase();
+          return lk.contains('phone') || lk.contains('mobile') || lk.contains('هاتف') || lk.contains('جوال') || lk.contains('تلفون');
+        },
+        orElse: () => '',
+      );
+      final String phone = phoneKey.isNotEmpty ? formData[phoneKey]?.toString() ?? '' : '';
+
       // Format timestamp
       final String rawDate = lead['created_at'] ?? '';
       String formattedDate = '';
@@ -100,6 +187,20 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
         Text(email, style: AppTypography.bodyMedium),
         Text(message, style: AppTypography.bodyMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
         Text(formattedDate, style: AppTypography.caption),
+        phone.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF25D366)),
+                tooltip: loc.translate('chat_on_whatsapp'),
+                onPressed: () {
+                  final cleanNumber = _normalizePhoneNumber(phone);
+                  final encodedMsg = Uri.encodeComponent(
+                    loc.translate('whatsapp_lead_message')
+                  );
+                  final url = 'https://wa.me/$cleanNumber?text=$encodedMsg';
+                  html.window.open(url, '_blank');
+                },
+              )
+            : const Icon(Icons.phone_disabled_rounded, color: AppColors.textMuted, size: 20),
       ];
     }).toList();
 
@@ -125,12 +226,32 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: () {
-                  cubit.fetchStatsForCurrentUser();
-                },
-                icon: const Icon(Icons.refresh_rounded, color: AppColors.secondary),
-                tooltip: "Reload Leads List",
+              Row(
+                children: [
+                  if (leadsList.isNotEmpty) ...[
+                    ElevatedButton.icon(
+                      onPressed: () => _exportToCsv(leadsList),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.secondary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      icon: const Icon(Icons.download_rounded, size: 18),
+                      label: Text(loc.translate('export_csv')),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  IconButton(
+                    onPressed: () {
+                      cubit.fetchStatsForCurrentUser();
+                    },
+                    icon: const Icon(Icons.refresh_rounded, color: AppColors.secondary),
+                    tooltip: "Reload Leads List",
+                  ),
+                ],
               ),
             ],
           ),

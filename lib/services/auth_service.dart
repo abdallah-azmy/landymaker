@@ -45,4 +45,8 @@ class AuthService {
   Future<void> updatePassword(String newPassword) {
     return _supabase.updatePassword(newPassword);
   }
+
+  Future<void> signInWithGoogle() {
+    return _supabase.signInWithGoogle();
+  }
 }

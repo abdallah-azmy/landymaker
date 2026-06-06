@@ -1,12 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-serve(async (req) => {
+serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -15,33 +15,35 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) throw new Error('No authorization header')
 
-    const { page_id, action = 'verify' } = await req.json()
+    const body = await req.json()
+    const page_id = body?.page_id
+    const action = body?.action || 'verify'
 
-    // Initialize Supabase Client with User's JWT
+    // Initialize Supabase Client
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_URL') || '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '',
     )
 
-    // Verify User Owns the Page
+    // Verify User
     const { data: userData, error: userError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
     if (userError || !userData.user) throw new Error('Invalid user session')
 
-    // Fetch Page, Profile Tier & Role
+    // Fetch Page
     const { data: page, error: pageError } = await supabase
       .from('landing_pages')
       .select('*, profiles(tier, role)')
       .eq('id', page_id)
-      .eq('user_id', userData.user.id) // Crucial: Ownership check
+      .eq('user_id', userData.user.id)
       .single()
 
     if (pageError || !page) {
       throw new Error('Page not found or unauthorized')
     }
 
-    const VERCEL_TOKEN = Deno.env.get('VERCEL_TOKEN')
-    const PROJECT_ID = Deno.env.get('VERCEL_PROJECT_ID')
-    const TEAM_ID = Deno.env.get('VERCEL_TEAM_ID')
+    const VERCEL_TOKEN = Deno.env.get('VERCEL_TOKEN') || ''
+    const PROJECT_ID = Deno.env.get('VERCEL_PROJECT_ID') || ''
+    const TEAM_ID = Deno.env.get('VERCEL_TEAM_ID') || ''
 
     const domain = page.custom_domain
     if (!domain && action !== 'delete') {
@@ -49,10 +51,10 @@ serve(async (req) => {
     }
 
     if (action === 'delete') {
-      const targetDomain = domain
-      if (!targetDomain) throw new Error('Domain required for deletion')
+      if (!domain) throw new Error('Domain required for deletion')
 
-      await fetch(`https://api.vercel.com/v9/projects/${PROJECT_ID}/domains/${targetDomain}${TEAM_ID ? `?teamId=${TEAM_ID}` : ''}`, {
+      const deleteUrl = `https://api.vercel.com/v9/projects/${PROJECT_ID}/domains/${domain}${TEAM_ID ? `?teamId=${TEAM_ID}` : ''}`
+      await fetch(deleteUrl, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${VERCEL_TOKEN}` },
       })
@@ -67,25 +69,18 @@ serve(async (req) => {
       })
     }
 
-    // Security check: Only Pro/Enterprise or Super Admin (Rule 1 & 2)
-    const tier = (page.profiles as any)?.tier || 'free'
-    const role = (page.profiles as any)?.role || 'user'
+    // Security check
+    const profile = page.profiles as any
+    const tier = profile?.tier || 'free'
+    const role = profile?.role || 'user'
 
     if (role !== 'super_admin' && tier === 'free') {
       throw new Error('Premium tier required for custom domains')
     }
 
-    // 0. Check if user is replacing an old domain and remove it
-    const { previous_domain } = await req.json().catch(() => ({}));
-    if (previous_domain && previous_domain !== domain) {
-      await fetch(`https://api.vercel.com/v9/projects/${PROJECT_ID}/domains/${previous_domain}${TEAM_ID ? `?teamId=${TEAM_ID}` : ''}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${VERCEL_TOKEN}` },
-      })
-    }
-
     // 1. Add domain to Vercel
-    const addRes = await fetch(`https://api.vercel.com/v10/projects/${PROJECT_ID}/domains${TEAM_ID ? `?teamId=${TEAM_ID}` : ''}`, {
+    const addUrl = `https://api.vercel.com/v10/projects/${PROJECT_ID}/domains${TEAM_ID ? `?teamId=${TEAM_ID}` : ''}`
+    await fetch(addUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${VERCEL_TOKEN}`,
@@ -95,7 +90,8 @@ serve(async (req) => {
     })
 
     // 2. Check Verification Status
-    const verifyRes = await fetch(`https://api.vercel.com/v9/projects/${PROJECT_ID}/domains/${domain}/verify${TEAM_ID ? `?teamId=${TEAM_ID}` : ''}`, {
+    const verifyUrl = `https://api.vercel.com/v9/projects/${PROJECT_ID}/domains/${domain}/verify${TEAM_ID ? `?teamId=${TEAM_ID}` : ''}`
+    const verifyRes = await fetch(verifyUrl, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${VERCEL_TOKEN}` },
     })
@@ -117,8 +113,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

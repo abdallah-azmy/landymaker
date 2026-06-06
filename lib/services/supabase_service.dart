@@ -7,6 +7,7 @@ import '../core/error_handler.dart';
 import '../core/logger.dart';
 import '../core/dio_http_client_adapter.dart';
 import '../core/http_client.dart';
+import '../core/utils/fingerprint_utils.dart';
 
 /// Singleton service wrapping Supabase with Supabase SDK
 class SupabaseService extends ChangeNotifier {
@@ -204,6 +205,18 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  Future<void> signInWithGoogle() async {
+    try {
+      await _client!.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: kIsWeb ? null : 'com.landymaker.app://login-callback',
+      );
+    } catch (e) {
+      debugPrint('Google Sign In exception: $e');
+      rethrow;
+    }
+  }
+
   // ----------------------------------------------------
   // LANDING PAGES OPERATIONS
   // ----------------------------------------------------
@@ -362,17 +375,23 @@ class SupabaseService extends ChangeNotifier {
     required Map<String, dynamic> formData,
   }) async {
     try {
-      await _client!.from(DbConstants.leadsTable).insert({
-        'landing_page_id': landingPageId,
-        'form_data': formData,
-      });
-      await recordAnalyticsEvent(
-        landingPageId: landingPageId,
-        eventType: 'conversion',
+      final response = await _client!.functions.invoke(
+        'lead-submit',
+        body: {
+          'landing_page_id': landingPageId,
+          'form_data': formData,
+        },
       );
-      return true;
+
+      if (response.status == 200) {
+        return true;
+      } else {
+        final error = response.data?['error'] ?? 'Failed to submit lead';
+        debugPrint("Edge Function error: \$error");
+        return false;
+      }
     } catch (e) {
-      debugPrint("Error submitting lead form: $e");
+      debugPrint("Error submitting lead via Edge Function: \$e");
       return false;
     }
   }
@@ -403,34 +422,34 @@ class SupabaseService extends ChangeNotifier {
   }) async {
     try {
       if (eventType == 'view') {
-        // Use the smart RPC to increment view count and update last_visited_at
-        await _client!.rpc('increment_page_view', params: {'page_id': landingPageId});
+        final fingerprint = FingerprintUtils.getFingerprint();
+        await _client!.rpc('increment_page_view', params: {
+          'page_id': landingPageId,
+          'fingerprint': fingerprint,
+        });
       } else {
-        await _client!.from('page_analytics_logs').insert({
+        await _client!.from('analytics').insert({
           'landing_page_id': landingPageId,
           'event_type': eventType,
         });
       }
     } catch (e) {
-      debugPrint("Error recording analytics event: $e");
+      debugPrint("Error recording analytics event: \$e");
     }
   }
 
   Future<Map<String, int>> getPageAnalyticsStats(String landingPageId) async {
     try {
-      final res = await _client!
-          .from(DbConstants.landingPagesTable)
-          .select('views_count, purchases_count')
-          .eq('id', landingPageId)
-          .single();
-
+      final res = await _client!.rpc('get_enhanced_page_stats', params: {'page_id': landingPageId});
+      
       return {
-        'views': res['views_count'] ?? 0,
-        'conversions': res['purchases_count'] ?? 0,
+        'views': res['total_views'] ?? 0,
+        'unique_visitors': res['unique_visitors'] ?? 0,
+        'conversions': res['total_conversions'] ?? 0,
       };
     } catch (e) {
-      debugPrint("Error fetching analytics stats: $e");
-      return {'views': 0, 'conversions': 0};
+      debugPrint("Error fetching analytics stats: \$e");
+      return {'views': 0, 'unique_visitors': 0, 'conversions': 0};
     }
   }
 
@@ -736,6 +755,46 @@ class SupabaseService extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error fetching profile: $e");
       return null;
+    }
+  }
+
+  // ----------------------------------------------------
+  // NOTIFICATIONS OPERATIONS
+  // ----------------------------------------------------
+
+  Future<List<Map<String, dynamic>>> getNotifications(String userId) async {
+    try {
+      final res = await _client!
+          .from('notifications')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching notifications: \$e");
+      return [];
+    }
+  }
+
+  Future<void> markNotificationAsRead(String notificationId) async {
+    try {
+      await _client!
+          .from('notifications')
+          .update({'is_read': true})
+          .eq('id', notificationId);
+    } catch (e) {
+      debugPrint("Error marking notification as read: \$e");
+    }
+  }
+
+  Future<void> markAllNotificationsAsRead(String userId) async {
+    try {
+      await _client!
+          .from('notifications')
+          .update({'is_read': true})
+          .eq('user_id', userId);
+    } catch (e) {
+      debugPrint("Error marking all notifications as read: \$e");
     }
   }
 }

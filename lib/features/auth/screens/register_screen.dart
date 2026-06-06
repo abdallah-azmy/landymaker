@@ -12,7 +12,6 @@ import '../../../core/utils/toast_service.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
 
-
 class RegisterScreen extends StatefulWidget {
   final VoidCallback? onRegisterSuccess;
 
@@ -44,6 +43,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Widget _buildGoogleSignInButton(
+    BuildContext context,
+    LocalizationCubit loc,
+    bool isLoading,
+  ) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            const Expanded(child: Divider(color: AppColors.border)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                loc.translate('or_continue_with'),
+                style: AppTypography.bodyLarge.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            const Expanded(child: Divider(color: AppColors.border)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: OutlinedButton.icon(
+            onPressed: isLoading
+                ? null
+                : () => context.read<AuthCubit>().signInWithGoogle(),
+            icon: Image.network(
+              'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+              height: 20,
+              width: 20,
+              errorBuilder: (_, __, ___) =>
+                  const Icon(Icons.g_mobiledata, color: Colors.white),
+            ),
+            label: Text(
+              loc.translate('sign_in_google'),
+              style: AppTypography.button.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppColors.border),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -244,6 +298,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 isLoading: isLoading,
                                 width: double.infinity,
                               ),
+                              const SizedBox(height: 20),
+
+                              // Google Sign In
+                              _buildGoogleSignInButton(context, loc, isLoading),
+
                               const SizedBox(height: 20),
 
                               // Link back to Login

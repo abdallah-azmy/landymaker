@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../services/auth_service.dart';
 import '../../dashboard/controllers/active_website_cubit.dart';
 import '../../../../injection_container.dart';
+import '../../../core/services/fcm_service.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -15,6 +16,9 @@ class AuthCubit extends Cubit<AuthState> {
   void checkAuth() {
     if (isClosed) return;
     if (_authService.isAuthenticated) {
+      // Trigger token sync if they are already authenticated at startup
+      FcmService.saveTokenIfPossible();
+      
       emit(Authenticated(
         userId: _authService.currentUserId!,
         email: _authService.currentUserEmail!,
@@ -41,6 +45,9 @@ class AuthCubit extends Cubit<AuthState> {
         password: password,
       );
       if (success) {
+        // Sync FCM token upon login
+        await FcmService.saveTokenIfPossible();
+
         emit(Authenticated(
           userId: _authService.currentUserId!,
           email: _authService.currentUserEmail!,
@@ -67,6 +74,9 @@ class AuthCubit extends Cubit<AuthState> {
         fullName: fullName,
       );
       if (success) {
+        // Sync FCM token upon registration
+        await FcmService.saveTokenIfPossible();
+
         emit(Authenticated(
           userId: _authService.currentUserId!,
           email: _authService.currentUserEmail!,
@@ -107,6 +117,16 @@ class AuthCubit extends Cubit<AuthState> {
       // Clear active website selection on logout
       sl<ActiveWebsiteCubit>().clearSelection();
       emit(Unauthenticated());
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    emit(AuthLoading());
+    try {
+      await _authService.signInWithGoogle();
+      // OAuth flow handles the navigation via redirects/listeners
     } catch (e) {
       emit(AuthFailure(e.toString()));
     }

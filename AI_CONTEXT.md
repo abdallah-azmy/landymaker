@@ -84,7 +84,42 @@ The platform supports the following blocks, each with a dedicated Editor and Ren
 
 ---
 
-## 🌍 4. Multi-Tenant Domain & Path Routing
+## 🛡️ 4. Security & Antispam Framework (CRITICAL)
+
+To protect the platform from automated abuse and ensure data integrity, all user-submitted data (especially leads) MUST pass through the Security Layer:
+
+### A. Client-Side Protection
+- **Turnstile Captcha**: All form-based blocks (`lead_form`, `lead_magnet`, `multi_step_form`) MUST render the Cloudflare Turnstile widget via `TurnstileService`.
+- **Device Fingerprinting**: Every submission MUST include an anonymous SHA-256 fingerprint generated via `FingerprintUtils.getFingerprint()`.
+
+### B. Secure Data Pipeline (Mandatory)
+- **NO Direct DB Inserts**: NEVER perform direct `supabase.from('leads').insert()` from the client.
+- **Edge Function Proxy**: All lead submissions MUST be routed through the `lead-submit` Edge Function. This function enforces:
+    1. Turnstile token verification with Cloudflare.
+    2. IP-based rate limiting (10/hr).
+    3. Fingerprint-based rate limiting (5/10min).
+
+---
+
+## 📈 5. Advanced Analytics & Visitor Tracking
+
+LandyMaker tracks high-fidelity analytics to provide users with accurate conversion data:
+- **Unique Visitor Tracking**: Accomplished via `visitor_fingerprint` in the `analytics` table.
+- **Enhanced Metrics**: The `get_enhanced_page_stats` RPC calculates Total Views, Unique Visitors, and Conversions. 
+- **Accurate Conversion Rate**: Calculated as `(Total Conversions / Unique Visitors) * 100`.
+
+---
+
+## 🔔 6. Real-Time Notification Ecosystem
+
+The platform features a multi-channel notification system:
+- **In-App Inbox**: Managed by `NotificationCubit` using Supabase Realtime (broadcast) for instant updates.
+- **Web Push (FCM)**: Background notifications via Firebase Cloud Messaging. 
+- **Webhook Protection**: The `lead-notify` Edge Function is protected by `WEBHOOK_SECRET`. Any manual call without a valid Bearer token MUST be rejected.
+
+---
+
+## 🌍 7. Multi-Tenant Domain & Path Routing
 
 LandyMaker supports four methods of routing resolved by `TenantRoutingService` at startup:
 1. **Path-Based Slugs**: `landymaker.com/restaurant-x`
@@ -157,6 +192,13 @@ LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 9. **Workspace Cleanliness**:
    - Never create `.py`, `.sh`, or temporary markdown audit files in the project directory for debugging. Keep the repository strictly limited to production code and documentation.
 10. **Complex Tasks**: Use SPEC-KIT methodology in `.specify/` when requested.
+11. **Environment Variable Hygiene**: All sensitive keys (Firebase, Turnstile) read via `String.fromEnvironment` MUST be cleaned using the `_cleanEnv` helper logic to strip potential quotes (`"` or `'`) added in `.env.local`.
+12. **Edge Function Development Rules**:
+    - **Absolute URLs**: Always use full URLs for imports (e.g., `https://esm.sh/...`).
+    - **Strict Typing**: Always define explicit types for Request/Response and catch blocks (`error: unknown`).
+    - **CORS Handling**: Every function must handle `OPTIONS` requests and return proper `Access-Control-Allow-Origin` headers.
+    - **IDE Support**: The `supabase/functions` directory uses `tsconfig.json` and `deno-types.d.ts` for IDE support. Do not delete or ignore these files.
+13. **Data Integrity**: Never perform arithmetic operations on potential zero values in the UI (e.g., conversion rate) without a safety check (`visitors > 0`).
 
 ---
 

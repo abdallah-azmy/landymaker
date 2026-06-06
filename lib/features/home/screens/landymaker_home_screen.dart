@@ -83,7 +83,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
       backgroundColor: AppColors.background,
       appBar: HomeNavbar(
         onLoginPressed: () => context.go('/login'),
-        onGetStartedPressed: () => context.go('/register'),
+        onGetStartedPressed: () => context.go('/templates'),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -91,7 +91,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
           children: [
             // Hero doesn't need scroll-trigger — it's above the fold
             HomeHeroSection(
-              onGetStartedPressed: () => context.go('/register'),
+              onGetStartedPressed: () => context.go('/templates'),
               parentScrollController: _scrollController,
             ),
 
@@ -105,7 +105,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
               isVisible: _templatesVisible,
               onGetStartedPressed: (templateId) {
                 TenantRoutingService.pendingTemplateId = templateId;
-                context.go('/login');
+                context.go('/register');
               },
             ),
 
@@ -117,7 +117,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
             HomeCtaSection(
               key: _ctaKey,
               isVisible: _ctaVisible,
-              onGetStartedPressed: () => context.go('/register'),
+              onGetStartedPressed: () => context.go('/templates'),
             ),
 
             const HomeFooter(),

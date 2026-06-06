@@ -9,5 +9,10 @@
     "chat.tools.terminal.autoApprove": {
         ".specify/scripts/bash/": true,
         ".specify/scripts/powershell/": true
-    }
+    },
+    "deno.enable": true,
+    "deno.enablePaths": [
+        "supabase/functions"
+    ],
+    "deno.importMap": "supabase/functions/import_map.json"
 }

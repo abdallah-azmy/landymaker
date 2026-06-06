@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/services/pixel_event_service.dart';
+import '../../../core/services/turnstile_service.dart';
+import '../../../core/utils/fingerprint_utils.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
@@ -43,10 +46,26 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
   final Map<String, String> _validationErrors = {};
   final Map<String, dynamic> _dataPayload = {};
   final TextEditingController _honeypotController = TextEditingController();
+  late final String _turnstileViewId;
+  String? _turnstileToken;
   
   bool _isSubmitting = false;
   String? _successMessage;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _turnstileViewId = 'turnstile-lead-form-\${widget.block.hashCode}';
+    TurnstileService.registerViewFactory(_turnstileViewId, (token) {
+      setState(() {
+        _turnstileToken = token;
+        if (_errorMessage == context.translate('captcha_required')) {
+          _errorMessage = null;
+        }
+      });
+    });
+  }
 
   List<dynamic> get _fields {
     final blockFields = widget.block['fields'];
@@ -120,6 +139,13 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
       return;
     }
 
+    if (_turnstileToken == null) {
+      setState(() {
+        _errorMessage = context.translate('captcha_required');
+      });
+      return;
+    }
+
     setState(() {
       _isSubmitting = true;
       _successMessage = null;
@@ -127,8 +153,15 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
     });
 
     try {
+      final fingerprint = FingerprintUtils.getFingerprint();
+      final payload = Map<String, dynamic>.from(_dataPayload);
+      payload['__metadata'] = {
+        'fingerprint': fingerprint,
+        'turnstile_token': _turnstileToken,
+      };
+
       final cubit = context.read<LeadsAnalyticsCubit>();
-      await cubit.submitLead(widget.pageId, Map<String, dynamic>.from(_dataPayload));
+      await cubit.submitLead(widget.pageId, payload);
       
       if (mounted) {
         final state = cubit.state;
@@ -145,6 +178,9 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
             _errorMessage = null;
           });
           _clearForm();
+          TurnstileService.reset(_turnstileViewId);
+          setState(() => _turnstileToken = null);
+          PixelEventService.trackLead();
         }
       }
     } catch (e) {
@@ -314,6 +350,17 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
                   }),
 
                   SizedBox(height: isMobile ? 8 : 16),
+
+                  // Turnstile Widget
+                  Center(
+                    child: SizedBox(
+                      width: 300,
+                      height: 70,
+                      child: HtmlElementView(viewType: _turnstileViewId),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
 
                   SizedBox(
                     width: double.infinity,

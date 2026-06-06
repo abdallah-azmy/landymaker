@@ -213,6 +213,9 @@ export default async function middleware(request) {
           const title = design.meta_title || `${page.subdomain || tenant} | LandyMaker`;
           const description = design.meta_description || "Created with LandyMaker - The Ultimate AI Landing Page Builder";
           const ogImage = design.og_image_url || "https://landymaker.com/logo_social.webp";
+          const fbPixelId = design.fb_pixel_id || '';
+          const tiktokPixelId = design.tiktok_pixel_id || '';
+          const snapPixelId = design.snap_pixel_id || '';
 
           // Parse and render semantic HTML for all blocks
           const bodyContent = visibleBlocks.map(b => {
@@ -287,6 +290,45 @@ export default async function middleware(request) {
                   "image": "${ogImage}"
                 }
                 </script>
+                ${fbPixelId ? `
+                <!-- Facebook Pixel Code -->
+                <script>
+                  !function(f,b,e,v,n,t,s)
+                  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                  n.queue=[];t=b.createElement(e);t.async=!0;
+                  t.src=v;s=b.getElementsByTagName(e)[0];
+                  s.parentNode.insertBefore(t,s)}(window, document,'script',
+                  'https://connect.facebook.net/en_US/fbevents.js');
+                  fbq('init', '${fbPixelId}');
+                  fbq('track', 'PageView');
+                </script>
+                <noscript>
+                  <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${fbPixelId}&ev=PageView&noscript=1"/>
+                </noscript>
+                <!-- End Facebook Pixel Code -->
+                ` : ''}
+                ${tiktokPixelId ? `
+                <!-- TikTok Pixel Code -->
+                <script>
+                  !function (w, d, t) {
+                    w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var e=0;e<ttq.methods.length;e++)ttq.setAndDefer(ttq,ttq.methods[e]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var a=d.createElement("script");a.type="text/javascript",a.async=!0,a.src=r;var c=d.getElementsByTagName("script")[0];c.parentNode.insertBefore(a,c)};
+                    ttq.load('${tiktokPixelId}');
+                    ttq.page();
+                  }(window, document, 'ttq');
+                </script>
+                <!-- End TikTok Pixel Code -->
+                ` : ''}
+                ${snapPixelId ? `
+                <!-- Snapchat Pixel Code -->
+                <script>
+                  (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var o=t.createElement(n);o.async=!0;o.src="https://sc-static.net/scevent.min.js";var r=t.getElementsByTagName(n)[0];r.parentNode.insertBefore(o,r)})(window,document,"script");
+                  snaptr('init', '${snapPixelId}');
+                  snaptr('track', 'PAGE_VIEW');
+                </script>
+                <!-- End Snapchat Pixel Code -->
+                ` : ''}
               </head>
               <body>
                 <main>

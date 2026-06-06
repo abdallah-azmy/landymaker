@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../core/services/pixel_event_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/cart_cubit.dart';
 import 'package:toastification/toastification.dart';
@@ -314,6 +315,7 @@ class FloatingCartWidget extends StatelessWidget {
     final url = Uri.parse('https://wa.me/$cleanNumber?text=$encodedMessage');
 
     if (await canLaunchUrl(url)) {
+      PixelEventService.trackPurchase(state.totalPrice, 'USD');
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
       if (context.mounted) {

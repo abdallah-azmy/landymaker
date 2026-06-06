@@ -24,6 +24,10 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
   late TextEditingController _ogImageController;
+  late TextEditingController _fbPixelController;
+  late TextEditingController _tiktokPixelController;
+  late TextEditingController _snapPixelController;
+  int _selectedTab = 0;
 
   @override
   void initState() {
@@ -32,6 +36,9 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
     _titleController = TextEditingController(text: state.designMap['meta_title'] ?? '');
     _descController = TextEditingController(text: state.designMap['meta_description'] ?? '');
     _ogImageController = TextEditingController(text: state.designMap['og_image_url'] ?? '');
+    _fbPixelController = TextEditingController(text: state.designMap['fb_pixel_id'] ?? '');
+    _tiktokPixelController = TextEditingController(text: state.designMap['tiktok_pixel_id'] ?? '');
+    _snapPixelController = TextEditingController(text: state.designMap['snap_pixel_id'] ?? '');
   }
 
   @override
@@ -39,7 +46,41 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
     _titleController.dispose();
     _descController.dispose();
     _ogImageController.dispose();
+    _fbPixelController.dispose();
+    _tiktokPixelController.dispose();
+    _snapPixelController.dispose();
     super.dispose();
+  }
+
+  Widget _buildTabButton(LocalizationCubit loc, int index, String label, IconData icon) {
+    final bool isSelected = _selectedTab == index;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedTab = index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.secondary.withValues(alpha: 0.15) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AppColors.secondary : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: isSelected ? AppColors.secondary : AppColors.textSecondary, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: AppTypography.bodyMedium.copyWith(
+                color: isSelected ? AppColors.secondary : AppColors.textSecondary,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -52,139 +93,181 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 12),
+        // Tabs Header
         Row(
           children: [
-            const Icon(Icons.search_rounded, color: AppColors.secondary, size: 28),
+            _buildTabButton(loc, 0, loc.translate('advanced_settings'), Icons.search_rounded),
             const SizedBox(width: 12),
-            Text(loc.translate('advanced_settings'), style: AppTypography.h2),
+            _buildTabButton(loc, 1, loc.translate('tracking_pixels'), Icons.analytics_rounded),
           ],
         ),
-        const SizedBox(height: 12),
-        Text(
-          loc.translate('seo_help'),
-          style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
-        ),
-        const SizedBox(height: 32),
-        
-        // Google Preview
-        Text(loc.translate('google_preview'), style: AppTypography.h3),
-        const SizedBox(height: 16),
-        _buildGoogleSnippet(loc),
-        
-        const SizedBox(height: 32),
-        
-        // Form Fields
-        FormGroup(
-          label: loc.translate('seo_title'),
-          helperText: loc.translate('chars_limit')
-              .replaceAll('{current}', _titleController.text.length.toString())
-              .replaceAll('{max}', '60'),
-          helperStyle: TextStyle(
-            color: _titleController.text.length > 60 ? AppColors.dangerRed : AppColors.textSecondary,
-            fontWeight: _titleController.text.length > 60 ? FontWeight.bold : FontWeight.normal,
-          ),
-          child: CustomTextField(
-            controller: _titleController,
-            onChanged: (val) {
-              cubit.updateMetadata('meta_title', val);
-              setState(() {});
-            },
-            hintText: "e.g. My Awesome Shop",
-          ),
-        ),
         const SizedBox(height: 24),
-        FormGroup(
-          label: loc.translate('seo_description'),
-          helperText: loc.translate('chars_limit')
-              .replaceAll('{current}', _descController.text.length.toString())
-              .replaceAll('{max}', '155'),
-          helperStyle: TextStyle(
-            color: _descController.text.length > 155 ? AppColors.dangerRed : AppColors.textSecondary,
-            fontWeight: _descController.text.length > 155 ? FontWeight.bold : FontWeight.normal,
+
+        if (_selectedTab == 0) ...[
+          Text(
+            loc.translate('seo_help'),
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
           ),
-          child: CustomTextField(
-            controller: _descController,
-            maxLines: 3,
-            onChanged: (val) {
-              cubit.updateMetadata('meta_description', val);
-              setState(() {});
-            },
-            hintText: "Describe what you offer in a few words...",
+          const SizedBox(height: 32),
+          
+          // Google Preview
+          Text(loc.translate('google_preview'), style: AppTypography.h3),
+          const SizedBox(height: 16),
+          _buildGoogleSnippet(loc),
+          
+          const SizedBox(height: 32),
+          
+          // Form Fields
+          FormGroup(
+            label: loc.translate('seo_title'),
+            helperText: loc.translate('chars_limit')
+                .replaceAll('{current}', _titleController.text.length.toString())
+                .replaceAll('{max}', '60'),
+            helperStyle: TextStyle(
+              color: _titleController.text.length > 60 ? AppColors.dangerRed : AppColors.textSecondary,
+              fontWeight: _titleController.text.length > 60 ? FontWeight.bold : FontWeight.normal,
+            ),
+            child: CustomTextField(
+              controller: _titleController,
+              onChanged: (val) {
+                cubit.updateMetadata('meta_title', val);
+                setState(() {});
+              },
+              hintText: "e.g. My Awesome Shop",
+            ),
           ),
-        ),
-        const SizedBox(height: 24),
-        FormGroup(
-          label: loc.translate('seo_og_image'),
-          helperText: loc.translate('seo_og_image_help'),
-          child: Row(
-            children: [
-              Expanded(
-                child: CustomTextField(
-                  controller: _ogImageController,
-                  onChanged: (val) {
-                    cubit.updateMetadata('og_image_url', val);
-                    setState(() {});
-                  },
-                  hintText: "https://example.com/image.jpg",
-                ),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  final selectedData = await ImagePickerModal.show(context);
-                  if (selectedData == null) return;
-
-                  final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
-                  final oldUrl = _ogImageController.text;
-
-                  _ogImageController.text = uploadId;
-                  cubit.updateMetadata('og_image_url', uploadId);
-                  setState(() {});
-
-                  sl<UploadManagerCubit>().upload(
-                    uploadId: uploadId,
-                    data: selectedData,
-                    onSuccess: (finalUrl) {
-                      _ogImageController.text = finalUrl;
-                      cubit.updateMetadata('og_image_url', finalUrl);
+          const SizedBox(height: 24),
+          FormGroup(
+            label: loc.translate('seo_description'),
+            helperText: loc.translate('chars_limit')
+                .replaceAll('{current}', _descController.text.length.toString())
+                .replaceAll('{max}', '155'),
+            helperStyle: TextStyle(
+              color: _descController.text.length > 155 ? AppColors.dangerRed : AppColors.textSecondary,
+              fontWeight: _descController.text.length > 155 ? FontWeight.bold : FontWeight.normal,
+            ),
+            child: CustomTextField(
+              controller: _descController,
+              maxLines: 3,
+              onChanged: (val) {
+                cubit.updateMetadata('meta_description', val);
+                setState(() {});
+              },
+              hintText: "Describe what you offer in a few words...",
+            ),
+          ),
+          const SizedBox(height: 24),
+          FormGroup(
+            label: loc.translate('seo_og_image'),
+            helperText: loc.translate('seo_og_image_help'),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CustomTextField(
+                    controller: _ogImageController,
+                    onChanged: (val) {
+                      cubit.updateMetadata('og_image_url', val);
                       setState(() {});
                     },
-                    onCancel: () {
-                      _ogImageController.text = oldUrl;
-                      cubit.updateMetadata('og_image_url', oldUrl);
-                      setState(() {});
-                    },
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    hintText: "https://example.com/image.jpg",
                   ),
                 ),
-                icon: const Icon(Icons.image_search, size: 18),
-                label: Text(loc.translate('upload_image')),
-              ),
-            ],
-          ),
-        ),
-        if (_ogImageController.text.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Container(
-            height: 180,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border, width: 1.5),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final selectedData = await ImagePickerModal.show(context);
+                    if (selectedData == null) return;
+
+                    final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
+                    final oldUrl = _ogImageController.text;
+
+                    _ogImageController.text = uploadId;
+                    cubit.updateMetadata('og_image_url', uploadId);
+                    setState(() {});
+
+                    sl<UploadManagerCubit>().upload(
+                      uploadId: uploadId,
+                      data: selectedData,
+                      onSuccess: (finalUrl) {
+                        _ogImageController.text = finalUrl;
+                        cubit.updateMetadata('og_image_url', finalUrl);
+                        setState(() {});
+                      },
+                      onCancel: () {
+                        _ogImageController.text = oldUrl;
+                        cubit.updateMetadata('og_image_url', oldUrl);
+                        setState(() {});
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.secondary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  icon: const Icon(Icons.image_search, size: 18),
+                  label: Text(loc.translate('upload_image')),
+                ),
+              ],
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: CustomNetworkImage(
-                imageUrl: _ogImageController.text,
-                fit: BoxFit.cover,
+          ),
+          if (_ogImageController.text.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              height: 180,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border, width: 1.5),
               ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CustomNetworkImage(
+                  imageUrl: _ogImageController.text,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ],
+        ] else ...[
+          Text(
+            loc.translate('pixel_help'),
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 32),
+          FormGroup(
+            label: loc.translate('fb_pixel_id'),
+            child: CustomTextField(
+              controller: _fbPixelController,
+              onChanged: (val) {
+                cubit.updateMetadata('fb_pixel_id', val);
+              },
+              hintText: "e.g. 123456789012345",
+            ),
+          ),
+          const SizedBox(height: 24),
+          FormGroup(
+            label: loc.translate('tiktok_pixel_id'),
+            child: CustomTextField(
+              controller: _tiktokPixelController,
+              onChanged: (val) {
+                cubit.updateMetadata('tiktok_pixel_id', val);
+              },
+              hintText: "e.g. C1234567890ABCDE",
+            ),
+          ),
+          const SizedBox(height: 24),
+          FormGroup(
+            label: loc.translate('snap_pixel_id'),
+            child: CustomTextField(
+              controller: _snapPixelController,
+              onChanged: (val) {
+                cubit.updateMetadata('snap_pixel_id', val);
+              },
+              hintText: "e.g. 1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p",
             ),
           ),
         ],

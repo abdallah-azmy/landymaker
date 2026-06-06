@@ -35,12 +35,14 @@ class LeadsAnalyticsCubit extends Cubit<LeadsAnalyticsState> {
         emit(LeadsAnalyticsLoaded(
           leads: leads,
           views: stats['views'] ?? 0,
+          uniqueVisitors: stats['unique_visitors'] ?? 0,
           conversions: stats['conversions'] ?? 0,
         ));
       } else {
         emit(LeadsAnalyticsLoaded(
           leads: const [],
           views: 0,
+          uniqueVisitors: 0,
           conversions: 0,
         ));
       }
@@ -81,11 +83,13 @@ class LeadsAnalyticsCubit extends Cubit<LeadsAnalyticsState> {
 
     final initialLeads = isLoaded ? currentState.leads : <Map<String, dynamic>>[];
     final initialViews = isLoaded ? currentState.views : 0;
+    final initialUniqueVisitors = isLoaded ? currentState.uniqueVisitors : 0;
     final initialConversions = isLoaded ? currentState.conversions : 0;
 
     emit(LeadsAnalyticsLoaded(
       leads: initialLeads,
       views: initialViews,
+      uniqueVisitors: initialUniqueVisitors,
       conversions: initialConversions,
       isSubmittingLead: true,
     ));

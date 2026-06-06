@@ -6,6 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/forms/elements/field_renderer.dart';
 import '../../../core/forms/validation_engine.dart';
+import '../../../core/services/turnstile_service.dart';
+import '../../../core/utils/fingerprint_utils.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/localized_text_parser.dart';
 import '../../../core/widgets/section_background.dart';
@@ -36,9 +39,12 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
   Map<String, dynamic> _dataPayload = {};
   bool _isSubmitting = false;
   bool _isSuccess = false;
+  String? _errorMessage;
 
   late String _draftKey;
   late List<dynamic> _steps;
+  late final String _turnstileViewId;
+  String? _turnstileToken;
 
   @override
   void initState() {
@@ -47,13 +53,23 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
 
     // Fallback block ID if missing
     final blockId = widget.block['id'] ?? widget.block.hashCode.toString();
-    _draftKey = 'draft_lead_${widget.pageId}_$blockId';
+    _draftKey = 'draft_lead_\${widget.pageId}_\$blockId';
 
     _initializeControllers();
 
     if (widget.block['enable_local_save'] == true) {
       _loadDraft();
     }
+
+    _turnstileViewId = 'turnstile-multi-step-\${widget.block.hashCode}';
+    TurnstileService.registerViewFactory(_turnstileViewId, (token) {
+      setState(() {
+        _turnstileToken = token;
+        if (_errorMessage == context.translate('captcha_required')) {
+          _errorMessage = null;
+        }
+      });
+    });
   }
 
   void _initializeControllers() {
@@ -179,7 +195,13 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
     final nextIndex = _findNextVisibleStep(_currentStepIndex, 1);
 
     if (nextIndex >= _steps.length) {
-      _submitForm();
+      if (_turnstileToken == null) {
+        setState(() {
+          _errorMessage = context.translate('captcha_required');
+        });
+      } else {
+        _submitForm();
+      }
     } else {
       setState(() {
         _validationErrors.clear();
@@ -212,15 +234,23 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
     };
 
     final finalSubmission = {'payload': _dataPayload, 'meta': metaData};
+    
+    final fingerprint = FingerprintUtils.getFingerprint();
+    finalSubmission['__metadata'] = {
+      'fingerprint': fingerprint,
+      'turnstile_token': _turnstileToken,
+    };
 
     final cubit = context.read<LeadsAnalyticsCubit>();
     await cubit.submitLead(widget.pageId, finalSubmission);
 
     await _clearDraft();
+    TurnstileService.reset(_turnstileViewId);
 
     setState(() {
       _isSubmitting = false;
       _isSuccess = true;
+      _turnstileToken = null;
     });
   }
 
@@ -369,6 +399,26 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
             onChanged: (val) => _onFieldValueChanged(fieldId, val),
           );
         }),
+
+        if (_errorMessage != null) ...[
+          const SizedBox(height: 16),
+          Text(
+            _errorMessage!,
+            style: const TextStyle(color: AppColors.dangerRed, fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+        ],
+
+        if (_findNextVisibleStep(_currentStepIndex, 1) >= _steps.length) ...[
+          const SizedBox(height: 16),
+          Center(
+            child: SizedBox(
+              width: 300,
+              height: 70,
+              child: HtmlElementView(viewType: _turnstileViewId),
+            ),
+          ),
+        ],
+
         const SizedBox(height: 16),
         // Navigation Buttons
         Row(

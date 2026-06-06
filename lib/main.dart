@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +19,7 @@ import 'features/dashboard/controllers/active_website_cubit.dart';
 import 'package:toastification/toastification.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/seo/app_seo.dart';
+import 'core/services/fcm_service.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 void main() async {
@@ -34,6 +36,11 @@ void main() async {
 
     // Initialize all dependencies via GetIt Service Locator
     await initDependencies();
+
+    // Initialize FCM (Web Push)
+    if (kIsWeb) {
+      await FcmService.initialize();
+    }
 
     runApp(const LandyMakerApp());
   } catch (e) {
@@ -157,3 +164,6 @@ class LandyMakerApp extends StatelessWidget {
 // flutter run -d chrome --dart-define-from-file=.env.local
 //* Production Build
 // flutter build web --release --dart-define-from-file=.env.local
+
+//* locale host
+// http://localhost:3000

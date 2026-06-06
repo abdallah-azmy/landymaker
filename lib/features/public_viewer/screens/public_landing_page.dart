@@ -15,6 +15,9 @@ import '../controllers/cart_cubit.dart';
 import '../widgets/floating_cart_widget.dart';
 import '../widgets/global/sticky_cta_bar.dart';
 import '../widgets/section_renderer.dart';
+import '../../../core/services/pixel_bootstrap_service.dart';
+import '../../../core/services/pixel_event_service.dart';
+import '../widgets/cookie_consent_banner.dart';
 
 class PublicLandingPage extends StatefulWidget {
   final String? identifier;
@@ -105,6 +108,18 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
               BlocConsumer<PublicPageCubit, PublicPageState>(
                 listener: (context, state) {
                   if (state is PublicPageLoaded) {
+                    final rawDesign = state.pageData['design_json'];
+                    Map<String, dynamic> designJson = {};
+                    if (rawDesign is String) {
+                      try {
+                        designJson = Map<String, dynamic>.from(jsonDecode(rawDesign));
+                      } catch (_) {}
+                    } else if (rawDesign is Map) {
+                      designJson = Map<String, dynamic>.from(rawDesign);
+                    }
+                    PixelBootstrapService.initialize(designJson);
+                    PixelEventService.trackPageView();
+
                     // Wait one frame for widgets to mount before attempting scroll
                     WidgetsBinding.instance.addPostFrameCallback(
                       (_) => _handleDeepLinking(),
@@ -362,6 +377,25 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                 },
               ),
               FloatingCartWidget(isStickyVisible: _isStickyVisible),
+              BlocBuilder<PublicPageCubit, PublicPageState>(
+                builder: (context, state) {
+                  if (state is PublicPageLoaded) {
+                    final rawDesign = state.pageData['design_json'];
+                    Map<String, dynamic> designJson = {};
+                    if (rawDesign is String) {
+                      try {
+                        designJson = Map<String, dynamic>.from(jsonDecode(rawDesign));
+                      } catch (_) {}
+                    } else if (rawDesign is Map) {
+                      designJson = Map<String, dynamic>.from(rawDesign);
+                    }
+                    final themeJson = designJson['theme'] as Map<String, dynamic>? ?? {};
+                    final theme = LandingPageTheme.fromJson(themeJson);
+                    return CookieConsentBanner(designJson: designJson, theme: theme);
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ],
           ),
         ),

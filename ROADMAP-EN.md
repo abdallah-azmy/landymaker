@@ -76,9 +76,9 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
 ---
 
 ### 📍 PART 2: Pixel Tracking Infrastructure & Consent (Week 2)
-* **Status:** `[Completed: false]`
+* **Status:** `[Completed: true]`
 
-- [ ] **Task 2.1: Pixel Settings UI**
+- [x] **Task 2.1: Pixel Settings UI**
   - **Objective:** Allow landing page builders to configure tracking IDs.
   - **Target Files:**
     - `lib/features/builder/widgets/modals/seo_settings_modal.dart` (Add a tab/section for "Tracking & Pixels").
@@ -88,7 +88,7 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
     2. Save inputs utilizing the existing `cubit.updateMetadata()`.
   - **Task Verification:** Verify inputs are rendered, saving updates `designMap` correctly with matching keys.
 
-- [ ] **Task 2.2: Dual-Layer Pixel Bootstrap & Injection**
+- [x] **Task 2.2: Dual-Layer Pixel Bootstrap & Injection**
   - **Objective:** Inject scripts correctly for BOTH crawler bots (SEO indexing) and real human visitors (conversion logging).
   - **Architectural Boundaries:**
     - **Bots/Crawlers (Middleware Layer):** `middleware.js` will intercept bot traffic and return semantic HTML containing the tracking pixel tags.
@@ -101,7 +101,7 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
     2. When the public page loads, read the configuration from `designMap` and inject script tags for configured pixels.
   - **Task Verification:** Open page as bot (verify scripts in HTML), open page as human, inspect DOM to verify `<script>` tags are present.
 
-- [ ] **Task 2.3: Client-Side Pixel Events & Consent Blocker**
+- [x] **Task 2.3: Client-Side Pixel Events & Consent Blocker**
   - **Objective:** Trigger standard conversion events (`PageView`, `Lead`, `Purchase`) safely.
   - **Target Files:**
     - `lib/core/services/pixel_event_service.dart` [NEW]
@@ -113,7 +113,7 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
     2. **CRITICAL PRIVACY CHECK:** Before triggering any event, verify if the user has consented to tracking cookies (Cookie Consent Banner state). If rejected, block the scripts and events.
   - **Task Verification:** Submit a lead and check browser console/network logs to confirm the pixel calls (`fbq('track', 'Lead')`, etc.) are fired.
 
-- [ ] **Task 2.4: Cookie Consent Banner**
+- [x] **Task 2.4: Cookie Consent Banner**
   - **Objective:** Display a GDPR/regional privacy compliance banner.
   - **Target File:** `lib/features/public_viewer/widgets/cookie_consent_banner.dart` [NEW]
   - **Implementation:**
@@ -124,9 +124,9 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
 ---
 
 ### 📍 PART 3: Antispam & Security Safeguards (Week 2.5)
-* **Status:** `[Completed: false]`
+* **Status:** `[Completed: true]`
 
-- [ ] **Task 3.1: Cloudflare Turnstile Integration**
+- [x] **Task 3.1: Cloudflare Turnstile Integration**
   - **Objective:** Embed Turnstile captcha widgets in lead forms.
   - **Target Files:**
     - `lib/core/services/turnstile_service.dart` [NEW]
@@ -137,7 +137,7 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
     2. Force validation and extract the Turnstile token prior to allowing a form submission.
   - **Task Verification:** Render the form, confirm Turnstile widget appears and triggers token generation on submission.
 
-- [ ] **Task 3.2: Edge Server Verification**
+- [x] **Task 3.2: Edge Server Verification**
   - **Objective:** Validate Turnstile tokens before processing database inserts.
   - **Target Path:** `supabase/functions/verify-turnstile/index.ts` [NEW]
   - **Implementation:**
@@ -145,7 +145,7 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
     2. Reject insertion attempts if the token is invalid or expired.
   - **Task Verification:** Attempt calling the function with fake token, verify rejection (400 Bad Request).
 
-- [ ] **Task 3.3: API Rate Limiting**
+- [x] **Task 3.3: API Rate Limiting**
   - **Objective:** Limit submissions to prevent database bloat and webhook spam.
   - **Target Path:** `supabase/functions/lead-submit/index.ts` [NEW]
   - **Implementation:**
@@ -153,7 +153,7 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
     2. Enforce limits: Max **10 submissions per hour** per IP address, and max **5 submissions per 10 minutes** per device fingerprint hash.
   - **Task Verification:** Script multiple submissions, verify receiving `Too many requests` response.
 
-- [ ] **Task 3.4: Device Fingerprinting**
+- [x] **Task 3.4: Device Fingerprinting**
   - **Objective:** Identify repeat spammers anonymously.
   - **Implementation:**
     1. Generate a SHA-256 fingerprint hash client-side based on `User-Agent`, `Screen Resolution`, `Timezone`, and `Language`.
@@ -163,9 +163,9 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
 ---
 
 ### 📍 PART 4: Onboarding Flows & Sign-in Options (Week 3)
-* **Status:** `[Completed: false]`
+* **Status:** `[Completed: true]`
 
-- [ ] **Task 4.1: Template Picker Screen**
+- [x] **Task 4.1: Template Picker Screen**
   - **Objective:** Show landing page templates to users before registration.
   - **Target File:** `lib/features/home/screens/template_picker_screen.dart` [NEW]
   - **Implementation:**
@@ -173,7 +173,7 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
     2. If the user is unauthenticated, store the selected template ID in `TenantRoutingService.pendingTemplateId` and redirect them to registration. If logged in, apply it immediately.
   - **Task Verification:** Open Picker, select template, confirm redirect to sign up and subsequent workspace creation using that template.
 
-- [ ] **Task 4.2: Google Authentication OAuth Flow**
+- [x] **Task 4.2: Google Authentication OAuth Flow**
   - **Objective:** Allow rapid signup via Google OAuth.
   - **Target Files:**
     - `lib/services/supabase_service.dart`
@@ -187,9 +187,9 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
 ---
 
 ### 📍 PART 5: Analytics Dashboard V2 (Week 3.5)
-* **Status:** `[Completed: false]`
+* **Status:** `[Completed: true]`
 
-- [ ] **Task 5.1: Performance Analytics**
+- [x] **Task 5.1: Performance Analytics**
   - **Objective:** Expand the dashboard metrics to calculate conversion metrics.
   - **Target Files:**
     - `lib/features/dashboard/controllers/leads_analytics_cubit.dart`
@@ -202,9 +202,9 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
 ---
 
 ### 📍 PART 6: Notification Center (Week 4)
-* **Status:** `[Completed: false]`
+* **Status:** `[Completed: true]`
 
-- [ ] **Task 6.1: Database Notification Logging**
+- [x] **Task 6.1: Database Notification Logging**
   - **Objective:** Ensure notifications are persistent even if FCM deliveries fail.
   - **Target SQL Schema:**
     ```sql
@@ -225,16 +225,16 @@ Ensure every modification does not break the **Builder Workspace Preview** or th
 ---
 
 ### 📍 PART 7: Progressive Web App & FCM Web Push (Week 5)
-* **Status:** `[Completed: false]`
+* **Status:** `[Completed: true]`
 
-- [ ] **Task 7.1: PWA Dashboard Manifest**
+- [x] **Task 7.1: PWA Dashboard Manifest**
   - **Objective:** Make the dashboard installable as a PWA.
   - **Target File:** `web/manifest.json`
   - **Implementation:**
     1. Configure application properties: `display: "standalone"`, `start_url: "/dashboard"`, and colors.
   - **Task Verification:** Check browser toolbar to verify "Install App" option appears.
 
-- [ ] **Task 7.2: Web Push & FCM Integration**
+- [x] **Task 7.2: Web Push & FCM Integration**
   - **Objective:** Send instant browser notifications to page owners when they receive a lead.
   - **Target Files:**
     - `web/firebase-messaging-sw.js` [NEW]
@@ -263,21 +263,21 @@ To prevent XSS (Cross-Site Scripting) and bypasses on the custom HTML script ins
 ## ✋ Human Prerequisites & Configurations
 
 ### Prior to Week 1 (Immediate):
-- [ ] Disable Vercel Git Auto-Deployment for the main `landymaker` project (to prevent deployment race conditions with GitHub Actions).
+- [x] Disable Vercel Git Auto-Deployment for the main `landymaker` project (to prevent deployment race conditions with GitHub Actions).
 
 ### Prior to Week 2.5 (Spam Protection):
-- [ ] Create a Cloudflare account.
-- [ ] Generate Cloudstile Turnstile Site Key & Secret Key.
-- [ ] Save the Turnstile Secret Key securely as a environment secret in Supabase.
+- [x] Create a Cloudflare account.
+- [x] Generate Cloudstile Turnstile Site Key & Secret Key.
+- [x] Save the Turnstile Secret Key securely as a environment secret in Supabase.
 
 ### Prior to Week 3 (Auth):
-- [ ] Enable Google Auth Provider in Supabase.
-- [ ] Configure OAuth Client ID and Secret in Google Cloud Console.
+- [x] Enable Google Auth Provider in Supabase.
+- [x] Configure OAuth Client ID and Secret in Google Cloud Console.
 
 ### Prior to Week 5 (FCM Push):
-- [ ] Set up a Firebase project.
-- [ ] Generate a Web VAPID key in Firebase Cloud Messaging.
-- [ ] Enable Database Webhooks on Supabase for the `leads` table.
+- [x] Set up a Firebase project.
+- [x] Generate a Web VAPID key in Firebase Cloud Messaging.
+- [x] Enable Database Webhooks on Supabase for the `leads` table.
 
 ---
 

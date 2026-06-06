@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:meta_seo/meta_seo.dart';
 import 'package:flutter/foundation.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/seo/app_seo.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_footer.dart';
 
@@ -22,10 +22,10 @@ class LegalPage extends StatelessWidget {
 
   void _applySeo(BuildContext context, String title) {
     if (kIsWeb) {
-      final meta = MetaSEO();
-      meta.ogTitle(title: '$title | LandyMaker');
-      meta.description(description: 'Read our $title to understand how we protect your rights at LandyMaker.');
-      meta.ogType(ogType: 'website');
+      AppSEO.updateMeta(
+        title: '$title | LandyMaker',
+        description: 'Read our $title to understand how we protect your rights at LandyMaker.',
+      );
     }
   }
 

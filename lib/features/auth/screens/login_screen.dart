@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 loc.translate('or_continue_with'),
-                style: AppTypography.bodySmall.copyWith(
+                style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),

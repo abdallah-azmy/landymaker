@@ -2,17 +2,9 @@
 export default async function middleware(request) {
   const url = new URL(request.url);
   const host = request.headers.get('host') || '';
-  
-  // 1. Clean the host and check if it's a core platform domain
   const cleanHost = host.split(':')[0].toLowerCase();
-  const isCoreDomain = cleanHost === 'landymaker.com' ||
-                       cleanHost === 'landymaker.vercel.app' ||
-                       cleanHost === 'localhost' ||
-                       cleanHost === '127.0.0.1' ||
-                       cleanHost.startsWith('dashboard.') ||
-                       cleanHost.startsWith('app.');
 
-  // 2. Determine Blog Context
+  // 1. Determine Blog Context & Handle Proxied Requests
   const isDirectBlog = cleanHost.includes('landymaker-blog.vercel.app');
   const isProxiedBlog = request.headers.get('x-blog-proxied') === '1';
   const isBlogContext = isDirectBlog || isProxiedBlog;
@@ -22,7 +14,15 @@ export default async function middleware(request) {
     return;
   }
 
-  // 3. Blog & Next.js Assets Proxy Logic (Core Domain Context Only)
+  const isCoreDomain = cleanHost === 'landymaker.com' ||
+                       cleanHost === 'landymaker.vercel.app' ||
+                       cleanHost === 'localhost' ||
+                       cleanHost === '127.0.0.1' ||
+                       cleanHost.startsWith('dashboard.') ||
+                       cleanHost.startsWith('app.');
+
+  // 2. Blog & Next.js Assets Proxy Logic (Core Domain Context Only) - MUST BE FIRST
+  // This must execute before static assets early-exit to avoid 404s on Next.js bundle files (_next/static/...)
   if (isCoreDomain) {
     if (
       url.pathname.startsWith('/blog') || 

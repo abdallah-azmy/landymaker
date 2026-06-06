@@ -339,12 +339,16 @@ Next.js serves the blog post from Supabase blog_posts table
 
 **⚠️ Do NOT add `blog` as a Flutter route** — it will conflict with the middleware proxy.
 
+**⚠️ CRITICAL MIDDLEWARE RULE:**
+The Blog & Next.js assets routing logic (`/blog` and `/_next`) **MUST** reside at the very top of `middleware.js`. If it is placed below static asset verification (`staticExtensions`), Next.js chunk and script files (like `_next/static/chunks/...js`) will trigger the early-exit check and return the Flutter app index, causing the blog layout to fail and return **404 (This page could not be found)** errors on Next.js resources.
+
 ### 11.7 — Troubleshooting Common CI/CD Problems
 
 | Symptom | Cause | Fix |
 |---|---|---|
 | Icons/favicon didn't update after push | Vercel auto-deploy (not GitHub Actions) ran last | Disable Vercel Git auto-deploy; push a new commit to trigger GitHub Actions |
 | Blog posts show 404 | `dynamic` not set; Vercel cached the 404 | Ensure `export const dynamic = 'force-dynamic'` is in `[slug]/page.tsx` |
+| Blog posts show 404 / Black screen | Blog assets (`/_next/static/..`) intercepted by Flutter's static checker | Ensure Blog rewrite logic is at the absolute top of `middleware.js` before `staticExtensions` test |
 | Flutter app shows blank/broken | `--dart-define` secrets missing from GitHub Secrets | Add `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `IMGBB_API_KEY` to GitHub repo secrets |
 | `vercel deploy` fails with "path not found" | Running `vercel deploy` from inside `blog-frontend/` with Vercel root dir mismatch | Never run `vercel deploy` manually — always use GitHub Actions |
 | Middleware returns 500 errors | Missing Vercel environment variables for `middleware.js` | Add `SUPABASE_URL` + `SUPABASE_ANON_KEY` to Vercel Dashboard for `landymaker` project |

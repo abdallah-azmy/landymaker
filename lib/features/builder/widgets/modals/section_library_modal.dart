@@ -83,7 +83,7 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                 decoration: BoxDecoration(
                   color: AppColors.border.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(2),
-                ),
+                )
               ),
               
               Text("إضافة قسم جديد", style: AppTypography.h2),

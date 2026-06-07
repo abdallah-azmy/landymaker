@@ -7,6 +7,7 @@ import '../core/error_handler.dart';
 import '../core/logger.dart';
 import '../core/dio_http_client_adapter.dart';
 import '../core/http_client.dart';
+import '../core/utils/env_utils.dart';
 import '../core/utils/fingerprint_utils.dart';
 
 /// Singleton service wrapping Supabase with Supabase SDK
@@ -49,8 +50,8 @@ class SupabaseService extends ChangeNotifier {
   //     --dart-define=SUPABASE_ANON_KEY=eyJ...
   // ─────────────────────────────────────────────────────────────────────────
 
-  static final String supabaseUrl = const String.fromEnvironment('SUPABASE_URL');
-  static final String supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY');
+  static final String supabaseUrl = EnvUtils.supabaseUrl;
+  static final String supabaseAnonKey = EnvUtils.supabaseAnonKey;
 
   /// Initialize Supabase Flutter Client
   Future<void> initialize() async {

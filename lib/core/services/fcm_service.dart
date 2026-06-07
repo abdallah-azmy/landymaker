@@ -12,11 +12,13 @@ class FcmService {
     if (!kIsWeb) return;
 
     try {
-      final String apiKey = EnvUtils.get('FIREBASE_API_KEY');
-      
+      final String apiKey = EnvUtils.firebaseApiKey;
+
       // Safety Guard: If API Key is missing from environment, don't try to initialize Firebase
       if (apiKey.isEmpty) {
-        debugPrint('FCM: FIREBASE_API_KEY is missing from environment. Initialization aborted.');
+        debugPrint(
+          'FCM: FIREBASE_API_KEY is missing from environment. Initialization aborted.',
+        );
         return;
       }
 
@@ -24,12 +26,12 @@ class FcmService {
         await Firebase.initializeApp(
           options: FirebaseOptions(
             apiKey: apiKey,
-            authDomain: EnvUtils.get('FIREBASE_AUTH_DOMAIN'),
-            projectId: EnvUtils.get('FIREBASE_PROJECT_ID'),
-            storageBucket: EnvUtils.get('FIREBASE_STORAGE_BUCKET'),
-            messagingSenderId: EnvUtils.get('FIREBASE_MESSAGING_SENDER_ID'),
-            appId: EnvUtils.get('FIREBASE_APP_ID'),
-            measurementId: EnvUtils.get('FIREBASE_MEASUREMENT_ID'),
+            authDomain: EnvUtils.firebaseAuthDomain,
+            projectId: EnvUtils.firebaseProjectId,
+            storageBucket: EnvUtils.firebaseStorageBucket,
+            messagingSenderId: EnvUtils.firebaseMessagingSenderId,
+            appId: EnvUtils.firebaseAppId,
+            measurementId: EnvUtils.firebaseMeasurementId,
           ),
         );
       }
@@ -50,14 +52,15 @@ class FcmService {
 
       // Listen for foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        debugPrint('FCM: Received foreground message: ${message.notification?.title}');
+        debugPrint(
+          'FCM: Received foreground message: ${message.notification?.title}',
+        );
       });
 
       // Listen for token refresh
       messaging.onTokenRefresh.listen((newToken) {
         _saveTokenToDatabase(newToken);
       });
-      
     } catch (e) {
       debugPrint('FCM Error during initialization: $e');
     }
@@ -66,15 +69,15 @@ class FcmService {
   /// Attempts to fetch the token and save it to the database if the user is authenticated
   static Future<void> saveTokenIfPossible() async {
     if (!kIsWeb || !_isInitialized) return;
-    
+
     try {
-      final vapidKey = EnvUtils.get('FIREBASE_VAPID_KEY');
-      
+      final vapidKey = EnvUtils.firebaseVapidKey;
+
       if (vapidKey.isEmpty) {
         debugPrint('FCM: FIREBASE_VAPID_KEY is missing. Token fetch aborted.');
         return;
       }
-      
+
       final token = await FirebaseMessaging.instance.getToken(
         vapidKey: vapidKey,
       );
@@ -101,7 +104,9 @@ class FcmService {
         debugPrint('FCM: Error syncing token with Supabase: $e');
       }
     } else {
-      debugPrint('FCM: Token received but user not authenticated. Sync postponed.');
+      debugPrint(
+        'FCM: Token received but user not authenticated. Sync postponed.',
+      );
     }
   }
 }

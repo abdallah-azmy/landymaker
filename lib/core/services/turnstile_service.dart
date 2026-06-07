@@ -3,11 +3,16 @@ import 'dart:html' as html;
 import 'dart:js' as js;
 import 'dart:ui_web' as ui;
 
+import 'package:landymaker/core/utils/env_utils.dart';
+
 class TurnstileService {
   static final Map<String, String> _tokens = {};
-  
+
   /// Registers the HTML view factory for Turnstile
-  static void registerViewFactory(String viewId, Function(String) onTokenReceived) {
+  static void registerViewFactory(
+    String viewId,
+    Function(String) onTokenReceived,
+  ) {
     ui.platformViewRegistry.registerViewFactory(viewId, (int viewIdNum) {
       final container = html.DivElement()
         ..id = 'turnstile-container-\$viewId'
@@ -17,14 +22,8 @@ class TurnstileService {
       // Delay execution to ensure the script is loaded and DOM is ready
       Future.delayed(const Duration(milliseconds: 500), () {
         if (js.context.hasProperty('turnstile')) {
-          var siteKey = const String.fromEnvironment('TURNSTILE_SITE_KEY');
-          
-          // Clean quotes if the user added them in .env.local (e.g., TURNSTILE_SITE_KEY="..." or '...')
-          if ((siteKey.startsWith('"') && siteKey.endsWith('"')) || 
-              (siteKey.startsWith("'") && siteKey.endsWith("'"))) {
-            siteKey = siteKey.substring(1, siteKey.length - 1);
-          }
-          
+          var siteKey = EnvUtils.turnstileSiteKey;
+
           js.context['turnstile'].callMethod('render', [
             '#turnstile-container-\$viewId',
             js.JsObject.jsify({
@@ -34,7 +33,7 @@ class TurnstileService {
                 onTokenReceived(token);
               },
               'theme': 'light',
-            })
+            }),
           ]);
         }
       });
@@ -48,7 +47,9 @@ class TurnstileService {
   static void reset(String viewId) {
     _tokens.remove(viewId);
     if (js.context.hasProperty('turnstile')) {
-      js.context['turnstile'].callMethod('reset', ['#turnstile-container-\$viewId']);
+      js.context['turnstile'].callMethod('reset', [
+        '#turnstile-container-\$viewId',
+      ]);
     }
   }
 }

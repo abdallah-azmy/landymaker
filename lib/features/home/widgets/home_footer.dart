@@ -59,11 +59,20 @@ class HomeFooter extends StatelessWidget {
                           // Social links
                           Row(
                             children: [
-                              _SocialBtn(icon: Icons.camera_alt_outlined, onTap: () {}),
+                              _SocialBtn(
+                                icon: Icons.camera_alt_outlined,
+                                onTap: () {},
+                              ),
                               const SizedBox(width: 8),
-                              _SocialBtn(icon: Icons.facebook_rounded, onTap: () {}),
+                              _SocialBtn(
+                                icon: Icons.facebook_rounded,
+                                onTap: () {},
+                              ),
                               const SizedBox(width: 8),
-                              _SocialBtn(icon: Icons.link_rounded, onTap: () {}),
+                              _SocialBtn(
+                                icon: Icons.link_rounded,
+                                onTap: () {},
+                              ),
                             ],
                           ),
                         ],
@@ -90,7 +99,10 @@ class HomeFooter extends StatelessWidget {
                           _FooterLinkData(label: "من نحن", path: '/'),
                           _FooterLinkData(label: "المدونة", path: '/blog'),
                           _FooterLinkData(label: "تواصل معنا", path: '/'),
-                          _FooterLinkData(label: context.translate('privacy_policy'), path: '/privacy-policy'),
+                          _FooterLinkData(
+                            label: context.translate('privacy_policy'),
+                            path: '/privacy-policy',
+                          ),
                         ],
                       ),
                     ),
@@ -99,7 +111,10 @@ class HomeFooter extends StatelessWidget {
                         title: "الدعم",
                         items: [
                           _FooterLinkData(label: "مركز المساعدة", path: '/'),
-                          _FooterLinkData(label: context.translate('terms_of_service'), path: '/terms'),
+                          _FooterLinkData(
+                            label: context.translate('terms_of_service'),
+                            path: '/terms',
+                          ),
                           _FooterLinkData(label: "الإبلاغ عن مشكلة", path: '/'),
                         ],
                       ),
@@ -109,10 +124,10 @@ class HomeFooter extends StatelessWidget {
               else
                 Column(
                   children: [
-                     Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                            const LandyMakerLogo(fontSize: 20),
+                        const LandyMakerLogo(fontSize: 20),
                         const SizedBox(width: 8),
                         Image.asset(
                           'assets/images/logo_small.webp',
@@ -124,18 +139,25 @@ class HomeFooter extends StatelessWidget {
                     const SizedBox(height: 12),
                     Text(
                       "ابنِ حضورك الرقمي باحترافية وبساطة.",
-                      style: AppTypography.bodyMedium
-                          .copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
                     Wrap(
                       spacing: 16,
                       children: [
-                        _MobileFooterLink(label: context.translate('privacy_policy'), path: '/privacy-policy'),
-                        _MobileFooterLink(label: context.translate('terms_of_service'), path: '/terms'),
+                        _MobileFooterLink(
+                          label: context.translate('privacy_policy'),
+                          path: '/privacy-policy',
+                        ),
+                        _MobileFooterLink(
+                          label: context.translate('terms_of_service'),
+                          path: '/terms',
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
 
@@ -151,23 +173,24 @@ class HomeFooter extends StatelessWidget {
                 children: [
                   Text(
                     "© 2026 Landymaker. جميع الحقوق محفوظة.",
-                    style: AppTypography.caption
-                        .copyWith(color: AppColors.textSecondary),
+                    style: AppTypography.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Text(
+                      //   "مدعوم بـ",
+                      //   style: AppTypography.caption
+                      //       .copyWith(color: AppColors.textSecondary),
+                      // ),
+                      // const SizedBox(width: 6),
+                      // const Icon(Icons.favorite_rounded,
+                      //     color: AppColors.secondary, size: 12),
+                      // const SizedBox(width: 6),
                       Text(
-                        "مدعوم بـ",
-                        style: AppTypography.caption
-                            .copyWith(color: AppColors.textSecondary),
-                      ),
-                      const SizedBox(width: 6),
-                      const Icon(Icons.favorite_rounded,
-                          color: AppColors.secondary, size: 12),
-                      const SizedBox(width: 6),
-                      Text(
-                        "Supabase & Flutter",
+                        "V 1.0.0",
                         style: AppTypography.caption.copyWith(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.bold,
@@ -213,7 +236,9 @@ class _SocialBtnState extends State<_SocialBtn> {
                 : AppColors.cardBg,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: _hovered ? AppColors.secondary.withValues(alpha: 0.4) : AppColors.border,
+              color: _hovered
+                  ? AppColors.secondary.withValues(alpha: 0.4)
+                  : AppColors.border,
             ),
           ),
           child: Icon(
@@ -252,18 +277,20 @@ class _FooterLinks extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        ...items.map((item) => Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: InkWell(
-            onTap: () => context.go(item.path),
-            child: Text(
-              item.label,
-              style: AppTypography.caption.copyWith(
-                color: AppColors.textSecondary,
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: InkWell(
+              onTap: () => context.go(item.path),
+              child: Text(
+                item.label,
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
           ),
-        )),
+        ),
       ],
     );
   }
@@ -280,7 +307,10 @@ class _MobileFooterLink extends StatelessWidget {
       onTap: () => context.go(path),
       child: Text(
         label,
-        style: AppTypography.caption.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold),
+        style: AppTypography.caption.copyWith(
+          color: AppColors.secondary,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

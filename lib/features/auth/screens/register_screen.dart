@@ -14,7 +14,6 @@ import '../../../core/utils/toast_service.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
 
-
 class RegisterScreen extends StatefulWidget {
   final VoidCallback? onRegisterSuccess;
 
@@ -64,19 +63,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
-          style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary, height: 1.5),
+          style: AppTypography.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
           children: [
             TextSpan(text: part1),
             TextSpan(
               text: privacyText,
-              style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
-              recognizer: TapGestureRecognizer()..onTap = () => context.push('/privacy-policy'),
+              style: const TextStyle(
+                color: AppColors.secondary,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => context.push('/privacy-policy'),
             ),
             TextSpan(text: part2),
             TextSpan(
               text: termsText,
-              style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
-              recognizer: TapGestureRecognizer()..onTap = () => context.push('/terms'),
+              style: const TextStyle(
+                color: AppColors.secondary,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => context.push('/terms'),
             ),
             TextSpan(text: part3),
           ],
@@ -291,7 +303,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               SocialSignInButton(
                                 label: loc.translate('sign_in_google'),
                                 isLoading: isLoading,
-                                onPressed: () => context.read<AuthCubit>().signInWithGoogle(),
+                                onPressed: () => context
+                                    .read<AuthCubit>()
+                                    .signInWithGoogle(),
                               ),
 
                               const SizedBox(height: 20),

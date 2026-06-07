@@ -24,7 +24,8 @@ class LegalPage extends StatelessWidget {
     if (kIsWeb) {
       AppSEO.updateMeta(
         title: '$title | LandyMaker',
-        description: 'Read our $title to understand how we protect your rights at LandyMaker.',
+        description:
+            'Read our $title to understand how we protect your rights at LandyMaker.',
       );
     }
   }
@@ -33,7 +34,7 @@ class LegalPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = context.translate(titleKey);
     _applySeo(context, title);
-    
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: HomeNavbar(
@@ -60,7 +61,9 @@ class LegalPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     "LandyMaker 🚀",
-                    style: AppTypography.bodyLarge.copyWith(color: AppColors.secondary),
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: AppColors.secondary,
+                    ),
                   ),
                 ],
               ),
@@ -79,25 +82,25 @@ class LegalPage extends StatelessWidget {
 
   Widget _buildContent(BuildContext context) {
     final isRtl = context.isRtl;
-    
+
     // Legal Content Map (SaaS focused)
     final Map<String, List<Map<String, String>>> legalData = {
       'privacy_policy_content': [
         {
           'title': isRtl ? '1. البيانات التي نجمعها' : '1. Data Collection',
-          'body': isRtl 
+          'body': isRtl
               ? 'نجمع معلوماتك عند التسجيل، بما في ذلك الاسم والبريد الإلكتروني وتفاصيل الدفع. كما نجمع بيانات تقنية مثل عنوان IP وبصمة الجهاز لتحسين الأمان.'
               : 'We collect information during registration, including name, email, and payment details. We also collect technical data such as IP address and device fingerprint for security purposes.',
         },
         {
           'title': isRtl ? '2. كيف نستخدم بياناتك' : '2. How We Use Data',
-          'body': isRtl 
+          'body': isRtl
               ? 'تُستخدم بياناتك لتقديم خدماتنا، ومعالجة المدفوعات، وإرسال التنبيهات الفورية، ومنع السبام والاحتيال.'
               : 'Your data is used to provide our services, process payments, send push notifications, and prevent spam and fraud.',
         },
         {
           'title': isRtl ? '3. ملفات تعريف الارتباط' : '3. Cookies',
-          'body': isRtl 
+          'body': isRtl
               ? 'نستخدم الكوكيز لتخصيص تجربتك وحفظ تفضيلاتك وجمع إحصائيات حول أداء الصفحات التي تبنيها.'
               : 'We use cookies to personalize your experience, save preferences, and collect analytics on the pages you build.',
         },
@@ -105,23 +108,25 @@ class LegalPage extends StatelessWidget {
       'terms_content': [
         {
           'title': isRtl ? '1. شروط الاستخدام' : '1. Terms of Use',
-          'body': isRtl 
+          'body': isRtl
               ? 'باستخدام لاندي ميكر، أنت توافق على الالتزام بهذه الشروط. يحظر استخدام المنصة لأي غرض غير قانوني أو لنشر محتوى ينتهك حقوق الآخرين.'
               : 'By using LandyMaker, you agree to these terms. It is forbidden to use the platform for any illegal purpose or to publish content that violates the rights of others.',
         },
         {
           'title': isRtl ? '2. ملكية المحتوى' : '2. Content Ownership',
-          'body': isRtl 
+          'body': isRtl
               ? 'أنت تمتلك كامل الحقوق في المحتوى الذي تنشره عبر صفحاتك، ولكنك تمنح لاندي ميكر رخصة لاستضافة هذا المحتوى وعرضه.'
               : 'You own all rights to the content you publish on your pages, but you grant LandyMaker a license to host and display this content.',
         },
         {
-          'title': isRtl ? '3. الاشتراكات والدفع' : '3. Subscriptions & Payment',
-          'body': isRtl 
+          'title': isRtl
+              ? '3. الاشتراكات والدفع'
+              : '3. Subscriptions & Payment',
+          'body': isRtl
               ? 'تخضع الخطط المدفوعة لشروط الاشتراك المختارة. لاندي ميكر تحتفظ بالحق في تعديل الأسعار مع إشعار مسبق.'
               : 'Paid plans are subject to the chosen subscription terms. LandyMaker reserves the right to modify prices with prior notice.',
         },
-      ]
+      ],
     };
 
     final sections = legalData[contentKey] ?? [];
@@ -136,12 +141,18 @@ class LegalPage extends StatelessWidget {
             children: [
               Text(
                 sec['title']!,
-                style: AppTypography.h3.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                style: AppTypography.h3.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
                 sec['body']!,
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary, height: 1.8),
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.8,
+                ),
               ),
             ],
           ),

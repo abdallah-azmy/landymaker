@@ -197,7 +197,16 @@ LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 10. **Workspace Cleanliness**:
    - Never create `.py`, `.sh`, or temporary markdown audit files in the project directory for debugging. Keep the repository strictly limited to production code and documentation.
 11. **Complex Tasks**: Use SPEC-KIT methodology in `.specify/` when requested.
-12. **Environment Variable Hygiene**: All sensitive keys (Firebase, Turnstile) read via `String.fromEnvironment` MUST be cleaned using the `_cleanEnv` helper logic or `EnvUtils.get()` to strip potential quotes (`"` or `'`) added in `.env.local`.
+12. **Environment Variable Hygiene & CI/CD (CRITICAL)**:
+   - **Pattern**: NEVER use dynamic retrieval for environment variables. `String.fromEnvironment` MUST be used as a `const` constructor with a string literal key.
+   - **Centralization**: All environment variables MUST be defined as static getters in `lib/core/utils/env_utils.dart`.
+   - **Cleaning**: Always wrap the `const String.fromEnvironment` call with `cleanEnv()` to strip potential quotes added by CI/CD or `.env` files.
+   - **Deployment**: When adding a new environment variable, you **MUST** update the `Build Flutter Web` step in `.github/workflows/deploy.yml` to include the new `--dart-define` flag.
+   - **GitHub Secrets**: Remind the user to add the corresponding secret to GitHub Repository Secrets. Failure to do this will result in empty values in production.
+   - **Example**:
+     ```dart
+     static String get myNewKey => cleanEnv(const String.fromEnvironment('MY_NEW_KEY'));
+     ```
 13. **Edge Function Development Rules**:
     - **Absolute URLs**: Always use full URLs for imports (e.g., `https://esm.sh/...`).
     - **Strict Typing**: Always define explicit types for Request/Response and catch blocks (`error: unknown`).

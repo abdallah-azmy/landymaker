@@ -189,16 +189,21 @@ LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 8. **Form Submission & Data Flow**:
    - Always manage an explicit `isLoading` state during async operations (especially form submissions) to disable buttons and prevent double-submits.
    - Provide inline success/error feedback inside the widget instead of relying on silent failures or generic snackbars alone.
-9. **Workspace Cleanliness**:
+9. **UI/UX Design Patterns (CRITICAL)**:
+   - **Social Auth**: Always use the reusable `SocialSignInButton` for OAuth flows to ensure branding consistency.
+   - **Tables & Lists**: Use `ResponsiveDataTable` for all dashboard data. It MUST implement a card-based fallback for mobile (`maxWidth < 600`) to prevent horizontal overflows.
+   - **Modals**: For complex editors or large lists (SEO, Section Library, Image Picker), always use `DraggableModalSheet`. This allows users to expand the modal to full-screen on demand.
+   - **Legal Compliance**: Every registration/auth flow must include a `RichText` notice linking to `/privacy-policy` and `/terms`.
+10. **Workspace Cleanliness**:
    - Never create `.py`, `.sh`, or temporary markdown audit files in the project directory for debugging. Keep the repository strictly limited to production code and documentation.
-10. **Complex Tasks**: Use SPEC-KIT methodology in `.specify/` when requested.
-11. **Environment Variable Hygiene**: All sensitive keys (Firebase, Turnstile) read via `String.fromEnvironment` MUST be cleaned using the `_cleanEnv` helper logic to strip potential quotes (`"` or `'`) added in `.env.local`.
-12. **Edge Function Development Rules**:
+11. **Complex Tasks**: Use SPEC-KIT methodology in `.specify/` when requested.
+12. **Environment Variable Hygiene**: All sensitive keys (Firebase, Turnstile) read via `String.fromEnvironment` MUST be cleaned using the `_cleanEnv` helper logic or `EnvUtils.get()` to strip potential quotes (`"` or `'`) added in `.env.local`.
+13. **Edge Function Development Rules**:
     - **Absolute URLs**: Always use full URLs for imports (e.g., `https://esm.sh/...`).
     - **Strict Typing**: Always define explicit types for Request/Response and catch blocks (`error: unknown`).
     - **CORS Handling**: Every function must handle `OPTIONS` requests and return proper `Access-Control-Allow-Origin` headers.
-    - **IDE Support**: The `supabase/functions` directory uses `tsconfig.json` and `deno-types.d.ts` for IDE support. Do not delete or ignore these files.
-13. **Data Integrity**: Never perform arithmetic operations on potential zero values in the UI (e.g., conversion rate) without a safety check (`visitors > 0`).
+    - **IDE Support**: Use `tsconfig.json` and `deno-types.d.ts` for IDE support. Do not delete or ignore these files.
+14. **Data Integrity**: Never perform arithmetic operations on potential zero values in the UI (e.g., conversion rate) without a safety check (`visitors > 0`).
 
 ---
 

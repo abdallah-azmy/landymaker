@@ -60,6 +60,14 @@ class AppTypography {
         color: AppColors.textSecondary,
       );
 
+  static TextStyle get bodySmall => const TextStyle(
+        fontFamilyFallback: fontFallbacks,
+        fontSize: 12,
+        fontWeight: FontWeight.normal,
+        height: 1.5,
+        color: AppColors.textSecondary,
+      );
+
   static TextStyle get button => const TextStyle(
         fontFamilyFallback: fontFallbacks,
         fontSize: 13,

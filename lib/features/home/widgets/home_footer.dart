@@ -190,7 +190,7 @@ class HomeFooter extends StatelessWidget {
                       //     color: AppColors.secondary, size: 12),
                       // const SizedBox(width: 6),
                       Text(
-                        "V 1.0.0",
+                        "V 1.0.1",
                         style: AppTypography.caption.copyWith(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.bold,

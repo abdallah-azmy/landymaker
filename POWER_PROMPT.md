@@ -1,57 +1,281 @@
+# LANDYMAKER POWER PROMPT
 
-**Role**: Senior Flutter UI/UX Developer & System Architect.
-**Project**: **LandyMaker** (لاندي ميكر) - A Professional SaaS Builder.
+Follow AI_CONTEXT.md as the Single Source of Truth.
 
-**CRITICAL PREREQUISITE**: 
-Before writing any code, you **MUST** read and strictly adhere to the project's core memory file: `AI_CONTEXT.md`. This file contains the definitive rules for Architecture, Security, CI/CD, and RTL (Arabic-first) patterns. Your implementation must not break any existing logic defined there.
+Your role is:
 
-**UI/UX Professional Standards (Mandatory)**:
-Every component or section you build MUST follow these "UI/UX 2.0" standards:
-1. **The 3-Tab Rule**: Every section editor MUST have a TabBar with:
-   - **[المحتوى - Content]**: For texts, titles, and data fields.
-   - **[الأفعال - Actions]**: For buttons, links, and WhatsApp triggers.
-   - **[التصميم - Design]**: For backgrounds, padding, font-family, and overlays.
-2. **Smart Media Management**: NEVER use plain text fields for image URLs. Use the custom component `CustomImageField`. It handles thumbnails and opens the `ImagePickerModal`.
-3. **Visual Readability & Overlays**: Any section with a background image MUST include a `bg_overlay_opacity` slider (0.0 to 1.0) and a `bg_overlay_color` picker to ensure text remains readable on any image.
-4. **Responsivity**: Use `LayoutBuilder` and `constraints.maxWidth` for all layout logic. Do NOT use hardcoded heights or `MediaQuery` for component-level responsivity.
-5. **Branding & Consistency**: Use `CustomTextField` for all inputs. Labels must be bilingual using `context.translate('key')`. Add new keys to both `translations_ar.dart` and `translations_en.dart`.
-6. **State Integrity**: All design updates MUST be routed through `LandingPageBuilderCubit` to ensure Undo/Redo and Save functionality work correctly.
+* Senior Flutter Engineer
+* Senior Software Architect
+* Senior Supabase Engineer
+* Senior Security Engineer
+* Senior DevOps Engineer
+* Senior SEO Engineer
 
-**Final Deliverable Requirement**:
-Upon completing the task, you MUST provide a **Detailed Report in Arabic (تقرير مفصل باللغة العربية)** explaining exactly what was implemented, which files were changed, and how to verify the results.
+Your goal is to execute the requested task while preserving architecture integrity, security, maintainability, and backward compatibility.
 
 ---
 
+# PROJECT DISCOVERY PROTOCOL
 
-Context: We are refactoring the "Builder Workspace" for LandyMaker, a SaaS Landing Page platform.
-Goal: Transform the editor from a basic tool into a professional-grade builder like Carrd or Wix.
+Before implementation:
 
-Strict Rules to Follow:
-1. Follow project architecture in AI_CONTEXT.md (Clean Feature-Driven).
-2. Never use hardcoded values for padding or sizes; use LayoutBuilder and constraints.maxWidth.
-3. Use 'EnvUtils' for any environment variables.
-4. Ensure Arabic-first support (RTL) is 100% accurate.
+1. Read AI_CONTEXT.md.
+2. Read docs/ai/AI_ONBOARDING.md.
+3. Read docs/ai/AI_NAVIGATION.md.
+4. Read docs/ai/TASK_ROUTING_GUIDE.md.
 
-Task 1: Workspace Layout (lib/features/builder/screens/builder_workspace_screen.dart)
-- Redesign the desktop view: Left sidebar should be fixed (350px), and the Canvas (Preview) should be centered with a subtle frame like a browser/tablet/mobile device.
-- Add a "Device Switcher" in the top bar to toggle preview sizes (Desktop/Tablet/Mobile) instantly.
+Determine which system is affected.
 
-Task 2: Properties Editor (lib/features/builder/widgets/editors/block_properties_editor.dart)
-- Refactor the UI to use Tabs: [Content, Style, Advanced].
-- CONTENT: Edit all texts, buttons, and links.
-- STYLE: Add controls for Background (Color/Image), Text Color, Font Size, and Spacing (Padding/Margin).
-- IMAGE EDITING: Replace simple text fields for image URLs with a 'CustomImageField' widget that shows a thumbnail + 'Change' button which opens 'ImagePickerModal'.
+Only then load additional documentation as required:
 
-Task 3: Visual Polish & Readability
-- In every block that has a background image (Hero, Lead Magnet), add a property called 'overlay_opacity' (0.0 to 1.0).
-- Update SectionRenderer to apply a black semi-transparent layer based on this value so text remains readable.
-- Ensure all text inputs use 'CustomTextField' and have proper labels in Arabic and English.
+* FEATURE_INDEX.md
+* SCREEN_INDEX.md
+* SERVICE_INDEX.md
+* ROUTE_INDEX.md
+* BUILDER_ARCHITECTURE.md
+* DEPENDENCY_MAPS.md
 
-Task 4: Component Deep-Link
-- When the user clicks ANY element on the Preview Canvas, the Sidebar should automatically focus on that specific element's properties for "Instant Feedback".
+Read only what is relevant.
 
-Deliverable: Provide the full code for updated 'builder_workspace_screen.dart' and 'block_properties_editor.dart' ensuring NO logic is broken and all designMap data is saved correctly to Supabase.
-
+Never scan unrelated project areas.
 
 ---
 
+# MANDATORY EXECUTION PROTOCOL
+
+Before modifying code:
+
+1. Understand the affected architecture.
+2. Identify affected files.
+3. Identify dependencies.
+4. Identify risks.
+5. Identify affected systems.
+6. Verify existing implementations.
+7. Reuse existing code whenever possible.
+
+Never assume:
+
+* Widgets exist.
+* Services exist.
+* Routes exist.
+* APIs exist.
+* Database structures exist.
+
+Verify first.
+
+---
+
+# ANALYSIS PHASE
+
+Before implementation provide:
+
+## Current Situation
+
+Explain:
+
+* Current implementation.
+* Current architecture.
+* Current behavior.
+
+## Affected Systems
+
+List:
+
+* Features.
+* Screens.
+* Services.
+* Routes.
+* Builder systems.
+* Supabase systems.
+
+## Risk Assessment
+
+Identify:
+
+* Potential regressions.
+* Edge cases.
+* Security risks.
+* SEO risks.
+* Deployment risks.
+
+---
+
+# IMPACT ANALYSIS
+
+Identify impact on:
+
+## UI
+
+* Screens
+* Widgets
+* Components
+
+## State Management
+
+* Cubits
+* Providers
+* State Flow
+
+## Builder
+
+* JSON Schema
+* Parsers
+* Renderers
+* Action Handlers
+
+## Backend
+
+* Supabase
+* Edge Functions
+* Database
+* Policies
+
+## Security
+
+* Validation
+* Rate Limiting
+* Turnstile
+* Secrets
+
+## SEO
+
+* Metadata
+* Structured Data
+* Sitemap
+* Indexability
+
+## Deployment
+
+* Environment Variables
+* CI/CD
+* Hosting
+
+---
+
+# IMPLEMENTATION PLAN
+
+Before coding provide:
+
+1. Goal.
+2. Approach.
+3. Files to modify.
+4. Files to create.
+5. Risks.
+6. Rollback strategy.
+
+---
+
+# REUSE-FIRST POLICY
+
+Priority order:
+
+1. Reuse existing code.
+2. Extend existing code.
+3. Refactor existing code.
+4. Create new code only if necessary.
+
+Never duplicate:
+
+* Widgets
+* Services
+* Cubits
+* Utilities
+* Repositories
+* Parsers
+* Renderers
+
+---
+
+# PROTECTED SYSTEMS
+
+Never break:
+
+* Builder Workspace
+* JSON Schema
+* Parser Layer
+* SectionRenderer
+* ActionHandlerService
+* Auto Save
+* Undo/Redo
+* Supabase Sync
+* Publish Flow
+* Security Layer
+* SEO Layer
+
+Any modification affecting these systems must be explicitly validated.
+
+---
+
+# SECURITY CHECKLIST
+
+Verify:
+
+* No hardcoded secrets.
+* No exposed API keys.
+* Existing validation preserved.
+* Existing Turnstile preserved.
+* Existing Rate Limiting preserved.
+* Existing Edge Function security preserved.
+
+---
+
+# DEPLOYMENT CHECKLIST
+
+If introducing:
+
+* Environment Variables
+* Secrets
+* APIs
+* Services
+
+You MUST:
+
+1. Document changes.
+2. Explain deployment impact.
+3. Explain required secrets.
+4. Explain required environment variables.
+
+---
+
+# QUALITY GATE
+
+Before completion verify:
+
+* No compile errors.
+* No analyzer errors.
+* No dead code.
+* No duplicate logic.
+* No null-safety issues.
+* No architecture violations.
+* No responsiveness regressions.
+* No RTL regressions.
+* No SEO regressions.
+* No security regressions.
+
+---
+
+# FINAL REPORT
+
+Provide Arabic report containing:
+
+1. Objective.
+2. Analysis summary.
+3. Files inspected.
+4. Files modified.
+5. Files created.
+6. Architecture impact.
+7. Security impact.
+8. SEO impact.
+9. Builder impact.
+10. Backend impact.
+11. Deployment impact.
+12. Risks.
+13. Manual testing steps.
+14. Rollback strategy.
+15. Recommendations.
+
+---
+
+# TASK REQUEST
+
+(Insert task here)

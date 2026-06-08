@@ -167,7 +167,94 @@ LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 
 ---
 
-## 🧠 9. **Strict AI Assistant Rules (MUST FOLLOW)**:
+## 🌍 9. PROTECTED CORE SYSTEMS
+
+The following systems are considered mission-critical and must never be broken without explicit validation.
+
+## Builder Engine
+
+Includes:
+
+- Builder Workspace
+- Drag & Drop System
+- Section Management
+- Live Preview
+- Auto Save
+- Undo / Redo
+
+## Rendering Pipeline
+
+Includes:
+
+- JSON Schema
+- Schema Validation
+- Parser Layer
+- SectionRenderer
+- Dynamic Rendering
+
+## Action System
+
+Includes:
+
+- ActionHandlerService
+- Navigation Actions
+- Form Actions
+- Button Actions
+- Custom Actions
+
+## Publishing System
+
+Includes:
+
+- Publish Flow
+- Site Generation
+- SEO Metadata Generation
+- Sitemap Generation
+- OpenGraph Generation
+
+## Lead Capture System
+
+Includes:
+
+- Lead Forms
+- Supabase Submission Flow
+- Turnstile Validation
+- Rate Limiting
+- Fingerprint Protection
+
+## Security Layer
+
+Includes:
+
+- Environment Variables
+- Secrets Management
+- Edge Functions
+- RLS Assumptions
+- Authentication Flows
+
+## SEO Layer
+
+Includes:
+
+- Metadata
+- Structured Data
+- Canonical URLs
+- OpenGraph
+- Twitter Cards
+- Indexability
+
+Any task affecting one of these systems MUST:
+
+1. Identify impact.
+2. Validate impact.
+3. Explain impact.
+4. Preserve backward compatibility.
+5. Include manual verification steps.
+
+---
+
+
+## 🧠 10. **Strict AI Assistant Rules (MUST FOLLOW)**:
 
 1. **Professional Builder Standards**: Every section editor MUST follow the tabbed structure: [Content, Actions, Design].
 2. **Image Management**: Use `CustomImageField` for all image properties. It handles thumbnails, loading states, and integrates with the unified `ImagePickerModal`.
@@ -219,7 +306,7 @@ LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 
 ---
 
-## 🖼️ 10. Unified Image Management & Media Picker System
+## 🖼️ 11. Unified Image Management & Media Picker System
 
 LandyMaker features a centralized, robust Image Media Picker and Background Upload system used across the Builder Workspace:
 - **Sources Supported**: 
@@ -235,11 +322,11 @@ LandyMaker features a centralized, robust Image Media Picker and Background Uplo
 
 ---
 
-## 🚀 11. CI/CD Pipeline & Deployment Architecture (CRITICAL — READ BEFORE ANY DEPLOY)
+## 🚀 12. CI/CD Pipeline & Deployment Architecture (CRITICAL — READ BEFORE ANY DEPLOY)
 
 This section documents how LandyMaker is built and deployed. **Every AI assistant MUST read this before touching anything related to deployment, assets, icons, or secrets.**
 
-### 11.1 — Project Layout on Vercel (Two Separate Projects)
+### 12.1 — Project Layout on Vercel (Two Separate Projects)
 
 | Vercel Project | Project ID | URL | Source |
 |---|---|---|---|
@@ -251,7 +338,7 @@ Both are in the **same GitHub repository**: `abdallah-azmy/landymaker`
 - The **main app** (`landymaker`) is a Flutter Web app. Its Vercel Output Directory is `build/web`.
 - The **blog** (`landymaker-blog`) is a Next.js 16 app located in `blog-frontend/`. It deploys via its own Vercel auto-deployment triggered from the repo root.
 
-### 11.2 — Main App (Flutter) CI/CD Pipeline
+### 12.2 — Main App (Flutter) CI/CD Pipeline
 
 **⚠️ CRITICAL WARNING**: The `public/` and `/build/` directories are both in `.gitignore`. They are **NEVER committed to Git**. Do NOT try to commit them.
 
@@ -287,7 +374,7 @@ Vercel also triggers its own auto-deploy when a push happens to `main` (separate
 - Disable "Auto-Deploy on Push"
 - Leave GitHub Actions as the **only** deploy trigger
 
-### 11.3 — Blog (Next.js) CI/CD Pipeline
+### 12.3 — Blog (Next.js) CI/CD Pipeline
 
 The blog in `blog-frontend/` is auto-deployed by Vercel directly when changes are pushed to `main`.
 
@@ -300,7 +387,7 @@ The blog in `blog-frontend/` is auto-deployed by Vercel directly when changes ar
 **⚠️ KNOWN ISSUE — Blog 404 Caching:**
 Next.js blog post pages were previously set to `revalidate = 60`, which caused Vercel to cache 404 responses for 60 seconds. When a page was first hit before Supabase responded, the 404 was cached. Fix applied: `export const dynamic = 'force-dynamic'` + `revalidate = 0` in `blog-frontend/app/blog/[slug]/page.tsx`. **Do NOT revert this.**
 
-### 11.4 — Secrets & Environment Variables
+### 12.4 — Secrets & Environment Variables
 
 **🔐 SECURITY RULES — MUST FOLLOW:**
 1. **NEVER hardcode secrets** in any source file.
@@ -346,7 +433,7 @@ flutter run -d chrome \
   --dart-define-from-file=.env.local
 ```
 
-### 11.5 — App Icons & Assets
+### 12.5 — App Icons & Assets
 
 **⚠️ CRITICAL — Where Icons Live (Two Places):**
 
@@ -382,7 +469,7 @@ src.resize((500,500)).save("assets/images/logo.webp","WEBP",quality=90)
 src.resize((128,128)).save("assets/images/logo_small.webp","WEBP",quality=90)
 ```
 
-### 11.6 — Blog URL Routing
+### 12.6 — Blog URL Routing
 
 The blog lives at `landymaker.com/blog/...` but is served from a **separate Vercel project** (`landymaker-blog`). The routing is handled by `middleware.js` (Edge Middleware) in the root project:
 
@@ -406,7 +493,7 @@ Next.js serves the blog post from Supabase blog_posts table
    ```
    If it is set to a catch-all `/(.*)` without exclusions, Vercel will rewrite Next.js/blog assets back to `/index.html`, leading to persistent black screens and 404 errors on blog posts.
 
-### 11.7 — Troubleshooting Common CI/CD Problems
+### 12.7 — Troubleshooting Common CI/CD Problems
 
 | Symptom | Cause | Fix |
 |---|---|---|

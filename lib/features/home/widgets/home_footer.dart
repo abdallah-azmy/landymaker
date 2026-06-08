@@ -96,7 +96,7 @@ class HomeFooter extends StatelessWidget {
                       child: _FooterLinks(
                         title: "الشركة",
                         items: [
-                          _FooterLinkData(label: "من نحن", path: '/'),
+                          _FooterLinkData(label: "من نحن", path: '/about'),
                           _FooterLinkData(label: "المدونة", path: '/blog'),
                           _FooterLinkData(label: "تواصل معنا", path: '/'),
                           _FooterLinkData(
@@ -148,6 +148,10 @@ class HomeFooter extends StatelessWidget {
                     Wrap(
                       spacing: 16,
                       children: [
+                        _MobileFooterLink(
+                          label: context.translate('about_us'),
+                          path: '/about',
+                        ),
                         _MobileFooterLink(
                           label: context.translate('privacy_policy'),
                           path: '/privacy-policy',

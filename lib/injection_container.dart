@@ -12,6 +12,7 @@ import 'features/builder/controllers/builder_cubit.dart';
 import 'features/dashboard/controllers/leads_analytics_cubit.dart';
 import 'features/dashboard/controllers/landing_pages_cubit.dart';
 import 'features/dashboard/controllers/active_website_cubit.dart';
+import 'features/dashboard/controllers/media_gallery_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
 import 'features/blog_admin/data/repositories/blog_repository.dart';
@@ -74,6 +75,11 @@ Future<void> initDependencies() async {
       authService: sl<AuthService>(),
       databaseService: sl<DatabaseService>(),
     ),
+  );
+
+  // Media Gallery Manager
+  sl.registerFactory<MediaGalleryCubit>(
+    () => MediaGalleryCubit(storageService: sl<StorageService>()),
   );
 
   // Super Admin panel cubit

@@ -1,1 +1,1 @@
-enum PreviewMode { mobile, desktop, fullscreen }
+enum PreviewMode { mobile, tablet, desktop, fullscreen }

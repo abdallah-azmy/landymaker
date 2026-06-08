@@ -3,9 +3,9 @@ import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
-import '../../../../../core/widgets/atoms/custom_text_field.dart';
-import '../../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
+import '../../molecules/custom_image_field.dart';
+import '../../../../../../core/localization/app_localizations.dart';
 
 class LogoHeaderEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -32,30 +32,14 @@ class LogoHeaderEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FormGroup(
+        CustomImageField(
           label: "لوجو الموقع (Logo Image)",
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomTextField(
-                controller: getController("${index}_logo_url", block['logo_url'] ?? ''),
-                focusNode: getFocusNode("${index}_logo_url"),
-                onChanged: (val) => cubit.updateBlockProperty(index, 'logo_url', val),
-              ),
-              const SizedBox(height: 10),
-              PrimaryButton(
-                text: "ابحث في الصور (Stock Images)",
-                icon: Icons.search_rounded,
-                isSecondary: true,
-                onPressed: () => pickImage(cubit, index, itemKey: 'logo_url'),
-                width: double.infinity,
-              ),
-            ],
-          ),
+          imageUrl: block['logo_url'],
+          onAction: () => pickImage(cubit, index, itemKey: 'logo_url'),
         ),
         const SizedBox(height: 16),
         FormGroup(
-          label: "محاذاة الترويسة (Alignment)",
+          label: context.translate('display_mode'),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(

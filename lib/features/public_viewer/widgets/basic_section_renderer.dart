@@ -6,6 +6,8 @@ import '../../builder/controllers/builder_state.dart';
 import '../../builder/widgets/atoms/dynamic_styled_text.dart';
 import '../../builder/widgets/atoms/dynamic_styled_image.dart';
 
+import '../../../core/widgets/section_background.dart';
+
 class BasicSectionRenderer extends StatelessWidget {
   final Map<String, dynamic> sectionData;
   final LandingPageTheme theme;
@@ -25,14 +27,19 @@ class BasicSectionRenderer extends StatelessWidget {
     final String mainAlign = sectionData['main_axis_alignment'] ?? 'center';
     final String crossAlign = sectionData['cross_axis_alignment'] ?? 'center';
     final double spacing = (sectionData['spacing'] ?? 16.0).toDouble();
+    final double? verticalPadding = (sectionData['vertical_padding'] as num?)?.toDouble();
 
     final List<Widget> elementWidgets = elements
         .map((e) => _buildElement(context, e))
         .toList();
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
-      width: double.infinity,
+    return SectionBackground(
+      bgImageUrl: sectionData['bg_image_url'],
+      bgOverlayColor: sectionData['bg_overlay_color'],
+      bgOverlayOpacity: (sectionData['overlay_opacity'] ?? sectionData['bg_overlay_opacity'] as num?)?.toDouble(),
+      verticalPaddingOverride: verticalPadding,
+      bgBlur: (sectionData['bg_blur'] as num?)?.toDouble(),
+      theme: theme,
       child: direction == 'row'
           ? Row(
               mainAxisAlignment: _parseMainAlign(mainAlign),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
@@ -29,38 +30,66 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
     final titleController = TextEditingController(text: seoData?['meta_title'] ?? '');
     final descController = TextEditingController(text: seoData?['meta_description'] ?? '');
     final imgController = TextEditingController(text: seoData?['og_image_url'] ?? 'https://landymaker.com/logo_social.webp');
+    
+    // Convert content map to string for editing
+    final contentController = TextEditingController(
+      text: seoData?['page_content'] != null 
+        ? const JsonEncoder.withIndent('  ').convert(seoData!['page_content']) 
+        : ''
+    );
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.background,
-        title: Text(isNew ? "Add New SEO Route" : "Edit SEO: ${seoData['route_path']}"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomTextField(
-                controller: pathController,
-                hintText: "Route Path (e.g. / or /pricing)",
-                enabled: isNew,
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: titleController,
-                hintText: "Meta Title",
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: descController,
-                hintText: "Meta Description",
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: imgController,
-                hintText: "OG Image URL",
-              ),
-            ],
+        title: Text(isNew ? "Add New SEO Route" : "Edit SEO & Content: ${seoData['route_path']}"),
+        content: SizedBox(
+          width: 600,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomTextField(
+                  controller: pathController,
+                  hintText: "Route Path (e.g. / or /pricing)",
+                  enabled: isNew,
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: titleController,
+                  hintText: "Meta Title",
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: descController,
+                  hintText: "Meta Description",
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: imgController,
+                  hintText: "OG Image URL",
+                ),
+                const SizedBox(height: 16),
+                const Divider(color: AppColors.border),
+                const SizedBox(height: 8),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Page Content (JSON Format - Optional)", style: TextStyle(color: AppColors.secondary, fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(height: 8),
+                CustomTextField(
+                  controller: contentController,
+                  hintText: '[{"title": "Section Title", "body": "Section content..."}]',
+                  maxLines: 10,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "This content is used in Legal/About pages. Must be a valid JSON list of objects with 'title' and 'body' keys.",
+                  style: TextStyle(color: Colors.white24, fontSize: 10),
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -75,10 +104,23 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
               final route = pathController.text.trim();
               if (route.isEmpty) return;
 
+              dynamic parsedContent;
+              if (contentController.text.trim().isNotEmpty) {
+                try {
+                  parsedContent = jsonDecode(contentController.text);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Invalid JSON in Page Content"), backgroundColor: AppColors.dangerRed),
+                  );
+                  return;
+                }
+              }
+
               context.read<SuperAdminCubit>().updatePlatformSeo(route, {
                 'meta_title': titleController.text,
                 'meta_description': descController.text,
                 'og_image_url': imgController.text,
+                'page_content': parsedContent,
               });
               Navigator.pop(context);
             },

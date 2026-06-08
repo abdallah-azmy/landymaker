@@ -167,16 +167,19 @@ LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 
 ---
 
-## 🧠 9. Strict AI Assistant Rules (MUST FOLLOW)
+## 🧠 9. **Strict AI Assistant Rules (MUST FOLLOW)**:
 
-1. **Reusability First**: Do not build redundant code. Check `lib/core/widgets/` first.
-2. **State-Management Cleanliness**: UI widgets must rebuild reactively. Local state (`setState`) is permitted for strictly internal component UI logic (e.g. form validation, loading spinners).
-3. **Build-Phase Redirect Guard**: Wrap route changes in `WidgetsBinding.instance.addPostFrameCallback`.
-4. **Bilingual Arabic-First Support**: Always add keys to both `translations_ar` and `translations_en`.
-5. **Slug Validation**: Validate subdomains against reserved paths.
-6. **Layout & Responsivity Rules (CRITICAL)**: 
+1. **Professional Builder Standards**: Every section editor MUST follow the tabbed structure: [Content, Actions, Design].
+2. **Image Management**: Use `CustomImageField` for all image properties. It handles thumbnails, loading states, and integrates with the unified `ImagePickerModal`.
+3. **Visual Safety**: Every section with a background image MUST include a `bg_overlay_opacity` slider (0.0 to 1.0) to ensure text remains readable.
+4. **Reusability First**: Do not build redundant code. Check `lib/core/widgets/` first. Use `CustomTextField` for all inputs to maintain the slate-dark theme.
+5. **State-Management Cleanliness**: UI widgets must rebuild reactively. Local state (`setState`) is permitted for strictly internal component UI logic (e.g. form validation, loading spinners).
+6. **Build-Phase Redirect Guard**: Wrap route changes in `WidgetsBinding.instance.addPostFrameCallback`.
+7. **Bilingual Arabic-First Support**: Always add keys to both `translations_ar` and `translations_en`.
+8. **Slug Validation**: Validate subdomains against reserved paths.
+9. **Layout & Responsivity Rules (CRITICAL)**: 
    - 80px desktop vertical padding, 40px mobile. Do not hardcode heights for containers wrapping text.
-   - **Never** use `MediaQuery.of(context).size` inside block widgets (`public_viewer/widgets`) to determine `isMobile` or column counts. This breaks the Builder Preview where components render in small simulated containers on large desktop screens.
+   - **Never** use `MediaQuery.of(context).size` inside block widgets to determine `isMobile`.
    - **Always** wrap the widget in `LayoutBuilder` and use `constraints.maxWidth` (e.g., `final bool isMobile = constraints.maxWidth < 600;`).
    - For grids and layout utils, explicitly pass `width: constraints.maxWidth` to `ResponsiveUtils` methods (like `getGridCrossAxisCount(width: constraints.maxWidth)`) and `ResponsiveLayout.getScreenType(context, width: constraints.maxWidth)`.
    - Protect text from `RenderFlex Overflow` in nested columns by using `Expanded`/`Flexible` and adding `maxLines` and `overflow: TextOverflow.ellipsis`.

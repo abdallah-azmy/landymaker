@@ -291,11 +291,6 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: onShowSeo,
           ),
         ],
-        if (!isMobile)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            child: _buildPublishButton(),
-          ),
         IconButton(
           icon: const Icon(
             Icons.open_in_new_rounded,

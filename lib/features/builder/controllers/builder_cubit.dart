@@ -1218,7 +1218,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
-  void updateMetadata(String key, String value) {
+  void updateMetadata(String key, dynamic value) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 

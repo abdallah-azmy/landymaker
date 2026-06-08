@@ -3,6 +3,8 @@ import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
+import '../../../../../core/widgets/atoms/custom_text_field.dart';
+import '../../../../../../core/localization/app_localizations.dart';
 
 class GalleryEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -32,14 +34,11 @@ class GalleryEditor extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "صور المعرض",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
+            Text(context.translate('gallery'), style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
             TextButton.icon(
               onPressed: () => cubit.addGalleryImage(index),
               icon: const Icon(Icons.add_photo_alternate_rounded, size: 16),
-              label: const Text("أضف صورة"),
+              label: Text(context.translate('add_image')),
             ),
           ],
         ),
@@ -52,37 +51,55 @@ class GalleryEditor extends StatelessWidget {
             crossAxisCount: 2,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 1,
+            childAspectRatio: 0.65,
           ),
           itemBuilder: (context, gIndex) {
             final String imageUrl = ((block['items'] as List?) ?? [])[gIndex];
+            final List galleryLinks = List.from(block['gallery_links'] ?? []);
+            while (galleryLinks.length <= gIndex) galleryLinks.add('');
+            final String linkVal = galleryLinks[gIndex];
+
             return Container(
-              decoration: BoxDecoration(
-                color: AppColors.cardBgHover,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
+              decoration: BoxDecoration(color: AppColors.cardBgHover, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
               clipBehavior: Clip.antiAlias,
-              child: Stack(
+              child: Column(
                 children: [
-                  Positioned.fill(
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: InkWell(
+                            onTap: () => pickImage(cubit, index, itemIndex: gIndex, itemKey: 'items_array'),
+                            child: Image.network(imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.broken_image)),
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.black.withValues(alpha: 0.5),
+                            radius: 14,
+                            child: IconButton(
+                              icon: const Icon(Icons.delete_rounded, size: 14, color: AppColors.dangerRed),
+                              onPressed: () => cubit.deleteGalleryImage(index, gIndex),
+                              padding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.black.withValues(alpha: 0.5),
-                      radius: 14,
-                      child: IconButton(
-                        icon: const Icon(Icons.delete_rounded, size: 14, color: AppColors.dangerRed),
-                        onPressed: () => cubit.deleteGalleryImage(index, gIndex),
-                        padding: EdgeInsets.zero,
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CustomTextField(
+                      hintText: context.translate('redirect_url'),
+                      controller: getController("${index}_gallery_link_${gIndex}", linkVal),
+                      focusNode: getFocusNode("${index}_gallery_link_${gIndex}"),
+                      onChanged: (val) {
+                        final List updatedLinks = List.from(galleryLinks);
+                        updatedLinks[gIndex] = val;
+                        cubit.updateBlockProperty(index, 'gallery_links', updatedLinks);
+                      },
                     ),
                   ),
                 ],

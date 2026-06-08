@@ -248,6 +248,50 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
               hintText: "e.g. 123456789012345",
             ),
           ),
+          const SizedBox(height: 32),
+          // Cookie Consent Toggle
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.cardBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            loc.translate('show_cookie_banner'),
+                            style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            loc.translate('cookie_banner_help'),
+                            style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: (context.read<LandingPageBuilderCubit>().state as BuilderLoaded).designMap['show_cookie_banner'] ?? true,
+                      activeColor: AppColors.secondary,
+                      onChanged: (val) {
+                        cubit.updateMetadata('show_cookie_banner', val);
+                        setState(() {});
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
           FormGroup(
             label: loc.translate('tiktok_pixel_id'),

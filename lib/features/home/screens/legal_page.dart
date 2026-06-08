@@ -5,10 +5,11 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/seo/app_seo.dart';
+import '../../../services/supabase_service.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_footer.dart';
 
-class LegalPage extends StatelessWidget {
+class LegalPage extends StatefulWidget {
   final String titleKey;
   final String contentKey;
   final String path;
@@ -20,19 +21,57 @@ class LegalPage extends StatelessWidget {
     required this.path,
   });
 
+  @override
+  State<LegalPage> createState() => _LegalPageState();
+}
+
+class _LegalPageState extends State<LegalPage> {
+  List<Map<String, String>>? _dbContent;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadContent();
+  }
+
+  Future<void> _loadContent() async {
+    try {
+      final res = await SupabaseService.instance.client
+          .from('platform_seo_settings')
+          .select('page_content')
+          .eq('route_path', widget.path)
+          .maybeSingle();
+      
+      if (res != null && res['page_content'] != null) {
+        final List rawList = res['page_content'] as List;
+        setState(() {
+          _dbContent = rawList.map((e) => Map<String, String>.from(e as Map)).toList();
+        });
+      }
+    } catch (e) {
+      debugPrint("Error loading dynamic content for ${widget.path}: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   void _applySeo(BuildContext context, String title) {
     if (kIsWeb) {
+      final isRtl = context.isRtl;
+      final suffix = isRtl ? 'لاندي ميكر' : 'LandyMaker';
       AppSEO.updateMeta(
-        title: '$title | LandyMaker',
-        description:
-            'Read our $title to understand how we protect your rights at LandyMaker.',
+        title: '$title | $suffix',
+        description: isRtl 
+          ? 'اقرأ $title للتعرف على حقوقك وكيفية حمايتها في لاندي ميكر.'
+          : 'Read our $title to understand how we protect your rights at LandyMaker.',
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final title = context.translate(titleKey);
+    final title = context.translate(widget.titleKey);
     _applySeo(context, title);
 
     return Scaffold(
@@ -41,40 +80,44 @@ class LegalPage extends StatelessWidget {
         onLoginPressed: () => context.go('/login'),
         onGetStartedPressed: () => context.go('/templates'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-              decoration: const BoxDecoration(
-                gradient: AppColors.darkGradient,
-                border: Border(bottom: BorderSide(color: AppColors.border)),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: AppTypography.h1.copyWith(fontSize: 40),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "LandyMaker 🚀",
-                    style: AppTypography.bodyLarge.copyWith(
-                      color: AppColors.secondary,
+      body: SelectionArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+                decoration: const BoxDecoration(
+                  gradient: AppColors.darkGradient,
+                  border: Border(bottom: BorderSide(color: AppColors.border)),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: AppTypography.h1.copyWith(fontSize: 40),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Text(
+                      context.isRtl ? "لاندي ميكر 🚀" : "LandyMaker 🚀",
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: AppColors.secondary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              constraints: const BoxConstraints(maxWidth: 900),
-              padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
-              child: _buildContent(context),
-            ),
-            const HomeFooter(),
-          ],
+              Container(
+                constraints: const BoxConstraints(maxWidth: 900),
+                padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
+                child: _isLoading 
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.secondary))
+                  : _buildContent(context),
+              ),
+              const HomeFooter(),
+            ],
+          ),
         ),
       ),
     );
@@ -83,9 +126,20 @@ class LegalPage extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     final isRtl = context.isRtl;
 
-    // Legal Content Map (SaaS focused)
+    if (_dbContent != null) {
+      return _buildSectionList(_dbContent!);
+    }
+
     final Map<String, List<Map<String, String>>> legalData = {
-      'privacy_policy_content': [
+      'about_content': [
+        {
+          'title': isRtl ? 'من نحن' : 'About Us',
+          'body': isRtl 
+            ? 'لاندي ميكر هي المنصة العربية الأولى المتخصصة في بناء صفحات الهبوط الاحترافية بسهولة وسرعة.'
+            : 'LandyMaker is the first Arabic platform specialized in building professional landing pages easily and quickly.',
+        },
+      ],
+      'privacy_content': [
         {
           'title': isRtl ? '1. البيانات التي نجمعها' : '1. Data Collection',
           'body': isRtl
@@ -129,8 +183,11 @@ class LegalPage extends StatelessWidget {
       ],
     };
 
-    final sections = legalData[contentKey] ?? [];
+    final sections = legalData[widget.contentKey] ?? [];
+    return _buildSectionList(sections);
+  }
 
+  Widget _buildSectionList(List<Map<String, String>> sections) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: sections.map((sec) {

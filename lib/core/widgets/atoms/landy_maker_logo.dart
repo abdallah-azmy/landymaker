@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../theme/app_typography.dart';
 
 class LandyMakerLogo extends StatelessWidget {
   final double fontSize;
+  final bool isClickable;
 
   const LandyMakerLogo({
     super.key,
     this.fontSize = 22,
+    this.isClickable = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Text.rich(
+    final logo = Text.rich(
       TextSpan(
         children: [
           TextSpan(
@@ -35,6 +38,17 @@ class LandyMakerLogo extends StatelessWidget {
         ],
       ),
       textDirection: TextDirection.ltr,
+    );
+
+    if (!isClickable) return logo;
+
+    return InkWell(
+      onTap: () => context.go('/'),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: logo,
+      ),
     );
   }
 }

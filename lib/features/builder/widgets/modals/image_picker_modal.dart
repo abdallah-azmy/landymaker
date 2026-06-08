@@ -48,8 +48,15 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _scrollController.addListener(_onScroll);
+
+    // Refresh gallery if user clicks on that tab
+    _tabController.addListener(() {
+      if (_tabController.index == 1) { // Gallery tab
+        context.read<ImagePickerCubit>().loadUserGallery();
+      }
+    });
   }
 
   void _onScroll() {
@@ -144,6 +151,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                             controller: _tabController,
                             children: [
                               _buildLocalUploadTab(),
+                              _buildUserGalleryTab(),
                               _buildPixabayTab(),
                               _buildUrlTab(),
                             ],
@@ -195,6 +203,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
       unselectedLabelColor: Colors.white54,
       tabs: const [
         Tab(icon: Icon(Icons.upload_file), text: 'Upload'),
+        Tab(icon: Icon(Icons.collections_rounded), text: 'My Gallery'),
         Tab(icon: Icon(Icons.image_search), text: 'Pixabay'),
         Tab(icon: Icon(Icons.link), text: 'URL'),
       ],
@@ -238,6 +247,92 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildUserGalleryTab() {
+    return BlocBuilder<ImagePickerCubit, ImagePickerState>(
+      buildWhen: (previous, current) =>
+          current is ImagePickerLoadingGallery ||
+          current is ImagePickerGalleryLoaded ||
+          current is ImagePickerGalleryError,
+      builder: (context, state) {
+        if (state is ImagePickerLoadingGallery) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
+          );
+        }
+
+        if (state is ImagePickerGalleryLoaded) {
+          final images = state.images;
+          if (images.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.image_not_supported_outlined,
+                      size: 48, color: Colors.white24),
+                  const SizedBox(height: 16),
+                  const Text('No uploaded images yet.',
+                      style: TextStyle(color: Colors.white54)),
+                  const SizedBox(height: 24),
+                  TextButton.icon(
+                    onPressed: () => _tabController.animateTo(0),
+                    icon:
+                        const Icon(Icons.upload_file, color: Color(0xFF00E5FF)),
+                    label: const Text('Go to Upload',
+                        style: TextStyle(color: Color(0xFF00E5FF))),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1,
+            ),
+            itemCount: images.length,
+            itemBuilder: (context, index) {
+              final img = images[index];
+              return GestureDetector(
+                onTap: () => context
+                    .read<ImagePickerCubit>()
+                    .selectGalleryImage(img['url']),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF1E293B)),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: CustomNetworkImage(
+                      imageUrl: img['url'],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        }
+
+        if (state is ImagePickerGalleryError) {
+          return Center(
+              child: Text(state.message,
+                  style: const TextStyle(color: Colors.redAccent)));
+        }
+
+        return const Center(
+          child: Text('Loading your gallery...',
+              style: TextStyle(color: Colors.white54)),
+        );
+      },
     );
   }
 

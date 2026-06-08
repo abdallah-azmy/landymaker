@@ -2,18 +2,37 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../injection_container.dart';
 import '../../../services/image_media_service.dart';
+import '../../../services/storage_service.dart';
 import '../models/selected_image_data.dart';
 import 'image_picker_state.dart';
 
 class ImagePickerCubit extends Cubit<ImagePickerState> {
   final ImageMediaService _mediaService;
+  final StorageService _storageService;
   final ImagePicker _imagePicker = ImagePicker();
 
-  ImagePickerCubit({ImageMediaService? mediaService}) 
+  ImagePickerCubit({ImageMediaService? mediaService, StorageService? storageService}) 
     : _mediaService = mediaService ?? sl<ImageMediaService>(),
+      _storageService = storageService ?? sl<StorageService>(),
       super(const ImagePickerInitial()) {
     // Automatically load default/popular images so the user sees them immediately
     searchPixabay('');
+  }
+
+  /// Fetch images from the user's personal gallery in storage.
+  Future<void> loadUserGallery() async {
+    emit(const ImagePickerLoadingGallery());
+    try {
+      final images = await _storageService.listUserImages();
+      emit(ImagePickerGalleryLoaded(images));
+    } catch (e) {
+      emit(ImagePickerGalleryError(e.toString()));
+    }
+  }
+
+  /// Select from Gallery and emit success.
+  void selectGalleryImage(String url) {
+    emit(ImagePickerSuccess(SelectedImageData.url(url)));
   }
 
   /// Search Pixabay API and emit results with pagination and filtering.

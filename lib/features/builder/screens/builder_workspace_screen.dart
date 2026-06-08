@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:html' as html;
 import 'dart:ui';
@@ -43,7 +42,8 @@ class BuilderWorkspaceScreen extends StatefulWidget {
 
 class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   int? _editingBlockIndex;
-  PreviewMode _previewMode = PreviewMode.mobile;
+  PreviewMode _previewMode = PreviewMode.desktop;
+  int _sidebarTabIndex = 0; // 0: Sections, 1: Global Theme, 2: Page Settings
 
   @override
   void initState() {
@@ -287,37 +287,67 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
               Row(
                 children: [
                   if (!isMobile && _previewMode != PreviewMode.fullscreen)
-                    BuilderSidebar(
-                      editingBlockIndex: _editingBlockIndex,
-                      state: loadedState,
-                      loc: loc,
-                      cubit: builderCubit,
-                      blocksList: blocksList,
-                      onEditBlock: (index) =>
-                          setState(() => _editingBlockIndex = index),
-                      onAddBlock: _showAddBlockMenu,
-                      onDoneEditing: () =>
-                          setState(() => _editingBlockIndex = null),
+                    _buildProfessionalSidebar(
+                      loc, 
+                      builderCubit, 
+                      loadedState, 
+                      blocksList
                     ),
                   Expanded(
-                    child: BuilderCanvas(
-                      isMobile: isMobile,
-                      previewMode: _previewMode,
-                      state: loadedState,
-                      loc: loc,
-                      onBlockTapped: (index) {
-                        if (isMobile) {
-                          _openEditBottomSheet(
-                            context,
-                            loc,
-                            builderCubit,
-                            loadedState,
-                            index,
-                          );
-                        } else {
-                          setState(() => _editingBlockIndex = index);
-                        }
-                      },
+                    child: Column(
+                      children: [
+                        if (!isMobile && _previewMode != PreviewMode.fullscreen)
+                          _buildCanvasToolbar(loc, builderCubit),
+                        Expanded(
+                          child: Center(
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeInOutCubic,
+                              width: _getCanvasWidth(isMobile),
+                              margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 40),
+                              decoration: _previewMode == PreviewMode.fullscreen 
+                                ? null 
+                                : BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(24),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.5),
+                                        blurRadius: 40,
+                                        spreadRadius: 10,
+                                      )
+                                    ],
+                                    border: Border.all(color: const Color(0xFF1E293B), width: 8),
+                                  ),
+                              clipBehavior: Clip.antiAlias,
+                              child: BuilderCanvas(
+                                isMobile: isMobile,
+                                previewMode: _previewMode,
+                                state: loadedState,
+                                loc: loc,
+                                onBlockTapped: (index) {
+                                  if (isMobile) {
+                                    _openEditBottomSheet(
+                                      context,
+                                      loc,
+                                      builderCubit,
+                                      loadedState,
+                                      index,
+                                    );
+                                  } else {
+                                    setState(() {
+                                      _sidebarTabIndex = 0; // Focus Sections tab
+                                      _editingBlockIndex = index;
+                                    });
+                                    // Also notify Cubit to highlight the section if needed
+                                    builderCubit.selectSection(index);
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -357,11 +387,212 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
               // Global Upload Manager
               Positioned(
                 top: isMobile ? 80 : 24, // Below mobile appbar or canvas top
-                right: loc.isRtl ? null : (isMobile ? 16 : 380), // 380px clears the sidebar if it's on the right
-                left: loc.isRtl ? (isMobile ? 16 : 380) : null,
+                right: loc.isRtl ? null : (isMobile ? 16 : 350 + 24), // Clears the 350px sidebar
+                left: loc.isRtl ? (isMobile ? 16 : 350 + 24) : null,
                 child: const GlobalUploadManagerWidget(),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  double? _getCanvasWidth(bool isMobile) {
+    if (_previewMode == PreviewMode.fullscreen) return double.infinity;
+    if (_previewMode == PreviewMode.mobile) return 390.0; // Standard Mobile Width
+    if (_previewMode == PreviewMode.tablet) return 820.0; // Standard Tablet Width
+    return null; // Flexible desktop
+  }
+
+  Widget _buildProfessionalSidebar(
+    LocalizationCubit loc,
+    LandingPageBuilderCubit cubit,
+    BuilderLoaded state,
+    List<Map<String, dynamic>> blocks,
+  ) {
+    return Container(
+      width: 350,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A), // Slate 900
+        border: Border(
+          right: loc.isRtl
+              ? BorderSide.none
+              : const BorderSide(color: Color(0xFF1E293B)),
+          left: loc.isRtl
+              ? const BorderSide(color: Color(0xFF1E293B))
+              : BorderSide.none,
+        ),
+      ),
+      child: Column(
+        children: [
+          // Sidebar Tabs
+          Container(
+            padding: const EdgeInsets.all(12),
+            color: const Color(0xFF1E293B), // Slate 800
+            child: Row(
+              children: [
+                _buildSidebarTab(0, Icons.layers_rounded, "الأقسام"),
+                _buildSidebarTab(1, Icons.palette_rounded, "التصميم"),
+                _buildSidebarTab(2, Icons.settings_suggest_rounded, "الإعدادات"),
+              ],
+            ),
+          ),
+          Expanded(
+            child: IndexedStack(
+              index: _sidebarTabIndex,
+              children: [
+                BuilderSidebar(
+                  editingBlockIndex: _editingBlockIndex,
+                  state: state,
+                  loc: loc,
+                  cubit: cubit,
+                  blocksList: blocks,
+                  onEditBlock: (index) =>
+                      setState(() {
+                        _sidebarTabIndex = 0;
+                        _editingBlockIndex = index;
+                      }),
+                  onAddBlock: _showAddBlockMenu,
+                  onDoneEditing: () =>
+                      setState(() => _editingBlockIndex = null),
+                ),
+                DesignTab(loc: loc, cubit: cubit, state: state),
+                const Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: SingleChildScrollView(child: SeoSettingsModal()),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSidebarTab(int index, IconData icon, String label) {
+    final isSelected = _sidebarTabIndex == index;
+    return Expanded(
+      child: InkWell(
+        onTap: () => setState(() {
+          _sidebarTabIndex = index;
+          if (index != 0) _editingBlockIndex = null;
+        }),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? const Color(0xFF00E5FF) : Colors.white24,
+              size: 20,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.white24,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCanvasToolbar(
+    LocalizationCubit loc,
+    LandingPageBuilderCubit cubit,
+  ) {
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      decoration: const BoxDecoration(
+        color: Color(0xFF0F172A),
+        border: Border(bottom: BorderSide(color: Color(0xFF1E293B))),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              _buildDeviceButton(
+                PreviewMode.mobile,
+                Icons.smartphone_rounded,
+                "Mobile",
+              ),
+              const SizedBox(width: 8),
+              _buildDeviceButton(
+                PreviewMode.tablet,
+                Icons.tablet_android_rounded,
+                "Tablet",
+              ),
+              const SizedBox(width: 8),
+              _buildDeviceButton(
+                PreviewMode.desktop,
+                Icons.desktop_windows_rounded,
+                "Desktop",
+              ),
+              const SizedBox(width: 8),
+              _buildDeviceButton(
+                PreviewMode.fullscreen,
+                Icons.visibility_rounded,
+                "Full Screen",
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.undo_rounded, size: 20),
+                onPressed:
+                    (cubit.state as BuilderLoaded).canUndo ? cubit.undo : null,
+                color: Colors.white70,
+              ),
+              IconButton(
+                icon: const Icon(Icons.redo_rounded, size: 20),
+                onPressed:
+                    (cubit.state as BuilderLoaded).canRedo ? cubit.redo : null,
+                color: Colors.white70,
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton.icon(
+                onPressed: () => cubit.saveForCurrentUser(),
+                icon: const Icon(Icons.cloud_done_rounded, size: 18),
+                label: const Text("حفظ التغييرات"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00E5FF),
+                  foregroundColor: Colors.black,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeviceButton(PreviewMode mode, IconData icon, String tooltip) {
+    final isSelected = _previewMode == mode;
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: () => setState(() => _previewMode = mode),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? const Color(0xFF00E5FF).withValues(alpha: 0.1)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: isSelected ? const Color(0xFF00E5FF) : Colors.white24,
+            size: 20,
           ),
         ),
       ),

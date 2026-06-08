@@ -17,6 +17,7 @@ class CustomHeroWidget extends StatelessWidget {
   final double? bgOverlayOpacity;
   final double? bgBlur;
   final String? buttonUrl;
+  final double? verticalPadding;
 
   const CustomHeroWidget({
     super.key,
@@ -30,6 +31,7 @@ class CustomHeroWidget extends StatelessWidget {
     this.bgOverlayOpacity,
     this.bgBlur,
     this.buttonUrl,
+    this.verticalPadding,
   });
 
   @override
@@ -43,15 +45,16 @@ class CustomHeroWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
-        final double verticalPadding = isMobile ? 40 : 80;
+        final double defaultPadding = theme?.globalBgImageUrl != null ? 40 : (isMobile ? 40 : 80);
 
         return SectionBackground(
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
+          verticalPaddingOverride: verticalPadding,
           bgBlur: bgBlur,
           theme: theme,
-          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsets.symmetric(vertical: defaultPadding, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),

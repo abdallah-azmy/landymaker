@@ -13,11 +13,17 @@ class SectionBackground extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final Widget child;
 
+  final double? overlayOpacityOverride;
+
+  final double? verticalPaddingOverride;
+
   const SectionBackground({
     super.key,
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.overlayOpacityOverride,
+    this.verticalPaddingOverride,
     this.bgBlur,
     this.theme,
     this.padding,
@@ -34,7 +40,13 @@ class SectionBackground extends StatelessWidget {
     final double blurValue = bgBlur ?? 0.0;
     
     final hasBgImage = bgImageUrl != null && bgImageUrl!.trim().isNotEmpty;
-    final double overlayOpacity = bgOverlayOpacity ?? (hasBgImage ? 0.4 : 1.0);
+    final double overlayOpacity = overlayOpacityOverride ?? bgOverlayOpacity ?? (hasBgImage ? 0.4 : 1.0);
+
+    // Default padding logic
+    EdgeInsetsGeometry finalPadding = padding ?? const EdgeInsets.symmetric(vertical: 60, horizontal: 24);
+    if (verticalPaddingOverride != null) {
+      finalPadding = EdgeInsets.symmetric(vertical: verticalPaddingOverride!, horizontal: 24);
+    }
 
     // Parse overlay color from hex string
     Color overlayColorVal = Colors.black;
@@ -105,7 +117,7 @@ class SectionBackground extends StatelessWidget {
 
             // Layer 4: Content
             Padding(
-              padding: padding ?? const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
+              padding: finalPadding,
               child: child,
             ),
           ],

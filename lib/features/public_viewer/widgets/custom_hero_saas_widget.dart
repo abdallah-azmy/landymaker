@@ -16,6 +16,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
   final double? bgOverlayOpacity;
   final double? bgBlur;
   final String? buttonUrl;
+  final double? verticalPadding;
 
   const CustomHeroSaasWidget({
     super.key,
@@ -29,6 +30,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
     this.bgOverlayOpacity,
     this.bgBlur,
     this.buttonUrl,
+    this.verticalPadding,
   });
 
   @override
@@ -43,6 +45,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
       bgImageUrl: bgImageUrl,
       bgOverlayColor: bgOverlayColor,
       bgOverlayOpacity: bgOverlayOpacity,
+      verticalPaddingOverride: verticalPadding,
       bgBlur: bgBlur,
       theme: theme,
       padding: const EdgeInsets.only(top: 100, bottom: 60, left: 24, right: 24),

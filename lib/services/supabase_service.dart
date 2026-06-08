@@ -455,8 +455,50 @@ class SupabaseService extends ChangeNotifier {
   }
 
   // ----------------------------------------------------
-  // STORAGE IMAGE UPLOADS
+  // STORAGE IMAGE UPLOADS & MANAGEMENT
   // ----------------------------------------------------
+
+  Future<List<Map<String, dynamic>>> listUserImages() async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) return [];
+
+      final List<FileObject> files = await _client!.storage
+          .from(DbConstants.landingAssetsBucket)
+          .list(path: userId);
+
+      return files.map((f) {
+        final publicUrl = _client!.storage
+            .from(DbConstants.landingAssetsBucket)
+            .getPublicUrl('$userId/${f.name}');
+        
+        return {
+          'name': f.name,
+          'id': f.id,
+          'url': publicUrl,
+          'size': f.metadata?['size'],
+          'created_at': f.createdAt,
+        };
+      }).toList();
+    } catch (e) {
+      debugPrint("Error listing user images: $e");
+      return [];
+    }
+  }
+
+  Future<void> deleteImage(String fileName) async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) return;
+
+      await _client!.storage
+          .from(DbConstants.landingAssetsBucket)
+          .remove(['$userId/$fileName']);
+    } catch (e) {
+      debugPrint("Error deleting image: $e");
+      rethrow;
+    }
+  }
 
   Future<String?> uploadImage(PlatformFile file) async {
     try {

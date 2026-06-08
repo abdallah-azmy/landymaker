@@ -30,6 +30,17 @@ class _CookieConsentBannerState extends State<CookieConsentBanner> {
   }
 
   void _checkConsent() {
+    // Check if the user has disabled the banner in the builder settings
+    final bool isEnabled = widget.designJson['show_cookie_banner'] ?? true;
+    if (!isEnabled) {
+      setState(() {
+        _isVisible = false;
+      });
+      // If disabled, we might want to auto-initialize pixels or respect decision.
+      // Usually, if disabled, we assume the owner doesn't want the prompt.
+      return;
+    }
+
     // Only show if consent has not been decided yet
     final consent = html.window.localStorage['cookie_consent_status'];
     if (consent == null) {

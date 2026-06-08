@@ -19,6 +19,7 @@ import '../../features/dashboard/screens/leads_tracker_screen.dart';
 import '../../features/dashboard/screens/analytics_screen.dart';
 import '../../features/dashboard/screens/product_feed_screen.dart';
 import '../../features/dashboard/screens/domain_settings_screen.dart';
+import '../../features/dashboard/screens/media_gallery_screen.dart';
 import '../../features/super_admin/screens/super_admin_panel_screen.dart';
 import '../../features/super_admin/screens/platform_seo_screen.dart';
 import '../../features/blog_admin/screens/blog_management_screen.dart';
@@ -108,6 +109,14 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
+              path: '/dashboard/gallery',
+              builder: (context, state) => const MediaGalleryScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
               path: '/dashboard/feed',
               builder: (context, state) => const ProductFeedScreen(),
             ),
@@ -180,6 +189,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/templates',
       builder: (context, state) => const TemplatePickerScreen(),
+    ),
+    GoRoute(
+      path: '/about',
+      builder: (context, state) => const LegalPage(
+        titleKey: 'about_us',
+        contentKey: 'about_content',
+        path: '/about',
+      ),
     ),
     GoRoute(
       path: '/privacy-policy',

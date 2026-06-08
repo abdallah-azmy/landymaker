@@ -11,6 +11,7 @@ import 'features/auth/controllers/auth_cubit.dart';
 import 'features/builder/controllers/builder_cubit.dart';
 import 'features/dashboard/controllers/leads_analytics_cubit.dart';
 import 'features/dashboard/controllers/landing_pages_cubit.dart';
+import 'features/dashboard/controllers/media_gallery_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
 import 'features/blog_admin/controllers/blog_cubit.dart';
@@ -20,6 +21,7 @@ import 'package:toastification/toastification.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/seo/app_seo.dart';
 import 'core/services/fcm_service.dart';
+import 'services/tenant_routing_service.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 void main() async {
@@ -37,9 +39,12 @@ void main() async {
     // Initialize all dependencies via GetIt Service Locator
     await initDependencies();
 
-    // Initialize FCM (Web Push)
+    // Initialize FCM (Web Push) - ONLY if not in public viewer mode
     if (kIsWeb) {
-      await FcmService.initialize();
+      final routeMode = TenantRoutingService.getRouteMode();
+      if (routeMode != RouteMode.publicViewer) {
+        await FcmService.initialize();
+      }
     }
 
     runApp(const LandyMakerApp());
@@ -103,6 +108,9 @@ class LandyMakerApp extends StatelessWidget {
         BlocProvider<LandingPagesCubit>(create: (_) => sl<LandingPagesCubit>()),
         BlocProvider<LeadsAnalyticsCubit>(
           create: (_) => sl<LeadsAnalyticsCubit>(),
+        ),
+        BlocProvider<MediaGalleryCubit>(
+          create: (_) => sl<MediaGalleryCubit>(),
         ),
         BlocProvider<SuperAdminCubit>(create: (_) => sl<SuperAdminCubit>()),
         BlocProvider<PublicPageCubit>(create: (_) => sl<PublicPageCubit>()),

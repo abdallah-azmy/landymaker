@@ -55,6 +55,20 @@ class ImagePickerPixabayError extends ImagePickerState {
   const ImagePickerPixabayError(this.message);
 }
 
+class ImagePickerLoadingGallery extends ImagePickerState {
+  const ImagePickerLoadingGallery();
+}
+
+class ImagePickerGalleryLoaded extends ImagePickerState {
+  final List<Map<String, dynamic>> images;
+  const ImagePickerGalleryLoaded(this.images);
+}
+
+class ImagePickerGalleryError extends ImagePickerState {
+  final String message;
+  const ImagePickerGalleryError(this.message);
+}
+
 class ImagePickerUploading extends ImagePickerState {
   final double progress; // 0.0 to 1.0
   const ImagePickerUploading(this.progress);

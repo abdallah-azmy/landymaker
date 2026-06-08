@@ -37,6 +37,9 @@ class BuilderCanvas extends StatelessWidget {
           case PreviewMode.mobile:
             canvasWidth = 375;
             break;
+          case PreviewMode.tablet:
+            canvasWidth = 768;
+            break;
           case PreviewMode.desktop:
             canvasWidth = constraints.maxWidth.clamp(0.0, 1000.0);
             break;

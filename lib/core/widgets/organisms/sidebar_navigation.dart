@@ -73,6 +73,7 @@ class SidebarNavigation extends StatelessWidget {
       }
 
       finalItems.add({'title_key': 'leads', 'icon': Icons.contacts_rounded, 'route': '/dashboard/leads'});
+      finalItems.add({'title_key': 'gallery', 'icon': Icons.collections_rounded, 'route': '/dashboard/gallery'});
       finalItems.add({'title_key': 'analytics', 'icon': Icons.analytics_rounded, 'route': '/dashboard/analytics'});
 
       if (activeSiteType == 'store') {
@@ -199,14 +200,16 @@ class SidebarNavigation extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primary.withValues(alpha: 0.15)
-                          : Colors.transparent,
+                          : (isPremium 
+                              ? AppColors.warningOrange.withValues(alpha: 0.05) 
+                              : Colors.transparent),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: isSelected
                             ? AppColors.primary.withValues(alpha: 0.3)
                             : (isPremium
                                   ? AppColors.warningOrange.withValues(
-                                      alpha: 0.2,
+                                      alpha: 0.15,
                                     )
                                   : (isLocked
                                         ? AppColors.textMuted.withValues(

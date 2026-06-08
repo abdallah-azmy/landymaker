@@ -15,6 +15,7 @@ import '../controllers/cart_cubit.dart';
 import '../widgets/floating_cart_widget.dart';
 import '../widgets/global/sticky_cta_bar.dart';
 import '../widgets/section_renderer.dart';
+import '../../../core/seo/app_seo.dart';
 import '../../../core/services/pixel_bootstrap_service.dart';
 import '../../../core/services/pixel_event_service.dart';
 import '../widgets/cookie_consent_banner.dart';
@@ -117,6 +118,18 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     } else if (rawDesign is Map) {
                       designJson = Map<String, dynamic>.from(rawDesign);
                     }
+
+                    // Apply SEO Meta Tags for browser title/OG info
+                    final seoTitle = designJson['meta_title'] ?? "${state.pageData['subdomain'] ?? 'Page'} | LandyMaker";
+                    final seoDesc = designJson['meta_description'] ?? "Created with LandyMaker - The Ultimate AI Landing Page Builder";
+                    final seoImage = designJson['og_image_url'] ?? "https://landymaker.com/logo_social.webp";
+                    
+                    AppSEO.updateMeta(
+                      title: seoTitle,
+                      description: seoDesc,
+                      image: seoImage,
+                    );
+
                     PixelBootstrapService.initialize(designJson);
                     PixelEventService.trackPageView();
 

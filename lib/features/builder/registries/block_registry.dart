@@ -46,7 +46,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: data['bg_overlay_opacity']?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: data['bg_blur']?.toDouble(),
     ),
     'hero': (data, theme, _, key, __, ___) => CustomHeroWidget(
@@ -58,7 +58,8 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
+      verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
       buttonUrl: data['button_url'],
     ),
@@ -71,7 +72,8 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
+      verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
       buttonUrl: data['button_url'],
     ),
@@ -83,7 +85,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'lead_form': (data, theme, pageId, key, __, ___) => CustomLeadFormWidget(
@@ -95,7 +97,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'lead_magnet': (data, theme, pageId, key, __, ___) => CustomLeadMagnetWidget(
@@ -109,7 +111,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'working_hours': (data, theme, _, key, __, ___) => CustomWorkingHoursWidget(
@@ -132,7 +134,7 @@ class BlockRegistry {
       whatsappNumber: data['whatsapp_number'],
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'pricing': (data, theme, lang, key, __, ___) => CustomPricingWidget(
@@ -141,9 +143,9 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-      lang: lang ?? 'ar',
+      lang: lang,
     ),
     'faq': (data, theme, _, key, __, ___) => CustomFaqWidget(
       key: key,
@@ -152,7 +154,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'testimonials': (data, theme, _, key, __, ___) => CustomTestimonialsWidget(
@@ -162,7 +164,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'contact_info': (data, theme, _, key, __, ___) => CustomContactInfoWidget(
@@ -177,7 +179,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'gallery': (data, theme, _, key, __, ___) => CustomGalleryWidget(
@@ -190,7 +192,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'qr_code': (data, theme, _, key, __, ___) => CustomQrWidget(
@@ -202,7 +204,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'social_qr': (data, theme, _, key, __, ___) => CustomSocialQrWidget(
@@ -213,7 +215,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'basic_section': (data, theme, _, key, __, index) => BasicSectionRenderer(
@@ -229,7 +231,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
     'animated_counter': (data, theme, _, key, __, ___) => CustomAnimatedCounterWidget(
@@ -239,7 +241,7 @@ class BlockRegistry {
       theme: theme,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity: (data['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
     ),
   };

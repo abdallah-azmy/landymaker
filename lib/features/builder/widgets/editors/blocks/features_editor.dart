@@ -4,8 +4,9 @@ import '../editor_types.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
-import '../../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
+import '../../molecules/custom_image_field.dart';
+import '../../../../../../core/localization/app_localizations.dart';
 
 class FeaturesEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -33,7 +34,7 @@ class FeaturesEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FormGroup(
-          label: "شكل العرض (Layout Style)",
+          label: context.translate('layout_style'),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
@@ -48,65 +49,59 @@ class FeaturesEditor extends StatelessWidget {
                 isExpanded: true,
                 style: AppTypography.bodyMedium,
                 items: const [
-                  DropdownMenuItem(
-                    value: 'grid',
-                    child: Text("شبكة كلاسيكية (Classic Grid)"),
-                  ),
-                  DropdownMenuItem(
-                    value: 'bento',
-                    child: Text("شبكة بينتو (Bento Grid 2025)"),
-                  ),
+                  DropdownMenuItem(value: 'grid', child: Text("شبكة (Grid)")),
+                  DropdownMenuItem(value: 'bento', child: Text("بينتو (Bento)")),
                 ],
                 onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         Text(
-          "قائمة المميزات (Feature Items)",
-          style: AppTypography.bodyLarge.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          context.translate('feature_list'),
+          style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
         ...List.generate(((block['items'] as List?) ?? []).length, (fIndex) {
           final item = ((block['items'] as List?) ?? [])[fIndex] as Map<String, dynamic>;
           return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.cardBgHover,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
             ),
             child: Column(
               children: [
                 CustomTextField(
-                  hintText: "عنوان الميزة (Feature Title)",
+                  hintText: context.translate('title'),
                   controller: getController("${index}_feature_${fIndex}_title", item['title'] ?? ''),
                   focusNode: getFocusNode("${index}_feature_${fIndex}_title"),
                   onChanged: (val) => cubit.updateFeatureItem(index, fIndex, 'title', val),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 CustomTextField(
-                  hintText: "وصف الميزة (Description)",
+                  hintText: context.translate('description'),
                   controller: getController("${index}_feature_${fIndex}_description", item['description'] ?? ''),
                   focusNode: getFocusNode("${index}_feature_${fIndex}_description"),
                   maxLines: 2,
                   onChanged: (val) => cubit.updateFeatureItem(index, fIndex, 'description', val),
                 ),
                 const SizedBox(height: 12),
-                PrimaryButton(
-                  text: "ابحث في الصور (Stock Images)",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => pickImage(
-                    cubit,
-                    index,
-                    itemIndex: fIndex,
-                    itemKey: 'image_url',
-                  ),
-                  width: double.infinity,
+                CustomTextField(
+                  hintText: context.translate('redirect_url'),
+                  controller: getController("${index}_feature_${fIndex}_link_url", item['link_url'] ?? ''),
+                  focusNode: getFocusNode("${index}_feature_${fIndex}_link_url"),
+                  onChanged: (val) => cubit.updateFeatureItem(index, fIndex, 'link_url', val),
+                  keyboardType: TextInputType.url,
+                ),
+                const SizedBox(height: 16),
+                CustomImageField(
+                  label: context.translate('image_url'),
+                  imageUrl: item['image_url'],
+                  onAction: () => pickImage(cubit, index, itemIndex: fIndex, itemKey: 'image_url'),
                 ),
               ],
             ),

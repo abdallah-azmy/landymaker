@@ -53,6 +53,14 @@ class DatabaseService {
     return _supabase.recordAnalyticsEvent(landingPageId: landingPageId, eventType: eventType);
   }
 
+  Future<List<Map<String, dynamic>>> listUserImages() {
+    return _supabase.listUserImages();
+  }
+
+  Future<void> deleteImage(String fileName) {
+    return _supabase.deleteImage(fileName);
+  }
+
   Future<Map<String, int>> getPageAnalyticsStats(String landingPageId) {
     return _supabase.getPageAnalyticsStats(landingPageId);
   }

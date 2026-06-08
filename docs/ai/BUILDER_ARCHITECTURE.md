@@ -44,6 +44,13 @@ When a user selects a block on the canvas:
 ### 🏗 Templates
 - `TemplateRegistry` provides static JSON starting points for different industries.
 - When a user picks a template, the `designMap` is initialized with the template's JSON array.
+- Template metadata includes `category`, `recommendedSections`, and `aiPromptHint` to help future AI-assisted flows pick a suitable starting point without scanning implementation files.
+- Template block JSON may include helper-only keys such as `ai_intent` and `ai_slots`; these are advisory and must not become required renderer fields.
+
+### 🧩 Section Library
+- `SectionLibraryModal` is the builder-facing catalog of addable section types.
+- Each catalog entry should map to an existing `BlockRegistry` type and include a concise category plus optional `ai_role` / `ai_when_to_use` guidance.
+- Do not expose a section in the library unless `LandingPageBuilderCubit.addBlock`, `BlockRegistry`, and an editor path can handle it.
 
 ## 🔍 How Rendering Works
 The `SectionRenderer` is a shared component used by both the **Editor** and the **Public Viewer**.

@@ -47,16 +47,21 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     if (_historyIndex < _history.length - 1) {
       _history.removeRange(_historyIndex + 1, _history.length);
     }
-    
-    final newStateStr = jsonEncode({'designMap': state.designMap, 'theme': state.theme.toJson()});
-    
+
+    final newStateStr = jsonEncode({
+      'designMap': state.designMap,
+      'theme': state.theme.toJson(),
+    });
+
     // Do not add duplicate states if the data hasn't actually changed
-    if (_history.isNotEmpty && _historyIndex >= 0 && _historyIndex < _history.length) {
+    if (_history.isNotEmpty &&
+        _historyIndex >= 0 &&
+        _historyIndex < _history.length) {
       if (_history[_historyIndex] == newStateStr) {
         return;
       }
     }
-    
+
     _history.add(newStateStr);
     _historyIndex = _history.length - 1;
 
@@ -152,7 +157,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       if (uuidRegex.hasMatch(pageIdOrSubdomain)) {
         page = await _databaseService.getLandingPageById(pageIdOrSubdomain);
       } else {
-        page = await _databaseService.getLandingPageByDomain(pageIdOrSubdomain, publishedOnly: false);
+        page = await _databaseService.getLandingPageByDomain(
+          pageIdOrSubdomain,
+          publishedOnly: false,
+        );
       }
       _handleLoadedPage(page);
     } catch (e) {
@@ -163,7 +171,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
   void initializeNewPage() {
     _history.clear();
     _historyIndex = -1;
-    
+
     _emitDirty(
       BuilderLoaded(
         designMap: {'blocks': []},
@@ -186,11 +194,13 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     final currentUserId = _authService.currentUserId;
-    if (page['user_id'] != null && currentUserId != null && page['user_id'] != currentUserId) {
+    if (page['user_id'] != null &&
+        currentUserId != null &&
+        page['user_id'] != currentUserId) {
       emit(BuilderFailure("You do not have permission to access this page."));
       return;
     }
-    
+
     Map<String, dynamic> designMap = {'blocks': []};
     String subdomain = page['subdomain'] ?? '';
     String? customDomain = page['custom_domain'];
@@ -254,7 +264,8 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         _emitDirty(
           currentState.copyWith(
             isSaving: false,
-            errorMessage: "اسم الرابط ($sanitizedSubdomain) محجوز بالفعل. يرجى اختيار اسم آخر.",
+            errorMessage:
+                "اسم الرابط ($sanitizedSubdomain) محجوز بالفعل. يرجى اختيار اسم آخر.",
           ),
         );
         return;
@@ -434,6 +445,13 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200'
             : 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800',
       });
+    } else if (type == 'logo_header') {
+      blocks.add({
+        'type': 'logo_header',
+        'title': 'اسم العلامة التجارية',
+        'alignment': 'center',
+        'logo_height': 48.0,
+      });
     } else if (type == 'features') {
       blocks.add({
         'type': 'features',
@@ -510,10 +528,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'title': 'خطط الأسعار',
         'subtitle': 'اختر الخطة التي تناسب أعمالك',
         'has_toggle': true,
-        'toggle_labels': {
-          'monthly': 'شهري',
-          'yearly': 'سنوي'
-        },
+        'toggle_labels': {'monthly': 'شهري', 'yearly': 'سنوي'},
         'items': [
           {
             'plan_id': const Uuid().v4(),
@@ -527,7 +542,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'button_text': 'ابدأ الآن',
             'button_action_type': 'link',
             'button_action_value': '',
-            'is_popular': false
+            'is_popular': false,
           },
           {
             'plan_id': const Uuid().v4(),
@@ -542,8 +557,8 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'button_text': 'اشترك الآن',
             'button_action_type': 'link',
             'button_action_value': '',
-            'is_popular': true
-          }
+            'is_popular': true,
+          },
         ],
       });
     } else if (type == 'faq') {
@@ -569,6 +584,23 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'email': 'contact@example.com',
         'phone': '+20',
         'location': 'القاهرة، مصر',
+      });
+    } else if (type == 'working_hours') {
+      blocks.add({
+        'type': 'working_hours',
+        'title': 'مواعيد العمل',
+        'schedule': {
+          'السبت - الخميس': '10:00 AM - 10:00 PM',
+          'الجمعة': '2:00 PM - 10:00 PM',
+        },
+      });
+    } else if (type == 'location_map') {
+      blocks.add({
+        'type': 'location_map',
+        'title': 'موقعنا',
+        'address': 'القاهرة، مصر',
+        'map_iframe_url':
+            'https://maps.google.com/maps?q=Cairo&t=&z=13&ie=UTF8&iwloc=&output=embed',
       });
     } else if (type == 'gallery') {
       blocks.add({
@@ -608,8 +640,8 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
                   {'value': 'business', 'label': 'شركة'},
                 ],
                 'is_required': true,
-              }
-            ]
+              },
+            ],
           },
           {
             'step_id': const Uuid().v4(),
@@ -621,9 +653,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
                 'label': 'رقم الهاتف',
                 'placeholder': '+201xxxxxxxxx',
                 'is_required': true,
-              }
-            ]
-          }
+              },
+            ],
+          },
         ],
       });
     } else if (type == 'video_embed') {
@@ -683,10 +715,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final Map<String, dynamic> stickyCta = Map<String, dynamic>.from(
       newDesign['sticky_cta'] ?? {},
     );
-    
+
     stickyCta[key] = value;
     newDesign['sticky_cta'] = stickyCta;
-    
+
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 

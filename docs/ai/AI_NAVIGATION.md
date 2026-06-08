@@ -10,6 +10,7 @@ The Builder is the heart of the platform.
 - **The Canvas**: `lib/features/builder/widgets/organisms/builder_canvas.dart`
 - **Section Library**: `lib/features/builder/widgets/modals/section_library_modal.dart`
 - **Registries**: `lib/features/builder/registries/` (Maps types to renderers).
+- **Template Catalog**: `lib/features/builder/registries/template_registry.dart` (Template metadata, recommended sections, and initial JSON blocks).
 
 ## 📄 2. Where are Landing Page Sections?
 
@@ -18,6 +19,7 @@ Sections are the visual blocks added by users.
 - **Section Widgets**: `lib/features/public_viewer/widgets/` (Look for `custom_*_widget.dart`).
 - **Section Editors**: `lib/features/builder/widgets/editors/blocks/` (Look for `*_editor.dart`).
 - **Block Definitions**: `lib/features/builder/registries/block_registry.dart`.
+- **Section Picker Metadata**: `lib/features/builder/widgets/modals/section_library_modal.dart` contains the user-facing section catalog plus silent `ai_role` / `ai_when_to_use` hints for future AI-assisted building.
 
 ## ⚙️ 3. Where is JSON Processing?
 
@@ -75,6 +77,8 @@ Backend configuration.
 2. Create a `SectionEditor` in `lib/features/builder/widgets/editors/blocks/`.
 3. Register the mapping in `lib/features/builder/registries/block_registry.dart`.
 4. Add the default JSON to `lib/features/builder/registries/template_registry.dart`.
+5. Add the section to `SectionLibraryModal` with a category and AI selection hints.
+6. Update `AI_CONTEXT.md` and any affected docs under `docs/ai/`.
 
 ### "I want to modify the builder"
 1. Start at `lib/features/builder/controllers/builder_cubit.dart` for state changes.

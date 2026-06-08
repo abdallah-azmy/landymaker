@@ -17,24 +17,234 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
   String _searchQuery = "";
   String _selectedCategory = "all";
   final List<Map<String, dynamic>> _sections = [
-    {'type': 'hero', 'name': 'القسم الرئيسي (Hero)', 'icon': Icons.auto_awesome_rounded, 'category': 'basic', 'desc': 'واجهة الموقع مع عنوان وزر جذاب.', 'popular': true},
-    {'type': 'basic_section', 'name': 'قسم مرن متقدم', 'icon': Icons.view_quilt_rounded, 'category': 'basic', 'desc': 'صمم أي شكل بحرية كاملة.', 'popular': true},
-    {'type': 'hero_saas', 'name': 'بطل تطبيقات (SaaS)', 'icon': Icons.dashboard_customize_rounded, 'category': 'basic', 'desc': 'قسم رئيسي مثالي للبرمجيات والتطبيقات.'},
-    {'type': 'trust_logos', 'name': 'شركاء النجاح', 'icon': Icons.verified_user_rounded, 'category': 'trust', 'desc': 'عرض شعارات الشركات لزيادة الثقة.', 'popular': true},
-    {'type': 'animated_counter', 'name': 'عداد أرقام', 'icon': Icons.onetwothree_rounded, 'category': 'conversion', 'desc': 'عداد متحرك للإحصائيات.'},
-    {'type': 'multi_step_lead_form', 'name': 'نموذج متعدد الخطوات', 'icon': Icons.dynamic_form_rounded, 'category': 'conversion', 'desc': 'جمع بيانات العملاء باحترافية على مراحل.', 'popular': true},
-    {'type': 'lead_magnet', 'name': 'التقاط العملاء', 'icon': Icons.person_add_rounded, 'category': 'conversion', 'desc': 'نموذج مغناطيس لجمع البيانات.', 'popular': true},
-    {'type': 'features', 'name': 'المميزات', 'icon': Icons.list_alt_rounded, 'category': 'content', 'desc': 'عرض مميزات خدمتك أو منتجك.', 'popular': true},
-    {'type': 'whatsapp', 'name': 'تواصل واتساب', 'icon': Icons.chat_bubble_outline_rounded, 'category': 'contact', 'desc': 'زر سريع للتواصل عبر الواتساب.'},
-    {'type': 'products', 'name': 'المنتجات', 'icon': Icons.shopping_bag_outlined, 'category': 'ecommerce', 'desc': 'عرض منتجاتك مع الأسعار وصور.', 'popular': true},
-    {'type': 'pricing', 'name': 'خطط الأسعار', 'icon': Icons.payments_rounded, 'category': 'ecommerce', 'desc': 'جداول الأسعار والاشتراكات.'},
-    {'type': 'faq', 'name': 'الأسئلة الشائعة', 'icon': Icons.question_answer_rounded, 'category': 'content', 'desc': 'إجابات على استفسارات العملاء.'},
-    {'type': 'testimonials', 'name': 'آراء العملاء', 'icon': Icons.reviews_rounded, 'category': 'content', 'desc': 'عرض تجارب عملائك الإيجابية.'},
-    {'type': 'contact_info', 'name': 'معلومات الاتصال', 'icon': Icons.contact_mail_rounded, 'category': 'contact', 'desc': 'العنوان، الهاتف، والبريد.'},
-    {'type': 'video_embed', 'name': 'فيديو (Video)', 'icon': Icons.video_library_rounded, 'category': 'basic', 'desc': 'تضمين فيديو يوتيوب أو فيميو.'},
-    {'type': 'gallery', 'name': 'معرض الصور', 'icon': Icons.collections_rounded, 'category': 'content', 'desc': 'مجموعة صور لمنتجاتك أو عملك.'},
-    {'type': 'qr_code', 'name': 'QR كود', 'icon': Icons.qr_code_2_rounded, 'category': 'basic', 'desc': 'كود سريع لزيارة الرابط.'},
-    {'type': 'social_qr', 'name': 'روابط التواصل', 'icon': Icons.share_rounded, 'category': 'contact', 'desc': 'أيقونات التواصل الاجتماعي.'},
+    {
+      'type': 'logo_header',
+      'name': 'هيدر الشعار',
+      'icon': Icons.title_rounded,
+      'category': 'basic',
+      'desc': 'شعار أو اسم العلامة أعلى الصفحة.',
+      'ai_role': 'brand_identity',
+      'ai_when_to_use':
+          'Use as the first block when the prompt mentions a brand, store, clinic, agency, or formal company header.',
+    },
+    {
+      'type': 'hero',
+      'name': 'القسم الرئيسي (Hero)',
+      'icon': Icons.auto_awesome_rounded,
+      'category': 'basic',
+      'desc': 'واجهة الموقع مع عنوان وزر جذاب.',
+      'popular': true,
+      'ai_role': 'primary_offer',
+      'ai_when_to_use':
+          'Use once near the top to express the core offer, audience, CTA, and primary image.',
+    },
+    {
+      'type': 'basic_section',
+      'name': 'قسم مرن متقدم',
+      'icon': Icons.view_quilt_rounded,
+      'category': 'basic',
+      'desc': 'صمم أي شكل بحرية كاملة.',
+      'popular': true,
+      'ai_role': 'custom_layout',
+      'ai_when_to_use':
+          'Use when the user asks for a unique composition that does not map cleanly to a specialized section.',
+    },
+    {
+      'type': 'hero_saas',
+      'name': 'بطل تطبيقات (SaaS)',
+      'icon': Icons.dashboard_customize_rounded,
+      'category': 'basic',
+      'desc': 'قسم رئيسي مثالي للبرمجيات والتطبيقات.',
+      'ai_role': 'saas_hero',
+      'ai_when_to_use':
+          'Use for software, dashboards, apps, subscriptions, and B2B technology offers.',
+    },
+    {
+      'type': 'trust_logos',
+      'name': 'شركاء النجاح',
+      'icon': Icons.verified_user_rounded,
+      'category': 'trust',
+      'desc': 'عرض شعارات الشركات لزيادة الثقة.',
+      'popular': true,
+      'ai_role': 'social_proof',
+      'ai_when_to_use':
+          'Use after the hero when the prompt mentions clients, partners, certifications, press, or credibility.',
+    },
+    {
+      'type': 'animated_counter',
+      'name': 'عداد أرقام',
+      'icon': Icons.onetwothree_rounded,
+      'category': 'conversion',
+      'desc': 'عداد متحرك للإحصائيات.',
+      'ai_role': 'proof_metrics',
+      'ai_when_to_use':
+          'Use for measurable claims such as customers, years, projects, savings, success rates, or capacity.',
+    },
+    {
+      'type': 'multi_step_lead_form',
+      'name': 'نموذج متعدد الخطوات',
+      'icon': Icons.dynamic_form_rounded,
+      'category': 'conversion',
+      'desc': 'جمع بيانات العملاء باحترافية على مراحل.',
+      'popular': true,
+      'ai_role': 'qualified_lead_capture',
+      'ai_when_to_use':
+          'Use for quotes, bookings, eligibility checks, real estate inquiries, medical appointments, or complex lead qualification.',
+    },
+    {
+      'type': 'lead_form',
+      'name': 'نموذج تواصل سريع',
+      'icon': Icons.mark_email_read_rounded,
+      'category': 'conversion',
+      'desc': 'نموذج مباشر لجمع بيانات التواصل.',
+      'popular': true,
+      'ai_role': 'simple_lead_capture',
+      'ai_when_to_use':
+          'Use when the user needs a short contact, callback, demo, or newsletter form.',
+    },
+    {
+      'type': 'lead_magnet',
+      'name': 'التقاط العملاء',
+      'icon': Icons.person_add_rounded,
+      'category': 'conversion',
+      'desc': 'نموذج مغناطيس لجمع البيانات.',
+      'popular': true,
+      'ai_role': 'resource_gate',
+      'ai_when_to_use':
+          'Use for free guides, coupons, catalogs, reports, checklists, or downloadable resources.',
+    },
+    {
+      'type': 'features',
+      'name': 'المميزات',
+      'icon': Icons.list_alt_rounded,
+      'category': 'content',
+      'desc': 'عرض مميزات خدمتك أو منتجك.',
+      'popular': true,
+      'ai_role': 'benefit_explanation',
+      'ai_when_to_use':
+          'Use to translate product/service capabilities into user benefits, usually 3 to 6 items.',
+    },
+    {
+      'type': 'whatsapp',
+      'name': 'تواصل واتساب',
+      'icon': Icons.chat_bubble_outline_rounded,
+      'category': 'contact',
+      'desc': 'زر سريع للتواصل عبر الواتساب.',
+      'ai_role': 'direct_chat_cta',
+      'ai_when_to_use':
+          'Use for MENA businesses, urgent booking, product orders, support, or when the prompt includes a WhatsApp number.',
+    },
+    {
+      'type': 'products',
+      'name': 'المنتجات',
+      'icon': Icons.shopping_bag_outlined,
+      'category': 'ecommerce',
+      'desc': 'عرض منتجاتك مع الأسعار وصور.',
+      'popular': true,
+      'ai_role': 'catalog',
+      'ai_when_to_use':
+          'Use for stores, menus, packages, property units, service bundles, or any sellable item list.',
+    },
+    {
+      'type': 'pricing',
+      'name': 'خطط الأسعار',
+      'icon': Icons.payments_rounded,
+      'category': 'ecommerce',
+      'desc': 'جداول الأسعار والاشتراكات.',
+      'ai_role': 'price_comparison',
+      'ai_when_to_use':
+          'Use for subscription tiers, service packages, course plans, memberships, and clear price comparison.',
+    },
+    {
+      'type': 'faq',
+      'name': 'الأسئلة الشائعة',
+      'icon': Icons.question_answer_rounded,
+      'category': 'content',
+      'desc': 'إجابات على استفسارات العملاء.',
+      'ai_role': 'objection_handling',
+      'ai_when_to_use':
+          'Use near the end to answer objections about pricing, delivery, refunds, booking, eligibility, or support.',
+    },
+    {
+      'type': 'testimonials',
+      'name': 'آراء العملاء',
+      'icon': Icons.reviews_rounded,
+      'category': 'content',
+      'desc': 'عرض تجارب عملائك الإيجابية.',
+      'ai_role': 'testimonial_proof',
+      'ai_when_to_use':
+          'Use when the user mentions reviews, clients, success stories, outcomes, or trust-building.',
+    },
+    {
+      'type': 'contact_info',
+      'name': 'معلومات الاتصال',
+      'icon': Icons.contact_mail_rounded,
+      'category': 'contact',
+      'desc': 'العنوان، الهاتف، والبريد.',
+      'ai_role': 'contact_details',
+      'ai_when_to_use':
+          'Use for physical businesses, service providers, clinics, offices, and pages that need final contact clarity.',
+    },
+    {
+      'type': 'working_hours',
+      'name': 'مواعيد العمل',
+      'icon': Icons.schedule_rounded,
+      'category': 'contact',
+      'desc': 'أيام وساعات العمل الرسمية.',
+      'ai_role': 'availability',
+      'ai_when_to_use':
+          'Use for restaurants, clinics, salons, stores, gyms, events, and appointment-based businesses.',
+    },
+    {
+      'type': 'location_map',
+      'name': 'خريطة الموقع',
+      'icon': Icons.location_on_rounded,
+      'category': 'contact',
+      'desc': 'عرض عنوان النشاط على الخريطة.',
+      'ai_role': 'physical_location',
+      'ai_when_to_use':
+          'Use when the prompt includes an address, branch, venue, showroom, clinic, restaurant, or event location.',
+    },
+    {
+      'type': 'video_embed',
+      'name': 'فيديو (Video)',
+      'icon': Icons.video_library_rounded,
+      'category': 'basic',
+      'desc': 'تضمين فيديو يوتيوب أو فيميو.',
+      'ai_role': 'video_explainer',
+      'ai_when_to_use':
+          'Use for demos, trailers, course previews, property tours, testimonials, and product explainers.',
+    },
+    {
+      'type': 'gallery',
+      'name': 'معرض الصور',
+      'icon': Icons.collections_rounded,
+      'category': 'content',
+      'desc': 'مجموعة صور لمنتجاتك أو عملك.',
+      'ai_role': 'visual_showcase',
+      'ai_when_to_use':
+          'Use for portfolios, properties, menus, salon results, event photos, venues, and product detail visuals.',
+    },
+    {
+      'type': 'qr_code',
+      'name': 'QR كود',
+      'icon': Icons.qr_code_2_rounded,
+      'category': 'basic',
+      'desc': 'كود سريع لزيارة الرابط.',
+      'ai_role': 'offline_to_online',
+      'ai_when_to_use':
+          'Use for events, menus, flyers, storefronts, check-in, registration, and shareable offline access.',
+    },
+    {
+      'type': 'social_qr',
+      'name': 'روابط التواصل',
+      'icon': Icons.share_rounded,
+      'category': 'contact',
+      'desc': 'أيقونات التواصل الاجتماعي.',
+      'ai_role': 'social_channels',
+      'ai_when_to_use':
+          'Use when the prompt mentions Instagram, TikTok, LinkedIn, Facebook, social follow, or creator profiles.',
+    },
   ];
 
   @override
@@ -53,10 +263,13 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
     };
 
     final filteredSections = _sections.where((s) {
-      final matchesSearch = s['name'].toLowerCase().contains(_searchQuery.toLowerCase());
-      final matchesCategory = _selectedCategory == 'all' || 
-                              s['category'] == _selectedCategory || 
-                              (_selectedCategory == 'popular' && s['popular'] == true);
+      final matchesSearch = s['name'].toLowerCase().contains(
+        _searchQuery.toLowerCase(),
+      );
+      final matchesCategory =
+          _selectedCategory == 'all' ||
+          s['category'] == _selectedCategory ||
+          (_selectedCategory == 'popular' && s['popular'] == true);
       return matchesSearch && matchesCategory;
     }).toList();
 
@@ -78,24 +291,30 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
           child: Column(
             children: [
               Container(
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: AppColors.border.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(2),
-                )
+                ),
               ),
-              
+
               Text("إضافة قسم جديد", style: AppTypography.h2),
               const SizedBox(height: 20),
-              
+
               // Search
               TextField(
                 onChanged: (v) => setState(() => _searchQuery = v),
                 decoration: InputDecoration(
                   hintText: "بحث عن قسم...",
-                  hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
+                  hintStyle: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: AppColors.textSecondary,
+                  ),
                   filled: true,
                   fillColor: AppColors.cardBg,
                   border: OutlineInputBorder(
@@ -104,16 +323,22 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.border, width: 1),
+                    borderSide: const BorderSide(
+                      color: AppColors.border,
+                      width: 1,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
+                    borderSide: const BorderSide(
+                      color: AppColors.secondary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Categories
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -126,54 +351,67 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                         label: Text(
                           cat.value,
                           style: AppTypography.caption.copyWith(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? Colors.white : AppColors.textSecondary,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textSecondary,
                           ),
                         ),
                         selected: isSelected,
-                        onSelected: (s) => setState(() => _selectedCategory = cat.key),
+                        onSelected: (s) =>
+                            setState(() => _selectedCategory = cat.key),
                         selectedColor: AppColors.secondary,
                         backgroundColor: AppColors.cardBg,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                            color: isSelected ? Colors.transparent : AppColors.border,
+                            color: isSelected
+                                ? Colors.transparent
+                                : AppColors.border,
                           ),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                     );
                   }).toList(),
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Grid with staggered item animations
               Expanded(
-                child: filteredSections.isEmpty 
-                  ? _buildEmptyState()
-                  : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 180,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 0.9,
+                child: filteredSections.isEmpty
+                    ? _buildEmptyState()
+                    : GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 180,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 0.9,
+                            ),
+                        itemCount: filteredSections.length,
+                        itemBuilder: (context, index) {
+                          final section = filteredSections[index];
+                          // Recreate animate structure on search/category change using unique keys
+                          return AnimatedSectionCard(
+                            key: ValueKey(
+                              "${section['type']}_${_selectedCategory}_${_searchQuery}_$index",
+                            ),
+                            section: section,
+                            cubit: cubit,
+                            index: index,
+                          );
+                        },
                       ),
-                      itemCount: filteredSections.length,
-                      itemBuilder: (context, index) {
-                        final section = filteredSections[index];
-                        // Recreate animate structure on search/category change using unique keys
-                        return AnimatedSectionCard(
-                          key: ValueKey("${section['type']}_${_selectedCategory}_${_searchQuery}_$index"),
-                          section: section,
-                          cubit: cubit,
-                          index: index,
-                        );
-                      },
-                    ),
               ),
-              
+
               const SizedBox(height: 16),
               PrimaryButton(
                 text: "إغلاق",
@@ -194,7 +432,11 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.search_off_rounded, size: 48, color: AppColors.textMuted),
+          const Icon(
+            Icons.search_off_rounded,
+            size: 48,
+            color: AppColors.textMuted,
+          ),
           const SizedBox(height: 12),
           Text("لا توجد أقسام تطابق بحثك", style: AppTypography.bodyMedium),
         ],
@@ -219,7 +461,8 @@ class AnimatedSectionCard extends StatefulWidget {
   State<AnimatedSectionCard> createState() => _AnimatedSectionCardState();
 }
 
-class _AnimatedSectionCardState extends State<AnimatedSectionCard> with SingleTickerProviderStateMixin {
+class _AnimatedSectionCardState extends State<AnimatedSectionCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _opacityAnimation;
   late Animation<Offset> _slideAnimation;
@@ -240,15 +483,13 @@ class _AnimatedSectionCardState extends State<AnimatedSectionCard> with SingleTi
       ),
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 1.0, curve: Curves.easeOutCubic),
-      ),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.0, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
 
     // Stagger load based on grid index
     Future.delayed(Duration(milliseconds: widget.index * 30), () {
@@ -297,7 +538,9 @@ class _AnimatedSectionCardState extends State<AnimatedSectionCard> with SingleTi
                 color: _isHovered ? AppColors.cardBgHover : AppColors.cardBg,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: _isHovered ? AppColors.secondary.withValues(alpha: 0.7) : AppColors.border,
+                  color: _isHovered
+                      ? AppColors.secondary.withValues(alpha: 0.7)
+                      : AppColors.border,
                   width: _isHovered ? 2 : 1.5,
                 ),
                 boxShadow: [
@@ -331,7 +574,9 @@ class _AnimatedSectionCardState extends State<AnimatedSectionCard> with SingleTi
                   const SizedBox(height: 12),
                   Text(
                     widget.section['name'],
-                    style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -339,7 +584,11 @@ class _AnimatedSectionCardState extends State<AnimatedSectionCard> with SingleTi
                   const SizedBox(height: 4),
                   Text(
                     widget.section['desc'],
-                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary, height: 1.3),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
+                      height: 1.3,
+                    ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

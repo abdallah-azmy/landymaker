@@ -74,6 +74,7 @@ The platform supports the following blocks, each with a dedicated Editor and Ren
 - `logo_header`: Simple header containing the brand logo.
 - `lead_form`: Full-width lead generation form block.
 - `lead_magnet`: Split layout (Image + Form) lead generation block.
+- `multi_step_lead_form`: Step-based lead qualification form for complex quotes, bookings, and eligibility flows.
 - `working_hours`: Store or business opening hours display.
 - `location_map`: Google Maps / Map embed block.
 - `trust_logos`: Horizontal row of trusted brand logos.
@@ -81,6 +82,12 @@ The platform supports the following blocks, each with a dedicated Editor and Ren
 - `social_qr`: Display of social media links alongside a QR code.
 - `whatsapp`: WhatsApp direct chat CTA block.
 - `basic_section`: Empty rich-text section.
+
+### Template & AI-Agent Preparation Notes
+- `TemplateRegistry.availableTemplates` is the authoritative template catalog for the dashboard and template picker.
+- Template block JSON may include non-rendering helper keys such as `ai_intent`, `ai_slots`, and metadata hints. Renderers must ignore unknown keys and continue reading only their supported schema fields.
+- Future AI Agent tools should choose from registered block `type` values only. Do not generate a new type unless a renderer, editor, builder default, and documentation entry exist.
+- Section selection should prefer specialized blocks first (`products`, `pricing`, `multi_step_lead_form`, `location_map`) and fall back to `basic_section` only for custom layouts that do not match an existing section.
 
 ---
 

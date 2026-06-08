@@ -32,11 +32,29 @@ class DashboardShell extends StatefulWidget {
 
 class _DashboardShellState extends State<DashboardShell> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  NotificationCubit? _notificationCubit;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _initNotificationCubit();
+  }
+
+  void _initNotificationCubit() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      _notificationCubit = NotificationCubit(
+        supabase: SupabaseService.instance,
+        userId: authState.userId,
+      )..fetchNotifications();
+    }
+  }
+
+  @override
+  void dispose() {
+    _notificationCubit?.close();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -72,11 +90,8 @@ class _DashboardShellState extends State<DashboardShell> {
 
     if (currentUserId == null) return const Scaffold();
 
-    return BlocProvider(
-      create: (context) => NotificationCubit(
-        supabase: SupabaseService.instance,
-        userId: currentUserId!,
-      )..fetchNotifications(),
+    return BlocProvider.value(
+      value: _notificationCubit!,
       child: Builder(
         builder: (context) {
           final sidebar = SidebarNavigation(
@@ -130,7 +145,10 @@ class _DashboardShellState extends State<DashboardShell> {
                         children: [
                           if (ResponsiveLayout.isDesktop(context))
                             _buildDesktopTopBar(context, loc),
-                          Expanded(child: widget.navigationShell),
+                          Expanded(
+                            key: ValueKey(widget.navigationShell.currentIndex),
+                            child: widget.navigationShell,
+                          ),
                         ],
                       ),
                     ),
@@ -178,7 +196,12 @@ class _DashboardShellState extends State<DashboardShell> {
           children: [
             IconButton(
               icon: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
-              onPressed: () => NotificationInboxModal.show(context),
+              onPressed: () {
+                NotificationInboxModal.show(
+                  context: context,
+                  cubit: _notificationCubit!,
+                );
+              },
             ),
             if (unreadCount > 0)
               Positioned(

@@ -670,51 +670,49 @@ class _CopyableUrlWidgetState extends State<_CopyableUrlWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: InkWell(
-              onTap: () {
-                html.window.open('/${widget.subdomain}', '_blank');
-              },
-              borderRadius: BorderRadius.circular(4),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-                child: Text(
-                  widget.url,
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.primary,
-                    decoration: TextDecoration.underline,
-                    decorationColor: AppColors.primary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          InkWell(
-            onTap: () => _copyToClipboard(context),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: InkWell(
+            onTap: () {
+              html.window.open('/${widget.subdomain}', '_blank');
+            },
             borderRadius: BorderRadius.circular(4),
             child: Padding(
-              padding: const EdgeInsets.all(4),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  _isCopied ? Icons.check_circle_rounded : Icons.copy_rounded,
-                  key: ValueKey(_isCopied),
-                  size: 16,
-                  color: _isCopied
-                      ? AppColors.activeGreen
-                      : AppColors.textSecondary,
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+              child: Text(
+                widget.url,
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.primary,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.primary,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 8),
+        InkWell(
+          onTap: () => _copyToClipboard(context),
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                _isCopied ? Icons.check_circle_rounded : Icons.copy_rounded,
+                key: ValueKey(_isCopied),
+                size: 16,
+                color: _isCopied
+                    ? AppColors.activeGreen
+                    : AppColors.textSecondary,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -422,7 +422,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
-  void addBlock(String type) {
+  void addBlock(String type, {Map<String, dynamic>? presetOverrides}) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
@@ -431,8 +431,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
     final List blocks = List.from(newDesign['blocks'] ?? []);
 
+    Map<String, dynamic>? blockToAdd;
+
     if (type == 'hero' || type == 'hero_saas') {
-      blocks.add({
+      blockToAdd = {
         'type': type,
         'title': type == 'hero_saas'
             ? 'منصتك الشاملة لإدارة الأعمال'
@@ -444,16 +446,16 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'image_url': type == 'hero_saas'
             ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200'
             : 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800',
-      });
+      };
     } else if (type == 'logo_header') {
-      blocks.add({
+      blockToAdd = {
         'type': 'logo_header',
         'title': 'اسم العلامة التجارية',
         'alignment': 'center',
         'logo_height': 48.0,
-      });
+      };
     } else if (type == 'features') {
-      blocks.add({
+      blockToAdd = {
         'type': 'features',
         'title': 'لماذا نحن؟',
         'layout_style': 'grid',
@@ -461,15 +463,15 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           {'title': 'ميزة 1', 'description': 'اشرح فوائد هذه الميزة هنا.'},
           {'title': 'ميزة 2', 'description': 'سلط الضوء على أهمية هذا البند.'},
         ],
-      });
+      };
     } else if (type == 'lead_form') {
-      blocks.add({
+      blockToAdd = {
         'type': 'lead_form',
         'title': 'تواصل معنا اليوم',
         'button_text': 'إرسال',
-      });
+      };
     } else if (type == 'lead_magnet') {
-      blocks.add({
+      blockToAdd = {
         'type': 'lead_magnet',
         'title': 'احصل على دليلك المجاني',
         'subtitle':
@@ -477,17 +479,17 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'button_text': 'أرسل الدليل الآن',
         'image_url':
             'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800',
-      });
+      };
     } else if (type == 'whatsapp') {
-      blocks.add({
+      blockToAdd = {
         'type': 'whatsapp',
         'title': 'تواصل معنا عبر واتساب',
         'phone_number': '',
         'message': 'أهلاً بك! أريد الاستفسار عن...',
         'button_text': 'إرسال رسالة',
-      });
+      };
     } else if (type == 'products') {
-      blocks.add({
+      blockToAdd = {
         'type': 'products',
         'title': 'منتجاتنا',
         'layout_style': 'grid_2',
@@ -503,16 +505,16 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'button_text': 'اشترِ الآن',
           },
         ],
-      });
+      };
     } else if (type == 'qr_code') {
-      blocks.add({
+      blockToAdd = {
         'type': 'qr_code',
         'title': 'امسح الكود لزيارة موقعنا',
         'subtitle': 'شارك الصفحة بسهولة.',
         'qr_size': 200.0,
-      });
+      };
     } else if (type == 'social_qr') {
-      blocks.add({
+      blockToAdd = {
         'type': 'social_qr',
         'title': 'تواصل معنا',
         'subtitle': 'تابعنا على منصات التواصل',
@@ -520,9 +522,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           {'platform': 'instagram', 'url': 'https://instagram.com'},
           {'platform': 'whatsapp', 'url': 'https://wa.me/'},
         ],
-      });
+      };
     } else if (type == 'pricing') {
-      blocks.add({
+      blockToAdd = {
         'type': 'pricing',
         'schema_version': 2,
         'title': 'خطط الأسعار',
@@ -560,58 +562,58 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'is_popular': true,
           },
         ],
-      });
+      };
     } else if (type == 'faq') {
-      blocks.add({
+      blockToAdd = {
         'type': 'faq',
         'title': 'الأسئلة الشائعة',
         'items': [
           {'question': 'سؤال؟', 'answer': 'إجابة مفصلة.'},
         ],
-      });
+      };
     } else if (type == 'testimonials') {
-      blocks.add({
+      blockToAdd = {
         'type': 'testimonials',
         'title': 'قالوا عنا',
         'items': [
           {'author': 'الاسم', 'role': 'الوظيفة', 'quote': 'رأيه هنا.'},
         ],
-      });
+      };
     } else if (type == 'contact_info') {
-      blocks.add({
+      blockToAdd = {
         'type': 'contact_info',
         'title': 'تواصل معنا',
         'email': 'contact@example.com',
         'phone': '+20',
         'location': 'القاهرة، مصر',
-      });
+      };
     } else if (type == 'working_hours') {
-      blocks.add({
+      blockToAdd = {
         'type': 'working_hours',
         'title': 'مواعيد العمل',
         'schedule': {
           'السبت - الخميس': '10:00 AM - 10:00 PM',
           'الجمعة': '2:00 PM - 10:00 PM',
         },
-      });
+      };
     } else if (type == 'location_map') {
-      blocks.add({
+      blockToAdd = {
         'type': 'location_map',
         'title': 'موقعنا',
         'address': 'القاهرة، مصر',
         'map_iframe_url':
             'https://maps.google.com/maps?q=Cairo&t=&z=13&ie=UTF8&iwloc=&output=embed',
-      });
+      };
     } else if (type == 'gallery') {
-      blocks.add({
+      blockToAdd = {
         'type': 'gallery',
         'title': 'معرض الصور',
         'items': [
           'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800',
         ],
-      });
+      };
     } else if (type == 'multi_step_lead_form') {
-      blocks.add({
+      blockToAdd = {
         'type': 'multi_step_lead_form',
         'schema_version': 1,
         'title': 'طلب تسعير',
@@ -657,9 +659,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             ],
           },
         ],
-      });
+      };
     } else if (type == 'video_embed') {
-      blocks.add({
+      blockToAdd = {
         'type': 'video_embed',
         'title': 'شاهد كيف نعمل',
         'subtitle': 'فيديو تعريفي قصير يوضح مزايا المنصة.',
@@ -669,9 +671,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'use_thumbnail': true,
         'autoplay': false,
         'show_controls': true,
-      });
+      };
     } else if (type == 'trust_logos') {
-      blocks.add({
+      blockToAdd = {
         'type': 'trust_logos',
         'title': 'شركاء نعتز بهم',
         'items': [
@@ -679,9 +681,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
           'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg',
         ],
-      });
+      };
     } else if (type == 'animated_counter') {
-      blocks.add({
+      blockToAdd = {
         'type': 'animated_counter',
         'title': 'أرقام تتحدث عن نفسها',
         'items': [
@@ -689,20 +691,47 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           {'value': '99', 'label': 'نسبة الرضا', 'prefix': '', 'suffix': '%'},
           {'value': '24', 'label': 'ساعة دعم', 'prefix': '', 'suffix': '/7'},
         ],
-      });
+      };
     } else if (type == 'basic_section') {
-      blocks.add({
+      blockToAdd = {
         'type': 'basic_section',
         'title': 'قسم مرن جديد',
         'layout_direction': 'column',
         'main_axis_alignment': 'center',
         'cross_axis_alignment': 'center',
         'spacing': 20.0,
-      });
+      };
     }
+
+    if (blockToAdd == null) return;
+    if (presetOverrides != null && presetOverrides.isNotEmpty) {
+      blockToAdd = _mergeBlockPreset(blockToAdd, presetOverrides);
+    }
+    blocks.add(blockToAdd);
 
     newDesign['blocks'] = blocks;
     _emitDirty(currentState.copyWith(designMap: newDesign));
+  }
+
+  Map<String, dynamic> _mergeBlockPreset(
+    Map<String, dynamic> base,
+    Map<String, dynamic> overrides,
+  ) {
+    final merged = Map<String, dynamic>.from(base);
+    overrides.forEach((key, value) {
+      if (value is Map<String, dynamic> &&
+          merged[key] is Map<String, dynamic>) {
+        merged[key] = _mergeBlockPreset(
+          Map<String, dynamic>.from(merged[key] as Map<String, dynamic>),
+          value,
+        );
+      } else if (value is List) {
+        merged[key] = List.from(value);
+      } else {
+        merged[key] = value;
+      }
+    });
+    return merged;
   }
 
   void updateStickyCta(String key, dynamic value) {

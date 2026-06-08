@@ -164,6 +164,10 @@ class BlockRegistry {
       theme: theme,
       productKeys: productKeys,
       whatsappNumber: data['whatsapp_number'],
+      showCategoryFilter: data['show_category_filter'] ?? true,
+      customCategories: data['categories'] != null
+          ? List<String>.from(data['categories'])
+          : null,
       bgImageUrl: data['bg_image_url'],
       bgOverlayColor: data['bg_overlay_color'],
       bgOverlayOpacity:

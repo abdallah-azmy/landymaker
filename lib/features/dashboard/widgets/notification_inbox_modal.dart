@@ -9,11 +9,14 @@ import '../controllers/notification_state.dart';
 class NotificationInboxModal extends StatelessWidget {
   const NotificationInboxModal({super.key});
 
-  static void show(BuildContext context) {
+  static void show({required BuildContext context, required NotificationCubit cubit}) {
     showDialog(
       context: context,
       barrierColor: Colors.black26,
-      builder: (context) => const NotificationInboxModal(),
+      builder: (context) => BlocProvider.value(
+        value: cubit,
+        child: const NotificationInboxModal(),
+      ),
     );
   }
 

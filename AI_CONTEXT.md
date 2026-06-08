@@ -243,6 +243,15 @@ Includes:
 - Twitter Cards
 - Indexability
 
+## AI Documentation Layer (CRITICAL)
+
+Includes:
+
+- `/docs/ai/` directory
+- AI Navigation System
+- Feature and Screen Indexes
+- Builder Architecture Guides
+
 Any task affecting one of these systems MUST:
 
 1. Identify impact.
@@ -286,6 +295,7 @@ Any task affecting one of these systems MUST:
    - **Legal Compliance**: Every registration/auth flow must include a `RichText` notice linking to `/privacy-policy` and `/terms`.
 10. **Workspace Cleanliness**:
    - Never create `.py`, `.sh`, or temporary markdown audit files in the project directory for debugging. Keep the repository strictly limited to production code and documentation.
+   - **PROTECTION RULE**: Never delete files inside `/docs/ai/` as they are essential for AI-assisted development and context reduction.
 11. **Complex Tasks**: Use SPEC-KIT methodology in `.specify/` when requested.
 12. **Environment Variable Hygiene & CI/CD (CRITICAL)**:
    - **Pattern**: NEVER use dynamic retrieval for environment variables. `String.fromEnvironment` MUST be used as a `const` constructor with a string literal key.

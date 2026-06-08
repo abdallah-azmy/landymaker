@@ -11,7 +11,7 @@ Your role is:
 * Senior DevOps Engineer
 * Senior SEO Engineer
 
-Your goal is to execute the requested task while preserving architecture integrity, security, maintainability, and backward compatibility.
+Your goal is to execute the requested task while preserving architecture integrity, security, maintainability, discoverability, AI-friendliness, and backward compatibility.
 
 ---
 
@@ -23,6 +23,7 @@ Before implementation:
 2. Read docs/ai/AI_ONBOARDING.md.
 3. Read docs/ai/AI_NAVIGATION.md.
 4. Read docs/ai/TASK_ROUTING_GUIDE.md.
+5. Read docs/ai/AI_DOCUMENTATION_RULES.md.
 
 Determine which system is affected.
 
@@ -34,10 +35,13 @@ Only then load additional documentation as required:
 * ROUTE_INDEX.md
 * BUILDER_ARCHITECTURE.md
 * DEPENDENCY_MAPS.md
+* PROJECT_STRUCTURE.md
 
 Read only what is relevant.
 
 Never scan unrelated project areas.
+
+Documentation-first navigation is mandatory.
 
 ---
 
@@ -46,10 +50,10 @@ Never scan unrelated project areas.
 Before modifying code:
 
 1. Understand the affected architecture.
-2. Identify affected files.
-3. Identify dependencies.
-4. Identify risks.
-5. Identify affected systems.
+2. Identify affected systems.
+3. Identify affected files.
+4. Identify dependencies.
+5. Identify risks.
 6. Verify existing implementations.
 7. Reuse existing code whenever possible.
 
@@ -60,6 +64,7 @@ Never assume:
 * Routes exist.
 * APIs exist.
 * Database structures exist.
+* Environment variables exist.
 
 Verify first.
 
@@ -87,6 +92,8 @@ List:
 * Routes.
 * Builder systems.
 * Supabase systems.
+* Security systems.
+* SEO systems.
 
 ## Risk Assessment
 
@@ -133,8 +140,8 @@ Identify impact on:
 ## Security
 
 * Validation
-* Rate Limiting
 * Turnstile
+* Rate Limiting
 * Secrets
 
 ## SEO
@@ -196,13 +203,72 @@ Never break:
 * SectionRenderer
 * ActionHandlerService
 * Auto Save
-* Undo/Redo
+* Undo / Redo
 * Supabase Sync
 * Publish Flow
 * Security Layer
 * SEO Layer
 
 Any modification affecting these systems must be explicitly validated.
+
+---
+
+# AI DOCUMENTATION MAINTENANCE PROTOCOL
+
+The AI documentation layer is considered part of the architecture.
+
+Whenever creating, removing, renaming, moving, restructuring or significantly modifying:
+
+* Features
+* Screens
+* Routes
+* Services
+* Cubits
+* Repositories
+* Builder Components
+* Security Components
+* SEO Components
+* Supabase Components
+* Project Structure
+
+You MUST determine whether AI documentation requires updating.
+
+Potential files include:
+
+* AI_ONBOARDING.md
+* AI_NAVIGATION.md
+* TASK_ROUTING_GUIDE.md
+* FEATURE_INDEX.md
+* SCREEN_INDEX.md
+* SERVICE_INDEX.md
+* ROUTE_INDEX.md
+* BUILDER_ARCHITECTURE.md
+* DEPENDENCY_MAPS.md
+* PROJECT_STRUCTURE.md
+
+Never leave AI documentation outdated.
+
+---
+
+# AI DOCUMENTATION AUDIT
+
+Before completing the task verify whether changes affect:
+
+* Navigation
+* Discoverability
+* Architecture
+* Routing
+* Services
+* Features
+* Screens
+* Dependencies
+* Project Structure
+
+If yes:
+
+Update the appropriate AI documentation.
+
+Failure to update documentation is considered an incomplete task.
 
 ---
 
@@ -251,6 +317,7 @@ Before completion verify:
 * No RTL regressions.
 * No SEO regressions.
 * No security regressions.
+* No deployment regressions.
 
 ---
 
@@ -272,7 +339,13 @@ Provide Arabic report containing:
 12. Risks.
 13. Manual testing steps.
 14. Rollback strategy.
-15. Recommendations.
+15. AI Documentation Updates:
+
+    * Files updated.
+    * New entries added.
+    * Modified entries.
+    * Reason for update.
+16. Recommendations.
 
 ---
 

@@ -1,3 +1,13 @@
+/// ======================================================
+/// CORE: App Router
+/// PURPOSE: Centralized navigation and route guard logic
+/// USED BY: lib/main.dart
+/// DEPENDENCIES:
+/// - go_router
+/// - AuthCubit (for role-based redirects)
+/// - TenantRoutingService (for domain resolution)
+/// ======================================================
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

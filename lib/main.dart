@@ -1,3 +1,13 @@
+/// ======================================================
+/// ENTRY POINT: LandyMaker Main
+/// PURPOSE: App initialization and root widget setup
+/// USED BY: Flutter Engine
+/// DEPENDENCIES:
+/// - injection_container (Service Locator)
+/// - SupabaseService
+/// - AppRouter
+/// ======================================================
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

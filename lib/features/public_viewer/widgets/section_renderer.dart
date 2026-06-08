@@ -1,3 +1,12 @@
+/// ======================================================
+/// FEATURE: Public Site Renderer
+/// PURPOSE: Maps JSON block arrays into visual Flutter widgets
+/// USED BY: PublicLandingPage, BuilderCanvas
+/// DEPENDENCIES:
+/// - BlockRegistry
+/// - SectionToolbarOverlay (Builder only)
+/// ======================================================
+
 import 'package:flutter/material.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../builder/registries/block_registry.dart';

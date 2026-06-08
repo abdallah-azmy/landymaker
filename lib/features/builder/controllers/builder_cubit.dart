@@ -1,3 +1,13 @@
+/// ======================================================
+/// FEATURE: Builder State Management
+/// PURPOSE: Core logic for editing landing pages (Undo/Redo, Auto-save)
+/// USED BY: BuilderWorkspaceScreen
+/// DEPENDENCIES:
+/// - DatabaseService
+/// - StorageService
+/// - TemplateRegistry
+/// ======================================================
+
 import 'dart:convert';
 import 'dart:ui' show Color;
 

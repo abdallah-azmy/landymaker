@@ -1,4 +1,15 @@
 
+/**
+ * ======================================================
+ * SYSTEM: Vercel Edge Middleware
+ * PURPOSE: SEO, Routing, and Multi-tenant Proxy
+ * USED BY: Vercel Deployment
+ * DEPENDENCIES:
+ * - Supabase REST API (for SEO Metadata)
+ * - landymaker-blog (for blog proxying)
+ * ======================================================
+ */
+
 export default async function middleware(request) {
   const url = new URL(request.url);
   const host = request.headers.get('host') || '';

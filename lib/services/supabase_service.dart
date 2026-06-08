@@ -1,3 +1,12 @@
+/// ======================================================
+/// SERVICE: Supabase Adapter
+/// PURPOSE: Primary entry point for Supabase SDK interactions
+/// USED BY: Global Service Layer
+/// DEPENDENCIES:
+/// - supabase_flutter
+/// - EnvUtils
+/// ======================================================
+
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

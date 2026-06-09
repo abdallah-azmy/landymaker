@@ -287,6 +287,51 @@ class TemplateRegistry {
       aiPromptHint:
           'Use for books, ebooks, reports, templates, guides, paid PDFs, and creator digital products.',
     ),
+    TemplateMetadata(
+      id: 'solar_energy',
+      name: 'Solar Energy',
+      description: 'Clean, sustainable energy solutions for homes and businesses.',
+      imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&q=80',
+      category: 'industrial',
+      recommendedSections: ['hero', 'statistics_grid', 'service_steps', 'lead_form'],
+      aiPromptHint: 'Use for solar panels, green energy, sustainability, and engineering services.',
+    ),
+    TemplateMetadata(
+      id: 'luxury_resort',
+      name: 'Luxury Resort',
+      description: 'Elegant showcase for hotels, villas, and high-end tourism.',
+      imageUrl: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=600&q=80',
+      category: 'travel',
+      recommendedSections: ['hero', 'gallery', 'team_members', 'cta_banner'],
+      aiPromptHint: 'Use for luxury hotels, private villas, boutique resorts, and premium hospitality.',
+    ),
+    TemplateMetadata(
+      id: 'fintech_crypto',
+      name: 'Fintech / Crypto',
+      description: 'Modern, dark-themed page for digital finance and blockchain.',
+      imageUrl: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&q=80',
+      category: 'technology',
+      recommendedSections: ['hero_saas', 'trust_logos', 'comparison_table', 'cta_banner'],
+      aiPromptHint: 'Use for crypto wallets, trading platforms, neobanks, and blockchain startups.',
+    ),
+    TemplateMetadata(
+      id: 'architecture',
+      name: 'Architecture & Design',
+      description: 'Minimalist and grid-focused layout for studios and designers.',
+      imageUrl: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&q=80',
+      category: 'creative',
+      recommendedSections: ['hero', 'gallery', 'service_steps', 'team_members'],
+      aiPromptHint: 'Use for architecture firms, interior designers, urban planners, and studios.',
+    ),
+    TemplateMetadata(
+      id: 'fashion_store',
+      name: 'Fashion Store',
+      description: 'Editorial-style e-commerce layout for apparel and beauty.',
+      imageUrl: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e12?w=600&q=80',
+      category: 'ecommerce',
+      recommendedSections: ['hero', 'products', 'gallery', 'testimonials', 'cta_banner'],
+      aiPromptHint: 'Use for clothing brands, fashion boutiques, accessories, and trendy apparel.',
+    ),
   ];
 
   /// Get initial design JSON for a template type
@@ -322,6 +367,16 @@ class TemplateRegistry {
         return _getNonprofitCampaignTemplate();
       case 'book_launch':
         return _getBookLaunchTemplate();
+      case 'solar_energy':
+        return _getSolarEnergyTemplate();
+      case 'luxury_resort':
+        return _getLuxuryResortTemplate();
+      case 'fintech_crypto':
+        return _getFintechCryptoTemplate();
+      case 'architecture':
+        return _getArchitectureTemplate();
+      case 'fashion_store':
+        return _getFashionStoreTemplate();
       default:
         return {'blocks': []};
     }
@@ -390,9 +445,250 @@ class TemplateRegistry {
         return LandingPageTheme.palettes.firstWhere(
           (e) => e.name == 'Royal Gold',
         );
+      case 'solar_energy':
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Deep Forest',
+        );
+      case 'luxury_resort':
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Lux-Earth',
+        );
+      case 'fintech_crypto':
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Cyber Slate',
+        );
+      case 'architecture':
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Minimal Slate',
+        );
+      case 'fashion_store':
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Coral Dream',
+        );
       default:
         return LandingPageTheme.palettes.last; // Default Dark with Cairo
     }
+  }
+
+  static Map<String, dynamic> _getSolarEnergyTemplate() {
+    return {
+      'blocks': [
+        {
+          'type': 'hero',
+          'title': 'مستقبل الطاقة بين يديك',
+          'subtitle': 'وفر في فواتير الكهرباء وساهم في حماية البيئة مع أنظمة الطاقة الشمسية الأكثر كفاءة.',
+          'button_text': 'احصل على عرض سعر مجاني',
+          'image_url': 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1000&q=80',
+          'animation': {'type': 'zoomIn', 'duration': 1000},
+        },
+        {
+          'type': 'statistics_grid',
+          'title': 'أرقام تتحدث عن جودتنا',
+          'items': [
+            {'value': '1500+', 'label': 'منزل تم تجهيزه', 'icon': 'people'},
+            {'value': '25MW', 'label': 'طاقة مولدة سنويًا', 'icon': 'speed'},
+            {'value': '30%', 'label': 'توفير في الفواتير', 'icon': 'trending'},
+            {'value': '10', 'label': 'سنوات ضمان', 'icon': 'check'},
+          ],
+          'animation': {'type': 'fadeInUp', 'duration': 800, 'delay': 200},
+        },
+        {
+          'type': 'service_steps',
+          'title': 'كيف نبدأ؟',
+          'subtitle': 'خطوات بسيطة نحو طاقة نظيفة ومستدامة لمنزلك.',
+          'items': [
+            {'title': 'معاينة الموقع', 'description': 'يقوم فريقنا بزيارة الموقع وتقييم زوايا الشمس.'},
+            {'title': 'التصميم الفني', 'description': 'نصمم نظاماً مخصصاً يناسب احتياجك الفعلي.'},
+            {'title': 'التركيب والتشغيل', 'description': 'تركيب احترافي وتفعيل النظام خلال ٤٨ ساعة.'},
+          ],
+        },
+        {
+          'type': 'lead_form',
+          'title': 'تواصل مع خبراء الطاقة',
+          'button_text': 'إرسال الطلب',
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> _getLuxuryResortTemplate() {
+    return {
+      'blocks': [
+        {
+          'type': 'hero',
+          'variant': 7, // Soft Premium Gradient
+          'title': 'ملاذ الفخامة والهدوء',
+          'subtitle': 'استمتع بتجربة إقامة استثنائية في قلب الطبيعة الخلابة مع أرقى الخدمات العالمية.',
+          'button_text': 'احجز جناحك الآن',
+          'image_url': 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1000&q=80',
+          'animation': {'type': 'slideInLeft', 'duration': 1000},
+        },
+        {
+          'type': 'gallery',
+          'title': 'اكتشف عالمنا',
+          'display_mode': 'masonry',
+          'items': [
+            'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800&q=80',
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
+            'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
+          ],
+        },
+        {
+          'type': 'team_members',
+          'title': 'فريق الضيافة بانتظارك',
+          'items': [
+            {'name': 'مارك دو', 'role': 'مدير المنتجع', 'image_url': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80'},
+            {'name': 'سارة لين', 'role': 'كبير الطهاة', 'image_url': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80'},
+          ],
+        },
+        {
+          'type': 'cta_banner',
+          'title': 'عرض حصري للموسم الحالي',
+          'subtitle': 'احصل على ليلة إضافية مجانية عند حجز ٣ ليالي أو أكثر.',
+          'button_text': 'اغتنم العرض',
+          'button_url': '#booking',
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> _getFintechCryptoTemplate() {
+    return {
+      'blocks': [
+        {
+          'type': 'hero_saas',
+          'variant': 8, // Dark Contrast Card
+          'title': 'إدارة أصولك الرقمية بذكاء',
+          'subtitle': 'منصة آمنة، سريعة، وسهلة الاستخدام لتداول وإدارة محفظتك المالية الحديثة.',
+          'button_text': 'ابدأ الآن مجانًا',
+          'image_url': 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1000&q=80',
+          'animation': {'type': 'zoomIn', 'duration': 1200},
+        },
+        {
+          'type': 'trust_logos',
+          'title': 'شركاء في الثقة والأمان',
+          'items': [
+            'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg',
+            'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
+          ],
+        },
+        {
+          'type': 'comparison_table',
+          'title': 'قارن بين باقات التداول',
+          'plans': [
+            {'name': 'الأساسية', 'price': 'مجاني'},
+            {'name': 'برو', 'price': '\$29/mo'},
+          ],
+          'features': [
+            {'name': 'عدد العملات', 'values': ['10', 'الكل']},
+            {'name': 'دعم فني 24/7', 'values': [false, true]},
+            {'name': 'تنبيهات فورية', 'values': [true, true]},
+          ],
+        },
+        {
+          'type': 'cta_banner',
+          'title': 'جاهز للانطلاق في عالم الـ Crypto؟',
+          'subtitle': 'انضم لأكثر من مليون مستخدم حول العالم اليوم.',
+          'button_text': 'إنشاء محفظة',
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> _getArchitectureTemplate() {
+    return {
+      'blocks': [
+        {
+          'type': 'hero',
+          'title': 'نصمم المساحات، لنلهم الحياة',
+          'subtitle': 'استوديو عمارة وتصميم داخلي يدمج بين الوظيفة والجمال لخلق بيئات فريدة.',
+          'button_text': 'استشرنا في مشروعك',
+          'image_url': 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1000&q=80',
+        },
+        {
+          'type': 'gallery',
+          'title': 'من مشاريعنا الأخيرة',
+          'display_mode': 'grid',
+          'items': [
+            'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
+            'https://images.unsplash.com/photo-1503387762-592be5a52680?w=800&q=80',
+            'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+          ],
+        },
+        {
+          'type': 'service_steps',
+          'title': 'رحلة التصميم',
+          'items': [
+            {'title': 'المفهوم الأول', 'description': 'نبدأ برسم الأفكار الأساسية وتحديد الهوية.'},
+            {'title': 'التطوير التقني', 'description': 'تحويل الرسومات إلى نماذج ثلاثية الأبعاد دقيقة.'},
+            {'title': 'التنفيذ والإشراف', 'description': 'متابعة دقيقة لكل تفاصيل العمل في الموقع.'},
+          ],
+        },
+        {
+          'type': 'team_members',
+          'title': 'العقول المبدعة',
+          'items': [
+            {'name': 'م. عمر كمال', 'role': 'كبير المعماريين', 'image_url': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80'},
+          ],
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> _getFashionStoreTemplate() {
+    return {
+      'blocks': [
+        {
+          'type': 'hero',
+          'title': 'تألقي بأسلوب يعبر عنك',
+          'subtitle': 'أحدث صيحات الموضة العالمية المختارة بعناية لتناسب ذوقك الرفيع.',
+          'button_text': 'تسوقي المجموعة الجديدة',
+          'image_url': 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e12?w=1000&q=80',
+        },
+        {
+          'type': 'products',
+          'title': 'القطع المختارة لكِ',
+          'layout_style': 'grid_3',
+          'items': [
+            {
+              'id': const Uuid().v4(),
+              'name': 'فستان صيفي حرير',
+              'price': '850 EGP',
+              'image_url': 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&q=80',
+              'button_text': 'شراء الآن',
+            },
+            {
+              'id': const Uuid().v4(),
+              'name': 'حقيبة جلد طبيعي',
+              'price': '1200 EGP',
+              'image_url': 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80',
+              'button_text': 'شراء الآن',
+            },
+          ],
+        },
+        {
+          'type': 'gallery',
+          'title': 'على الإنستغرام',
+          'items': [
+            'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80',
+            'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80',
+          ],
+        },
+        {
+          'type': 'testimonials',
+          'title': 'عميلاتنا يقولون',
+          'items': [
+            {'author': 'ليلى س.', 'role': 'عميلة دائم', 'quote': 'الجودة رائعة والتوصيل سريع جداً، تجربة ممتازة.'},
+          ],
+        },
+        {
+          'type': 'cta_banner',
+          'title': 'خصم ١٠٪ على أول طلب لكِ',
+          'subtitle': 'اشتركي في قائمتنا البريدية واحصلي على الخصم فوراً.',
+          'button_text': 'سجلي الآن',
+        },
+      ],
+    };
   }
 
   static Map<String, dynamic> _getBarberShopTemplate() {
@@ -406,6 +702,7 @@ class TemplateRegistry {
           'button_text': 'احجز مقعدك الآن عبر واتساب',
           'image_url':
               'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800',
+          'animation': {'type': 'fadeIn', 'duration': 1000},
         },
         {
           'type': 'working_hours',
@@ -414,6 +711,7 @@ class TemplateRegistry {
             'السبت - الخميس': '10:00 AM - 11:00 PM',
             'الجمعة': '2:00 PM - 12:00 AM',
           },
+          'animation': {'type': 'slideInRight', 'duration': 800},
         },
         {
           'type': 'pricing',
@@ -432,6 +730,7 @@ class TemplateRegistry {
               'is_popular': false,
             },
           ],
+          'animation': {'type': 'zoomIn', 'duration': 800},
         },
         {
           'type': 'whatsapp',
@@ -746,6 +1045,7 @@ class TemplateRegistry {
               'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800',
           'ai_intent': 'healthcare_trust_offer',
           'ai_slots': ['clinic_name', 'specialty', 'appointment_cta'],
+          'animation': {'type': 'fadeIn', 'duration': 1000},
         },
         {
           'type': 'features',
@@ -766,6 +1066,7 @@ class TemplateRegistry {
             },
           ],
           'ai_intent': 'medical_services',
+          'animation': {'type': 'slideInUp', 'duration': 800},
         },
         {
           'type': 'animated_counter',
@@ -790,14 +1091,17 @@ class TemplateRegistry {
               'author': 'أحمد م.',
               'role': 'مريض سابق',
               'quote': 'تنظيم ممتاز وشرح واضح لكل خطوة.',
+              'image_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
             },
             {
               'author': 'سارة ع.',
               'role': 'مريضة متابعة',
               'quote': 'التجربة كانت مريحة من الحجز حتى المتابعة.',
+              'image_url': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200',
             },
           ],
           'ai_intent': 'patient_testimonials',
+          'animation': {'type': 'zoomIn', 'duration': 800},
         },
         {
           'type': 'multi_step_lead_form',
@@ -1049,6 +1353,7 @@ class TemplateRegistry {
               'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200',
           'ai_intent': 'saas_product_offer',
           'ai_slots': ['product_name', 'core_problem', 'main_cta'],
+          'animation': {'type': 'slideInDown', 'duration': 1000},
         },
         {
           'type': 'trust_logos',
@@ -1058,6 +1363,7 @@ class TemplateRegistry {
             'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
             'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
           ],
+          'animation': {'type': 'fadeIn', 'duration': 1200, 'delay': 400},
         },
         {
           'type': 'features',

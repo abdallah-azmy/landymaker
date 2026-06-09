@@ -228,11 +228,11 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
           bgOverlayOpacity: widget.bgOverlayOpacity,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 600),
-              padding: EdgeInsets.all(isMobile ? 24 : 40),
+              padding: EdgeInsetsDirectional.all(isMobile ? 24 : 40),
               decoration: BoxDecoration(
                 color: subTextColor.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(isMobile ? 16 : 24),

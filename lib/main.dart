@@ -19,6 +19,7 @@ import 'core/router/app_router.dart';
 import 'injection_container.dart';
 import 'features/auth/controllers/auth_cubit.dart';
 import 'features/builder/controllers/builder_cubit.dart';
+import 'features/builder/controllers/upload_manager_cubit.dart';
 import 'features/dashboard/controllers/leads_analytics_cubit.dart';
 import 'features/dashboard/controllers/landing_pages_cubit.dart';
 import 'features/dashboard/controllers/media_gallery_cubit.dart';
@@ -41,10 +42,18 @@ void main() async {
   try {
     // Initialize SEO
     AppSEO.config();
-    // Preload primary font to prevent FOUT/FOIT (Tofu effect) on web globally
+    // Preload primary fonts to prevent FOUT/FOIT (Tofu effect) on web globally
     GoogleFonts.config.allowRuntimeFetching = true;
-    GoogleFonts.cairo();
-    await GoogleFonts.pendingFonts();
+    
+    // Preload Cairo (Primary Arabic)
+    await GoogleFonts.pendingFonts([
+      GoogleFonts.cairo(fontWeight: FontWeight.normal),
+      GoogleFonts.cairo(fontWeight: FontWeight.bold),
+      GoogleFonts.cairo(fontWeight: FontWeight.w900),
+      // Preload Tajawal as secondary fallback
+      GoogleFonts.tajawal(fontWeight: FontWeight.normal),
+      GoogleFonts.tajawal(fontWeight: FontWeight.bold),
+    ]);
 
     // Initialize all dependencies via GetIt Service Locator
     await initDependencies();
@@ -114,6 +123,9 @@ class LandyMakerApp extends StatelessWidget {
         BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>()),
         BlocProvider<LandingPageBuilderCubit>(
           create: (_) => sl<LandingPageBuilderCubit>(),
+        ),
+        BlocProvider<UploadManagerCubit>(
+          create: (_) => sl<UploadManagerCubit>(),
         ),
         BlocProvider<LandingPagesCubit>(create: (_) => sl<LandingPagesCubit>()),
         BlocProvider<LeadsAnalyticsCubit>(

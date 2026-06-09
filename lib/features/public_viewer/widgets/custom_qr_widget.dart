@@ -53,7 +53,7 @@ class CustomQrWidget extends StatelessWidget {
           bgOverlayOpacity: bgOverlayOpacity,
           bgBlur: bgBlur,
           theme: theme,
-          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
           child: Center(
             child: Column(
               children: [

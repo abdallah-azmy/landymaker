@@ -22,6 +22,13 @@ import '../models/landing_page_theme.dart';
 import '../../public_viewer/widgets/custom_video_embed_widget.dart';
 import '../../public_viewer/widgets/custom_multi_step_form_widget.dart';
 import '../../public_viewer/widgets/custom_whatsapp_widget.dart';
+import '../../public_viewer/widgets/custom_statistics_grid_widget.dart';
+import '../../public_viewer/widgets/custom_team_members_widget.dart';
+import '../../public_viewer/widgets/custom_service_steps_widget.dart';
+import '../../public_viewer/widgets/custom_cta_banner_widget.dart';
+import '../../public_viewer/widgets/custom_comparison_table_widget.dart';
+import '../../../core/widgets/block_animation_wrapper.dart';
+import '../../../core/widgets/atoms/glass_container.dart';
 
 typedef BlockBuilder =
     Widget Function(
@@ -73,6 +80,7 @@ class BlockRegistry {
       verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
       buttonUrl: data['button_url'],
+      variant: data['variant'] ?? 0,
     ),
     'hero_saas': (data, theme, _, key, __, ___) => CustomHeroSaasWidget(
       key: key,
@@ -102,6 +110,7 @@ class BlockRegistry {
           (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
               ?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+      variant: data['variant'] ?? 0,
     ),
     'lead_form': (data, theme, pageId, key, __, ___) => CustomLeadFormWidget(
       key: key,
@@ -186,6 +195,7 @@ class BlockRegistry {
               ?.toDouble(),
       bgBlur: (data['bg_blur'] as num?)?.toDouble(),
       lang: lang,
+      variant: data['variant'] ?? 0,
     ),
     'faq': (data, theme, _, key, __, ___) => CustomFaqWidget(
       key: key,
@@ -303,6 +313,36 @@ class BlockRegistry {
                   ?.toDouble(),
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
         ),
+    'statistics_grid': (data, theme, _, key, __, ___) =>
+        CustomStatisticsGridWidget(
+          key: key,
+          block: data,
+          theme: theme,
+        ),
+    'team_members': (data, theme, _, key, __, ___) =>
+        CustomTeamMembersWidget(
+          key: key,
+          block: data,
+          theme: theme,
+        ),
+    'service_steps': (data, theme, _, key, __, ___) =>
+        CustomServiceStepsWidget(
+          key: key,
+          block: data,
+          theme: theme,
+        ),
+    'cta_banner': (data, theme, _, key, __, ___) =>
+        CustomCtaBannerWidget(
+          key: key,
+          block: data,
+          theme: theme,
+        ),
+    'comparison_table': (data, theme, _, key, __, ___) =>
+        CustomComparisonTableWidget(
+          key: key,
+          block: data,
+          theme: theme,
+        ),
   };
 
   static Widget render(
@@ -316,8 +356,146 @@ class BlockRegistry {
   }) {
     final builder = _registry[type.toLowerCase()];
     if (builder != null) {
-      return builder(data, theme, pageId, key, productKeys, sectionIndex);
+      Widget blockWidget = builder(data, theme, pageId, key, productKeys, sectionIndex);
+      
+      final int variant = data['variant'] ?? 0;
+      
+      // Apply Global Style Variants (3-9)
+      blockWidget = _applyGlobalVariant(blockWidget, variant, theme);
+
+      // Wrap with animation
+      final animationData = data['animation'];
+      return BlockAnimationWrapper(
+        settings: animationData != null
+            ? BlockAnimationSettings.fromJson(animationData)
+            : const BlockAnimationSettings(
+                type: BlockAnimationType.fadeIn,
+                duration: Duration(milliseconds: 800),
+              ),
+        child: blockWidget,
+      );
     }
     return const SizedBox.shrink();
+  }
+
+  static Widget _applyGlobalVariant(Widget child, int variant, LandingPageTheme? theme) {
+    if (variant < 3) return child; // 0-2 are widget-specific layouts
+
+    switch (variant) {
+      case 3: // Glassmorphism
+        return GlassContainer(
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 8),
+          child: child,
+        );
+      case 4: // Neumorphism (Soft shadows)
+        return Container(
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: theme?.background ?? Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                offset: const Offset(5, 5),
+                blurRadius: 10,
+              ),
+              BoxShadow(
+                color: Colors.white.withValues(alpha: 0.8),
+                offset: const Offset(-5, -5),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: child,
+        );
+      case 6: // Outline / Bordered
+        return Container(
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: (theme?.secondary ?? Colors.blue).withValues(alpha: 0.3),
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: child,
+        );
+      case 9: // Floating / Elevated
+        return Container(
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: theme?.background,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: (theme?.primary ?? Colors.black).withValues(alpha: 0.15),
+                blurRadius: 40,
+                offset: const Offset(0, 20),
+              ),
+            ],
+          ),
+          child: child,
+        );
+      case 5: // Modern Gradient Border
+        return Container(
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                theme?.secondary ?? Colors.cyan,
+                (theme?.primary ?? Colors.indigo).withValues(alpha: 0.5),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme?.background ?? Colors.black,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: child,
+          ),
+        );
+      case 7: // Soft Premium Gradient
+        return Container(
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                (theme?.secondary ?? Colors.amber).withValues(alpha: 0.1),
+                (theme?.primary ?? Colors.brown).withValues(alpha: 0.05),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: (theme?.secondary ?? Colors.amber).withValues(alpha: 0.2)),
+          ),
+          child: child,
+        );
+      case 8: // Dark Contrast Card
+        return Container(
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Theme(
+            data: ThemeData.dark(),
+            child: child,
+          ),
+        );
+      default:
+        return child;
+    }
   }
 }

@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/section_background.dart';
+import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../dashboard/controllers/leads_analytics_cubit.dart';
 import '../../dashboard/controllers/leads_analytics_state.dart';
@@ -223,7 +224,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
           bgOverlayOpacity: widget.bgOverlayOpacity,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1200),
@@ -295,12 +296,9 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
       height: height ?? 500,
       width: double.infinity,
       color: widget.theme?.textPrimary.withValues(alpha: 0.05) ?? Colors.white10,
-      child: Image.network(
-        widget.imageUrl,
+      child: CustomNetworkImage(
+        imageUrl: widget.imageUrl,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Center(
-          child: Icon(Icons.menu_book_rounded, size: 80, color: widget.theme?.textPrimary.withValues(alpha: 0.2) ?? Colors.white24),
-        ),
       ),
     );
   }

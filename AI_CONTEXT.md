@@ -188,6 +188,7 @@ Includes:
 - Live Preview
 - Auto Save
 - Undo / Redo
+- **Global Design & Animation System (V2)**: 10 Shapes (Variants) per section and performance-optimized `BlockAnimationWrapper`.
 
 ## Rendering Pipeline
 
@@ -198,6 +199,7 @@ Includes:
 - Parser Layer
 - SectionRenderer
 - Dynamic Rendering
+- **Style Wrapper Layer**: Handles Glassmorphism, Neumorphism, and Floating 3D global variants.
 
 ## Action System
 
@@ -272,8 +274,13 @@ Any task affecting one of these systems MUST:
 
 ## 🧠 10. **Strict AI Assistant Rules (MUST FOLLOW)**:
 
-1. **Professional Builder Standards**: Every section editor MUST follow the tabbed structure: [Content, Actions, Design].
-2. **Image Management**: Use `CustomImageField` for all image properties. It handles thumbnails, loading states, and integrates with the unified `ImagePickerModal`.
+1. **Professional Builder Standards**: Every section editor MUST follow the strict tabbed structure: **[Content, Actions, Design]**.
+   - **Content**: Pure text, images, and list data.
+   - **Actions**: Buttons, links, WhatsApp numbers, and form success redirects.
+   - **Design**: Section Variants (0-9), Animations, Fonts, Backgrounds, and Opacity.
+2. **Animation Performance**: All block animations must utilize `BlockAnimationWrapper` with `RepaintBoundary` to prevent global repaints.
+3. **RTL Responsiveness**: Always use `EdgeInsetsDirectional` and ensure `Transform` animations respect the text direction (LTR/RTL).
+4. **Image Management**: Use `CustomImageField` for all image properties.
 3. **Visual Safety**: Every section with a background image MUST include a `bg_overlay_opacity` slider (0.0 to 1.0) to ensure text remains readable.
 4. **Reusability First**: Do not build redundant code. Check `lib/core/widgets/` first. Use `CustomTextField` for all inputs to maintain the slate-dark theme.
 5. **State-Management Cleanliness**: UI widgets must rebuild reactively. Local state (`setState`) is permitted for strictly internal component UI logic (e.g. form validation, loading spinners).

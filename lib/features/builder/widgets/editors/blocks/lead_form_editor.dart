@@ -14,6 +14,7 @@ class LeadFormEditor extends StatelessWidget {
   final GetFocusNode getFocusNode;
   final PickImage pickImage;
   final PickAndUploadImage pickAndUploadImage;
+  final PersistAsset persistAsset;
 
   const LeadFormEditor({
     required this.cubit,
@@ -23,11 +24,15 @@ class LeadFormEditor extends StatelessWidget {
     required this.getFocusNode,
     required this.pickImage,
     required this.pickAndUploadImage,
+    required this.persistAsset,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = block['image_url'];
+    final isUploading = (imageUrl ?? '').toString().startsWith('upload://');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,8 +49,10 @@ class LeadFormEditor extends StatelessWidget {
           const SizedBox(height: 16),
           CustomImageField(
             label: context.translate('image_url'),
-            imageUrl: block['image_url'],
+            imageUrl: imageUrl,
+            isUploading: isUploading,
             onAction: () => pickImage(cubit, index),
+            onSaveTemplateAsset: () => persistAsset(cubit, index),
           ),
           const SizedBox(height: 16),
         ],

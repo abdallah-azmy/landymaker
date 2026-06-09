@@ -3,7 +3,6 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../molecules/pagination_control.dart';
 import 'data_table_header.dart';
-import '../../responsive/responsive_layout.dart';
 
 class ResponsiveDataTable extends StatelessWidget {
   final String title;
@@ -116,18 +115,20 @@ class ResponsiveDataTable extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: Text(
                         headers[i],
                         style: AppTypography.caption.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppColors.textSecondary,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      flex: 3,
+                      flex: 4,
                       child: Align(
                         alignment: AlignmentDirectional.centerEnd,
                         child: row[i],

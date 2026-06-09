@@ -5,7 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_hero_section.dart';
 import '../widgets/home_feature_bento.dart';
-import '../widgets/home_template_strip.dart';
+import '../widgets/home_luxurious_template_slider.dart';
 import '../widgets/home_stats_section.dart';
 import '../widgets/home_cta_section.dart';
 import '../widgets/home_footer.dart';
@@ -100,7 +100,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
               isVisible: _bentoVisible,
             ),
 
-            HomeTemplateStrip(
+            HomeLuxuriousTemplateSlider(
               key: _templatesKey,
               isVisible: _templatesVisible,
               onGetStartedPressed: (templateId) {

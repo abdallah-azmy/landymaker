@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
+import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../controllers/cart_cubit.dart';
 
@@ -187,7 +188,10 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
       bgOverlayOpacity: widget.bgOverlayOpacity,
       bgBlur: widget.bgBlur,
       theme: widget.theme,
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+      padding: EdgeInsetsDirectional.symmetric(
+        vertical: MediaQuery.of(context).size.width < 600 ? 40 : 80,
+        horizontal: 24,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1100),
@@ -455,16 +459,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                   child: Stack(
                     children: [
                       Positioned.fill(
-                        child: Image.network(
-                          imageUrl,
+                        child: CustomNetworkImage(
+                          imageUrl: imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: subTextColor.withValues(alpha: 0.1),
-                            child: Icon(
-                              Icons.broken_image,
-                              color: subTextColor,
-                            ),
-                          ),
                         ),
                       ),
                       Positioned(
@@ -616,13 +613,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
             SizedBox(
               width: isMobile ? 120 : 160,
               height: isMobile ? 120 : 160,
-              child: Image.network(
-                imageUrl,
+              child: CustomNetworkImage(
+                imageUrl: imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: subTextColor.withValues(alpha: 0.1),
-                  child: Icon(Icons.broken_image, color: subTextColor),
-                ),
               ),
             ),
             Expanded(
@@ -763,17 +756,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                 // Image
                 AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: Image.network(
-                    imageUrl,
+                  child: CustomNetworkImage(
+                    imageUrl: imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: subTextColor.withValues(alpha: 0.1),
-                      child: Icon(
-                        Icons.broken_image,
-                        color: subTextColor,
-                        size: 48,
-                      ),
-                    ),
                   ),
                 ),
                 Padding(

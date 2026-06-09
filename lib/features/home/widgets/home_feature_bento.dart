@@ -133,193 +133,195 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 900;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        border: const Border(
-          top: BorderSide(color: AppColors.border, width: 0.5),
-        ),
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Section Header
-              FadeTransition(
-                opacity: _headerFade,
-                child: SlideTransition(
-                  position: _headerSlide,
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: const Color(0xFF6366F1).withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Text(
-                          "✨ المميزات",
-                          style: AppTypography.caption.copyWith(
-                            color: const Color(0xFF818CF8),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "كل ما تحتاجه للنمو\nفي مكان واحد",
-                        style: AppTypography.h2.copyWith(
-                          fontSize: isMobile ? 28 : 42,
-                          fontWeight: FontWeight.w900,
-                          height: 1.2,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "أدوات ذكية متكاملة مصممة خصيصاً لمساعدتك على بناء حضورك الرقمي بسرعة واحترافية.",
-                        style: AppTypography.bodyLarge.copyWith(
-                          color: AppColors.textSecondary,
-                          height: 1.6,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 64),
-
-              // Bento Grid
-              if (isMobile)
-                Column(
-                  children: List.generate(_features.length, (i) => Column(
-                    children: [
-                      FadeTransition(
-                        opacity: _cardFades[i],
-                        child: SlideTransition(
-                          position: _cardSlides[i],
-                          child: _BentoCard(feature: _features[i]),
-                        ),
-                      ),
-                      if (i < _features.length - 1) const SizedBox(height: 16),
-                    ],
-                  )),
-                )
-              else
-                Column(
-                  children: [
-                    // Row 1: 3/5 + 2/5 (Height fixed at 440 to fit all text and icons beautifully)
-                    SizedBox(
-                      height: 440,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: FadeTransition(
-                              opacity: _cardFades[0],
-                              child: SlideTransition(
-                                position: _cardSlides[0],
-                                child: _BentoCard(feature: _features[0], tall: true),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: FadeTransition(
-                                    opacity: _cardFades[1],
-                                    child: SlideTransition(
-                                      position: _cardSlides[1],
-                                      child: _BentoCard(feature: _features[1]),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Expanded(
-                                  child: FadeTransition(
-                                    opacity: _cardFades[2],
-                                    child: SlideTransition(
-                                      position: _cardSlides[2],
-                                      child: _BentoCard(feature: _features[2]),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Row 2: 2/5 + 3/5
-                    SizedBox(
-                      height: 440,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: FadeTransition(
-                                    opacity: _cardFades[3],
-                                    child: SlideTransition(
-                                      position: _cardSlides[3],
-                                      child: _BentoCard(feature: _features[3]),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Expanded(
-                                  child: FadeTransition(
-                                    opacity: _cardFades[4],
-                                    child: SlideTransition(
-                                      position: _cardSlides[4],
-                                      child: _BentoCard(feature: _features[4]),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            flex: 3,
-                            child: FadeTransition(
-                              opacity: _cardFades[5],
-                              child: SlideTransition(
-                                position: _cardSlides[5],
-                                child: _BentoCard(feature: _features[5], tall: true),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-            ],
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            border: const Border(
+              top: BorderSide(color: AppColors.border, width: 0.5),
+            ),
           ),
-        ),
-      ),
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Section Header
+                  FadeTransition(
+                    opacity: _headerFade,
+                    child: SlideTransition(
+                      position: _headerSlide,
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              "✨ المميزات",
+                              style: AppTypography.caption.copyWith(
+                                color: const Color(0xFF818CF8),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "كل ما تحتاجه للنمو\nفي مكان واحد",
+                            style: AppTypography.h2.copyWith(
+                              fontSize: isMobile ? 28 : 42,
+                              fontWeight: FontWeight.w900,
+                              height: 1.2,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "أدوات ذكية متكاملة مصممة خصيصاً لمساعدتك على بناء حضورك الرقمي بسرعة واحترافية.",
+                            style: AppTypography.bodyLarge.copyWith(
+                              color: AppColors.textSecondary,
+                              height: 1.6,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 64),
+
+                  // Bento Grid
+                  if (isMobile)
+                    Column(
+                      children: List.generate(_features.length, (i) => Column(
+                        children: [
+                          FadeTransition(
+                            opacity: _cardFades[i],
+                            child: SlideTransition(
+                              position: _cardSlides[i],
+                              child: _BentoCard(feature: _features[i]),
+                            ),
+                          ),
+                          if (i < _features.length - 1) const SizedBox(height: 16),
+                        ],
+                      )),
+                    )
+                  else
+                    Column(
+                      children: [
+                        // Row 1: 3/5 + 2/5 (IntrinsicHeight allows content to grow without overflow)
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: FadeTransition(
+                                  opacity: _cardFades[0],
+                                  child: SlideTransition(
+                                    position: _cardSlides[0],
+                                    child: _BentoCard(feature: _features[0], tall: true),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: FadeTransition(
+                                        opacity: _cardFades[1],
+                                        child: SlideTransition(
+                                          position: _cardSlides[1],
+                                          child: _BentoCard(feature: _features[1]),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Expanded(
+                                      child: FadeTransition(
+                                        opacity: _cardFades[2],
+                                        child: SlideTransition(
+                                          position: _cardSlides[2],
+                                          child: _BentoCard(feature: _features[2]),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Row 2: 2/5 + 3/5
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: FadeTransition(
+                                        opacity: _cardFades[3],
+                                        child: SlideTransition(
+                                          position: _cardSlides[3],
+                                          child: _BentoCard(feature: _features[3]),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Expanded(
+                                      child: FadeTransition(
+                                        opacity: _cardFades[4],
+                                        child: SlideTransition(
+                                          position: _cardSlides[4],
+                                          child: _BentoCard(feature: _features[4]),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                flex: 3,
+                                child: FadeTransition(
+                                  opacity: _cardFades[5],
+                                  child: SlideTransition(
+                                    position: _cardSlides[5],
+                                    child: _BentoCard(feature: _features[5], tall: true),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

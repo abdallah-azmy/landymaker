@@ -3,9 +3,8 @@ import 'dart:ui_web' as ui;
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/responsive/responsive_utils.dart';
-import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/section_background.dart';
+import '../../../core/widgets/custom_network_image.dart';
 import '../../../core/utils/video_url_helper.dart';
 import '../../builder/models/landing_page_theme.dart';
 
@@ -125,7 +124,7 @@ class _CustomVideoEmbedWidgetState extends State<CustomVideoEmbedWidget> {
           bgOverlayOpacity: (widget.block['bg_overlay_opacity'] ?? 0.5).toDouble(),
           bgBlur: (widget.block['bg_blur'] ?? 0).toDouble(),
           theme: widget.theme,
-          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
@@ -191,10 +190,9 @@ class _CustomVideoEmbedWidgetState extends State<CustomVideoEmbedWidget> {
                                 fit: StackFit.expand,
                                 children: [
                                   if (thumb != null && thumb.isNotEmpty)
-                                    Image.network(
-                                      thumb,
+                                    CustomNetworkImage(
+                                      imageUrl: thumb,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Container(color: Colors.black87),
                                     )
                                   else
                                     Container(color: Colors.black87),

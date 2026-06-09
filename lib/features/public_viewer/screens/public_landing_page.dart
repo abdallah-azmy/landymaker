@@ -31,6 +31,7 @@ class PublicLandingPage extends StatefulWidget {
 class _PublicLandingPageState extends State<PublicLandingPage> {
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _isStickyVisible = ValueNotifier(false);
+  bool _isLoadingFonts = true;
 
   /// Shared map of product keys populated by CustomProductsWidget.
   /// Supports both UUID keys ("abc-123-...") and slug keys ("smart-watch-pro").
@@ -133,6 +134,10 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     PixelBootstrapService.initialize(designJson);
                     PixelEventService.trackPageView();
 
+                    // Font Preloading for the specific font chosen by the user
+                    final themeJson = designJson['theme'] as Map<String, dynamic>? ?? {};
+                    _preloadFontsForPage(themeJson['defaultFont'] ?? 'Cairo');
+
                     // Wait one frame for widgets to mount before attempting scroll
                     WidgetsBinding.instance.addPostFrameCallback(
                       (_) => _handleDeepLinking(),
@@ -141,12 +146,9 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                 },
                 builder: (context, state) {
                   if (state is PublicPageLoading ||
-                      state is PublicPageInitial) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.secondary,
-                      ),
-                    );
+                      state is PublicPageInitial ||
+                      _isLoadingFonts) {
+                    return _buildPlatformLoader();
                   }
 
                   if (state is PublicPageNotFound) {
@@ -414,6 +416,45 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildPlatformLoader() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/logo_small.webp',
+            height: 60,
+            width: 60,
+          ),
+          const SizedBox(height: 24),
+          const SizedBox(
+            width: 40,
+            height: 2,
+            child: LinearProgressIndicator(
+              color: AppColors.secondary,
+              backgroundColor: Colors.white10,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _preloadFontsForPage(String fontName) async {
+    try {
+      await GoogleFonts.pendingFonts([
+        GoogleFonts.getFont(fontName, fontWeight: FontWeight.normal),
+        GoogleFonts.getFont(fontName, fontWeight: FontWeight.bold),
+      ]);
+    } catch (e) {
+      debugPrint("Font preloading error: $e");
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingFonts = false);
+      }
+    }
   }
 
   Widget _buildFooter(LocalizationCubit loc) {

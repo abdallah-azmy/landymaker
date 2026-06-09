@@ -9,6 +9,7 @@ class CustomImageField extends StatelessWidget {
   final String? imageUrl;
   final String label;
   final VoidCallback onAction;
+  final VoidCallback? onSaveTemplateAsset;
   final bool isUploading;
 
   const CustomImageField({
@@ -16,12 +17,21 @@ class CustomImageField extends StatelessWidget {
     this.imageUrl,
     required this.label,
     required this.onAction,
+    this.onSaveTemplateAsset,
     this.isUploading = false,
   });
+
+  bool _isTemplateAsset(String? url) {
+    if (url == null || url.isEmpty) return false;
+    // Template assets are usually external (unsplash, pixabay, etc.)
+    // LandyMaker hosted assets usually have 'supabase' in the URL or the specific project ID
+    return !url.contains('supabase.co');
+  }
 
   @override
   Widget build(BuildContext context) {
     final bool hasImage = imageUrl != null && imageUrl!.isNotEmpty;
+    final bool canPersist = hasImage && onSaveTemplateAsset != null && _isTemplateAsset(imageUrl);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,6 +116,33 @@ class CustomImageField extends StatelessWidget {
                     ),
                     child: const Center(
                       child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
+                    ),
+                  ),
+
+                if (canPersist && !isUploading)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Tooltip(
+                      message: context.translate('save_to_gallery') ?? "حفظ في المعرض",
+                      child: InkWell(
+                        onTap: onSaveTemplateAsset,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00E5FF).withValues(alpha: 0.9),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 8,
+                              )
+                            ],
+                          ),
+                          child: const Icon(Icons.download_for_offline_rounded, size: 20, color: Colors.black),
+                        ),
+                      ),
                     ),
                   ),
               ],

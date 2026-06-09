@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
+import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
 
 class CustomHeroSaasWidget extends StatelessWidget {
@@ -41,22 +42,31 @@ class CustomHeroSaasWidget extends StatelessWidget {
     final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
-    return SectionBackground(
-      bgImageUrl: bgImageUrl,
-      bgOverlayColor: bgOverlayColor,
-      bgOverlayOpacity: bgOverlayOpacity,
-      verticalPaddingOverride: verticalPadding,
-      bgBlur: bgBlur,
-      theme: theme,
-      padding: const EdgeInsets.only(top: 100, bottom: 60, left: 24, right: 24),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isMobile = constraints.maxWidth < 600;
+
+        return SectionBackground(
+          bgImageUrl: bgImageUrl,
+          bgOverlayColor: bgOverlayColor,
+          bgOverlayOpacity: bgOverlayOpacity,
+          verticalPaddingOverride: verticalPadding,
+          bgBlur: bgBlur,
+          theme: theme,
+          padding: EdgeInsetsDirectional.only(
+            top: isMobile ? 60 : 100,
+            bottom: isMobile ? 40 : 60,
+            start: 24,
+            end: 24,
+          ),
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
                   color: secondaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(30),
@@ -76,7 +86,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
                 style: AppTypography.h1.copyWith(
                   color: textColor,
                   fontWeight: FontWeight.w900,
-                  fontSize: 56,
+                  fontSize: isMobile ? 32 : 56,
                   height: 1.2,
                 ),
                 textAlign: TextAlign.center,
@@ -88,7 +98,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
                   subtitle,
                   style: AppTypography.bodyLarge.copyWith(
                     color: subTextColor,
-                    fontSize: 20,
+                    fontSize: isMobile ? 16 : 20,
                     height: 1.6,
                   ),
                   textAlign: TextAlign.center,
@@ -110,7 +120,10 @@ class CustomHeroSaasWidget extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: secondaryColor,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                      padding: EdgeInsetsDirectional.symmetric(
+                        horizontal: isMobile ? 24 : 32,
+                        vertical: isMobile ? 16 : 20,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -140,20 +153,10 @@ class CustomHeroSaasWidget extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(24),
-                  child: Image.network(
-                    imageUrl,
+                  child: CustomNetworkImage(
+                    imageUrl: imageUrl,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      height: 250,
-                      decoration: BoxDecoration(
-                        color: theme?.textPrimary.withValues(alpha: 0.05) ?? Colors.white10,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Center(
-                        child: Icon(Icons.dashboard_rounded, size: 100, color: theme?.textPrimary.withValues(alpha: 0.2) ?? Colors.white24),
-                      ),
-                    ),
                   ),
                 ),
               ),
@@ -161,6 +164,8 @@ class CustomHeroSaasWidget extends StatelessWidget {
           ),
         ),
       ),
+        );
+      },
     );
   }
 }

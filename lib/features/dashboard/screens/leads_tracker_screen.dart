@@ -183,9 +183,9 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
       }
 
       return [
-        Text(name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
-        Text(email, style: AppTypography.bodyMedium),
-        Text(message, style: AppTypography.bodyMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+        Flexible(child: Text(name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis)),
+        Flexible(child: Text(email, style: AppTypography.bodyMedium, overflow: TextOverflow.ellipsis)),
+        Flexible(child: Text(message, style: AppTypography.bodyMedium, maxLines: 2, overflow: TextOverflow.ellipsis)),
         Text(formattedDate, style: AppTypography.caption),
         phone.isNotEmpty
             ? IconButton(

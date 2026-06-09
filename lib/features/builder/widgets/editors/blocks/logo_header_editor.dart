@@ -15,6 +15,7 @@ class LogoHeaderEditor extends StatelessWidget {
   final GetFocusNode getFocusNode;
   final PickImage pickImage;
   final PickAndUploadImage pickAndUploadImage;
+  final PersistAsset persistAsset;
 
   const LogoHeaderEditor({
     required this.cubit,
@@ -24,18 +25,24 @@ class LogoHeaderEditor extends StatelessWidget {
     required this.getFocusNode,
     required this.pickImage,
     required this.pickAndUploadImage,
+    required this.persistAsset,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final logoUrl = block['logo_url'];
+    final isUploading = (logoUrl ?? '').toString().startsWith('upload://');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomImageField(
           label: "لوجو الموقع (Logo Image)",
-          imageUrl: block['logo_url'],
+          imageUrl: logoUrl,
+          isUploading: isUploading,
           onAction: () => pickImage(cubit, index, itemKey: 'logo_url'),
+          onSaveTemplateAsset: () => persistAsset(cubit, index, itemKey: 'logo_url'),
         ),
         const SizedBox(height: 16),
         FormGroup(

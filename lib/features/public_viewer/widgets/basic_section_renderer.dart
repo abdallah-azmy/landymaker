@@ -40,6 +40,7 @@ class BasicSectionRenderer extends StatelessWidget {
       verticalPaddingOverride: verticalPadding,
       bgBlur: (sectionData['bg_blur'] as num?)?.toDouble(),
       theme: theme,
+      padding: const EdgeInsetsDirectional.symmetric(vertical: 60, horizontal: 24),
       child: direction == 'row'
           ? Row(
               mainAxisAlignment: _parseMainAlign(mainAlign),

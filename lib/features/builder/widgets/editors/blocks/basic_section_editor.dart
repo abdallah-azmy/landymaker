@@ -6,6 +6,7 @@ import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
+import '../../molecules/custom_image_field.dart';
 
 class BasicSectionEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -134,22 +135,12 @@ class BasicSectionEditor extends StatelessWidget {
                     },
                   )
                 else if (elem['type'] == 'image') ...[
-                  CustomTextField(
-                    hintText: "رابط الصورة...",
-                    controller: getController(
-                      "${index}_element_${i}_url",
-                      elem['url'] ?? '',
-                    ),
-                    focusNode: getFocusNode("${index}_element_${i}_url"),
-                    onChanged: (val) {
-                      final elements = List<Map<String, dynamic>>.from(
-                        block['elements'] ?? [],
-                      );
-                      elements[i]['url'] = val;
-                      cubit.updateBlockProperty(index, 'elements', elements);
-                    },
+                  CustomImageField(
+                    label: "الصورة",
+                    imageUrl: elem['url'],
+                    onAction: () => pickImage(cubit, index, itemIndex: i, itemKey: 'url'),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(

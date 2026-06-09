@@ -117,12 +117,16 @@ class SidebarNavigation extends StatelessWidget {
                 width: 32,
               ),
               const SizedBox(width: 12),
-              Text(
-                loc.translate('app_title'),
-                style: AppTypography.h2.copyWith(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.5,
+              Expanded(
+                child: Text(
+                  loc.translate('app_title'),
+                  style: AppTypography.h2.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -281,11 +285,15 @@ class SidebarNavigation extends StatelessWidget {
                   size: 16,
                   color: AppColors.secondary,
                 ),
-                label: Text(
-                  loc.translate('switch_language'),
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.secondary,
-                    fontWeight: FontWeight.w600,
+                label: Flexible(
+                  child: Text(
+                    loc.translate('switch_language'),
+                    style: AppTypography.caption.copyWith(
+                      color: AppColors.secondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -334,6 +342,7 @@ class SidebarNavigation extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                           if (isAdmin)
                             Container(
@@ -355,6 +364,8 @@ class SidebarNavigation extends StatelessWidget {
                                   color: AppColors.activeGreen,
                                   fontWeight: FontWeight.bold,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                         ],

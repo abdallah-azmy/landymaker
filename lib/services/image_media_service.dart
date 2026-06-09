@@ -91,20 +91,11 @@ class ImageMediaService {
     CancelToken? cancelToken,
   }) async {
     try {
-      final dio = await DioFactory.getDio();
-
       // 1. Download image into memory as Uint8List
-      final response = await dio.get<List<int>>(
+      final Uint8List imageBytes = await downloadImageBytes(
         webformatUrl,
-        options: Options(responseType: ResponseType.bytes),
         cancelToken: cancelToken,
       );
-
-      if (response.data == null) {
-        throw Exception('Failed to download image from Pixabay.');
-      }
-
-      final Uint8List imageBytes = Uint8List.fromList(response.data!);
 
       // 2. Upload the bytes to ImgBB
       return await uploadImageBytesToImgBB(
@@ -120,6 +111,29 @@ class ImageMediaService {
       throw Exception('Transfer Workflow Error: ${e.message}');
     } catch (e) {
       throw Exception('Transfer Workflow Error: $e');
+    }
+  }
+
+  /// Downloads raw bytes of an image from a URL.
+  Future<Uint8List> downloadImageBytes(
+    String url, {
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final dio = await DioFactory.getDio();
+      final response = await dio.get<List<int>>(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+        cancelToken: cancelToken,
+      );
+
+      if (response.data == null) {
+        throw Exception('Failed to download image data.');
+      }
+
+      return Uint8List.fromList(response.data!);
+    } catch (e) {
+      throw Exception('Download Error: $e');
     }
   }
 

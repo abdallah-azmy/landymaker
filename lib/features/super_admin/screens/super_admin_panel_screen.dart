@@ -106,8 +106,8 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         rows: filteredUsers
             .map(
               (u) => [
-                Text(u['full_name'], style: AppTypography.bodyLarge),
-                Text(u['email'], style: AppTypography.bodyMedium),
+                Flexible(child: Text(u['full_name'], style: AppTypography.bodyLarge, overflow: TextOverflow.ellipsis)),
+                Flexible(child: Text(u['email'], style: AppTypography.bodyMedium, overflow: TextOverflow.ellipsis)),
                 StatusPill(
                   label: u['tier'].toString().toUpperCase(),
                   color: AppColors.primary,

@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
+import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
 
 class CustomGalleryWidget extends StatefulWidget {
@@ -63,7 +64,7 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
           bgOverlayOpacity: widget.bgOverlayOpacity,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -253,10 +254,9 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
       );
     }
     
-    return Image.network(
-      url,
+    return CustomNetworkImage(
+      imageUrl: url,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => Icon(Icons.broken_image, color: subTextColor),
     );
   }
 }
@@ -299,10 +299,9 @@ class _HoverableGalleryItemState extends State<_HoverableGalleryItem> {
                 scale: _isHovered ? 1.05 : 1.0,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
-                child: Image.network(
-                  widget.url,
+                child: CustomNetworkImage(
+                  imageUrl: widget.url,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Icon(Icons.broken_image, color: widget.subTextColor),
                 ),
               ),
             ),

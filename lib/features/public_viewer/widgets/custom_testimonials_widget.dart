@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
+import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
 
 class CustomTestimonialsWidget extends StatelessWidget {
@@ -42,7 +43,7 @@ class CustomTestimonialsWidget extends StatelessWidget {
           bgOverlayOpacity: bgOverlayOpacity,
           bgBlur: bgBlur,
           theme: theme,
-          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -110,12 +111,26 @@ class CustomTestimonialsWidget extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              CircleAvatar(
-                radius: isMobile ? 16 : 20,
-                backgroundColor: secondary.withValues(alpha: 0.2),
-                child: Text(
-                  (item['author'] ?? 'A')[0].toUpperCase(),
-                  style: TextStyle(color: secondary, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: Container(
+                  width: isMobile ? 32 : 40,
+                  height: isMobile ? 32 : 40,
+                  decoration: BoxDecoration(
+                    color: secondary.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: item['image_url'] != null && (item['image_url'] as String).isNotEmpty
+                    ? CustomNetworkImage(
+                        imageUrl: item['image_url'],
+                        fit: BoxFit.cover,
+                      )
+                    : Center(
+                        child: Text(
+                          (item['author'] ?? 'A')[0].toUpperCase(),
+                          style: TextStyle(color: secondary, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14),
+                        ),
+                      ),
                 ),
               ),
               const SizedBox(width: 10),

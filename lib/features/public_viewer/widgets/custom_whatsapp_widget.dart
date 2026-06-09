@@ -51,8 +51,8 @@ class CustomWhatsappWidget extends StatelessWidget {
           bgOverlayOpacity: bgOverlayOpacity,
           bgBlur: bgBlur,
           theme: theme,
-          padding: EdgeInsets.symmetric(
-            vertical: isMobile ? 40 : 72,
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical: isMobile ? 40 : 80,
             horizontal: 24,
           ),
           child: Center(

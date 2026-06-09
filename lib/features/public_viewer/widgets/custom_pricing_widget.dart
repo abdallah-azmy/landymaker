@@ -18,6 +18,7 @@ class CustomPricingWidget extends StatefulWidget {
   final double? bgOverlayOpacity;
   final double? bgBlur;
   final String lang;
+  final int variant;
 
   const CustomPricingWidget({
     super.key,
@@ -28,6 +29,7 @@ class CustomPricingWidget extends StatefulWidget {
     this.bgOverlayOpacity,
     this.bgBlur,
     this.lang = 'ar', // Defaulting to Arabic, typically passed from parent
+    this.variant = 0,
   });
 
   @override
@@ -81,7 +83,7 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
           bgOverlayOpacity: widget.bgOverlayOpacity,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -105,33 +107,82 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
                     _buildToggle(primaryColor, textColor),
                   ],
                   SizedBox(height: isMobile ? 32 : 64),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _model.items.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(
-                        context,
-                        desktop: _model.items.length > 3 ? 3 : _model.items.length,
-                        tablet: 2,
-                        mobile: 1,
-                        width: constraints.maxWidth,
-                      ),
-                      crossAxisSpacing: 20,
-                      mainAxisSpacing: 20,
-                      childAspectRatio: isMobile ? 1.0 : 0.65,
-                    ),
-                    itemBuilder: (context, index) {
-                      final item = _model.items[index];
-                      return _buildPricingCard(item, primaryColor, secondaryColor, textColor, subTextColor, isMobile);
-                    },
-                  ),
+                  _buildPricingContent(context, constraints, primaryColor, secondaryColor, textColor, subTextColor, isMobile),
                 ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildPricingContent(BuildContext context, BoxConstraints constraints, Color primary, Color secondary, Color textColor, Color subTextColor, bool isMobile) {
+    if (widget.variant == 2 && !isMobile) { // Table style
+       return _buildTableStyle(primary, secondary, textColor, subTextColor);
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _model.items.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: widget.variant == 1 ? 2 : ResponsiveUtils.getGridCrossAxisCount(
+          context,
+          desktop: _model.items.length > 3 ? 3 : _model.items.length,
+          tablet: 2,
+          mobile: 1,
+          width: constraints.maxWidth,
+        ),
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
+        childAspectRatio: isMobile ? 1.0 : (widget.variant == 1 ? 1.2 : 0.65),
+      ),
+      itemBuilder: (context, index) {
+        final item = _model.items[index];
+        return _buildPricingCard(item, primary, secondary, textColor, subTextColor, isMobile);
+      },
+    );
+  }
+
+  Widget _buildTableStyle(Color primary, Color secondary, Color textColor, Color subTextColor) {
+    return Column(
+      children: _model.items.map((item) {
+        final priceDisplay = PricingCalculator.formatPriceDisplay(_model.schemaVersion, item, _activePeriodKey, widget.lang);
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: subTextColor.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: item.isPopular ? secondary : subTextColor.withValues(alpha: 0.1)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: textColor)),
+                    Text(item.features.join(", "), maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.caption.copyWith(color: subTextColor)),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(priceDisplay, textAlign: TextAlign.center, style: AppTypography.h3.copyWith(color: secondary)),
+              ),
+              const SizedBox(width: 24),
+              ElevatedButton(
+                onPressed: () {}, // Handled similarly to cards
+                style: ElevatedButton.styleFrom(backgroundColor: secondary, foregroundColor: Colors.white),
+                child: Text(item.buttonText.isEmpty ? 'Select' : item.buttonText),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -214,7 +265,7 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
                 duration: const Duration(milliseconds: 300),
                 child: Container(
                   key: ValueKey(priceDisplay),
-                  alignment: Alignment.centerRight,
+                  alignment: AlignmentDirectional.centerEnd,
                   child: Text(
                     priceDisplay, 
                     style: AppTypography.h1.copyWith(color: secondary, fontSize: isMobile ? 28 : 36),

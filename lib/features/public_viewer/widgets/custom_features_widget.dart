@@ -15,6 +15,7 @@ class CustomFeaturesWidget extends StatelessWidget {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final int variant;
 
   const CustomFeaturesWidget({
     super.key,
@@ -26,6 +27,7 @@ class CustomFeaturesWidget extends StatelessWidget {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.variant = 0,
   });
 
   @override
@@ -47,7 +49,7 @@ class CustomFeaturesWidget extends StatelessWidget {
           bgOverlayOpacity: bgOverlayOpacity,
           bgBlur: bgBlur,
           theme: theme,
-          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -73,51 +75,83 @@ class CustomFeaturesWidget extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: isMobile ? 32 : 64),
-                  if (layoutStyle == 'bento' && !isMobile)
-                    _buildBentoGrid(context, items, primaryColor, secondaryColor, textColor, subTextColor, bgColor)
-                  else
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: items.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(
-                          context,
-                          desktop: 3,
-                          tablet: 2,
-                          mobile: 1,
-                          width: constraints.maxWidth,
-                        ),
-                        crossAxisSpacing: isMobile ? 16 : 24,
-                        mainAxisSpacing: isMobile ? 16 : 24,
-                        childAspectRatio: isMobile ? 1.2 : 1.3,
-                      ),
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        final String itemTitle = item['title'] ?? '';
-                        final String itemDesc = item['description'] ?? '';
-                        final String? linkUrl = item['link_url'];
-                        final String? iconName = item['icon'];
-
-                        return FeatureCard(
-                          title: itemTitle,
-                          description: itemDesc,
-                          linkUrl: linkUrl,
-                          iconName: iconName,
-                          index: index,
-                          primary: primaryColor,
-                          secondary: secondaryColor,
-                          textColor: textColor,
-                          subTextColor: subTextColor,
-                          bgColor: bgColor,
-                          isMobile: isMobile,
-                        );
-                      },
-                    ),
+                  _buildContent(context, constraints, isMobile, primaryColor, secondaryColor, textColor, subTextColor, bgColor),
                 ],
               ),
             ),
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildContent(BuildContext context, BoxConstraints constraints, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor, Color bgColor) {
+    // If variant is 1, force bento
+    final String effectiveLayoutStyle = variant == 1 ? 'bento' : layoutStyle;
+
+    if (effectiveLayoutStyle == 'bento' && !isMobile) {
+      return _buildBentoGrid(context, items, primary, secondary, textColor, subTextColor, bgColor);
+    }
+
+    if (variant == 2 && !isMobile) { // Horizontal Scroll
+       return SingleChildScrollView(
+         scrollDirection: Axis.horizontal,
+         child: Row(
+           children: items.asMap().entries.map((entry) {
+             return Container(
+               width: 300,
+               height: 250,
+               margin: const EdgeInsets.only(right: 24),
+               child: FeatureCard(
+                  title: entry.value['title'] ?? '',
+                  description: entry.value['description'] ?? '',
+                  linkUrl: entry.value['link_url'],
+                  iconName: entry.value['icon'],
+                  index: entry.key,
+                  primary: primary,
+                  secondary: secondary,
+                  textColor: textColor,
+                  subTextColor: subTextColor,
+                  bgColor: bgColor,
+                  isMobile: isMobile,
+                ),
+             );
+           }).toList(),
+         ),
+       );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: variant == 3 ? 2 : ResponsiveUtils.getGridCrossAxisCount(
+          context,
+          desktop: 3,
+          tablet: 2,
+          mobile: 1,
+          width: constraints.maxWidth,
+        ),
+        crossAxisSpacing: isMobile ? 16 : 24,
+        mainAxisSpacing: isMobile ? 16 : 24,
+        childAspectRatio: isMobile ? 1.2 : 1.3,
+      ),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return FeatureCard(
+          title: item['title'] ?? '',
+          description: item['description'] ?? '',
+          linkUrl: item['link_url'],
+          iconName: item['icon'],
+          index: index,
+          primary: primary,
+          secondary: secondary,
+          textColor: textColor,
+          subTextColor: subTextColor,
+          bgColor: bgColor,
+          isMobile: isMobile,
+          variant: variant,
         );
       },
     );
@@ -302,6 +336,7 @@ class FeatureCard extends StatefulWidget {
   final Color bgColor;
   final bool isMobile;
   final bool isBento;
+  final int variant;
 
   const FeatureCard({
     super.key,
@@ -317,6 +352,7 @@ class FeatureCard extends StatefulWidget {
     required this.bgColor,
     required this.isMobile,
     this.isBento = false,
+    this.variant = 0,
   });
 
   @override
@@ -331,22 +367,54 @@ class _FeatureCardState extends State<FeatureCard> {
     final Color accent = widget.index % 2 == 0 ? widget.secondary : widget.primary;
     final bool hasLink = widget.linkUrl != null && widget.linkUrl!.isNotEmpty;
 
+    // Variant 4: Alternating Row Style
+    if (widget.variant == 4) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: accent.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(_resolveIcon(widget.iconName, widget.index), color: accent),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(widget.title, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: widget.textColor)),
+                  Text(widget.description, style: AppTypography.bodySmall.copyWith(color: widget.subTextColor)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Variant 6: Bordered Style
+    final bool isBordered = widget.variant == 6;
+
     Widget cardContent = AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       padding: EdgeInsets.all(widget.isMobile ? 16 : 24),
       decoration: BoxDecoration(
-        color: _isHovered && hasLink 
+        color: isBordered ? Colors.transparent : (_isHovered && hasLink 
             ? widget.subTextColor.withValues(alpha: 0.08)
-            : widget.subTextColor.withValues(alpha: 0.05),
+            : widget.subTextColor.withValues(alpha: 0.05)),
         borderRadius: BorderRadius.circular(widget.isMobile ? 12 : 20),
         border: Border.all(
-          color: _isHovered && hasLink 
-              ? accent.withValues(alpha: 0.5) 
-              : widget.subTextColor.withValues(alpha: 0.1),
-          width: _isHovered && hasLink ? 1.5 : 1,
+          color: isBordered 
+              ? accent.withValues(alpha: 0.3)
+              : (_isHovered && hasLink 
+                  ? accent.withValues(alpha: 0.5) 
+                  : widget.subTextColor.withValues(alpha: 0.1)),
+          width: isBordered ? 2 : (_isHovered && hasLink ? 1.5 : 1),
         ),
         boxShadow: [
-          if (widget.isBento || (_isHovered && hasLink))
+          if (!isBordered && (widget.isBento || (_isHovered && hasLink)))
             BoxShadow(
               color: accent.withValues(alpha: _isHovered && hasLink ? 0.08 : 0.03),
               blurRadius: _isHovered && hasLink ? 25 : 20,

@@ -274,42 +274,54 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
     final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
 
-    return SectionBackground(
-      theme: widget.theme,
-      bgImageUrl: widget.block['bg_image_url'],
-      bgOverlayColor: widget.block['bg_overlay_color'],
-      bgOverlayOpacity: widget.block['bg_overlay_opacity']?.toDouble(),
-      bgBlur: widget.block['bg_blur']?.toDouble(),
-      child: Center(
-        child: Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(maxWidth: 600),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isMobile = constraints.maxWidth < 600;
+        final double verticalPadding = isMobile ? 40 : 80;
+
+        return SectionBackground(
+          theme: widget.theme,
+          bgImageUrl: widget.block['bg_image_url'],
+          bgOverlayColor: widget.block['bg_overlay_color'],
+          bgOverlayOpacity: widget.block['bg_overlay_opacity']?.toDouble(),
+          bgBlur: widget.block['bg_blur']?.toDouble(),
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical: verticalPadding,
+            horizontal: 24,
           ),
-          padding: const EdgeInsets.all(32),
-          child: _isSuccess
-              ? _buildSuccessView(
-                  successMsg.isNotEmpty ? successMsg : 'تم الإرسال بنجاح',
-                  primaryColor,
-                )
-              : _buildFormView(
-                  title,
-                  subtitle,
-                  primaryColor,
-                  textColor,
-                  subTextColor,
-                ),
-        ),
-      ),
+          child: Center(
+            child: Container(
+              width: double.infinity,
+              constraints: const BoxConstraints(maxWidth: 600),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              padding: EdgeInsetsDirectional.all(isMobile ? 24 : 32),
+              child: _isSuccess
+                  ? _buildSuccessView(
+                      successMsg.isNotEmpty ? successMsg : 'تم الإرسال بنجاح',
+                      primaryColor,
+                    )
+                  : _buildFormView(
+                      title,
+                      subtitle,
+                      primaryColor,
+                      textColor,
+                      subTextColor,
+                      isMobile,
+                    ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -319,6 +331,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
     Color primaryColor,
     Color textColor,
     Color subTextColor,
+    bool isMobile,
   ) {
     if (_steps.isEmpty) {
       return const Text("No steps defined.");
@@ -341,7 +354,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
           Text(
             title,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: isMobile ? 20 : 24,
               fontWeight: FontWeight.bold,
               color: textColor,
             ),
@@ -349,7 +362,10 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
           const SizedBox(height: 8),
         ],
         if (subtitle.isNotEmpty) ...[
-          Text(subtitle, style: TextStyle(fontSize: 16, color: subTextColor)),
+          Text(
+            subtitle,
+            style: TextStyle(fontSize: isMobile ? 14 : 16, color: subTextColor),
+          ),
           const SizedBox(height: 24),
         ],
         // Progress Indicator

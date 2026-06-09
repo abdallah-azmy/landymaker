@@ -14,5 +14,6 @@
     "deno.enablePaths": [
         "supabase/functions"
     ],
-    "deno.importMap": "supabase/functions/import_map.json"
+    "deno.importMap": "supabase/functions/import_map.json",
+    "dart.flutterSdkPath": "~/flutter/3.41.9"
 }

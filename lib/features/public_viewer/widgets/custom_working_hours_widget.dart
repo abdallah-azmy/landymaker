@@ -2,73 +2,124 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 
+import '../../../core/widgets/section_background.dart';
+import '../../builder/models/landing_page_theme.dart';
+
 class CustomWorkingHoursWidget extends StatelessWidget {
   final Map<String, dynamic> blockData;
+  final LandingPageTheme? theme;
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final double? bgBlur;
 
-  const CustomWorkingHoursWidget({super.key, required this.blockData});
+  const CustomWorkingHoursWidget({
+    super.key,
+    required this.blockData,
+    this.theme,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.bgBlur,
+  });
 
   @override
   Widget build(BuildContext context) {
     final title = blockData['title'] ?? 'مواعيد العمل';
     final schedule = blockData['schedule'] as Map<String, dynamic>? ?? {};
+
+    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
+    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
     
     // Quick logic to check if open (10 AM to 11 PM)
     final now = DateTime.now();
     final currentHour = now.hour;
     final isOpen = currentHour >= 10 && currentHour < 23;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTypography.h3,
-                  overflow: TextOverflow.ellipsis,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isMobile = constraints.maxWidth < 600;
+        final double verticalPadding = isMobile ? 40 : 80;
+
+        return SectionBackground(
+          bgImageUrl: bgImageUrl,
+          bgOverlayColor: bgOverlayColor,
+          bgOverlayOpacity: bgOverlayOpacity,
+          bgBlur: bgBlur,
+          theme: theme,
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical: verticalPadding,
+            horizontal: 24,
+          ),
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 800),
+              padding: EdgeInsets.all(isMobile ? 20 : 32),
+              decoration: BoxDecoration(
+                color: subTextColor.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: subTextColor.withValues(alpha: 0.1),
                 ),
               ),
-              const SizedBox(width: 8),
-              _buildStatusBadge(isOpen),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...schedule.entries.map((entry) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    entry.key,
-                    style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
-                    overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTypography.h3.copyWith(
+                            color: textColor,
+                            fontSize: isMobile ? 20 : 24,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildStatusBadge(isOpen),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    entry.value.toString(),
-                    style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.end,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  ...schedule.entries.map((entry) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.key,
+                            style: AppTypography.bodyLarge.copyWith(
+                              color: subTextColor,
+                              fontSize: isMobile ? 15 : 17,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            entry.value.toString(),
+                            style: AppTypography.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                              fontSize: isMobile ? 15 : 17,
+                            ),
+                            textAlign: TextAlign.end,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+                ],
+              ),
             ),
-          )),
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
 

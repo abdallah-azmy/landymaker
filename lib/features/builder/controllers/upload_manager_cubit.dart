@@ -1,7 +1,10 @@
+import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import '../models/selected_image_data.dart';
 import '../../../services/image_media_service.dart';
+import '../../../services/storage_service.dart';
+import '../../../core/http_client.dart';
 import '../../../injection_container.dart';
 
 class UploadTask {
@@ -40,9 +43,13 @@ class UploadManagerState {
 
 class UploadManagerCubit extends Cubit<UploadManagerState> {
   final ImageMediaService _mediaService;
+  final StorageService _storageService;
 
-  UploadManagerCubit({ImageMediaService? mediaService})
-      : _mediaService = mediaService ?? sl<ImageMediaService>(),
+  UploadManagerCubit({
+    ImageMediaService? mediaService,
+    StorageService? storageService,
+  })  : _mediaService = mediaService ?? sl<ImageMediaService>(),
+        _storageService = storageService ?? sl<StorageService>(),
         super(UploadManagerState({}));
 
   Future<void> upload({
@@ -66,17 +73,13 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
 
     try {
       String finalUrl = '';
+      Uint8List? imageBytes;
+
       if (data.source == SelectedImageSource.local && data.bytes != null) {
-        finalUrl = await _mediaService.uploadImageBytesToImgBB(
-          data.bytes!,
-          'local_upload.jpg',
-          (sent, total) => _updateProgress(uploadId, sent / total),
-          cancelToken: cancelToken,
-        );
+        imageBytes = data.bytes;
       } else if (data.source == SelectedImageSource.pixabay && data.webformatUrl != null) {
-        finalUrl = await _mediaService.downloadAndUploadPixabayImage(
+        imageBytes = await _mediaService.downloadImageBytes(
           data.webformatUrl!,
-          (sent, total) => _updateProgress(uploadId, sent / total),
           cancelToken: cancelToken,
         );
       } else if (data.source == SelectedImageSource.url && data.url != null) {
@@ -84,6 +87,23 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
         onSuccess(data.url!);
         _removeTask(uploadId);
         return;
+      }
+
+      if (imageBytes != null) {
+        // 1. Upload to ImgBB for the design URL
+        finalUrl = await _mediaService.uploadImageBytesToImgBB(
+          imageBytes,
+          'image_upload.jpg',
+          (sent, total) => _updateProgress(uploadId, sent / total),
+          cancelToken: cancelToken,
+        );
+
+        // 2. ALSO upload to Supabase Storage (User Gallery)
+        // This ensures the user "owns" a copy of the asset and complies with Pixabay ToS
+        await _storageService.uploadImageBytes(
+          imageBytes,
+          'imported_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
       }
 
       if (!isClosed) {
@@ -96,6 +116,66 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
       final currentUploads = Map<String, UploadTask>.from(state.uploads);
       if (currentUploads.containsKey(uploadId)) {
         // Strip exception prefix
+        String errMsg = e.toString().replaceAll('Exception: ', '');
+        currentUploads[uploadId] = currentUploads[uploadId]!.copyWith(error: errMsg);
+        emit(UploadManagerState(currentUploads));
+      }
+    }
+  }
+
+  /// New: Persists an external URL (e.g. from Unsplash template) to the user's storage.
+  Future<void> persistExternalImage({
+    required String uploadId,
+    required String externalUrl,
+    required Function(String finalUrl) onSuccess,
+  }) async {
+    final cancelToken = CancelToken();
+    
+    // Create a dummy SelectedImageData for the task tracking
+    final data = SelectedImageData(
+      source: SelectedImageSource.url,
+      url: externalUrl,
+    );
+
+    final newTask = UploadTask(
+      id: uploadId,
+      data: data,
+      cancelToken: cancelToken,
+    );
+
+    final currentUploads = Map<String, UploadTask>.from(state.uploads);
+    currentUploads[uploadId] = newTask;
+    emit(UploadManagerState(currentUploads));
+
+    try {
+      // 1. Download image into bytes
+      final Uint8List imageBytes = await _mediaService.downloadImageBytes(
+        externalUrl,
+        cancelToken: cancelToken,
+      );
+
+      // 2. Upload to ImgBB (for the design JSON)
+      final imgbbUrl = await _mediaService.uploadImageBytesToImgBB(
+        imageBytes,
+        'template_fixed.jpg',
+        (sent, total) => _updateProgress(uploadId, sent / total),
+        cancelToken: cancelToken,
+      );
+
+      // 3. Upload to Supabase Storage (User Gallery)
+      await _storageService.uploadImageBytes(
+        imageBytes,
+        'template_import_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+
+      if (!isClosed) {
+        onSuccess(imgbbUrl);
+        _removeTask(uploadId);
+      }
+    } catch (e) {
+       if (isClosed) return;
+      final currentUploads = Map<String, UploadTask>.from(state.uploads);
+      if (currentUploads.containsKey(uploadId)) {
         String errMsg = e.toString().replaceAll('Exception: ', '');
         currentUploads[uploadId] = currentUploads[uploadId]!.copyWith(error: errMsg);
         emit(UploadManagerState(currentUploads));

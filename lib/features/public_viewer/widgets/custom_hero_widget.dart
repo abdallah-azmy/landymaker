@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/section_background.dart';
+import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
 
 class CustomHeroWidget extends StatelessWidget {
@@ -18,6 +19,7 @@ class CustomHeroWidget extends StatelessWidget {
   final double? bgBlur;
   final String? buttonUrl;
   final double? verticalPadding;
+  final int variant;
 
   const CustomHeroWidget({
     super.key,
@@ -32,6 +34,7 @@ class CustomHeroWidget extends StatelessWidget {
     this.bgBlur,
     this.buttonUrl,
     this.verticalPadding,
+    this.variant = 0,
   });
 
   @override
@@ -54,38 +57,130 @@ class CustomHeroWidget extends StatelessWidget {
           verticalPaddingOverride: verticalPadding,
           bgBlur: bgBlur,
           theme: theme,
-          padding: EdgeInsets.symmetric(vertical: defaultPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: defaultPadding, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
-              child: ResponsiveLayout(
-                desktop: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      flex: 5,
-                      child: _buildTextContent(context, isRtl, CrossAxisAlignment.start, primaryColor, secondaryColor, textColor, subTextColor, false),
-                    ),
-                    const SizedBox(width: 48),
-                    Expanded(
-                      flex: 5,
-                      child: _buildHeroImage(primaryColor, false),
-                    ),
-                  ],
-                ),
-                mobile: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildTextContent(context, isRtl, CrossAxisAlignment.center, primaryColor, secondaryColor, textColor, subTextColor, true),
-                    const SizedBox(height: 32),
-                    _buildHeroImage(primaryColor, true),
-                  ],
-                ),
-              ),
+              child: _buildVariant(context, constraints, isRtl, isMobile, primaryColor, secondaryColor, textColor, subTextColor),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildVariant(BuildContext context, BoxConstraints constraints, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+    switch (variant) {
+      case 1: // Split
+        return _buildSplitVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
+      case 2: // Centered
+        return _buildCenteredVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
+      case 3: // Glassmorphism / Card
+        return _buildGlassVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
+      case 4: // Full Width BG
+        return _buildFullWidthBGVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
+      case 5: // Reverse
+        return _buildReverseVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
+      case 8: // Minimal
+        return _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, isMobile);
+      default: // Standard
+        return ResponsiveLayout(
+          desktop: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 5,
+                child: _buildTextContent(context, isRtl, CrossAxisAlignment.start, primary, secondary, textColor, subTextColor, false),
+              ),
+              const SizedBox(width: 48),
+              Expanded(
+                flex: 5,
+                child: _buildHeroImage(primary, false),
+              ),
+            ],
+          ),
+          mobile: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, true),
+              const SizedBox(height: 32),
+              _buildHeroImage(primary, true),
+            ],
+          ),
+        );
+    }
+  }
+
+  Widget _buildSplitVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+    return ResponsiveLayout(
+      desktop: Row(
+        children: [
+          Expanded(child: _buildHeroImage(primary, false)),
+          const SizedBox(width: 48),
+          Expanded(child: _buildTextContent(context, isRtl, CrossAxisAlignment.start, primary, secondary, textColor, subTextColor, false)),
+        ],
+      ),
+      mobile: Column(
+        children: [
+          _buildHeroImage(primary, true),
+          const SizedBox(height: 32),
+          _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, true),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReverseVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+     return ResponsiveLayout(
+      desktop: Row(
+        children: [
+          Expanded(child: _buildHeroImage(primary, false)),
+          const SizedBox(width: 48),
+          Expanded(child: _buildTextContent(context, isRtl, CrossAxisAlignment.start, primary, secondary, textColor, subTextColor, false)),
+        ],
+      ),
+      mobile: Column(
+        children: [
+          _buildHeroImage(primary, true),
+          const SizedBox(height: 32),
+          _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, true),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCenteredVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+    return Column(
+      children: [
+        _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, isMobile),
+        const SizedBox(height: 48),
+        _buildHeroImage(primary, isMobile),
+      ],
+    );
+  }
+
+  Widget _buildGlassVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+      ),
+      child: _buildCenteredVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor),
+    );
+  }
+
+  Widget _buildFullWidthBGVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Opacity(
+          opacity: 0.3,
+          child: _buildHeroImage(primary, isMobile),
+        ),
+        _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, isMobile),
+      ],
     );
   }
 
@@ -188,25 +283,11 @@ class CustomHeroWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRRect(
+      child: CustomNetworkImage(
+        imageUrl: imageUrl,
         borderRadius: BorderRadius.circular(20),
-        child: Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              height: isMobile ? 200 : 300,
-              color: theme?.textPrimary.withValues(alpha: 0.05) ?? Colors.white10,
-              child: const Center(child: CircularProgressIndicator()),
-            );
-          },
-          errorBuilder: (_, __, ___) => Container(
-            height: 150,
-            color: theme?.textPrimary.withValues(alpha: 0.05) ?? Colors.white10,
-            child: Icon(Icons.image_not_supported_rounded, color: theme?.textPrimary.withValues(alpha: 0.2) ?? Colors.white24, size: 48),
-          ),
-        ),
+        fit: BoxFit.cover,
+        height: isMobile ? 300 : null,
       ),
     );
   }

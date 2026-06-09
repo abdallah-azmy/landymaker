@@ -20,6 +20,7 @@ class ProductsEditor extends StatelessWidget {
   final GetFocusNode getFocusNode;
   final PickImage pickImage;
   final PickAndUploadImage pickAndUploadImage;
+  final PersistAsset persistAsset;
 
   const ProductsEditor({
     required this.cubit,
@@ -29,6 +30,7 @@ class ProductsEditor extends StatelessWidget {
     required this.getFocusNode,
     required this.pickImage,
     required this.pickAndUploadImage,
+    required this.persistAsset,
     super.key,
   });
 
@@ -190,7 +192,9 @@ class ProductsEditor extends StatelessWidget {
                 CustomImageField(
                   label: context.translate('image_url'),
                   imageUrl: item['image_url'],
+                  isUploading: (item['image_url'] ?? '').toString().startsWith('upload://'),
                   onAction: () => pickImage(cubit, index, itemIndex: pIndex, itemKey: 'image_url'),
+                  onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: pIndex, itemKey: 'image_url'),
                 ),
               ],
             ),

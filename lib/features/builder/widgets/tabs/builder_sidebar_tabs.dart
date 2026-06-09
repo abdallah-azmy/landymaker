@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:landymaker/core/widgets/atoms/custom_text_field.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
@@ -654,6 +655,10 @@ class DesignTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const MagicImageSwapper(),
+          const SizedBox(height: 32),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: 24),
           DesignColorsTab(loc: loc, cubit: cubit, state: state),
           const SizedBox(height: 24),
           const Divider(color: AppColors.border),
@@ -662,6 +667,116 @@ class DesignTab extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class MagicImageSwapper extends StatefulWidget {
+  const MagicImageSwapper({super.key});
+
+  @override
+  State<MagicImageSwapper> createState() => _MagicImageSwapperState();
+}
+
+class _MagicImageSwapperState extends State<MagicImageSwapper> {
+  final TextEditingController _categoryController = TextEditingController();
+
+  final List<String> _presets = [
+    'مطاعم',
+    'تقنية',
+    'عقارات',
+    'أزياء',
+    'طب',
+    'رياضة',
+    'أثاث',
+  ];
+
+  @override
+  void dispose() {
+    _categoryController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              Icons.auto_awesome_rounded,
+              color: Color(0xFF00E5FF),
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              "المبدل السحري للصور",
+              style: AppTypography.bodyLarge.copyWith(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF00E5FF),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "غيّر تخصص كل صور الصفحة بضغطة واحدة من Pixabay.",
+          style: AppTypography.caption,
+        ),
+        const SizedBox(height: 20),
+        CustomTextField(
+          controller: _categoryController,
+          hintText: "مثلاً: مقهى، نادي رياضي، برمجة...",
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.send_rounded, color: Color(0xFF00E5FF)),
+            onPressed: () => _applyMagic(context),
+          ),
+          onSubmitted: (_) => _applyMagic(context),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _presets
+              .map(
+                (preset) => InkWell(
+                  onTap: () {
+                    _categoryController.text = preset;
+                    _applyMagic(context);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBg,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Text(
+                      preset,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ],
+    );
+  }
+
+  void _applyMagic(BuildContext context) {
+    if (_categoryController.text.isEmpty) return;
+
+    context.read<LandingPageBuilderCubit>().magicReplaceImages(
+      _categoryController.text,
+    );
+    FocusScope.of(context).unfocus();
   }
 }
 

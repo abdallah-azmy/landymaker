@@ -550,6 +550,101 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
         }),
       ],
     ),
+    _section(
+      type: 'statistics_grid',
+      name: 'إحصائيات احترافية',
+      icon: Icons.analytics_rounded,
+      category: 'trust',
+      desc: 'عرض أرقام النجاح بشكل عصري.',
+      popular: true,
+      aiRole: 'proof_metrics',
+      aiWhenToUse: 'Use to showcase company growth, satisfied customers, or project impact.',
+      variants: [
+        _variant('شبكة 2x2', 'عرض ٤ إحصائيات ببطاقات', 'grid', {
+          'items': [
+            {'value': '500+', 'label': 'عميل سعيد', 'icon': 'people'},
+            {'value': '12', 'label': 'سنة خبرة', 'icon': 'star'},
+            {'value': '24/7', 'label': 'دعم فني', 'icon': 'speed'},
+            {'value': '100%', 'label': 'جودة مضمونة', 'icon': 'check'},
+          ],
+        }),
+      ],
+    ),
+    _section(
+      type: 'team_members',
+      name: 'فريق العمل',
+      icon: Icons.groups_rounded,
+      category: 'trust',
+      desc: 'عرض الأشخاص المبدعين خلف المشروع.',
+      aiRole: 'team_showcase',
+      aiWhenToUse: 'Use for about us pages or to humanize the brand/business.',
+      variants: [
+        _variant('بطاقات الفريق', 'صور وأسماء الفريق', 'grid', {
+          'items': [
+            {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400'},
+            {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400'},
+          ],
+        }),
+      ],
+    ),
+    _section(
+      type: 'service_steps',
+      name: 'خطوات العمل',
+      icon: Icons.account_tree_rounded,
+      category: 'content',
+      desc: 'شرح مراحل تقديم الخدمة أو الاستخدام.',
+      popular: true,
+      aiRole: 'process_explainer',
+      aiWhenToUse: 'Use to simplify complex services into easy steps (1, 2, 3).',
+      variants: [
+        _variant('مسار أفقي', 'خطوات مرقمة متصلة', 'split', {
+          'items': [
+            {'title': 'الخطوة الأولى', 'description': 'اشرح ماذا يحدث هنا.'},
+            {'title': 'الخطوة الثانية', 'description': 'انتقل للمرحلة التالية.'},
+            {'title': 'الخطوة الثالثة', 'description': 'النتيجة النهائية.'},
+          ],
+        }),
+      ],
+    ),
+    _section(
+      type: 'cta_banner',
+      name: 'بانر تحويلي (CTA)',
+      icon: Icons.ads_click_rounded,
+      category: 'conversion',
+      desc: 'بانر ملون وقوي لجذب الانتباه.',
+      popular: true,
+      aiRole: 'final_conversion',
+      aiWhenToUse: 'Use at the end of the page or between sections to drive immediate action.',
+      variants: [
+        _variant('بانر ملون', 'تدرج لوني مع زر كبير', 'immersive', {
+          'title': 'هل أنت جاهز للبدء؟',
+          'subtitle': 'انضم إلينا اليوم واحصل على عرض خاص.',
+          'button_text': 'سجل الآن',
+        }),
+      ],
+    ),
+    _section(
+      type: 'comparison_table',
+      name: 'جدول مقارنة',
+      icon: Icons.compare_arrows_rounded,
+      category: 'ecommerce',
+      desc: 'مقارنة دقيقة بين المميزات والخطط.',
+      aiRole: 'feature_comparison',
+      aiWhenToUse: 'Use to highlight differences between service tiers or product models.',
+      variants: [
+        _variant('جدول الميزات', 'مقارنة عمودية احترافية', 'list', {
+          'plans': [
+            {'name': 'الأساسية', 'price': 'مجاني'},
+            {'name': 'الاحترافية', 'price': '99\$'},
+          ],
+          'features': [
+            {'name': 'الميزة الأولى', 'values': [true, true]},
+            {'name': 'الميزة الثانية', 'values': [false, true]},
+            {'name': 'الدعم الفني', 'values': ['بريد', 'هاتف']},
+          ],
+        }),
+      ],
+    ),
   ];
 
   @override
@@ -679,23 +774,28 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
               Expanded(
                 child: filteredSections.isEmpty
                     ? _buildEmptyState()
-                    : GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 300,
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 14,
-                          childAspectRatio: 0.78,
-                        ),
-                        itemCount: filteredSections.length,
-                        itemBuilder: (context, index) {
-                          final section = filteredSections[index];
-                          return _SectionVariantCard(
-                            key: ValueKey(
-                              "${section.type}_${_selectedCategory}_${_searchQuery}_$index",
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          final bool isSmall = constraints.maxWidth < 600;
+                          return GridView.builder(
+                            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 340,
+                              crossAxisSpacing: 14,
+                              mainAxisSpacing: 14,
+                              childAspectRatio: isSmall ? 0.72 : 0.82,
                             ),
-                            section: section,
-                            cubit: cubit,
-                            index: index,
+                            itemCount: filteredSections.length,
+                            itemBuilder: (context, index) {
+                              final section = filteredSections[index];
+                              return _SectionVariantCard(
+                                key: ValueKey(
+                                  "${section.type}_${_selectedCategory}_${_searchQuery}_$index",
+                                ),
+                                section: section,
+                                cubit: cubit,
+                                index: index,
+                              );
+                            },
                           );
                         },
                       ),

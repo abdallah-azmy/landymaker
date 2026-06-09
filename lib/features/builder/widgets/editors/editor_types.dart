@@ -6,3 +6,4 @@ typedef GetController = TextEditingController Function(String key, String initia
 typedef GetFocusNode = FocusNode Function(String key);
 typedef PickImage = FutureOr<void> Function(LandingPageBuilderCubit cubit, int index, {String? itemKey, int? itemIndex});
 typedef PickAndUploadImage = FutureOr<void> Function(LandingPageBuilderCubit cubit, int index, {String? itemKey, int? itemIndex});
+typedef PersistAsset = FutureOr<void> Function(LandingPageBuilderCubit cubit, int index, {String? itemKey, int? itemIndex});

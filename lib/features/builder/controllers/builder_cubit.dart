@@ -13,6 +13,10 @@ import 'dart:ui' show Color;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:landymaker/features/builder/controllers/upload_manager_cubit.dart';
+import 'package:landymaker/features/builder/models/selected_image_data.dart';
+import 'package:landymaker/injection_container.dart';
+import 'package:landymaker/services/image_media_service.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../services/database_service.dart';
@@ -347,6 +351,250 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Magic Image Swapper: Replaces all images in the design with new ones from Pixabay
+  Future<void> magicReplaceImages(String category) async {
+    final currentState = state;
+    if (currentState is! BuilderLoaded || category.isEmpty) return;
+
+    final mediaService = sl<ImageMediaService>();
+    final uploadManager = sl<UploadManagerCubit>();
+
+    // 1. Fetch pools of images
+    List<PixabayImageModel> photos = [];
+    List<PixabayImageModel> illustrations = [];
+    List<PixabayImageModel> portraits = [];
+
+    try {
+      photos = await mediaService.fetchPixabayImages(
+        category,
+        imageType: 'photo',
+      );
+      illustrations = await mediaService.fetchPixabayImages(
+        category,
+        imageType: 'illustration',
+      );
+      portraits = await mediaService.fetchPixabayImages(
+        '$category portrait',
+        imageType: 'photo',
+      );
+    } catch (e) {
+      _emitDirty(
+        currentState.copyWith(errorMessage: "فشل البحث في Pixabay: $e"),
+      );
+      return;
+    }
+
+    if (photos.isEmpty && illustrations.isEmpty) {
+      _emitDirty(
+        currentState.copyWith(
+          errorMessage: "لم نجد صوراً مناسبة لهذا التصنيف.",
+        ),
+      );
+      return;
+    }
+
+    final newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final blocks = List.from(newDesign['blocks'] ?? []);
+
+    int photoIdx = 0;
+    int illustrationIdx = 0;
+    int portraitIdx = 0;
+
+    for (int i = 0; i < blocks.length; i++) {
+      final block = Map<String, dynamic>.from(blocks[i]);
+      final String type = block['type'] ?? '';
+
+      // Helper to trigger upload and return placeholder
+      String triggerUpload(PixabayImageModel img) {
+        final uploadId =
+            'magic_${DateTime.now().millisecondsSinceEpoch}_${img.id}';
+        uploadManager.upload(
+          uploadId: uploadId,
+          data: SelectedImageData.pixabay(
+            previewUrl: img.previewUrl,
+            webformatUrl: img.webformatUrl,
+          ),
+          onSuccess: (url) => updatePropertyByUploadId(uploadId, url),
+        );
+        return uploadId;
+      }
+
+      // 1. Handle Background Image
+      if (block.containsKey('bg_image_url') && photos.isNotEmpty) {
+        block['bg_image_url'] = triggerUpload(photos[photoIdx % photos.length]);
+        photoIdx++;
+      }
+
+      // 2. Handle Primary Image based on block type
+      if (block.containsKey('image_url')) {
+        if (type == 'hero_saas' && illustrations.isNotEmpty) {
+          block['image_url'] = triggerUpload(
+            illustrations[illustrationIdx % illustrations.length],
+          );
+          illustrationIdx++;
+        } else if (photos.isNotEmpty) {
+          block['image_url'] = triggerUpload(photos[photoIdx % photos.length]);
+          photoIdx++;
+        }
+      }
+
+      // 3. Handle Lists (Gallery, Products, Testimonials, Team)
+      if (block.containsKey('items') && block['items'] is List) {
+        final List items = List.from(block['items']);
+        for (int j = 0; j < items.length; j++) {
+          if (items[j] is String) {
+            // Gallery case
+            if (photos.isNotEmpty) {
+              items[j] = triggerUpload(photos[photoIdx % photos.length]);
+              photoIdx++;
+            }
+          } else if (items[j] is Map) {
+            final item = Map<String, dynamic>.from(items[j]);
+            if (item.containsKey('image_url')) {
+              if ((type == 'testimonials' || type == 'team_members') &&
+                  portraits.isNotEmpty) {
+                item['image_url'] = triggerUpload(
+                  portraits[portraitIdx % portraits.length],
+                );
+                portraitIdx++;
+              } else if (photos.isNotEmpty) {
+                item['image_url'] = triggerUpload(
+                  photos[photoIdx % photos.length],
+                );
+                photoIdx++;
+              }
+            }
+            items[j] = item;
+          }
+        }
+        block['items'] = items;
+      }
+
+      blocks[i] = block;
+    }
+
+    newDesign['blocks'] = blocks;
+    _emitDirty(
+      currentState.copyWith(
+        designMap: newDesign,
+        successMessage: "جاري تبديل الصور سحرياً...",
+      ),
+    );
+  }
+
+  /// Scans the design for external assets and imports them to the user's gallery
+  void importTemplateAssets(UploadManagerCubit uploadManager) {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return;
+
+    final newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final blocks = List.from(newDesign['blocks'] ?? []);
+
+    bool found = false;
+
+    for (int i = 0; i < blocks.length; i++) {
+      final block = Map<String, dynamic>.from(blocks[i]);
+
+      String? triggerImport(String? url) {
+        if (url == null ||
+            url.isEmpty ||
+            url.startsWith('upload://') ||
+            url.contains('supabase.co'))
+          return url;
+
+        found = true;
+        final uploadId =
+            'import_${DateTime.now().millisecondsSinceEpoch}_${url.hashCode}';
+        uploadManager.persistExternalImage(
+          uploadId: uploadId,
+          externalUrl: url,
+          onSuccess: (finalUrl) =>
+              updatePropertyByUploadId('upload://$uploadId', finalUrl),
+        );
+        return 'upload://$uploadId';
+      }
+
+      block['image_url'] = triggerImport(block['image_url']);
+      block['bg_image_url'] = triggerImport(block['bg_image_url']);
+
+      if (block['items'] is List) {
+        final List items = List.from(block['items']);
+        for (int j = 0; j < items.length; j++) {
+          if (items[j] is String) {
+            items[j] = triggerImport(items[j]);
+          } else if (items[j] is Map) {
+            final item = Map<String, dynamic>.from(items[j]);
+            item['image_url'] = triggerImport(item['image_url']);
+            items[j] = item;
+          }
+        }
+        block['items'] = items;
+      }
+
+      blocks[i] = block;
+    }
+
+    if (found) {
+      newDesign['blocks'] = blocks;
+      _emitDirty(
+        currentState.copyWith(designMap: newDesign),
+        skipHistory: true,
+      );
+    }
+  }
+
+  /// Reactive update for background uploads/imports
+  void updatePropertyByUploadId(String uploadId, String finalUrl) {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return;
+
+    final newDesign = Map<String, dynamic>.from(currentState.designMap);
+    final blocks = List.from(newDesign['blocks'] ?? []);
+
+    bool updated = false;
+
+    for (int i = 0; i < blocks.length; i++) {
+      final block = Map<String, dynamic>.from(blocks[i]);
+
+      if (block['image_url'] == uploadId) {
+        block['image_url'] = finalUrl;
+        updated = true;
+      }
+      if (block['bg_image_url'] == uploadId) {
+        block['bg_image_url'] = finalUrl;
+        updated = true;
+      }
+
+      if (block['items'] is List) {
+        final List items = List.from(block['items']);
+        for (int j = 0; j < items.length; j++) {
+          if (items[j] == uploadId) {
+            items[j] = finalUrl;
+            updated = true;
+          } else if (items[j] is Map) {
+            final item = Map<String, dynamic>.from(items[j]);
+            if (item['image_url'] == uploadId) {
+              item['image_url'] = finalUrl;
+              updated = true;
+            }
+            items[j] = item;
+          }
+        }
+        block['items'] = items;
+      }
+
+      blocks[i] = block;
+    }
+
+    if (updated) {
+      newDesign['blocks'] = blocks;
+      _emitDirty(
+        currentState.copyWith(designMap: newDesign),
+        skipHistory: true,
+      );
+    }
+  }
+
   void updateTheme(LandingPageTheme theme) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -420,6 +668,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         successMessage: "تم تطبيق القالب بنجاح!",
       ),
     );
+
+    // Automatically trigger import of external assets into user's account
+    importTemplateAssets(sl<UploadManagerCubit>());
   }
 
   void addBlock(String type, {Map<String, dynamic>? presetOverrides}) {
@@ -711,6 +962,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
 
     newDesign['blocks'] = blocks;
     _emitDirty(currentState.copyWith(designMap: newDesign));
+
+    // Trigger import for new block assets (background images, etc. in overrides)
+    importTemplateAssets(sl<UploadManagerCubit>());
   }
 
   Map<String, dynamic> _mergeBlockPreset(

@@ -8,6 +8,8 @@ import '../common/dynamic_list_editor.dart';
 import '../../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 
+import '../../molecules/custom_image_field.dart';
+
 class TrustLogosEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -16,6 +18,7 @@ class TrustLogosEditor extends StatelessWidget {
   final GetFocusNode getFocusNode;
   final PickImage pickImage;
   final PickAndUploadImage pickAndUploadImage;
+  final PersistAsset persistAsset;
 
   const TrustLogosEditor({
     required this.cubit,
@@ -25,6 +28,7 @@ class TrustLogosEditor extends StatelessWidget {
     required this.getFocusNode,
     required this.pickImage,
     required this.pickAndUploadImage,
+    required this.persistAsset,
     super.key,
   });
 
@@ -51,41 +55,28 @@ class TrustLogosEditor extends StatelessWidget {
           },
           itemBuilder: (context, tIndex, onDelete) {
             final String url = ((block['items'] as List?) ?? [])[tIndex];
+            final isUploading = url.startsWith('upload://');
             return Column(
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: CustomTextField(
-                        hintText: "رابط الشعار",
-                        controller: getController("${index}_trustlogo_${tIndex}", url),
-                        focusNode: getFocusNode("${index}_trustlogo_${tIndex}"),
-                        onChanged: (val) {
-                          final List items = List.from(block['items'] ?? []);
-                          items[tIndex] = val;
-                          cubit.updateBlockProperty(index, 'items', items);
-                        },
-                      ),
-                    ),
+                    Text("شعار رقم ${tIndex + 1}", style: AppTypography.bodySmall),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed),
+                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 18),
                       onPressed: onDelete,
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                PrimaryButton(
-                  text: "ابحث في الصور",
-                  icon: Icons.search_rounded,
-                  isSecondary: true,
-                  onPressed: () => pickImage(
-                    cubit,
-                    index,
-                    itemIndex: tIndex,
-                    itemKey: 'items_array',
-                  ),
-                  width: double.infinity,
+                const SizedBox(height: 8),
+                CustomImageField(
+                  label: "",
+                  imageUrl: url,
+                  isUploading: isUploading,
+                  onAction: () => pickImage(cubit, index, itemIndex: tIndex, itemKey: 'items_array'),
+                  onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: tIndex, itemKey: 'items_array'),
                 ),
+                const SizedBox(height: 12),
               ],
             );
           },

@@ -510,26 +510,29 @@ class SupabaseService extends ChangeNotifier {
   }
 
   Future<String?> uploadImage(PlatformFile file) async {
+    final bytes = file.bytes;
+    if (bytes == null) {
+      throw Exception("File data is missing. Unexpected null value.");
+    }
+    return uploadImageBytes(bytes, file.name);
+  }
+
+  Future<String?> uploadImageBytes(Uint8List bytes, String fileName) async {
     try {
       final userId = _currentUserId;
       if (userId == null) {
         throw Exception("User session not found. Please login again.");
       }
 
-      // Check current quota (maximum 5 uploads per user)
+      // Check current quota (maximum 10 uploads per user - increased from 5)
       final existingFiles = await _client!.storage
           .from(DbConstants.landingAssetsBucket)
           .list(path: userId);
-      if (existingFiles.length >= 5) {
-        throw Exception("لقد وصلت للحد الأقصى للرفع (5 صور). يرجى حذف بعض الملفات لتتمكن من رفع صور جديدة.");
+      if (existingFiles.length >= 10) {
+        throw Exception("لقد وصلت للحد الأقصى للرفع (10 صور). يرجى حذف بعض الملفات لتتمكن من رفع صور جديدة.");
       }
 
-      final bytes = file.bytes;
-      if (bytes == null) {
-        throw Exception("File data is missing. Unexpected null value.");
-      }
-
-      final fileExtension = file.name.split('.').last;
+      final fileExtension = fileName.split('.').last;
       final filePath =
           '$userId/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
 
@@ -541,7 +544,7 @@ class SupabaseService extends ChangeNotifier {
           .from(DbConstants.landingAssetsBucket)
           .getPublicUrl(filePath);
     } catch (e, stack) {
-      ErrorHandler.logError("Error uploading image", e, stack);
+      ErrorHandler.logError("Error uploading image bytes", e, stack);
       rethrow;
     }
   }

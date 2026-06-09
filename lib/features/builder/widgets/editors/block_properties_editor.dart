@@ -438,8 +438,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
             pickAndUploadImage: (c, idx, {itemIndex, itemKey}) =>
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
-            persistAsset: (c, idx, {itemIndex, itemKey}) =>
-                _persistAsset(c, idx, itemKey: itemKey, itemIndex: itemIndex),
           ),
         );
         break;
@@ -505,8 +503,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
             pickAndUploadImage: (c, idx, {itemIndex, itemKey}) =>
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
-            persistAsset: (c, idx, {itemIndex, itemKey}) =>
-                _persistAsset(c, idx, itemKey: itemKey, itemIndex: itemIndex),
           ),
         );
         break;
@@ -522,8 +518,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
             pickAndUploadImage: (c, idx, {itemIndex, itemKey}) =>
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
-            persistAsset: (c, idx, {itemIndex, itemKey}) =>
-                _persistAsset(c, idx, itemKey: itemKey, itemIndex: itemIndex),
           ),
         );
         break;
@@ -539,8 +533,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
             pickAndUploadImage: (c, idx, {itemIndex, itemKey}) =>
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
-            persistAsset: (c, idx, {itemIndex, itemKey}) =>
-                _persistAsset(c, idx, itemKey: itemKey, itemIndex: itemIndex),
           ),
         );
         break;
@@ -556,8 +548,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
             pickAndUploadImage: (c, idx, {itemIndex, itemKey}) =>
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
-            persistAsset: (c, idx, {itemIndex, itemKey}) =>
-                _persistAsset(c, idx, itemKey: itemKey, itemIndex: itemIndex),
           ),
         );
         break;
@@ -607,8 +597,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
             pickAndUploadImage: (c, idx, {itemIndex, itemKey}) =>
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
-            persistAsset: (c, idx, {itemIndex, itemKey}) =>
-                _persistAsset(c, idx, itemKey: itemKey, itemIndex: itemIndex),
           ),
         );
         break;
@@ -624,8 +612,6 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
             pickAndUploadImage: (c, idx, {itemIndex, itemKey}) =>
                 _pickMedia(c, idx, itemKey: itemKey, itemIndex: itemIndex),
-            persistAsset: (c, idx, {itemIndex, itemKey}) =>
-                _persistAsset(c, idx, itemKey: itemKey, itemIndex: itemIndex),
           ),
         );
         break;

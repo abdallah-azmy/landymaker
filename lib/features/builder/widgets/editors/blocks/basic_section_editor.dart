@@ -16,6 +16,7 @@ class BasicSectionEditor extends StatelessWidget {
   final GetFocusNode getFocusNode;
   final PickImage pickImage;
   final PickAndUploadImage pickAndUploadImage;
+  final PersistAsset persistAsset;
 
   const BasicSectionEditor({
     required this.cubit,
@@ -25,6 +26,7 @@ class BasicSectionEditor extends StatelessWidget {
     required this.getFocusNode,
     required this.pickImage,
     required this.pickAndUploadImage,
+    required this.persistAsset,
     super.key,
   });
 
@@ -139,6 +141,7 @@ class BasicSectionEditor extends StatelessWidget {
                     label: "الصورة",
                     imageUrl: elem['url'],
                     onAction: () => pickImage(cubit, index, itemIndex: i, itemKey: 'url'),
+                    onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: i, itemKey: 'url'),
                   ),
                   const SizedBox(height: 12),
                   Row(

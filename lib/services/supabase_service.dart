@@ -31,10 +31,12 @@ class SupabaseService extends ChangeNotifier {
   String? _currentUserEmail;
   String? _currentUserId;
   String _currentUserRole = 'user'; // 'user' or 'super_admin'
+  String _currentUserTier = 'free'; // 'free' or 'pro'
 
   String? get currentUserEmail => _currentUserEmail;
   String? get currentUserId => _currentUserId;
   String get currentUserRole => _currentUserRole;
+  String get currentUserTier => _currentUserTier;
   bool get isAuthenticated => _currentUserId != null;
   SupabaseClient get client => _client!;
 
@@ -117,16 +119,17 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
-  // Fetch the role of authenticated user from profiles table
+  // Fetch the role and tier of authenticated user from profiles table
   Future<void> _fetchUserRole(String userId) async {
     try {
       final response = await _client!
           .from(DbConstants.profilesTable)
-          .select('role')
+          .select('role, tier')
           .eq('id', userId)
           .maybeSingle();
       if (response != null) {
-        _currentUserRole = response['role'] as String;
+        _currentUserRole = response['role'] as String? ?? 'user';
+        _currentUserTier = response['tier'] as String? ?? 'free';
       }
     } catch (e) {
       debugPrint("Error fetching user role: $e");
@@ -430,21 +433,24 @@ class SupabaseService extends ChangeNotifier {
     required String landingPageId,
     required String eventType,
   }) async {
+    await recordPageEvent(landingPageId: landingPageId, eventType: eventType);
+  }
+
+  Future<void> recordPageEvent({
+    required String landingPageId,
+    required String eventType,
+    Map<String, dynamic> metadata = const {},
+  }) async {
     try {
-      if (eventType == 'view') {
-        final fingerprint = FingerprintUtils.getFingerprint();
-        await _client!.rpc('increment_page_view', params: {
-          'page_id': landingPageId,
-          'fingerprint': fingerprint,
-        });
-      } else {
-        await _client!.from('analytics').insert({
-          'landing_page_id': landingPageId,
-          'event_type': eventType,
-        });
-      }
+      final fingerprint = FingerprintUtils.getFingerprint();
+      await _client!.rpc('record_page_event', params: {
+        'p_page_id': landingPageId,
+        'p_event_type': eventType,
+        'p_fingerprint': fingerprint,
+        'p_metadata': metadata,
+      });
     } catch (e) {
-      debugPrint("Error recording analytics event: \$e");
+      debugPrint("Error recording page event: $e");
     }
   }
 
@@ -517,6 +523,9 @@ class SupabaseService extends ChangeNotifier {
     return uploadImageBytes(bytes, file.name);
   }
 
+  int? _cachedAssetsCount;
+  DateTime? _lastCountFetch;
+
   Future<String?> uploadImageBytes(Uint8List bytes, String fileName) async {
     try {
       final userId = _currentUserId;
@@ -524,12 +533,33 @@ class SupabaseService extends ChangeNotifier {
         throw Exception("User session not found. Please login again.");
       }
 
-      // Check current quota (maximum 10 uploads per user - increased from 5)
-      final existingFiles = await _client!.storage
-          .from(DbConstants.landingAssetsBucket)
-          .list(path: userId);
-      if (existingFiles.length >= 10) {
-        throw Exception("لقد وصلت للحد الأقصى للرفع (10 صور). يرجى حذف بعض الملفات لتتمكن من رفع صور جديدة.");
+      // 1. Define Dynamic Quota based on Tier & Role
+      int quota = 50; // Default Free
+      if (_currentUserRole == 'super_admin') {
+        quota = 999999; // Unlimited
+      } else if (_currentUserTier == 'pro') {
+        quota = 200;
+      }
+
+      // 2. Check current quota efficiently (Cache the count for 10 seconds during bulk operations)
+      if (_cachedAssetsCount == null || 
+          _lastCountFetch == null || 
+          DateTime.now().difference(_lastCountFetch!).inSeconds > 10) {
+        final existingFiles = await _client!.storage
+            .from(DbConstants.landingAssetsBucket)
+            .list(path: userId);
+        _cachedAssetsCount = existingFiles.length;
+        _lastCountFetch = DateTime.now();
+      }
+      
+      if (_cachedAssetsCount! >= quota && _currentUserRole != 'super_admin') {
+        String msg = "لقد وصلت للحد الأقصى للرفع ($quota صورة).";
+        if (_currentUserTier == 'free') {
+          msg += " قم بالترقية للباقة الاحترافية (Pro) للحصول على مساحة تصل إلى 200 صورة.";
+        } else {
+          msg += " يرجى حذف بعض الصور القديمة لتتمكن من إضافة صور جديدة.";
+        }
+        throw Exception(msg);
       }
 
       final fileExtension = fileName.split('.').last;
@@ -539,6 +569,9 @@ class SupabaseService extends ChangeNotifier {
       await _client!.storage
           .from(DbConstants.landingAssetsBucket)
           .uploadBinary(filePath, bytes);
+
+      // Increment cache optimistically
+      _cachedAssetsCount = (_cachedAssetsCount ?? 0) + 1;
 
       return _client!.storage
           .from(DbConstants.landingAssetsBucket)

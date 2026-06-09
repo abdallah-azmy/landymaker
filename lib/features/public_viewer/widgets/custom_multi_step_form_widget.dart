@@ -15,6 +15,9 @@ import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../dashboard/controllers/leads_analytics_cubit.dart';
 
+import '../../../core/services/event_analytics_service.dart';
+import '../../../core/services/action_handler_service.dart';
+
 class CustomMultiStepFormWidget extends StatefulWidget {
   final Map<String, dynamic> block;
   final LandingPageTheme? theme;
@@ -128,6 +131,13 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
   }
 
   void _onFieldValueChanged(String fieldId, String value) {
+    if (_dataPayload.isEmpty) {
+      EventAnalyticsService.recordFunnelStart(
+        widget.pageId,
+        formId: widget.block['id'] ?? 'multi_step',
+        blockType: 'multi_step_form',
+      );
+    }
     setState(() {
       _dataPayload[fieldId] = value;
       // Clear error as user types
@@ -244,6 +254,12 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
     final cubit = context.read<LeadsAnalyticsCubit>();
     await cubit.submitLead(widget.pageId, finalSubmission);
 
+    EventAnalyticsService.recordFunnelComplete(
+      widget.pageId,
+      formId: widget.block['id'] ?? 'multi_step',
+      blockType: 'multi_step_form',
+    );
+
     await _clearDraft();
     TurnstileService.reset(_turnstileViewId);
 
@@ -252,6 +268,23 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
       _isSuccess = true;
       _turnstileToken = null;
     });
+
+    // MISSION: Smart WhatsApp Leads
+    if (widget.block['whatsapp_auto_open'] == true) {
+      final String whatsappNumber = widget.block['whatsapp_number']?.toString() ?? '';
+      String template = widget.block['whatsapp_message_template']?.toString() ?? 'New Qualified Lead';
+
+      _dataPayload.forEach((key, value) {
+        template = template.replaceAll('{{$key}}', value.toString());
+      });
+
+      await ActionHandlerService.openWhatsApp(
+        phoneNumber: whatsappNumber,
+        message: template,
+        pageId: widget.pageId,
+        blockType: 'multi_step_form',
+      );
+    }
   }
 
   @override

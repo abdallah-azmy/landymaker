@@ -172,6 +172,18 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
+  void applyDesignJson(Map<String, dynamic> designJson) {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return;
+
+    _emitDirty(
+      currentState.copyWith(
+        designMap: designJson,
+        hasUnsavedChanges: true,
+      ),
+    );
+  }
+
   void initializeNewPage() {
     _history.clear();
     _historyIndex = -1;
@@ -251,6 +263,18 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         currentState.copyWith(
           isSaving: false,
           errorMessage: "يرجى إدخال اسم براند صالح.",
+        ),
+      );
+      return;
+    }
+
+    // Safety Guard: Don't save if there are active background uploads/imports
+    final designStr = jsonEncode(currentState.designMap);
+    if (designStr.contains('upload://')) {
+      _emitDirty(
+        currentState.copyWith(
+          isSaving: false,
+          errorMessage: "يرجى الانتظار حتى اكتمال تحميل جميع الصور.",
         ),
       );
       return;
@@ -370,11 +394,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         imageType: 'photo',
       );
       illustrations = await mediaService.fetchPixabayImages(
-        category,
+        '$category tech illustration',
         imageType: 'illustration',
       );
       portraits = await mediaService.fetchPixabayImages(
-        '$category portrait',
+        '$category portrait person',
         imageType: 'photo',
       );
     } catch (e) {
@@ -428,10 +452,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       // 2. Handle Primary Image based on block type
       if (block.containsKey('image_url')) {
         if (type == 'hero_saas' && illustrations.isNotEmpty) {
-          block['image_url'] = triggerUpload(
-            illustrations[illustrationIdx % illustrations.length],
-          );
+          block['image_url'] = triggerUpload(illustrations[illustrationIdx % illustrations.length]);
           illustrationIdx++;
+        } else if ((type == 'testimonials' || type == 'team_members') && portraits.isNotEmpty) {
+          block['image_url'] = triggerUpload(portraits[portraitIdx % portraits.length]);
+          portraitIdx++;
         } else if (photos.isNotEmpty) {
           block['image_url'] = triggerUpload(photos[photoIdx % photos.length]);
           photoIdx++;

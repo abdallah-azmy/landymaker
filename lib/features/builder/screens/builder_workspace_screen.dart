@@ -26,6 +26,8 @@ import '../../dashboard/widgets/empty_workspace_state.dart';
 
 import '../models/preview_mode.dart';
 
+import '../widgets/modals/ai_magic_form_modal.dart';
+
 class BuilderWorkspaceScreen extends StatefulWidget {
   final VoidCallback onBackToDashboard;
   final String? pageId;
@@ -110,6 +112,15 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
       return true;
     }
     return result == 'exit';
+  }
+
+  void _showAiWizard(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AiMagicFormModal(),
+    );
   }
 
   @override
@@ -234,6 +245,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                   state: loadedState,
                   loc: loc,
                   onBack: widget.onBackToDashboard,
+                  onShowAi: () => _showAiWizard(context),
                   onShowOptions: () => _showBuilderOptionsModal(
                     context,
                     loc,
@@ -269,18 +281,33 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
               : null,
           floatingActionButton:
               isMobile || _previewMode == PreviewMode.fullscreen
-              ? null // FAB is integrated into Mobile Toolbar or hidden in fullscreen
-              : FloatingActionButton.extended(
-                  onPressed: () => _showAddBlockMenu(context, builderCubit),
-                  backgroundColor: AppColors.secondary,
-                  icon: const Icon(Icons.add_rounded, color: Colors.white),
-                  label: const Text(
-                    "إضافة قسم جديد",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+              ? null
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    FloatingActionButton.extended(
+                      onPressed: () => _showAiWizard(context),
+                      heroTag: 'ai_fab',
+                      backgroundColor: AppColors.primary,
+                      icon: const Icon(Icons.auto_awesome_rounded, color: Colors.white),
+                      label: const Text(
+                        "مساعد الذكاء الاصطناعي",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                    FloatingActionButton.extended(
+                      onPressed: () => _showAddBlockMenu(context, builderCubit),
+                      heroTag: 'add_fab',
+                      backgroundColor: AppColors.secondary,
+                      icon: const Icon(Icons.add_rounded, color: Colors.white),
+                      label: const Text(
+                        "إضافة قسم جديد",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
                 ),
           body: Stack(
             children: [

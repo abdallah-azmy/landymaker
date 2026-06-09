@@ -61,7 +61,41 @@ class MultiStepFormEditor extends StatelessWidget {
           subtitle: const Text('يمنع ضياع البيانات إذا تم تحديث الصفحة'),
           value: block['enable_local_save'] ?? true,
           onChanged: (val) => cubit.updateBlockProperty(index, 'enable_local_save', val),
+          contentPadding: EdgeInsets.zero,
         ),
+        const SizedBox(height: 16),
+        const Divider(),
+        const SizedBox(height: 16),
+        Text("Smart WhatsApp Leads", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
+        const SizedBox(height: 8),
+        SwitchListTile(
+          title: const Text("فتح واتساب تلقائياً بعد الإرسال"),
+          subtitle: const Text("يحول الفورم إلى قمع تحويل لواتساب"),
+          value: block['whatsapp_auto_open'] ?? false,
+          onChanged: (val) => cubit.updateBlockProperty(index, 'whatsapp_auto_open', val),
+          contentPadding: EdgeInsets.zero,
+        ),
+        if (block['whatsapp_auto_open'] == true) ...[
+          const SizedBox(height: 16),
+          FormGroup(
+            label: "رقم الواتساب",
+            child: CustomTextField(
+              controller: getController("${index}_wa_num", block['whatsapp_number'] ?? ''),
+              focusNode: getFocusNode("${index}_wa_num"),
+              onChanged: (val) => cubit.updateBlockProperty(index, 'whatsapp_number', val),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FormGroup(
+            label: "قالب الرسالة (استخدم {{field_id}} للتعويض)",
+            child: CustomTextField(
+              controller: getController("${index}_wa_msg", block['whatsapp_message_template'] ?? ''),
+              focusNode: getFocusNode("${index}_wa_msg"),
+              maxLines: 3,
+              onChanged: (val) => cubit.updateBlockProperty(index, 'whatsapp_message_template', val),
+            ),
+          ),
+        ],
         const Divider(height: 32),
         const Text(
           "خطوات النموذج (Steps)",

@@ -129,6 +129,7 @@ class BuilderCanvas extends StatelessWidget {
                               alignment: Alignment.bottomCenter,
                               child: StickyCtaBar(
                                 config: Map<String, dynamic>.from(state.designMap['sticky_cta']),
+                                pageId: 'preview',
                                 lang: loc.isRtl ? 'ar' : 'en',
                                 primaryColor: state.theme.primary,
                               ),

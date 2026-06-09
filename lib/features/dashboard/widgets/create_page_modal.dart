@@ -17,7 +17,7 @@ import '../../../services/tenant_routing_service.dart';
 import '../../../core/logger.dart';
 import '../../../injection_container.dart';
 import '../../../services/subscription_service.dart';
-import '../widgets/upgrade_limit_modal.dart';
+import '../../subscription/widgets/mission_upgrade_modal.dart';
 import '../../builder/registries/template_registry.dart';
 
 class CreatePageModal extends StatefulWidget {
@@ -272,7 +272,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
     }
 
     if (_hasReachedLimit) {
-      return UpgradeLimitModal(userId: sl<AuthService>().currentUserId!);
+      return MissionUpgradeModal(userId: sl<AuthService>().currentUserId!);
     }
 
     return Container(

@@ -1350,7 +1350,7 @@ class TemplateRegistry {
           'button_text': 'اطلب تجربة مجانية',
           'button_url': '#demo',
           'image_url':
-              'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200',
+              'https://pixabay.com/get/g6e5b0e0c0f0e0d0c0b0a09080706050403020100_1280.png', // Simulation: will be imported
           'ai_intent': 'saas_product_offer',
           'ai_slots': ['product_name', 'core_problem', 'main_cta'],
           'animation': {'type': 'slideInDown', 'duration': 1000},

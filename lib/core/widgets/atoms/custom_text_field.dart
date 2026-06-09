@@ -17,6 +17,8 @@ class CustomTextField extends StatelessWidget {
   final bool enabled;
   final FocusNode? focusNode;
   final String? errorText;
+  final String? label;
+  final String? hint;
 
   const CustomTextField({
     super.key,
@@ -34,54 +36,78 @@ class CustomTextField extends StatelessWidget {
     this.enabled = true,
     this.focusNode,
     this.errorText,
+    this.label,
+    this.hint,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      focusNode: focusNode,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      onChanged: onChanged,
-      onFieldSubmitted: onSubmitted,
-      validator: validator,
-      readOnly: readOnly,
-      enabled: enabled,
-      style: AppTypography.bodyLarge.copyWith(color: enabled ? AppColors.textPrimary : AppColors.textMuted),
-      cursorColor: AppColors.secondary,
-      decoration: InputDecoration(
-        hintText: hintText,
-        errorText: errorText,
-        hintStyle: AppTypography.bodyLarge.copyWith(color: AppColors.textMuted),
-        prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
-        filled: true,
-        fillColor: AppColors.cardBg,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.border, width: 1.5),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label != null) ...[
+          Text(
+            label!,
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+        TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          maxLines: maxLines,
+          onChanged: onChanged,
+          onFieldSubmitted: onSubmitted,
+          validator: validator,
+          readOnly: readOnly,
+          enabled: enabled,
+          style: AppTypography.bodyLarge.copyWith(
+              color: enabled ? AppColors.textPrimary : AppColors.textMuted),
+          cursorColor: AppColors.secondary,
+          decoration: InputDecoration(
+            hintText: hintText ?? hint,
+            errorText: errorText,
+            hintStyle:
+                AppTypography.bodyLarge.copyWith(color: AppColors.textMuted),
+            prefixIcon: prefixIcon,
+            suffixIcon: suffixIcon,
+            filled: true,
+            fillColor: AppColors.cardBg,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppColors.border, width: 1.5),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppColors.border, width: 1.5),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide:
+                  const BorderSide(color: AppColors.secondary, width: 1.8),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide:
+                  const BorderSide(color: AppColors.dangerRed, width: 1.5),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide:
+                  const BorderSide(color: AppColors.dangerRed, width: 1.8),
+            ),
+            errorStyle:
+                AppTypography.caption.copyWith(color: AppColors.dangerRed),
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.border, width: 1.5),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1.8),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.dangerRed, width: 1.5),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.dangerRed, width: 1.8),
-        ),
-        errorStyle: AppTypography.caption.copyWith(color: AppColors.dangerRed),
-      ),
+      ],
     );
   }
 }

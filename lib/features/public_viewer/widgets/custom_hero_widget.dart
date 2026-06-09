@@ -7,11 +7,14 @@ import '../../../core/widgets/section_background.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
 
+import '../../../core/services/action_handler_service.dart';
+
 class CustomHeroWidget extends StatelessWidget {
   final String title;
   final String subtitle;
   final String buttonText;
   final String imageUrl;
+  final String pageId;
   final LandingPageTheme? theme;
   final String? bgImageUrl;
   final String? bgOverlayColor;
@@ -27,6 +30,7 @@ class CustomHeroWidget extends StatelessWidget {
     required this.subtitle,
     required this.buttonText,
     required this.imageUrl,
+    required this.pageId,
     this.theme,
     this.bgImageUrl,
     this.bgOverlayColor,
@@ -231,10 +235,14 @@ class CustomHeroWidget extends StatelessWidget {
         ElevatedButton(
           onPressed: () async {
             if (buttonUrl != null && buttonUrl!.isNotEmpty) {
-              final uri = Uri.tryParse(buttonUrl!);
-              if (uri != null) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              }
+              await ActionHandlerService.executeAction(
+                context,
+                actionType: 'link',
+                actionValue: buttonUrl!,
+                pageId: pageId,
+                buttonText: buttonText,
+                blockType: 'hero',
+              );
             }
           },
           style: ElevatedButton.styleFrom(

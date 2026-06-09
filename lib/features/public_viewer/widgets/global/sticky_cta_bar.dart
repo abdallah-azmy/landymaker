@@ -6,6 +6,7 @@ import '../../../../core/services/event_analytics_service.dart';
 
 class StickyCtaBar extends StatefulWidget {
   final Map<String, dynamic> config;
+  final String pageId;
   final String lang;
   final Color primaryColor;
   final ScrollController? scrollController;
@@ -14,6 +15,7 @@ class StickyCtaBar extends StatefulWidget {
   const StickyCtaBar({
     super.key,
     required this.config,
+    required this.pageId,
     required this.lang,
     required this.primaryColor,
     this.scrollController,
@@ -179,6 +181,9 @@ class _StickyCtaBarState extends State<StickyCtaBar> {
                             context,
                             actionType: widget.config['button_action_type'] ?? 'link',
                             actionValue: actionValue,
+                            pageId: widget.pageId,
+                            buttonText: buttonText,
+                            blockType: 'sticky_cta',
                           );
 
                           if (mounted) {

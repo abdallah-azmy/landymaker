@@ -380,6 +380,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                         alignment: Alignment.bottomCenter,
                         child: StickyCtaBar(
                           config: Map<String, dynamic>.from(designJson['sticky_cta']),
+                          pageId: state.pageData['id']?.toString() ?? '',
                           lang: loc.isRtl ? 'ar' : 'en',
                           primaryColor: theme.primary,
                           scrollController: _scrollController,

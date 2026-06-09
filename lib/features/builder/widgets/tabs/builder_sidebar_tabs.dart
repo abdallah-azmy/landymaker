@@ -228,7 +228,7 @@ class TemplatesTab extends StatelessWidget {
               _buildTemplateCard(
                 context,
                 dynamicState,
-                'tv_bar',
+                'restaurant',
                 "مطعم / كافيه",
                 Icons.restaurant_rounded,
                 "منيو إلكتروني وأجواء ترفيهية.",

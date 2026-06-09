@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/custom_network_image.dart';
 
 class DynamicStyledImage extends StatelessWidget {
   final String imageUrl;
@@ -18,20 +19,12 @@ class DynamicStyledImage extends StatelessWidget {
     final double borderRadius = (styleOverrides['borderRadius'] ?? 0.0).toDouble();
     final BoxFit fit = _parseBoxFit(styleOverrides['fit']);
 
-    return ClipRRect(
+    return CustomNetworkImage(
+      imageUrl: imageUrl,
+      width: width,
+      height: height,
+      fit: fit,
       borderRadius: BorderRadius.circular(borderRadius),
-      child: Image.network(
-        imageUrl,
-        width: width,
-        height: height,
-        fit: fit,
-        errorBuilder: (context, error, stackTrace) => Container(
-          width: width ?? 100,
-          height: height ?? 100,
-          color: AppColors.border,
-          child: const Icon(Icons.broken_image, color: AppColors.textMuted),
-        ),
-      ),
     );
   }
 

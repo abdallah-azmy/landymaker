@@ -5,6 +5,8 @@ import '../../../core/theme/app_typography.dart';
 import '../../public_viewer/widgets/section_renderer.dart';
 import '../../builder/models/landing_page_theme.dart';
 
+import 'package:landymaker/features/builder/widgets/modals/ai_magic_form_modal.dart';
+
 class HomeHeroSection extends StatefulWidget {
   final VoidCallback onGetStartedPressed;
   final ScrollController? parentScrollController;
@@ -165,6 +167,15 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
     super.dispose();
   }
 
+  void _showAiWizard(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AiMagicFormModal(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -318,43 +329,60 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 36),
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            onEnter: (_) => setState(() => _btnHovered = true),
-                            onExit: (_) => setState(() => _btnHovered = false),
-                            child: AnimatedScale(
-                              scale: _btnHovered ? 1.04 : 1.0,
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.easeOutCubic,
-                              child: ElevatedButton.icon(
-                                onPressed: widget.onGetStartedPressed,
-                                icon: const Icon(
-                                  Icons.flash_on_rounded,
-                                  size: 20,
-                                ),
-                                label: const Text(
-                                  "ابدأ الآن مجاناً",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 16,
+                            runSpacing: 16,
+                            children: [
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                onEnter: (_) => setState(() => _btnHovered = true),
+                                onExit: (_) => setState(() => _btnHovered = false),
+                                child: AnimatedScale(
+                                  scale: _btnHovered ? 1.04 : 1.0,
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeOutCubic,
+                                  child: ElevatedButton.icon(
+                                    onPressed: widget.onGetStartedPressed,
+                                    icon: const Icon(
+                                      Icons.flash_on_rounded,
+                                      size: 20,
+                                    ),
+                                    label: const Text(
+                                      "ابدأ الآن مجاناً",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 36,
+                                        vertical: 20,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      elevation: 8,
+                                      shadowColor:
+                                          AppColors.primary.withValues(alpha: 0.4),
+                                    ),
                                   ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 36,
-                                    vertical: 20,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  elevation: 8,
-                                  shadowColor:
-                                      AppColors.primary.withValues(alpha: 0.4),
                                 ),
                               ),
-                            ),
+                              OutlinedButton.icon(
+                                onPressed: () => _showAiWizard(context),
+                                icon: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
+                                label: const Text("المنشئ الذكي (AI)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: Colors.white24, width: 1.5),
+                                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -439,43 +467,59 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                               textAlign: TextAlign.start,
                             ),
                             const SizedBox(height: 36),
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              onEnter: (_) => setState(() => _btnHovered = true),
-                              onExit: (_) => setState(() => _btnHovered = false),
-                              child: AnimatedScale(
-                                scale: _btnHovered ? 1.04 : 1.0,
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeOutCubic,
-                                child: ElevatedButton.icon(
-                                  onPressed: widget.onGetStartedPressed,
-                                  icon: const Icon(
-                                    Icons.flash_on_rounded,
-                                    size: 20,
-                                  ),
-                                  label: const Text(
-                                    "ابدأ الآن مجاناً",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                            Wrap(
+                              spacing: 16,
+                              runSpacing: 16,
+                              children: [
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  onEnter: (_) => setState(() => _btnHovered = true),
+                                  onExit: (_) => setState(() => _btnHovered = false),
+                                  child: AnimatedScale(
+                                    scale: _btnHovered ? 1.04 : 1.0,
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeOutCubic,
+                                    child: ElevatedButton.icon(
+                                      onPressed: widget.onGetStartedPressed,
+                                      icon: const Icon(
+                                        Icons.flash_on_rounded,
+                                        size: 20,
+                                      ),
+                                      label: const Text(
+                                        "ابدأ الآن مجاناً",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.primary,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 36,
+                                          vertical: 20,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        elevation: 8,
+                                        shadowColor:
+                                            AppColors.primary.withValues(alpha: 0.4),
+                                      ),
                                     ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 36,
-                                      vertical: 20,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    elevation: 8,
-                                    shadowColor:
-                                        AppColors.primary.withValues(alpha: 0.4),
                                   ),
                                 ),
-                              ),
+                                OutlinedButton.icon(
+                                  onPressed: () => _showAiWizard(context),
+                                  icon: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
+                                  label: const Text("المنشئ الذكي (AI)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Colors.white24, width: 1.5),
+                                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -590,6 +634,15 @@ class _TypewriterTextState extends State<_TypewriterText> with SingleTickerProvi
     });
   }
 
+  void _showAiWizard(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AiMagicFormModal(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -668,6 +721,15 @@ class _PhonePreviewState extends State<_PhonePreview> {
         });
       }
     });
+  }
+
+  void _showAiWizard(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AiMagicFormModal(),
+    );
   }
 
   @override

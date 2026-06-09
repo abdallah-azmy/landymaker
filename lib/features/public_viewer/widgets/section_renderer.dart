@@ -35,6 +35,9 @@ class SectionRenderer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final String currentLang = isRtl ? 'ar' : 'en';
+
     // Filter visible blocks for public viewer, keep all for builder
     final List<Map<String, dynamic>> visibleBlocks = isBuilder
         ? blocks
@@ -66,6 +69,7 @@ class SectionRenderer extends StatelessWidget {
           originalIndex,
           key: sectionKey,
           productKeys: productKeys,
+          lang: currentLang,
         );
 
         if (isBuilder && onBlockTapped != null) {

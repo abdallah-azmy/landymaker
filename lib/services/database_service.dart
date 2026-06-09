@@ -53,6 +53,18 @@ class DatabaseService {
     return _supabase.recordAnalyticsEvent(landingPageId: landingPageId, eventType: eventType);
   }
 
+  Future<void> recordPageEvent({
+    required String landingPageId,
+    required String eventType,
+    Map<String, dynamic> metadata = const {},
+  }) {
+    return _supabase.recordPageEvent(
+      landingPageId: landingPageId,
+      eventType: eventType,
+      metadata: metadata,
+    );
+  }
+
   Future<List<Map<String, dynamic>>> listUserImages() {
     return _supabase.listUserImages();
   }

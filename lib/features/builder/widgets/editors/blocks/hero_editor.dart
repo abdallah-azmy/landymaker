@@ -6,6 +6,8 @@ import '../../../../../core/widgets/molecules/form_group.dart';
 import '../../molecules/custom_image_field.dart';
 import '../../../../../../core/localization/app_localizations.dart';
 
+import '../../molecules/ai_copywriter_trigger.dart';
+
 class HeroEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -28,17 +30,32 @@ class HeroEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final businessContext = {
+      'type': block['type'],
+      'title': block['title'],
+      'subtitle': block['subtitle'],
+    };
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FormGroup(
-          label: context.translate('subtitle'),
-          child: CustomTextField(
-            controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
-            focusNode: getFocusNode("${index}_subtitle"),
-            maxLines: 3,
-            onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(context.translate('subtitle'), style: const TextStyle(fontWeight: FontWeight.bold)),
+            AiCopywriterTrigger(
+              fieldType: 'Hero Subtitle',
+              contextData: businessContext,
+              onApply: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        CustomTextField(
+          controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
+          focusNode: getFocusNode("${index}_subtitle"),
+          maxLines: 3,
+          onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
         ),
         const SizedBox(height: 16),
         CustomImageField(

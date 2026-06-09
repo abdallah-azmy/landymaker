@@ -30,103 +30,105 @@ import '../../public_viewer/widgets/custom_comparison_table_widget.dart';
 import '../../../core/widgets/block_animation_wrapper.dart';
 import '../../../core/widgets/atoms/glass_container.dart';
 
-typedef BlockBuilder =
-    Widget Function(
-      Map<String, dynamic> data,
-      LandingPageTheme? theme,
-      String pageId,
-      Key? key,
-      Map<String, GlobalKey>? productKeys,
-      int sectionIndex,
-    );
+typedef BlockBuilder = Widget Function(
+  Map<String, dynamic> data,
+  LandingPageTheme? theme,
+  String pageId,
+  Key? key,
+  Map<String, GlobalKey>? productKeys,
+  int sectionIndex,
+  String lang,
+);
 
 class BlockRegistry {
   static final Map<String, BlockBuilder> _registry = {
-    'multi_step_lead_form': (data, theme, pageId, key, __, ___) =>
+    'multi_step_lead_form': (data, theme, pageId, key, __, ___, lang) =>
         CustomMultiStepFormWidget(
           key: key,
           block: data,
           theme: theme,
           pageId: pageId,
         ),
-    'video_embed': (data, theme, _, key, __, ___) =>
+    'video_embed': (data, theme, _, key, __, ___, lang) =>
         CustomVideoEmbedWidget(key: key, block: data, theme: theme),
-    'logo_header': (data, theme, _, key, __, ___) => CustomLogoHeaderWidget(
-      key: key,
-      title: data['title'] ?? '',
-      logoUrl: data['logo_url'],
-      logoHeight: (data['logo_height'] ?? 40.0).toDouble(),
-      alignment: data['alignment'] ?? 'center',
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: data['bg_blur']?.toDouble(),
-    ),
-    'hero': (data, theme, _, key, __, ___) => CustomHeroWidget(
-      key: key,
-      title: data['title'] ?? '',
-      subtitle: data['subtitle'] ?? '',
-      buttonText: data['button_text'] ?? '',
-      imageUrl: data['image_url'] ?? '',
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-      buttonUrl: data['button_url'],
-      variant: data['variant'] ?? 0,
-    ),
-    'hero_saas': (data, theme, _, key, __, ___) => CustomHeroSaasWidget(
-      key: key,
-      title: data['title'] ?? '',
-      subtitle: data['subtitle'] ?? '',
-      buttonText: data['button_text'] ?? '',
-      imageUrl: data['image_url'] ?? '',
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-      buttonUrl: data['button_url'],
-    ),
-    'features': (data, theme, _, key, __, ___) => CustomFeaturesWidget(
-      key: key,
-      title: data['title'] ?? '',
-      items: List<Map<String, dynamic>>.from(data['items'] ?? []),
-      layoutStyle: data['layout_style'] ?? 'grid',
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-      variant: data['variant'] ?? 0,
-    ),
-    'lead_form': (data, theme, pageId, key, __, ___) => CustomLeadFormWidget(
-      key: key,
-      block: data,
-      title: data['title'] ?? '',
-      buttonText: data['button_text'] ?? '',
-      pageId: pageId,
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'lead_magnet': (data, theme, pageId, key, __, ___) =>
+    'logo_header': (data, theme, _, key, __, ___, lang) => CustomLogoHeaderWidget(
+          key: key,
+          title: data['title'] ?? '',
+          logoUrl: data['logo_url'],
+          logoHeight: (data['logo_height'] ?? 40.0).toDouble(),
+          alignment: data['alignment'] ?? 'center',
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: data['bg_blur']?.toDouble(),
+        ),
+    'hero': (data, theme, pageId, key, __, ___, lang) => CustomHeroWidget(
+          key: key,
+          title: data['title'] ?? '',
+          subtitle: data['subtitle'] ?? '',
+          buttonText: data['button_text'] ?? '',
+          imageUrl: data['image_url'] ?? '',
+          pageId: pageId,
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          buttonUrl: data['button_url'],
+          variant: data['variant'] ?? 0,
+        ),
+    'hero_saas': (data, theme, pageId, key, __, ___, lang) => CustomHeroSaasWidget(
+          key: key,
+          title: data['title'] ?? '',
+          subtitle: data['subtitle'] ?? '',
+          buttonText: data['button_text'] ?? '',
+          imageUrl: data['image_url'] ?? '',
+          pageId: pageId,
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          buttonUrl: data['button_url'],
+        ),
+    'features': (data, theme, _, key, __, ___, lang) => CustomFeaturesWidget(
+          key: key,
+          title: data['title'] ?? '',
+          items: List<Map<String, dynamic>>.from(data['items'] ?? []),
+          layoutStyle: data['layout_style'] ?? 'grid',
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          variant: data['variant'] ?? 0,
+        ),
+    'lead_form': (data, theme, pageId, key, __, ___, lang) => CustomLeadFormWidget(
+          key: key,
+          block: data,
+          title: data['title'] ?? '',
+          buttonText: data['button_text'] ?? '',
+          pageId: pageId,
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'lead_magnet': (data, theme, pageId, key, __, ___, lang) =>
         CustomLeadMagnetWidget(
           key: key,
           block: data,
@@ -143,164 +145,166 @@ class BlockRegistry {
                   ?.toDouble(),
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
         ),
-    'whatsapp': (data, theme, _, key, __, ___) => CustomWhatsappWidget(
-      key: key,
-      title: data['title'] ?? '',
-      phoneNumber: data['phone_number'] ?? '',
-      message: data['message'] ?? '',
-      buttonText: data['button_text'] ?? '',
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'working_hours': (data, theme, _, key, __, ___) =>
+    'whatsapp': (data, theme, pageId, key, __, ___, lang) => CustomWhatsappWidget(
+          key: key,
+          title: data['title'] ?? '',
+          phoneNumber: data['phone_number'] ?? '',
+          message: data['message'] ?? '',
+          buttonText: data['button_text'] ?? '',
+          pageId: pageId,
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'working_hours': (data, theme, _, key, __, ___, lang) =>
         CustomWorkingHoursWidget(key: key, blockData: data),
-    'location_map': (data, theme, _, key, __, ___) => CustomLocationMapWidget(
-      key: key,
-      title: data['title'] ?? 'موقعنا',
-      address: data['address'] ?? '',
-      mapIframeUrl: data['map_iframe_url'] ?? '',
-    ),
-    'products': (data, theme, _, key, productKeys, __) => CustomProductsWidget(
-      key: key,
-      title: data['title'] ?? '',
-      items: List<Map<String, dynamic>>.from(data['items'] ?? []),
-      layoutStyle: data['layout_style'] ?? 'grid',
-      theme: theme,
-      productKeys: productKeys,
-      whatsappNumber: data['whatsapp_number'],
-      showCategoryFilter: data['show_category_filter'] ?? true,
-      customCategories: data['categories'] != null
-          ? List<String>.from(data['categories'])
-          : null,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'pricing': (data, theme, lang, key, __, ___) => CustomPricingWidget(
-      key: key,
-      block: data,
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-      lang: lang,
-      variant: data['variant'] ?? 0,
-    ),
-    'faq': (data, theme, _, key, __, ___) => CustomFaqWidget(
-      key: key,
-      title: data['title'] ?? '',
-      items: List<Map<String, dynamic>>.from(data['items'] ?? []),
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'testimonials': (data, theme, _, key, __, ___) => CustomTestimonialsWidget(
-      key: key,
-      title: data['title'] ?? '',
-      items: List<Map<String, dynamic>>.from(data['items'] ?? []),
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'contact_info': (data, theme, _, key, __, ___) => CustomContactInfoWidget(
-      key: key,
-      title: data['title'] ?? '',
-      email: data['email'],
-      phone: data['phone'],
-      location: data['location'],
-      phoneIcon: data['phone_icon'],
-      emailIcon: data['email_icon'],
-      locationIcon: data['location_icon'],
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'gallery': (data, theme, _, key, __, ___) => CustomGalleryWidget(
-      key: key,
-      title: data['title'] ?? '',
-      items: List<String>.from(data['items'] ?? []),
-      galleryLinks: data['gallery_links'] != null
-          ? List<String>.from(data['gallery_links'])
-          : null,
-      displayMode: data['display_mode'] ?? 'grid',
-      gridColumns: data['grid_columns'] ?? 3,
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'qr_code': (data, theme, _, key, __, ___) => CustomQrWidget(
-      key: key,
-      title: data['title'] ?? '',
-      subtitle: data['subtitle'] ?? '',
-      qrPayload: data['qr_payload'],
-      qrSize: (data['qr_size'] ?? 200.0).toDouble(),
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'social_qr': (data, theme, _, key, __, ___) => CustomSocialQrWidget(
-      key: key,
-      title: data['title'] ?? '',
-      subtitle: data['subtitle'] ?? '',
-      links: List<Map<String, dynamic>>.from(data['links'] ?? []),
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'basic_section': (data, theme, _, key, __, index) => BasicSectionRenderer(
-      key: key,
-      sectionData: data,
-      theme: theme ?? LandingPageTheme.palettes.last,
-      sectionIndex: index,
-    ),
-    'trust_logos': (data, theme, _, key, __, ___) => CustomTrustLogosWidget(
-      key: key,
-      title: data['title'] ?? 'شركاء النجاح',
-      logoUrls: List<String>.from(data['items'] ?? []),
-      theme: theme,
-      bgImageUrl: data['bg_image_url'],
-      bgOverlayColor: data['bg_overlay_color'],
-      bgOverlayOpacity:
-          (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
-              ?.toDouble(),
-      bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-    ),
-    'animated_counter': (data, theme, _, key, __, ___) =>
+    'location_map': (data, theme, _, key, __, ___, lang) => CustomLocationMapWidget(
+          key: key,
+          title: data['title'] ?? 'موقعنا',
+          address: data['address'] ?? '',
+          mapIframeUrl: data['map_iframe_url'] ?? '',
+        ),
+    'products': (data, theme, _, key, productKeys, __, lang) => CustomProductsWidget(
+          key: key,
+          title: data['title'] ?? '',
+          items: List<Map<String, dynamic>>.from(data['items'] ?? []),
+          layoutStyle: data['layout_style'] ?? 'grid',
+          theme: theme,
+          productKeys: productKeys,
+          whatsappNumber: data['whatsapp_number'],
+          showCategoryFilter: data['show_category_filter'] ?? true,
+          customCategories: data['categories'] != null
+              ? List<String>.from(data['categories'])
+              : null,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'pricing': (data, theme, pageId, key, __, ___, lang) => CustomPricingWidget(
+          key: key,
+          block: data,
+          theme: theme,
+          pageId: pageId,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          lang: lang,
+          variant: data['variant'] ?? 0,
+        ),
+    'faq': (data, theme, _, key, __, ___, lang) => CustomFaqWidget(
+          key: key,
+          title: data['title'] ?? '',
+          items: List<Map<String, dynamic>>.from(data['items'] ?? []),
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'testimonials': (data, theme, _, key, __, ___, lang) => CustomTestimonialsWidget(
+          key: key,
+          title: data['title'] ?? '',
+          items: List<Map<String, dynamic>>.from(data['items'] ?? []),
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'contact_info': (data, theme, _, key, __, ___, lang) => CustomContactInfoWidget(
+          key: key,
+          title: data['title'] ?? '',
+          email: data['email'],
+          phone: data['phone'],
+          location: data['location'],
+          phoneIcon: data['phone_icon'],
+          emailIcon: data['email_icon'],
+          locationIcon: data['location_icon'],
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'gallery': (data, theme, _, key, __, ___, lang) => CustomGalleryWidget(
+          key: key,
+          title: data['title'] ?? '',
+          items: List<String>.from(data['items'] ?? []),
+          galleryLinks: data['gallery_links'] != null
+              ? List<String>.from(data['gallery_links'])
+              : null,
+          displayMode: data['display_mode'] ?? 'grid',
+          gridColumns: data['grid_columns'] ?? 3,
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'qr_code': (data, theme, _, key, __, ___, lang) => CustomQrWidget(
+          key: key,
+          title: data['title'] ?? '',
+          subtitle: data['subtitle'] ?? '',
+          qrPayload: data['qr_payload'],
+          qrSize: (data['qr_size'] ?? 200.0).toDouble(),
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'social_qr': (data, theme, _, key, __, ___, lang) => CustomSocialQrWidget(
+          key: key,
+          title: data['title'] ?? '',
+          subtitle: data['subtitle'] ?? '',
+          links: List<Map<String, dynamic>>.from(data['links'] ?? []),
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'basic_section': (data, theme, _, key, __, index, lang) => BasicSectionRenderer(
+          key: key,
+          sectionData: data,
+          theme: theme ?? LandingPageTheme.palettes.last,
+          sectionIndex: index,
+        ),
+    'trust_logos': (data, theme, _, key, __, ___, lang) => CustomTrustLogosWidget(
+          key: key,
+          title: data['title'] ?? 'شركاء النجاح',
+          logoUrls: List<String>.from(data['items'] ?? []),
+          theme: theme,
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
+    'animated_counter': (data, theme, _, key, __, ___, lang) =>
         CustomAnimatedCounterWidget(
           key: key,
           title: data['title'] ?? '',
@@ -313,31 +317,29 @@ class BlockRegistry {
                   ?.toDouble(),
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
         ),
-    'statistics_grid': (data, theme, _, key, __, ___) =>
+    'statistics_grid': (data, theme, _, key, __, ___, lang) =>
         CustomStatisticsGridWidget(
           key: key,
           block: data,
           theme: theme,
         ),
-    'team_members': (data, theme, _, key, __, ___) =>
-        CustomTeamMembersWidget(
+    'team_members': (data, theme, _, key, __, ___, lang) => CustomTeamMembersWidget(
           key: key,
           block: data,
           theme: theme,
         ),
-    'service_steps': (data, theme, _, key, __, ___) =>
+    'service_steps': (data, theme, _, key, __, ___, lang) =>
         CustomServiceStepsWidget(
           key: key,
           block: data,
           theme: theme,
         ),
-    'cta_banner': (data, theme, _, key, __, ___) =>
-        CustomCtaBannerWidget(
+    'cta_banner': (data, theme, _, key, __, ___, lang) => CustomCtaBannerWidget(
           key: key,
           block: data,
           theme: theme,
         ),
-    'comparison_table': (data, theme, _, key, __, ___) =>
+    'comparison_table': (data, theme, _, key, __, ___, lang) =>
         CustomComparisonTableWidget(
           key: key,
           block: data,
@@ -353,13 +355,14 @@ class BlockRegistry {
     int sectionIndex, {
     Key? key,
     Map<String, GlobalKey>? productKeys,
+    String lang = 'ar',
   }) {
     final builder = _registry[type.toLowerCase()];
     if (builder != null) {
-      Widget blockWidget = builder(data, theme, pageId, key, productKeys, sectionIndex);
-      
+      Widget blockWidget = builder(data, theme, pageId, key, productKeys, sectionIndex, lang);
+
       final int variant = data['variant'] ?? 0;
-      
+
       // Apply Global Style Variants (3-9)
       blockWidget = _applyGlobalVariant(blockWidget, variant, theme);
 

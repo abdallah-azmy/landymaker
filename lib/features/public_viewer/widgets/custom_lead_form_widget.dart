@@ -13,6 +13,8 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/forms/validation_engine.dart';
 import '../../../core/forms/elements/field_renderer.dart';
 
+import '../../../core/services/action_handler_service.dart';
+
 class CustomLeadFormWidget extends StatefulWidget {
   final Map<String, dynamic> block;
   final String title;
@@ -181,6 +183,24 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
           TurnstileService.reset(_turnstileViewId);
           setState(() => _turnstileToken = null);
           PixelEventService.trackLead();
+
+          // MISSION: Smart WhatsApp Leads
+          if (widget.block['whatsapp_auto_open'] == true) {
+            final String whatsappNumber = widget.block['whatsapp_number']?.toString() ?? '';
+            String template = widget.block['whatsapp_message_template']?.toString() ?? 'New Lead Submission';
+            
+            // Replace placeholders {{field_id}}
+            _dataPayload.forEach((key, value) {
+              template = template.replaceAll('{{$key}}', value.toString());
+            });
+
+            await ActionHandlerService.openWhatsApp(
+              phoneNumber: whatsappNumber,
+              message: template,
+              pageId: widget.pageId,
+              blockType: 'lead_form',
+            );
+          }
         }
       }
     } catch (e) {

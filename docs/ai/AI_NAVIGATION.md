@@ -70,6 +70,22 @@ Backend configuration.
 - **Migrations**: `supabase/migrations/`.
 - **Edge Functions**: `supabase/functions/`.
 
+## 🤖 10. Where is the AI?
+
+AI is handled via Edge Functions and specific frontend Cubits.
+- **AI Brain (Edge)**: `supabase/functions/ai-page-generate/`
+- **Copywriter (Edge)**: `supabase/functions/ai-copywrite/`
+- **Page Logic**: `lib/features/builder/controllers/ai_generation_cubit.dart`
+- **Copy Logic**: `lib/features/builder/controllers/ai_copywriter_cubit.dart`
+- **Quota Logic**: `check_ai_quota` (SQL RPC) and `ai_usage_log` (Table).
+
+## 📈 11. Where are the New Analytics?
+
+Granular event tracking.
+- **Service**: `lib/core/services/event_analytics_service.dart`.
+- **Database Op**: `record_page_event` (SQL RPC).
+- **Triggers**: Handled in `ActionHandlerService` and specific block widgets.
+
 ## 🛠 Common Development Tasks
 
 ### "I want to add a new section"

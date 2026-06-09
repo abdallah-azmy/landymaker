@@ -17,18 +17,20 @@ class CustomPricingWidget extends StatefulWidget {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String pageId;
   final String lang;
   final int variant;
 
   const CustomPricingWidget({
     super.key,
     required this.block,
+    required this.pageId,
     this.theme,
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
-    this.lang = 'ar', // Defaulting to Arabic, typically passed from parent
+    this.lang = 'ar',
     this.variant = 0,
   });
 
@@ -316,6 +318,9 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
                       context,
                       actionType: item.buttonActionType,
                       actionValue: item.buttonActionValue,
+                      pageId: widget.pageId,
+                      buttonText: item.buttonText,
+                      blockType: 'pricing',
                       metadata: {
                         'billing_id': item.billingIds[_activePeriodKey],
                       },

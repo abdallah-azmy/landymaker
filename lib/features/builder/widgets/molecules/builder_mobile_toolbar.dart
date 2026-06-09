@@ -15,6 +15,7 @@ class BuilderMobileToolbar extends StatelessWidget {
   final VoidCallback onShowColors;
   final VoidCallback onShowFonts;
   final VoidCallback onAddBlock;
+  final VoidCallback onShowAi;
   final VoidCallback onPublish;
   final Function(PreviewMode) onChangePreview;
 
@@ -28,6 +29,7 @@ class BuilderMobileToolbar extends StatelessWidget {
     required this.onShowColors,
     required this.onShowFonts,
     required this.onAddBlock,
+    required this.onShowAi,
     required this.onPublish,
     required this.onChangePreview,
   });
@@ -118,7 +120,32 @@ class BuilderMobileToolbar extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildMoreOptionsButton(context),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 8),
+                        // AI Assistant Button
+                        InkWell(
+                          onTap: onShowAi,
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.auto_awesome_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         // Distinct Add Button
                         Padding(
                           padding: const EdgeInsets.only(right: 4.0),

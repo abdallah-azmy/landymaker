@@ -11,6 +11,7 @@ class CustomWhatsappWidget extends StatelessWidget {
   final String phoneNumber;
   final String message;
   final String buttonText;
+  final String pageId;
   final LandingPageTheme? theme;
   final String? bgImageUrl;
   final String? bgOverlayColor;
@@ -23,6 +24,7 @@ class CustomWhatsappWidget extends StatelessWidget {
     required this.phoneNumber,
     required this.message,
     required this.buttonText,
+    required this.pageId,
     this.theme,
     this.bgImageUrl,
     this.bgOverlayColor,
@@ -96,6 +98,9 @@ class CustomWhatsappWidget extends StatelessWidget {
                               context,
                               actionType: 'link',
                               actionValue: actionValue,
+                              pageId: pageId,
+                              buttonText: buttonText,
+                              blockType: 'whatsapp',
                             );
                           }
                         : null,

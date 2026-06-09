@@ -105,6 +105,7 @@ To protect the platform from automated abuse and ensure data integrity, all user
     1. Turnstile token verification with Cloudflare.
     2. IP-based rate limiting (10/hr).
     3. Fingerprint-based rate limiting (5/10min).
+- **AI Security**: All AI generation calls MUST be routed through `ai-page-generate` or `ai-copywrite` Edge Functions. These functions enforce tier-based quotas via the `ai_usage_log` table and `check_ai_quota` RPC.
 
 ---
 
@@ -112,7 +113,8 @@ To protect the platform from automated abuse and ensure data integrity, all user
 
 LandyMaker tracks high-fidelity analytics to provide users with accurate conversion data:
 - **Unique Visitor Tracking**: Accomplished via `visitor_fingerprint` in the `analytics` table.
-- **Enhanced Metrics**: The `get_enhanced_page_stats` RPC calculates Total Views, Unique Visitors, and Conversions. 
+- **Enhanced Metrics**: The `record_page_event` RPC records granular events (`view`, `conversion`, `cta_click`, `whatsapp_open`, `funnel_start`, `funnel_complete`).
+- **Metadata Support**: New events capture `metadata` (JSONB) such as button text, target URLs, and form IDs.
 - **Accurate Conversion Rate**: Calculated as `(Total Conversions / Unique Visitors) * 100`.
 
 ---
@@ -205,11 +207,11 @@ Includes:
 
 Includes:
 
-- ActionHandlerService
-- Navigation Actions
-- Form Actions
-- Button Actions
-- Custom Actions
+- ActionHandlerService: Central command center for CTAs.
+- Navigation Actions: `link`, `scroll_to_section`.
+- Form Actions: `submit`, `whatsapp_auto_open`.
+- Button Actions: `checkout`, `open_modal`.
+- **Smart WhatsApp**: Intercepts leads before opening WhatsApp via `ActionHandlerService.openWhatsApp`.
 
 ## Publishing System
 
@@ -257,9 +259,13 @@ Includes:
 Includes:
 
 - `/docs/ai/` directory
-- AI Navigation System
+- AI Navigation System: `AI_NAVIGATION.md`
 - Feature and Screen Indexes
 - Builder Architecture Guides
+- **Mission Execution Plan**: `MISSION_EXECUTION.md` (Tracks implemented Growth & AI features)
+- **Security Audit**: `SECURITY_AUDIT_REPORT.md` (Mission verification)
+- **AI Agent Specs**: `AI_AGENT_REPORT.md` (Agent cost & quality optimization)
+- **Guest Flow**: `GUEST_FLOW_GUIDE.md` (Guest AI generation logic)
 
 Any task affecting one of these systems MUST:
 
@@ -335,10 +341,30 @@ Any task affecting one of these systems MUST:
 LandyMaker features a centralized, robust Image Media Picker and Background Upload system used across the Builder Workspace:
 - **Sources Supported**: 
   - **Local Device**: Uploads compress instantly using `image_picker` (max 1920x1920, 88% quality) to ensure lightweight assets before uploading.
-  - **Pixabay API**: Search and paginate through free stock images. To comply with Pixabay ToS (no hotlinking), images are downloaded into memory (`Uint8List`) and instantly proxied/uploaded to ImgBB without touching the local file system. Supports advanced filtering (`photo`, `illustration`, `vector`). Safely handles Rate Limiting (429 HTTP status).
+  - **Pixabay API**: Search and paginate through free stock images. To comply with Pixabay ToS (no hotlinking), images are downloaded into memory (`Uint8List`) and instantly proxied/uploaded to ImgBB and Supabase. Supports advanced filtering (`photo`, `illustration`, `vector`). Safely handles Rate Limiting (429 HTTP status).
   - **Direct URL**: Users can paste an external URL.
-- **Upload Pipeline**: Powered by `ImageMediaService` via `Dio` and managed globally by `UploadManagerCubit`.
-- **Background Upload Architecture**: When a user selects an image via `ImagePickerModal`, the UI optimistically renders a placeholder with the scheme `upload://{timestamp}`. The actual byte data is delegated to `UploadManagerCubit` which uploads in the background and eventually replaces the `upload://` scheme with the final `https://` ImgBB URL.
+
+### 📥 Double-Upload & Asset Importing
+To ensure high performance and user ownership, LandyMaker employs a "Double-Upload" strategy for all external assets (Pixabay, Unsplash templates):
+1. **ImgBB**: Primary host for the design's `image_url`. Optimized for global CDN delivery.
+2. **Supabase Storage**: Secondary host used to "Import" the asset into the user's personal gallery.
+3. **Workflow**: Triggered automatically via `importTemplateAssets` when applying templates or `magicReplaceImages` when using the Magic Swapper.
+
+### ✨ Magic Image Swapper
+A specialized engine in `LandingPageBuilderCubit` that bulk-replaces page visuals based on a search category.
+- **Intelligent Categorization**:
+    - `Hero SaaS`: Uses `illustration` image type.
+    - `Testimonials / Team`: Uses `portrait` photo search keyword.
+    - `Other Blocks`: Uses general `photo` image type.
+- **Async Safety**: Prevents saving the page (`savePage`) if any `upload://` placeholders are active in the `designMap`.
+
+### 📊 Storage Quotas & Tier Enforcement
+Image uploads to Supabase Storage are strictly governed by user tier and role to prevent resource abuse while supporting power users:
+- **Free Tier**: **50 images** maximum.
+- **Pro Tier**: **200 images** maximum.
+- **Super Admin**: **Unlimited** (999,999) images.
+- **Enforcement Logic**: Handled in `SupabaseService.uploadImageBytes` using cached `_currentUserRole` and `_currentUserTier` for maximum performance during bulk operations.
+- **User Feedback**: Displays clear Arabic error messages explaining why an upload failed and how to increase limits.
 
 ### 🚨 Strict Guidelines for Image Rendering (MUST FOLLOW)
 - **Always use `CustomNetworkImage`**: Whenever you need to display an image from a URL, whether it's an uploaded asset, background image, or any internet link, you **MUST** use `CustomNetworkImage`. Do **NOT** use `Image.network` or `CachedNetworkImage` directly. 
@@ -527,4 +553,24 @@ Next.js serves the blog post from Supabase blog_posts table
 | Blog posts show 404 / Catch-all rewrite | `vercel.json` overrides middleware and rewrites `/blog` to `/index.html` | Ensure the regex in `vercel.json` excludes `blog`, `_next`, and SEO assets |
 | Flutter app shows blank/broken | `--dart-define` secrets missing from GitHub Secrets | Add `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `IMGBB_API_KEY` to GitHub repo secrets |
 | `vercel deploy` fails with "path not found" | Running `vercel deploy` from inside `blog-frontend/` with Vercel root dir mismatch | Never run `vercel deploy` manually — always use GitHub Actions |
-| Middleware returns 500 errors | Missing Vercel environment variables for `middleware.js` | Add `SUPABASE_URL` + `SUPABASE_ANON_KEY` to Vercel Dashboard for `landymaker` project |
+## 🧠 13. AI Agent & Conversion Mission (NEW)
+
+LandyMaker has evolved into an AI-powered conversion platform. The following systems are part of the core project logic:
+
+### A. AI Page Generator
+- **Location**: `supabase/functions/ai-page-generate/`
+- **Logic**: Uses `gpt-4o-mini` with industry-standard frameworks (PAS) to generate full JSON landing pages.
+- **Guest Support**: Allows guests to generate pages with IP-based rate limiting (2/hr).
+
+### B. Smart WhatsApp Leads
+- **Goal**: Convert anonymous clicks into identified leads.
+- **Logic**: Form blocks (`lead_form`, `multi_step_lead_form`) can be configured to automatically open WhatsApp after a successful submission, pre-filling the message with the user's data.
+
+### C. AI Copywriter
+- **Location**: `supabase/functions/ai-copywrite/`
+- **Logic**: Inline assistant for headlines and features. Triggered via the "Magic Wand" icon in Section Editors.
+
+### D. Advanced Gating
+- **Plans**: `Free`, `Pro`, `Business`, `Agency`.
+- **Enforcement**: Managed via `SubscriptionService` and `FeatureGateWrapper`.
+- **Credits**: AI generations are deducted from the monthly quota in `ai_usage_log`.

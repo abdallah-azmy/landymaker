@@ -39,6 +39,15 @@ class HeroEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FormGroup(
+          label: context.translate('title'),
+          child: CustomTextField(
+            controller: getController("${index}_title", block['title'] ?? ''),
+            focusNode: getFocusNode("${index}_title"),
+            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+          ),
+        ),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -83,6 +92,18 @@ class HeroEditor extends StatelessWidget {
             focusNode: getFocusNode("${index}_button_url"),
             onChanged: (val) => cubit.updateBlockProperty(index, 'button_url', val),
             keyboardType: TextInputType.url,
+          ),
+        ),
+        const SizedBox(height: 16),
+        FormGroup(
+          label: "الهامش الرأسي (Vertical Padding)",
+          child: Slider(
+            value: (block['vertical_padding'] ?? 80.0).toDouble().clamp(0.0, 300.0),
+            min: 0,
+            max: 300,
+            divisions: 30,
+            label: (block['vertical_padding'] ?? 80.0).toString(),
+            onChanged: (val) => cubit.updateBlockProperty(index, 'vertical_padding', val),
           ),
         ),
       ],

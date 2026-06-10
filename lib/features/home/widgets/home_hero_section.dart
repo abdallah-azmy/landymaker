@@ -45,6 +45,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
         background: Color(0xFF030712),
         textPrimary: Colors.white,
         textSecondary: Color(0xFF9CA3AF),
+        buttonTextColor: Colors.white,
         name: 'Midnight Ocean',
       ),
       'blocks': [
@@ -73,6 +74,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
         background: Color(0xFF0F172A),
         textPrimary: Colors.white,
         textSecondary: Color(0xFF94A3B8),
+        buttonTextColor: Colors.white,
         name: 'Lux-Earth',
       ),
       'blocks': [
@@ -106,6 +108,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
         background: Color(0xFF0F172A),
         textPrimary: Colors.white,
         textSecondary: Color(0xFF94A3B8),
+        buttonTextColor: Color(0xFF0F172A),
         name: 'Butter & Sky',
       ),
       'blocks': [
@@ -634,15 +637,6 @@ class _TypewriterTextState extends State<_TypewriterText> with SingleTickerProvi
     });
   }
 
-  void _showAiWizard(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const AiMagicFormModal(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -721,15 +715,6 @@ class _PhonePreviewState extends State<_PhonePreview> {
         });
       }
     });
-  }
-
-  void _showAiWizard(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const AiMagicFormModal(),
-    );
   }
 
   @override

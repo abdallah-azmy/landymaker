@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../core/widgets/atoms/custom_text_field.dart';
+import 'pixabay_selector_modal.dart';
 import '../../controllers/ai_generation_cubit.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
@@ -36,6 +37,23 @@ class _AiMagicFormModalState extends State<AiMagicFormModal> {
     }
   }
 
+  void _showPixabayPicker(String query, String type, Function(String) onSelected) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => PixabaySelectorModal(
+        initialQuery: query,
+        initialType: type,
+        onImageSelected: (url) {
+          onSelected(url);
+          Navigator.pop(context); // Close the AI wizard too on successful selection? Or keep it?
+          // Let's close both for a clean flow.
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AIGenerationCubit, AIGenerationState>(
@@ -47,9 +65,12 @@ class _AiMagicFormModalState extends State<AiMagicFormModal> {
                 content: Text('تم معالجة طلبك بنجاح بواسطة الذكاء الاصطناعي!')),
           );
         }
+        if (state is AIGenerationPixabaySelection) {
+          _showPixabayPicker(state.query, state.type, state.onSelected);
+        }
         if (state is AIGenerationFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('خطأ: \${state.error}')),
+            SnackBar(content: Text('خطأ: ${state.error}')),
           );
         }
       },

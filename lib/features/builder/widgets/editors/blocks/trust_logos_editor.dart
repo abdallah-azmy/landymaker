@@ -37,6 +37,15 @@ class TrustLogosEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FormGroup(
+          label: 'العنوان الرئيسي',
+          child: CustomTextField(
+            controller: getController("${index}_title", block['title'] ?? ''),
+            focusNode: getFocusNode("${index}_title"),
+            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+          ),
+        ),
+        const SizedBox(height: 16),
         DynamicListEditor(
           title: "الشعارات (Logos)",
           addLabel: "أضف شعار",

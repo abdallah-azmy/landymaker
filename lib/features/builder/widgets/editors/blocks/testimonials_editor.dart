@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:landymaker/core/widgets/molecules/form_group.dart';
 import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -33,12 +34,23 @@ class TestimonialsEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FormGroup(
+          label: 'العنوان الرئيسي',
+          child: CustomTextField(
+            controller: getController("${index}_title", block['title'] ?? ''),
+            focusNode: getFocusNode("${index}_title"),
+            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+          ),
+        ),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               "آراء العملاء (Testimonials)",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+              style: AppTypography.bodyLarge.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             TextButton.icon(
               onPressed: () => cubit.addTestimonialItem(index),
@@ -49,7 +61,8 @@ class TestimonialsEditor extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         ...List.generate(((block['items'] as List?) ?? []).length, (tIndex) {
-          final item = ((block['items'] as List?) ?? [])[tIndex] as Map<String, dynamic>;
+          final item =
+              ((block['items'] as List?) ?? [])[tIndex] as Map<String, dynamic>;
           final String imageUrl = item['image_url'] ?? '';
           final isUploading = imageUrl.startsWith('upload://');
 
@@ -68,11 +81,18 @@ class TestimonialsEditor extends StatelessWidget {
                   children: [
                     Text(
                       "رأي #${tIndex + 1}",
-                      style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold),
+                      style: AppTypography.caption.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
-                      onPressed: () => cubit.deleteTestimonialItem(index, tIndex),
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: AppColors.dangerRed,
+                        size: 20,
+                      ),
+                      onPressed: () =>
+                          cubit.deleteTestimonialItem(index, tIndex),
                     ),
                   ],
                 ),
@@ -80,30 +100,58 @@ class TestimonialsEditor extends StatelessWidget {
                   label: "صورة العميل (Avatar)",
                   imageUrl: imageUrl,
                   isUploading: isUploading,
-                  onAction: () => pickImage(cubit, index, itemIndex: tIndex, itemKey: 'image_url'),
-                  onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: tIndex, itemKey: 'image_url'),
+                  onAction: () => pickImage(
+                    cubit,
+                    index,
+                    itemIndex: tIndex,
+                    itemKey: 'image_url',
+                  ),
+                  onSaveTemplateAsset: () => persistAsset(
+                    cubit,
+                    index,
+                    itemIndex: tIndex,
+                    itemKey: 'image_url',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   hintText: "الاسم",
-                  controller: getController("${index}_testimonial_${tIndex}_author", item['author'] ?? ''),
-                  focusNode: getFocusNode("${index}_testimonial_${tIndex}_author"),
-                  onChanged: (val) => cubit.updateTestimonialItem(index, tIndex, 'author', val),
+                  controller: getController(
+                    "${index}_testimonial_${tIndex}_author",
+                    item['author'] ?? '',
+                  ),
+                  focusNode: getFocusNode(
+                    "${index}_testimonial_${tIndex}_author",
+                  ),
+                  onChanged: (val) =>
+                      cubit.updateTestimonialItem(index, tIndex, 'author', val),
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
                   hintText: "المنصب/الوصف",
-                  controller: getController("${index}_testimonial_${tIndex}_role", item['role'] ?? ''),
-                  focusNode: getFocusNode("${index}_testimonial_${tIndex}_role"),
-                  onChanged: (val) => cubit.updateTestimonialItem(index, tIndex, 'role', val),
+                  controller: getController(
+                    "${index}_testimonial_${tIndex}_role",
+                    item['role'] ?? '',
+                  ),
+                  focusNode: getFocusNode(
+                    "${index}_testimonial_${tIndex}_role",
+                  ),
+                  onChanged: (val) =>
+                      cubit.updateTestimonialItem(index, tIndex, 'role', val),
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
                   hintText: "الرأي",
                   maxLines: 3,
-                  controller: getController("${index}_testimonial_${tIndex}_quote", item['quote'] ?? ''),
-                  focusNode: getFocusNode("${index}_testimonial_${tIndex}_quote"),
-                  onChanged: (val) => cubit.updateTestimonialItem(index, tIndex, 'quote', val),
+                  controller: getController(
+                    "${index}_testimonial_${tIndex}_quote",
+                    item['quote'] ?? '',
+                  ),
+                  focusNode: getFocusNode(
+                    "${index}_testimonial_${tIndex}_quote",
+                  ),
+                  onChanged: (val) =>
+                      cubit.updateTestimonialItem(index, tIndex, 'quote', val),
                 ),
               ],
             ),

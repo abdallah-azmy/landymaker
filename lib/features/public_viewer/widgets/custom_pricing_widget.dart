@@ -178,7 +178,10 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
               const SizedBox(width: 24),
               ElevatedButton(
                 onPressed: () {}, // Handled similarly to cards
-                style: ElevatedButton.styleFrom(backgroundColor: secondary, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: secondary,
+                  foregroundColor: widget.theme?.buttonTextColor ?? Colors.white,
+                ),
                 child: Text(item.buttonText.isEmpty ? 'Select' : item.buttonText),
               ),
             ],
@@ -328,7 +331,7 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: item.isPopular ? secondary : Colors.transparent,
-                    foregroundColor: item.isPopular ? Colors.white : secondary,
+                    foregroundColor: item.isPopular ? (widget.theme?.buttonTextColor ?? Colors.white) : secondary,
                     side: item.isPopular ? null : BorderSide(color: secondary),
                     padding: EdgeInsets.symmetric(vertical: isMobile ? 12 : 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

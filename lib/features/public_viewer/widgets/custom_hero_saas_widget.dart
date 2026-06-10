@@ -127,7 +127,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: secondaryColor,
-                      foregroundColor: Colors.white,
+                      foregroundColor: theme?.buttonTextColor ?? Colors.white,
                       padding: EdgeInsetsDirectional.symmetric(
                         horizontal: isMobile ? 24 : 32,
                         vertical: isMobile ? 16 : 20,

@@ -389,7 +389,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
                       onPressed: _isSubmitting ? null : () => _submitForm(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: secondaryColor,
-                        foregroundColor: Colors.white,
+                        foregroundColor: widget.theme?.buttonTextColor ?? Colors.white,
                         disabledBackgroundColor: secondaryColor.withValues(alpha: 0.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

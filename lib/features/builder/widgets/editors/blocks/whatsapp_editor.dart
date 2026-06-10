@@ -10,8 +10,6 @@ class WhatsappEditor extends StatelessWidget {
   final int index;
   final GetController getController;
   final GetFocusNode getFocusNode;
-  final PickImage pickImage;
-  final PickAndUploadImage pickAndUploadImage;
 
   const WhatsappEditor({
     required this.cubit,
@@ -19,8 +17,6 @@ class WhatsappEditor extends StatelessWidget {
     required this.index,
     required this.getController,
     required this.getFocusNode,
-    required this.pickImage,
-    required this.pickAndUploadImage,
     super.key,
   });
 
@@ -30,7 +26,37 @@ class WhatsappEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FormGroup(
-          label: "نص الزر (Button Text)",
+          label: "العنوان الرئيسي",
+          child: CustomTextField(
+            controller: getController("${index}_title", block['title'] ?? ''),
+            focusNode: getFocusNode("${index}_title"),
+            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+          ),
+        ),
+        const SizedBox(height: 16),
+        FormGroup(
+          label: "رقم الواتساب",
+          helperText: "2010...",
+          child: CustomTextField(
+            controller: getController("${index}_phone_number", block['phone_number'] ?? ''),
+            focusNode: getFocusNode("${index}_phone_number"),
+            onChanged: (val) => cubit.updateBlockProperty(index, 'phone_number', val),
+            keyboardType: TextInputType.phone,
+          ),
+        ),
+        const SizedBox(height: 16),
+        FormGroup(
+          label: "الرسالة الافتراضية",
+          child: CustomTextField(
+            controller: getController("${index}_message", block['message'] ?? ''),
+            focusNode: getFocusNode("${index}_message"),
+            maxLines: 3,
+            onChanged: (val) => cubit.updateBlockProperty(index, 'message', val),
+          ),
+        ),
+        const SizedBox(height: 16),
+        FormGroup(
+          label: "نص الزر",
           child: CustomTextField(
             controller: getController("${index}_button_text", block['button_text'] ?? ''),
             focusNode: getFocusNode("${index}_button_text"),

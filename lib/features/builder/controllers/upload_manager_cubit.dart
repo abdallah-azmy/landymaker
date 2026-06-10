@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import '../models/selected_image_data.dart';
 import '../../../services/image_media_service.dart';
 import '../../../services/storage_service.dart';
-import '../../../core/http_client.dart';
+import '../../../core/utils/crypto_utils.dart';
 import '../../../injection_container.dart';
 
 class UploadTask {
@@ -90,6 +90,15 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
       }
 
       if (imageBytes != null) {
+        // 0. Check for existing hash (Deduplication)
+        final hash = CryptoUtils.calculateHash(imageBytes);
+        final existingUrl = await _storageService.findAssetByHash(hash);
+        if (existingUrl != null) {
+          onSuccess(existingUrl);
+          _removeTask(uploadId);
+          return;
+        }
+
         // 1. Upload to ImgBB for the design URL
         finalUrl = await _mediaService.uploadImageBytesToImgBB(
           imageBytes,
@@ -98,11 +107,11 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
           cancelToken: cancelToken,
         );
 
-        // 2. ALSO upload to Supabase Storage (User Gallery)
-        // This ensures the user "owns" a copy of the asset and complies with Pixabay ToS
-        await _storageService.uploadImageBytes(
-          imageBytes,
-          'imported_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        // 2. Register with user_assets table in Supabase
+        await _storageService.registerExternalAsset(
+          finalUrl,
+          'img_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          hash: hash,
         );
       }
 
@@ -154,6 +163,15 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
         cancelToken: cancelToken,
       );
 
+      // 1.5 Deduplication Check
+      final hash = CryptoUtils.calculateHash(imageBytes);
+      final existingUrl = await _storageService.findAssetByHash(hash);
+      if (existingUrl != null) {
+        onSuccess(existingUrl);
+        _removeTask(uploadId);
+        return;
+      }
+
       // 2. Upload to ImgBB (for the design JSON)
       final imgbbUrl = await _mediaService.uploadImageBytesToImgBB(
         imageBytes,
@@ -162,10 +180,11 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
         cancelToken: cancelToken,
       );
 
-      // 3. Upload to Supabase Storage (User Gallery)
-      await _storageService.uploadImageBytes(
-        imageBytes,
-        'template_import_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      // 3. Register with user_assets table
+      await _storageService.registerExternalAsset(
+        imgbbUrl,
+        'import_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        hash: hash,
       );
 
       if (!isClosed) {

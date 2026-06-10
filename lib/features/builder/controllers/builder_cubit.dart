@@ -176,9 +176,18 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
+    // Support extracting theme if provided by AI
+    LandingPageTheme? newTheme;
+    if (designJson['theme'] != null) {
+      newTheme = LandingPageTheme.fromJson(designJson['theme']);
+    } else if (designJson['global_theme'] != null) {
+       newTheme = LandingPageTheme.fromJson(designJson['global_theme']);
+    }
+
     _emitDirty(
       currentState.copyWith(
         designMap: designJson,
+        theme: newTheme,
         hasUnsavedChanges: true,
       ),
     );
@@ -648,6 +657,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           break;
         case 'textSecondary':
           newTheme = currentState.theme.copyWith(textSecondary: value);
+          break;
+        case 'buttonTextColor':
+        case 'button_text_color':
+          newTheme = currentState.theme.copyWith(buttonTextColor: value);
           break;
         default:
           return;

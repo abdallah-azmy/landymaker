@@ -540,7 +540,7 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: secondary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: widget.theme?.buttonTextColor ?? Colors.white,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
@@ -685,7 +685,7 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: secondary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: widget.theme?.buttonTextColor ?? Colors.white,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
@@ -859,7 +859,7 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: secondary,
-                                foregroundColor: Colors.white,
+                                foregroundColor: widget.theme?.buttonTextColor ?? Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 14,
                                 ),

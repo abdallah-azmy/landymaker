@@ -4,7 +4,9 @@ import '../editor_types.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
+import '../../../../../core/widgets/molecules/form_group.dart';
 import '../../../../../core/widgets/atoms/primary_button.dart';
+import '../../../../../../core/localization/app_localizations.dart';
 
 class FaqEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -31,6 +33,15 @@ class FaqEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FormGroup(
+          label: context.translate('title'),
+          child: CustomTextField(
+            controller: getController("${index}_title", block['title'] ?? ''),
+            focusNode: getFocusNode("${index}_title"),
+            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+          ),
+        ),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

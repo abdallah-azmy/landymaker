@@ -34,6 +34,15 @@ class FeaturesEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FormGroup(
+          label: context.translate('title'),
+          child: CustomTextField(
+            controller: getController("${index}_title", block['title'] ?? ''),
+            focusNode: getFocusNode("${index}_title"),
+            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+          ),
+        ),
+        const SizedBox(height: 16),
+        FormGroup(
           label: context.translate('layout_style'),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),

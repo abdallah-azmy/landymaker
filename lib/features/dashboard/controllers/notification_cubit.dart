@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:landymaker/services/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../services/supabase_service.dart';
+import '../../../services/supabase_service.dart';
 import 'notification_state.dart';
 
 class NotificationCubit extends Cubit<NotificationState> {
@@ -9,12 +11,10 @@ class NotificationCubit extends Cubit<NotificationState> {
   final String _userId;
   RealtimeChannel? _subscription;
 
-  NotificationCubit({
-    required SupabaseService supabase,
-    required String userId,
-  })  : _supabase = supabase,
-        _userId = userId,
-        super(NotificationInitial()) {
+  NotificationCubit({required SupabaseService supabase, required String userId})
+    : _supabase = supabase,
+      _userId = userId,
+      super(NotificationInitial()) {
     _initRealtime();
   }
 
@@ -77,7 +77,9 @@ class NotificationCubit extends Cubit<NotificationState> {
       await _supabase.markAllNotificationsAsRead(_userId);
       if (state is NotificationLoaded) {
         final currentList = (state as NotificationLoaded).notifications;
-        final updatedList = currentList.map((n) => {...n, 'is_read': true}).toList();
+        final updatedList = currentList
+            .map((n) => {...n, 'is_read': true})
+            .toList();
         emit(NotificationLoaded(notifications: updatedList));
       }
     } catch (_) {}

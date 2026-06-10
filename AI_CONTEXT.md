@@ -266,6 +266,8 @@ Includes:
 - **Security Audit**: `SECURITY_AUDIT_REPORT.md` (Mission verification)
 - **AI Agent Specs**: `AI_AGENT_REPORT.md` (Agent cost & quality optimization)
 - **Guest Flow**: `GUEST_FLOW_GUIDE.md` (Guest AI generation logic)
+- **Block Schema Registry**: `BLOCK_SCHEMA_REGISTRY.md` (Readable JSON mapping for AI/Human sync)
+- **Continuation Prompt**: `AI_AGENT_CONTINUATION_PROMPT.md` (Master plan for future AI models)
 
 Any task affecting one of these systems MUST:
 
@@ -553,24 +555,33 @@ Next.js serves the blog post from Supabase blog_posts table
 | Blog posts show 404 / Catch-all rewrite | `vercel.json` overrides middleware and rewrites `/blog` to `/index.html` | Ensure the regex in `vercel.json` excludes `blog`, `_next`, and SEO assets |
 | Flutter app shows blank/broken | `--dart-define` secrets missing from GitHub Secrets | Add `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `IMGBB_API_KEY` to GitHub repo secrets |
 | `vercel deploy` fails with "path not found" | Running `vercel deploy` from inside `blog-frontend/` with Vercel root dir mismatch | Never run `vercel deploy` manually — always use GitHub Actions |
-## 🧠 13. AI Agent & Conversion Mission (NEW)
+### 🛡️ Professional Error Handling & Fault Tolerance (NEW)
+LandyMaker employs a multi-layered error recovery strategy to ensure 100% uptime of the generation flow:
+1. **Edge Function Fallbacks**: If Pixabay API fails, the engine automatically injects high-quality placeholders (`Unsplash` optimized links) instead of returning an error.
+2. **Safe Color Parsing**: `LandingPageTheme.parseColor` includes a try-catch sanitize loop. It handles malformed Hex codes from AI and reverts to theme defaults without crashing the UI.
+3. **Optimistic Asset Registration**: Image deduplication (SHA-256) is non-blocking. If a hash lookup fails, the system defaults to a new upload to ensure the user is never stuck.
 
-LandyMaker has evolved into an AI-powered conversion platform. The following systems are part of the core project logic:
+## 🧠 13. AI Agent & Conversion Mission (Omnipotent Control)
 
-### A. AI Page Generator
+LandyMaker has evolved into an AI-powered conversion platform with "Omnipotent Control" over design and assets:
+
+### A. AI Page Generator & Conversational Editor
 - **Location**: `supabase/functions/ai-page-generate/`
-- **Logic**: Uses `gpt-4o-mini` with industry-standard frameworks (PAS) to generate full JSON landing pages.
-- **Guest Support**: Allows guests to generate pages with IP-based rate limiting (2/hr).
+- **Logic**: Uses `gemini-1.5-flash` to generate or surgically edit JSON landing pages.
+- **Intent: 'edit'**: Supports precise updates based on current design context. AI understands relative references ("top", "last section", "change second block background").
+- **Unified Schema**: Every editable property is mapped in `BLOCK_SCHEMA_REGISTRY.md`. AI can control specific `variant` (0-9), `vertical_padding`, and `animation` settings.
 
-### B. Smart WhatsApp Leads
-- **Goal**: Convert anonymous clicks into identified leads.
-- **Logic**: Form blocks (`lead_form`, `multi_step_lead_form`) can be configured to automatically open WhatsApp after a successful submission, pre-filling the message with the user's data.
+### B. Visual Intelligence & Pixabay Integration
+- **Direct Search**: AI uses `{ "pixabay_search": { "query", "type" } }` for automated image fulfillment.
+- **Image Types**: AI understands and uses `photo`, `illustration`, and `vector` filters for appropriate section feel (e.g., Avatars vs Backgrounds).
+- **Pixabay Selector**: AI can trigger a multi-choice UI grid via `{ "action": "pixabay_selection" }` to let users pick from 9+ options.
 
-### C. AI Copywriter
-- **Location**: `supabase/functions/ai-copywrite/`
-- **Logic**: Inline assistant for headlines and features. Triggered via the "Magic Wand" icon in Section Editors.
+### C. Advanced Asset Management (Deduplication)
+- **ImgBB Exclusive**: All production design URLs flow through ImgBB to optimize Supabase Storage costs.
+- **SHA-256 Deduplication**: Every image is hashed before upload. If a hash exists in `user_assets`, the URL is reused, preventing redundant uploads.
+- **User Gallery**: External links (ImgBB) are registered in the `user_assets` table to ensure they appear in the user's Media Library for reuse.
 
-### D. Advanced Gating
-- **Plans**: `Free`, `Pro`, `Business`, `Agency`.
-- **Enforcement**: Managed via `SubscriptionService` and `FeatureGateWrapper`.
-- **Credits**: AI generations are deducted from the monthly quota in `ai_usage_log`.
+### D. Smart WhatsApp Leads & Gating
+- **Conversion Goal**: Converts clicks into identified leads.
+- **Logic**: Forms can auto-open WhatsApp with pre-filled user data after submission.
+- **Enforcement**: Managed via `SubscriptionService`, `FeatureGateWrapper`, and `ai_usage_log`.

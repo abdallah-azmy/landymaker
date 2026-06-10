@@ -478,11 +478,12 @@ class SupabaseService extends ChangeNotifier {
       final userId = _currentUserId;
       if (userId == null) return [];
 
+      // 1. Fetch from Supabase Storage (Legacy/Direct uploads)
       final List<FileObject> files = await _client!.storage
           .from(DbConstants.landingAssetsBucket)
           .list(path: userId);
 
-      return files.map((f) {
+      final storageImages = files.map((f) {
         final publicUrl = _client!.storage
             .from(DbConstants.landingAssetsBucket)
             .getPublicUrl('$userId/${f.name}');
@@ -493,22 +494,78 @@ class SupabaseService extends ChangeNotifier {
           'url': publicUrl,
           'size': f.metadata?['size'],
           'created_at': f.createdAt,
+          'source': 'storage',
         };
       }).toList();
+
+      // 2. Fetch from user_assets table (ImgBB links)
+      final dbAssets = await _client!
+          .from(DbConstants.userAssetsTable)
+          .select()
+          .eq('user_id', userId);
+
+      final dbImages = List<Map<String, dynamic>>.from(dbAssets).map((a) {
+        return {
+          'name': a['name'] ?? 'ImgBB Asset',
+          'id': a['id'],
+          'url': a['url'],
+          'created_at': a['created_at'],
+          'source': 'imgbb',
+          'hash': a['image_hash'],
+        };
+      }).toList();
+
+      // Combine both
+      return [...storageImages, ...dbImages]
+        ..sort((a, b) => b['created_at'].compareTo(a['created_at']));
     } catch (e) {
       debugPrint("Error listing user images: $e");
       return [];
     }
   }
 
-  Future<void> deleteImage(String fileName) async {
+  Future<String?> findAssetByHash(String hash) async {
+    try {
+      final res = await _client!
+          .from(DbConstants.userAssetsTable)
+          .select('url')
+          .eq('image_hash', hash)
+          .maybeSingle();
+      return res?['url'] as String?;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> registerExternalAsset(String url, String name, {String? hash}) async {
     try {
       final userId = _currentUserId;
       if (userId == null) return;
 
-      await _client!.storage
-          .from(DbConstants.landingAssetsBucket)
-          .remove(['$userId/$fileName']);
+      await _client!.from(DbConstants.userAssetsTable).insert({
+        'user_id': userId,
+        'url': url,
+        'name': name,
+        'source': 'imgbb',
+        'image_hash': hash,
+      });
+    } catch (e) {
+      debugPrint("Error registering external asset: $e");
+    }
+  }
+
+  Future<void> deleteImage(String fileName, {String? source, String? assetId}) async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) return;
+
+      if (source == 'imgbb' && assetId != null) {
+        await _client!.from(DbConstants.userAssetsTable).delete().eq('id', assetId);
+      } else {
+        await _client!.storage
+            .from(DbConstants.landingAssetsBucket)
+            .remove(['$userId/$fileName']);
+      }
     } catch (e) {
       debugPrint("Error deleting image: $e");
       rethrow;

@@ -18,6 +18,8 @@ import 'features/public_viewer/controllers/public_page_cubit.dart';
 import 'features/blog_admin/data/repositories/blog_repository.dart';
 import 'features/blog_admin/controllers/blog_cubit.dart';
 
+import 'features/builder/controllers/ai_generation_cubit.dart';
+import 'features/builder/controllers/pixabay_selector_cubit.dart';
 import 'features/builder/controllers/upload_manager_cubit.dart';
 
 final sl = GetIt.instance;
@@ -39,6 +41,8 @@ Future<void> initDependencies() async {
   sl.registerSingleton<ImageMediaService>(ImageMediaService());
 
   sl.registerLazySingleton<UploadManagerCubit>(() => UploadManagerCubit(mediaService: sl<ImageMediaService>()));
+  sl.registerFactory<PixabaySelectorCubit>(() => PixabaySelectorCubit(sl<ImageMediaService>()));
+  sl.registerFactory<AIGenerationCubit>(() => AIGenerationCubit(sl<SupabaseService>(), sl<LandingPageBuilderCubit>()));
 
   // 4. Global Cubits / State Managers (Registered as Singletons / Factories)
   // Localization: App-wide language toggle persists globally

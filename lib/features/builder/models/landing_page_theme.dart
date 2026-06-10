@@ -6,6 +6,7 @@ class LandingPageTheme {
   final Color background;
   final Color textPrimary;
   final Color textSecondary;
+  final Color? buttonTextColor; 
   final String name;
   final String? defaultFont; // New: Assign a default font per theme
   final String? globalBgImageUrl; // New: Global Page Background Image
@@ -19,6 +20,7 @@ class LandingPageTheme {
     required this.background,
     required this.textPrimary,
     required this.textSecondary,
+    this.buttonTextColor,
     required this.name,
     this.defaultFont,
     this.globalBgImageUrl,
@@ -33,23 +35,43 @@ class LandingPageTheme {
     'background': background.toARGB32(),
     'textPrimary': textPrimary.toARGB32(),
     'textSecondary': textSecondary.toARGB32(),
+    'buttonTextColor': buttonTextColor?.toARGB32(),
+    'button_text_color': buttonTextColor?.toARGB32(), // Alias for AI
     'name': name,
     'defaultFont': defaultFont,
+    'font_family': defaultFont, // Alias for AI
     'globalBgImageUrl': globalBgImageUrl,
     'globalBgColorHex': globalBgColorHex,
     'category': category,
     'description': description,
   };
 
+  static Color? parseColor(dynamic value, Color? fallback) {
+    if (value == null) return fallback;
+    if (value is int) return Color(value);
+    if (value is String) {
+      if (value.startsWith('#')) {
+        final hex = value.replaceFirst('#', '');
+        if (hex.length == 6) {
+          return Color(int.parse('FF$hex', radix: 16));
+        } else if (hex.length == 8) {
+          return Color(int.parse(hex, radix: 16));
+        }
+      }
+    }
+    return fallback;
+  }
+
   factory LandingPageTheme.fromJson(Map<String, dynamic> json) {
     return LandingPageTheme(
-      primary: Color(json['primary'] ?? 0xFF6366F1),
-      secondary: Color(json['secondary'] ?? 0xFF06B6D4),
-      background: Color(json['background'] ?? 0xFF0F172A),
-      textPrimary: Color(json['textPrimary'] ?? 0xFFF8FAFC),
-      textSecondary: Color(json['textSecondary'] ?? 0xFF94A3B8),
+      primary: parseColor(json['primary'], const Color(0xFF6366F1))!,
+      secondary: parseColor(json['secondary'], const Color(0xFF06B6D4))!,
+      background: parseColor(json['background'], const Color(0xFF0F172A))!,
+      textPrimary: parseColor(json['textPrimary'], const Color(0xFFF8FAFC))!,
+      textSecondary: parseColor(json['textSecondary'], const Color(0xFF94A3B8))!,
+      buttonTextColor: parseColor(json['buttonTextColor'] ?? json['button_text_color'], null),
       name: json['name'] ?? 'Default Dark',
-      defaultFont: json['defaultFont'],
+      defaultFont: json['defaultFont'] ?? json['font_family'],
       globalBgImageUrl: json['globalBgImageUrl'],
       globalBgColorHex: json['globalBgColorHex'],
       category: json['category'],
@@ -63,6 +85,7 @@ class LandingPageTheme {
     Color? background,
     Color? textPrimary,
     Color? textSecondary,
+    Color? buttonTextColor,
     String? name,
     String? defaultFont,
     String? globalBgImageUrl,
@@ -78,6 +101,7 @@ class LandingPageTheme {
       background: background ?? this.background,
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
+      buttonTextColor: buttonTextColor ?? this.buttonTextColor,
       name: name ?? this.name,
       defaultFont: defaultFont ?? this.defaultFont,
       globalBgImageUrl: clearBgImage ? null : (globalBgImageUrl ?? this.globalBgImageUrl),
@@ -90,7 +114,7 @@ class LandingPageTheme {
   static const List<Map<String, String>> availableFonts = [
     {'family': 'Cairo', 'category': 'تقني وعصري / Modern Tech', 'desc': 'خط عصري وحاد يناسب واجهات المستخدم والمنصات التقنية والمتاجر.'},
     {'family': 'Tajawal', 'category': 'قراءة ومحتوى / Reading', 'desc': 'خط نقي وسهل القراءة جداً، مثالي للمدونات والمقالات والنصوص الطويلة.'},
-    {'family': 'Almarai', 'category': 'رسمي واحترافي / Professional', 'desc': 'خط احترافي وهادئ ممتاز للشركات والمؤسسات والـ SaaS.'},
+    {'family': 'Almarai', 'category': 'رسمي وااحترافي / Professional', 'desc': 'خط احترافي وهادئ ممتاز للشركات والمؤسسات والـ SaaS.'},
     {'family': 'Changa', 'category': 'عناوين بارزة / Bold Display', 'desc': 'خط عريض ومميز للإعلانات والعناوين الكبيرة لجذب الانتباه.'},
     {'family': 'Readex Pro', 'category': 'هندسي حديث / Geometric', 'desc': 'خط هندسي متطور مناسب للمنتجات الرقمية والتطبيقات الحديثة.'},
     {'family': 'Amiri', 'category': 'كلاسيكي وأصيل / Classic', 'desc': 'خط عربي أصيل ورسمي (نسخ) للجرائد، الكتب، والمحتوى الكلاسيكي.'},
@@ -112,6 +136,7 @@ class LandingPageTheme {
       defaultFont: 'Tajawal',
       primary: Color(0xFF5E3023),
       secondary: Color(0xFFA86A24),
+      buttonTextColor: Colors.white,
       background: Color(0xFFFEFAE0),
       textPrimary: Color(0xFF281510),
       textSecondary: Color(0xFF5E3023),
@@ -123,6 +148,7 @@ class LandingPageTheme {
       defaultFont: 'Almarai',
       primary: Color(0xFF064E3B),
       secondary: Color(0xFF10B981),
+      buttonTextColor: Colors.white,
       background: Color(0xFFECFDF5),
       textPrimary: Color(0xFF064E3B),
       textSecondary: Color(0xFF047857),
@@ -134,6 +160,7 @@ class LandingPageTheme {
       defaultFont: 'Roboto',
       primary: Color(0xFF4338CA),
       secondary: Color(0xFF818CF8),
+      buttonTextColor: Colors.white,
       background: Color(0xFFEEF2FF),
       textPrimary: Color(0xFF312E81),
       textSecondary: Color(0xFF4338CA),
@@ -145,6 +172,7 @@ class LandingPageTheme {
       defaultFont: 'Amiri',
       primary: Color(0xFF0F1E36),
       secondary: Color(0xFFD4AF37),
+      buttonTextColor: Colors.black,
       background: Color(0xFFF4F6F9),
       textPrimary: Color(0xFF0F1E36),
       textSecondary: Color(0xFF5A6678),
@@ -156,6 +184,7 @@ class LandingPageTheme {
       defaultFont: 'Oswald',
       primary: Color(0xFF00d084),
       secondary: Color(0xFF3E96F4),
+      buttonTextColor: Colors.white,
       background: Color(0xFF000000),
       textPrimary: Color(0xFFFFFFFF),
       textSecondary: Color(0xFFB0B0B0),
@@ -167,6 +196,7 @@ class LandingPageTheme {
       defaultFont: 'Montserrat',
       primary: Color(0xFF31393C),
       secondary: Color(0xFFCAE4DB),
+      buttonTextColor: Color(0xFF31393C),
       background: Color(0xFFFFF4D6),
       textPrimary: Color(0xFF31393C),
       textSecondary: Color(0xFF5A666B),
@@ -178,6 +208,7 @@ class LandingPageTheme {
       defaultFont: 'Open Sans',
       primary: Color(0xFF334155),
       secondary: Color(0xFF64748B),
+      buttonTextColor: Colors.white,
       background: Color(0xFFF8FAFC),
       textPrimary: Color(0xFF0F172A),
       textSecondary: Color(0xFF475569),
@@ -189,6 +220,7 @@ class LandingPageTheme {
       defaultFont: 'Almarai',
       primary: Color(0xFF14532D),
       secondary: Color(0xFF22C55E),
+      buttonTextColor: Colors.white,
       background: Color(0xFFF0FDF4),
       textPrimary: Color(0xFF064E3B),
       textSecondary: Color(0xFF14532D),
@@ -200,6 +232,7 @@ class LandingPageTheme {
       defaultFont: 'Playfair Display',
       primary: Color(0xFF991B1B),
       secondary: Color(0xFFF87171),
+      buttonTextColor: Colors.white,
       background: Color(0xFFFEF2F2),
       textPrimary: Color(0xFF7F1D1D),
       textSecondary: Color(0xFF991B1B),
@@ -211,6 +244,7 @@ class LandingPageTheme {
       defaultFont: 'Changa',
       primary: Color(0xFF1E3A8A),
       secondary: Color(0xFF3B82F6),
+      buttonTextColor: Colors.white,
       background: Color(0xFFEFF6FF),
       textPrimary: Color(0xFF1E3A8A),
       textSecondary: Color(0xFF2563EB),
@@ -222,6 +256,7 @@ class LandingPageTheme {
       defaultFont: 'Cairo',
       primary: Color(0xFF00E5FF),
       secondary: Color(0xFF1E3A8A),
+      buttonTextColor: Colors.white,
       background: Color(0xFF030712),
       textPrimary: Color(0xFFF3F4F6),
       textSecondary: Color(0xFF94A3B8),
@@ -233,6 +268,7 @@ class LandingPageTheme {
       defaultFont: 'Oswald',
       primary: Color(0xFF8B5CF6),
       secondary: Color(0xFFD946EF),
+      buttonTextColor: Colors.white,
       background: Color(0xFF020617),
       textPrimary: Color(0xFFF8FAFC),
       textSecondary: Color(0xFF94A3B8),
@@ -244,6 +280,7 @@ class LandingPageTheme {
       defaultFont: 'Cairo',
       primary: Color(0xFF6366F1),
       secondary: Color(0xFF06B6D4),
+      buttonTextColor: Colors.white,
       background: Color(0xFF0F172A),
       textPrimary: Color(0xFFF8FAFC),
       textSecondary: Color(0xFF94A3B8),
@@ -254,6 +291,7 @@ class LandingPageTheme {
       description: 'تصميم رسمي واحترافي يناسب الشركات الكبيرة.',
       primary: Color(0xFF1E3A8A),
       secondary: Color(0xFF3B82F6),
+      buttonTextColor: Colors.white,
       background: Color(0xFFF8FAFC),
       textPrimary: Color(0xFF0F172A),
       textSecondary: Color(0xFF475569),
@@ -265,6 +303,7 @@ class LandingPageTheme {
       description: 'نمط عصري وحيوي للشركات التقنية والناشئة.',
       primary: Color(0xFF0891B2),
       secondary: Color(0xFF22D3EE),
+      buttonTextColor: Color(0xFF0F172A),
       background: Color(0xFF0F172A),
       textPrimary: Color(0xFFF8FAFC),
       textSecondary: Color(0xFF94A3B8),
@@ -276,6 +315,7 @@ class LandingPageTheme {
       description: 'ألوان جريئة ومبدعة للمصممين والفنانين.',
       primary: Color(0xFF7C3AED),
       secondary: Color(0xFFC084FC),
+      buttonTextColor: Color(0xFF431407),
       background: Color(0xFFFFF7ED),
       textPrimary: Color(0xFF431407),
       textSecondary: Color(0xFF9A3412),
@@ -287,6 +327,7 @@ class LandingPageTheme {
       description: 'تصميم بسيط ونظيف يركز على المحتوى.',
       primary: Color(0xFF334155),
       secondary: Color(0xFF64748B),
+      buttonTextColor: Colors.white,
       background: Color(0xFFFFFFFF),
       textPrimary: Color(0xFF0F172A),
       textSecondary: Color(0xFF64748B),
@@ -298,6 +339,7 @@ class LandingPageTheme {
       description: 'مزيج من الذهب والأسود للفخامة المطلقة.',
       primary: Color(0xFF0F172A),
       secondary: Color(0xFFD4AF37),
+      buttonTextColor: Colors.black,
       background: Color(0xFF020617),
       textPrimary: Color(0xFFF8FAFC),
       textSecondary: Color(0xFFD1D5DB),

@@ -11,7 +11,6 @@ import '../../../../core/widgets/molecules/form_group.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 import '../../controllers/upload_manager_cubit.dart';
-import '../../../../features/dashboard/controllers/media_gallery_cubit.dart';
 import '../../../../injection_container.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import 'blocks/logo_header_editor.dart';

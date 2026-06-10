@@ -434,7 +434,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
             onPressed: _isSubmitting ? null : _submitLead,
             style: ElevatedButton.styleFrom(
               backgroundColor: secondaryColor,
-              foregroundColor: Colors.white,
+              foregroundColor: widget.theme?.buttonTextColor ?? Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

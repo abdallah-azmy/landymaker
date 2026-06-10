@@ -27,11 +27,14 @@ import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
 import 'features/blog_admin/controllers/blog_cubit.dart';
 
+import 'features/builder/controllers/ai_generation_cubit.dart';
+import 'features/builder/controllers/pixabay_selector_cubit.dart';
 import 'features/dashboard/controllers/active_website_cubit.dart';
 import 'package:toastification/toastification.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/seo/app_seo.dart';
 import 'core/services/fcm_service.dart';
+import 'services/supabase_service.dart';
 import 'services/tenant_routing_service.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
@@ -126,6 +129,12 @@ class LandyMakerApp extends StatelessWidget {
         ),
         BlocProvider<UploadManagerCubit>(
           create: (_) => sl<UploadManagerCubit>(),
+        ),
+        BlocProvider<PixabaySelectorCubit>(
+          create: (_) => sl<PixabaySelectorCubit>(),
+        ),
+        BlocProvider<AIGenerationCubit>(
+          create: (context) => AIGenerationCubit(sl<SupabaseService>(), context.read<LandingPageBuilderCubit>()),
         ),
         BlocProvider<LandingPagesCubit>(create: (_) => sl<LandingPagesCubit>()),
         BlocProvider<LeadsAnalyticsCubit>(

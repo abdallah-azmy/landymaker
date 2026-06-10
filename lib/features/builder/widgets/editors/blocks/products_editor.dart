@@ -40,6 +40,15 @@ class ProductsEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FormGroup(
+          label: context.translate('title'),
+          child: CustomTextField(
+            controller: getController("${index}_title", block['title'] ?? ''),
+            focusNode: getFocusNode("${index}_title"),
+            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+          ),
+        ),
+        const SizedBox(height: 16),
+        FormGroup(
           label: context.translate('whatsapp_orders'),
           helperText: "2010...",
           child: CustomTextField(
@@ -229,7 +238,7 @@ class ProductsEditor extends StatelessWidget {
                 ToastService.showSuccess(context, message: context.translate('copy_link_success'));
               },
               icon: const Icon(Icons.copy_rounded, size: 18),
-              label: Text(context.translate('copy') ?? "نسخ الرابط"),
+              label: Text(context.translate('copy')),
             ),
           ],
         ),

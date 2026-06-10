@@ -19,7 +19,15 @@ class StorageService {
     return _supabase.listUserImages();
   }
 
-  Future<void> deleteImage(String fileName) {
-    return _supabase.deleteImage(fileName);
+  Future<String?> findAssetByHash(String hash) {
+    return _supabase.findAssetByHash(hash);
+  }
+
+  Future<void> registerExternalAsset(String url, String name, {String? hash}) {
+    return _supabase.registerExternalAsset(url, name, hash: hash);
+  }
+
+  Future<void> deleteImage(String fileName, {String? source, String? assetId}) {
+    return _supabase.deleteImage(fileName, source: source, assetId: assetId);
   }
 }

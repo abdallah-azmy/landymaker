@@ -108,7 +108,7 @@ class CustomWhatsappWidget extends StatelessWidget {
                     label: Text(buttonText, overflow: TextOverflow.ellipsis),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: secondaryColor,
-                      foregroundColor: Colors.white,
+                      foregroundColor: theme?.buttonTextColor ?? Colors.white,
                       disabledBackgroundColor: subTextColor.withValues(
                         alpha: 0.24,
                       ),

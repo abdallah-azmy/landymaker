@@ -30,6 +30,13 @@ class AnimatedCounterEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        CustomTextField(
+          hintText: "العنوان الرئيسي",
+          controller: getController("${index}_title", block['title'] ?? ''),
+          focusNode: getFocusNode("${index}_title"),
+          onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+        ),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

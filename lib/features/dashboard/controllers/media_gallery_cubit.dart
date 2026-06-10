@@ -49,12 +49,12 @@ class MediaGalleryCubit extends Cubit<MediaGalleryState> {
     }
   }
 
-  Future<void> deleteImage(String fileName) async {
+  Future<void> deleteImage(String fileName, {String? source, String? assetId}) async {
     final currentState = state;
     if (currentState is! MediaGalleryLoaded) return;
 
     try {
-      await _storageService.deleteImage(fileName);
+      await _storageService.deleteImage(fileName, source: source, assetId: assetId);
       await loadImages();
       if (state is MediaGalleryLoaded) {
         emit((state as MediaGalleryLoaded).copyWith(successMessage: "تم حذف الصورة بنجاح."));

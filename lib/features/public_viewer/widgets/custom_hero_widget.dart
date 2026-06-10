@@ -247,7 +247,7 @@ class CustomHeroWidget extends StatelessWidget {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: secondary,
-            foregroundColor: Colors.white,
+            foregroundColor: theme?.buttonTextColor ?? Colors.white,
             padding: EdgeInsets.symmetric(horizontal: isMobile ? 24 : 32, vertical: isMobile ? 14 : 18),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

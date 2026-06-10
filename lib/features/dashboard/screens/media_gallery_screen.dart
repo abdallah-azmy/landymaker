@@ -153,7 +153,11 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
                   return _ImageGalleryCard(
                     imageUrl: img['url'],
                     fileName: img['name'],
-                    onDelete: () => context.read<MediaGalleryCubit>().deleteImage(img['name']),
+                    onDelete: () => context.read<MediaGalleryCubit>().deleteImage(
+                      img['name'],
+                      source: img['source'],
+                      assetId: img['id'],
+                    ),
                   );
                 },
               ),

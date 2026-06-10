@@ -30,6 +30,9 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     required String location,
     required String language,
     required String offer,
+    String intent = 'generate',
+    Map<String, dynamic>? currentDesign,
+    String? instruction,
   }) async {
     emit(AIGenerationLoading());
 
@@ -42,6 +45,9 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
           'location': location,
           'language': language,
           'offer': offer,
+          'intent': intent,
+          'currentDesign': currentDesign,
+          'instruction': instruction,
         },
       );
 

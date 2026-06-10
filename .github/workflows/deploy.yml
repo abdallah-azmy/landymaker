@@ -33,6 +33,7 @@ jobs:
       - name: 🏗️ Build Flutter Web
         run: |
           flutter build web --release \
+            --dart-define=GOOGLE_AI_KEY=${{ secrets.GOOGLE_AI_KEY }} \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} \
             --dart-define=IMGBB_API_KEY=${{ secrets.IMGBB_API_KEY }} \

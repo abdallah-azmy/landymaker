@@ -5,6 +5,8 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../controllers/ai_generation_cubit.dart';
+import '../../controllers/builder_cubit.dart';
+import '../../controllers/builder_state.dart';
 
 class AiMagicFormModal extends StatefulWidget {
   const AiMagicFormModal({super.key});
@@ -18,7 +20,21 @@ class _AiMagicFormModalState extends State<AiMagicFormModal> {
   final _typeController = TextEditingController();
   final _locationController = TextEditingController();
   final _offerController = TextEditingController();
+  final _instructionController = TextEditingController();
   String _language = 'Arabic';
+  bool _isEditMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final builderState = context.read<LandingPageBuilderCubit>().state;
+    if (builderState is BuilderLoaded &&
+        (builderState.designMap['blocks'] as List?)?.isNotEmpty == true) {
+      _isEditMode = true;
+      // Pre-fill context if available
+      _nameController.text = builderState.designMap['business_name'] ?? '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +43,13 @@ class _AiMagicFormModalState extends State<AiMagicFormModal> {
         if (state is AIGenerationSuccess) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تم إنشاء الصفحة بنجاح باستخدام الذكاء الاصطناعي!')),
+            const SnackBar(
+                content: Text('تم معالجة طلبك بنجاح بواسطة الذكاء الاصطناعي!')),
           );
         }
         if (state is AIGenerationFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('خطأ: ${state.error}')),
+            SnackBar(content: Text('خطأ: \${state.error}')),
           );
         }
       },
@@ -68,15 +85,17 @@ class _AiMagicFormModalState extends State<AiMagicFormModal> {
                 const SizedBox(height: 24),
                 Row(
                   children: [
-                    const Icon(Icons.auto_awesome_rounded, color: AppColors.primary),
+                    const Icon(Icons.auto_awesome_rounded,
+                        color: AppColors.primary),
                     const SizedBox(width: 12),
                     Text("المنشئ الذكي (AI)", style: AppTypography.h2),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "أخبرنا قليلاً عن عملك وسيقوم الذكاء الاصطناعي ببناء صفحة هبوط كاملة لك في ثوانٍ.",
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                  "أخبرنا قليلاً عن عملك وسيقوم الذكاء الاصطناعي ببناء أو تعديل صفحة الهبوط لك في ثوانٍ.",
+                  style: AppTypography.bodySmall
+                      .copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 32),
                 CustomTextField(
@@ -101,11 +120,30 @@ class _AiMagicFormModalState extends State<AiMagicFormModal> {
                   label: "العرض أو الهدف الأساسي",
                   hint: "مثلاً: احصل على استشارة مجانية أو خصم 20%",
                   controller: _offerController,
-                  maxLines: 3,
+                  maxLines: 2,
                 ),
+                if (_isEditMode) ...[
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  Text("تعديل الصفحة الحالية",
+                      style: AppTypography.h3
+                          .copyWith(color: AppColors.secondary)),
+                  const SizedBox(height: 8),
+                  CustomTextField(
+                    label: "ما الذي تريد تغييره؟",
+                    hint: "مثلاً: اجعل العناوين أكثر حماساً، أو أضف قسم للأسعار",
+                    controller: _instructionController,
+                    maxLines: 3,
+                  ),
+                ],
                 const SizedBox(height: 32),
                 PrimaryButton(
-                  text: isLoading ? "جاري الإنشاء..." : "إنشاء الصفحة الآن",
+                  text: isLoading
+                      ? "جاري العمل..."
+                      : (_isEditMode
+                          ? "تحديث الصفحة بالذكاء الاصطناعي"
+                          : "إنشاء الصفحة الآن"),
                   icon: isLoading ? null : Icons.auto_awesome_rounded,
                   onPressed: isLoading ? null : _handleGenerate,
                   width: double.infinity,
@@ -120,19 +158,31 @@ class _AiMagicFormModalState extends State<AiMagicFormModal> {
   }
 
   void _handleGenerate() {
-    if (_nameController.text.isEmpty || _typeController.text.isEmpty || _offerController.text.isEmpty) {
+    if (_nameController.text.isEmpty ||
+        _typeController.text.isEmpty ||
+        _offerController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('يرجى ملء جميع الحقول الأساسية')),
       );
       return;
     }
 
+    final builderCubit = context.read<LandingPageBuilderCubit>();
+    final builderState = builderCubit.state;
+    Map<String, dynamic>? currentDesign;
+    if (builderState is BuilderLoaded) {
+      currentDesign = builderState.designMap;
+    }
+
     context.read<AIGenerationCubit>().generatePage(
-      businessName: _nameController.text,
-      businessType: _typeController.text,
-      location: _locationController.text,
-      language: _language,
-      offer: _offerController.text,
-    );
+          businessName: _nameController.text,
+          businessType: _typeController.text,
+          location: _locationController.text,
+          language: _language,
+          offer: _offerController.text,
+          intent: _isEditMode ? 'edit' : 'generate',
+          currentDesign: _isEditMode ? currentDesign : null,
+          instruction: _instructionController.text,
+        );
   }
 }

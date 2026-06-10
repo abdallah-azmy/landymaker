@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../services/supabase_service.dart';
 import '../ai/ai_conversation_session.dart';
@@ -62,33 +63,46 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
   Future<void> processUserMessage(String message) async {
     _session.addMessage('user', message);
     
+    // SAFE STATE ACCESS
+    final builderState = _builderCubit.state;
+    final Map<String, dynamic> currentDesign = builderState is BuilderLoaded 
+        ? builderState.designMap 
+        : {'blocks': []};
+
     // Determine intent based on current state
-    final bool isNewSite = _builderCubit.state is BuilderLoaded && 
-        ((_builderCubit.state as BuilderLoaded).designMap['blocks'] as List?)?.isEmpty == true;
-    
+    final bool isNewSite = currentDesign['blocks']?.isEmpty == true;
     final String intent = isNewSite ? 'generate' : 'edit';
     
     emit(AIGenerationThinking("جاري تحليل طلبك..."));
 
     try {
-      final currentDesign = (_builderCubit.state as BuilderLoaded).designMap;
       final context = _session.getContextForAI(currentDesign);
 
       // SMART CONTEXT SELECTION: Prune design data based on user message
       final minimalDesign = _getMinimalDesignContext(currentDesign, message, intent);
 
+      final payload = {
+        ...context,
+        'intent': intent,
+        'currentDesign': minimalDesign,
+        'instruction': message,
+        'language': 'ar',
+      };
+
+      // DEBUG LOGGING: Request
+      print('🚀 AI AGENT REQUEST:');
+      print(const JsonEncoder.withIndent('  ').convert(payload));
+
       emit(AIGenerationGenerating(intent == 'generate' ? "جاري بناء صفحتك الجديدة..." : "جاري تعديل التصميم..."));
 
       final response = await _supabase.client.functions.invoke(
         'ai-page-generate',
-        body: {
-          ...context,
-          'intent': intent,
-          'currentDesign': minimalDesign,
-          'instruction': message,
-          'language': 'ar',
-        },
+        body: payload,
       );
+
+      // DEBUG LOGGING: Response
+      print('📥 AI AGENT RESPONSE (${response.status}):');
+      print(const JsonEncoder.withIndent('  ').convert(response.data));
 
       if (response.status == 200 || response.status == 201) {
         final data = response.data;
@@ -149,10 +163,21 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
           emit(AIGenerationSuccess({}, assistantMessage: data['assistant_message']));
         }
       } else {
-        emit(AIGenerationFailure(response.data['error'] ?? 'Unknown error'));
+        final errorMsg = response.data['error'] ?? 'Unknown error';
+        print('❌ AI AGENT ERROR (API): $errorMsg');
+        
+        String userFriendlyError = "حدث خطأ غير متوقع في نظام الذكاء الاصطناعي.";
+        if (errorMsg.contains('quota') || errorMsg.contains('limit')) {
+          userFriendlyError = "لقد وصلت للحد الأقصى لاستخدام الـ AI لهذا الشهر.";
+        } else if (errorMsg.contains('Invalid JSON')) {
+          userFriendlyError = "نعتذر، نظام الـ AI يواجه صعوبة في صياغة التصميم الآن. يرجى المحاولة مرة أخرى.";
+        }
+
+        emit(AIGenerationFailure(userFriendlyError));
       }
     } catch (e) {
-      emit(AIGenerationFailure(e.toString()));
+      print('❌ AI AGENT ERROR (Exception): $e');
+      emit(AIGenerationFailure("فشل الاتصال بخادم الـ AI. تأكد من اتصالك بالإنترنت."));
     }
   }
 

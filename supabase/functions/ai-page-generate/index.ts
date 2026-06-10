@@ -160,13 +160,12 @@ serve(async (req: Request) => {
       { "action": "pixabay_selection", "query": "doctors", "type": "photo", "sectionIndex": X, "elementId": "...", "property": "image_url" }
     `;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt + "\nGenerate JSON. Professional Arabic/English." }] }],
+        contents: [{ parts: [{ text: prompt + "\n\nCRITICAL: Output ONLY a single valid JSON object. No markdown, no triple backticks. Start with { and end with }." }] }],
         generationConfig: {
-          response_mime_type: "application/json",
           temperature: 0.7,
           topP: 0.8,
           topK: 40
@@ -175,10 +174,23 @@ serve(async (req: Request) => {
     })
 
     const result = await response.json()
-    if (!result.candidates) throw new Error(result.error?.message || 'Gemini API Error')
+    if (!result.candidates || result.candidates.length === 0) {
+      console.error('Gemini API Error details:', result);
+      throw new Error(result.error?.message || 'The AI model failed to generate a response. Please try again.');
+    }
 
-    const rawText = result.candidates[0].content.parts[0].text
-    let aiResponse = JSON.parse(rawText)
+    let rawText = result.candidates[0].content.parts[0].text;
+
+    // Safety: Strip potential markdown backticks if AI ignores prompt instructions
+    rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    let aiResponse;
+    try {
+      aiResponse = JSON.parse(rawText);
+    } catch (parseError) {
+      console.error('JSON Parse Error. Raw Text:', rawText);
+      throw new Error('AI returned an invalid design format. Please try rephrasing your request.');
+    }
 
     // Resolve Pixabay Searches (Automatic)
     if (aiResponse.designJson?.blocks) {

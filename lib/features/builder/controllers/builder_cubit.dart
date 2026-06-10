@@ -176,17 +176,48 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
 
-    // Support extracting theme if provided by AI
+    // 1. Theme Update
     LandingPageTheme? newTheme;
     if (designJson['theme'] != null) {
       newTheme = LandingPageTheme.fromJson(designJson['theme']);
     } else if (designJson['global_theme'] != null) {
-       newTheme = LandingPageTheme.fromJson(designJson['global_theme']);
+      newTheme = LandingPageTheme.fromJson(designJson['global_theme']);
+    }
+
+    // 2. Blocks Update
+    Map<String, dynamic> newDesignMap = Map<String, dynamic>.from(currentState.designMap);
+    final List incomingBlocks = designJson['blocks'] as List? ?? [];
+    
+    // Check if it's a partial update (contains _index)
+    bool isPartial = incomingBlocks.any((b) => b is Map && b.containsKey('_index'));
+
+    if (isPartial) {
+      final List currentBlocks = List.from(newDesignMap['blocks'] ?? []);
+      for (var block in incomingBlocks) {
+        if (block is Map && block.containsKey('_index')) {
+          final int index = block['_index'];
+          if (index >= 0 && index < currentBlocks.length) {
+            // Merge or replace specific block
+            currentBlocks[index] = Map<String, dynamic>.from(block)..remove('_index');
+          } else if (index == currentBlocks.length) {
+            // New block at the end
+            currentBlocks.add(Map<String, dynamic>.from(block)..remove('_index'));
+          }
+        }
+      }
+      newDesignMap['blocks'] = currentBlocks;
+      
+      // Also update business info if provided
+      if (designJson.containsKey('business_name')) newDesignMap['business_name'] = designJson['business_name'];
+      if (designJson.containsKey('business_type')) newDesignMap['business_type'] = designJson['business_type'];
+    } else {
+      // Full update
+      newDesignMap = designJson;
     }
 
     _emitDirty(
       currentState.copyWith(
-        designMap: designJson,
+        designMap: newDesignMap,
         theme: newTheme,
         hasUnsavedChanges: true,
       ),

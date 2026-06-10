@@ -4,8 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../public_viewer/widgets/section_renderer.dart';
 import '../../builder/models/landing_page_theme.dart';
-
-import 'package:landymaker/features/builder/widgets/modals/ai_magic_form_modal.dart';
+import '../../builder/widgets/modals/ai_chat_modal.dart';
 
 class HomeHeroSection extends StatefulWidget {
   final VoidCallback onGetStartedPressed;
@@ -175,7 +174,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const AiMagicFormModal(),
+      builder: (context) => const AIChatModal(),
     );
   }
 

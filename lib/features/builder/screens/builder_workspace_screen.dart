@@ -26,7 +26,7 @@ import '../../dashboard/widgets/empty_workspace_state.dart';
 
 import '../models/preview_mode.dart';
 
-import '../widgets/modals/ai_magic_form_modal.dart';
+import '../widgets/modals/ai_chat_modal.dart';
 
 class BuilderWorkspaceScreen extends StatefulWidget {
   final VoidCallback onBackToDashboard;
@@ -119,7 +119,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const AiMagicFormModal(),
+      builder: (context) => const AIChatModal(),
     );
   }
 

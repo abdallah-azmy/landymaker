@@ -99,55 +99,65 @@ serve(async (req: Request) => {
       }
     }
 
-    const { businessName, businessType, location, language, offer, intent, currentDesign, instruction } = await req.json()
+    const {
+      businessName,
+      businessType,
+      location,
+      language,
+      offer,
+      intent,
+      currentDesign,
+      instruction,
+      // NEW AGENT CONTEXT
+      memory_summary,
+      business_profile,
+      builder_snapshot,
+      recent_messages
+    } = await req.json()
 
-    let prompt = `You are an Omnipotent AI Designer for LandyMaker.
+    let prompt = `You are an Omnipotent AI Agent Designer for LandyMaker.
     Task: ${intent === 'edit' ? 'Surgically modify the existing page' : 'Generate a full landing page'}.
-    Language: ${language}. Business: ${businessName} (${businessType}) in ${location}. Offer: ${offer}.
+    Language: ${language}.
 
-    ${intent === 'edit' ? `Current Design: ${JSON.stringify(currentDesign)}\nUser Instruction: ${instruction}` : ''}
+    CONVERSATION CONTEXT:
+    - Memory Summary: ${memory_summary || 'None'}
+    - Business Profile: ${JSON.stringify(business_profile || {})}
+    - Recent Messages: ${JSON.stringify(recent_messages || [])}
+
+    BUILDER STATE (SNAPSHOT):
+    - Current Sections: ${JSON.stringify(builder_snapshot?.sections || [])}
+    - Current Theme: ${JSON.stringify(builder_snapshot?.theme || {})}
+
+    ${intent === 'edit' ? `User Instruction: ${instruction}` : ''}
+    ${intent === 'edit' && currentDesign ? `Relevant Design Context: ${JSON.stringify(currentDesign)}` : ''}
+
+    AGENTIC RULES:
+    1. If critical information (Business Name, Industry, Offer) is missing:
+       - DO NOT FAIL.
+       - Use placeholders like "[Business Name]".
+       - Use "ask_question" action only if generation is absolutely impossible.
+    2. If intent is "edit", you might receive only RELEVANT blocks with "_index" property.
+       - Always return the FULL updated block if you modify it.
+       - Keep the "_index" property in the output if it was provided, so the frontend can map it back.
+    3. Respond with a JSON object containing:
+       - "designJson": The updated design (if applicable).
+       - "memory_summary_update": A new concise summary of what you learned about the user.
+       - "business_profile_update": Any new details for the profile.
+       - "action": "pixabay_selection" | "ask_question" | "none".
+       - "assistant_message": What to say to the user in chat.
 
     BLOCKS (Schema Reference):
     - global_theme: {primary, secondary, background, textPrimary, textSecondary, font_family, button_text_color}
-    - hero / hero_saas: {title, subtitle, button_text, button_url, image_url, variant: 0-2 (0:Std, 1:Split, 2:Centered), animation}
-    - features: {title, items: [{title, description, image_url, link_url}], variant: 0-2 (0:Grid, 1:Bento, 2:List)}
-    - lead_form / lead_magnet: {title, subtitle, button_text, image_url, whatsapp_auto_open, whatsapp_number, whatsapp_message_template}
-    - pricing: {title, items: [{name, prices: {monthly, yearly}, currency, features, button_text, is_popular}], variant: 0-2 (0:Grid, 1:Row, 2:Table)}
-    - products: {title, items: [{id, name, description, price, image_url, button_text, category}], layout_style: "grid_2"|"grid_3"|"list"}
-    - faq: {title, items: [{question, answer}]}
-    - testimonials: {title, items: [{author, role, quote, image_url}]}
-    - whatsapp: {title, phone_number, message, button_text}
-    - trust_logos: {title, items: [url]}
-    - animated_counter: {title, items: [{value, label, prefix, suffix}]}
-    - statistics_grid: {title, subtitle, items: [{value, label, icon}]}
-    - team_members: {title, subtitle, items: [{name, role, bio, image_url, socials: [{platform, url}]}]}
-    - service_steps: {title, subtitle, items: [{title, description}]}
-    - cta_banner: {title, subtitle, button_text, button_url}
-    - comparison_table: {title, subtitle, plans, features}
-    - video_embed: {title, video_url}
-    - gallery: {title, items: [url], display_mode: "grid"|"slider", grid_columns: 1-4}
-    - contact_info: {title, email, phone, location}
+    - hero / hero_saas: {title, subtitle, button_text, button_url, image_url, variant: 0-2, animation}
+    - features: {title, items: [{title, description, image_url, link_url}], variant: 0-2}
+    - lead_form / lead_magnet: {title, subtitle, button_text, image_url, whatsapp_auto_open, whatsapp_number}
+    - pricing: {title, items: [{name, prices: {monthly, yearly}, currency, features, button_text, is_popular}], variant: 0-2}
+    - faq, testimonials, whatsapp, trust_logos, animated_counter, etc.
 
     PIXABAY API RULES:
-    1. For any NEW image or if user asks for specific images (e.g., "change chips image"), you MUST NOT guess a URL.
-    2. Instead, use: { "pixabay_search": { "query": "specific search terms", "type": "photo"|"illustration"|"vector" } }.
-    3. For Avatars: use type="illustration" or type="photo" with query "avatar person".
-    4. For Backgrounds: use specific textures or high-quality photos.
-
-    CONVERSATIONAL FLOW:
-    - If user asks to "change image of product X", find the block, identify the item, and use "pixabay_search" for its image_url.
-    - If user says "make it an avatar", update the search type to "illustration" or "photo" with "avatar" keywords.
-
-    SPECIAL ACTION: PIXABAY SELECTOR
-    - If user asks to "choose a new image for X", and you want to give them multiple options, output:
-      { "action": "pixabay_selection", "query": "search query", "type": "photo", "sectionIndex": number, "elementId": "item_id", "property": "image_url" }
-      This will open a 9-choice grid for the user to pick from.
-
-    RULES:
-    1. Output strictly valid JSON.
-    2. Optimize for LEADS. High urgency.
-    3. Contrast: Ensure button_text_color works with secondary.
-    4. VARIETY: Use variant (0-9).
+    - For images, use: { "pixabay_search": { "query": "...", "type": "photo"|"illustration"|"vector" } }.
+    - If user asks "choose for me" or "replace with doctors", you can also trigger:
+      { "action": "pixabay_selection", "query": "doctors", "type": "photo", "sectionIndex": X, "elementId": "...", "property": "image_url" }
     `;
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
@@ -168,11 +178,11 @@ serve(async (req: Request) => {
     if (!result.candidates) throw new Error(result.error?.message || 'Gemini API Error')
 
     const rawText = result.candidates[0].content.parts[0].text
-    let designJson = JSON.parse(rawText)
+    let aiResponse = JSON.parse(rawText)
 
     // Resolve Pixabay Searches (Automatic)
-    if (designJson.blocks) {
-      designJson = await resolvePixabayRequests(designJson);
+    if (aiResponse.designJson?.blocks) {
+      aiResponse.designJson = await resolvePixabayRequests(aiResponse.designJson);
     }
 
     // 4. Log Usage
@@ -183,7 +193,7 @@ serve(async (req: Request) => {
       feature_type: 'page_generation'
     })
 
-    return new Response(JSON.stringify({ designJson }), {
+    return new Response(JSON.stringify(aiResponse), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })

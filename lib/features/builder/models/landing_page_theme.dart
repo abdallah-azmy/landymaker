@@ -128,6 +128,10 @@ class LandingPageTheme {
     {'family': 'Roboto', 'category': 'عالمي / Global Standard', 'desc': 'الخط الافتراضي لأنظمة أندرويد، عملي وسريع القراءة بأي حجم.'},
   ];
 
+  static LandingPageTheme defaultDark() {
+    return palettes.firstWhere((p) => p.name == 'Default Dark');
+  }
+
   static List<LandingPageTheme> get palettes => [
     const LandingPageTheme(
       name: 'Lux-Earth',

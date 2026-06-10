@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
@@ -90,6 +91,23 @@ class CustomNetworkImage extends StatelessWidget {
 
     if (!Uri.parse(imageUrl).isAbsolute) {
       return _buildErrorWidget();
+    }
+
+    if (kIsWeb) {
+      return ClipRRect(
+        borderRadius: borderRadius,
+        child: Image.network(
+          imageUrl,
+          width: width,
+          height: height,
+          fit: fit,
+          errorBuilder: (context, error, stackTrace) => _buildErrorWidget(),
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return _buildLoadingWidget();
+          },
+        ),
+      );
     }
 
     return ClipRRect(

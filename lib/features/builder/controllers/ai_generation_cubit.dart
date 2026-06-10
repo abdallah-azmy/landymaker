@@ -56,6 +56,8 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
   final LandingPageBuilderCubit _builderCubit;
   late final AIConversationSession _session;
 
+  AIConversationSession get session => _session;
+
   AIGenerationCubit(this._supabase, this._builderCubit)
     : super(AIGenerationInitial()) {
     _session = AIConversationSession(
@@ -231,6 +233,10 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
         ),
       );
     }
+  }
+
+  void resetState() {
+    emit(AIGenerationInitial());
   }
 
   /// SMARTEST CONTEXT SELECTION: Returns only relevant blocks to save tokens

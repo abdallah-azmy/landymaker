@@ -31,20 +31,27 @@ class _AIChatModalState extends State<AIChatModal> {
       builderCubit.initializeNewPage();
     }
 
-    final bool isNewSite =
-        builderCubit.state is BuilderLoaded &&
-        ((builderCubit.state as BuilderLoaded).designMap['blocks'] as List?)
-                ?.isEmpty ==
-            true;
-
-    if (isNewSite) {
-      _addSystemMessage(
-        "أهلاً بك! دعنا نبني صفحتك. من فضلك أخبرني:\n1. اسم نشاطك التجاري\n2. مجال العمل\n3. ما هو العرض الأساسي الذي تقدمه؟",
-      );
+    final aiCubit = context.read<AIGenerationCubit>();
+    if (aiCubit.session.messages.isNotEmpty) {
+      for (final msg in aiCubit.session.messages) {
+        _chatHistory.add({'role': msg.role, 'content': msg.content});
+      }
     } else {
-      _addSystemMessage(
-        "أهلاً بك! أنا مساعدك الذكي لبناء صفحات الهبوط. كيف يمكنني مساعدتك في تعديل صفحتك اليوم؟",
-      );
+      final bool isNewSite =
+          builderCubit.state is BuilderLoaded &&
+          ((builderCubit.state as BuilderLoaded).designMap['blocks'] as List?)
+                  ?.isEmpty ==
+              true;
+
+      if (isNewSite) {
+        _addSystemMessage(
+          "أهلاً بك! دعنا نبني صفحتك. من فضلك أخبرني:\n1. اسم نشاطك التجاري\n2. مجال العمل\n3. ما هو العرض الأساسي الذي تقدمه؟",
+        );
+      } else {
+        _addSystemMessage(
+          "أهلاً بك! أنا مساعدك الذكي لبناء صفحات الهبوط. كيف يمكنني مساعدتك في تعديل صفحتك اليوم؟",
+        );
+      }
     }
   }
 
@@ -87,7 +94,14 @@ class _AIChatModalState extends State<AIChatModal> {
           ToastService.showSuccess(context, message: "تم تحديث الصورة بنجاح");
         },
       ),
-    );
+    ).then((_) {
+      if (mounted) {
+        final cubit = context.read<AIGenerationCubit>();
+        if (cubit.state is AIGenerationPixabaySelection) {
+          cubit.resetState();
+        }
+      }
+    });
   }
 
   @override

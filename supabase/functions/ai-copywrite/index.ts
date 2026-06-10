@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
 
-const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY') || ''
+const GOOGLE_AI_KEY = Deno.env.get('GOOGLE_AI_KEY') || ''
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') || ''
 
@@ -34,7 +34,7 @@ serve(async (req: Request) => {
 
     const { fieldType, context, tone, length } = await req.json()
 
-    // 2. Construct Prompt
+    // 2. Construct Gemini Prompt
     const systemPrompt = `You are an expert Arabic conversion copywriter.
     Write 3 variations for a ${fieldType} for a business with the following context:
     ${JSON.stringify(context)}
@@ -45,27 +45,20 @@ serve(async (req: Request) => {
     CRITICAL RULES:
     1. Output MUST be valid JSON: {"variations": ["...", "...", "..."]}
     2. Focus on high conversion and persuasive Arabic language.
-    3. Respect the tone and length constraints.
     `;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: 'Generate JSON variations.' }
-        ],
-        response_format: { type: 'json_object' }
+        contents: [{ parts: [{ text: systemPrompt + "\nGenerate only JSON." }] }],
+        generationConfig: { response_mime_type: "application/json" }
       }),
     })
 
-    const aiResult = await response.json()
-    const variations = JSON.parse(aiResult.choices[0].message.content).variations
+    const result = await response.json()
+    const rawText = result.candidates[0].content.parts[0].text
+    const variations = JSON.parse(rawText).variations
 
     // Log Usage
     await supabase.from('ai_usage_log').insert({

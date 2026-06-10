@@ -11,7 +11,7 @@ The AI Agent in LandyMaker is implemented as an orchestrated system across the F
 ## 2. Token Optimization (Saving Cost & Improving Quality)
 To ensure minimum token consumption while maintaining 100% professional results, we implemented:
 
-- **Model Selection**: Switched to `gpt-4o-mini`. It is **~20x cheaper** than `gpt-4o` while providing nearly identical performance for structured JSON generation.
+- **Model Selection**: Switched to **Google Gemini 1.5 Flash**. It provides a high-performance **Free Tier** (up to 15 RPM), making the AI features of LandyMaker essentially free to run while maintaining elite quality in Arabic.
 - **Schema Compression**: The system prompt no longer sends large Dart definitions. We use a **Compressed Block Signature** that tells the AI exactly what fields are required without fluff.
 - **JSON Mode**: Forced `response_format: { type: 'json_object' }` to prevent "chatty" AI responses that waste tokens on explanations.
 - **Constraint Grounding**: The AI is instructed to use industry-standard copy frameworks like **PAS (Problem-Agitation-Solution)**, reducing the need for re-generations.

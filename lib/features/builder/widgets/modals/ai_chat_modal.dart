@@ -27,11 +27,16 @@ class _AIChatModalState extends State<AIChatModal> {
     super.initState();
 
     final builderCubit = context.read<LandingPageBuilderCubit>();
+    final aiCubit = context.read<AIGenerationCubit>();
+
+    if (widget.currentPath == '/') {
+      aiCubit.startNewSession();
+    }
+
     if (builderCubit.state is! BuilderLoaded) {
       builderCubit.initializeNewPage();
     }
 
-    final aiCubit = context.read<AIGenerationCubit>();
     if (aiCubit.session.messages.isNotEmpty) {
       for (final msg in aiCubit.session.messages) {
         _chatHistory.add({'role': msg.role, 'content': msg.content});

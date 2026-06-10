@@ -107,14 +107,31 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-async function fetchPixabayImage(query: string, type: string = 'photo'): Promise<string | null> {
+async function fetchPixabayImageWithCache(
+  query: string,
+  type: string,
+  indexInSequence: number,
+  searchCache: Record<string, string[]>,
+  limit: number
+): Promise<string | null> {
   if (!PIXABAY_API_KEY) return null;
+  const cacheKey = `${query}_${type}`;
   try {
-    const response = await fetch(`https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=${type}&per_page=5&safesearch=true`);
-    const data = await response.json();
-    if (data.hits && data.hits.length > 0) {
-      const index = Math.floor(Math.random() * Math.min(data.hits.length, 5));
-      return data.hits[index].webformatURL;
+    if (!searchCache[cacheKey]) {
+      // Pixabay per_page must be between 3 and 200
+      const perPage = Math.max(3, Math.min(limit, 200));
+      const response = await fetch(`https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=${type}&per_page=${perPage}&safesearch=true`);
+      const data = await response.json();
+      if (data.hits && data.hits.length > 0) {
+        searchCache[cacheKey] = data.hits.map((h: any) => h.webformatURL);
+      } else {
+        searchCache[cacheKey] = [];
+      }
+    }
+    
+    const urls = searchCache[cacheKey];
+    if (urls && urls.length > 0) {
+      return urls[indexInSequence % urls.length];
     }
   } catch (e) {
     console.error('Pixabay Error:', e);
@@ -159,38 +176,69 @@ function extractJson(text: string): any {
   }
 }
 
-async function resolvePixabayRequests(obj: any): Promise<any> {
-  if (typeof obj !== 'object' || obj === null) return obj;
-
-  if (Array.isArray(obj)) {
-    const promises = obj.map(async (item) => {
-      if (item && typeof item === 'object' && item.pixabay_search) {
-        const { query, type } = item.pixabay_search;
-        return await fetchPixabayImage(query, type) || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800";
+function countQueryOccurrences(obj: any): Record<string, number> {
+  const counts: Record<string, number> = {};
+  
+  function scan(node: any) {
+    if (typeof node !== 'object' || node === null) return;
+    if (Array.isArray(node)) {
+      node.forEach(scan);
+    } else {
+      if (node.pixabay_search) {
+        const { query, type } = node.pixabay_search;
+        const searchType = type || 'photo';
+        const cacheKey = `${query}_${searchType}`;
+        counts[cacheKey] = (counts[cacheKey] || 0) + 1;
       }
-      return await resolvePixabayRequests(item);
-    });
-    return await Promise.all(promises);
-  } else {
-    const keys = Object.keys(obj);
-    const promises = keys.map(async (key) => {
-      const val = obj[key];
-      if (val && typeof val === 'object' && val.pixabay_search) {
-        const { query, type } = val.pixabay_search;
-        const resolvedUrl = await fetchPixabayImage(query, type);
-        return { key, val: resolvedUrl || "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800" };
-      }
-      const resolved = await resolvePixabayRequests(val);
-      return { key, val: resolved };
-    });
-
-    const results = await Promise.all(promises);
-    const newObj: any = {};
-    results.forEach(({ key, val }) => {
-      newObj[key] = val;
-    });
-    return newObj;
+      Object.keys(node).forEach(key => scan(node[key]));
+    }
   }
+  
+  scan(obj);
+  return counts;
+}
+
+async function resolvePixabayRequests(obj: any): Promise<any> {
+  const queryCounters: Record<string, number> = {};
+  const searchCache: Record<string, string[]> = {};
+  const queryCounts = countQueryOccurrences(obj);
+
+  async function resolveNode(node: any): Promise<any> {
+    if (typeof node !== 'object' || node === null) return node;
+
+    if (Array.isArray(node)) {
+      const promises = node.map(item => resolveNode(item));
+      return await Promise.all(promises);
+    } else {
+      const keys = Object.keys(node);
+      const promises = keys.map(async (key) => {
+        const val = node[key];
+        if (val && typeof val === 'object' && val.pixabay_search) {
+          const { query, type } = val.pixabay_search;
+          const searchType = type || 'photo';
+          
+          const counterKey = `${query}_${searchType}`;
+          const index = queryCounters[counterKey] || 0;
+          queryCounters[counterKey] = index + 1;
+          
+          const limit = queryCounts[counterKey] || 5;
+          const resolvedUrl = await fetchPixabayImageWithCache(query, searchType, index, searchCache, limit);
+          return { key, val: resolvedUrl || "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800" };
+        }
+        const resolved = await resolveNode(val);
+        return { key, val: resolved };
+      });
+
+      const results = await Promise.all(promises);
+      const newObj: any = {};
+      results.forEach(({ key, val }) => {
+        newObj[key] = val;
+      });
+      return newObj;
+    }
+  }
+
+  return await resolveNode(obj);
 }
 
 serve(async (req: Request) => {
@@ -272,11 +320,13 @@ serve(async (req: Request) => {
        - DO NOT FAIL.
        - Use placeholders like "[Business Name]".
        - Use "ask_question" action only if generation is absolutely impossible.
-    2. If intent is "edit", you might receive only RELEVANT blocks with "_index" property.
-       - Always return the FULL updated block if you modify it.
-       - Keep the "_index" property in the output if it was provided, so the frontend can map it back.
-    3. Respond with a JSON object containing:
-       - "designJson": The updated design (if applicable).
+    2. If intent is "edit" or "generate", you MUST ALWAYS return a non-null, valid "designJson" JSON Object. Leaving "designJson" out or null, or returning it as a JSON Array of blocks instead of a JSON Object with "global_theme" and "blocks" keys, is strictly forbidden.
+    3. If intent is "edit", you MUST perform SURGICAL EDITS:
+       - You MUST return the FULL design configuration (containing ALL blocks and global_theme as keys of the "designJson" JSON Object) with the requested edits applied. Do NOT return a partial blocks list.
+       - You MUST preserve all unmodified blocks, text contents, colors, fonts, and layout settings exactly as they were provided in the Current Design Context.
+       - Only modify the specific properties, sections, or images the user explicitly requested to change.
+    4. Respond with a JSON object containing:
+       - "designJson": The full updated design JSON Object (containing "global_theme" and "blocks" keys).
        - "memory_summary_update": A new concise summary of what you learned about the user.
        - "business_profile_update": Any new details for the profile.
        - "action": "pixabay_selection" | "ask_question" | "none".
@@ -290,8 +340,11 @@ serve(async (req: Request) => {
     - pricing: {title, items: [{name, prices: {monthly, yearly}, currency, features, button_text, is_popular}], variant: 0-2}
     - faq, testimonials, whatsapp, trust_logos, animated_counter, etc.
 
-    PIXABAY API RULES:
-    - For images, use: { "pixabay_search": { "query": "...", "type": "photo"|"illustration"|"vector" } }.
+    PIXABAY API RULES (STRICTLY REQUIRED):
+    - You are FORBIDDEN from generating raw string URLs for image properties (like "https://images.unsplash.com/...").
+    - You MUST use the following format for ANY image or background:
+      { "pixabay_search": { "query": "<search keyword>", "type": "photo"|"illustration"|"vector" } }
+    - To display distinct images for lists of items (e.g. products, team, features), write a distinct, specific query for each item (e.g., item 1: "soccer ball", item 2: "running shoes", item 3: "tennis racket").
     - If user asks "choose for me" or "replace with doctors", you can also trigger:
       { "action": "pixabay_selection", "query": "doctors", "type": "photo", "sectionIndex": X, "elementId": "...", "property": "image_url" }
     `;

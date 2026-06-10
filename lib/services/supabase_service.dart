@@ -596,6 +596,10 @@ class SupabaseService extends ChangeNotifier {
         quota = 999999; // Unlimited
       } else if (_currentUserTier == 'pro') {
         quota = 200;
+      } else if (_currentUserTier == 'business') {
+        quota = 500;
+      } else if (_currentUserTier == 'agency') {
+        quota = 1000;
       }
 
       // 2. Check current quota efficiently (Cache the count for 10 seconds during bulk operations)
@@ -612,7 +616,7 @@ class SupabaseService extends ChangeNotifier {
       if (_cachedAssetsCount! >= quota && _currentUserRole != 'super_admin') {
         String msg = "لقد وصلت للحد الأقصى للرفع ($quota صورة).";
         if (_currentUserTier == 'free') {
-          msg += " قم بالترقية للباقة الاحترافية (Pro) للحصول على مساحة تصل إلى 200 صورة.";
+          msg += " قم بالترقية للحصول على مساحة أكبر تصل إلى 1000 صورة.";
         } else {
           msg += " يرجى حذف بعض الصور القديمة لتتمكن من إضافة صور جديدة.";
         }

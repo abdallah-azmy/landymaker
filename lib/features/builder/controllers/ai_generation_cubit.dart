@@ -54,7 +54,7 @@ class AIGenerationFailure extends AIGenerationState {
 class AIGenerationCubit extends Cubit<AIGenerationState> {
   final SupabaseService _supabase;
   final LandingPageBuilderCubit _builderCubit;
-  late final AIConversationSession _session;
+  late AIConversationSession _session;
 
   AIConversationSession get session => _session;
 
@@ -63,6 +63,14 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     _session = AIConversationSession(
       sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
     );
+  }
+
+  void startNewSession() {
+    _session = AIConversationSession(
+      sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
+    );
+    _builderCubit.initializeNewPage();
+    emit(AIGenerationInitial());
   }
 
   Future<void> processUserMessage(String message) async {
@@ -239,68 +247,13 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     emit(AIGenerationInitial());
   }
 
-  /// SMARTEST CONTEXT SELECTION: Returns only relevant blocks to save tokens
+  /// SMARTEST CONTEXT SELECTION: Returns the complete design context to ensure AI can edit all blocks globally
   Map<String, dynamic> _getMinimalDesignContext(
     Map<String, dynamic> fullDesign,
     String userMessage,
     String intent,
   ) {
     if (intent == 'generate' || fullDesign['blocks'] == null) return {};
-
-    final msg = userMessage.toLowerCase();
-    final List blocks = fullDesign['blocks'];
-    final List<Map<String, dynamic>> relevantBlocks = [];
-
-    // Keywords mapping to block types
-    final Map<String, List<String>> keywordMap = {
-      'hero': ['hero', 'بداية', 'رئيسي', 'صورة'],
-      'features': ['features', 'مميزات', 'خدمات', 'مزايا'],
-      'pricing': ['pricing', 'أسعار', 'خطط', 'اشتراك'],
-      'faq': ['faq', 'أسئلة', 'شائعة'],
-      'testimonials': ['testimonials', 'آراء', 'عملاء', 'قالوا'],
-      'products': ['products', 'منتجات', 'متجر'],
-    };
-
-    bool addedAny = false;
-    for (int i = 0; i < blocks.length; i++) {
-      final block = blocks[i];
-      final type = block['type'] as String? ?? '';
-
-      // If message mentions a specific block type or its Arabic equivalent
-      bool isRelevant = false;
-      keywordMap.forEach((key, keywords) {
-        if (type.contains(key)) {
-          if (keywords.any((kw) => msg.contains(kw))) {
-            isRelevant = true;
-          }
-        }
-      });
-
-      // Special case: "first", "last", "top", "bottom"
-      if (msg.contains('الأول') || msg.contains('أول') || msg.contains('top')) {
-        if (i == 0) isRelevant = true;
-      }
-      if (msg.contains('الأخير') ||
-          msg.contains('آخر') ||
-          msg.contains('bottom')) {
-        if (i == blocks.length - 1) isRelevant = true;
-      }
-
-      if (isRelevant) {
-        relevantBlocks.add({...block, '_index': i});
-        addedAny = true;
-      }
-    }
-
-    // Fallback: If no specific section found, send just the first 2 sections to provide SOME context
-    if (!addedAny && blocks.isNotEmpty) {
-      relevantBlocks.add({...blocks[0], '_index': 0});
-      if (blocks.length > 1) relevantBlocks.add({...blocks[1], '_index': 1});
-    }
-
-    return {
-      'global_theme': fullDesign['global_theme'],
-      'blocks': relevantBlocks,
-    };
+    return fullDesign;
   }
 }

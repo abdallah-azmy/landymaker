@@ -8,8 +8,19 @@ class AIResponseValidator {
     'testimonials': ['items'],
   };
 
-  static Map<String, dynamic>? validate(Map<String, dynamic>? designJson) {
-    if (designJson == null) return null;
+  static Map<String, dynamic>? validate(dynamic designJsonInput) {
+    if (designJsonInput == null) return null;
+
+    Map<String, dynamic> designJson;
+    if (designJsonInput is List) {
+      // If the AI returns a list of blocks directly instead of a map, wrap it.
+      designJson = {'blocks': designJsonInput};
+    } else if (designJsonInput is Map) {
+      // Convert to Map<String, dynamic> if needed
+      designJson = Map<String, dynamic>.from(designJsonInput);
+    } else {
+      return null;
+    }
 
     try {
       // 1. Basic Structure (Self-healing mapping for 'sections' -> 'blocks')

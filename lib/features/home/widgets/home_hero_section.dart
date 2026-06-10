@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../public_viewer/widgets/section_renderer.dart';
@@ -170,11 +171,12 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
   }
 
   void _showAiWizard(BuildContext context) {
+    final currentPath = GoRouterState.of(context).uri.path;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const AIChatModal(),
+      builder: (context) => AIChatModal(currentPath: currentPath),
     );
   }
 

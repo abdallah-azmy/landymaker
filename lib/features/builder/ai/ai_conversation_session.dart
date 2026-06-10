@@ -81,6 +81,12 @@ class AIConversationSession {
     }
   }
 
+  void rollbackLastMessage() {
+    if (messages.isNotEmpty) {
+      messages.removeLast();
+    }
+  }
+
   void updateProfileFromAI(Map<String, dynamic> profileJson) {
     businessProfile = BusinessProfile.fromJson(profileJson);
   }

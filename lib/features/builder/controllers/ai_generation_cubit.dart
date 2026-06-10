@@ -31,8 +31,8 @@ class AIGenerationPixabaySelection extends AIGenerationState {
   final String? property;
   final Function(String) onSelected;
   AIGenerationPixabaySelection({
-    required this.query, 
-    required this.type, 
+    required this.query,
+    required this.type,
     required this.onSelected,
     this.sectionIndex,
     this.elementId,
@@ -56,30 +56,37 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
   final LandingPageBuilderCubit _builderCubit;
   late final AIConversationSession _session;
 
-  AIGenerationCubit(this._supabase, this._builderCubit) : super(AIGenerationInitial()) {
-    _session = AIConversationSession(sessionId: DateTime.now().millisecondsSinceEpoch.toString());
+  AIGenerationCubit(this._supabase, this._builderCubit)
+    : super(AIGenerationInitial()) {
+    _session = AIConversationSession(
+      sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
+    );
   }
 
   Future<void> processUserMessage(String message) async {
     _session.addMessage('user', message);
-    
+
     // SAFE STATE ACCESS
     final builderState = _builderCubit.state;
-    final Map<String, dynamic> currentDesign = builderState is BuilderLoaded 
-        ? builderState.designMap 
+    final Map<String, dynamic> currentDesign = builderState is BuilderLoaded
+        ? builderState.designMap
         : {'blocks': []};
 
     // Determine intent based on current state
     final bool isNewSite = currentDesign['blocks']?.isEmpty == true;
     final String intent = isNewSite ? 'generate' : 'edit';
-    
+
     emit(AIGenerationThinking("جاري تحليل طلبك..."));
 
     try {
       final context = _session.getContextForAI(currentDesign);
 
       // SMART CONTEXT SELECTION: Prune design data based on user message
-      final minimalDesign = _getMinimalDesignContext(currentDesign, message, intent);
+      final minimalDesign = _getMinimalDesignContext(
+        currentDesign,
+        message,
+        intent,
+      );
 
       final payload = {
         ...context,
@@ -93,7 +100,13 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
       print('🚀 AI AGENT REQUEST:');
       print(const JsonEncoder.withIndent('  ').convert(payload));
 
-      emit(AIGenerationGenerating(intent == 'generate' ? "جاري بناء صفحتك الجديدة..." : "جاري تعديل التصميم..."));
+      emit(
+        AIGenerationGenerating(
+          intent == 'generate'
+              ? "جاري بناء صفحتك الجديدة..."
+              : "جاري تعديل التصميم...",
+        ),
+      );
 
       final response = await _supabase.client.functions.invoke(
         'ai-page-generate',
@@ -106,7 +119,15 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
 
       if (response.status == 200 || response.status == 201) {
         final data = response.data;
-        
+
+        // Check for unified error payload
+        if (data is Map && data['error'] != null) {
+          print('❌ AI AGENT ERROR (Logical): ${data['error']}');
+          _session.rollbackLastMessage();
+          emit(AIGenerationFailure(data['error']));
+          return;
+        }
+
         // Update Session Memory
         if (data['memory_summary_update'] != null) {
           _session.updateSummary(data['memory_summary_update']);
@@ -120,69 +141,104 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
 
         // Handle Actions
         if (data['action'] == 'pixabay_selection') {
-          emit(AIGenerationPixabaySelection(
-            query: data['query'],
-            type: data['type'] ?? 'photo',
-            sectionIndex: data['sectionIndex'],
-            elementId: data['elementId'],
-            property: data['property'],
-            onSelected: (url) {
-              if (data['sectionIndex'] != null && data['elementId'] != null && data['property'] != null) {
-                _builderCubit.updateElementProperty(
-                  data['sectionIndex'],
-                  data['elementId'],
-                  data['property'],
-                  url,
-                );
-              }
-              emit(AIGenerationInitial());
-            },
-          ));
+          emit(
+            AIGenerationPixabaySelection(
+              query: data['query'],
+              type: data['type'] ?? 'photo',
+              sectionIndex: data['sectionIndex'],
+              elementId: data['elementId'],
+              property: data['property'],
+              onSelected: (url) {
+                if (data['sectionIndex'] != null &&
+                    data['elementId'] != null &&
+                    data['property'] != null) {
+                  _builderCubit.updateElementProperty(
+                    data['sectionIndex'],
+                    data['elementId'],
+                    data['property'],
+                    url,
+                  );
+                }
+                emit(AIGenerationInitial());
+              },
+            ),
+          );
           return;
         }
 
         // Handle Design Update
         if (data['designJson'] != null) {
           emit(AIGenerationApplyingChanges());
-          
-          var validatedDesign = AIResponseValidator.validate(data['designJson']);
+
+          var validatedDesign = AIResponseValidator.validate(
+            data['designJson'],
+          );
           if (validatedDesign != null) {
             // Fill placeholders if needed
             validatedDesign = PlaceholderGenerator.fillPlaceholders(
-              validatedDesign, 
-              _session.businessProfile.industry
+              validatedDesign,
+              _session.businessProfile.industry,
             );
-            
+
             _builderCubit.applyDesignJson(validatedDesign);
-            emit(AIGenerationSuccess(validatedDesign, assistantMessage: data['assistant_message']));
+            emit(
+              AIGenerationSuccess(
+                validatedDesign,
+                assistantMessage: data['assistant_message'],
+              ),
+            );
           } else {
-            emit(AIGenerationFailure("استجاب الذكاء الاصطناعي بتنسيق غير صالح."));
+            _session.rollbackLastMessage();
+            emit(
+              AIGenerationFailure("استجاب الذكاء الاصطناعي بتنسيق غير صالح."),
+            );
           }
         } else if (data['assistant_message'] != null) {
           // Just a conversation response
-          emit(AIGenerationSuccess({}, assistantMessage: data['assistant_message']));
+          emit(
+            AIGenerationSuccess(
+              {},
+              assistantMessage: data['assistant_message'],
+            ),
+          );
+        } else {
+          _session.rollbackLastMessage();
+          emit(AIGenerationFailure("لم يستجب الذكاء الاصطناعي بأي تصميم أو رسالة."));
         }
       } else {
         final errorMsg = response.data['error'] ?? 'Unknown error';
         print('❌ AI AGENT ERROR (API): $errorMsg');
-        
-        String userFriendlyError = "حدث خطأ غير متوقع في نظام الذكاء الاصطناعي.";
+
+        String userFriendlyError =
+            "حدث خطأ غير متوقع في نظام الذكاء الاصطناعي.";
         if (errorMsg.contains('quota') || errorMsg.contains('limit')) {
-          userFriendlyError = "لقد وصلت للحد الأقصى لاستخدام الـ AI لهذا الشهر.";
+          userFriendlyError =
+              "لقد وصلت للحد الأقصى لاستخدام الـ AI لهذا الشهر.";
         } else if (errorMsg.contains('Invalid JSON')) {
-          userFriendlyError = "نعتذر، نظام الـ AI يواجه صعوبة في صياغة التصميم الآن. يرجى المحاولة مرة أخرى.";
+          userFriendlyError =
+              "نعتذر، نظام الـ AI يواجه صعوبة في صياغة التصميم الآن. يرجى المحاولة مرة أخرى.";
         }
 
+        _session.rollbackLastMessage();
         emit(AIGenerationFailure(userFriendlyError));
       }
     } catch (e) {
       print('❌ AI AGENT ERROR (Exception): $e');
-      emit(AIGenerationFailure("فشل الاتصال بخادم الـ AI. تأكد من اتصالك بالإنترنت."));
+      _session.rollbackLastMessage();
+      emit(
+        AIGenerationFailure(
+          "فشل الاتصال بخادم الـ AI. تأكد من اتصالك بالإنترنت.",
+        ),
+      );
     }
   }
 
   /// SMARTEST CONTEXT SELECTION: Returns only relevant blocks to save tokens
-  Map<String, dynamic> _getMinimalDesignContext(Map<String, dynamic> fullDesign, String userMessage, String intent) {
+  Map<String, dynamic> _getMinimalDesignContext(
+    Map<String, dynamic> fullDesign,
+    String userMessage,
+    String intent,
+  ) {
     if (intent == 'generate' || fullDesign['blocks'] == null) return {};
 
     final msg = userMessage.toLowerCase();
@@ -203,7 +259,7 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     for (int i = 0; i < blocks.length; i++) {
       final block = blocks[i];
       final type = block['type'] as String? ?? '';
-      
+
       // If message mentions a specific block type or its Arabic equivalent
       bool isRelevant = false;
       keywordMap.forEach((key, keywords) {
@@ -218,7 +274,9 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
       if (msg.contains('الأول') || msg.contains('أول') || msg.contains('top')) {
         if (i == 0) isRelevant = true;
       }
-      if (msg.contains('الأخير') || msg.contains('آخر') || msg.contains('bottom')) {
+      if (msg.contains('الأخير') ||
+          msg.contains('آخر') ||
+          msg.contains('bottom')) {
         if (i == blocks.length - 1) isRelevant = true;
       }
 

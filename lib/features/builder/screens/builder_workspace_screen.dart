@@ -50,10 +50,14 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   @override
   void initState() {
     super.initState();
+    final builderCubit = context.read<LandingPageBuilderCubit>();
     if (widget.pageId != null && widget.pageId != 'new') {
-      context.read<LandingPageBuilderCubit>().loadPageById(widget.pageId!);
+      builderCubit.loadPageById(widget.pageId!);
     } else {
-      context.read<LandingPageBuilderCubit>().loadForCurrentUser();
+      // Preserve memory state if already loaded (e.g. guest AI generation session from home page)
+      if (builderCubit.state is! BuilderLoaded) {
+        builderCubit.loadForCurrentUser();
+      }
     }
     _setupBrowserWarning();
   }
@@ -115,11 +119,12 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   }
 
   void _showAiWizard(BuildContext context) {
+    final currentPath = GoRouterState.of(context).uri.path;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const AIChatModal(),
+      builder: (context) => AIChatModal(currentPath: currentPath),
     );
   }
 

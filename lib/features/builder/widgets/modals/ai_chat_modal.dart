@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/toast_service.dart';
@@ -10,7 +11,8 @@ import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
 import 'package:landymaker/features/builder/controllers/builder_state.dart';
 
 class AIChatModal extends StatefulWidget {
-  const AIChatModal({super.key});
+  final String? currentPath;
+  const AIChatModal({super.key, this.currentPath});
 
   @override
   State<AIChatModal> createState() => _AIChatModalState();
@@ -23,14 +25,26 @@ class _AIChatModalState extends State<AIChatModal> {
   @override
   void initState() {
     super.initState();
-    
-    final bool isNewSite = context.read<LandingPageBuilderCubit>().state is BuilderLoaded && 
-        ((context.read<LandingPageBuilderCubit>().state as BuilderLoaded).designMap['blocks'] as List?)?.isEmpty == true;
+
+    final builderCubit = context.read<LandingPageBuilderCubit>();
+    if (builderCubit.state is! BuilderLoaded) {
+      builderCubit.initializeNewPage();
+    }
+
+    final bool isNewSite =
+        builderCubit.state is BuilderLoaded &&
+        ((builderCubit.state as BuilderLoaded).designMap['blocks'] as List?)
+                ?.isEmpty ==
+            true;
 
     if (isNewSite) {
-      _addSystemMessage("أهلاً بك! دعنا نبني صفحتك. من فضلك أخبرني:\n1. اسم نشاطك التجاري\n2. مجال العمل\n3. ما هو العرض الأساسي الذي تقدمه؟");
+      _addSystemMessage(
+        "أهلاً بك! دعنا نبني صفحتك. من فضلك أخبرني:\n1. اسم نشاطك التجاري\n2. مجال العمل\n3. ما هو العرض الأساسي الذي تقدمه؟",
+      );
     } else {
-      _addSystemMessage("أهلاً بك! أنا مساعدك الذكي لبناء صفحات الهبوط. كيف يمكنني مساعدتك في تعديل صفحتك اليوم؟");
+      _addSystemMessage(
+        "أهلاً بك! أنا مساعدك الذكي لبناء صفحات الهبوط. كيف يمكنني مساعدتك في تعديل صفحتك اليوم؟",
+      );
     }
   }
 
@@ -87,6 +101,15 @@ class _AIChatModalState extends State<AIChatModal> {
             _addSystemMessage("تم تنفيذ طلبك بنجاح! هل هناك شيء آخر؟");
           }
           ToastService.showSuccess(context, message: "تم تحديث التصميم بنجاح");
+
+          // UI/UX Flow: If generated from home page, redirect user to guest preview workspace
+          final currentPath = widget.currentPath ?? '';
+          if (currentPath.isNotEmpty &&
+              !currentPath.startsWith('/builder') &&
+              !currentPath.startsWith('/guest-preview')) {
+            Navigator.pop(context); // Close bottom sheet
+            context.go('/guest-preview');
+          }
         }
         if (state is AIGenerationPixabaySelection) {
           _showPixabayPicker(state);
@@ -97,11 +120,15 @@ class _AIChatModalState extends State<AIChatModal> {
         }
       },
       builder: (context, state) {
-        final bool isLoading = state is AIGenerationThinking || state is AIGenerationGenerating || state is AIGenerationApplyingChanges;
+        final bool isLoading =
+            state is AIGenerationThinking ||
+            state is AIGenerationGenerating ||
+            state is AIGenerationApplyingChanges;
         String? progressMessage;
         if (state is AIGenerationThinking) progressMessage = state.message;
         if (state is AIGenerationGenerating) progressMessage = state.message;
-        if (state is AIGenerationApplyingChanges) progressMessage = "جاري تطبيق التغييرات على التصميم...";
+        if (state is AIGenerationApplyingChanges)
+          progressMessage = "جاري تطبيق التغييرات على التصميم...";
 
         return Container(
           height: MediaQuery.of(context).size.height * 0.85,
@@ -176,7 +203,9 @@ class _AIChatModalState extends State<AIChatModal> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.7,
+        ),
         decoration: BoxDecoration(
           color: isUser ? AppColors.secondary : AppColors.cardBg,
           borderRadius: BorderRadius.only(
@@ -206,10 +235,16 @@ class _AIChatModalState extends State<AIChatModal> {
           const SizedBox(
             width: 16,
             height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: AppColors.primary,
+            ),
           ),
           const SizedBox(width: 12),
-          Text(message, style: AppTypography.caption.copyWith(color: AppColors.primary)),
+          Text(
+            message,
+            style: AppTypography.caption.copyWith(color: AppColors.primary),
+          ),
         ],
       ),
     );

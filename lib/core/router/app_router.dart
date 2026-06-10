@@ -23,6 +23,7 @@ import '../../features/home/screens/template_picker_screen.dart';
 import '../../features/home/screens/legal_page.dart';
 import '../../features/public_viewer/screens/public_landing_page.dart';
 import '../../features/builder/screens/builder_workspace_screen.dart';
+import '../../features/builder/screens/guest_preview_screen.dart';
 import '../../services/tenant_routing_service.dart';
 import '../../features/dashboard/screens/dashboard_home_screen.dart';
 import '../../features/dashboard/screens/leads_tracker_screen.dart';
@@ -54,7 +55,9 @@ final GoRouter appRouter = GoRouter(
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 context.go('/dashboard');
               });
-              return const Scaffold(body: Center(child: CircularProgressIndicator()));
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
             }
             return const LandyMakerHomeScreen();
           },
@@ -77,7 +80,9 @@ final GoRouter appRouter = GoRouter(
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context.go('/login');
             });
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
           },
         );
       },
@@ -96,7 +101,9 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/dashboard/products',
-              builder: (context, state) => const Center(child: Text("Products")), // Left as placeholder for now since there's no product screen in the codebase yet? Wait, is there? I didn't see one imported. Let me check later.
+              builder: (context, state) => const Center(
+                child: Text("Products"),
+              ), // Left as placeholder for now since there's no product screen in the codebase yet? Wait, is there? I didn't see one imported. Let me check later.
             ),
           ],
         ),
@@ -147,7 +154,8 @@ final GoRouter appRouter = GoRouter(
               builder: (context, state) => const SuperAdminPanelScreen(),
               redirect: (context, state) {
                 final authState = context.read<AuthCubit>().state;
-                if (authState is Authenticated && authState.role == 'super_admin') {
+                if (authState is Authenticated &&
+                    authState.role == 'super_admin') {
                   return null; // allow
                 }
                 return '/dashboard'; // redirect
@@ -170,7 +178,8 @@ final GoRouter appRouter = GoRouter(
               builder: (context, state) => const PlatformSeoScreen(),
               redirect: (context, state) {
                 final authState = context.read<AuthCubit>().state;
-                if (authState is Authenticated && authState.role == 'super_admin') {
+                if (authState is Authenticated &&
+                    authState.role == 'super_admin') {
                   return null; // allow
                 }
                 return '/dashboard'; // redirect
@@ -180,10 +189,7 @@ final GoRouter appRouter = GoRouter(
         ),
       ],
     ),
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginScreen(),
-    ),
+    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
@@ -223,6 +229,10 @@ final GoRouter appRouter = GoRouter(
         contentKey: 'terms_content',
         path: '/terms',
       ),
+    ),
+    GoRoute(
+      path: '/guest-preview',
+      builder: (context, state) => const GuestPreviewScreen(),
     ),
     GoRoute(
       path: '/builder',

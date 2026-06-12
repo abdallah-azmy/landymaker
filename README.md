@@ -111,7 +111,7 @@ LandyMaker features a strict design standard managed under the project's specifi
 - **Visual Spacing**: Enforces standard vertical spacing margins of **80px on desktop** and **40px on mobile** to maintain breathing room and design balance.
 - **Arabic-First Default**: While bilingual (AR/EN), Arabic Cairo/Tajawal styling is the primary design target.
 - **Reusability Guard**: All developers (and AI assistants) must search `lib/core/widgets/` for existing elements before creating any new components, helper methods, or styling blocks to prevent duplication.
-- **Task Structuring via SPEC-KIT**: Complex features and architecture modifications must strictly adhere to **SPEC-KIT** guidelines documented under the [.specify/](file:///Users/abdallahazmy/Projects/mylandy/.specify/) directory.
+- **Task Structuring via SPEC-KIT**: Complex features and architecture modifications must strictly adhere to **SPEC-KIT** guidelines documented under the [.specify/](./.specify/) directory.
 
 ---
 
@@ -140,9 +140,7 @@ LandyMaker features a professional logging suite based on the `logger` package:
 - **Auto-Filtering**: Logs are fully detailed in **Debug mode** and automatically stripped in **Release mode** to protect performance.
 - **Logging Mixin**: `SupabaseLoggingMixin` wraps database queries, authentication flows, and storage uploads to output detailed structured logs including request bodies, response payloads, query duration, and full stack traces for errors.
 - **Developer Guides**:
-  - Refer to [API_LOGGING_GUIDE.md](file:///Users/abdallahazmy/Projects/mylandy/API_LOGGING_GUIDE.md) for full developer documentation.
-  - Refer to [LOGGING_QUICK_REFERENCE.md](file:///Users/abdallahazmy/Projects/mylandy/LOGGING_QUICK_REFERENCE.md) for quick code snippets.
-  - Refer to [LOGGING_IMPLEMENTATION_SUMMARY.md](file:///Users/abdallahazmy/Projects/mylandy/LOGGING_IMPLEMENTATION_SUMMARY.md) for detailed coverage statistics.
+  - Refer to [API_LOGGING_GUIDE.md](./API_LOGGING_GUIDE.md) for full developer documentation.
 
 ---
 

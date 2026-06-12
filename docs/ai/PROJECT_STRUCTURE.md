@@ -39,10 +39,12 @@ Contains cross-cutting concerns that don't belong to a specific feature:
 ### 2. Feature Layer (`lib/features/`)
 Each feature is an isolated module:
 - `auth`: Login, Register, Password Reset.
+- `blog_admin`: Admin interface for managing the headless blog.
 - `builder`: The Editor workspace, block property editors, and registries.
 - `dashboard`: User management panel, analytics, leads, and domain settings.
+- `home`: SaaS marketing website UI, homepage, template picker.
 - `public_viewer`: High-performance renderer for live landing pages.
-- `blog_admin`: Admin interface for managing the headless blog.
+- `subscription`: Tier limits, upgrade prompts, and payment UI.
 - `super_admin`: Platform-level metrics and global configuration.
 
 ### 3. Service Layer (`lib/services/`)
@@ -70,5 +72,5 @@ Contains global singleton classes that wrap external infrastructure:
 - **Navigation**: `go_router`.
 - **Backend**: `supabase_flutter`.
 - **HTTP Client**: `dio` (with `pretty_dio_logger`).
-- **Icons**: `iconsax_flutter`.
+- **Icons**: `cupertino_icons`.
 - **SEO**: `meta_seo` (and custom Edge Middleware).

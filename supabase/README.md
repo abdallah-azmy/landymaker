@@ -8,7 +8,7 @@ LandyMaker uses Supabase as its primary backend and infrastructure layer.
 - `functions/`: Serverless Deno Edge Functions for sensitive operations:
   - `lead-submit`: Routes form data, verifies Cloudflare Turnstile, and enforces rate limits.
   - `verify-turnstile`: Validates Captcha tokens.
-  - `lead-notify`: (Future) Push/Email notifications for new leads.
+  - `lead-notify`: Push/Email notifications for new leads.
 
 ## 🛡️ Row Level Security (RLS)
 

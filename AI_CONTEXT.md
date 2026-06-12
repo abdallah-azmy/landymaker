@@ -23,17 +23,26 @@ The platform relies on a strict unidirectional data pipeline to ensure 1:1 visua
 ```text
 lib/
 ├── core/                   # Shared utilities, themes, routing, and forms
+│   ├── constants/          # Application constants
 │   ├── forms/              # Validation Engine and Field Renderer
 │   ├── localization/       # Translations dictionaries (ar/en)
+│   ├── responsive/         # Layout breakpoints and responsive builder widgets
+│   ├── router/             # GoRouter routing rules (app_router.dart)
+│   ├── services/           # Low-level core services (Analytics, Turnstile)
+│   ├── theme/              # Styles, palettes, and light/dark theme schemes
+│   ├── utils/              # Utility helpers
 │   └── widgets/            # Generic shared UI atoms/molecules
 ├── features/               # Isolated domain-specific feature modules
 │   ├── auth/               # Auth state machine
+│   ├── blog_admin/         # Blog article publishing & synchronizer UI
 │   ├── builder/            # Flex-Editor workspace, registries, block properties editors
 │   ├── dashboard/          # Shell, analytics, leads charts, custom domain configuration
+│   ├── home/               # SaaS marketing website UI, template picker
 │   ├── public_viewer/      # High-performance section renderer for published pages
 │   ├── subscription/       # Payment modals, tier limits
 │   └── super_admin/        # Platform-level metrics and configurations
 ├── services/               # Infrastructure Client Adaptors
+├── injection_container.dart # Dependency Injection Container (GetIt locator)
 └── main.dart               # App entry point
 ```
 
@@ -141,7 +150,7 @@ To prevent landing pages from hijacking core app paths, `TenantRoutingService.re
 
 ---
 
-## 📈 5. Vercel SEO Edge Middleware
+## 📈 8. Vercel SEO Edge Middleware
 
 `middleware.js` acts as an Edge Routing, Domain/Tenant Resolution, and Bot-Detection Proxy:
 - Proxies Next.js Headless Blog traffic on core domains (`/blog`).
@@ -150,7 +159,7 @@ To prevent landing pages from hijacking core app paths, `TenantRoutingService.re
 
 ---
 
-## 🔐 6. Authentication & Account Management
+## 🔐 9. Authentication & Account Management
 
 Auth is controlled by `AuthCubit` via Supabase:
 - Registration auto-logs users in to the dashboard.
@@ -159,7 +168,7 @@ Auth is controlled by `AuthCubit` via Supabase:
 
 ---
 
-## ⚙️ 7. API Logging & Telemetry
+## ⚙️ 10. API Logging & Telemetry
 
 - **`logger` Wrapper**: `lib/core/logger.dart`.
 - **`SupabaseLoggingMixin`**: Intercepts DB queries and Auth changes.
@@ -167,7 +176,7 @@ Auth is controlled by `AuthCubit` via Supabase:
 
 ---
 
-## 🌍 8. Localization & RTL Patterns
+## 🌍 11. Localization & RTL Patterns
 
 LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 - `context.translate('key')` maps to translations dictionary.
@@ -176,7 +185,7 @@ LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 
 ---
 
-## 🌍 9. PROTECTED CORE SYSTEMS
+## 🛡️ 12. PROTECTED CORE SYSTEMS
 
 The following systems are considered mission-critical and must never be broken without explicit validation.
 
@@ -258,16 +267,24 @@ Includes:
 
 Includes:
 
-- `/docs/ai/` directory
+### Active Documentation (`/docs/ai/`)
 - AI Navigation System: `AI_NAVIGATION.md`
-- Feature and Screen Indexes
-- Builder Architecture Guides
+- Feature and Screen Indexes: `FEATURE_INDEX.md`, `SCREEN_INDEX.md`, `ROUTE_INDEX.md`
+- Service Index: `SERVICE_INDEX.md`
+- Builder Architecture Guides: `BUILDER_ARCHITECTURE.md`, `BLOCK_SCHEMA_REGISTRY.md`
+- Dependency Maps: `DEPENDENCY_MAPS.md`
+- Project Structure: `PROJECT_STRUCTURE.md`
+- Task Routing Guide: `TASK_ROUTING_GUIDE.md`
+- AI Onboarding: `AI_ONBOARDING.md`
+- Documentation Rules: `AI_DOCUMENTATION_RULES.md`
+
+### Historical Reports (`/docs/archive/`)
 - **Mission Execution Plan**: `MISSION_EXECUTION.md` (Tracks implemented Growth & AI features)
 - **Security Audit**: `SECURITY_AUDIT_REPORT.md` (Mission verification)
 - **AI Agent Specs**: `AI_AGENT_REPORT.md` (Agent cost & quality optimization)
 - **Guest Flow**: `GUEST_FLOW_GUIDE.md` (Guest AI generation logic)
-- **Block Schema Registry**: `BLOCK_SCHEMA_REGISTRY.md` (Readable JSON mapping for AI/Human sync)
 - **Continuation Prompt**: `AI_AGENT_CONTINUATION_PROMPT.md` (Master plan for future AI models)
+- **Interactive AI Agent Reports**: Analysis, Architecture, and Final Report
 
 Any task affecting one of these systems MUST:
 
@@ -280,7 +297,7 @@ Any task affecting one of these systems MUST:
 ---
 
 
-## 🧠 10. **Strict AI Assistant Rules (MUST FOLLOW)**:
+## 🧠 13. **Strict AI Assistant Rules (MUST FOLLOW)**:
 
 1. **Professional Builder Standards**: Every section editor MUST follow the strict tabbed structure: **[Content, Actions, Design]**.
    - **Content**: Pure text, images, and list data.
@@ -338,7 +355,7 @@ Any task affecting one of these systems MUST:
 
 ---
 
-## 🖼️ 11. Unified Image Management & Media Picker System
+## 🖼️ 14. Unified Image Management & Media Picker System
 
 LandyMaker features a centralized, robust Image Media Picker and Background Upload system used across the Builder Workspace:
 - **Sources Supported**: 
@@ -374,11 +391,11 @@ Image uploads to Supabase Storage are strictly governed by user tier and role to
 
 ---
 
-## 🚀 12. CI/CD Pipeline & Deployment Architecture (CRITICAL — READ BEFORE ANY DEPLOY)
+## 🚀 15. CI/CD Pipeline & Deployment Architecture (CRITICAL — READ BEFORE ANY DEPLOY)
 
 This section documents how LandyMaker is built and deployed. **Every AI assistant MUST read this before touching anything related to deployment, assets, icons, or secrets.**
 
-### 12.1 — Project Layout on Vercel (Two Separate Projects)
+### 15.1 — Project Layout on Vercel (Two Separate Projects)
 
 | Vercel Project | Project ID | URL | Source |
 |---|---|---|---|
@@ -390,7 +407,7 @@ Both are in the **same GitHub repository**: `abdallah-azmy/landymaker`
 - The **main app** (`landymaker`) is a Flutter Web app. Its Vercel Output Directory is `build/web`.
 - The **blog** (`landymaker-blog`) is a Next.js 16 app located in `blog-frontend/`. It deploys via its own Vercel auto-deployment triggered from the repo root.
 
-### 12.2 — Main App (Flutter) CI/CD Pipeline
+### 15.2 — Main App (Flutter) CI/CD Pipeline
 
 **⚠️ CRITICAL WARNING**: The `public/` and `/build/` directories are both in `.gitignore`. They are **NEVER committed to Git**. Do NOT try to commit them.
 
@@ -426,7 +443,7 @@ Vercel also triggers its own auto-deploy when a push happens to `main` (separate
 - Disable "Auto-Deploy on Push"
 - Leave GitHub Actions as the **only** deploy trigger
 
-### 12.3 — Blog (Next.js) CI/CD Pipeline
+### 15.3 — Blog (Next.js) CI/CD Pipeline
 
 The blog in `blog-frontend/` is auto-deployed by Vercel directly when changes are pushed to `main`.
 
@@ -439,7 +456,7 @@ The blog in `blog-frontend/` is auto-deployed by Vercel directly when changes ar
 **⚠️ KNOWN ISSUE — Blog 404 Caching:**
 Next.js blog post pages were previously set to `revalidate = 60`, which caused Vercel to cache 404 responses for 60 seconds. When a page was first hit before Supabase responded, the 404 was cached. Fix applied: `export const dynamic = 'force-dynamic'` + `revalidate = 0` in `blog-frontend/app/blog/[slug]/page.tsx`. **Do NOT revert this.**
 
-### 12.4 — Secrets & Environment Variables
+### 15.4 — Secrets & Environment Variables
 
 **🔐 SECURITY RULES — MUST FOLLOW:**
 1. **NEVER hardcode secrets** in any source file.
@@ -485,7 +502,7 @@ flutter run -d chrome \
   --dart-define-from-file=.env.local
 ```
 
-### 12.5 — App Icons & Assets
+### 15.5 — App Icons & Assets
 
 **⚠️ CRITICAL — Where Icons Live (Two Places):**
 
@@ -521,7 +538,7 @@ src.resize((500,500)).save("assets/images/logo.webp","WEBP",quality=90)
 src.resize((128,128)).save("assets/images/logo_small.webp","WEBP",quality=90)
 ```
 
-### 12.6 — Blog URL Routing
+### 15.6 — Blog URL Routing
 
 The blog lives at `landymaker.com/blog/...` but is served from a **separate Vercel project** (`landymaker-blog`). The routing is handled by `middleware.js` (Edge Middleware) in the root project:
 
@@ -545,7 +562,7 @@ Next.js serves the blog post from Supabase blog_posts table
    ```
    If it is set to a catch-all `/(.*)` without exclusions, Vercel will rewrite Next.js/blog assets back to `/index.html`, leading to persistent black screens and 404 errors on blog posts.
 
-### 12.7 — Troubleshooting Common CI/CD Problems
+### 15.7 — Troubleshooting Common CI/CD Problems
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -561,7 +578,7 @@ LandyMaker employs a multi-layered error recovery strategy to ensure 100% uptime
 2. **Safe Color Parsing**: `LandingPageTheme.parseColor` includes a try-catch sanitize loop. It handles malformed Hex codes from AI and reverts to theme defaults without crashing the UI.
 3. **Optimistic Asset Registration**: Image deduplication (SHA-256) is non-blocking. If a hash lookup fails, the system defaults to a new upload to ensure the user is never stuck.
 
-## 🧠 13. AI Agent & Conversion Mission (Omnipotent Control)
+## 🧠 16. AI Agent & Conversion Mission (Omnipotent Control)
 
 LandyMaker has evolved into an AI-powered conversion platform with "Omnipotent Control" over design and assets:
 

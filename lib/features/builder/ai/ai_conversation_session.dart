@@ -68,6 +68,10 @@ class AIConversationSession {
 
   AIConversationSession({required this.sessionId});
 
+  static const int maxMessages = 30;
+  static const int fullMessageThreshold = 10;
+  static const int maxContentLength = 200;
+
   void addMessage(String role, String content) {
     messages.add(AIConversationMessage(
       role: role,
@@ -75,10 +79,29 @@ class AIConversationSession {
       timestamp: DateTime.now(),
     ));
     
-    // Maintain last 10 messages
-    if (messages.length > 10) {
+    // Maintain last 30 messages (up from 10)
+    if (messages.length > maxMessages) {
       messages.removeAt(0);
     }
+  }
+
+  List<Map<String, dynamic>> getCompressedMessages() {
+    final int count = messages.length;
+    return messages.asMap().entries.map((entry) {
+      final int i = entry.key;
+      final msg = entry.value;
+      final bool isRecent = i >= count - fullMessageThreshold;
+      return {
+        'role': msg.role,
+        'content': isRecent ? msg.content : _compress(msg.content),
+        'timestamp': msg.timestamp.toIso8601String(),
+      };
+    }).toList();
+  }
+
+  String _compress(String text) {
+    if (text.length <= maxContentLength) return text;
+    return '${text.substring(0, maxContentLength)}... (مضغوط)';
   }
 
   void rollbackLastMessage() {
@@ -96,24 +119,31 @@ class AIConversationSession {
   }
 
   Map<String, dynamic> getContextForAI(Map<String, dynamic> currentDesign) {
-    // LAYER 3: Builder Snapshot (Compressed)
     final List<String> sectionTypes = (currentDesign['blocks'] as List? ?? [])
         .map((block) => (block['type'] as String? ?? 'unknown'))
         .toList();
     
+    final theme = currentDesign['global_theme'] as Map<String, dynamic>?;
     final Map<String, dynamic> snapshot = {
       'sections': sectionTypes,
-      'theme': {
-        'primary': currentDesign['global_theme']?['primary'],
-        'background': currentDesign['global_theme']?['background'],
-      }
+      'section_count': sectionTypes.length,
+      'theme': theme != null ? {
+        'primary': theme['primary'],
+        'secondary': theme['secondary'],
+        'background': theme['background'],
+        'textPrimary': theme['textPrimary'],
+        'textSecondary': theme['textSecondary'],
+        'font_family': theme['font_family'],
+        'button_text_color': theme['button_text_color'],
+        'globalBgColorHex': theme['globalBgColorHex'],
+      } : {},
     };
 
     return {
       'memory_summary': memorySummary,
       'business_profile': businessProfile.toJson(),
       'builder_snapshot': snapshot,
-      'recent_messages': messages.map((m) => m.toJson()).toList(),
+      'recent_messages': getCompressedMessages(),
     };
   }
 }

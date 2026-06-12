@@ -12,12 +12,14 @@ class PixabaySelectorLoaded extends PixabaySelectorState {
   final int currentPage;
   final String query;
   final String type;
+  final String? orientation;
 
   PixabaySelectorLoaded({
     required this.images,
     required this.currentPage,
     required this.query,
     required this.type,
+    this.orientation,
   });
 }
 
@@ -31,15 +33,18 @@ class PixabaySelectorCubit extends Cubit<PixabaySelectorState> {
 
   PixabaySelectorCubit(this._mediaService) : super(PixabaySelectorInitial());
 
-  Future<void> searchImages(String query, {int page = 1, String type = 'photo'}) async {
+  Future<void> searchImages(String query, {int page = 1, String type = 'photo', String? orientation}) async {
     emit(PixabaySelectorLoading());
     try {
-      final images = await _mediaService.fetchPixabayImages(query, page: page, imageType: type);
+      final images = await _mediaService.fetchPixabayImages(
+        query, page: page, imageType: type, orientation: orientation,
+      );
       emit(PixabaySelectorLoaded(
         images: images,
         currentPage: page,
         query: query,
         type: type,
+        orientation: orientation,
       ));
     } catch (e) {
       emit(PixabaySelectorFailure(e.toString()));
@@ -56,6 +61,7 @@ class PixabaySelectorCubit extends Cubit<PixabaySelectorState> {
         currentState.query,
         page: nextPage,
         imageType: currentState.type,
+        orientation: currentState.orientation,
       );
       
       emit(PixabaySelectorLoaded(
@@ -63,9 +69,9 @@ class PixabaySelectorCubit extends Cubit<PixabaySelectorState> {
         currentPage: nextPage,
         query: currentState.query,
         type: currentState.type,
+        orientation: currentState.orientation,
       ));
     } catch (e) {
-      // Keep existing data but show error? For now just fail.
       emit(PixabaySelectorFailure(e.toString()));
     }
   }

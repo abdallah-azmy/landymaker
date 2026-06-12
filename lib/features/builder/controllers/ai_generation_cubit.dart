@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 import '../../../services/supabase_service.dart';
 import '../ai/ai_conversation_session.dart';
 import '../ai/ai_response_validator.dart';
@@ -21,7 +23,19 @@ class AIGenerationGenerating extends AIGenerationState {
   AIGenerationGenerating(this.message);
 }
 
+class AIGenerationStreamProgress extends AIGenerationState {
+  final String message;
+  final double? percent;
+  AIGenerationStreamProgress(this.message, {this.percent});
+}
+
 class AIGenerationApplyingChanges extends AIGenerationState {}
+
+class AIGenerationCopyUpdate extends AIGenerationState {
+  final List<Map<String, dynamic>> updates;
+  final String? assistantMessage;
+  AIGenerationCopyUpdate({required this.updates, this.assistantMessage});
+}
 
 class AIGenerationPixabaySelection extends AIGenerationState {
   final String query;
@@ -30,6 +44,7 @@ class AIGenerationPixabaySelection extends AIGenerationState {
   final String? elementId;
   final String? property;
   final Function(String) onSelected;
+  final String? orientation;
   AIGenerationPixabaySelection({
     required this.query,
     required this.type,
@@ -37,6 +52,7 @@ class AIGenerationPixabaySelection extends AIGenerationState {
     this.sectionIndex,
     this.elementId,
     this.property,
+    this.orientation,
   });
 }
 
@@ -48,13 +64,29 @@ class AIGenerationSuccess extends AIGenerationState {
 
 class AIGenerationFailure extends AIGenerationState {
   final String error;
-  AIGenerationFailure(this.error);
+  final bool canRetry;
+  AIGenerationFailure(this.error, {this.canRetry = true});
+}
+
+class AIGenerationTemplateFallback extends AIGenerationState {
+  final String error;
+  AIGenerationTemplateFallback(this.error);
 }
 
 class AIGenerationCubit extends Cubit<AIGenerationState> {
   final SupabaseService _supabase;
   final LandingPageBuilderCubit _builderCubit;
   late AIConversationSession _session;
+
+  // Context preservation for Pixabay flow
+  String? _pixabayPendingMessage;
+  String? _pixabayPendingIntent;
+
+  // Cancel previous request (using counter to avoid race conditions)
+  bool _isProcessing = false;
+  String? _lastMessage;
+  int _requestId = 0;
+  int _activeRequestId = 0;
 
   AIConversationSession get session => _session;
 
@@ -69,11 +101,39 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     _session = AIConversationSession(
       sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
     );
+    _pixabayPendingMessage = null;
+    _pixabayPendingIntent = null;
     _builderCubit.initializeNewPage();
     emit(AIGenerationInitial());
   }
 
+  Future<void> resumeAfterPixabaySelection() async {
+    final msg = _pixabayPendingMessage;
+    _pixabayPendingMessage = null;
+    _pixabayPendingIntent = null;
+    if (msg != null) {
+      emit(AIGenerationGenerating('جاري متابعة التعديل بعد اختيار الصورة...'));
+      await processUserMessage(msg);
+    }
+  }
+
   Future<void> processUserMessage(String message) async {
+    // Bump request ID: any in-flight response with old ID will be ignored
+    _requestId++;
+    final int myRequestId = _requestId;
+
+    // Dedup: skip if same message sent twice in a row (only for user-initiated, not Pixabay resume)
+    if (_pixabayPendingMessage == null && message == _lastMessage && _lastMessage != null) {
+      emit(AIGenerationSuccess(
+        {},
+        assistantMessage: "تم استلام طلبك مسبقاً. هل هناك شيء جديد تريد إضافته؟",
+      ));
+      return;
+    }
+    _lastMessage = message;
+
+    _isProcessing = true;
+    _activeRequestId = myRequestId;
     _session.addMessage('user', message);
 
     // SAFE STATE ACCESS
@@ -118,142 +178,283 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
         ),
       );
 
-      final response = await _supabase.client.functions.invoke(
-        'ai-page-generate',
-        body: payload,
-      );
+      // =========== SSE STREAMING REQUEST ===========
+      final functionUrl = '${SupabaseService.supabaseUrl}/functions/v1/ai-page-generate';
+      final sessionToken = _supabase.client.auth.currentSession?.accessToken;
 
-      // DEBUG LOGGING: Response
-      print('📥 AI AGENT RESPONSE (${response.status}):');
-      print(const JsonEncoder.withIndent('  ').convert(response.data));
+      final request = http.Request('POST', Uri.parse(functionUrl));
+      request.headers['Content-Type'] = 'application/json';
+      request.headers['Accept'] = 'text/event-stream';
+      request.headers['Authorization'] =
+          'Bearer ${sessionToken ?? SupabaseService.supabaseAnonKey}';
+      request.body = jsonEncode(payload);
 
-      if (response.status == 200 || response.status == 201) {
-        final data = response.data;
+      final httpClient = http.Client();
+      Map<String, dynamic>? finalData;
+      String? errorMessage;
+      bool errorCanRetry = true;
+      bool stale = false;
 
-        // Check for unified error payload
-        if (data is Map && data['error'] != null) {
-          print('❌ AI AGENT ERROR (Logical): ${data['error']}');
-          _session.rollbackLastMessage();
-          emit(AIGenerationFailure(data['error']));
+      try {
+        final streamedResponse = await httpClient.send(request);
+
+        if (streamedResponse.statusCode != 200) {
+          _handleAIError('API_ERROR: ${streamedResponse.statusCode}', intent);
           return;
         }
 
-        // Update Session Memory
-        if (data['memory_summary_update'] != null) {
-          _session.updateSummary(data['memory_summary_update']);
+        // Line buffer to handle SSE events split across TCP chunks
+        final lineBuffer = StringBuffer();
+
+        await for (final chunk in streamedResponse.stream.transform(utf8.decoder)) {
+          lineBuffer.write(chunk);
+          final text = lineBuffer.toString();
+          final lines = text.split('\n');
+
+          // Keep the last fragment (might be incomplete) in the buffer
+          lineBuffer.clear();
+          lineBuffer.write(lines.last);
+
+          for (int i = 0; i < lines.length - 1; i++) {
+            final line = lines[i];
+            if (!line.startsWith('data: ')) continue;
+
+            final jsonStr = line.substring(6).trim();
+            if (jsonStr.isEmpty) continue;
+
+            try {
+              final event = jsonDecode(jsonStr) as Map<String, dynamic>;
+              if (myRequestId != _activeRequestId) { stale = true; break; }
+
+              final type = event['type'] as String?;
+              switch (type) {
+                case 'status':
+                  emit(AIGenerationStreamProgress(
+                    event['message'] as String? ?? '',
+                  ));
+                  break;
+                case 'result':
+                  finalData = event['data'] as Map<String, dynamic>?;
+                  break;
+                case 'error':
+                  errorMessage = event['message'] as String?;
+                  errorCanRetry = event['canRetry'] as bool? ?? true;
+                  break;
+              }
+            } catch (_) {}
+          }
+          if (stale) break;
         }
-        if (data['business_profile_update'] != null) {
-          _session.updateProfileFromAI(data['business_profile_update']);
+
+        // Flush buffer (last line after stream ends)
+        if (!stale && lineBuffer.isNotEmpty) {
+          final line = lineBuffer.toString().trim();
+          if (line.startsWith('data: ')) {
+            final jsonStr = line.substring(6).trim();
+            if (jsonStr.isNotEmpty) {
+              try {
+                final event = jsonDecode(jsonStr) as Map<String, dynamic>;
+                if (myRequestId == _activeRequestId) {
+                  final type = event['type'] as String?;
+                  if (type == 'result') {
+                    finalData = event['data'] as Map<String, dynamic>?;
+                  } else if (type == 'error') {
+                    errorMessage = event['message'] as String?;
+                    errorCanRetry = event['canRetry'] as bool? ?? true;
+                  }
+                }
+              } catch (_) {}
+            }
+          }
+        }
+      } finally {
+        httpClient.close();
+      }
+
+      // Ignore stale response
+      if (myRequestId != _activeRequestId || stale) {
+        _isProcessing = false;
+        return;
+      }
+      _isProcessing = false;
+
+      // Error from SSE → emit directly (pre-formatted Arabic message with canRetry)
+      if (errorMessage != null) {
+        _session.rollbackLastMessage();
+        emit(AIGenerationFailure(errorMessage, canRetry: errorCanRetry));
+        return;
+      }
+
+      if (finalData == null) {
+        _handleAIError('AI_NO_RESPONSE', intent);
+        return;
+      }
+
+      final data = finalData;
+
+      // Update Session Memory
+      if (data['memory_summary_update'] != null) {
+        _session.updateSummary(data['memory_summary_update']);
+      }
+      if (data['business_profile_update'] != null) {
+        _session.updateProfileFromAI(data['business_profile_update']);
+      }
+      if (data['assistant_message'] != null) {
+        _session.addMessage('assistant', data['assistant_message']);
+      }
+
+      // Handle Copy Update Action
+      if (data['action'] == 'copy_update' && data['copy_updates'] != null) {
+        final updates = List<Map<String, dynamic>>.from(data['copy_updates']);
+        for (final update in updates) {
+          final sectionIndex = update['sectionIndex'] as int?;
+          if (sectionIndex == null) continue;
+          final field = update['field'] as String?;
+          if (field == null) continue;
+          final value = update['value'];
+          if (update['itemIndex'] != null) {
+            _builderCubit.updateBlockProperty(sectionIndex, '$field.${update['itemIndex']}', value);
+          } else {
+            _builderCubit.updateBlockProperty(sectionIndex, field, value);
+          }
         }
         if (data['assistant_message'] != null) {
           _session.addMessage('assistant', data['assistant_message']);
         }
+        emit(AIGenerationCopyUpdate(
+          updates: updates,
+          assistantMessage: data['assistant_message'],
+        ));
+        return;
+      }
 
-        // Handle Actions
-        if (data['action'] == 'pixabay_selection') {
-          emit(
-            AIGenerationPixabaySelection(
-              query: data['query'],
-              type: data['type'] ?? 'photo',
-              sectionIndex: data['sectionIndex'],
-              elementId: data['elementId'],
-              property: data['property'],
-              onSelected: (url) {
-                if (data['sectionIndex'] != null &&
-                    data['elementId'] != null &&
-                    data['property'] != null) {
-                  _builderCubit.updateElementProperty(
-                    data['sectionIndex'],
-                    data['elementId'],
-                    data['property'],
-                    url,
-                  );
-                }
-                emit(AIGenerationInitial());
-              },
-            ),
+      // Handle Actions
+      if (data['action'] == 'pixabay_selection') {
+        _pixabayPendingMessage = message;
+        _pixabayPendingIntent = intent;
+
+        emit(
+          AIGenerationPixabaySelection(
+            query: data['query'],
+            type: data['type'] ?? 'photo',
+            orientation: data['orientation'],
+            sectionIndex: data['sectionIndex'],
+            elementId: data['elementId'],
+            property: data['property'],
+            onSelected: (url) {
+              if (data['sectionIndex'] != null &&
+                  data['elementId'] != null &&
+                  data['property'] != null) {
+                _builderCubit.updateElementProperty(
+                  data['sectionIndex'],
+                  data['elementId'],
+                  data['property'],
+                  url,
+                );
+              }
+              emit(AIGenerationInitial());
+              resumeAfterPixabaySelection();
+            },
+          ),
+        );
+        return;
+      }
+
+      // Handle Design Update
+      if (data['designJson'] != null) {
+        emit(AIGenerationApplyingChanges());
+
+        var validatedDesign = AIResponseValidator.validate(
+          data['designJson'],
+        );
+        if (validatedDesign != null) {
+          validatedDesign = PlaceholderGenerator.fillPlaceholders(
+            validatedDesign,
+            _session.businessProfile.industry,
           );
-          return;
-        }
 
-        // Handle Design Update
-        if (data['designJson'] != null) {
-          emit(AIGenerationApplyingChanges());
-
-          var validatedDesign = AIResponseValidator.validate(
-            data['designJson'],
-          );
-          if (validatedDesign != null) {
-            // Fill placeholders if needed
-            validatedDesign = PlaceholderGenerator.fillPlaceholders(
-              validatedDesign,
-              _session.businessProfile.industry,
-            );
-
-            _builderCubit.applyDesignJson(validatedDesign);
-            emit(
-              AIGenerationSuccess(
-                validatedDesign,
-                assistantMessage: data['assistant_message'],
-              ),
-            );
-          } else {
-            _session.rollbackLastMessage();
-            emit(
-              AIGenerationFailure("استجاب الذكاء الاصطناعي بتنسيق غير صالح."),
-            );
-          }
-        } else if (data['assistant_message'] != null) {
-          // Just a conversation response
+          _builderCubit.applyDesignJson(validatedDesign);
           emit(
             AIGenerationSuccess(
-              {},
+              validatedDesign,
               assistantMessage: data['assistant_message'],
             ),
           );
         } else {
-          _session.rollbackLastMessage();
-          emit(AIGenerationFailure("لم يستجب الذكاء الاصطناعي بأي تصميم أو رسالة."));
+          _handleAIError('AI_INVALID_FORMAT', intent);
         }
+      } else if (data['assistant_message'] != null) {
+        emit(
+          AIGenerationSuccess(
+            {},
+            assistantMessage: data['assistant_message'],
+          ),
+        );
       } else {
-        final errorMsg = response.data['error'] ?? 'Unknown error';
-        print('❌ AI AGENT ERROR (API): $errorMsg');
-
-        String userFriendlyError =
-            "حدث خطأ غير متوقع في نظام الذكاء الاصطناعي.";
-        if (errorMsg.contains('quota') || errorMsg.contains('limit')) {
-          userFriendlyError =
-              "لقد وصلت للحد الأقصى لاستخدام الـ AI لهذا الشهر.";
-        } else if (errorMsg.contains('Invalid JSON')) {
-          userFriendlyError =
-              "نعتذر، نظام الـ AI يواجه صعوبة في صياغة التصميم الآن. يرجى المحاولة مرة أخرى.";
-        }
-
-        _session.rollbackLastMessage();
-        emit(AIGenerationFailure(userFriendlyError));
+        _handleAIError('AI_NO_RESPONSE', intent);
       }
     } catch (e) {
-      print('❌ AI AGENT ERROR (Exception): $e');
-      _session.rollbackLastMessage();
-      emit(
-        AIGenerationFailure(
-          "فشل الاتصال بخادم الـ AI. تأكد من اتصالك بالإنترنت.",
-        ),
-      );
+      _handleAIError('EXCEPTION: $e', intent);
+    }
+  }
+
+  void _handleAIError(String rawError, String intent) {
+    _isProcessing = false;
+    print('❌ AI AGENT ERROR: $rawError');
+    _session.rollbackLastMessage();
+
+    String userFriendlyError;
+    bool canRetry = true;
+
+    if (rawError.contains('quota') || rawError.contains('limit') || rawError.contains('AI_LIMIT')) {
+      userFriendlyError = rawError.contains('شهر')
+          ? rawError
+          : "لقد وصلت للحد الأقصى لاستخدام الـ AI لهذا الشهر. جرّب مزوداً آخر أو انتظر حتى الشهر القادم.";
+      canRetry = false;
+    } else if (rawError.contains('AI_INVALID_FORMAT') || rawError.contains('Invalid JSON')) {
+      userFriendlyError = "استجاب الذكاء الاصطناعي بتنسيق غير صالح. حاول مرة أخرى.";
+    } else if (rawError.contains('All 4 providers')) {
+      userFriendlyError = "تعذر توليد الرد من جميع مزودي الذكاء الاصطناعي. تأكد من تفعيل API keys للمزودين البديلين (Groq, OpenRouter, DeepSeek).";
+    } else if (rawError.contains('Unauthorized') || rawError.contains('auth')) {
+      userFriendlyError = "انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.";
+      canRetry = false;
+    } else if (rawError.contains('AI_NO_RESPONSE')) {
+      userFriendlyError = "لم يستجب الذكاء الاصطناعي بأي تصميم أو رسالة. حاول صياغة طلبك بشكل أوضح.";
+    } else if (rawError.contains('EXCEPTION')) {
+      userFriendlyError = "فشل الاتصال بخادم الـ AI. تأكد من اتصالك بالإنترنت.";
+    } else {
+      userFriendlyError = "حدث خطأ غير متوقع. حاول مرة أخرى أو أعد صياغة طلبك.";
+    }
+
+    // Graceful degradation: if generating a new page failed, offer template fallback
+    if (intent == 'generate') {
+      emit(AIGenerationTemplateFallback(userFriendlyError));
+    } else {
+      emit(AIGenerationFailure(userFriendlyError, canRetry: canRetry));
     }
   }
 
   void resetState() {
+    _pixabayPendingMessage = null;
+    _pixabayPendingIntent = null;
+    _isProcessing = false;
+    _lastMessage = null;
     emit(AIGenerationInitial());
   }
 
-  /// SMARTEST CONTEXT SELECTION: Returns the complete design context to ensure AI can edit all blocks globally
   Map<String, dynamic> _getMinimalDesignContext(
     Map<String, dynamic> fullDesign,
     String userMessage,
     String intent,
   ) {
     if (intent == 'generate' || fullDesign['blocks'] == null) return {};
-    return fullDesign;
+    
+    final blocks = fullDesign['blocks'] as List? ?? [];
+    final result = Map<String, dynamic>.from(fullDesign);
+    result['_meta'] = {
+      'block_count': blocks.length,
+      'section_types': blocks.map((b) => b['type']).toList(),
+    };
+    return result;
   }
 }

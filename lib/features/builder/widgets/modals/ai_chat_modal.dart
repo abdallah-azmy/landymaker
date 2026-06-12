@@ -94,6 +94,7 @@ class _AIChatModalState extends State<AIChatModal> {
       builder: (ctx) => PixabaySelectorModal(
         initialQuery: state.query,
         initialType: state.type,
+        initialOrientation: state.orientation,
         onImageSelected: (url) {
           state.onSelected(url);
           ToastService.showSuccess(context, message: "تم تحديث الصورة بنجاح");
@@ -133,19 +134,37 @@ class _AIChatModalState extends State<AIChatModal> {
         if (state is AIGenerationPixabaySelection) {
           _showPixabayPicker(state);
         }
+        if (state is AIGenerationCopyUpdate) {
+          if (state.assistantMessage != null) {
+            _addSystemMessage(state.assistantMessage!);
+          } else {
+            _addSystemMessage("تم تحسين النصوص بنجاح! هل هناك شيء آخر؟");
+          }
+          ToastService.showSuccess(context, message: "تم تحسين النصوص");
+        }
         if (state is AIGenerationFailure) {
+          if (state.canRetry) {
+            _addSystemMessage("${state.error}\n\nيمكنك المحاولة مرة أخرى بصياغة مختلفة.");
+          } else {
+            _addSystemMessage("${state.error}\n\nبرجاء التحقق من الإعدادات والمحاولة لاحقاً.");
+          }
           ToastService.showError(context, message: state.error);
-          _addSystemMessage("عذراً، حدث خطأ أثناء معالجة طلبك: ${state.error}");
+        }
+        if (state is AIGenerationTemplateFallback) {
+          _addSystemMessage("${state.error}\n\nيمكنك استخدام قالب جاهز بدلاً من ذلك، أو المحاولة مرة أخرى.");
+          ToastService.showError(context, message: "تعذر إنشاء الصفحة. يمكنك استخدام قالب جاهز.");
         }
       },
       builder: (context, state) {
         final bool isLoading =
             state is AIGenerationThinking ||
             state is AIGenerationGenerating ||
+            state is AIGenerationStreamProgress ||
             state is AIGenerationApplyingChanges;
         String? progressMessage;
         if (state is AIGenerationThinking) progressMessage = state.message;
         if (state is AIGenerationGenerating) progressMessage = state.message;
+        if (state is AIGenerationStreamProgress) progressMessage = state.message;
         if (state is AIGenerationApplyingChanges)
           progressMessage = "جاري تطبيق التغييرات على التصميم...";
 

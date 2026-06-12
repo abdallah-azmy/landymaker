@@ -7,13 +7,23 @@ class PixabayImageModel {
   final String id;
   final String previewUrl;
   final String webformatUrl;
+  final String largeImageUrl;
+  final String fullHdUrl;
   final String tags;
+  final String? imageType;
+  final int imageWidth;
+  final int imageHeight;
 
   PixabayImageModel({
     required this.id,
     required this.previewUrl,
     required this.webformatUrl,
+    required this.largeImageUrl,
+    required this.fullHdUrl,
     required this.tags,
+    this.imageType,
+    this.imageWidth = 0,
+    this.imageHeight = 0,
   });
 
   factory PixabayImageModel.fromJson(Map<String, dynamic> json) {
@@ -21,7 +31,12 @@ class PixabayImageModel {
       id: json['id'].toString(),
       previewUrl: json['previewURL'] ?? '',
       webformatUrl: json['webformatURL'] ?? '',
+      largeImageUrl: json['largeImageURL'] ?? '',
+      fullHdUrl: json['fullHDURL'] ?? '',
       tags: json['tags'] ?? '',
+      imageType: json['type'],
+      imageWidth: json['imageWidth'] ?? 0,
+      imageHeight: json['imageHeight'] ?? 0,
     );
   }
 }
@@ -37,6 +52,7 @@ class ImageMediaService {
     String query, {
     int page = 1,
     String imageType = 'photo',
+    String? orientation,
   }) async {
     if (_pixabayApiKey.isEmpty) {
       throw Exception(
@@ -48,17 +64,17 @@ class ImageMediaService {
     final url = 'https://pixabay.com/api/';
 
     try {
-      final response = await dio.get(
-        url,
-        queryParameters: {
-          'key': _pixabayApiKey,
-          'q': query,
-          'image_type': imageType,
-          'per_page': 30, // Optimized page size
-          'page': page,
-          'safesearch': true,
-        },
-      );
+      final queryParams = <String, dynamic>{
+        'key': _pixabayApiKey,
+        'q': query,
+        'image_type': imageType,
+        'per_page': 30,
+        'page': page,
+        'safesearch': true,
+      };
+      if (orientation != null) queryParams['orientation'] = orientation;
+
+      final response = await dio.get(url, queryParameters: queryParams);
 
       if (response.statusCode == 200) {
         final List hits = response.data['hits'] ?? [];
@@ -85,35 +101,6 @@ class ImageMediaService {
   /// Downloads an image from Pixabay (or any URL) into memory,
   /// and immediately uploads it to ImgBB.
   /// This ensures we do not hotlink Pixabay images permanently.
-  Future<String> downloadAndUploadPixabayImage(
-    String webformatUrl,
-    Function(int sent, int total) onSendProgress, {
-    CancelToken? cancelToken,
-  }) async {
-    try {
-      // 1. Download image into memory as Uint8List
-      final Uint8List imageBytes = await downloadImageBytes(
-        webformatUrl,
-        cancelToken: cancelToken,
-      );
-
-      // 2. Upload the bytes to ImgBB
-      return await uploadImageBytesToImgBB(
-        imageBytes,
-        'pixabay_transfer.jpg',
-        onSendProgress,
-        cancelToken: cancelToken,
-      );
-    } on DioException catch (e) {
-      if (CancelToken.isCancel(e)) {
-        throw Exception('تم إلغاء الرفع بواسطة المستخدم');
-      }
-      throw Exception('Transfer Workflow Error: ${e.message}');
-    } catch (e) {
-      throw Exception('Transfer Workflow Error: $e');
-    }
-  }
-
   /// Downloads raw bytes of an image from a URL.
   Future<Uint8List> downloadImageBytes(
     String url, {

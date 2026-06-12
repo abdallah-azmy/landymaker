@@ -8,12 +8,14 @@ import '../../controllers/pixabay_selector_cubit.dart';
 class PixabaySelectorModal extends StatefulWidget {
   final String initialQuery;
   final String initialType;
+  final String? initialOrientation;
   final Function(String) onImageSelected;
 
   const PixabaySelectorModal({
     super.key,
     required this.initialQuery,
     this.initialType = 'photo',
+    this.initialOrientation,
     required this.onImageSelected,
   });
 
@@ -24,19 +26,53 @@ class PixabaySelectorModal extends StatefulWidget {
 class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
   late final TextEditingController _searchController;
   String _selectedType = 'photo';
+  String? _selectedOrientation;
+  String _selectedQuality = 'webformatURL';
+  final List<String> _suggestedKeywords = [];
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController(text: widget.initialQuery);
     _selectedType = widget.initialType;
-    context.read<PixabaySelectorCubit>().searchImages(widget.initialQuery, type: _selectedType);
+    _selectedOrientation = widget.initialOrientation;
+    _generateSuggestions(widget.initialQuery);
+    context.read<PixabaySelectorCubit>().searchImages(
+      widget.initialQuery,
+      type: _selectedType,
+      orientation: _selectedOrientation,
+    );
+  }
+
+  void _generateSuggestions(String query) {
+    final suggestions = <String>[
+      query,
+      '$query تصميم',
+      '$query احترافي',
+      '$query عمل',
+    ];
+    _suggestedKeywords.addAll(
+      suggestions.where((s) => !_suggestedKeywords.contains(s)),
+    );
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _search({
+    String? query,
+    String? type,
+    String? orientation,
+    String? quality,
+  }) {
+    context.read<PixabaySelectorCubit>().searchImages(
+      query ?? _searchController.text,
+      type: type ?? _selectedType,
+      orientation: orientation ?? _selectedOrientation,
+    );
   }
 
   @override
@@ -49,13 +85,16 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
           const SizedBox(height: 24),
           _buildSearchArea(),
+          const SizedBox(height: 12),
+          _buildFilters(),
+          const SizedBox(height: 12),
+          if (_suggestedKeywords.isNotEmpty) _buildSuggestions(),
           const SizedBox(height: 16),
-          _buildTypeFilters(),
-          const SizedBox(height: 24),
           Expanded(child: _buildGrid()),
         ],
       ),
@@ -83,54 +122,120 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
         prefixIcon: const Icon(Icons.search_rounded),
         suffixIcon: IconButton(
           icon: const Icon(Icons.send_rounded, color: AppColors.secondary),
-          onPressed: () {
-            context.read<PixabaySelectorCubit>().searchImages(_searchController.text, type: _selectedType);
-          },
+          onPressed: () => _search(),
         ),
       ),
-      onSubmitted: (val) {
-        context.read<PixabaySelectorCubit>().searchImages(val, type: _selectedType);
-      },
+      onSubmitted: (val) => _search(),
     );
   }
 
-  Widget _buildTypeFilters() {
-    final types = ['photo', 'illustration', 'vector'];
-    return Row(
-      children: types.map((t) {
-        final isSelected = _selectedType == t;
-        return Padding(
-          padding: const EdgeInsetsDirectional.only(end: 8),
-          child: ChoiceChip(
-            label: Text(t),
-            selected: isSelected,
-            onSelected: (selected) {
-              if (selected) {
-                setState(() => _selectedType = t);
-                context.read<PixabaySelectorCubit>().searchImages(_searchController.text, type: t);
-              }
-            },
-          ),
-        );
-      }).toList(),
+  Widget _buildFilters() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Type filters
+        Row(
+          children: ['photo', 'illustration', 'vector'].map((t) {
+            final isSelected = _selectedType == t;
+            return Padding(
+              padding: const EdgeInsetsDirectional.only(end: 8),
+              child: ChoiceChip(
+                label: Text(t),
+                selected: isSelected,
+                onSelected: (selected) {
+                  if (selected) {
+                    setState(() => _selectedType = t);
+                    _search(type: t);
+                  }
+                },
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 8),
+        // Orientation filters
+        Row(
+          children: [
+            Text('اتجاه: ', style: AppTypography.caption),
+            const SizedBox(width: 8),
+            ...[null, 'horizontal', 'vertical', 'square'].map((o) {
+              final isSelected = _selectedOrientation == o;
+              final label = o == null ? 'الكل' : o;
+              return Padding(
+                padding: const EdgeInsetsDirectional.only(end: 6),
+                child: ChoiceChip(
+                  label: Text(label, style: const TextStyle(fontSize: 11)),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() => _selectedOrientation = o);
+                      _search(orientation: o);
+                    }
+                  },
+                  visualDensity: VisualDensity.compact,
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+      ],
     );
+  }
+
+  Widget _buildSuggestions() {
+    return SizedBox(
+      height: 32,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _suggestedKeywords.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 6),
+        itemBuilder: (context, index) {
+          final kw = _suggestedKeywords[index];
+          return ActionChip(
+            label: Text(kw, style: const TextStyle(fontSize: 11)),
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              _searchController.text = kw;
+              _search(query: kw);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  String _resolveImageUrl(Map<String, dynamic> hit) {
+    switch (_selectedQuality) {
+      case 'largeImageURL':
+        return hit['largeImageURL'] ?? hit['webformatURL'];
+      case 'fullHDURL':
+        return hit['fullHDURL'] ?? hit['largeImageURL'] ?? hit['webformatURL'];
+      default:
+        return hit['webformatURL'];
+    }
   }
 
   Widget _buildGrid() {
     return BlocBuilder<PixabaySelectorCubit, PixabaySelectorState>(
       builder: (context, state) {
         if (state is PixabaySelectorLoading) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.secondary));
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.secondary),
+          );
         }
         if (state is PixabaySelectorFailure) {
-          return Center(child: Text(state.error, style: const TextStyle(color: Colors.red)));
+          return Center(
+            child: Text(state.error, style: const TextStyle(color: Colors.red)),
+          );
         }
         if (state is PixabaySelectorLoaded) {
-          if (state.images.isEmpty) return const Center(child: Text("لا توجد نتائج."));
+          if (state.images.isEmpty)
+            return const Center(child: Text("لا توجد نتائج."));
 
           return NotificationListener<ScrollNotification>(
             onNotification: (ScrollNotification scrollInfo) {
-              if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+              if (scrollInfo.metrics.pixels ==
+                  scrollInfo.metrics.maxScrollExtent) {
                 context.read<PixabaySelectorCubit>().loadMore();
               }
               return true;
@@ -146,12 +251,19 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
                 final img = state.images[index];
                 return InkWell(
                   onTap: () {
-                    widget.onImageSelected(img.webformatUrl);
+                    widget.onImageSelected(
+                      img.largeImageUrl.isNotEmpty
+                          ? img.largeImageUrl
+                          : img.webformatUrl,
+                    );
                     Navigator.pop(context);
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: CustomNetworkImage(imageUrl: img.previewUrl, fit: BoxFit.cover),
+                    child: CustomNetworkImage(
+                      imageUrl: img.previewUrl,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 );
               },

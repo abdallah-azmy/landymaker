@@ -8,6 +8,7 @@
 /// - TemplateRegistry
 /// ======================================================
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' show Color;
 
@@ -364,6 +365,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       );
       finalDesign['theme'] = currentState.theme.toJson();
 
+      // Upload any remaining Pixabay URLs to ImgBB before saving
+      await _resolvePixabayUrlsInDesign(finalDesign);
+
       final savedPageId = await _databaseService.saveLandingPage(
         userId: userId,
         subdomain: sanitizedSubdomain,
@@ -606,6 +610,85 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         skipHistory: true,
       );
     }
+  }
+
+  /// Scans design map for pixabay.com URLs and uploads them to ImgBB before publish.
+  /// This ensures previews use fast Pixabay CDN URLs but published pages serve from ImgBB.
+  Future<void> _resolvePixabayUrlsInDesign(Map<String, dynamic> design) async {
+    final pixabayUrls = <String>[];
+    final replacements = <String, String>{};
+
+    void scan(Object? node) {
+      if (node is Map<String, dynamic>) {
+        for (final val in node.values) {
+          if (val is String && val.contains('pixabay.com')) {
+            pixabayUrls.add(val);
+          } else {
+            scan(val);
+          }
+        }
+      } else if (node is List) {
+        for (final item in node) {
+          if (item is String && item.contains('pixabay.com')) {
+            pixabayUrls.add(item);
+          } else {
+            scan(item);
+          }
+        }
+      }
+    }
+
+    scan(design);
+    if (pixabayUrls.isEmpty) return;
+
+    final uploadManager = sl<UploadManagerCubit>();
+    final uniqueUrls = pixabayUrls.toSet();
+
+    await Future.wait(uniqueUrls.map((url) async {
+      final completer = Completer<String>();
+      final uploadId = 'prepublish_${DateTime.now().millisecondsSinceEpoch}_${url.hashCode}';
+      uploadManager.persistExternalImage(
+        uploadId: uploadId,
+        externalUrl: url,
+        onSuccess: (finalUrl) {
+          if (!completer.isCompleted) completer.complete(finalUrl);
+        },
+      );
+      try {
+        final imgbbUrl = await completer.future.timeout(
+          const Duration(seconds: 30),
+          onTimeout: () => url, // fallback to original Pixabay URL
+        );
+        replacements[url] = imgbbUrl;
+      } catch (_) {
+        replacements[url] = url; // keep original on failure
+      }
+    }));
+
+    if (replacements.isEmpty) return;
+
+    void replace(Object? node) {
+      if (node is Map<String, dynamic>) {
+        for (final key in node.keys) {
+          final val = node[key];
+          if (val is String && replacements.containsKey(val)) {
+            node[key] = replacements[val];
+          } else {
+            replace(val);
+          }
+        }
+      } else if (node is List) {
+        for (int i = 0; i < node.length; i++) {
+          final val = node[i];
+          if (val is String && replacements.containsKey(val)) {
+            node[i] = replacements[val];
+          } else {
+            replace(val);
+          }
+        }
+      }
+    }
+    replace(design);
   }
 
   /// Reactive update for background uploads/imports

@@ -16,6 +16,12 @@ class EnvUtils {
   static String get imgbbApiKey => cleanEnv(const String.fromEnvironment('IMGBB_API_KEY'));
   static String get pixabayApiKey => cleanEnv(const String.fromEnvironment('PIXABAY_API_KEY'));
   static String get turnstileSiteKey => cleanEnv(const String.fromEnvironment('TURNSTILE_SITE_KEY'));
+
+  // AI Provider Keys (used by Supabase Edge Functions as fallback)
+  static String get googleAiKey => cleanEnv(const String.fromEnvironment('GOOGLE_AI_KEY'));
+  static String get groqApiKey => cleanEnv(const String.fromEnvironment('GROQ_API_KEY'));
+  static String get openrouterApiKey => cleanEnv(const String.fromEnvironment('OPENROUTER_API_KEY'));
+  static String get deepseekApiKey => cleanEnv(const String.fromEnvironment('DEEPSEEK_API_KEY'));
   
   // Firebase
   static String get firebaseApiKey => cleanEnv(const String.fromEnvironment('FIREBASE_API_KEY'));

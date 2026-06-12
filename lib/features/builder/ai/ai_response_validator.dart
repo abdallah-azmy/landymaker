@@ -1,29 +1,20 @@
-class AIResponseValidator {
-  static final Map<String, List<String>> _requiredFields = {
-    'hero': ['title'],
-    'hero_saas': ['title'],
-    'features': ['items'],
-    'pricing': ['items'],
-    'faq': ['items'],
-    'testimonials': ['items'],
-  };
+import 'block_schema.dart';
 
+class AIResponseValidator {
   static Map<String, dynamic>? validate(dynamic designJsonInput) {
     if (designJsonInput == null) return null;
 
     Map<String, dynamic> designJson;
     if (designJsonInput is List) {
-      // If the AI returns a list of blocks directly instead of a map, wrap it.
       designJson = {'blocks': designJsonInput};
     } else if (designJsonInput is Map) {
-      // Convert to Map<String, dynamic> if needed
       designJson = Map<String, dynamic>.from(designJsonInput);
     } else {
       return null;
     }
 
     try {
-      // 1. Basic Structure (Self-healing mapping for 'sections' -> 'blocks')
+      // Self-healing mapping for 'sections' -> 'blocks'
       if (designJson.containsKey('sections') &&
           !designJson.containsKey('blocks')) {
         designJson['blocks'] = designJson['sections'];
@@ -33,11 +24,10 @@ class AIResponseValidator {
         return null;
       }
 
-      // 2. Theme Validation
+      // Theme Validation
       if (designJson.containsKey('global_theme')) {
         final theme = designJson['global_theme'];
         if (theme is Map) {
-          // Ensure colors are valid hex strings
           theme.forEach((key, value) {
             if (key.contains('color') ||
                 [
@@ -50,14 +40,14 @@ class AIResponseValidator {
               if (value is String &&
                   value.isNotEmpty &&
                   !value.startsWith('#')) {
-                theme[key] = '#$value'; // Auto-fix missing hash
+                theme[key] = '#$value';
               }
             }
           });
         }
       }
 
-      // 3. Block Validation
+      // Block Validation — delegates to BlockPropertyMapper for full property sanitization
       final List blocks = designJson['blocks'];
       final List<Map<String, dynamic>> validBlocks = [];
 
@@ -65,41 +55,18 @@ class AIResponseValidator {
         if (block is Map<String, dynamic> && block.containsKey('type')) {
           final type = block['type'] as String;
 
-          // Schema check: Ensure minimum required keys exist and have correct formats
-          if (_requiredFields.containsKey(type)) {
-            final requiredKeys = _requiredFields[type]!;
-            bool isValid = true;
-            for (var key in requiredKeys) {
-              if (!block.containsKey(key) || block[key] == null) {
-                isValid = false;
-                break;
-              }
-              if (key == 'items' && block[key] is! List) {
-                isValid = false;
-                break;
-              }
-            }
-            if (!isValid) continue; // Skip corrupted block
+          // Map old 'visibility' key
+          if (block.containsKey('visibility') && !block.containsKey('is_visible')) {
+            block['is_visible'] = block['visibility'];
+            block.remove('visibility');
           }
 
-          // Sanitize variant
-          if (block.containsKey('variant')) {
-            if (block['variant'] is String) {
-              block['variant'] = int.tryParse(block['variant']) ?? 0;
-            } else if (block['variant'] is! int) {
-              block['variant'] = 0;
-            }
-            // Clamp 0-9
-            block['variant'] = (block['variant'] as int).clamp(0, 9);
-          }
+          // Full property mapping: strip unknown keys, coerce types, apply defaults
+          BlockPropertyMapper.sanitize(block);
 
-          // Ensure animation object is correct
-          if (block.containsKey('animation') && block['animation'] is! Map) {
-            block['animation'] = {
-              'type': 'fadeIn',
-              'duration': 800,
-              'delay': 0,
-            };
+          // Skip if block lost its 'items' which is required for its type
+          if (type == 'features' || type == 'pricing' || type == 'faq' || type == 'testimonials') {
+            if (block['items'] is! List || (block['items'] as List).isEmpty) continue;
           }
 
           validBlocks.add(block);

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
@@ -317,7 +318,7 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     return LayoutBuilder(
       builder: (context, constraints) {
         final double width = constraints.maxWidth;
-        final bool isMobile = width < 600;
+        final bool isMobile = width < 768;
 
         if (widget.layoutStyle == 'list' ||
             widget.layoutStyle == 'list_large') {
@@ -341,31 +342,49 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
           );
         }
 
-        int crossAxisCount;
-        double childAspectRatio;
-        if (widget.layoutStyle == 'grid_3') {
-          crossAxisCount = isMobile ? 2 : 3;
-          childAspectRatio = isMobile ? 0.6 : 0.75;
-        } else {
-          crossAxisCount = 2;
-          childAspectRatio = isMobile ? 0.7 : 1.0;
+        int requestedColumns = widget.layoutStyle == 'grid_3' ? 3 : 2;
+        int crossAxisCount = ResponsiveUtils.getContentColumns(
+           width,
+           desktop: requestedColumns,
+           tablet: 2,
+           mobile: 2,
+        );
+
+        final List<Widget> rows = [];
+        for (int i = 0; i < _paginatedItems.length; i += crossAxisCount) {
+          final rowItems = _paginatedItems.sublist(
+            i, 
+            (i + crossAxisCount > _paginatedItems.length) ? _paginatedItems.length : i + crossAxisCount
+          );
+
+          Widget rowWidget = IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: List.generate(crossAxisCount, (colIndex) {
+                if (colIndex < rowItems.length) {
+                  final isLastInRow = colIndex == crossAxisCount - 1;
+                  return Expanded(
+                    child: Padding(
+                      padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : (isMobile ? 12.0 : 20.0)),
+                      child: _buildProductCard(context, rowItems[colIndex], isMobile),
+                    ),
+                  );
+                } else {
+                  return const Expanded(child: SizedBox.shrink());
+                }
+              }),
+            ),
+          );
+
+          rows.add(rowWidget);
+          if (i + crossAxisCount < _paginatedItems.length) {
+            rows.add(SizedBox(height: isMobile ? 12 : 20));
+          }
         }
 
         return Column(
           children: [
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _paginatedItems.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: isMobile ? 12 : 20,
-                mainAxisSpacing: isMobile ? 12 : 20,
-                childAspectRatio: childAspectRatio,
-              ),
-              itemBuilder: (context, index) =>
-                  _buildProductCard(context, _paginatedItems[index], isMobile),
-            ),
+            Column(children: rows),
             const SizedBox(height: 32),
             _buildPagination(context),
           ],
@@ -455,7 +474,8 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
+                AspectRatio(
+                  aspectRatio: 1,
                   child: Stack(
                     children: [
                       Positioned.fill(

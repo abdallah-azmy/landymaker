@@ -90,7 +90,7 @@ class CustomFeaturesWidget extends StatelessWidget {
     final String effectiveLayoutStyle = variant == 1 ? 'bento' : layoutStyle;
 
     if (effectiveLayoutStyle == 'bento' && !isMobile) {
-      return _buildBentoGrid(context, items, primary, secondary, textColor, subTextColor, bgColor);
+      return _buildBentoGrid(context, constraints, items, primary, secondary, textColor, subTextColor, bgColor);
     }
 
     if (variant == 2 && !isMobile) { // Horizontal Scroll
@@ -100,9 +100,10 @@ class CustomFeaturesWidget extends StatelessWidget {
            children: items.asMap().entries.map((entry) {
              return Container(
                width: 300,
-               height: 250,
-               margin: const EdgeInsets.only(right: 24),
-               child: FeatureCard(
+               margin: const EdgeInsetsDirectional.only(end: 24),
+               child: ConstrainedBox(
+                 constraints: const BoxConstraints(minHeight: 200),
+                 child: FeatureCard(
                   title: entry.value['title'] ?? '',
                   description: entry.value['description'] ?? '',
                   linkUrl: entry.value['link_url'],
@@ -115,49 +116,63 @@ class CustomFeaturesWidget extends StatelessWidget {
                   bgColor: bgColor,
                   isMobile: isMobile,
                 ),
-             );
-           }).toList(),
+                ),
+              );
+            }).toList(),
          ),
        );
     }
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: variant == 3 ? 2 : ResponsiveUtils.getGridCrossAxisCount(
-          context,
-          desktop: 3,
-          tablet: 2,
-          mobile: 1,
-          width: constraints.maxWidth,
-        ),
-        crossAxisSpacing: isMobile ? 16 : 24,
-        mainAxisSpacing: isMobile ? 16 : 24,
-        childAspectRatio: isMobile ? 1.2 : 1.3,
-      ),
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return FeatureCard(
-          title: item['title'] ?? '',
-          description: item['description'] ?? '',
-          linkUrl: item['link_url'],
-          iconName: item['icon'],
-          index: index,
-          primary: primary,
-          secondary: secondary,
-          textColor: textColor,
-          subTextColor: subTextColor,
-          bgColor: bgColor,
-          isMobile: isMobile,
-          variant: variant,
-        );
-      },
+    final int columnCount = variant == 3 ? 2 : ResponsiveUtils.getContentColumns(
+      constraints.maxWidth,
+      desktop: 3,
+      tablet: 2,
+      mobile: 1,
     );
+
+    final List<Widget> rows = [];
+    for (int i = 0; i < items.length; i += columnCount) {
+      final rowItems = items.sublist(i, (i + columnCount > items.length) ? items.length : i + columnCount);
+      rows.add(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(columnCount, (colIndex) {
+            if (colIndex < rowItems.length) {
+              final item = rowItems[colIndex];
+              final isLastInRow = colIndex == columnCount - 1;
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : (isMobile ? 16.0 : 24.0)),
+                  child: FeatureCard(
+                    title: item['title'] ?? '',
+                    description: item['description'] ?? '',
+                    linkUrl: item['link_url'],
+                    iconName: item['icon'],
+                    index: i + colIndex,
+                    primary: primary,
+                    secondary: secondary,
+                    textColor: textColor,
+                    subTextColor: subTextColor,
+                    bgColor: bgColor,
+                    isMobile: isMobile,
+                    variant: variant,
+                  ),
+                ),
+              );
+            } else {
+              return const Expanded(child: SizedBox.shrink());
+            }
+          }),
+        ),
+      );
+      if (i + columnCount < items.length) {
+        rows.add(SizedBox(height: isMobile ? 16 : 24));
+      }
+    }
+    return Column(children: rows);
   }
 
-  Widget _buildBentoGrid(BuildContext context, List<Map<String, dynamic>> items, Color primary, Color secondary, Color textColor, Color subTextColor, Color bgColor) {
+  Widget _buildBentoGrid(BuildContext context, BoxConstraints constraints, List<Map<String, dynamic>> items, Color primary, Color secondary, Color textColor, Color subTextColor, Color bgColor) {
     if (items.isEmpty) return const SizedBox.shrink();
 
     final List<Widget> rows = [];
@@ -255,35 +270,52 @@ class CustomFeaturesWidget extends StatelessWidget {
     if (items.length > 4) {
       final remaining = items.sublist(4);
       rows.add(const SizedBox(height: 24));
-      rows.add(
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: remaining.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 24,
-            mainAxisSpacing: 24,
-            childAspectRatio: 1.3,
-          ),
-          itemBuilder: (context, index) {
-            final item = remaining[index];
-            return FeatureCard(
-              title: item['title'] ?? '',
-              description: item['description'] ?? '',
-              linkUrl: item['link_url'],
-              iconName: item['icon'],
-              index: index + 4,
-              primary: primary,
-              secondary: secondary,
-              textColor: textColor,
-              subTextColor: subTextColor,
-              bgColor: bgColor,
-              isMobile: false,
-            );
-          },
-        )
+      final int columnCount = ResponsiveUtils.getContentColumns(
+        constraints.maxWidth,
+        desktop: 3,
+        tablet: 2,
+        mobile: 1,
       );
+
+      final List<Widget> remainingRows = [];
+      for (int i = 0; i < remaining.length; i += columnCount) {
+        final rowItems = remaining.sublist(i, (i + columnCount > remaining.length) ? remaining.length : i + columnCount);
+        remainingRows.add(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(columnCount, (colIndex) {
+              if (colIndex < rowItems.length) {
+                final item = rowItems[colIndex];
+                final isLastInRow = colIndex == columnCount - 1;
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : 24.0),
+                    child: FeatureCard(
+                      title: item['title'] ?? '',
+                      description: item['description'] ?? '',
+                      linkUrl: item['link_url'],
+                      iconName: item['icon'],
+                      index: i + colIndex + 4,
+                      primary: primary,
+                      secondary: secondary,
+                      textColor: textColor,
+                      subTextColor: subTextColor,
+                      bgColor: bgColor,
+                      isMobile: false,
+                    ),
+                  ),
+                );
+              } else {
+                return const Expanded(child: SizedBox.shrink());
+              }
+            }),
+          ),
+        );
+        if (i + columnCount < remaining.length) {
+          remainingRows.add(const SizedBox(height: 24));
+        }
+      }
+      rows.add(Column(children: remainingRows));
     } else if (items.length == 3) {
        rows.add(const SizedBox(height: 24));
        rows.add(
@@ -425,6 +457,7 @@ class _FeatureCardState extends State<FeatureCard> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -452,8 +485,6 @@ class _FeatureCardState extends State<FeatureCard> {
           const SizedBox(height: 16),
           Text(
             widget.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
             style: AppTypography.bodyLarge.copyWith(
               fontWeight: FontWeight.bold,
               fontSize: widget.isMobile ? 15 : 18,
@@ -461,16 +492,12 @@ class _FeatureCardState extends State<FeatureCard> {
             ),
           ),
           const SizedBox(height: 4),
-          Expanded(
-            child: Text(
-              widget.description,
-              style: AppTypography.bodyMedium.copyWith(
-                color: widget.subTextColor,
-                height: 1.3,
-                fontSize: widget.isMobile ? 12 : 14,
-              ),
-              maxLines: widget.isMobile ? 2 : (widget.isBento ? 4 : 3),
-              overflow: TextOverflow.ellipsis,
+          Text(
+            widget.description,
+            style: AppTypography.bodyMedium.copyWith(
+              color: widget.subTextColor,
+              height: 1.3,
+              fontSize: widget.isMobile ? 12 : 14,
             ),
           ),
         ],

@@ -39,4 +39,6 @@ This registry defines the "Readable Language" used between the Builder and the A
 ... (Refer to individual editors for full details)
 
 ---
-**Rule for AI Agents**: Always prioritize contrast and variety. Use `pixabay_search` for dynamic image fulfillment.
+**Rule for AI Agents**: 
+1. Always prioritize contrast and variety. Use `pixabay_search` for dynamic image fulfillment.
+2. The complete exact schema definition for the AI prompt is now dynamically loaded from `supabase/functions/shared/schema_registry.json`. Whenever a new block is added to the Flutter `BlockRegistry`, its schema MUST also be appended to `schema_registry.json` so the edge function can read it.

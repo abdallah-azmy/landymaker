@@ -349,11 +349,14 @@ Any task affecting one of these systems MUST:
      ```dart
      static String get myNewKey => cleanEnv(const String.fromEnvironment('MY_NEW_KEY'));
      ```
-13. **Edge Function Development Rules**:
+ 13. **Edge Function Development Rules (CRITICAL)**:
     - **Absolute URLs**: Always use full URLs for imports (e.g., `https://esm.sh/...`).
     - **Strict Typing**: Always define explicit types for Request/Response and catch blocks (`error: unknown`).
     - **CORS Handling**: Every function must handle `OPTIONS` requests and return proper `Access-Control-Allow-Origin` headers.
-    - **IDE Support**: Use `tsconfig.json` and `deno-types.d.ts` for IDE support. Do not delete or ignore these files.
+    - **IDE Support**: Use `tsconfig.json` and `deno-types.d.ts` for IDE support. Do not delete or ignore these files. Ensure `"resolveJsonModule": true` and `"allowSyntheticDefaultImports": true` are present when working with JSON schemas.
+    - **RLS & Security Bypass**: Whenever an Edge Function needs to write to internal logging/quota tables (e.g. `ai_usage_log`) that are hidden behind RLS, it MUST instantiate a separate `adminSupabase` client using `SUPABASE_SERVICE_ROLE_KEY`. Never use the `ANON_KEY` for background service operations to avoid exposing tables to the public.
+    - **Information Disclosure**: Never pass raw backend database error strings (e.g., PostgreSQL errors) directly to the client. Always wrap unknown errors in a generic fallback message and log the real error server-side (`console.error`).
+    - **Cache Stampede Prevention**: When implementing in-memory caching for third-party APIs (like Pixabay) inside edge functions, always store the **Promise** in the cache rather than the resolved value. This prevents concurrent identical requests from firing multiple HTTP calls before the first one resolves.
 14. **Data Integrity**: Never perform arithmetic operations on potential zero values in the UI (e.g., conversion rate) without a safety check (`visitors > 0`).
 15. **Safe Sizing & Numeric Parsing (CRITICAL)**:
     - Always use `NumericParser` to parse and coerce font sizes, spacing, padding, margins, or image width/height from dynamic design maps or style overrides.
@@ -610,9 +613,9 @@ LandyMaker has evolved into an AI-powered conversion platform with "Omnipotent C
 
 ### A. AI Page Generator & Conversational Editor
 - **Location**: `supabase/functions/ai-page-generate/`
-- **Logic**: Uses `gemini-1.5-flash` to generate or surgically edit JSON landing pages.
+- **Logic**: Uses a multi-provider fallback (Gemini → Groq → OpenRouter → DeepSeek) to generate or surgically edit JSON landing pages. Must rely on Regex-based JSON extraction instead of native JSON Mode to preserve compatibility across all LLMs.
 - **Intent: 'edit'**: Supports precise updates based on current design context. AI understands relative references ("top", "last section", "change second block background").
-- **Unified Schema**: Every editable property is mapped in `BLOCK_SCHEMA_REGISTRY.md`. AI can control specific `variant` (0-9), `vertical_padding`, and `animation` settings.
+- **Unified Decoupled Schema**: Every editable property is mapped in a decoupled JSON file located at `supabase/functions/shared/schema_registry.json`. This serves as the absolute Source of Truth for the LLM prompt. Any new sections added to the Flutter `BlockRegistry` must also be declared in this JSON registry to be available to the AI.
 
 ### B. Visual Intelligence & Pixabay Integration
 - **Direct Search**: AI uses `{ "pixabay_search": { "query", "type" } }` for automated image fulfillment.

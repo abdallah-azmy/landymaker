@@ -16,7 +16,7 @@ class ResponsiveLayout extends StatelessWidget {
 
   static ScreenType getScreenType(BuildContext context, {double? width}) {
     double effectiveWidth = width ?? MediaQuery.of(context).size.width;
-    if (effectiveWidth < 600) {
+    if (effectiveWidth < 768) {
       return ScreenType.mobile;
     } else if (effectiveWidth < 1024) {
       return ScreenType.tablet;
@@ -40,7 +40,7 @@ class ResponsiveLayout extends StatelessWidget {
       builder: (context, constraints) {
         if (constraints.maxWidth >= 1024) {
           return desktop;
-        } else if (constraints.maxWidth >= 600) {
+        } else if (constraints.maxWidth >= 768) {
           return tablet ?? mobile;
         } else {
           return mobile;

@@ -33,7 +33,19 @@ class ResponsiveUtils {
     }
   }
 
+  // Cross axis count for grids directly from width (LayoutBuilder preferred)
+  static int getContentColumns(double width, {int desktop = 3, int tablet = 2, int mobile = 1}) {
+    if (width < 768) {
+      return mobile;
+    } else if (width < 1024) {
+      return tablet;
+    } else {
+      return desktop;
+    }
+  }
+
   // Responsive card aspect ratio
+  @Deprecated('Card aspect ratios must not be driven by this utility. Use content-driven sizing instead.')
   static double getGridAspectRatio(BuildContext context, {double? width}) {
     ScreenType screenType = ResponsiveLayout.getScreenType(context, width: width);
     return screenType == ScreenType.mobile ? 1.5 : 1.3;

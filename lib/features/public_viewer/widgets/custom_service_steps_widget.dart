@@ -26,7 +26,7 @@ class CustomServiceStepsWidget extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 600;
+        final bool isMobile = constraints.maxWidth < 768;
 
         return SectionBackground(
           theme: theme,
@@ -134,55 +134,58 @@ class CustomServiceStepsWidget extends StatelessWidget {
         final item = items[index];
         final isLast = index == items.length - 1;
 
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                if (!isLast)
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Column(
+                children: [
                   Container(
-                    width: 2,
-                    height: 100,
-                    color: accent.withValues(alpha: 0.3),
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: accent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${index + 1}',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
-              ],
-            ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item['title'] ?? '',
-                      style: AppTypography.h3.copyWith(color: textColor, fontSize: 18),
+                  if (!isLast)
+                    Expanded(
+                      child: Container(
+                        width: 2,
+                        color: accent.withValues(alpha: 0.3),
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      item['description'] ?? '',
-                      style: AppTypography.bodyMedium.copyWith(color: subTextColor),
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                ],
+              ),
+              const SizedBox(width: 24),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['title'] ?? '',
+                        style: AppTypography.h3.copyWith(color: textColor, fontSize: 18),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        item['description'] ?? '',
+                        style: AppTypography.bodyMedium.copyWith(color: subTextColor),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       }),
     );

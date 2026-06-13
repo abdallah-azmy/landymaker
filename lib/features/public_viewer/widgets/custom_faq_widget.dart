@@ -32,7 +32,7 @@ class CustomFaqWidget extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 600;
+        final bool isMobile = constraints.maxWidth < 768;
         final double verticalPadding = isMobile ? 40 : 80;
 
         return SectionBackground(
@@ -85,7 +85,7 @@ class CustomFaqWidget extends StatelessWidget {
         collapsedIconColor: subTextColor,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(isMobile ? 12 : 16, 0, isMobile ? 12 : 16, isMobile ? 12 : 16),
+            padding: EdgeInsetsDirectional.fromSTEB(isMobile ? 12 : 16, 0, isMobile ? 12 : 16, isMobile ? 12 : 16),
             child: Text(
               item['answer'] ?? 'Answer goes here.',
               style: AppTypography.bodyMedium.copyWith(color: subTextColor, height: 1.4, fontSize: isMobile ? 12 : 14),

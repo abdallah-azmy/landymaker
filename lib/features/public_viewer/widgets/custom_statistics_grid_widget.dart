@@ -4,6 +4,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/widgets/block_animation_wrapper.dart';
+import '../../../core/responsive/card_layout_mode.dart';
 import '../../builder/models/landing_page_theme.dart';
 
 class CustomStatisticsGridWidget extends StatelessWidget {
@@ -15,6 +16,12 @@ class CustomStatisticsGridWidget extends StatelessWidget {
     required this.block,
     this.theme,
   });
+
+  CardLayoutMode get _layoutMode {
+    final raw = block['card_layout_mode'];
+    if (raw == null) return CardLayoutMode.auto;
+    return CardLayoutModeExt.fromString(raw);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,32 +65,59 @@ class CustomStatisticsGridWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 48),
                   ],
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: items.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(
-                        context,
+                  Builder(
+                    builder: (context) {
+                      if (items.isEmpty) return const SizedBox.shrink();
+
+                      final int columnCount = ResponsiveUtils.getContentColumns(
+                        constraints.maxWidth,
                         desktop: items.length >= 4 ? 4 : (items.length >= 3 ? 3 : items.length),
                         tablet: 2,
                         mobile: 1,
-                        width: constraints.maxWidth,
-                      ),
-                      crossAxisSpacing: 24,
-                      mainAxisSpacing: 24,
-                      childAspectRatio: isMobile ? 1.5 : 1.1,
-                    ),
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      return BlockAnimationWrapper(
-                        settings: BlockAnimationSettings(
-                          type: BlockAnimationType.fadeIn,
-                          duration: const Duration(milliseconds: 600),
-                          delay: Duration(milliseconds: index * 150),
-                        ),
-                        child: _buildStatCard(item, accentColor, textColor, subTextColor, isMobile),
                       );
+
+                      final List<Widget> rows = [];
+                      for (int i = 0; i < items.length; i += columnCount) {
+                        final rowItems = items.sublist(
+                          i, 
+                          (i + columnCount > items.length) ? items.length : i + columnCount
+                        );
+
+                        Widget rowWidget = Row(
+                          crossAxisAlignment: _layoutMode == CardLayoutMode.equal 
+                              ? CrossAxisAlignment.stretch 
+                              : CrossAxisAlignment.start,
+                          children: List.generate(columnCount, (colIndex) {
+                            if (colIndex < rowItems.length) {
+                              final item = rowItems[colIndex];
+                              final isLastInRow = colIndex == columnCount - 1;
+                              final itemIndex = i + colIndex;
+                              return Expanded(
+                                child: Padding(
+                                  padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : 24.0),
+                                  child: BlockAnimationWrapper(
+                                    settings: BlockAnimationSettings(
+                                      type: BlockAnimationType.fadeIn,
+                                      duration: const Duration(milliseconds: 600),
+                                      delay: Duration(milliseconds: itemIndex * 150),
+                                    ),
+                                    child: _buildStatCard(item, accentColor, textColor, subTextColor, isMobile),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return const Expanded(child: SizedBox.shrink());
+                            }
+                          }),
+                        );
+
+                        rows.add(_layoutMode == CardLayoutMode.equal ? IntrinsicHeight(child: rowWidget) : rowWidget);
+
+                        if (i + columnCount < items.length) {
+                          rows.add(const SizedBox(height: 24));
+                        }
+                      }
+                      return Column(children: rows);
                     },
                   ),
                 ],
@@ -97,6 +131,7 @@ class CustomStatisticsGridWidget extends StatelessWidget {
 
   Widget _buildStatCard(Map<String, dynamic> item, Color accent, Color textColor, Color subTextColor, bool isMobile) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: textColor.withValues(alpha: 0.03),

@@ -35,8 +35,10 @@ const Map<String, PropDef> _globalProps = {
   'is_visible': PropDef(type: PropType.boolean, defaultValue: true),
   'vertical_padding': PropDef(type: PropType.doubleNum, defaultValue: 80.0, min: 0, max: 300),
   'animation': PropDef(type: PropType.map),
+  'card_layout_mode': PropDef(type: PropType.string, allowedValues: ['auto', 'equal']),
   '_index': PropDef(type: PropType.int),
 };
+
 
 /// Per-block-type property schemas.
 const Map<String, Map<String, PropDef>> _blockSchemas = {

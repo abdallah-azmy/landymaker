@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
+import '../../../core/responsive/card_layout_mode.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
 
@@ -10,6 +11,7 @@ class CustomFeaturesWidget extends StatelessWidget {
   final String title;
   final List<Map<String, dynamic>> items;
   final String layoutStyle; // 'grid' or 'bento'
+  final CardLayoutMode cardLayoutMode;
   final LandingPageTheme? theme;
   final String? bgImageUrl;
   final String? bgOverlayColor;
@@ -22,6 +24,7 @@ class CustomFeaturesWidget extends StatelessWidget {
     required this.title,
     required this.items,
     this.layoutStyle = 'grid',
+    this.cardLayoutMode = CardLayoutMode.auto,
     this.theme,
     this.bgImageUrl,
     this.bgOverlayColor,
@@ -133,12 +136,12 @@ class CustomFeaturesWidget extends StatelessWidget {
     final List<Widget> rows = [];
     for (int i = 0; i < items.length; i += columnCount) {
       final rowItems = items.sublist(i, (i + columnCount > items.length) ? items.length : i + columnCount);
-      rows.add(
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(columnCount, (colIndex) {
-            if (colIndex < rowItems.length) {
-              final item = rowItems[colIndex];
+      
+      Widget rowWidget = Row(
+        crossAxisAlignment: cardLayoutMode == CardLayoutMode.equal ? CrossAxisAlignment.stretch : CrossAxisAlignment.start,
+        children: List.generate(columnCount, (colIndex) {
+          if (colIndex < rowItems.length) {
+            final item = rowItems[colIndex];
               final isLastInRow = colIndex == columnCount - 1;
               return Expanded(
                 child: Padding(
@@ -163,8 +166,10 @@ class CustomFeaturesWidget extends StatelessWidget {
               return const Expanded(child: SizedBox.shrink());
             }
           }),
-        ),
       );
+
+      rows.add(cardLayoutMode == CardLayoutMode.equal ? IntrinsicHeight(child: rowWidget) : rowWidget);
+
       if (i + columnCount < items.length) {
         rows.add(SizedBox(height: isMobile ? 16 : 24));
       }

@@ -5,6 +5,7 @@ import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/services/event_analytics_service.dart';
 import '../../../core/services/action_handler_service.dart';
+import '../../../core/responsive/card_layout_mode.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../models/pricing_models.dart';
 import '../utils/pricing_parser.dart';
@@ -67,6 +68,13 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
     }
   }
 
+  CardLayoutMode get _layoutMode {
+    final raw = widget.block['card_layout_mode'];
+    // Default to equal for Pricing
+    if (raw == null) return CardLayoutMode.equal;
+    return CardLayoutModeExt.fromString(raw);
+  }
+
   @override
   Widget build(BuildContext context) {
     final primaryColor = widget.theme?.primary ?? AppColors.primary;
@@ -76,7 +84,7 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 600;
+        final bool isMobile = constraints.maxWidth < 768;
         final double verticalPadding = isMobile ? 40 : 80;
 
         return SectionBackground(
@@ -124,27 +132,42 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
        return _buildTableStyle(primary, secondary, textColor, subTextColor);
     }
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _model.items.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: widget.variant == 1 ? 2 : ResponsiveUtils.getGridCrossAxisCount(
-          context,
-          desktop: _model.items.length > 3 ? 3 : _model.items.length,
-          tablet: 2,
-          mobile: 1,
-          width: constraints.maxWidth,
-        ),
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-        childAspectRatio: isMobile ? 1.0 : (widget.variant == 1 ? 1.2 : 0.65),
-      ),
-      itemBuilder: (context, index) {
-        final item = _model.items[index];
-        return _buildPricingCard(item, primary, secondary, textColor, subTextColor, isMobile);
-      },
+    final int columnCount = widget.variant == 1 ? 2 : ResponsiveUtils.getContentColumns(
+      constraints.maxWidth,
+      desktop: _model.items.length >= 3 ? 3 : _model.items.length,
+      tablet: 2,
+      mobile: 1,
     );
+
+    final List<Widget> rows = [];
+    for (int i = 0; i < _model.items.length; i += columnCount) {
+      final rowItems = _model.items.sublist(i, (i + columnCount > _model.items.length) ? _model.items.length : i + columnCount);
+      
+      Widget rowWidget = Row(
+        crossAxisAlignment: _layoutMode == CardLayoutMode.equal ? CrossAxisAlignment.stretch : CrossAxisAlignment.start,
+        children: List.generate(columnCount, (colIndex) {
+          if (colIndex < rowItems.length) {
+            final item = rowItems[colIndex];
+                final isLastInRow = colIndex == columnCount - 1;
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : 20.0),
+                    child: _buildPricingCard(item, primary, secondary, textColor, subTextColor, isMobile),
+                  ),
+                );
+              } else {
+                return const Expanded(child: SizedBox.shrink());
+              }
+            }),
+      );
+      
+      rows.add(_layoutMode == CardLayoutMode.equal ? IntrinsicHeight(child: rowWidget) : rowWidget);
+
+      if (i + columnCount < _model.items.length) {
+        rows.add(const SizedBox(height: 20));
+      }
+    }
+    return Column(children: rows);
   }
 
   Widget _buildTableStyle(Color primary, Color secondary, Color textColor, Color subTextColor) {
@@ -245,61 +268,66 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
       ),
       child: Stack(
         clipBehavior: Clip.none,
+        fit: StackFit.expand,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (item.isPopular)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: secondary,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    "الأكثر شيوعاً", // Hardcoded fallback, usually you'd localize this too, but MVP for now
-                    style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              Text(item.name, style: AppTypography.h3.copyWith(color: textColor, fontSize: isMobile ? 18 : 22)),
-              const SizedBox(height: 8),
-              
-              // Animated price display
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: Container(
-                  key: ValueKey(priceDisplay),
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: Text(
-                    priceDisplay, 
-                    style: AppTypography.h1.copyWith(color: secondary, fontSize: isMobile ? 28 : 36),
-                  ),
-                ),
-              ),
-              
-              SizedBox(height: isMobile ? 16 : 24),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: isMobile ? (item.features.length > 2 ? 2 : item.features.length) : item.features.length,
-                  itemBuilder: (context, i) {
-                    final f = item.features[i];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Icon(Icons.check_circle_rounded, color: secondary, size: 16),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(f, style: TextStyle(color: subTextColor, fontSize: isMobile ? 12 : 14))),
-                        ],
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (item.isPopular)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: secondary,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                    );
-                  },
-                ),
+                      child: const Text(
+                        "الأكثر شيوعاً", // Hardcoded fallback, usually you'd localize this too, but MVP for now
+                        style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  Text(item.name, style: AppTypography.h3.copyWith(color: textColor, fontSize: isMobile ? 18 : 22)),
+                  const SizedBox(height: 8),
+                  
+                  // Animated price display
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Container(
+                      key: ValueKey(priceDisplay),
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Text(
+                        priceDisplay, 
+                        style: AppTypography.h1.copyWith(color: secondary, fontSize: isMobile ? 28 : 36),
+                      ),
+                    ),
+                  ),
+                  
+                  SizedBox(height: isMobile ? 16 : 24),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: isMobile ? (item.features.length > 2 ? 2 : item.features.length) : item.features.length,
+                    itemBuilder: (context, i) {
+                      final f = item.features[i];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Icon(Icons.check_circle_rounded, color: secondary, size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text(f, style: TextStyle(color: subTextColor, fontSize: isMobile ? 12 : 14))),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
-              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

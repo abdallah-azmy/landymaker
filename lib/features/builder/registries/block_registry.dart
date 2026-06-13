@@ -29,6 +29,7 @@ import '../../public_viewer/widgets/custom_cta_banner_widget.dart';
 import '../../public_viewer/widgets/custom_comparison_table_widget.dart';
 import '../../../core/widgets/block_animation_wrapper.dart';
 import '../../../core/widgets/atoms/glass_container.dart';
+import '../../../core/responsive/card_layout_mode.dart';
 
 typedef BlockBuilder = Widget Function(
   Map<String, dynamic> data,
@@ -105,6 +106,7 @@ class BlockRegistry {
           title: data['title'] ?? '',
           items: List<Map<String, dynamic>>.from(data['items'] ?? []),
           layoutStyle: data['layout_style'] ?? 'grid',
+          cardLayoutMode: CardLayoutModeExt.fromString(data['card_layout_mode']),
           theme: theme,
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],

@@ -64,6 +64,7 @@ interface PixabayCacheEntry { urls: string[]; timestamp: number; }
 async function fetchPixabayImageWithCache(
   query: string, type: string, indexInSequence: number,
   searchCache: Record<string, PixabayCacheEntry>, limit: number,
+  resolvedUrls: Set<string>,
   orientation?: string, quality?: string
 ): Promise<string | null> {
   if (!PIXABAY_API_KEY) return null;
@@ -73,10 +74,15 @@ async function fetchPixabayImageWithCache(
     const cached = searchCache[cacheKey];
     if (cached && (Date.now() - cached.timestamp < PIXABAY_CACHE_TTL)) {
       const urls = cached.urls;
-      if (urls.length > 0) return urls[indexInSequence % urls.length];
+      if (urls.length > 0) {
+        let selectedUrl = urls.find(url => !resolvedUrls.has(url));
+        if (!selectedUrl) selectedUrl = urls[indexInSequence % urls.length];
+        if (selectedUrl) resolvedUrls.add(selectedUrl);
+        return selectedUrl;
+      }
     }
 
-    const perPage = Math.max(3, Math.min(limit, 200));
+    const perPage = Math.max(10, Math.min(limit * 2, 200));
     let url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=${type}&per_page=${perPage}&safesearch=true`;
     if (orientation) url += `&orientation=${orientation}`;
     if (BLOCK_IMAGE_TYPE_MAP[query]?.category) url += `&category=${BLOCK_IMAGE_TYPE_MAP[query].category}`;
@@ -103,7 +109,7 @@ async function fetchPixabayImageWithCache(
       if (hits.length === 0) {
         const genericKeywords = ['business', 'website', 'studio', 'office', 'professional'];
         for (const kw of genericKeywords) {
-          const genericUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(kw)}&image_type=${type}&per_page=3&safesearch=true`;
+          const genericUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(kw)}&image_type=${type}&per_page=10&safesearch=true`;
           const genericResponse = await fetch(genericUrl);
           const genericData = await genericResponse.json();
           if (genericData.hits?.length > 0) {
@@ -115,7 +121,12 @@ async function fetchPixabayImageWithCache(
     }
 
     searchCache[cacheKey] = { urls: hits, timestamp: Date.now() };
-    if (hits.length > 0) return hits[indexInSequence % hits.length];
+    if (hits.length > 0) {
+      let selectedUrl = hits.find(url => !resolvedUrls.has(url));
+      if (!selectedUrl) selectedUrl = hits[indexInSequence % hits.length];
+      if (selectedUrl) resolvedUrls.add(selectedUrl);
+      return selectedUrl;
+    }
   } catch (e) {
     console.error('Pixabay Error:', e);
   }
@@ -162,6 +173,7 @@ function countQueryOccurrences(obj: any): Record<string, number> {
 async function resolvePixabayRequests(obj: any, sendEvent?: (data: any) => void): Promise<any> {
   const queryCounters: Record<string, number> = {};
   const searchCache: Record<string, PixabayCacheEntry> = {};
+  const resolvedUrls = new Set<string>();
   const queryCounts = countQueryOccurrences(obj);
 
   async function resolveNode(node: any): Promise<any> {
@@ -176,7 +188,7 @@ async function resolvePixabayRequests(obj: any, sendEvent?: (data: any) => void)
       queryCounters[counterKey] = index + 1;
       const limit = queryCounts[`${query}_${searchType}`] || 5;
       const resolvedUrl = await fetchPixabayImageWithCache(
-        query, searchType, index, searchCache, limit, orientation, quality
+        query, searchType, index, searchCache, limit, resolvedUrls, orientation, quality
       );
       return resolvedUrl || "https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg";
     }
@@ -403,7 +415,7 @@ PIXABAY API RULES (STRICTLY REQUIRED):
    }
 3. Choose "type" and "orientation" per the BLOCK-TO-IMAGE-TYPE MAP above.
 4. INDUSTRY-AWARE QUERIES: Always combine the block context with the user's industry/offer.
-5. BILINGUAL QUERIES: Use the prompt's language. For Arabic prompts, search in Arabic keywords.
+5. ALWAYS USE ENGLISH FOR QUERIES: Regardless of the user prompt's language, the "query" field in "pixabay_search" MUST ALWAYS be in English (e.g., use "football club background" or "dentist office" instead of "خلفية نادي كرة قدم") to ensure high-quality Pixabay API results.
 6. For lists with multiple items (products, team, features), write a distinct specific query per item.
 7. QUALITY: Use "largeImageURL" as default quality for hero and bg_image blocks, "webformatURL" for thumbnails.
 8. If user asks "choose for me" or "replace with <topic>", you can trigger:

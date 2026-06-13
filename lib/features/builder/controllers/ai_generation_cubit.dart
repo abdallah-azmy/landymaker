@@ -385,8 +385,8 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
             newIndustry != null && newIndustry.isNotEmpty &&
             oldIndustry.trim().toLowerCase() != newIndustry.trim().toLowerCase();
 
-        final bool isFullRebuild = data['full_rebuild'] == true ||
-            data['action'] == 'generate' ||
+        final bool isFullRebuild = intent != 'edit' ||
+            data['full_rebuild'] == true ||
             industryChanged;
 
         var validatedDesign = AIResponseValidator.validate(

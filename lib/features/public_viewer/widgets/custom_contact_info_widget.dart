@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
 
@@ -42,7 +43,7 @@ class CustomContactInfoWidget extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 600;
+        final bool isMobile = constraints.maxWidth < 768;
         final double verticalPadding = isMobile ? 40 : 80;
 
         return SectionBackground(
@@ -63,18 +64,61 @@ class CustomContactInfoWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: isMobile ? 32 : 64),
-                  Wrap(
-                    spacing: 24,
-                    runSpacing: 24,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      if (phone != null && phone!.isNotEmpty)
-                        _buildContactCard(_resolveIcon(phoneIcon, Icons.phone_rounded), "Phone", phone!, secondaryColor, textColor, subTextColor, isMobile),
-                      if (email != null && email!.isNotEmpty)
-                        _buildContactCard(_resolveIcon(emailIcon, Icons.email_rounded), "Email", email!, secondaryColor, textColor, subTextColor, isMobile),
-                      if (location != null && location!.isNotEmpty)
-                        _buildContactCard(_resolveIcon(locationIcon, Icons.location_on_rounded), "Address", location!, secondaryColor, textColor, subTextColor, isMobile),
-                    ],
+                  Builder(
+                    builder: (context) {
+                      final activeItems = [
+                        if (phone != null && phone!.isNotEmpty)
+                          {'icon': _resolveIcon(phoneIcon, Icons.phone_rounded), 'label': "Phone", 'value': phone!},
+                        if (email != null && email!.isNotEmpty)
+                          {'icon': _resolveIcon(emailIcon, Icons.email_rounded), 'label': "Email", 'value': email!},
+                        if (location != null && location!.isNotEmpty)
+                          {'icon': _resolveIcon(locationIcon, Icons.location_on_rounded), 'label': "Address", 'value': location!},
+                      ];
+
+                      if (activeItems.isEmpty) return const SizedBox.shrink();
+
+                      final int columnCount = ResponsiveUtils.getContentColumns(
+                        constraints.maxWidth,
+                        desktop: 3,
+                        tablet: 2,
+                        mobile: 1,
+                      );
+
+                      final List<Widget> rows = [];
+                      for (int i = 0; i < activeItems.length; i += columnCount) {
+                        final rowItems = activeItems.sublist(i, (i + columnCount > activeItems.length) ? activeItems.length : i + columnCount);
+                        rows.add(
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: List.generate(columnCount, (colIndex) {
+                              if (colIndex < rowItems.length) {
+                                final item = rowItems[colIndex];
+                                final isLastInRow = colIndex == columnCount - 1;
+                                return Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : (isMobile ? 16.0 : 24.0)),
+                                    child: _buildContactCard(
+                                      item['icon'] as IconData,
+                                      item['label'] as String,
+                                      item['value'] as String,
+                                      secondaryColor,
+                                      textColor,
+                                      subTextColor,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                return const Expanded(child: SizedBox.shrink());
+                              }
+                            }),
+                          ),
+                        );
+                        if (i + columnCount < activeItems.length) {
+                          rows.add(SizedBox(height: isMobile ? 16 : 24));
+                        }
+                      }
+                      return Column(children: rows);
+                    },
                   ),
                 ],
               ),
@@ -85,9 +129,9 @@ class CustomContactInfoWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildContactCard(IconData icon, String label, String value, Color secondary, Color textColor, Color subTextColor, bool isMobile) {
+  Widget _buildContactCard(IconData icon, String label, String value, Color secondary, Color textColor, Color subTextColor) {
     return Container(
-      width: isMobile ? double.infinity : 300,
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: subTextColor.withValues(alpha: 0.05),

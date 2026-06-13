@@ -44,10 +44,4 @@ class ResponsiveUtils {
     }
   }
 
-  // Responsive card aspect ratio
-  @Deprecated('Card aspect ratios must not be driven by this utility. Use content-driven sizing instead.')
-  static double getGridAspectRatio(BuildContext context, {double? width}) {
-    ScreenType screenType = ResponsiveLayout.getScreenType(context, width: width);
-    return screenType == ScreenType.mobile ? 1.5 : 1.3;
-  }
 }

@@ -34,7 +34,7 @@ class CustomTestimonialsWidget extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 600;
+        final bool isMobile = constraints.maxWidth < 768;
         final double verticalPadding = isMobile ? 40 : 80;
 
         return SectionBackground(
@@ -55,25 +55,43 @@ class CustomTestimonialsWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: isMobile ? 32 : 64),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: items.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(
-                        context,
+                  Builder(
+                    builder: (context) {
+                      if (items.isEmpty) return const SizedBox.shrink();
+
+                      final int columnCount = ResponsiveUtils.getContentColumns(
+                        constraints.maxWidth,
                         desktop: 3,
                         tablet: 2,
                         mobile: 1,
-                        width: constraints.maxWidth,
-                      ),
-                      crossAxisSpacing: 20,
-                      mainAxisSpacing: 20,
-                      childAspectRatio: isMobile ? 1.4 : 1.1,
-                    ),
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      return _buildTestimonialCard(item, secondaryColor, textColor, subTextColor, isMobile);
+                      );
+
+                      final List<List<Map<String, dynamic>>> columns = List.generate(columnCount, (_) => []);
+                      for (int i = 0; i < items.length; i++) {
+                        columns[i % columnCount].add(items[i]);
+                      }
+
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(columnCount, (colIndex) {
+                          final isLastColumn = colIndex == columnCount - 1;
+                          return Expanded(
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.only(end: isLastColumn ? 0 : 20.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: columns[colIndex].asMap().entries.map((entry) {
+                                  final isLastItem = entry.key == columns[colIndex].length - 1;
+                                  return Padding(
+                                    padding: EdgeInsets.only(bottom: isLastItem ? 0 : 20.0),
+                                    child: _buildTestimonialCard(entry.value, secondaryColor, textColor, subTextColor, isMobile),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          );
+                        }),
+                      );
                     },
                   ),
                 ],
@@ -100,13 +118,9 @@ class CustomTestimonialsWidget extends StatelessWidget {
             children: List.generate(5, (index) => Icon(Icons.star_rounded, color: secondary, size: isMobile ? 14 : 16)),
           ),
           const SizedBox(height: 12),
-          Expanded(
-            child: Text(
-              item['quote'] ?? 'Testimonial quote goes here.',
-              style: AppTypography.bodyMedium.copyWith(color: subTextColor, fontStyle: FontStyle.italic, fontSize: isMobile ? 12 : 14, height: 1.4),
-              maxLines: isMobile ? 3 : 5,
-              overflow: TextOverflow.ellipsis,
-            ),
+          Text(
+            item['quote'] ?? 'Testimonial quote goes here.',
+            style: AppTypography.bodyMedium.copyWith(color: subTextColor, fontStyle: FontStyle.italic, fontSize: isMobile ? 12 : 14, height: 1.4),
           ),
           const SizedBox(height: 16),
           Row(

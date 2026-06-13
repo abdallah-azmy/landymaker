@@ -29,7 +29,7 @@ class CustomTeamMembersWidget extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 600;
+        final bool isMobile = constraints.maxWidth < 768;
 
         return SectionBackground(
           theme: theme,
@@ -59,25 +59,44 @@ class CustomTeamMembersWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 48),
                   ],
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: items.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(
-                        context,
+                  Builder(
+                    builder: (context) {
+                      if (items.isEmpty) return const SizedBox.shrink();
+
+                      final int columnCount = ResponsiveUtils.getContentColumns(
+                        constraints.maxWidth,
                         desktop: items.length >= 3 ? 3 : items.length,
                         tablet: 2,
                         mobile: 1,
-                        width: constraints.maxWidth,
-                      ),
-                      crossAxisSpacing: 32,
-                      mainAxisSpacing: 32,
-                      childAspectRatio: isMobile ? 0.9 : 0.75,
-                    ),
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      return _buildMemberCard(item, accentColor, textColor, subTextColor);
+                      );
+
+                      final List<Widget> rows = [];
+                      for (int i = 0; i < items.length; i += columnCount) {
+                        final rowItems = items.sublist(i, (i + columnCount > items.length) ? items.length : i + columnCount);
+                        rows.add(
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: List.generate(columnCount, (colIndex) {
+                              if (colIndex < rowItems.length) {
+                                final item = rowItems[colIndex];
+                                final isLastInRow = colIndex == columnCount - 1;
+                                return Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : 32.0),
+                                    child: _buildMemberCard(item, accentColor, textColor, subTextColor),
+                                  ),
+                                );
+                              } else {
+                                return const Expanded(child: SizedBox.shrink());
+                              }
+                            }),
+                          ),
+                        );
+                        if (i + columnCount < items.length) {
+                          rows.add(const SizedBox(height: 32));
+                        }
+                      }
+                      return Column(children: rows);
                     },
                   ),
                 ],
@@ -91,8 +110,10 @@ class CustomTeamMembersWidget extends StatelessWidget {
 
   Widget _buildMemberCard(Map<String, dynamic> item, Color accent, Color textColor, Color subTextColor) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
+        AspectRatio(
+          aspectRatio: 3 / 4,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
@@ -129,8 +150,6 @@ class CustomTeamMembersWidget extends StatelessWidget {
             item['bio'],
             style: AppTypography.caption.copyWith(color: subTextColor),
             textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
         const SizedBox(height: 16),

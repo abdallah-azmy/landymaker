@@ -38,7 +38,7 @@ class CustomWorkingHoursWidget extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 600;
+        final bool isMobile = constraints.maxWidth < 768;
         final double verticalPadding = isMobile ? 40 : 80;
 
         return SectionBackground(
@@ -75,7 +75,6 @@ class CustomWorkingHoursWidget extends StatelessWidget {
                             color: textColor,
                             fontSize: isMobile ? 20 : 24,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -95,7 +94,6 @@ class CustomWorkingHoursWidget extends StatelessWidget {
                               color: subTextColor,
                               fontSize: isMobile ? 15 : 17,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -108,7 +106,6 @@ class CustomWorkingHoursWidget extends StatelessWidget {
                               fontSize: isMobile ? 15 : 17,
                             ),
                             textAlign: TextAlign.end,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],

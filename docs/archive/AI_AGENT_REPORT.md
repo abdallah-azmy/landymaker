@@ -29,8 +29,7 @@ The Agent is now fully "site-aware." It doesn't just write text; it configures t
 
 ## 5. Free Tools Integration
 - **Supabase Edge Runtime**: Used for server-side security.
-- **Pixabay API**: Integrated for high-quality, free stock images.
-- **Unsplash API**: Used by the AI Agent to fetch context-aware placeholder images.
+- **Pixabay API**: Integrated for high-quality, free stock images and context-aware placeholder images.
 - **Cloudflare Turnstile**: Free bot protection for all AI-generated forms.
 
 ---

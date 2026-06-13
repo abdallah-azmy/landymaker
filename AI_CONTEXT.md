@@ -352,6 +352,29 @@ Any task affecting one of these systems MUST:
     - **CORS Handling**: Every function must handle `OPTIONS` requests and return proper `Access-Control-Allow-Origin` headers.
     - **IDE Support**: Use `tsconfig.json` and `deno-types.d.ts` for IDE support. Do not delete or ignore these files.
 14. **Data Integrity**: Never perform arithmetic operations on potential zero values in the UI (e.g., conversion rate) without a safety check (`visitors > 0`).
+15. **Safe Sizing & Numeric Parsing (CRITICAL)**:
+    - Always use `NumericParser` to parse and coerce font sizes, spacing, padding, margins, or image width/height from dynamic design maps or style overrides.
+    - Never call `.toDouble()` or `.toInt()` directly on dynamic lookups without checking the type or using `NumericParser`. AI models or web configurations might return strings with CSS units (e.g. `"18px"`, `"100%"`), which will cause runtime exceptions when cast directly.
+16. **Unconstrained Image Sizing Safety (CRITICAL)**:
+    - Never set the placeholder/shimmer width or height of network images (such as in `CustomNetworkImage`) to `double.infinity` by default if they can be placed inside unconstrained layout axes.
+    - For example, setting `height` to `double.infinity` when rendering inside a vertical scrollable (like a `ListView` or `SingleChildScrollView`) will trigger a "BoxConstraints forces an infinite height" crash. Always leave unconstrained width as `null` and fallback unconstrained height to a default finite size (e.g., `200.0`).
+17. **AI Design Map Application Safety (CRITICAL)**:
+    - In `LandingPageBuilderCubit.applyDesignJson`, always merge updated design fields (such as `blocks`, `theme`, `sticky_cta`, `business_name`, etc.) into the existing `designMap` rather than replacing the entire map with the AI payload. This preserves vital page settings (e.g. `subdomain`) when they are omitted in the AI's response.
+18. **Partial Edit Fault Tolerance & Subset Heuristic (CRITICAL)**:
+    - In `applyDesignJson`, if `isPartial` is false but the incoming blocks list is a smaller subset of the current page blocks, use the subset edit heuristic to automatically match and merge the incoming block(s) by type into the existing blocks list. Never replace the entire page with a partial list, as this wipes out the page.
+19. **Partial Edit Validation Safety (CRITICAL)**:
+    - In `AIResponseValidator.validate`, if `isEdit` is true, the validator must resolve the block `type` from the existing blocks list (`currentBlocks`) if the AI omitted it in partial edits.
+    - Also, do not discard list blocks (like `features`, `pricing`, `faq`, `testimonials`) during edits just because they lack the `items` key (which is normally omitted when the AI edits other properties like backgrounds).
+20. **Theme Editing Merge Principle (CRITICAL)**:
+    - In `applyDesignJson`, always merge incoming theme/global_theme modifications with the current theme map instead of replacing it. This prevents other unspecified colors and fonts from resetting to default values.
+21. **Section Image Updates (CRITICAL)**:
+    - In `AIGenerationCubit`, when Pixabay selection completes, check if `elementId` is null. If it is null (block-level property like background image), use `_builderCubit.updateBlockProperty` rather than `updateElementProperty` to correctly apply the image to the block.
+22. **Merge Safety (CRITICAL)**:
+    - Before merging incoming block map properties (via `existing.addAll` / `merged.addAll`), recursively strip any keys whose value is `null` or `""` (empty string) using the `_cleanIncomingMap` helper. This prevents lazy AI responses from overwriting existing valid content and breaking images.
+23. **Non-Destructive Blocks Merge (CRITICAL)**:
+    - If the AI returns block updates that are not subset edits, merge them block-by-block sequentially using type-matching, but preserve all remaining unmodified blocks rather than truncating/discarding the list.
+24. **Proper Pivot Detection Timing (CRITICAL)**:
+    - Capture the `oldIndustry` value at the absolute start of processing AI responses (before calling `_session.updateProfileFromAI`), ensuring business pivot detection correctly identifies industry changes.
 
 ---
 
@@ -364,7 +387,7 @@ LandyMaker features a centralized, robust Image Media Picker and Background Uplo
   - **Direct URL**: Users can paste an external URL.
 
 ### 📥 Double-Upload & Asset Importing
-To ensure high performance and user ownership, LandyMaker employs a "Double-Upload" strategy for all external assets (Pixabay, Unsplash templates):
+To ensure high performance and user ownership, LandyMaker employs a "Double-Upload" strategy for all external assets (Pixabay templates):
 1. **ImgBB**: Primary host for the design's `image_url`. Optimized for global CDN delivery.
 2. **Supabase Storage**: Secondary host used to "Import" the asset into the user's personal gallery.
 3. **Workflow**: Triggered automatically via `importTemplateAssets` when applying templates or `magicReplaceImages` when using the Magic Swapper.
@@ -574,7 +597,7 @@ Next.js serves the blog post from Supabase blog_posts table
 | `vercel deploy` fails with "path not found" | Running `vercel deploy` from inside `blog-frontend/` with Vercel root dir mismatch | Never run `vercel deploy` manually — always use GitHub Actions |
 ### 🛡️ Professional Error Handling & Fault Tolerance (NEW)
 LandyMaker employs a multi-layered error recovery strategy to ensure 100% uptime of the generation flow:
-1. **Edge Function Fallbacks**: If Pixabay API fails, the engine automatically injects high-quality placeholders (`Unsplash` optimized links) instead of returning an error.
+1. **Edge Function Fallbacks**: If Pixabay API fails, the engine automatically injects high-quality placeholders (Pixabay static fallback links) instead of returning an error.
 2. **Safe Color Parsing**: `LandingPageTheme.parseColor` includes a try-catch sanitize loop. It handles malformed Hex codes from AI and reverts to theme defaults without crashing the UI.
 3. **Optimistic Asset Registration**: Image deduplication (SHA-256) is non-blocking. If a hash lookup fails, the system defaults to a new upload to ensure the user is never stuck.
 

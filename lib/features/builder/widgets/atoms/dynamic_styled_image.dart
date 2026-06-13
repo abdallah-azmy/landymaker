@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_network_image.dart';
+import '../../../../core/utils/numeric_parser.dart';
 
 class DynamicStyledImage extends StatelessWidget {
   final String imageUrl;
@@ -14,9 +15,11 @@ class DynamicStyledImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double? width = styleOverrides['width'] != null ? (styleOverrides['width'] as num).toDouble() : null;
-    final double? height = styleOverrides['height'] != null ? (styleOverrides['height'] as num).toDouble() : null;
-    final double borderRadius = (styleOverrides['borderRadius'] ?? 0.0).toDouble();
+    final parsedWidth = NumericParser.tryParseDouble(styleOverrides['width']);
+    final parsedHeight = NumericParser.tryParseDouble(styleOverrides['height']);
+    final double? width = (parsedWidth?.isFinite == true) ? parsedWidth : null;
+    final double? height = (parsedHeight?.isFinite == true) ? parsedHeight : null;
+    final double borderRadius = NumericParser.parseDouble(styleOverrides['borderRadius'], 0.0);
     final BoxFit fit = _parseBoxFit(styleOverrides['fit']);
 
     return CustomNetworkImage(

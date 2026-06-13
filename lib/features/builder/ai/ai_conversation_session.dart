@@ -123,7 +123,7 @@ class AIConversationSession {
         .map((block) => (block['type'] as String? ?? 'unknown'))
         .toList();
     
-    final theme = currentDesign['global_theme'] as Map<String, dynamic>?;
+    final theme = (currentDesign['global_theme'] ?? currentDesign['theme']) as Map<String, dynamic>?;
     final Map<String, dynamic> snapshot = {
       'sections': sectionTypes,
       'section_count': sectionTypes.length,

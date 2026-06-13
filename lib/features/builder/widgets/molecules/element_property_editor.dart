@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
+import '../../../../core/utils/numeric_parser.dart';
 import '../../registries/font_registry.dart';
 
 class ElementPropertyEditor extends StatelessWidget {
@@ -95,7 +96,7 @@ class ElementPropertyEditor extends StatelessWidget {
   }
 
   Widget _buildSlider(String label, String key, double min, double max) {
-    final double value = (styleOverrides[key] ?? min).toDouble();
+    final double value = NumericParser.parseDouble(styleOverrides[key], min);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -132,7 +132,7 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
     }
   }
 
-  /// New: Persists an external URL (e.g. from Unsplash template) to the user's storage.
+  /// New: Persists an external URL (e.g. from Pixabay template) to the user's storage.
   Future<void> persistExternalImage({
     required String uploadId,
     required String externalUrl,

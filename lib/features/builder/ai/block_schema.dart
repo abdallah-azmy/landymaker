@@ -195,7 +195,7 @@ class BlockPropertyMapper {
   /// Validate and coerce a block's properties against its type schema.
   /// Strips unknown keys, coerces types, clamps ranges, applies defaults.
   /// Returns the cleaned block map (mutates in place for performance).
-  static Map<String, dynamic> sanitize(Map<String, dynamic> block) {
+  static Map<String, dynamic> sanitize(Map<String, dynamic> block, {bool isEdit = false}) {
     final type = block['type'] as String? ?? '';
     final schema = _blockSchemas[type] ?? {};
     final allDefs = <String, PropDef>{};
@@ -219,14 +219,14 @@ class BlockPropertyMapper {
       final raw = block[key];
 
       if (raw == null) {
-        if (def.defaultValue != null) {
+        if (!isEdit && def.defaultValue != null) {
           block[key] = def.defaultValue;
         }
         continue;
       }
 
       final coerced = _coerce(raw, def);
-      if (coerced == null && def.defaultValue != null) {
+      if (coerced == null && !isEdit && def.defaultValue != null) {
         block[key] = def.defaultValue;
       } else if (coerced != null) {
         block[key] = coerced;

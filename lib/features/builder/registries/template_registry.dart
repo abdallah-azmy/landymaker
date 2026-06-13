@@ -28,7 +28,7 @@ class TemplateRegistry {
       name: 'Empty Page',
       description: 'Start from scratch with a blank canvas.',
       imageUrl:
-          'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400',
+          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       category: 'general',
       recommendedSections: ['hero', 'features', 'lead_form'],
       aiPromptHint:
@@ -39,7 +39,7 @@ class TemplateRegistry {
       name: 'Barber Shop',
       description: 'Classic barber shop layout with pricing and hours.',
       imageUrl:
-          'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400',
+          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       category: 'local_services',
       recommendedSections: ['hero', 'working_hours', 'pricing', 'whatsapp'],
       aiPromptHint:
@@ -50,7 +50,7 @@ class TemplateRegistry {
       name: 'Modern Store',
       description: 'E-commerce focused layout for product showcasing.',
       imageUrl:
-          'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
+          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       category: 'ecommerce',
       recommendedSections: ['hero', 'products', 'features', 'faq', 'whatsapp'],
       aiPromptHint:
@@ -61,7 +61,7 @@ class TemplateRegistry {
       name: 'Personal Brand',
       description: 'Showcase your skills and social presence.',
       imageUrl:
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       category: 'creator',
       recommendedSections: ['hero', 'features', 'gallery', 'social_qr'],
       aiPromptHint:
@@ -72,7 +72,7 @@ class TemplateRegistry {
       name: 'Professional Consulting',
       description: 'Clean lead generation for services and consulting.',
       imageUrl:
-          'https://images.unsplash.com/photo-1454165833767-027ffea9e77b?w=400',
+          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       category: 'professional_services',
       recommendedSections: [
         'hero',
@@ -89,7 +89,7 @@ class TemplateRegistry {
       name: 'Real Estate',
       description: 'Showcase properties with high-quality visuals.',
       imageUrl:
-          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400',
+          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       category: 'real_estate',
       recommendedSections: [
         'logo_header',
@@ -107,7 +107,7 @@ class TemplateRegistry {
       name: 'Digital Course',
       description: 'Sell courses with pricing tables and FAQs.',
       imageUrl:
-          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400',
+          'https://cdn.pixabay.com/photo/2020/05/18/14/06/barber-shop-5186176_1280.jpg',
       category: 'education',
       recommendedSections: [
         'hero',
@@ -125,7 +125,7 @@ class TemplateRegistry {
       name: 'Event Landing',
       description: 'Promote events with maps and QR codes.',
       imageUrl:
-          'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400',
+          'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
       category: 'events',
       recommendedSections: [
         'hero',
@@ -143,7 +143,7 @@ class TemplateRegistry {
       description:
           'Menu-first landing page for restaurants, cafes, and food delivery.',
       imageUrl:
-          'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400',
+          'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
       category: 'food',
       recommendedSections: [
         'logo_header',
@@ -163,7 +163,7 @@ class TemplateRegistry {
       description:
           'Trust-focused healthcare page with appointments and location.',
       imageUrl:
-          'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=400',
+          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       category: 'healthcare',
       recommendedSections: [
         'hero',
@@ -182,7 +182,7 @@ class TemplateRegistry {
       name: 'Beauty Salon',
       description: 'Visual booking page for salons, spas, and beauty services.',
       imageUrl:
-          'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400',
+          'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
       category: 'beauty',
       recommendedSections: [
         'hero',
@@ -200,7 +200,7 @@ class TemplateRegistry {
       name: 'Gym & Fitness',
       description: 'High-energy landing page for memberships and programs.',
       imageUrl:
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400',
+          'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
       category: 'fitness',
       recommendedSections: [
         'hero',
@@ -218,7 +218,7 @@ class TemplateRegistry {
       name: 'Mobile App / SaaS',
       description: 'Modern product launch page for apps and software.',
       imageUrl:
-          'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400',
+          'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
       category: 'technology',
       recommendedSections: [
         'hero_saas',
@@ -237,7 +237,7 @@ class TemplateRegistry {
       name: 'Creative Agency',
       description: 'Portfolio and lead-generation page for creative teams.',
       imageUrl:
-          'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=400',
+          'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
       category: 'agency',
       recommendedSections: [
         'hero',
@@ -256,7 +256,7 @@ class TemplateRegistry {
       description:
           'Mission-led campaign page with impact proof and contact CTA.',
       imageUrl:
-          'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400',
+          'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
       category: 'nonprofit',
       recommendedSections: [
         'hero',
@@ -274,7 +274,7 @@ class TemplateRegistry {
       name: 'Book / Digital Product',
       description: 'Launch page for books, ebooks, guides, and paid downloads.',
       imageUrl:
-          'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400',
+          'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
       category: 'digital_product',
       recommendedSections: [
         'hero',
@@ -291,7 +291,7 @@ class TemplateRegistry {
       id: 'solar_energy',
       name: 'Solar Energy',
       description: 'Clean, sustainable energy solutions for homes and businesses.',
-      imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&q=80',
+      imageUrl: 'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
       category: 'industrial',
       recommendedSections: ['hero', 'statistics_grid', 'service_steps', 'lead_form'],
       aiPromptHint: 'Use for solar panels, green energy, sustainability, and engineering services.',
@@ -300,7 +300,7 @@ class TemplateRegistry {
       id: 'luxury_resort',
       name: 'Luxury Resort',
       description: 'Elegant showcase for hotels, villas, and high-end tourism.',
-      imageUrl: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=600&q=80',
+      imageUrl: 'https://cdn.pixabay.com/photo/2016/11/19/14/00/code-1839406_1280.jpg',
       category: 'travel',
       recommendedSections: ['hero', 'gallery', 'team_members', 'cta_banner'],
       aiPromptHint: 'Use for luxury hotels, private villas, boutique resorts, and premium hospitality.',
@@ -309,7 +309,7 @@ class TemplateRegistry {
       id: 'fintech_crypto',
       name: 'Fintech / Crypto',
       description: 'Modern, dark-themed page for digital finance and blockchain.',
-      imageUrl: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&q=80',
+      imageUrl: 'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       category: 'technology',
       recommendedSections: ['hero_saas', 'trust_logos', 'comparison_table', 'cta_banner'],
       aiPromptHint: 'Use for crypto wallets, trading platforms, neobanks, and blockchain startups.',
@@ -318,7 +318,7 @@ class TemplateRegistry {
       id: 'architecture',
       name: 'Architecture & Design',
       description: 'Minimalist and grid-focused layout for studios and designers.',
-      imageUrl: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&q=80',
+      imageUrl: 'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
       category: 'creative',
       recommendedSections: ['hero', 'gallery', 'service_steps', 'team_members'],
       aiPromptHint: 'Use for architecture firms, interior designers, urban planners, and studios.',
@@ -327,7 +327,7 @@ class TemplateRegistry {
       id: 'fashion_store',
       name: 'Fashion Store',
       description: 'Editorial-style e-commerce layout for apparel and beauty.',
-      imageUrl: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e12?w=600&q=80',
+      imageUrl: 'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
       category: 'ecommerce',
       recommendedSections: ['hero', 'products', 'gallery', 'testimonials', 'cta_banner'],
       aiPromptHint: 'Use for clothing brands, fashion boutiques, accessories, and trendy apparel.',
@@ -478,7 +478,7 @@ class TemplateRegistry {
           'title': 'مستقبل الطاقة بين يديك',
           'subtitle': 'وفر في فواتير الكهرباء وساهم في حماية البيئة مع أنظمة الطاقة الشمسية الأكثر كفاءة.',
           'button_text': 'احصل على عرض سعر مجاني',
-          'image_url': 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1000&q=80',
+          'image_url': 'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
           'animation': {'type': 'zoomIn', 'duration': 1000},
         },
         {
@@ -520,7 +520,7 @@ class TemplateRegistry {
           'title': 'ملاذ الفخامة والهدوء',
           'subtitle': 'استمتع بتجربة إقامة استثنائية في قلب الطبيعة الخلابة مع أرقى الخدمات العالمية.',
           'button_text': 'احجز جناحك الآن',
-          'image_url': 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1000&q=80',
+          'image_url': 'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
           'animation': {'type': 'slideInLeft', 'duration': 1000},
         },
         {
@@ -528,17 +528,17 @@ class TemplateRegistry {
           'title': 'اكتشف عالمنا',
           'display_mode': 'masonry',
           'items': [
-            'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800&q=80',
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-            'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80',
+            'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
+            'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
+            'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
           ],
         },
         {
           'type': 'team_members',
           'title': 'فريق الضيافة بانتظارك',
           'items': [
-            {'name': 'مارك دو', 'role': 'مدير المنتجع', 'image_url': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80'},
-            {'name': 'سارة لين', 'role': 'كبير الطهاة', 'image_url': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80'},
+            {'name': 'مارك دو', 'role': 'مدير المنتجع', 'image_url': 'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg'},
+            {'name': 'سارة لين', 'role': 'كبير الطهاة', 'image_url': 'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg'},
           ],
         },
         {
@@ -561,7 +561,7 @@ class TemplateRegistry {
           'title': 'إدارة أصولك الرقمية بذكاء',
           'subtitle': 'منصة آمنة، سريعة، وسهلة الاستخدام لتداول وإدارة محفظتك المالية الحديثة.',
           'button_text': 'ابدأ الآن مجانًا',
-          'image_url': 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1000&q=80',
+          'image_url': 'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           'animation': {'type': 'zoomIn', 'duration': 1200},
         },
         {
@@ -603,16 +603,16 @@ class TemplateRegistry {
           'title': 'نصمم المساحات، لنلهم الحياة',
           'subtitle': 'استوديو عمارة وتصميم داخلي يدمج بين الوظيفة والجمال لخلق بيئات فريدة.',
           'button_text': 'استشرنا في مشروعك',
-          'image_url': 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1000&q=80',
+          'image_url': 'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
         },
         {
           'type': 'gallery',
           'title': 'من مشاريعنا الأخيرة',
           'display_mode': 'grid',
           'items': [
-            'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
-            'https://images.unsplash.com/photo-1503387762-592be5a52680?w=800&q=80',
-            'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+            'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
           ],
         },
         {
@@ -628,7 +628,7 @@ class TemplateRegistry {
           'type': 'team_members',
           'title': 'العقول المبدعة',
           'items': [
-            {'name': 'م. عمر كمال', 'role': 'كبير المعماريين', 'image_url': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80'},
+            {'name': 'م. عمر كمال', 'role': 'كبير المعماريين', 'image_url': 'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg'},
           ],
         },
       ],
@@ -643,7 +643,7 @@ class TemplateRegistry {
           'title': 'تألقي بأسلوب يعبر عنك',
           'subtitle': 'أحدث صيحات الموضة العالمية المختارة بعناية لتناسب ذوقك الرفيع.',
           'button_text': 'تسوقي المجموعة الجديدة',
-          'image_url': 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e12?w=1000&q=80',
+          'image_url': 'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
         },
         {
           'type': 'products',
@@ -654,14 +654,14 @@ class TemplateRegistry {
               'id': const Uuid().v4(),
               'name': 'فستان صيفي حرير',
               'price': '850 EGP',
-              'image_url': 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&q=80',
+              'image_url': 'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
               'button_text': 'شراء الآن',
             },
             {
               'id': const Uuid().v4(),
               'name': 'حقيبة جلد طبيعي',
               'price': '1200 EGP',
-              'image_url': 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80',
+              'image_url': 'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
               'button_text': 'شراء الآن',
             },
           ],
@@ -670,8 +670,8 @@ class TemplateRegistry {
           'type': 'gallery',
           'title': 'على الإنستغرام',
           'items': [
-            'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80',
-            'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80',
+            'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
+            'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
           ],
         },
         {
@@ -701,7 +701,7 @@ class TemplateRegistry {
               'نحن لا نقص الشعر فقط، بل نصنع الثقة والمظهر المثالي الذي تستحقه بأحدث القصات العالمية.',
           'button_text': 'احجز مقعدك الآن عبر واتساب',
           'image_url':
-              'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800',
+              'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
           'animation': {'type': 'fadeIn', 'duration': 1000},
         },
         {
@@ -753,7 +753,7 @@ class TemplateRegistry {
               'اكتشف مجموعتنا الحصرية من المنتجات عالية الجودة التي تناسب ذوقك الرفيع.',
           'button_text': 'تسوق الآن',
           'image_url':
-              'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800',
+              'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
         },
         {
           'type': 'products',
@@ -766,7 +766,7 @@ class TemplateRegistry {
               'price': '1200 EGP',
               'description': 'تتبع نشاطك وصحتك بكل سهولة مع تصميم عصري.',
               'image_url':
-                  'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+                  'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
               'button_text': 'اشترِ الآن',
             },
           ],
@@ -785,7 +785,7 @@ class TemplateRegistry {
               'أساعد الشركات على بناء هويات بصرية مذهلة وتجارب مستخدم فريدة.',
           'button_text': 'شاهد أعمالي',
           'image_url':
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
+              'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
         },
         {
           'type': 'social_qr',
@@ -810,7 +810,7 @@ class TemplateRegistry {
               'نقدم استشارات مبنية على البيانات لتحقيق أهدافك التجارية.',
           'button_text': 'احجز استشارة مجانية',
           'image_url':
-              'https://images.unsplash.com/photo-1454165833767-027ffea9e77b?w=800',
+              'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
         },
         {
           'type': 'lead_form',
@@ -836,7 +836,7 @@ class TemplateRegistry {
               'Discover the finest properties in the most prestigious neighborhoods with flexible payment plans.',
           'button_text': 'Browse Units',
           'image_url':
-              'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
+              'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
         },
         {
           'type': 'features',
@@ -873,7 +873,7 @@ class TemplateRegistry {
               'An intensive, hands-on course to take you from zero to pro in 12 weeks.',
           'button_text': 'Enroll Now',
           'image_url':
-              'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800',
+              'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
         },
         {
           'type': 'pricing',
@@ -916,7 +916,7 @@ class TemplateRegistry {
               'The biggest annual gathering for developers and AI enthusiasts in the region.',
           'button_text': 'Get Your Ticket',
           'image_url':
-              'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+              'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
         },
         {
           'type': 'qr_code',
@@ -953,7 +953,7 @@ class TemplateRegistry {
           'button_text': 'اطلب عبر واتساب',
           'button_url': 'https://wa.me/201000000000',
           'image_url':
-              'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800',
+              'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
           'ai_intent': 'food_offer',
           'ai_slots': [
             'restaurant_name',
@@ -976,7 +976,7 @@ class TemplateRegistry {
               'category': 'وجبات رئيسية',
               'description': 'لحم طازج، صوص خاص، وخبز محمص.',
               'image_url':
-                  'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800',
+                  'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
               'button_text': 'اطلب الآن',
             },
             {
@@ -986,7 +986,7 @@ class TemplateRegistry {
               'category': 'مشروبات',
               'description': 'قهوة مختصة بلمسة كريمية منعشة.',
               'image_url':
-                  'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=800',
+                  'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
               'button_text': 'أضف للطلب',
             },
           ],
@@ -996,9 +996,9 @@ class TemplateRegistry {
           'title': 'أجواء المكان',
           'display_mode': 'grid',
           'items': [
-            'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800',
-            'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=800',
-            'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800',
+            'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
           ],
           'ai_intent': 'venue_showcase',
           'ai_slots': ['interior_photos', 'food_photos'],
@@ -1042,7 +1042,7 @@ class TemplateRegistry {
               'فريق متخصص، متابعة دقيقة، وحجز مواعيد سريع بدون انتظار طويل.',
           'button_text': 'احجز موعدك',
           'image_url':
-              'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800',
+              'https://cdn.pixabay.com/photo/2015/07/17/22/43/student-849825_1280.jpg',
           'ai_intent': 'healthcare_trust_offer',
           'ai_slots': ['clinic_name', 'specialty', 'appointment_cta'],
           'animation': {'type': 'fadeIn', 'duration': 1000},
@@ -1091,13 +1091,13 @@ class TemplateRegistry {
               'author': 'أحمد م.',
               'role': 'مريض سابق',
               'quote': 'تنظيم ممتاز وشرح واضح لكل خطوة.',
-              'image_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+              'image_url': 'https://cdn.pixabay.com/photo/2016/03/23/15/00/massage-1274935_1280.jpg',
             },
             {
               'author': 'سارة ع.',
               'role': 'مريضة متابعة',
               'quote': 'التجربة كانت مريحة من الحجز حتى المتابعة.',
-              'image_url': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200',
+              'image_url': 'https://cdn.pixabay.com/photo/2016/03/23/15/00/massage-1274935_1280.jpg',
             },
           ],
           'ai_intent': 'patient_testimonials',
@@ -1184,7 +1184,7 @@ class TemplateRegistry {
           'button_text': 'احجزي موعدك',
           'button_url': 'https://wa.me/201000000000',
           'image_url':
-              'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800',
+              'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           'ai_intent': 'beauty_booking_offer',
         },
         {
@@ -1192,9 +1192,9 @@ class TemplateRegistry {
           'title': 'نتائج نفتخر بها',
           'display_mode': 'masonry',
           'items': [
-            'https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800',
-            'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800',
-            'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800',
+            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           ],
           'ai_intent': 'before_after_or_portfolio',
         },
@@ -1258,7 +1258,7 @@ class TemplateRegistry {
           'subtitle': 'برامج تدريب، تغذية، ومتابعة مستمرة لتصل لهدفك بثقة.',
           'button_text': 'اشترك الآن',
           'image_url':
-              'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
+              'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           'ai_intent': 'fitness_transformation_offer',
         },
         {
@@ -1462,7 +1462,7 @@ class TemplateRegistry {
           'subtitle': 'استراتيجية، تصميم، ومحتوى يساعد علامتك على الظهور بثقة.',
           'button_text': 'ابدأ مشروعك',
           'image_url':
-              'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800',
+              'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           'ai_intent': 'agency_value_proposition',
         },
         {
@@ -1484,9 +1484,9 @@ class TemplateRegistry {
           'type': 'gallery',
           'title': 'نماذج من أعمالنا',
           'items': [
-            'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800',
-            'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800',
-            'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=800',
+            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           ],
         },
         {
@@ -1533,7 +1533,7 @@ class TemplateRegistry {
               'حملة مجتمعية لدعم الأسر الأكثر احتياجاً عبر مبادرات شفافة وقابلة للقياس.',
           'button_text': 'انضم للحملة',
           'image_url':
-              'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800',
+              'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           'ai_intent': 'mission_led_offer',
         },
         {
@@ -1567,9 +1567,9 @@ class TemplateRegistry {
           'type': 'gallery',
           'title': 'من أرض الواقع',
           'items': [
-            'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=800',
-            'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=800',
-            'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800',
+            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           ],
         },
         {
@@ -1605,7 +1605,7 @@ class TemplateRegistry {
               'دليل واضح يساعدك على تحويل الأفكار إلى خطة قابلة للتنفيذ خلال 30 يوم.',
           'button_text': 'احصل على الفصل الأول',
           'image_url':
-              'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800',
+              'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           'ai_intent': 'digital_product_launch',
         },
         {
@@ -1614,7 +1614,7 @@ class TemplateRegistry {
           'subtitle': 'اترك بريدك لتحصل على نسخة تجريبية وقائمة تطبيق عملية.',
           'button_text': 'أرسل النسخة',
           'image_url':
-              'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800',
+              'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           'ai_intent': 'sample_chapter_capture',
         },
         {

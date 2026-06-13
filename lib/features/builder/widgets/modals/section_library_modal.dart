@@ -74,7 +74,7 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
           'variant_style': 'image_backdrop',
           'vertical_padding': 108.0,
           'bg_image_url':
-              'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1200',
+              'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
           'bg_overlay_color': '#020617',
           'bg_overlay_opacity': 0.62,
         }),
@@ -217,7 +217,7 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
         _variant('خلفية صورة', 'نموذج واضح فوق خلفية', 'form_dark', {
           'variant_style': 'image_form',
           'bg_image_url':
-              'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200',
+              'https://cdn.pixabay.com/photo/2017/10/10/21/47/laptop-2838921_1280.jpg',
           'bg_overlay_color': '#020617',
           'bg_overlay_opacity': 0.68,
         }),
@@ -581,8 +581,8 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
       variants: [
         _variant('بطاقات الفريق', 'صور وأسماء الفريق', 'grid', {
           'items': [
-            {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400'},
-            {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400'},
+            {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://cdn.pixabay.com/photo/2016/11/21/14/53/man-1845814_1280.jpg'},
+            {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg'},
           ],
         }),
       ],

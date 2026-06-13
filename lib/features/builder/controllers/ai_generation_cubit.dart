@@ -291,6 +291,15 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
       }
 
       final data = finalData;
+      print('📥 AI AGENT RESPONSE:');
+      try {
+        print(const JsonEncoder.withIndent('  ').convert(data));
+      } catch (e) {
+        print(data);
+      }
+
+      // Detect business pivot/industry change by capturing old industry first
+      final String? oldIndustry = _session.businessProfile.industry;
 
       // Update Session Memory
       if (data['memory_summary_update'] != null) {
@@ -342,15 +351,21 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
             elementId: data['elementId'],
             property: data['property'],
             onSelected: (url) {
-              if (data['sectionIndex'] != null &&
-                  data['elementId'] != null &&
-                  data['property'] != null) {
-                _builderCubit.updateElementProperty(
-                  data['sectionIndex'],
-                  data['elementId'],
-                  data['property'],
-                  url,
-                );
+              if (data['sectionIndex'] != null && data['property'] != null) {
+                if (data['elementId'] != null) {
+                  _builderCubit.updateElementProperty(
+                    data['sectionIndex'],
+                    data['elementId'],
+                    data['property'],
+                    url,
+                  );
+                } else {
+                  _builderCubit.updateBlockProperty(
+                    data['sectionIndex'],
+                    data['property'],
+                    url,
+                  );
+                }
               }
               emit(AIGenerationInitial());
               resumeAfterPixabaySelection();
@@ -364,14 +379,30 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
       if (data['designJson'] != null) {
         emit(AIGenerationApplyingChanges());
 
+        // Detect business pivot/industry change
+        final String? newIndustry = data['business_profile_update']?['industry'];
+        final bool industryChanged = oldIndustry != null && oldIndustry.isNotEmpty &&
+            newIndustry != null && newIndustry.isNotEmpty &&
+            oldIndustry.trim().toLowerCase() != newIndustry.trim().toLowerCase();
+
+        final bool isFullRebuild = data['full_rebuild'] == true ||
+            data['action'] == 'generate' ||
+            industryChanged;
+
         var validatedDesign = AIResponseValidator.validate(
           data['designJson'],
+          isEdit: intent == 'edit' && !isFullRebuild,
+          currentBlocks: currentDesign['blocks'] as List?,
         );
         if (validatedDesign != null) {
           validatedDesign = PlaceholderGenerator.fillPlaceholders(
             validatedDesign,
             _session.businessProfile.industry,
           );
+
+          if (isFullRebuild) {
+            validatedDesign['full_rebuild'] = true;
+          }
 
           _builderCubit.applyDesignJson(validatedDesign);
           emit(

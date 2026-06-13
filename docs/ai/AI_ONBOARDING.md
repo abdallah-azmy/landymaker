@@ -16,6 +16,10 @@ LandyMaker follows a **Clean Feature-Driven Architecture**:
 2.  **No Direct Inserts**: User data (Leads) **must** go through Edge Functions.
 3.  **Source of Truth**: The `designMap` (JSON) is the absolute authority for visual rendering.
 4.  **Responsive**: Never use `MediaQuery.of(context).size` inside block widgets; use `LayoutBuilder` and `constraints.maxWidth`.
+5.  **Safe Sizing & Numeric Parsing**: Always parse numbers via `NumericParser` when reading style overrides or JSON designs from AI. Never call `.toDouble()` directly on dynamic values because AI may output strings with units (e.g. `"18px"`).
+6.  **Unconstrained Image Sizing Safety**: In `CustomNetworkImage`, do not set shimmer or loading layouts to `double.infinity` in unconstrained axes (like height in vertical lists) as it will crash Flutter layout. Leave unconstrained width as `null` and default unconstrained height to `200.0`.
+7.  **AI Design Map Application Safety**: Merge design properties into the existing `designMap` rather than replacing the whole map. This preserves page-level settings (like `subdomain`).
+8.  **Partial Edit Fault Tolerance**: If the AI returns a subset of blocks without specifying `_index` during an edit request, merge the incoming blocks into the existing ones by matching types sequentially instead of replacing the entire page, preventing blank page errors.
 
 ## 🧭 4. Navigation & Files
 - Read [AI_NAVIGATION.md](./AI_NAVIGATION.md) to locate specific systems.

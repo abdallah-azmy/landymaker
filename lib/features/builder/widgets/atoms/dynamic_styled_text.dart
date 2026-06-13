@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/utils/numeric_parser.dart';
 import '../../models/landing_page_theme.dart';
 
 class DynamicStyledText extends StatelessWidget {
@@ -19,7 +20,7 @@ class DynamicStyledText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String fontFamily = styleOverrides['fontFamily'] ?? 'Cairo';
-    final double fontSize = (styleOverrides['fontSize'] ?? 16.0).toDouble();
+    final double fontSize = NumericParser.parseDouble(styleOverrides['fontSize'], 16.0);
     final Color color = _parseColor(styleOverrides['color']) ?? theme.textPrimary;
     final FontWeight fontWeight = _parseFontWeight(styleOverrides['fontWeight']);
 

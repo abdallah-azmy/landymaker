@@ -6,6 +6,8 @@
     "moduleResolution": "node",
     "strict": true,
     "noImplicitAny": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "baseUrl": ".",
     "paths": {
       "std/*": ["https://deno.land/std@0.168.0/*"],

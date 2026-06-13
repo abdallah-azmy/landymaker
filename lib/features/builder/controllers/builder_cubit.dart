@@ -179,30 +179,53 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
 
     // 1. Theme Update
     LandingPageTheme? newTheme;
-    if (designJson['theme'] != null) {
-      newTheme = LandingPageTheme.fromJson(designJson['theme']);
-    } else if (designJson['global_theme'] != null) {
-      newTheme = LandingPageTheme.fromJson(designJson['global_theme']);
+    final themeJson = designJson['theme'] ?? designJson['global_theme'];
+    if (themeJson != null && themeJson is Map) {
+      final Map<String, dynamic> mergedThemeJson = currentState.theme.toJson();
+      themeJson.forEach((key, value) {
+        if (value != null) {
+          mergedThemeJson[key] = value;
+        }
+      });
+      newTheme = LandingPageTheme.fromJson(mergedThemeJson);
     }
 
     // 2. Blocks Update
     Map<String, dynamic> newDesignMap = Map<String, dynamic>.from(currentState.designMap);
+    if (newTheme != null) {
+      newDesignMap['theme'] = newTheme.toJson();
+      newDesignMap['global_theme'] = newTheme.toJson();
+    }
+
     final List incomingBlocks = designJson['blocks'] as List? ?? [];
     
     // Check if it's a partial update (contains _index)
     bool isPartial = incomingBlocks.any((b) => b is Map && b.containsKey('_index'));
+    final bool isFullRebuild = designJson['full_rebuild'] == true;
 
-    if (isPartial) {
+    if (isFullRebuild) {
+      newDesignMap['blocks'] = incomingBlocks;
+      designJson.forEach((key, value) {
+        if (key != 'blocks' && key != 'theme' && key != 'global_theme' && key != 'full_rebuild') {
+          newDesignMap[key] = value;
+        }
+      });
+    } else if (isPartial) {
       final List currentBlocks = List.from(newDesignMap['blocks'] ?? []);
       for (var block in incomingBlocks) {
         if (block is Map && block.containsKey('_index')) {
           final int index = block['_index'];
           if (index >= 0 && index < currentBlocks.length) {
             // Merge or replace specific block
-            currentBlocks[index] = Map<String, dynamic>.from(block)..remove('_index');
+            final existing = Map<String, dynamic>.from(currentBlocks[index] as Map);
+            final updated = Map<String, dynamic>.from(block)..remove('_index');
+            final cleanedUpdated = _cleanIncomingMap(updated);
+            existing.addAll(cleanedUpdated);
+            currentBlocks[index] = existing;
           } else if (index == currentBlocks.length) {
             // New block at the end
-            currentBlocks.add(Map<String, dynamic>.from(block)..remove('_index'));
+            final updated = Map<String, dynamic>.from(block)..remove('_index');
+            currentBlocks.add(_cleanIncomingMap(updated));
           }
         }
       }
@@ -212,8 +235,104 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       if (designJson.containsKey('business_name')) newDesignMap['business_name'] = designJson['business_name'];
       if (designJson.containsKey('business_type')) newDesignMap['business_type'] = designJson['business_type'];
     } else {
-      // Full update
-      newDesignMap = designJson;
+      final List currentBlocks = List.from(newDesignMap['blocks'] ?? []);
+      
+      // Smart Heuristic: Check if the incoming blocks list is a subset edit
+      bool isSubsetEdit = false;
+      if (currentBlocks.isNotEmpty && incomingBlocks.isNotEmpty && incomingBlocks.length < currentBlocks.length) {
+        final bool currentHasHero = currentBlocks.any((b) => b is Map && (b['type'] == 'hero' || b['type'] == 'hero_saas'));
+        final bool incomingHasHero = incomingBlocks.any((b) => b is Map && (b['type'] == 'hero' || b['type'] == 'hero_saas'));
+        
+        if ((currentHasHero && !incomingHasHero) || incomingBlocks.length <= 2) {
+          isSubsetEdit = true;
+        }
+      }
+
+      if (incomingBlocks.isEmpty) {
+        // AI returned empty blocks - DO NOT overwrite with empty. Keep current blocks.
+      } else if (isSubsetEdit) {
+        // Merge incoming blocks into current blocks by matching their types sequentially
+        final List<bool> matched = List.filled(currentBlocks.length, false);
+        for (var inBlock in incomingBlocks) {
+          if (inBlock is Map) {
+            final String inType = (inBlock['type'] ?? '').toString();
+            int matchIdx = -1;
+            for (int j = 0; j < currentBlocks.length; j++) {
+              if (!matched[j]) {
+                final currentBlock = currentBlocks[j] as Map;
+                if (currentBlock['type'] == inType) {
+                  matchIdx = j;
+                  break;
+                }
+              }
+            }
+
+            if (matchIdx != -1) {
+              matched[matchIdx] = true;
+              final existing = Map<String, dynamic>.from(currentBlocks[matchIdx] as Map);
+              final updated = Map<String, dynamic>.from(inBlock);
+              final cleanedUpdated = _cleanIncomingMap(updated);
+              existing.addAll(cleanedUpdated);
+              currentBlocks[matchIdx] = existing;
+            } else {
+              // No matching type found, append it as a new block
+              currentBlocks.add(_cleanIncomingMap(Map<String, dynamic>.from(inBlock)));
+            }
+          }
+        }
+        newDesignMap['blocks'] = currentBlocks;
+      } else {
+        // Full update edit: merge block-by-block with current blocks.
+        // We want to preserve all current blocks, and merge incoming blocks where they match.
+        final List mergedBlocks = List.from(currentBlocks);
+        final List<bool> mergedIndices = List.filled(currentBlocks.length, false);
+        
+        for (var inBlock in incomingBlocks) {
+          if (inBlock is Map) {
+            final String inType = (inBlock['type'] ?? '').toString();
+            int matchIdx = -1;
+            
+            // First, try matching at the same index if the type matches and it's not already merged
+            final int index = incomingBlocks.indexOf(inBlock);
+            if (index < currentBlocks.length && !mergedIndices[index]) {
+              final currentBlock = currentBlocks[index] as Map;
+              if (currentBlock['type'] == inType) {
+                matchIdx = index;
+              }
+            }
+            
+            // If no index match, search for the first unmerged block of the same type
+            if (matchIdx == -1) {
+              for (int j = 0; j < currentBlocks.length; j++) {
+                if (!mergedIndices[j]) {
+                  final currentBlock = currentBlocks[j] as Map;
+                  if (currentBlock['type'] == inType) {
+                    matchIdx = j;
+                    break;
+                  }
+                }
+              }
+            }
+            
+            if (matchIdx != -1) {
+              mergedIndices[matchIdx] = true;
+              final existing = Map<String, dynamic>.from(mergedBlocks[matchIdx] as Map);
+              final cleanedInBlock = _cleanIncomingMap(Map<String, dynamic>.from(inBlock));
+              existing.addAll(cleanedInBlock);
+              mergedBlocks[matchIdx] = existing;
+            } else {
+              // No matching block found, append it as a new block
+              mergedBlocks.add(_cleanIncomingMap(Map<String, dynamic>.from(inBlock)));
+            }
+          }
+        }
+        newDesignMap['blocks'] = mergedBlocks;
+        designJson.forEach((key, value) {
+          if (key != 'blocks' && key != 'theme' && key != 'global_theme') {
+            newDesignMap[key] = value;
+          }
+        });
+      }
     }
 
     _emitDirty(
@@ -223,6 +342,35 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         hasUnsavedChanges: true,
       ),
     );
+  }
+
+  Map<String, dynamic> _cleanIncomingMap(Map<String, dynamic> map) {
+    final cleaned = <String, dynamic>{};
+    map.forEach((key, value) {
+      if (value == null || value == "") {
+        return;
+      }
+      if (value is Map<String, dynamic>) {
+        cleaned[key] = _cleanIncomingMap(value);
+      } else if (value is Map) {
+        cleaned[key] = _cleanIncomingMap(Map<String, dynamic>.from(value));
+      } else if (value is List) {
+        cleaned[key] = value
+            .map((item) {
+              if (item is Map<String, dynamic>) {
+                return _cleanIncomingMap(item);
+              } else if (item is Map) {
+                return _cleanIncomingMap(Map<String, dynamic>.from(item));
+              }
+              return item;
+            })
+            .where((item) => item != null && item != "")
+            .toList();
+      } else {
+        cleaned[key] = value;
+      }
+    });
+    return cleaned;
   }
 
   void initializeNewPage() {
@@ -847,8 +995,8 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             : 'اكتب هنا عرض القيمة الأساسي لخدمتك أو منتجك.',
         'button_text': 'ابدأ الآن مجاناً',
         'image_url': type == 'hero_saas'
-            ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200'
-            : 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800',
+            ? 'https://cdn.pixabay.com/photo/2016/11/19/14/00/code-1839406_1280.jpg'
+            : 'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       };
     } else if (type == 'logo_header') {
       blockToAdd = {
@@ -881,7 +1029,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'سجل الآن لتحصل على نسخة مجانية من الدليل الشامل لزيادة مبيعاتك بنسبة 300%.',
         'button_text': 'أرسل الدليل الآن',
         'image_url':
-            'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800',
+            'https://cdn.pixabay.com/photo/2016/02/19/11/19/office-1209640_1280.jpg',
       };
     } else if (type == 'whatsapp') {
       blockToAdd = {
@@ -904,7 +1052,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'category': 'عام',
             'description': 'وصف مختصر للمنتج.',
             'image_url':
-                'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+                'https://cdn.pixabay.com/photo/2014/07/31/23/00/watch-407092_1280.jpg',
             'button_text': 'اشترِ الآن',
           },
         ],
@@ -1012,7 +1160,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'type': 'gallery',
         'title': 'معرض الصور',
         'items': [
-          'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800',
+          'https://cdn.pixabay.com/photo/2015/07/17/22/43/student-849825_1280.jpg',
         ],
       };
     } else if (type == 'multi_step_lead_form') {
@@ -1413,7 +1561,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       );
       final List items = List.from(updatedBlock['items'] ?? []);
       items.add(
-        'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=800',
+        'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
       );
       updatedBlock['items'] = items;
 
@@ -1627,7 +1775,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'price': '0.00 EGP',
         'description': 'وصف قصير للمنتج.',
         'image_url':
-            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+            'https://cdn.pixabay.com/photo/2014/07/31/23/00/watch-407092_1280.jpg',
         'button_text': 'اشترِ الآن',
       });
       updatedBlock['items'] = items;

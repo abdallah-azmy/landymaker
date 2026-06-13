@@ -1,7 +1,7 @@
 import 'block_schema.dart';
 
 class AIResponseValidator {
-  static Map<String, dynamic>? validate(dynamic designJsonInput) {
+  static Map<String, dynamic>? validate(dynamic designJsonInput, {bool isEdit = false, List? currentBlocks}) {
     if (designJsonInput == null) return null;
 
     Map<String, dynamic> designJson;
@@ -51,25 +51,46 @@ class AIResponseValidator {
       final List blocks = designJson['blocks'];
       final List<Map<String, dynamic>> validBlocks = [];
 
-      for (var block in blocks) {
-        if (block is Map<String, dynamic> && block.containsKey('type')) {
-          final type = block['type'] as String;
+      for (var rawBlock in blocks) {
+        if (rawBlock is Map<String, dynamic>) {
+          final block = Map<String, dynamic>.from(rawBlock);
+          String? type = block['type'] as String?;
+          final int? index = block['_index'] as int?;
 
-          // Map old 'visibility' key
-          if (block.containsKey('visibility') && !block.containsKey('is_visible')) {
-            block['is_visible'] = block['visibility'];
-            block.remove('visibility');
+          // Resolve type if missing but _index is present (for partial edits)
+          if (type == null && index != null && currentBlocks != null) {
+            if (index >= 0 && index < currentBlocks.length) {
+              final existingBlock = currentBlocks[index];
+              if (existingBlock is Map && existingBlock.containsKey('type')) {
+                type = existingBlock['type'] as String?;
+                block['type'] = type;
+              }
+            }
           }
 
-          // Full property mapping: strip unknown keys, coerce types, apply defaults
-          BlockPropertyMapper.sanitize(block);
+          if (type != null) {
+            // Map old 'visibility' key
+            if (block.containsKey('visibility') && !block.containsKey('is_visible')) {
+              block['is_visible'] = block['visibility'];
+              block.remove('visibility');
+            }
 
-          // Skip if block lost its 'items' which is required for its type
-          if (type == 'features' || type == 'pricing' || type == 'faq' || type == 'testimonials') {
-            if (block['items'] is! List || (block['items'] as List).isEmpty) continue;
+            // Full property mapping: strip unknown keys, coerce types, apply defaults
+            BlockPropertyMapper.sanitize(block, isEdit: isEdit);
+
+            // Skip if block lost its 'items' which is required for its type
+            if (type == 'features' || type == 'pricing' || type == 'faq' || type == 'testimonials') {
+              final hasItems = block.containsKey('items');
+              if (!isEdit && (!hasItems || block['items'] is! List || (block['items'] as List).isEmpty)) {
+                continue;
+              }
+              if (isEdit && hasItems && (block['items'] is! List || (block['items'] as List).isEmpty)) {
+                continue;
+              }
+            }
+
+            validBlocks.add(block);
           }
-
-          validBlocks.add(block);
         }
       }
 

@@ -10,21 +10,26 @@ import 'package:landymaker/services/supabase_service.dart';
 class MockSupabaseService extends Mock implements SupabaseService {}
 class MockLandingPageBuilderCubit extends Mock implements LandingPageBuilderCubit {}
 class MockFunctionsClient extends Mock implements FunctionsClient {}
+class MockGoTrueClient extends Mock implements GoTrueClient {}
 
 void main() {
   late AIGenerationCubit cubit;
   late MockSupabaseService mockSupabase;
   late MockLandingPageBuilderCubit mockBuilderCubit;
   late MockFunctionsClient mockFunctions;
+  late MockGoTrueClient mockAuth;
 
   setUp(() {
     mockSupabase = MockSupabaseService();
     mockBuilderCubit = MockLandingPageBuilderCubit();
     mockFunctions = MockFunctionsClient();
+    mockAuth = MockGoTrueClient();
 
     final client = MockSupabaseClient();
     when(() => mockSupabase.client).thenReturn(client);
     when(() => client.functions).thenReturn(mockFunctions);
+    when(() => client.auth).thenReturn(mockAuth);
+    when(() => mockAuth.currentSession).thenReturn(null);
 
     cubit = AIGenerationCubit(mockSupabase, mockBuilderCubit);
 

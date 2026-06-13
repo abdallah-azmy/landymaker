@@ -5,11 +5,7 @@ import '../../injection_container.dart';
 import '../theme/app_colors.dart';
 import '../../features/subscription/widgets/mission_upgrade_modal.dart';
 
-enum GatingType {
-  blur,
-  opacity,
-  hidden,
-}
+enum GatingType { blur, opacity, hidden }
 
 class FeatureGateWrapper extends StatefulWidget {
   final Widget child;
@@ -79,14 +75,14 @@ class _FeatureGateWrapperState extends State<FeatureGateWrapper> {
       case GatingType.opacity:
         return Stack(
           children: [
-            Opacity(
-              opacity: 0.4,
-              child: AbsorbPointer(child: widget.child),
-            ),
+            Opacity(opacity: 0.4, child: AbsorbPointer(child: widget.child)),
             Positioned.fill(
               child: Center(
                 child: IconButton(
-                  icon: const Icon(Icons.lock_rounded, color: AppColors.warningOrange),
+                  icon: const Icon(
+                    Icons.lock_rounded,
+                    color: AppColors.warningOrange,
+                  ),
                   onPressed: _showUpgradePrompt,
                 ),
               ),
@@ -112,7 +108,9 @@ class _FeatureGateWrapperState extends State<FeatureGateWrapper> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.warningOrange,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
                 ),
               ),

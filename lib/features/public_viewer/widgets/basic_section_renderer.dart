@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/utils/numeric_parser.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../builder/controllers/builder_cubit.dart';
 import '../../builder/controllers/builder_state.dart';
@@ -26,8 +27,8 @@ class BasicSectionRenderer extends StatelessWidget {
     final String direction = sectionData['layout_direction'] ?? 'column';
     final String mainAlign = sectionData['main_axis_alignment'] ?? 'center';
     final String crossAlign = sectionData['cross_axis_alignment'] ?? 'center';
-    final double spacing = (sectionData['spacing'] ?? 16.0).toDouble();
-    final double? verticalPadding = (sectionData['vertical_padding'] as num?)?.toDouble();
+    final double spacing = NumericParser.parseDouble(sectionData['spacing'], 16.0);
+    final double? verticalPadding = NumericParser.tryParseDouble(sectionData['vertical_padding']);
 
     final List<Widget> elementWidgets = elements
         .map((e) => _buildElement(context, e))
@@ -36,9 +37,9 @@ class BasicSectionRenderer extends StatelessWidget {
     return SectionBackground(
       bgImageUrl: sectionData['bg_image_url'],
       bgOverlayColor: sectionData['bg_overlay_color'],
-      bgOverlayOpacity: (sectionData['overlay_opacity'] ?? sectionData['bg_overlay_opacity'] as num?)?.toDouble(),
+      bgOverlayOpacity: NumericParser.tryParseDouble(sectionData['overlay_opacity'] ?? sectionData['bg_overlay_opacity']),
       verticalPaddingOverride: verticalPadding,
-      bgBlur: (sectionData['bg_blur'] as num?)?.toDouble(),
+      bgBlur: NumericParser.tryParseDouble(sectionData['bg_blur']),
       theme: theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 60, horizontal: 24),
       child: direction == 'row'

@@ -23,7 +23,7 @@ class CustomImageField extends StatelessWidget {
 
   bool _isTemplateAsset(String? url) {
     if (url == null || url.isEmpty) return false;
-    // Template assets are usually external (unsplash, pixabay, etc.)
+    // Template assets are usually external (pixabay, etc.)
     // LandyMaker hosted assets usually have 'supabase' in the URL or the specific project ID
     return !url.contains('supabase.co');
   }

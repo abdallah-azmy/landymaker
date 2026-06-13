@@ -89,7 +89,8 @@ class CustomNetworkImage extends StatelessWidget {
       );
     }
 
-    if (!Uri.parse(imageUrl).isAbsolute) {
+    final uri = Uri.tryParse(imageUrl);
+    if (uri == null || !uri.isAbsolute) {
       return _buildErrorWidget();
     }
 
@@ -132,8 +133,8 @@ class CustomNetworkImage extends StatelessWidget {
       baseColor: Colors.grey.shade800,
       highlightColor: Colors.grey.shade700,
       child: Container(
-        width: width ?? double.infinity,
-        height: height ?? double.infinity,
+        width: width,
+        height: height ?? 200.0,
         color: Colors.black, // Background color that gets shimmered
       ),
     );
@@ -141,8 +142,8 @@ class CustomNetworkImage extends StatelessWidget {
 
   Widget _buildErrorWidget() {
     return Container(
-      width: width ?? double.infinity,
-      height: height ?? double.infinity,
+      width: width,
+      height: height ?? 200.0,
       color: Colors.grey.shade900,
       child: const Center(
         child: Icon(

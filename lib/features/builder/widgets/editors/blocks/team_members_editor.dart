@@ -129,7 +129,7 @@ class TeamMembersEditor extends StatelessWidget {
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: () {
-            items.add({'name': 'عضو جديد', 'role': 'مسمى وظيفي', 'bio': '', 'image_url': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400', 'socials': []});
+            items.add({'name': 'عضو جديد', 'role': 'مسمى وظيفي', 'bio': '', 'image_url': 'https://cdn.pixabay.com/photo/2016/11/21/14/53/man-1845814_1280.jpg', 'socials': []});
             cubit.updateBlockProperty(index, 'items', items);
           },
           icon: const Icon(Icons.add),

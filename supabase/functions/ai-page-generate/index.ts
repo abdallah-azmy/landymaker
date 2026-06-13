@@ -168,21 +168,22 @@ async function resolvePixabayRequests(obj: any, sendEvent?: (data: any) => void)
     if (typeof node !== 'object' || node === null) return node;
     if (Array.isArray(node)) return Promise.all(node.map(resolveNode));
 
+    if (node.pixabay_search) {
+      const { query, type, orientation, quality } = node.pixabay_search;
+      const searchType = type || 'photo';
+      const counterKey = `${query}_${searchType}_${orientation || 'all'}`;
+      const index = queryCounters[counterKey] || 0;
+      queryCounters[counterKey] = index + 1;
+      const limit = queryCounts[`${query}_${searchType}`] || 5;
+      const resolvedUrl = await fetchPixabayImageWithCache(
+        query, searchType, index, searchCache, limit, orientation, quality
+      );
+      return resolvedUrl || "https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg";
+    }
+
     const keys = Object.keys(node);
     const results = await Promise.all(keys.map(async (key) => {
       const val = node[key];
-      if (val && typeof val === 'object' && val.pixabay_search) {
-        const { query, type, orientation, quality } = val.pixabay_search;
-        const searchType = type || 'photo';
-        const counterKey = `${query}_${searchType}_${orientation || 'all'}`;
-        const index = queryCounters[counterKey] || 0;
-        queryCounters[counterKey] = index + 1;
-        const limit = queryCounts[`${query}_${searchType}`] || 5;
-        const resolvedUrl = await fetchPixabayImageWithCache(
-          query, searchType, index, searchCache, limit, orientation, quality
-        );
-        return { key, val: resolvedUrl || "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800" };
-      }
       const resolved = await resolveNode(val);
       return { key, val: resolved };
     }));
@@ -233,13 +234,16 @@ AGENTIC RULES:
    - If using _index, ONLY include changed blocks with their _index. Do NOT include unchanged blocks.
    - You can also add NEW blocks by setting _index equal to the current blocks length.
     - If NOT using partial updates, return the FULL design with ALL blocks preserved.
-5. RESPONSE FORMAT: Respond with a JSON object containing:
+5. BUSINESS PIVOTS & REBUILDS: If the user changes their business activity, industry, name, or requests a completely new landing page/topic from scratch, you MUST treat it as a full generation. In this case, set "action": "generate" and "full_rebuild": true, and return the complete design for the new business.
+6. RESPONSE FORMAT: Respond with a JSON object containing:
    - "designJson": The full/paginated design JSON Object.
    - "memory_summary_update": A new concise summary of what you learned about the user.
    - "business_profile_update": Any new details for the profile.
-    - "action": "pixabay_selection" | "copy_update" | "ask_question" | "none".
-    - Use "copy_update" when user asks to rewrite/improve specific text (e.g. "حسن النصوص", "غير العنوان", "اكتب وصف أفضل").
-    - When action is "copy_update", provide "copy_updates" array instead of "designJson".
+   - "action": "generate" | "pixabay_selection" | "copy_update" | "ask_question" | "none".
+     • Use "generate" when the user requests a completely new page, changes their business activity/industry, or asks to rebuild the page from scratch.
+     • Use "copy_update" when user asks to rewrite/improve specific text (e.g. "حسن النصوص", "غير العنوان", "اكتب وصف أفضل").
+     • When action is "copy_update", provide "copy_updates" array instead of "designJson".
+   - "full_rebuild": bool (set to true if the designJson represents a completely new page, new business activity/industry, or full redesign, false if it is a surgical edit of the existing page).
    - "assistant_message": What to say to the user in chat.
 
 PAGE-LEVEL CONFIG:

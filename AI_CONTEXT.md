@@ -316,6 +316,9 @@ Any task affecting one of these systems MUST:
    - 80px desktop vertical padding, 40px mobile. Do not hardcode heights for containers wrapping text.
    - **Never** use `MediaQuery.of(context).size` inside block widgets to determine `isMobile`.
    - **Always** wrap the widget in `LayoutBuilder` and use `constraints.maxWidth` (e.g., `final bool isMobile = constraints.maxWidth < 600;`).
+   - **Never** use `GridView` with `SliverGridDelegateWithFixedCrossAxisCount` and a fixed `childAspectRatio` for text-heavy content cards, as this causes overflow or excessive white space. Use `Row`/`Column` loops with `ResponsiveUtils.getContentColumns` and auto-height instead.
+   - **Never** use a `LayoutBuilder` inside the children of an `IntrinsicHeight` widget. `LayoutBuilder` cannot return intrinsic dimensions and will cause an immediate crash. Pre-calculate layout decisions at the parent level.
+   - For complex presentation mockups or rigid decorative elements (like Hero Phone Previews), wrap them in `FittedBox(fit: BoxFit.scaleDown)` to prevent `RenderFlex overflow` on intermediate screen widths.
    - For grids and layout utils, explicitly pass `width: constraints.maxWidth` to `ResponsiveUtils` methods (like `getGridCrossAxisCount(width: constraints.maxWidth)`) and `ResponsiveLayout.getScreenType(context, width: constraints.maxWidth)`.
    - Protect text from `RenderFlex Overflow` in nested columns by using `Expanded`/`Flexible` and adding `maxLines` and `overflow: TextOverflow.ellipsis`.
    - When animating with `Interval`, always clamp the bounds to prevent `Assertion failed end <= 1.0`: `Interval(start.clamp(0.0, 1.0), end.clamp(0.0, 1.0))`.

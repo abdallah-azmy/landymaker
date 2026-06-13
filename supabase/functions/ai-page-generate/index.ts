@@ -13,6 +13,7 @@ const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY') || ''
 const DEEPSEEK_API_KEY = Deno.env.get('DEEPSEEK_API_KEY') || ''
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') || ''
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
 const PIXABAY_API_KEY = Deno.env.get('PIXABAY_API_KEY') || ''
 
 // =========== PROVIDER WRAPPERS ===========
@@ -63,15 +64,64 @@ interface PixabayCacheEntry { urls: string[]; timestamp: number; }
 
 async function fetchPixabayImageWithCache(
   query: string, type: string, indexInSequence: number,
-  searchCache: Record<string, PixabayCacheEntry>, limit: number,
+  searchCache: Record<string, Promise<PixabayCacheEntry>>, limit: number,
   resolvedUrls: Set<string>,
   orientation?: string, quality?: string
 ): Promise<string | null> {
   if (!PIXABAY_API_KEY) return null;
   const cacheKey = `${query}_${type}_${orientation || 'all'}`;
   const PIXABAY_CACHE_TTL = 10 * 60 * 1000;
+
+  if (!searchCache[cacheKey]) {
+    searchCache[cacheKey] = (async () => {
+      try {
+        const perPage = Math.max(10, Math.min(limit * 2, 200));
+        let url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=${type}&per_page=${perPage}&safesearch=true`;
+        if (orientation) url += `&orientation=${orientation}`;
+        if (BLOCK_IMAGE_TYPE_MAP[query]?.category) url += `&category=${BLOCK_IMAGE_TYPE_MAP[query].category}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const qualityField = quality === 'fullHDURL' ? 'fullHDURL'
+                           : quality === 'largeImageURL' ? 'largeImageURL'
+                           : 'webformatURL';
+
+        let hits: string[] = data.hits?.length > 0
+          ? data.hits.map((h: any) => h[qualityField] || h.webformatURL).filter(Boolean)
+          : [];
+
+        if (hits.length === 0 && orientation) {
+          const fallbackUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=${type}&per_page=${perPage}&safesearch=true`;
+          const fallbackResponse = await fetch(fallbackUrl);
+          const fallbackData = await fallbackResponse.json();
+          hits = fallbackData.hits?.length > 0
+            ? fallbackData.hits.map((h: any) => h[qualityField] || h.webformatURL).filter(Boolean)
+            : [];
+
+          if (hits.length === 0) {
+            const genericKeywords = ['business', 'website', 'studio', 'office', 'professional'];
+            for (const kw of genericKeywords) {
+              const genericUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(kw)}&image_type=${type}&per_page=10&safesearch=true`;
+              const genericResponse = await fetch(genericUrl);
+              const genericData = await genericResponse.json();
+              if (genericData.hits?.length > 0) {
+                hits = genericData.hits.map((h: any) => h[qualityField] || h.webformatURL).filter(Boolean);
+                break;
+              }
+            }
+          }
+        }
+        return { urls: hits, timestamp: Date.now() };
+      } catch (e) {
+        console.error('Pixabay Fetch Error:', e);
+        return { urls: [], timestamp: Date.now() }; // Return empty array on error to prevent infinite retries on failed requests
+      }
+    })();
+  }
+
   try {
-    const cached = searchCache[cacheKey];
+    const cached = await searchCache[cacheKey];
     if (cached && (Date.now() - cached.timestamp < PIXABAY_CACHE_TTL)) {
       const urls = cached.urls;
       if (urls.length > 0) {
@@ -80,55 +130,12 @@ async function fetchPixabayImageWithCache(
         if (selectedUrl) resolvedUrls.add(selectedUrl);
         return selectedUrl;
       }
-    }
-
-    const perPage = Math.max(10, Math.min(limit * 2, 200));
-    let url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=${type}&per_page=${perPage}&safesearch=true`;
-    if (orientation) url += `&orientation=${orientation}`;
-    if (BLOCK_IMAGE_TYPE_MAP[query]?.category) url += `&category=${BLOCK_IMAGE_TYPE_MAP[query].category}`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    const qualityField = quality === 'fullHDURL' ? 'fullHDURL'
-                       : quality === 'largeImageURL' ? 'largeImageURL'
-                       : 'webformatURL';
-
-    let hits: string[] = data.hits?.length > 0
-      ? data.hits.map((h: any) => h[qualityField] || h.webformatURL).filter(Boolean)
-      : [];
-
-    if (hits.length === 0 && orientation) {
-      const fallbackUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=${type}&per_page=${perPage}&safesearch=true`;
-      const fallbackResponse = await fetch(fallbackUrl);
-      const fallbackData = await fallbackResponse.json();
-      hits = fallbackData.hits?.length > 0
-        ? fallbackData.hits.map((h: any) => h[qualityField] || h.webformatURL).filter(Boolean)
-        : [];
-
-      if (hits.length === 0) {
-        const genericKeywords = ['business', 'website', 'studio', 'office', 'professional'];
-        for (const kw of genericKeywords) {
-          const genericUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(kw)}&image_type=${type}&per_page=10&safesearch=true`;
-          const genericResponse = await fetch(genericUrl);
-          const genericData = await genericResponse.json();
-          if (genericData.hits?.length > 0) {
-            hits = genericData.hits.map((h: any) => h[qualityField] || h.webformatURL).filter(Boolean);
-            break;
-          }
-        }
-      }
-    }
-
-    searchCache[cacheKey] = { urls: hits, timestamp: Date.now() };
-    if (hits.length > 0) {
-      let selectedUrl = hits.find(url => !resolvedUrls.has(url));
-      if (!selectedUrl) selectedUrl = hits[indexInSequence % hits.length];
-      if (selectedUrl) resolvedUrls.add(selectedUrl);
-      return selectedUrl;
+    } else if (cached) {
+      // TTL Expired, delete so next call fetches again
+      delete searchCache[cacheKey];
     }
   } catch (e) {
-    console.error('Pixabay Error:', e);
+    console.error('Cache Retrieval Error:', e);
   }
   return null;
 }
@@ -172,7 +179,7 @@ function countQueryOccurrences(obj: any): Record<string, number> {
 
 async function resolvePixabayRequests(obj: any, sendEvent?: (data: any) => void): Promise<any> {
   const queryCounters: Record<string, number> = {};
-  const searchCache: Record<string, PixabayCacheEntry> = {};
+  const searchCache: Record<string, Promise<PixabayCacheEntry>> = {};
   const resolvedUrls = new Set<string>();
   const queryCounts = countQueryOccurrences(obj);
 
@@ -446,6 +453,7 @@ serve(async (req: Request) => {
         send({ type: 'status', message: 'جاري التحقق من حسابك...' })
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        const adminSupabase = SUPABASE_SERVICE_ROLE_KEY ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) : supabase;
 
         const authHeader = req.headers.get('Authorization')
         let userId: string | null = null
@@ -464,7 +472,7 @@ serve(async (req: Request) => {
           }
         } else {
           const clientIp = req.headers.get('x-real-ip') || 'unknown'
-          const { count } = await supabase
+          const { count } = await adminSupabase
             .from('ai_usage_log')
             .select('*', { count: 'exact', head: true })
             .eq('ip_address', clientIp)
@@ -555,7 +563,7 @@ serve(async (req: Request) => {
 
         // ---- Log Usage ----
         const clientIp = req.headers.get('x-real-ip') || 'unknown'
-        await supabase.from('ai_usage_log').insert({
+        await adminSupabase.from('ai_usage_log').insert({
           user_id: userId,
           ip_address: clientIp,
           feature_type: 'page_generation'
@@ -578,7 +586,11 @@ serve(async (req: Request) => {
           'AI_INVALID_FORMAT': 'حدث خطأ في تنسيق البيانات الواردة من الـ AI. يرجى المحاولة مرة أخرى.',
         }
 
-        let userFriendlyError = errorMap[error.message] || error.message || 'حدث خطأ غير متوقع'
+        let userFriendlyError = errorMap[error.message] || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.';
+        if (!errorMap[error.message]) {
+          console.error('Raw Backend Error:', error.message || error);
+        }
+
         if (error.message?.startsWith('AI_GENERATION_FAILED:')) {
           userFriendlyError = `تعذر توليد الرد من جميع مزودي الذكاء الاصطناعي.`
         }

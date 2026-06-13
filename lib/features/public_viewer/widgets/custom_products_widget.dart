@@ -363,10 +363,11 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
               children: List.generate(crossAxisCount, (colIndex) {
                 if (colIndex < rowItems.length) {
                   final isLastInRow = colIndex == crossAxisCount - 1;
+                  final double approximateCardWidth = (width - 48) / crossAxisCount;
                   return Expanded(
                     child: Padding(
                       padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : (isMobile ? 12.0 : 20.0)),
-                      child: _buildProductCard(context, rowItems[colIndex], isMobile),
+                      child: _buildProductCard(context, rowItems[colIndex], isMobile, approximateCardWidth),
                     ),
                   );
                 } else {
@@ -431,6 +432,7 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     BuildContext context,
     Map<String, dynamic> item,
     bool isMobile,
+    double cardWidth,
   ) {
     final secondary = widget.theme?.secondary ?? AppColors.secondary;
     final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
@@ -454,15 +456,12 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
       widget.productKeys!["$slug-${widget.hashCode}"] ??= GlobalKey();
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double cardWidth = constraints.maxWidth;
-        final bool isTiny = cardWidth < 160;
-        final bool isSmall = cardWidth < 220;
+    final bool isTiny = cardWidth < 160;
+    final bool isSmall = cardWidth < 220;
 
-        return GestureDetector(
-          onTap: () => _showProductDetail(context, item),
-          child: Container(
+    return GestureDetector(
+      onTap: () => _showProductDetail(context, item),
+      child: Container(
             key: cardKey,
             width: double.infinity,
             decoration: BoxDecoration(
@@ -585,8 +584,6 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
             ),
           ),
         );
-      },
-    );
   }
 
   // ── Product List Item ─────────────────────────────────────────────────────

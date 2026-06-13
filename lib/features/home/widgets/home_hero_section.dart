@@ -726,12 +726,14 @@ class _PhonePreviewState extends State<_PhonePreview> {
     final outerRadius = widget.isMobile ? 32.0 : 38.0;
     final innerRadius = widget.isMobile ? 24.0 : 30.0;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Left cycle button (desktop only)
-        if (!widget.isMobile)
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Left cycle button (desktop only)
+          if (!widget.isMobile)
           MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
@@ -938,6 +940,6 @@ class _PhonePreviewState extends State<_PhonePreview> {
             ),
           ),
       ],
-    );
+    ));
   }
 }

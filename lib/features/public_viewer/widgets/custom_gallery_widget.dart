@@ -55,7 +55,7 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 600;
+        final bool isMobile = constraints.maxWidth < 768;
         final double verticalPadding = isMobile ? 40 : 80;
 
         return SectionBackground(
@@ -98,8 +98,8 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
         Stack(
           alignment: Alignment.center,
           children: [
-            SizedBox(
-              height: isMobile ? 300 : 500,
+            AspectRatio(
+              aspectRatio: isMobile ? 4 / 3 : 16 / 9,
               child: PageView.builder(
                 controller: _pageController,
                 itemCount: widget.items.length,
@@ -209,38 +209,58 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
   }
 
   Widget _buildGrid(BuildContext context, Color subTextColor, BoxConstraints constraints) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.items.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(
-          context,
-          desktop: widget.gridColumns,
-          tablet: widget.gridColumns > 1 ? 2 : 1,
-          mobile: 1,
-          width: constraints.maxWidth,
-        ),
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 1,
-      ),
-      itemBuilder: (context, index) {
-        final String url = widget.items[index];
-        final String? linkUrl = widget.galleryLinks != null && widget.galleryLinks!.length > index
-            ? widget.galleryLinks![index]
-            : null;
-
-        return Container(
-          decoration: BoxDecoration(
-            color: subTextColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: _buildGalleryImage(url, linkUrl, subTextColor),
-        );
-      },
+    final int columnCount = ResponsiveUtils.getContentColumns(
+      constraints.maxWidth,
+      desktop: widget.gridColumns,
+      tablet: widget.gridColumns > 1 ? 2 : 1,
+      mobile: 1,
     );
+
+    final List<Widget> rows = [];
+    for (int i = 0; i < widget.items.length; i += columnCount) {
+      final rowItems = widget.items.sublist(
+        i, 
+        (i + columnCount > widget.items.length) ? widget.items.length : i + columnCount
+      );
+
+      Widget rowWidget = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(columnCount, (colIndex) {
+          if (colIndex < rowItems.length) {
+            final String url = rowItems[colIndex];
+            final String? linkUrl = widget.galleryLinks != null && widget.galleryLinks!.length > (i + colIndex)
+                ? widget.galleryLinks![i + colIndex]
+                : null;
+            final isLastInRow = colIndex == columnCount - 1;
+
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : 16.0),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: subTextColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: _buildGalleryImage(url, linkUrl, subTextColor),
+                  ),
+                ),
+              ),
+            );
+          } else {
+            return const Expanded(child: SizedBox.shrink());
+          }
+        }),
+      );
+
+      rows.add(rowWidget);
+      if (i + columnCount < widget.items.length) {
+        rows.add(const SizedBox(height: 16));
+      }
+    }
+    return Column(children: rows);
   }
 
   Widget _buildGalleryImage(String url, String? linkUrl, Color subTextColor) {

@@ -281,6 +281,7 @@ GLOBAL BLOCK PROPERTIES (every block type supports these):
 - type: string (required - block type identifier)
 - title: string (section heading)
 - variant: int 0-9 (layout variant, default 0)
+- card_layout_mode: "auto"|"equal" (Controls grid height. "auto" = content driven, "equal" = uniform height for comparisons)
 - animation: {type: "fadeIn"|"slideUp"|"slideLeft"|"zoomIn"|"flip", duration: int ms, delay: int ms}
 - fontFamily: string (override font for this block)
 - bg_image_url: string (background image, use pixabay_search format)

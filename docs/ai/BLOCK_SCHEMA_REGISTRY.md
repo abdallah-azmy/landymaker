@@ -15,6 +15,7 @@ This registry defines the "Readable Language" used between the Builder and the A
 - `type`: String (Block ID)
 - `title`: String (Section Title)
 - `variant`: Integer (0-9) - Controls Layout Shapes (e.g., 0:Standard, 1:Split, 2:Centered)
+- `card_layout_mode`: String ("auto" | "equal") - Controls grid height behavior for items.
 - `bg_image_url`: String (Image URL)
 - `bg_overlay_opacity`: Double (0.0 to 1.0)
 - `bg_blur`: Double (0.0 to 20.0)

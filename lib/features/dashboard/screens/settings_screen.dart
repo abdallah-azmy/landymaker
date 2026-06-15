@@ -96,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: AppTypography.h4.copyWith(
+      style: AppTypography.h3.copyWith(
         color: AppColors.textPrimary,
         fontWeight: FontWeight.w700,
       ),

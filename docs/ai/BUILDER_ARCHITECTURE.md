@@ -29,6 +29,13 @@ When a user selects a block on the canvas:
 2. It instantiates the corresponding editor from `lib/features/builder/widgets/editors/blocks/`.
 3. Editor widgets communicate changes back to the `LandingPageBuilderCubit`.
 
+### 4. Theme Management (`BuilderThemeCubit`)
+Global design properties (colors, fonts, backgrounds) are managed by a **separate** cubit:
+- **`BuilderThemeCubit`** (in `lib/features/builder/controllers/builder_theme_cubit.dart`) owns the `LandingPageTheme` state.
+- It exposes `updateTheme()`, `updateThemeProperty()`, and `replaceTheme()`.
+- `LandingPageBuilderCubit` subscribes to `BuilderThemeCubit.stream` via a listener that syncs the theme back into `BuilderLoaded.theme` — keeping the 40+ existing widgets that read `state.theme` unchanged.
+- Theme changes are included in the undo/redo history via a `_suppressHistoryFromTheme` flag that prevents double-recording.
+
 ## 🛠 Advanced Features
 
 ### 🕒 Undo / Redo

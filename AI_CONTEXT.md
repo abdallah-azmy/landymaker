@@ -200,6 +200,7 @@ Includes:
 - Auto Save
 - Undo / Redo
 - **Global Design & Animation System (V2)**: 10 Shapes (Variants) per section and performance-optimized `BlockAnimationWrapper`.
+- **Theme Management**: `BuilderThemeCubit` owns `LandingPageTheme` (colors, fonts, backgrounds) separately from `LandingPageBuilderCubit`. The main cubit subscribes to the theme cubit's stream and syncs into `BuilderLoaded.theme` — keeping all existing widgets reading `state.theme` unchanged.
 
 ## Rendering Pipeline
 
@@ -226,7 +227,7 @@ Includes:
 
 Includes:
 
-- Publish Flow
+- **Draft / Publish Lifecycle**: New pages start as draft (`isPublished: false`). Explicit "Publish" in `BuilderAppBar` shows a confirmation dialog with the public URL. "Save Draft" saves without publishing. `BuilderOptionsModal` also exposes both actions.
 - Site Generation
 - SEO Metadata Generation
 - Sitemap Generation

@@ -17,6 +17,10 @@ Locate platform functionality by business purpose rather than exact filename.
 | **Subscription** | Tier limits and payments | `UpgradeLimitModal` | N/A (Service layer) | `ManualPaymentModal` |
 | **Sticky CTA** | High-conversion scroll overlay | N/A (Internal) | N/A (Local state) | `StickyCtaBar` |
 | **Product Feed** | Merchant catalog sync | `ProductFeedScreen` | N/A (Future work) | `GlassContainer` |
+| **Builder Theme** | Global design (colors, fonts, backgrounds) | N/A (Internal) | `BuilderThemeCubit` | `BuilderSidebar`, `BackgroundPickerTab` |
+| **Draft / Publish** | Page lifecycle management | `BuilderWorkspaceScreen` | `LandingPageBuilderCubit` | `BuilderAppBar`, `BuilderOptionsModal` |
+| **Analytics Overview** | Dashboard home stats + trend chart | `DashboardHomeScreen` | `LeadsAnalyticsCubit` | `AnalyticsOverviewWidget`, `DataCard` |
+| **Auth Gate** | Guest access overlay for non-logged-in users | `BuilderWorkspaceScreen` | N/A (UI-only) | Blurred overlay with upgrade CTA |
 
 ## 🔗 System Relationships
 

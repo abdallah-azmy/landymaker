@@ -17,7 +17,8 @@ graph TD
 The chain of command for editing a page.
 
 **`BuilderWorkspaceScreen`**
-➡️ `LandingPageBuilderCubit` (State)
+➡️ `LandingPageBuilderCubit` (State — blocks, undo/redo, save/load)
+➡️ `BuilderThemeCubit` (Theme — colors, fonts, backgrounds; synced into `BuilderLoaded.theme` via listener)
 ➡️ `BuilderCanvas` (Layout)
 ➡️ `SectionRenderer` (Loop)
 ➡️ `BlockRegistry` (Factory)

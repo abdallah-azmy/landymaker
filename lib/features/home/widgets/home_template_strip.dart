@@ -138,7 +138,9 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 900;
 
     return Container(
       width: double.infinity,
@@ -260,6 +262,8 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
         ),
       ),
     );
+      },
+    );
   }
 }
 
@@ -307,7 +311,9 @@ class _TemplateCardState extends State<_TemplateCard> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 900;
     final cardW = isMobile ? 240.0 : 300.0;
 
     return MouseRegion(
@@ -493,7 +499,10 @@ class _TemplateCardState extends State<_TemplateCard> {
         ),
       ),
     ),
-  );
+    );
+      },
+    );
+  }
 }
-}
+
 

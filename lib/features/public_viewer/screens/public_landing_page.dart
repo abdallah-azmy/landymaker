@@ -124,11 +124,31 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     final seoTitle = designJson['meta_title'] ?? "${state.pageData['subdomain'] ?? 'Page'} | LandyMaker";
                     final seoDesc = designJson['meta_description'] ?? "Created with LandyMaker - The Ultimate AI Landing Page Builder";
                     final seoImage = designJson['og_image_url'] ?? "https://landymaker.com/logo_social.webp";
+                    final seoKeywords = (designJson['keywords'] as String?) ?? '';
                     
+                    final Map<String, dynamic> seoStructuredData = {
+                      '@context': 'https://schema.org',
+                      '@type': 'WebPage',
+                      'name': seoTitle,
+                      'description': seoDesc,
+                      'url': Uri.base.toString(),
+                      'image': seoImage,
+                      'keywords': seoKeywords,
+                    };
+                    if (designJson['meta_title'] != null || designJson['meta_description'] != null) {
+                      seoStructuredData['about'] = <String, dynamic>{
+                        '@type': 'Thing',
+                        'name': seoTitle,
+                        'description': seoDesc,
+                      };
+                    }
+
                     AppSEO.updateMeta(
                       title: seoTitle,
                       description: seoDesc,
                       image: seoImage,
+                      keywords: seoKeywords,
+                      structuredData: seoStructuredData,
                     );
 
                     PixelBootstrapService.initialize(designJson);

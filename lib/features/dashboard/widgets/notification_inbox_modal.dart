@@ -39,7 +39,7 @@ class NotificationInboxModal extends StatelessWidget {
               border: Border.all(color: AppColors.border),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -105,7 +105,7 @@ class NotificationInboxModal extends StatelessWidget {
                     Icon(
                       Icons.notifications_none_rounded,
                       size: 48,
-                      color: AppColors.textMuted.withOpacity(0.5),
+                      color: AppColors.textMuted.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -153,7 +153,7 @@ class _NotificationItem extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         color: isRead
             ? Colors.transparent
-            : AppColors.secondary.withOpacity(0.03),
+            : AppColors.secondary.withValues(alpha: 0.03),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -214,7 +214,7 @@ class _NotificationItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Icon(iconData, size: 20, color: color),

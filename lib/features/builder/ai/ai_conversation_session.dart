@@ -68,6 +68,30 @@ class AIConversationSession {
 
   AIConversationSession({required this.sessionId});
 
+  Map<String, dynamic> toJson() => {
+    'session_id': sessionId,
+    'messages': messages.map((m) => m.toJson()).toList(),
+    'memory_summary': memorySummary,
+    'business_profile': businessProfile.toJson(),
+  };
+
+  factory AIConversationSession.fromJson(Map<String, dynamic> json) {
+    final session = AIConversationSession(
+      sessionId: json['session_id'] as String? ?? '',
+    );
+    session.memorySummary = json['memory_summary'] as String? ?? '';
+    session.businessProfile = BusinessProfile.fromJson(
+      json['business_profile'] as Map<String, dynamic>? ?? {},
+    );
+    final messagesJson = json['messages'] as List<dynamic>? ?? [];
+    for (final m in messagesJson) {
+      if (m is Map<String, dynamic>) {
+        session.messages.add(AIConversationMessage.fromJson(m));
+      }
+    }
+    return session;
+  }
+
   static const int maxMessages = 30;
   static const int fullMessageThreshold = 10;
   static const int maxContentLength = 200;

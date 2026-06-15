@@ -158,6 +158,8 @@ const Map<String, String> translationsEn = {
   'invalid_email': 'Enter a valid email address',
   'message_label': 'Your Message',
   'message_hint': 'How can we help you?',
+  'seo_keywords': 'Keywords',
+  'seo_keywords_help': 'Comma-separated keywords that help search engines understand your page content.',
   'seo_og_image': 'Social Share Image (Open Graph Image)',
   'seo_og_image_help': 'This image displays when you share your site link on social media platforms like Facebook, WhatsApp, and Twitter.',
   'export_csv': 'Export CSV',
@@ -253,5 +255,9 @@ const Map<String, String> translationsEn = {
   'install_now': 'Install Now',
   'app_already_installed': 'App already installed ✅',
   'notifications_permission_denied': 'Notification permission denied. Please enable it in your browser settings.',
+  'hide': 'Hide',
+  'show': 'Show',
+  'ai_edit_section': 'AI Edit',
+  'offline_banner': 'No internet connection. Some features may not work.',
 };
 

@@ -23,6 +23,7 @@ class SeoSettingsModal extends StatefulWidget {
 class _SeoSettingsModalState extends State<SeoSettingsModal> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
+  late TextEditingController _keywordsController;
   late TextEditingController _ogImageController;
   late TextEditingController _fbPixelController;
   late TextEditingController _tiktokPixelController;
@@ -35,6 +36,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
     final state = context.read<LandingPageBuilderCubit>().state as BuilderLoaded;
     _titleController = TextEditingController(text: state.designMap['meta_title'] ?? '');
     _descController = TextEditingController(text: state.designMap['meta_description'] ?? '');
+    _keywordsController = TextEditingController(text: state.designMap['keywords'] ?? '');
     _ogImageController = TextEditingController(text: state.designMap['og_image_url'] ?? '');
     _fbPixelController = TextEditingController(text: state.designMap['fb_pixel_id'] ?? '');
     _tiktokPixelController = TextEditingController(text: state.designMap['tiktok_pixel_id'] ?? '');
@@ -45,6 +47,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
+    _keywordsController.dispose();
     _ogImageController.dispose();
     _fbPixelController.dispose();
     _tiktokPixelController.dispose();
@@ -154,6 +157,20 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                 setState(() {});
               },
               hintText: "Describe what you offer in a few words...",
+            ),
+          ),
+          const SizedBox(height: 24),
+          FormGroup(
+            label: loc.translate('seo_keywords'),
+            helperText: loc.translate('seo_keywords_help'),
+            child: CustomTextField(
+              controller: _keywordsController,
+              onChanged: (val) {
+                cubit.updateMetadata('keywords', val);
+                setState(() {});
+              },
+              hintText: "متجر, إلكترونيات, عروض, تخفيضات",
+              maxLines: 2,
             ),
           ),
           const SizedBox(height: 24),

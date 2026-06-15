@@ -57,7 +57,9 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 700;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 700;
 
     return AnimatedBuilder(
       animation: _bgController,
@@ -181,6 +183,8 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

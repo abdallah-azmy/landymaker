@@ -62,6 +62,20 @@ class _AIChatModalState extends State<AIChatModal> {
         );
       }
     }
+
+    // Auto-send section-specific AI edit if triggered from toolbar
+    if (aiCubit.pendingSectionIndex != null && aiCubit.pendingSectionType != null) {
+      final sectionIndex = aiCubit.pendingSectionIndex!;
+      final sectionType = aiCubit.pendingSectionType!;
+      aiCubit.pendingSectionIndex = null;
+      aiCubit.pendingSectionType = null;
+
+      final msg = "عدل القسم رقم $sectionIndex (نوع: $sectionType): أريد تحسين وتطوير هذا القسم مع الحفاظ على نفس نوعه.";
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _addUserMessage(msg);
+        context.read<AIGenerationCubit>().processUserMessage(msg);
+      });
+    }
   }
 
   void _addSystemMessage(String message) {
@@ -236,7 +250,7 @@ class _AIChatModalState extends State<AIChatModal> {
                   },
                 ),
               ),
-              if (isLoading) _buildLoadingIndicator(progressMessage!),
+              if (isLoading) _buildLoadingIndicator(progressMessage ?? ''),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: AIChatInput(

@@ -148,8 +148,8 @@ class CustomComparisonTableWidget extends StatelessWidget {
 
   Widget _buildMobileComparison(List plans, List features, Color accent, Color textColor, Color subTextColor) {
     return Column(
-      children: plans.map((plan) {
-        final planIndex = plans.indexOf(plan);
+      children: List.generate(plans.length, (planIndex) {
+        final plan = plans[planIndex];
         return Container(
           margin: const EdgeInsets.only(bottom: 24),
           padding: const EdgeInsets.all(24),

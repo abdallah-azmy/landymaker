@@ -33,6 +33,7 @@ import 'features/dashboard/controllers/active_website_cubit.dart';
 import 'package:toastification/toastification.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/seo/app_seo.dart';
+import 'core/widgets/offline_banner.dart';
 import 'core/services/fcm_service.dart';
 import 'core/services/pwa_install_service.dart';
 import 'services/supabase_service.dart';
@@ -154,7 +155,8 @@ class LandyMakerApp extends StatelessWidget {
       child: BlocBuilder<LocalizationCubit, Locale>(
         builder: (context, locale) {
           return ToastificationWrapper(
-            child: MaterialApp.router(
+            child: OfflineBanner(
+              child: MaterialApp.router(
               title: 'LandyMaker',
               debugShowCheckedModeBanner: false,
               routerConfig: appRouter,
@@ -196,7 +198,8 @@ class LandyMakerApp extends StatelessWidget {
                 ),
               ),
             ),
-          );
+          ),
+        );
         },
       ),
     );

@@ -158,6 +158,8 @@ const Map<String, String> translationsAr = {
   'invalid_email': 'البريد الإلكتروني غير صالح',
   'message_label': 'الرسالة',
   'message_hint': 'كيف يمكننا مساعدتك؟',
+  'seo_keywords': 'الكلمات المفتاحية (Keywords)',
+  'seo_keywords_help': 'كلمات مفتاحية تفصل بينها فواصل لتساعد محركات البحث في فهم محتوى صفحتك.',
   'seo_og_image': 'صورة المشاركة الاجتماعية (Open Graph Image)',
   'seo_og_image_help': 'صورة تظهر عند مشاركة رابط موقعك على وسائل التواصل الاجتماعي مثل فيسبوك وواتساب وتويتر.',
   'export_csv': 'تصدير CSV',
@@ -269,5 +271,9 @@ const Map<String, String> translationsAr = {
   'install_now': 'تثبيت الآن',
   'app_already_installed': 'التطبيق مثبت بالفعل ✅',
   'notifications_permission_denied': 'تم رفض إذن الإشعارات. يرجى تفعيله من إعدادات المتصفح.',
+  'hide': 'إخفاء',
+  'show': 'إظهار',
+  'ai_edit_section': 'تعديل بالذكاء الاصطناعي',
+  'offline_banner': 'لا يوجد اتصال بالإنترنت. بعض الميزات قد لا تعمل.',
 };
 

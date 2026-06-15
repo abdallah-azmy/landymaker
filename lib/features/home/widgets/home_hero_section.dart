@@ -182,8 +182,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isMobile = size.width < 900;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 900;
 
     return Stack(
       children: [
@@ -941,5 +942,7 @@ class _PhonePreviewState extends State<_PhonePreview> {
           ),
       ],
     ));
+      },
+    );
   }
 }

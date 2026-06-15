@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html' as html;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../../../services/supabase_service.dart';
 import '../ai/ai_conversation_session.dart';
@@ -83,6 +83,10 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
   String? _pixabayPendingMessage;
   String? _pixabayPendingIntent;
 
+  // Section-level AI editing
+  int? pendingSectionIndex;
+  String? pendingSectionType;
+
   // Cancel previous request (using counter to avoid race conditions)
   bool _isProcessing = false;
   String? _lastMessage;
@@ -91,31 +95,56 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
 
   AIConversationSession get session => _session;
 
+  String get _sessionStorageKey {
+    final state = _builderCubit.state;
+    if (state is BuilderLoaded) return 'ai_session_${state.pageId}';
+    return 'ai_session_default';
+  }
+
+  Future<void> _saveSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_sessionStorageKey, jsonEncode(_session.toJson()));
+  }
+
+  Future<void> _loadSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString(_sessionStorageKey);
+    if (stored != null && stored.isNotEmpty) {
+      try {
+        _session = AIConversationSession.fromJson(
+          jsonDecode(stored) as Map<String, dynamic>,
+        );
+      } catch (_) {}
+    }
+  }
+
   AIGenerationCubit(this._supabase, this._builderCubit)
     : super(AIGenerationInitial()) {
     _session = AIConversationSession(
       sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
     );
+    _loadSession();
   }
 
   bool get _isGuest => _supabase.client.auth.currentSession?.accessToken == null;
 
   static const String _guestPromptCountKey = 'guest_ai_prompt_count';
 
-  int _getGuestPromptCount() {
-    final val = html.window.localStorage[_guestPromptCountKey];
-    if (val == null) return 0;
-    return int.tryParse(val) ?? 0;
+  Future<int> _getGuestPromptCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_guestPromptCountKey) ?? 0;
   }
 
-  void _incrementGuestPromptCount() {
-    final current = _getGuestPromptCount();
-    html.window.localStorage[_guestPromptCountKey] = (current + 1).toString();
+  Future<void> _incrementGuestPromptCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = prefs.getInt(_guestPromptCountKey) ?? 0;
+    await prefs.setInt(_guestPromptCountKey, current + 1);
   }
 
-  bool _hasReachedGuestLimit() {
+  Future<bool> _hasReachedGuestLimit() async {
     if (!_isGuest) return false;
-    return _getGuestPromptCount() >= 1;
+    final count = await _getGuestPromptCount();
+    return count >= 1;
   }
 
   void startNewSession() {
@@ -154,7 +183,7 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     _lastMessage = message;
 
     // Guest limit check: unregistered users get exactly one prompt
-    if (_hasReachedGuestLimit()) {
+    if (await _hasReachedGuestLimit()) {
       emit(AIGenerationFailure(
         "لقد استخدمت طلبك المجاني الوحيد! سجل حساباً مجاناً لمواصلة التعديل والحصول على تصميم غير محدود. 🎁",
         canRetry: false,
@@ -165,6 +194,7 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     _isProcessing = true;
     _activeRequestId = myRequestId;
     _session.addMessage('user', message);
+    await _saveSession();
 
     // SAFE STATE ACCESS
     final builderState = _builderCubit.state;
@@ -311,6 +341,7 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
       // Error from SSE → emit directly (pre-formatted Arabic message with canRetry)
       if (errorMessage != null) {
         _session.rollbackLastMessage();
+        await _saveSession();
         emit(AIGenerationFailure(errorMessage, canRetry: errorCanRetry));
         return;
       }
@@ -334,12 +365,15 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
       // Update Session Memory
       if (data['memory_summary_update'] != null) {
         _session.updateSummary(data['memory_summary_update']);
+        await _saveSession();
       }
       if (data['business_profile_update'] != null) {
         _session.updateProfileFromAI(data['business_profile_update']);
+        await _saveSession();
       }
       if (data['assistant_message'] != null) {
         _session.addMessage('assistant', data['assistant_message']);
+        await _saveSession();
       }
 
       // Handle Copy Update Action
@@ -359,6 +393,7 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
         }
         if (data['assistant_message'] != null) {
           _session.addMessage('assistant', data['assistant_message']);
+          await _saveSession();
         }
         emit(AIGenerationCopyUpdate(
           updates: updates,
@@ -438,7 +473,7 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
 
           // Track guest prompt usage in local storage
           if (_isGuest) {
-            _incrementGuestPromptCount();
+            await _incrementGuestPromptCount();
           }
 
           emit(
@@ -465,10 +500,11 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     }
   }
 
-  void _handleAIError(String rawError, String intent) {
+  Future<void> _handleAIError(String rawError, String intent) async {
     _isProcessing = false;
     print('❌ AI AGENT ERROR: $rawError');
     _session.rollbackLastMessage();
+    await _saveSession();
 
     String userFriendlyError;
     bool canRetry = true;
@@ -515,13 +551,38 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     String intent,
   ) {
     if (intent == 'generate' || fullDesign['blocks'] == null) return {};
-    
+
     final blocks = fullDesign['blocks'] as List? ?? [];
-    final result = Map<String, dynamic>.from(fullDesign);
-    result['_meta'] = {
-      'block_count': blocks.length,
-      'section_types': blocks.map((b) => b['type']).toList(),
+    final lightBlocks = blocks.map((b) {
+      if (b is! Map) return b;
+      final m = b as Map<String, dynamic>;
+      return {
+        'type': m['type'],
+        'section_title': m['section_title'],
+        'is_visible': m['is_visible'],
+        'blocks': m['blocks'] is List
+            ? (m['blocks'] as List).map((inner) {
+                if (inner is! Map) return inner;
+                final im = inner as Map<String, dynamic>;
+                return {
+                  'type': im['type'],
+                  if (im['value'] != null) 'value': im['value'] is String
+                      ? (im['value'] as String).substring(0, (im['value'] as String).length.clamp(0, 100))
+                      : im['value'],
+                };
+              }).toList()
+            : null,
+      };
+    }).toList();
+
+    return {
+      'meta_title': fullDesign['meta_title'],
+      'meta_description': fullDesign['meta_description'],
+      'blocks': lightBlocks,
+      '_meta': {
+        'block_count': lightBlocks.length,
+        'section_types': lightBlocks.map((b) => b['type']).toList(),
+      },
     };
-    return result;
   }
 }

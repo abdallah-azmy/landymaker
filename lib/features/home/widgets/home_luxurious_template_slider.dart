@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../builder/registries/template_registry.dart';
+import '../../builder/models/landing_page_theme.dart';
+import '../../public_viewer/widgets/section_renderer.dart';
 import '../../../core/localization/localization_cubit.dart';
 
 class HomeLuxuriousTemplateSlider extends StatefulWidget {
@@ -25,6 +27,46 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
   late AnimationController _headerController;
   int _currentPage = 0;
   final List<TemplateMetadata> _templates = TemplateRegistry.availableTemplates.where((t) => t.id != 'empty').toList();
+
+  void _showTemplatePreview(TemplateMetadata template) {
+    final design = TemplateRegistry.getTemplateDesign(template.id);
+    final blocks = (design['blocks'] as List<dynamic>?)
+        ?.cast<Map<String, dynamic>>() ?? [];
+    final theme = TemplateRegistry.getTemplateTheme(template.id);
+
+    Navigator.push(context, MaterialPageRoute(
+      builder: (_) => Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          title: Text(template.name, style: AppTypography.h3.copyWith(color: Colors.white)),
+          actions: [
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                widget.onGetStartedPressed(template.id);
+              },
+              icon: const Icon(Icons.auto_awesome_rounded, color: AppColors.secondary),
+              label: Text(
+                context.read<LocalizationCubit>().isRtl ? "استخدم هذا القالب" : "Use this Template",
+                style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: SectionRenderer(
+            blocks: blocks,
+            pageId: 'preview',
+            theme: theme,
+          ),
+        ),
+      ),
+    ));
+  }
 
   @override
   void initState() {
@@ -69,8 +111,10 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
 
   @override
   Widget build(BuildContext context) {
-    final loc = context.read<LocalizationCubit>();
-    final isMobile = MediaQuery.of(context).size.width < 700;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final loc = context.read<LocalizationCubit>();
+        final isMobile = constraints.maxWidth < 700;
 
     return Container(
       width: double.infinity,
@@ -306,26 +350,57 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: widget.onPressed,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          elevation: 0,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              context.read<LocalizationCubit>().isRtl ? "ابدأ بهذا القالب" : "Start with this Template",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: widget.onPressed,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 0,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    context.read<LocalizationCubit>().isRtl ? "ابدأ بهذا القالب" : "Start with this Template",
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Icon(Icons.arrow_forward_rounded, size: 14),
+                                ],
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_rounded, size: 16),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(width: 12),
+                          OutlinedButton(
+                            onPressed: () {
+                              final state = context.findAncestorStateOfType<_HomeLuxuriousTemplateSliderState>();
+                              state?._showTemplatePreview(widget.template);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white38),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.visibility_outlined, size: 16),
+                                const SizedBox(width: 6),
+                                Text(
+                                  context.read<LocalizationCubit>().isRtl ? "معاينة" : "Preview",
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -384,6 +459,8 @@ class _NavigationButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

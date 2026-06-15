@@ -358,13 +358,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         final List mergedBlocks = List.from(currentBlocks);
         final List<bool> mergedIndices = List.filled(currentBlocks.length, false);
         
-        for (var inBlock in incomingBlocks) {
+        for (int blockIdx = 0; blockIdx < incomingBlocks.length; blockIdx++) {
+          final inBlock = incomingBlocks[blockIdx];
           if (inBlock is Map) {
             final String inType = (inBlock['type'] ?? '').toString();
             int matchIdx = -1;
             
             // First, try matching at the same index if the type matches and it's not already merged
-            final int index = incomingBlocks.indexOf(inBlock);
+            final int index = blockIdx;
             if (index < currentBlocks.length && !mergedIndices[index]) {
               final currentBlock = currentBlocks[index] as Map;
               if (currentBlock['type'] == inType) {

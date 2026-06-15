@@ -38,15 +38,25 @@ class SectionRenderer extends StatelessWidget {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     final String currentLang = isRtl ? 'ar' : 'en';
 
-    // Filter visible blocks for public viewer, keep all for builder
-    final List<Map<String, dynamic>> visibleBlocks = isBuilder
-        ? blocks
-        : blocks.where((block) {
-            final val = block['is_visible'];
-            if (val is bool) return val;
-            if (val is String) return val.toLowerCase() != 'false';
-            return true;
-          }).toList();
+    // Filter visible blocks + track original indices (O(n), not O(n²))
+    final List<Map<String, dynamic>> visibleBlocks = [];
+    final List<int> originalIndices = [];
+    if (isBuilder) {
+      for (int i = 0; i < blocks.length; i++) {
+        visibleBlocks.add(blocks[i]);
+        originalIndices.add(i);
+      }
+    } else {
+      for (int i = 0; i < blocks.length; i++) {
+        final block = blocks[i];
+        final val = block['is_visible'];
+        final bool isVisible = val is bool ? val : (val is String ? val.toLowerCase() != 'false' : true);
+        if (isVisible) {
+          visibleBlocks.add(block);
+          originalIndices.add(i);
+        }
+      }
+    }
 
     return ListView.builder(
       shrinkWrap: true,
@@ -56,8 +66,8 @@ class SectionRenderer extends StatelessWidget {
         final block = visibleBlocks[index];
         final String type = (block['type'] ?? '').toString().toLowerCase();
         
-        // Find original index for builder actions
-        final int originalIndex = isBuilder ? index : blocks.indexOf(block);
+        // Use pre-computed original index (O(1) instead of O(n))
+        final int originalIndex = originalIndices[index];
         
         final Key sectionKey = ValueKey("${type}_${originalIndex}_${block.hashCode}");
 

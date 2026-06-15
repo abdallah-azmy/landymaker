@@ -50,7 +50,7 @@ class TemplateRegistry {
       name: 'Modern Store',
       description: 'E-commerce focused layout for product showcasing.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+          'https://cdn.pixabay.com/photo/2017/04/06/12/46/shopping-2153849_1280.jpg',
       category: 'ecommerce',
       recommendedSections: ['hero', 'products', 'features', 'faq', 'whatsapp'],
       aiPromptHint:
@@ -61,7 +61,7 @@ class TemplateRegistry {
       name: 'Personal Brand',
       description: 'Showcase your skills and social presence.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+          'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
       category: 'creator',
       recommendedSections: ['hero', 'features', 'gallery', 'social_qr'],
       aiPromptHint:
@@ -72,7 +72,7 @@ class TemplateRegistry {
       name: 'Professional Consulting',
       description: 'Clean lead generation for services and consulting.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+          'https://cdn.pixabay.com/photo/2017/08/01/01/33/business-1971987_1280.jpg',
       category: 'professional_services',
       recommendedSections: [
         'hero',
@@ -89,7 +89,7 @@ class TemplateRegistry {
       name: 'Real Estate',
       description: 'Showcase properties with high-quality visuals.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+          'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
       category: 'real_estate',
       recommendedSections: [
         'logo_header',
@@ -107,7 +107,7 @@ class TemplateRegistry {
       name: 'Digital Course',
       description: 'Sell courses with pricing tables and FAQs.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2020/05/18/14/06/barber-shop-5186176_1280.jpg',
+          'https://cdn.pixabay.com/photo/2018/03/22/02/37/smart-3248678_1280.png',
       category: 'education',
       recommendedSections: [
         'hero',
@@ -125,7 +125,7 @@ class TemplateRegistry {
       name: 'Event Landing',
       description: 'Promote events with maps and QR codes.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
+          'https://cdn.pixabay.com/photo/2017/08/06/11/09/concert-2527495_1280.jpg',
       category: 'events',
       recommendedSections: [
         'hero',
@@ -143,7 +143,7 @@ class TemplateRegistry {
       description:
           'Menu-first landing page for restaurants, cafes, and food delivery.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
+          'https://cdn.pixabay.com/photo/2019/07/15/13/22/restaurant-4497194_1280.jpg',
       category: 'food',
       recommendedSections: [
         'logo_header',
@@ -163,7 +163,7 @@ class TemplateRegistry {
       description:
           'Trust-focused healthcare page with appointments and location.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+          'https://cdn.pixabay.com/photo/2015/07/17/22/43/student-849825_1280.jpg',
       category: 'healthcare',
       recommendedSections: [
         'hero',
@@ -182,7 +182,7 @@ class TemplateRegistry {
       name: 'Beauty Salon',
       description: 'Visual booking page for salons, spas, and beauty services.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
+          'https://cdn.pixabay.com/photo/2016/03/23/15/00/massage-1274935_1280.jpg',
       category: 'beauty',
       recommendedSections: [
         'hero',
@@ -200,7 +200,7 @@ class TemplateRegistry {
       name: 'Gym & Fitness',
       description: 'High-energy landing page for memberships and programs.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
+          'https://cdn.pixabay.com/photo/2017/09/09/16/33/dumbbells-2465478_1280.jpg',
       category: 'fitness',
       recommendedSections: [
         'hero',
@@ -218,7 +218,7 @@ class TemplateRegistry {
       name: 'Mobile App / SaaS',
       description: 'Modern product launch page for apps and software.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+          'https://cdn.pixabay.com/photo/2016/11/29/05/08/smartphone-1869517_1280.jpg',
       category: 'technology',
       recommendedSections: [
         'hero_saas',
@@ -237,7 +237,7 @@ class TemplateRegistry {
       name: 'Creative Agency',
       description: 'Portfolio and lead-generation page for creative teams.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+          'https://cdn.pixabay.com/photo/2018/10/15/12/35/designer-3703431_1280.jpg',
       category: 'agency',
       recommendedSections: [
         'hero',
@@ -256,7 +256,7 @@ class TemplateRegistry {
       description:
           'Mission-led campaign page with impact proof and contact CTA.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+          'https://cdn.pixabay.com/photo/2017/04/20/08/21/hands-1838658_1280.jpg',
       category: 'nonprofit',
       recommendedSections: [
         'hero',
@@ -274,7 +274,7 @@ class TemplateRegistry {
       name: 'Book / Digital Product',
       description: 'Launch page for books, ebooks, guides, and paid downloads.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+          'https://cdn.pixabay.com/photo/2016/03/31/19/42/books-1163695_1280.jpg',
       category: 'digital_product',
       recommendedSections: [
         'hero',
@@ -291,7 +291,7 @@ class TemplateRegistry {
       id: 'solar_energy',
       name: 'Solar Energy',
       description: 'Clean, sustainable energy solutions for homes and businesses.',
-      imageUrl: 'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+      imageUrl: 'https://cdn.pixabay.com/photo/2016/08/11/23/48/solar-panels-1477986_1280.jpg',
       category: 'industrial',
       recommendedSections: ['hero', 'statistics_grid', 'service_steps', 'lead_form'],
       aiPromptHint: 'Use for solar panels, green energy, sustainability, and engineering services.',
@@ -300,7 +300,7 @@ class TemplateRegistry {
       id: 'luxury_resort',
       name: 'Luxury Resort',
       description: 'Elegant showcase for hotels, villas, and high-end tourism.',
-      imageUrl: 'https://cdn.pixabay.com/photo/2016/11/19/14/00/code-1839406_1280.jpg',
+      imageUrl: 'https://cdn.pixabay.com/photo/2019/03/04/17/30/pool-3962981_1280.jpg',
       category: 'travel',
       recommendedSections: ['hero', 'gallery', 'team_members', 'cta_banner'],
       aiPromptHint: 'Use for luxury hotels, private villas, boutique resorts, and premium hospitality.',
@@ -309,7 +309,7 @@ class TemplateRegistry {
       id: 'fintech_crypto',
       name: 'Fintech / Crypto',
       description: 'Modern, dark-themed page for digital finance and blockchain.',
-      imageUrl: 'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+      imageUrl: 'https://cdn.pixabay.com/photo/2017/03/14/12/15/bitcoin-2007769_1280.jpg',
       category: 'technology',
       recommendedSections: ['hero_saas', 'trust_logos', 'comparison_table', 'cta_banner'],
       aiPromptHint: 'Use for crypto wallets, trading platforms, neobanks, and blockchain startups.',
@@ -318,7 +318,7 @@ class TemplateRegistry {
       id: 'architecture',
       name: 'Architecture & Design',
       description: 'Minimalist and grid-focused layout for studios and designers.',
-      imageUrl: 'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+      imageUrl: 'https://cdn.pixabay.com/photo/2016/11/29/05/07/architecture-1857171_1280.jpg',
       category: 'creative',
       recommendedSections: ['hero', 'gallery', 'service_steps', 'team_members'],
       aiPromptHint: 'Use for architecture firms, interior designers, urban planners, and studios.',
@@ -327,7 +327,7 @@ class TemplateRegistry {
       id: 'fashion_store',
       name: 'Fashion Store',
       description: 'Editorial-style e-commerce layout for apparel and beauty.',
-      imageUrl: 'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
+      imageUrl: 'https://cdn.pixabay.com/photo/2016/09/21/15/27/clothes-1766891_1280.jpg',
       category: 'ecommerce',
       recommendedSections: ['hero', 'products', 'gallery', 'testimonials', 'cta_banner'],
       aiPromptHint: 'Use for clothing brands, fashion boutiques, accessories, and trendy apparel.',

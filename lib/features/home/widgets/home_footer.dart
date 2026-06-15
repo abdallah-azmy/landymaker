@@ -10,7 +10,9 @@ class HomeFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 700;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 700;
 
     return Container(
       width: double.infinity,
@@ -208,6 +210,8 @@ class HomeFooter extends StatelessWidget {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

@@ -134,7 +134,7 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
                     widget.cubit.updateThemeProperty('globalBgImageUrl', null);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.dangerRed.withOpacity(0.1),
+                    backgroundColor: AppColors.dangerRed.withValues(alpha: 0.1),
                     foregroundColor: AppColors.dangerRed,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 16),

@@ -342,50 +342,35 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
           );
         }
 
-        int requestedColumns = widget.layoutStyle == 'grid_3' ? 3 : 2;
-        int crossAxisCount = ResponsiveUtils.getContentColumns(
-           width,
-           desktop: requestedColumns,
-           tablet: 2,
-           mobile: widget.mobileColumns,
+        final int crossAxisCount = ResponsiveUtils.getContentColumns(
+          width,
+          desktop: widget.layoutStyle == 'grid_3' ? 3 : 2,
+          tablet: 2,
+          mobile: widget.mobileColumns,
         );
 
-        final List<Widget> rows = [];
-        for (int i = 0; i < _paginatedItems.length; i += crossAxisCount) {
-          final rowItems = _paginatedItems.sublist(
-            i, 
-            (i + crossAxisCount > _paginatedItems.length) ? _paginatedItems.length : i + crossAxisCount
-          );
-
-          Widget rowWidget = IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: List.generate(crossAxisCount, (colIndex) {
-                if (colIndex < rowItems.length) {
-                  final isLastInRow = colIndex == crossAxisCount - 1;
-                  final double approximateCardWidth = (width - 48) / crossAxisCount;
-                  return Expanded(
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : (isMobile ? 12.0 : 20.0)),
-                      child: _buildProductCard(context, rowItems[colIndex], isMobile, approximateCardWidth),
-                    ),
-                  );
-                } else {
-                  return const Expanded(child: SizedBox.shrink());
-                }
-              }),
-            ),
-          );
-
-          rows.add(rowWidget);
-          if (i + crossAxisCount < _paginatedItems.length) {
-            rows.add(SizedBox(height: isMobile ? 12 : 20));
-          }
-        }
+        final double spacing = isMobile ? 12 : 20;
+        final double cardWidth = (width - spacing * (crossAxisCount - 1)) / crossAxisCount;
 
         return Column(
           children: [
-            Column(children: rows),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: spacing,
+                crossAxisSpacing: spacing,
+                childAspectRatio: cardWidth / (cardWidth + 100),
+              ),
+              itemCount: _paginatedItems.length,
+              itemBuilder: (context, index) => _buildProductCard(
+                context,
+                _paginatedItems[index],
+                isMobile,
+                cardWidth,
+              ),
+            ),
             const SizedBox(height: 32),
             _buildPagination(context),
           ],

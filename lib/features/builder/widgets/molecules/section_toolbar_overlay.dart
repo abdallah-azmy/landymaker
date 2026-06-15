@@ -6,6 +6,8 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
+import '../../controllers/ai_generation_cubit.dart';
+import '../modals/ai_chat_modal.dart';
 
 class SectionToolbarOverlay extends StatefulWidget {
   final Widget child;
@@ -124,10 +126,31 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
                               onPressed: widget.onEdit,
                             ),
                             _buildIconButton(
+                              icon: Icons.auto_awesome_rounded,
+                              tooltip: loc.translate('ai_edit_section'),
+                              onPressed: () {
+                                final state = cubit.state;
+                                if (state is! BuilderLoaded) return;
+                                final block = state
+                                    .designMap['blocks'][widget.index]
+                                    as Map<String, dynamic>;
+                                final type = block['type'] ?? '';
+                                final aiCubit = context.read<AIGenerationCubit>();
+                                aiCubit.pendingSectionIndex = widget.index;
+                                aiCubit.pendingSectionType = type;
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) => const AIChatModal(),
+                                );
+                              },
+                            ),
+                            _buildIconButton(
                               icon: isVisible
                                   ? Icons.visibility_rounded
                                   : Icons.visibility_off_rounded,
-                              tooltip: isVisible ? "إخفاء" : "إظهار",
+                              tooltip: loc.translate(isVisible ? 'hide' : 'show'),
                               onPressed: () =>
                                   cubit.toggleBlockVisibility(widget.index),
                             ),

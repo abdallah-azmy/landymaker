@@ -202,10 +202,10 @@ class _CreatePageModalState extends State<CreatePageModal> {
       // 1. Initialize builder with clean state
       builderCubit.initializeNewPage();
 
-      // 2. Set subdomain (normalized in UI, re-normalized in Cubit save)
+      // 2. Set subdomain — start as draft
       builderCubit.updateSettings(
         subdomain: _slugController.text,
-        isPublished: true,
+        isPublished: false,
       );
 
       // 3. Apply template if not empty

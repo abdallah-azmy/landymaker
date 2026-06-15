@@ -6,6 +6,8 @@ import 'dart:ui';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
+import '../../auth/controllers/auth_cubit.dart';
+import '../../auth/controllers/auth_state.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/utils/toast_service.dart';
 import '../../../core/widgets/draggable_modal_sheet.dart';
@@ -275,12 +277,8 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                       setState(() => _previewMode = mode),
                   onAddBlock: () => _showAddBlockMenu(context, builderCubit),
                   onPublish: () {
-                    // Assuming save logic is similar to _buildSaveButton
-                    // We can just call cubit.savePage() or show a success Toast.
-                    ToastService.showSuccess(
-                      context,
-                      message: "تم نشر الصفحة بنجاح!",
-                    );
+                    builderCubit.updateSettings(isPublished: true);
+                    builderCubit.saveForCurrentUser();
                   },
                 )
               : null,
@@ -423,6 +421,10 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
                 left: loc.isRtl ? (isMobile ? 16 : 350 + 24) : null,
                 child: const GlobalUploadManagerWidget(),
               ),
+              // Auth Gate Overlay (guest users with a non-empty design)
+              if (context.watch<AuthCubit>().state is Unauthenticated &&
+                  blocksList.isNotEmpty)
+                _buildAuthGate(),
             ],
           ),
         ),
@@ -435,6 +437,107 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     if (_previewMode == PreviewMode.mobile) return 390.0; // Standard Mobile Width
     if (_previewMode == PreviewMode.tablet) return 820.0; // Standard Tablet Width
     return null; // Flexible desktop
+  }
+
+  Widget _buildAuthGate() {
+    final loc = context.watch<LocalizationCubit>();
+    return Positioned.fill(
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Container(
+            color: Colors.black.withValues(alpha: 0.6),
+            child: Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      blurRadius: 40,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.lock_outline_rounded,
+                        color: AppColors.primary,
+                        size: 40,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      loc.translate('auth_gate_title'),
+                      style: AppTypography.h3,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      loc.translate('auth_gate_desc'),
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => context.go('/login'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          loc.translate('auth_gate_login'),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () => context.go('/register'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(color: AppColors.primary),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          loc.translate('auth_gate_register'),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildProfessionalSidebar(
@@ -693,10 +796,8 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             initialView: initialView,
             onAddBlock: () => _showAddBlockMenu(context, cubit),
             onPublish: () {
-              ToastService.showSuccess(
-                context,
-                message: "تم نشر الصفحة بنجاح!",
-              );
+              builderCubit.updateSettings(isPublished: true);
+              builderCubit.saveForCurrentUser();
             },
           );
         },

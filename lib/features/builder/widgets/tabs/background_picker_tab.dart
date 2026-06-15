@@ -5,6 +5,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/custom_network_image.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
+import '../../controllers/builder_theme_cubit.dart';
 import '../../controllers/upload_manager_cubit.dart';
 import '../modals/image_picker_modal.dart';
 import '../../../../injection_container.dart';
@@ -36,17 +37,17 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
         ? (widget.cubit.state as BuilderLoaded).theme.globalBgImageUrl 
         : null;
 
-    widget.cubit.updateThemeProperty('globalBgImageUrl', uploadId);
+    context.read<BuilderThemeCubit>().updateThemeProperty('globalBgImageUrl', uploadId);
 
     // 2. Start upload
     sl<UploadManagerCubit>().upload(
       uploadId: uploadId,
       data: selectedData,
       onSuccess: (finalUrl) {
-        widget.cubit.updateThemeProperty('globalBgImageUrl', finalUrl);
+        context.read<BuilderThemeCubit>().updateThemeProperty('globalBgImageUrl', finalUrl);
       },
       onCancel: () {
-        widget.cubit.updateThemeProperty('globalBgImageUrl', oldUrl);
+        context.read<BuilderThemeCubit>().updateThemeProperty('globalBgImageUrl', oldUrl);
       },
     );
   }
@@ -131,7 +132,7 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    widget.cubit.updateThemeProperty('globalBgImageUrl', null);
+                    context.read<BuilderThemeCubit>().updateThemeProperty('globalBgImageUrl', null);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.dangerRed.withValues(alpha: 0.1),

@@ -9,6 +9,7 @@ import '../../../../core/widgets/molecules/status_pill.dart';
 import '../../models/landing_page_theme.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
+import '../../controllers/builder_theme_cubit.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class OutlineTab extends StatelessWidget {
@@ -496,7 +497,7 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
                     final newTheme = palette.copyWith(
                       defaultFont: state.theme.defaultFont,
                     );
-                    widget.cubit.updateTheme(newTheme);
+                    context.read<BuilderThemeCubit>().updateTheme(newTheme);
                   },
                   isThreeLine: true,
                   title: Row(
@@ -572,28 +573,28 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
           children: [
             _buildColorPickerItem(
               context,
-              widget.cubit,
+              context.read<BuilderThemeCubit>(),
               "اللون الأساسي",
               "primary",
               state.theme.primary,
             ),
             _buildColorPickerItem(
               context,
-              widget.cubit,
+              context.read<BuilderThemeCubit>(),
               "اللون الثانوي",
               "secondary",
               state.theme.secondary,
             ),
             _buildColorPickerItem(
               context,
-              widget.cubit,
+              context.read<BuilderThemeCubit>(),
               "لون الخلفية",
               "background",
               state.theme.background,
             ),
             _buildColorPickerItem(
               context,
-              widget.cubit,
+              context.read<BuilderThemeCubit>(),
               "لون النص الرئيسي",
               "textPrimary",
               state.theme.textPrimary,
@@ -627,7 +628,7 @@ class DesignFontsTab extends StatelessWidget {
           children: [
             Text("إعدادات الخط العامة", style: AppTypography.h3),
             const SizedBox(height: 16),
-            _buildFontPicker(context, cubit, dynamicState),
+            _buildFontPicker(context, context.read<BuilderThemeCubit>(), dynamicState),
             const SizedBox(height: 32),
           ],
         );
@@ -795,7 +796,7 @@ Widget _colorBox(Color color) {
 
 Widget _buildColorPickerItem(
   BuildContext context,
-  LandingPageBuilderCubit cubit,
+  BuilderThemeCubit themeCubit,
   String label,
   String key,
   Color color,
@@ -803,7 +804,7 @@ Widget _buildColorPickerItem(
   return Padding(
     padding: const EdgeInsets.only(bottom: 16),
     child: InkWell(
-      onTap: () => _showColorPicker(context, cubit, key, color),
+      onTap: () => _showColorPicker(context, themeCubit, key, color),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -825,7 +826,7 @@ Widget _buildColorPickerItem(
 
 void _showColorPicker(
   BuildContext context,
-  LandingPageBuilderCubit cubit,
+  BuilderThemeCubit themeCubit,
   String key,
   Color currentColor,
 ) {
@@ -860,7 +861,7 @@ void _showColorPicker(
             .map(
               (color) => GestureDetector(
                 onTap: () {
-                  cubit.updateThemeProperty(key, color);
+                  themeCubit.updateThemeProperty(key, color);
                   Navigator.pop(context);
                 },
                 child: Container(
@@ -885,7 +886,7 @@ void _showColorPicker(
 
 Widget _buildFontPicker(
   BuildContext context,
-  LandingPageBuilderCubit cubit,
+  BuilderThemeCubit themeCubit,
   BuilderLoaded currentState,
 ) {
   return Column(
@@ -916,7 +917,7 @@ Widget _buildFontPicker(
         ),
         child: ListTile(
           onTap: () {
-            cubit.updateThemeProperty('defaultFont', family);
+            themeCubit.updateThemeProperty('defaultFont', family);
           },
           title: Row(
             children: [

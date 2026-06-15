@@ -19,6 +19,7 @@ import 'core/router/app_router.dart';
 import 'injection_container.dart';
 import 'features/auth/controllers/auth_cubit.dart';
 import 'features/builder/controllers/builder_cubit.dart';
+import 'features/builder/controllers/builder_theme_cubit.dart';
 import 'features/builder/controllers/upload_manager_cubit.dart';
 import 'features/dashboard/controllers/leads_analytics_cubit.dart';
 import 'features/dashboard/controllers/landing_pages_cubit.dart';
@@ -129,6 +130,9 @@ class LandyMakerApp extends StatelessWidget {
           create: (_) => sl<ActiveWebsiteCubit>(),
         ),
         BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>()),
+        BlocProvider<BuilderThemeCubit>(
+          create: (_) => sl<BuilderThemeCubit>(),
+        ),
         BlocProvider<LandingPageBuilderCubit>(
           create: (_) => sl<LandingPageBuilderCubit>(),
         ),

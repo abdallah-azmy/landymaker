@@ -9,6 +9,7 @@ import 'core/localization/localization_cubit.dart';
 import 'core/http_client.dart';
 import 'features/auth/controllers/auth_cubit.dart';
 import 'features/builder/controllers/builder_cubit.dart';
+import 'features/builder/controllers/builder_theme_cubit.dart';
 import 'features/dashboard/controllers/leads_analytics_cubit.dart';
 import 'features/dashboard/controllers/landing_pages_cubit.dart';
 import 'features/dashboard/controllers/active_website_cubit.dart';
@@ -54,6 +55,9 @@ Future<void> initDependencies() async {
   // Auth: Governs user profile status
   sl.registerFactory<AuthCubit>(() => AuthCubit(sl<AuthService>()));
 
+  // Builder Theme: Owns LandingPageTheme separately from the main builder cubit
+  sl.registerFactory<BuilderThemeCubit>(() => BuilderThemeCubit());
+
   // Builder: Section layout configuration sessions
   sl.registerFactory<LandingPageBuilderCubit>(
     () => LandingPageBuilderCubit(
@@ -61,6 +65,7 @@ Future<void> initDependencies() async {
       databaseService: sl<DatabaseService>(),
       storageService: sl<StorageService>(),
       subscriptionService: sl<SubscriptionService>(),
+      themeCubit: sl<BuilderThemeCubit>(),
     ),
   );
 

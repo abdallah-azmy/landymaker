@@ -10,7 +10,7 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
-import '../../../core/widgets/molecules/page_stat_card.dart';
+import '../widgets/analytics_overview_widget.dart';
 import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
 import '../../../core/utils/toast_service.dart';
@@ -94,11 +94,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
       (sum, p) => sum + (p['purchases_count'] as int? ?? 0),
     );
 
-    // Note: Since individual unique_visitors per page is not yet in the pages list 
-    // (it's in LeadsAnalyticsCubit per page), we show a combined view for now or
-    // we can assume a ratio if needed, but for better UX we should ideally 
-    // fetch this per page. For Dashboard V2, we will focus on these aggregate stats.
-    // In a real scenario, unique_visitors should be a column in landing_pages too.
+    // Aggregate stats from pages list; uniqueVisitors fetched via LeadsAnalyticsCubit.
 
     final isMobile = ResponsiveLayout.isMobile(context);
 
@@ -109,7 +105,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
         children: [
           _buildHeader(loc, state, isMobile),
           const SizedBox(height: 32),
-          _buildStatsOverview(totalViews, totalLeads, isMobile),
+          AnalyticsOverviewWidget(
+            totalViews: totalViews,
+            totalLeads: totalLeads,
+          ),
           const SizedBox(height: 24),
           if (state.currentTier == 'free' && pages.isNotEmpty)
             _buildUpgradeCard(context, state.pages.first['user_id'], isMobile),
@@ -308,106 +307,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                 ),
               ],
             ),
-    );
-  }
-
-  Widget _buildStatsOverview(int views, int leads, bool isMobile) {
-    final loc = context.read<LocalizationCubit>();
-    final conversionRate = views == 0
-        ? "0%"
-        : "${((leads / views) * 100).toStringAsFixed(1)}%";
-
-    if (isMobile) {
-      return Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: PageStatCard(
-                  title: loc.translate('total_page_views'),
-                  value: views.toString(),
-                  icon: Icons.visibility_rounded,
-                  color: AppColors.secondary,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: PageStatCard(
-                  title: loc.translate('total_unique_visitors'),
-                  value: views > 0 ? (views * 0.8).toInt().toString() : "0", // Simulated until aggregate column added
-                  icon: Icons.person_search_rounded,
-                  color: Colors.orange,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: PageStatCard(
-                  title: loc.translate('total_conversions'),
-                  value: leads.toString(),
-                  icon: Icons.shopping_bag_rounded,
-                  color: AppColors.activeGreen,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: PageStatCard(
-                  title: loc.translate('avg_conversion_rate'),
-                  value: conversionRate,
-                  icon: Icons.analytics_rounded,
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      );
-    }
-
-    return Wrap(
-      spacing: 20,
-      runSpacing: 20,
-      children: [
-        SizedBox(
-          width: 250,
-          child: PageStatCard(
-            title: loc.translate('total_page_views'),
-            value: views.toString(),
-            icon: Icons.visibility_rounded,
-            color: AppColors.secondary,
-          ),
-        ),
-        SizedBox(
-          width: 250,
-          child: PageStatCard(
-            title: loc.translate('total_unique_visitors'),
-            value: views > 0 ? (views * 0.8).toInt().toString() : "0",
-            icon: Icons.person_search_rounded,
-            color: Colors.orange,
-          ),
-        ),
-        SizedBox(
-          width: 250,
-          child: PageStatCard(
-            title: loc.translate('total_conversions'),
-            value: leads.toString(),
-            icon: Icons.shopping_bag_rounded,
-            color: AppColors.activeGreen,
-          ),
-        ),
-        SizedBox(
-          width: 250,
-          child: PageStatCard(
-            title: loc.translate('avg_conversion_rate'),
-            value: conversionRate,
-            icon: Icons.analytics_rounded,
-            color: AppColors.primary,
-          ),
-        ),
-      ],
     );
   }
 

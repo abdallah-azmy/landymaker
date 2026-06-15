@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:html' as html;
+import 'package:go_router/go_router.dart';
 import '../../models/preview_mode.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -177,7 +178,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                   _buildActionButton(
                     icon: state.isPublished
                         ? Icons.visibility_off_rounded
-                        : Icons.language_rounded, // Better icon for live status
+                        : Icons.language_rounded,
                     label: state.isPublished
                         ? loc.translate('draft')
                         : loc.translate('go_live'),
@@ -189,6 +190,15 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ? AppColors.textPrimary
                         : AppColors.secondary,
                   ),
+                  if (!state.isPublished)
+                    _buildActionButton(
+                      icon: Icons.save_rounded,
+                      label: loc.translate('save_draft'),
+                      onPressed: state.hasUnsavedChanges
+                          ? () => cubit.saveForCurrentUser()
+                          : null,
+                      color: AppColors.textPrimary,
+                    ),
                   const VerticalDivider(
                     color: AppColors.border,
                     indent: 12,
@@ -307,19 +317,74 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildPublishButton() {
-    final bool canPublish = state.hasUnsavedChanges && !state.isSaving;
+    final bool canSave = state.hasUnsavedChanges && !state.isSaving;
+    final bool isDraft = !state.isPublished;
+
+    if (isDraft) {
+      return InkWell(
+        onTap: canSave
+            ? () => _showPublishConfirmation(context, loc, cubit, state)
+            : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: canSave
+                ? AppColors.activeGreen.withValues(alpha: 0.15)
+                : AppColors.activeGreen.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: canSave ? AppColors.activeGreen : AppColors.textMuted,
+            ),
+          ),
+          child: state.isSaving
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.activeGreen,
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.rocket_launch_rounded,
+                      color: canSave
+                          ? AppColors.activeGreen
+                          : AppColors.textMuted,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      loc.translate('publish'),
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: canSave
+                            ? AppColors.activeGreen
+                            : AppColors.textMuted,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      );
+    }
+
+    // Published state — show Save Changes
     return InkWell(
-      onTap: canPublish ? () => cubit.saveForCurrentUser() : null,
+      onTap: canSave ? () => cubit.saveForCurrentUser() : null,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: canPublish
-              ? AppColors.activeGreen.withValues(alpha: 0.1)
+          color: canSave
+              ? AppColors.secondary.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: canPublish ? AppColors.activeGreen : AppColors.border,
+            color: canSave ? AppColors.secondary : AppColors.border,
           ),
         ),
         child: state.isSaving
@@ -328,38 +393,140 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.activeGreen,
+                  color: AppColors.secondary,
                 ),
               )
             : Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    Icons.rocket_launch_rounded,
-                    color: canPublish
-                        ? AppColors.activeGreen
+                    Icons.cloud_done_rounded,
+                    color: canSave
+                        ? AppColors.secondary
                         : AppColors.textMuted,
                     size: 18,
                   ),
-                  if (canPublish) ...[
-                    const SizedBox(width: 8),
-                    Text(
-                      loc.translate('publish'),
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.activeGreen,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  const SizedBox(width: 8),
+                  Text(
+                    canSave
+                        ? loc.translate('save_changes')
+                        : loc.translate('published'),
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: canSave
+                          ? AppColors.secondary
+                          : AppColors.textMuted,
+                      fontWeight: canSave ? FontWeight.bold : FontWeight.normal,
                     ),
-                  ] else ...[
-                    const SizedBox(width: 8),
-                    Text(
-                      loc.translate('published'),
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                  ],
+                  ),
                 ],
               ),
+      ),
+    );
+  }
+
+  void _showPublishConfirmation(
+    BuildContext context,
+    LocalizationCubit loc,
+    LandingPageBuilderCubit cubit,
+    BuilderLoaded state,
+  ) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardBg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.activeGreen.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.public_rounded, color: AppColors.activeGreen),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              loc.translate('publish_confirm_title'),
+              style: AppTypography.h3,
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              loc.translate('publish_confirm_desc'),
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.lock, size: 14, color: AppColors.activeGreen),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'landymaker.com/${state.subdomain}',
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                    onPressed: () {
+                      html.window.open('/${state.subdomain}', '_blank');
+                    },
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    color: AppColors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              loc.translate('cancel'),
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.activeGreen,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              cubit.updateSettings(isPublished: true);
+              cubit.saveForCurrentUser();
+            },
+            child: Text(
+              loc.translate('publish_confirm_go'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
     );
   }

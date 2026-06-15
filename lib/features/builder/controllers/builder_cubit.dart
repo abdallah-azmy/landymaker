@@ -27,12 +27,16 @@ import '../../../../core/error_handler.dart';
 import '../models/landing_page_theme.dart';
 import '../registries/template_registry.dart';
 import 'builder_state.dart';
+import 'builder_theme_cubit.dart';
 
 class LandingPageBuilderCubit extends Cubit<BuilderState> {
   final AuthService _authService;
   final DatabaseService _databaseService;
   final StorageService _storageService;
   final SubscriptionService _subscriptionService;
+  final BuilderThemeCubit _themeCubit;
+  StreamSubscription? _themeSubscription;
+  bool _suppressHistoryFromTheme = false;
 
   final List<String> _history = [];
   int _historyIndex = -1;
@@ -42,11 +46,27 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     required DatabaseService databaseService,
     required StorageService storageService,
     required SubscriptionService subscriptionService,
+    required BuilderThemeCubit themeCubit,
   }) : _authService = authService,
        _databaseService = databaseService,
        _storageService = storageService,
        _subscriptionService = subscriptionService,
-       super(BuilderInitial());
+       _themeCubit = themeCubit,
+       super(BuilderInitial()) {
+    _themeSubscription = _themeCubit.stream.listen((theme) {
+      if (_suppressHistoryFromTheme) return;
+      final currentState = state;
+      if (currentState is BuilderLoaded) {
+        _emitDirty(currentState.copyWith(theme: theme));
+      }
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _themeSubscription?.cancel();
+    return super.close();
+  }
 
   void _saveToHistory(BuilderLoaded state) {
     if (_historyIndex < _history.length - 1) {
@@ -100,10 +120,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
 
     _historyIndex--;
     final snapshot = jsonDecode(_history[_historyIndex]);
+    final restoredTheme = LandingPageTheme.fromJson(snapshot['theme']);
+    _suppressHistoryFromTheme = true;
+    _themeCubit.replaceTheme(restoredTheme);
+    _suppressHistoryFromTheme = false;
     _emitDirty(
       currentState.copyWith(
         designMap: snapshot['designMap'],
-        theme: LandingPageTheme.fromJson(snapshot['theme']),
+        theme: restoredTheme,
       ),
       isClean: false,
       skipHistory: true,
@@ -117,10 +141,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
 
     _historyIndex++;
     final snapshot = jsonDecode(_history[_historyIndex]);
+    final restoredTheme = LandingPageTheme.fromJson(snapshot['theme']);
+    _suppressHistoryFromTheme = true;
+    _themeCubit.replaceTheme(restoredTheme);
+    _suppressHistoryFromTheme = false;
     _emitDirty(
       currentState.copyWith(
         designMap: snapshot['designMap'],
-        theme: LandingPageTheme.fromJson(snapshot['theme']),
+        theme: restoredTheme,
       ),
       isClean: false,
       skipHistory: true,
@@ -407,6 +435,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       }
     }
 
+    if (newTheme != null) {
+      _themeCubit.replaceTheme(newTheme);
+    }
     _emitDirty(
       currentState.copyWith(
         designMap: newDesignMap,
@@ -449,13 +480,15 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _history.clear();
     _historyIndex = -1;
 
+    final initialTheme = LandingPageTheme.palettes.last;
+    _themeCubit.replaceTheme(initialTheme);
     _emitDirty(
       BuilderLoaded(
         designMap: {'blocks': []},
         subdomain: '',
         isPublished: false,
         websiteType: 'landing_page',
-        theme: LandingPageTheme.palettes.last,
+        theme: initialTheme,
       ),
       isClean: true,
     );
@@ -494,6 +527,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       }
     }
 
+    final loadedTheme = designMap['theme'] != null
+        ? LandingPageTheme.fromJson(designMap['theme'])
+        : LandingPageTheme.palettes.last;
+    _themeCubit.replaceTheme(loadedTheme);
     _emitDirty(
       BuilderLoaded(
         pageId: pageId,
@@ -502,9 +539,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         customDomain: customDomain,
         isPublished: isPublished,
         websiteType: websiteType,
-        theme: designMap['theme'] != null
-            ? LandingPageTheme.fromJson(designMap['theme'])
-            : LandingPageTheme.palettes.last,
+        theme: loadedTheme,
       ),
       isClean: true,
     );
@@ -963,69 +998,6 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
-  void updateTheme(LandingPageTheme theme) {
-    final currentState = state;
-    if (currentState is! BuilderLoaded) return;
-    _emitDirty(currentState.copyWith(theme: theme));
-  }
-
-  void updateThemeProperty(String key, dynamic value) {
-    final currentState = state;
-    if (currentState is! BuilderLoaded) return;
-
-    LandingPageTheme newTheme;
-
-    if (value is Color) {
-      switch (key) {
-        case 'primary':
-          newTheme = currentState.theme.copyWith(primary: value);
-          break;
-        case 'secondary':
-          newTheme = currentState.theme.copyWith(secondary: value);
-          break;
-        case 'background':
-          newTheme = currentState.theme.copyWith(background: value);
-          break;
-        case 'textPrimary':
-          newTheme = currentState.theme.copyWith(textPrimary: value);
-          break;
-        case 'textSecondary':
-          newTheme = currentState.theme.copyWith(textSecondary: value);
-          break;
-        case 'buttonTextColor':
-        case 'button_text_color':
-          newTheme = currentState.theme.copyWith(buttonTextColor: value);
-          break;
-        default:
-          return;
-      }
-    } else if (value is String || value == null) {
-      switch (key) {
-        case 'defaultFont':
-          newTheme = currentState.theme.copyWith(defaultFont: value as String?);
-          break;
-        case 'globalBgImageUrl':
-          newTheme = currentState.theme.copyWith(
-            globalBgImageUrl: value as String?,
-            clearBgImage: value == null,
-          );
-          break;
-        case 'globalBgColorHex':
-          newTheme = currentState.theme.copyWith(
-            globalBgColorHex: value as String?,
-            clearBgColor: value == null,
-          );
-          break;
-        default:
-          return;
-      }
-    } else {
-      return;
-    }
-
-    _emitDirty(currentState.copyWith(theme: newTheme));
-  }
-
   void applyTemplate(String templateType) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1033,6 +1005,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final newDesign = TemplateRegistry.getTemplateDesign(templateType);
     final newTheme = TemplateRegistry.getTemplateTheme(templateType);
 
+    _themeCubit.replaceTheme(newTheme);
     _emitDirty(
       currentState.copyWith(
         designMap: newDesign,

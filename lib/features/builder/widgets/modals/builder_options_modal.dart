@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
+import '../../../../core/utils/toast_service.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 import '../tabs/builder_sidebar_tabs.dart';
@@ -301,26 +303,60 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
         const Divider(color: AppColors.border, height: 32),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-              widget.onPublish();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              elevation: 4,
-              shadowColor: AppColors.primary.withValues(alpha: 0.4),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  widget.cubit.updateSettings(isPublished: true);
+                  widget.cubit.saveForCurrentUser();
+                  ToastService.showSuccess(
+                    context,
+                    message: context.read<LocalizationCubit>().translate('publish_success'),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.activeGreen,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 4,
+                  shadowColor: AppColors.activeGreen.withValues(alpha: 0.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                icon: const Icon(Icons.rocket_launch_rounded),
+                label: Text(
+                  "نشر الصفحة (Publish)",
+                  style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+                ),
               ),
-            ),
-            icon: const Icon(Icons.rocket_launch_rounded),
-            label: Text(
-              "حفظ ونشر التغييرات",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
-            ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  widget.cubit.saveForCurrentUser();
+                  ToastService.showSuccess(
+                    context,
+                    message: context.read<LocalizationCubit>().translate('save_draft_success'),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.textPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: const BorderSide(color: AppColors.border),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                icon: const Icon(Icons.save_rounded),
+                label: Text(
+                  "حفظ كمسودة (Save Draft)",
+                  style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 24),

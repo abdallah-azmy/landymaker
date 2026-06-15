@@ -244,5 +244,14 @@ const Map<String, String> translationsEn = {
   'anim_slideRight': 'Slide Right',
   'anim_zoomIn': 'Zoom In',
   'anim_bounceIn': 'Bounce In',
+  'settings': 'Settings',
+  'notifications_settings': 'Notification Settings',
+  'enable_notifications': 'Enable Notifications',
+  'enable_notifications_desc': 'Receive instant notifications when new leads or orders arrive.',
+  'install_app': 'Install App',
+  'install_app_desc': 'Install the dashboard as an app on your device for quick access.',
+  'install_now': 'Install Now',
+  'app_already_installed': 'App already installed ✅',
+  'notifications_permission_denied': 'Notification permission denied. Please enable it in your browser settings.',
 };
 

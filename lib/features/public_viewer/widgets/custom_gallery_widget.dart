@@ -64,7 +64,10 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
           bgOverlayOpacity: widget.bgOverlayOpacity,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical: verticalPadding,
+            horizontal: 24,
+          ),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -72,11 +75,14 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
                 children: [
                   Text(
                     widget.title,
-                    style: AppTypography.h2.copyWith(color: textColor, fontSize: isMobile ? 24 : 32),
+                    style: AppTypography.h2.copyWith(
+                      color: textColor,
+                      fontSize: isMobile ? 24 : 32,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: isMobile ? 32 : 64),
-                  
+
                   if (widget.displayMode == 'carousel')
                     _buildCarousel(secondaryColor, subTextColor, isMobile)
                   else
@@ -90,7 +96,11 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
     );
   }
 
-  Widget _buildCarousel(Color secondaryColor, Color subTextColor, bool isMobile) {
+  Widget _buildCarousel(
+    Color secondaryColor,
+    Color subTextColor,
+    bool isMobile,
+  ) {
     if (widget.items.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -106,7 +116,9 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
                 onPageChanged: (index) => setState(() => _currentIndex = index),
                 itemBuilder: (context, index) {
                   final String url = widget.items[index];
-                  final String? linkUrl = widget.galleryLinks != null && widget.galleryLinks!.length > index
+                  final String? linkUrl =
+                      widget.galleryLinks != null &&
+                          widget.galleryLinks!.length > index
                       ? widget.galleryLinks![index]
                       : null;
 
@@ -122,26 +134,32 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
                 },
               ),
             ),
-            
+
             // Navigation Buttons
             if (!isMobile) ...[
               Positioned(
                 left: 0,
                 child: _buildNavButton(Icons.arrow_back_ios_rounded, () {
-                  _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                  _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
                 }),
               ),
               Positioned(
                 right: 0,
                 child: _buildNavButton(Icons.arrow_forward_ios_rounded, () {
-                  _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
                 }),
               ),
             ],
           ],
         ),
         const SizedBox(height: 24),
-        
+
         // Indicators & Counter
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -149,17 +167,23 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
             // Left Arrow for Mobile
             if (isMobile)
               _buildNavButton(Icons.arrow_back_ios_rounded, () {
-                _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                _pageController.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
               }, small: true),
-            
+
             const SizedBox(width: 16),
-            
+
             // Counter and Dots
             Column(
               children: [
                 Text(
                   "${_currentIndex + 1} / ${widget.items.length}",
-                  style: AppTypography.caption.copyWith(color: secondaryColor, fontWeight: FontWeight.bold),
+                  style: AppTypography.caption.copyWith(
+                    color: secondaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -171,7 +195,9 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
                       height: 8,
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
-                        color: _currentIndex == index ? secondaryColor : subTextColor.withValues(alpha: 0.3),
+                        color: _currentIndex == index
+                            ? secondaryColor
+                            : subTextColor.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     );
@@ -179,13 +205,16 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
                 ),
               ],
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             // Right Arrow for Mobile
             if (isMobile)
               _buildNavButton(Icons.arrow_forward_ios_rounded, () {
-                _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                _pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
               }, small: true),
           ],
         ),
@@ -193,7 +222,11 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
     );
   }
 
-  Widget _buildNavButton(IconData icon, VoidCallback onTap, {bool small = false}) {
+  Widget _buildNavButton(
+    IconData icon,
+    VoidCallback onTap, {
+    bool small = false,
+  }) {
     return Material(
       color: Colors.black.withValues(alpha: 0.5),
       borderRadius: BorderRadius.circular(small ? 12 : 16),
@@ -208,7 +241,11 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
     );
   }
 
-  Widget _buildGrid(BuildContext context, Color subTextColor, BoxConstraints constraints) {
+  Widget _buildGrid(
+    BuildContext context,
+    Color subTextColor,
+    BoxConstraints constraints,
+  ) {
     final int columnCount = ResponsiveUtils.getContentColumns(
       constraints.maxWidth,
       desktop: widget.gridColumns,
@@ -219,8 +256,10 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
     final List<Widget> rows = [];
     for (int i = 0; i < widget.items.length; i += columnCount) {
       final rowItems = widget.items.sublist(
-        i, 
-        (i + columnCount > widget.items.length) ? widget.items.length : i + columnCount
+        i,
+        (i + columnCount > widget.items.length)
+            ? widget.items.length
+            : i + columnCount,
       );
 
       Widget rowWidget = Row(
@@ -228,14 +267,18 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
         children: List.generate(columnCount, (colIndex) {
           if (colIndex < rowItems.length) {
             final String url = rowItems[colIndex];
-            final String? linkUrl = widget.galleryLinks != null && widget.galleryLinks!.length > (i + colIndex)
+            final String? linkUrl =
+                widget.galleryLinks != null &&
+                    widget.galleryLinks!.length > (i + colIndex)
                 ? widget.galleryLinks![i + colIndex]
                 : null;
             final isLastInRow = colIndex == columnCount - 1;
 
             return Expanded(
               child: Padding(
-                padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : 16.0),
+                padding: EdgeInsetsDirectional.only(
+                  end: isLastInRow ? 0 : 16.0,
+                ),
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: Container(
@@ -265,7 +308,7 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
 
   Widget _buildGalleryImage(String url, String? linkUrl, Color subTextColor) {
     final bool hasLink = linkUrl != null && linkUrl.isNotEmpty;
-    
+
     if (hasLink) {
       return _HoverableGalleryItem(
         url: url,
@@ -273,11 +316,8 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
         subTextColor: subTextColor,
       );
     }
-    
-    return CustomNetworkImage(
-      imageUrl: url,
-      fit: BoxFit.cover,
-    );
+
+    return CustomNetworkImage(imageUrl: url, fit: BoxFit.cover);
   }
 }
 
@@ -328,8 +368,8 @@ class _HoverableGalleryItemState extends State<_HoverableGalleryItem> {
             Positioned.fill(
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                color: _isHovered 
-                    ? Colors.black.withValues(alpha: 0.35) 
+                color: _isHovered
+                    ? Colors.black.withValues(alpha: 0.35)
                     : Colors.transparent,
                 child: Center(
                   child: AnimatedOpacity(

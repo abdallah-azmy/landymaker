@@ -260,5 +260,14 @@ const Map<String, String> translationsAr = {
   'add_step': 'إضافة خطوة',
   'add_stat': 'إضافة إحصائية',
   'add_member': 'إضافة عضو',
+  'settings': 'الإعدادات',
+  'notifications_settings': 'إعدادات الإشعارات',
+  'enable_notifications': 'تفعيل الإشعارات',
+  'enable_notifications_desc': 'استلام إشعارات فورية عند وصول عملاء جدد أو طلبات جديدة.',
+  'install_app': 'تثبيت التطبيق',
+  'install_app_desc': 'قم بتثبيت لوحة التحكم كتطبيق على جهازك للوصول السريع.',
+  'install_now': 'تثبيت الآن',
+  'app_already_installed': 'التطبيق مثبت بالفعل ✅',
+  'notifications_permission_denied': 'تم رفض إذن الإشعارات. يرجى تفعيله من إعدادات المتصفح.',
 };
 

@@ -31,6 +31,7 @@ import '../../features/dashboard/screens/analytics_screen.dart';
 import '../../features/dashboard/screens/product_feed_screen.dart';
 import '../../features/dashboard/screens/domain_settings_screen.dart';
 import '../../features/dashboard/screens/media_gallery_screen.dart';
+import '../../features/dashboard/screens/settings_screen.dart';
 import '../../features/super_admin/screens/super_admin_panel_screen.dart';
 import '../../features/super_admin/screens/platform_seo_screen.dart';
 import '../../features/blog_admin/screens/blog_management_screen.dart';
@@ -144,6 +145,14 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/dashboard/domain',
               builder: (context, state) => const DomainSettingsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/settings',
+              builder: (context, state) => const SettingsScreen(),
             ),
           ],
         ),

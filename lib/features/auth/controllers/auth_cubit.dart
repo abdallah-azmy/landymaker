@@ -17,6 +17,7 @@ class AuthCubit extends Cubit<AuthState> {
     if (isClosed) return;
     if (_authService.isAuthenticated) {
       // Trigger token sync if they are already authenticated at startup
+      // (permission already granted on first login)
       FcmService.saveTokenIfPossible();
       
       emit(Authenticated(
@@ -45,8 +46,8 @@ class AuthCubit extends Cubit<AuthState> {
         password: password,
       );
       if (success) {
-        // Sync FCM token upon login
-        await FcmService.saveTokenIfPossible();
+        // Request notification permission and sync FCM token upon login
+        await FcmService.requestPermission();
 
         emit(Authenticated(
           userId: _authService.currentUserId!,
@@ -74,8 +75,8 @@ class AuthCubit extends Cubit<AuthState> {
         fullName: fullName,
       );
       if (success) {
-        // Sync FCM token upon registration
-        await FcmService.saveTokenIfPossible();
+        // Request notification permission and sync FCM token upon registration
+        await FcmService.requestPermission();
 
         emit(Authenticated(
           userId: _authService.currentUserId!,

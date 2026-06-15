@@ -1,3 +1,4 @@
+import 'dart:html' as html;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -7,14 +8,47 @@ import '../utils/env_utils.dart';
 class FcmService {
   static bool _isInitialized = false;
 
-  /// Initialize Firebase and FCM
-  static Future<void> initialize() async {
+  static bool _notificationsEnabled = true;
+
+  static bool get notificationsEnabled => _notificationsEnabled;
+
+  /// Load preference from localStorage
+  static void _loadPreference() {
+    if (!kIsWeb) return;
+    try {
+      final val = html.window.localStorage['fcm_notifications_enabled'];
+      _notificationsEnabled = val != 'false';
+    } catch (_) {
+      _notificationsEnabled = true;
+    }
+  }
+
+  /// Save preference to localStorage
+  static void setNotificationsEnabled(bool value) {
+    _notificationsEnabled = value;
+    if (!kIsWeb) return;
+    try {
+      html.window.localStorage['fcm_notifications_enabled'] =
+          value.toString();
+    } catch (_) {}
+  }
+
+  static bool get isPermissionGranted {
+    if (!kIsWeb || !_isInitialized) return false;
+    try {
+      return html.window.localStorage['fcm_permission_granted'] == 'true';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Initialize Firebase app only — does NOT request permission
+  static Future<void> init() async {
     if (!kIsWeb) return;
 
     try {
       final String apiKey = EnvUtils.firebaseApiKey;
 
-      // Safety Guard: If API Key is missing from environment, don't try to initialize Firebase
       if (apiKey.isEmpty) {
         debugPrint(
           'FCM: FIREBASE_API_KEY is missing from environment. Initialization aborted.',
@@ -37,18 +71,7 @@ class FcmService {
       }
 
       _isInitialized = true;
-      final messaging = FirebaseMessaging.instance;
-
-      // Request permission
-      final settings = await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        await saveTokenIfPossible();
-      }
+      _loadPreference();
 
       // Listen for foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -58,11 +81,47 @@ class FcmService {
       });
 
       // Listen for token refresh
-      messaging.onTokenRefresh.listen((newToken) {
+      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
         _saveTokenToDatabase(newToken);
       });
     } catch (e) {
       debugPrint('FCM Error during initialization: $e');
+    }
+  }
+
+  /// Request notification permission and save token if granted
+  static Future<bool> requestPermission() async {
+    if (!kIsWeb || !_isInitialized) return false;
+
+    if (!_notificationsEnabled) {
+      debugPrint('FCM: Notifications disabled by user preference.');
+      return false;
+    }
+
+    try {
+      final messaging = FirebaseMessaging.instance;
+
+      final settings = await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      final granted =
+          settings.authorizationStatus == AuthorizationStatus.authorized;
+
+      if (granted) {
+        try {
+          html.window.localStorage['fcm_permission_granted'] = 'true';
+        } catch (_) {}
+
+        await saveTokenIfPossible();
+      }
+
+      return granted;
+    } catch (e) {
+      debugPrint('FCM Error requesting permission: $e');
+      return false;
     }
   }
 

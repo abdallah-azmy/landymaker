@@ -119,6 +119,37 @@
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
 
+  <!-- PWA Install Prompt Handler -->
+  <script>
+    window.landyPwaDeferredPrompt = null;
+    window.landyPwaIsInstallAvailable = false;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      window.landyPwaDeferredPrompt = e;
+      window.landyPwaIsInstallAvailable = true;
+      console.log('[PWA] Install prompt available');
+    });
+
+    window.addEventListener('appinstalled', () => {
+      window.landyPwaDeferredPrompt = null;
+      window.landyPwaIsInstallAvailable = false;
+      console.log('[PWA] App installed');
+    });
+
+    window.landyPwaInstall = function() {
+      const prompt = window.landyPwaDeferredPrompt;
+      if (prompt) {
+        prompt.prompt();
+        window.landyPwaDeferredPrompt = null;
+        window.landyPwaIsInstallAvailable = false;
+        prompt.userChoice.then((choiceResult) => {
+          console.log('[PWA] User choice:', choiceResult.outcome);
+        });
+      }
+    };
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

@@ -34,6 +34,7 @@ import 'package:toastification/toastification.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/seo/app_seo.dart';
 import 'core/services/fcm_service.dart';
+import 'core/services/pwa_install_service.dart';
 import 'services/supabase_service.dart';
 import 'services/tenant_routing_service.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
@@ -61,13 +62,16 @@ void main() async {
     // Initialize all dependencies via GetIt Service Locator
     await initDependencies();
 
-    // Initialize FCM (Web Push) - ONLY if not in public viewer mode
+    // Initialize FCM (Web Push) - init only (no permission request)
     if (kIsWeb) {
       final routeMode = TenantRoutingService.getRouteMode();
       if (routeMode != RouteMode.publicViewer) {
-        await FcmService.initialize();
+        await FcmService.init();
       }
     }
+
+    // Initialize PWA Install Service
+    PwaInstallService.init();
 
     runApp(const LandyMakerApp());
   } catch (e) {

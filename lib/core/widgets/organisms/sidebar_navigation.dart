@@ -89,6 +89,8 @@ class SidebarNavigation extends StatelessWidget {
           : '/builder';
       finalItems.add({'title_key': 'hero', 'icon': Icons.construction_rounded, 'is_builder': true, 'route': builderRoute});
       finalItems.add({'title_key': 'custom_domain_menu', 'icon': Icons.language_rounded, 'route': '/dashboard/domain'});
+      finalItems.add({'is_divider': true});
+      finalItems.add({'title_key': 'settings', 'icon': Icons.settings_rounded, 'route': '/dashboard/settings'});
     }
 
     return Container(

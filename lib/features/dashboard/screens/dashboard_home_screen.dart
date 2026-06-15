@@ -13,7 +13,6 @@ import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/molecules/page_stat_card.dart';
 import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
-import '../../builder/controllers/builder_cubit.dart';
 import '../../../core/utils/toast_service.dart';
 
 class DashboardHomeScreen extends StatefulWidget {
@@ -489,7 +488,6 @@ class _PageItemCardState extends State<_PageItemCard> {
         children: [
           InkWell(
             onTap: () {
-              context.read<LandingPageBuilderCubit>().loadPageById(page['id']);
               widget.onOpenBuilder(page['id']);
             },
             child: Padding(
@@ -552,9 +550,6 @@ class _PageItemCardState extends State<_PageItemCard> {
                   const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      context.read<LandingPageBuilderCubit>().loadPageById(
-                        page['id'],
-                      );
                       widget.onOpenBuilder(page['id']);
                     },
                     borderRadius: BorderRadius.circular(12),

@@ -6,9 +6,12 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/toast_service.dart';
 import '../ai_chat_input.dart';
 import 'pixabay_selector_modal.dart';
+import 'image_picker_modal.dart';
 import 'package:landymaker/features/builder/controllers/ai_generation_cubit.dart';
 import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
 import 'package:landymaker/features/builder/controllers/builder_state.dart';
+import 'package:landymaker/features/builder/controllers/upload_manager_cubit.dart';
+import 'package:landymaker/features/builder/models/selected_image_data.dart';
 
 class AIChatModal extends StatefulWidget {
   final String? currentPath;
@@ -21,6 +24,7 @@ class AIChatModal extends StatefulWidget {
 class _AIChatModalState extends State<AIChatModal> {
   final List<Map<String, String>> _chatHistory = [];
   final ScrollController _scrollController = ScrollController();
+  final List<String> _uploadedImages = [];
 
   @override
   void initState() {
@@ -84,6 +88,47 @@ class _AIChatModalState extends State<AIChatModal> {
         );
       }
     });
+  }
+
+  Future<void> _handleImageUpload(String type) async {
+    final imageData = await ImagePickerModal.show(context);
+    if (imageData == null || !mounted) return;
+
+    final uploadCubit = context.read<UploadManagerCubit>();
+    final aiCubit = context.read<AIGenerationCubit>();
+
+    String? finalUrl;
+
+    if (imageData.source == SelectedImageSource.url) {
+      finalUrl = imageData.url;
+    } else {
+      String? uploadedUrl;
+      await uploadCubit.upload(
+        data: imageData,
+        onSuccess: (url) => uploadedUrl = url,
+      );
+      finalUrl = uploadedUrl;
+    }
+
+    if (finalUrl == null || !mounted) return;
+
+    setState(() {
+      _uploadedImages.add(finalUrl!);
+      final label = type == 'logo' ? 'شعار' : 'صورة';
+      _chatHistory.add({
+        'role': 'user',
+        'content': '📎 تم رفع $label',
+        'imageUrl': finalUrl,
+      });
+    });
+    _scrollToBottom();
+
+    // Add image context to AI session
+    final contextMsg = type == 'logo'
+        ? "لقد قمت برفع شعار. حلل ألوانه وأسلوبه وطبق ثيم مستوحى منه على الصفحة. رابط الشعار: $finalUrl"
+        : "لقد قمت برفع صورة أصول. يمكنك استخدامها في التصميم. رابط الصورة: $finalUrl";
+    aiCubit.session.addMessage('user', contextMsg);
+    ToastService.showSuccess(context, message: "تم رفع $label بنجاح");
   }
 
   void _showPixabayPicker(AIGenerationPixabaySelection state) {
@@ -187,7 +232,7 @@ class _AIChatModalState extends State<AIChatModal> {
                   itemCount: _chatHistory.length,
                   itemBuilder: (context, index) {
                     final msg = _chatHistory[index];
-                    return _buildMessageBubble(msg['role']!, msg['content']!);
+                    return _buildMessageBubble(msg);
                   },
                 ),
               ),
@@ -196,6 +241,7 @@ class _AIChatModalState extends State<AIChatModal> {
                 padding: const EdgeInsets.all(16.0),
                 child: AIChatInput(
                   isLoading: isLoading,
+                  onImageUpload: (type) => _handleImageUpload(type),
                   onSend: (msg) {
                     _addUserMessage(msg);
                     context.read<AIGenerationCubit>().processUserMessage(msg);
@@ -234,7 +280,10 @@ class _AIChatModalState extends State<AIChatModal> {
     );
   }
 
-  Widget _buildMessageBubble(String role, String content) {
+  Widget _buildMessageBubble(Map<String, String> msg) {
+    final String role = msg['role']!;
+    final String content = msg['content']!;
+    final String? imageUrl = msg['imageUrl'];
     final bool isUser = role == 'user';
     return Align(
       alignment: isUser ? Alignment.centerLeft : Alignment.centerRight,
@@ -254,12 +303,31 @@ class _AIChatModalState extends State<AIChatModal> {
           ),
           border: isUser ? null : Border.all(color: AppColors.border),
         ),
-        child: Text(
-          content,
-          style: AppTypography.bodyMedium.copyWith(
-            color: isUser ? Colors.white : AppColors.textPrimary,
-          ),
-          textDirection: TextDirection.rtl,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              content,
+              style: AppTypography.bodyMedium.copyWith(
+                color: isUser ? Colors.white : AppColors.textPrimary,
+              ),
+              textDirection: TextDirection.rtl,
+            ),
+            if (imageUrl != null && imageUrl.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  imageUrl,
+                  width: 160,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

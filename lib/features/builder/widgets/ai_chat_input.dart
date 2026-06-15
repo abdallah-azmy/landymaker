@@ -5,11 +5,13 @@ import '../../../core/theme/app_typography.dart';
 class AIChatInput extends StatefulWidget {
   final Function(String) onSend;
   final bool isLoading;
+  final Function(String type)? onImageUpload;
 
   const AIChatInput({
     super.key,
     required this.onSend,
     this.isLoading = false,
+    this.onImageUpload,
   });
 
   @override
@@ -21,10 +23,10 @@ class _AIChatInputState extends State<AIChatInput> {
   final FocusNode _focusNode = FocusNode();
 
   final List<String> _examplePrompts = [
-    "أنشئ صفحة لنادي رياضي",
-    "أملك عيادة أسنان",
-    "اجعل قسم الهيرو باللون الأسود",
-    "استبدل الصور بصور أطباء",
+    "أنشئ صفحة هبوط احترافية لشركة برمجيات (SaaS) مع ثيم عصري وأقسام مميزات وأسعار",
+    "صمم متجر إلكتروني مع قسم منتجات وسلة شراء وثيم جذاب للتجارة الإلكترونية",
+    "ولّد صفحة هبوط عالية التحويل لوكالة عقارية فاخرة مع ثيم داكن بريميوم ومعرض صور",
+    "حوّل صفحتي إلى تصميم مظلم (Dark Mode) مع ألوان ذهبية وأنيميشن انزلاق للأقسام",
   ];
 
   @override
@@ -46,6 +48,7 @@ class _AIChatInputState extends State<AIChatInput> {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (_controller.text.isEmpty && !widget.isLoading) _buildExamplePrompts(),
+        if (widget.onImageUpload != null) _buildUploadButtons(),
         const SizedBox(height: 12),
         _buildInputField(),
       ],
@@ -77,6 +80,28 @@ class _AIChatInputState extends State<AIChatInput> {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildUploadButtons() {
+    if (widget.onImageUpload == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8, left: 12, right: 12),
+      child: Row(
+        children: [
+          _UploadChip(
+            icon: Icons.badge_rounded,
+            label: "شعار",
+            onTap: () => widget.onImageUpload!('logo'),
+          ),
+          const SizedBox(width: 8),
+          _UploadChip(
+            icon: Icons.image_rounded,
+            label: "صور",
+            onTap: () => widget.onImageUpload!('asset'),
+          ),
+        ],
       ),
     );
   }
@@ -145,6 +170,38 @@ class _AIChatInputState extends State<AIChatInput> {
                 size: 20,
               ),
       ),
+    );
+  }
+}
+
+class _UploadChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _UploadChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      avatar: Icon(icon, size: 16, color: AppColors.primary),
+      label: Text(
+        label,
+        style: AppTypography.caption.copyWith(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+      ),
+      onPressed: onTap,
     );
   }
 }

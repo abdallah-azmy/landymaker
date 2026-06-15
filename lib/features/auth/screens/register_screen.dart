@@ -11,6 +11,8 @@ import '../../../core/widgets/atoms/social_sign_in_button.dart';
 import '../../../core/widgets/molecules/form_group.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/utils/toast_service.dart';
+import '../../../features/builder/controllers/builder_cubit.dart';
+import '../../../features/builder/controllers/builder_state.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
 
@@ -37,6 +39,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
       password: _passwordController.text,
       fullName: _nameController.text.trim(),
     );
+  }
+
+  Future<void> _claimGuestPage(BuildContext context, String userId) async {
+    final builderCubit = context.read<LandingPageBuilderCubit>();
+    if (builderCubit.state is BuilderLoaded) {
+      final pageId = await builderCubit.claimGuestDesign(userId);
+      if (pageId != null) {
+        if (!context.mounted) return;
+        ToastService.showSuccess(
+          context,
+          message: "تم حفظ صفحتك! يمكنك متابعة التعديل الآن.",
+        );
+        context.go('/builder/$pageId');
+        return;
+      }
+    }
+    if (!context.mounted) return;
+    if (widget.onRegisterSuccess != null) {
+      widget.onRegisterSuccess!();
+    } else {
+      context.go('/');
+    }
   }
 
   @override
@@ -121,11 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
-              if (widget.onRegisterSuccess != null) {
-                widget.onRegisterSuccess!();
-              } else {
-                context.go('/');
-              }
+              _claimGuestPage(context, state.userId);
             } else if (state is RegistrationSuccess) {
               ToastService.showSuccess(
                 context,

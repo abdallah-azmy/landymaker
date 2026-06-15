@@ -142,6 +142,77 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     await savePage(userId);
   }
 
+  /// Claim a guest's in-memory design after registration:
+  /// generates a random slug (site-xxxxx) and saves to DB.
+  Future<String?> claimGuestDesign(String userId) async {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return null;
+
+    // Generate random slug if none set
+    String slug = currentState.subdomain.trim();
+    if (slug.isEmpty) {
+      const String prefix = 'site-';
+      final String random = const Uuid().v4().substring(0, 8);
+      slug = '$prefix$random';
+    }
+
+    final String sanitized = slug
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+
+    // Check route availability
+    final isAvailable = await _databaseService.isRouteAvailable(
+      sanitized,
+      excludePageId: currentState.pageId,
+    );
+    if (!isAvailable) {
+      // Fallback: retry with a different random suffix
+      final String retrySlug = 'site-${const Uuid().v4().substring(0, 8)}';
+      final retryAvailable = await _databaseService.isRouteAvailable(retrySlug);
+      if (!retryAvailable) return null;
+      return _saveGuestDesign(userId, retrySlug, currentState);
+    }
+
+    return _saveGuestDesign(userId, sanitized, currentState);
+  }
+
+  Future<String?> _saveGuestDesign(
+    String userId,
+    String subdomain,
+    BuilderLoaded currentState,
+  ) async {
+    try {
+      final Map<String, dynamic> finalDesign = Map<String, dynamic>.from(
+        currentState.designMap,
+      );
+      finalDesign['theme'] = currentState.theme.toJson();
+
+      final savedPageId = await _databaseService.saveLandingPage(
+        userId: userId,
+        subdomain: subdomain,
+        customDomain: currentState.customDomain,
+        designMap: finalDesign,
+        isPublished: currentState.isPublished,
+        websiteType: currentState.websiteType,
+        pageId: null,
+      );
+
+      if (savedPageId != null) {
+        _emitDirty(
+          currentState.copyWith(
+            pageId: savedPageId,
+            subdomain: subdomain,
+          ),
+          isClean: true,
+        );
+      }
+      return savedPageId;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> loadPageForUser(String userId) async {
     emit(BuilderLoading());
     try {

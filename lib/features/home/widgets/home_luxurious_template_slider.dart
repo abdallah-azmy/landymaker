@@ -161,23 +161,23 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
                 ),
               ),
 
-              // Navigation Buttons (Desktop Only or visible on mobile if needed)
-              if (!isMobile) ...[
-                Positioned(
-                  left: 40,
-                  child: _NavigationButton(
-                    icon: Icons.arrow_back_ios_new_rounded,
-                    onPressed: loc.isRtl ? _nextPage : _prevPage,
-                  ),
+              // Navigation Buttons (visible on all screen sizes)
+              Positioned(
+                left: isMobile ? 4 : 40,
+                child: _NavigationButton(
+                  icon: Icons.arrow_back_ios_new_rounded,
+                  onPressed: loc.isRtl ? _nextPage : _prevPage,
+                  isMobile: isMobile,
                 ),
-                Positioned(
-                  right: 40,
-                  child: _NavigationButton(
-                    icon: Icons.arrow_forward_ios_rounded,
-                    onPressed: loc.isRtl ? _prevPage : _nextPage,
-                  ),
+              ),
+              Positioned(
+                right: isMobile ? 4 : 40,
+                child: _NavigationButton(
+                  icon: Icons.arrow_forward_ios_rounded,
+                  onPressed: loc.isRtl ? _prevPage : _nextPage,
+                  isMobile: isMobile,
                 ),
-              ],
+              ),
             ],
           ),
 
@@ -353,26 +353,34 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
 class _NavigationButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
+  final bool isMobile;
 
-  const _NavigationButton({required this.icon, required this.onPressed});
+  const _NavigationButton({
+    required this.icon,
+    required this.onPressed,
+    this.isMobile = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final double size = isMobile ? 44 : 60;
+    final double iconSize = isMobile ? 18 : 24;
+    final double borderRadius = isMobile ? 14 : 20;
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(borderRadius),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: InkWell(
           onTap: onPressed,
           child: Container(
-            width: 60,
-            height: 60,
+            width: size,
+            height: size,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
             ),
-            child: Icon(icon, color: Colors.white, size: 24),
+            child: Icon(icon, color: Colors.white, size: iconSize),
           ),
         ),
       ),

@@ -119,14 +119,29 @@ class AIConversationSession {
   }
 
   Map<String, dynamic> getContextForAI(Map<String, dynamic> currentDesign) {
-    final List<String> sectionTypes = (currentDesign['blocks'] as List? ?? [])
+    final blocks = currentDesign['blocks'] as List? ?? [];
+    final List<String> sectionTypes = blocks
         .map((block) => (block['type'] as String? ?? 'unknown'))
         .toList();
-    
+
+    // Include per-block background & animation context for AI editing
+    final List<Map<String, dynamic>> sectionDetails = [];
+    for (int i = 0; i < blocks.length; i++) {
+      final block = blocks[i];
+      sectionDetails.add({
+        'type': block['type'],
+        'index': i,
+        'bg_image_url': block['bg_image_url'],
+        'animation_type': block['animation']?['type'],
+        'is_visible': block['is_visible'] ?? true,
+      });
+    }
+
     final theme = (currentDesign['global_theme'] ?? currentDesign['theme']) as Map<String, dynamic>?;
     final Map<String, dynamic> snapshot = {
       'sections': sectionTypes,
       'section_count': sectionTypes.length,
+      'section_details': sectionDetails,
       'theme': theme != null ? {
         'primary': theme['primary'],
         'secondary': theme['secondary'],
@@ -136,6 +151,7 @@ class AIConversationSession {
         'font_family': theme['font_family'],
         'button_text_color': theme['button_text_color'],
         'globalBgColorHex': theme['globalBgColorHex'],
+        'globalBgImageUrl': theme['globalBgImageUrl'],
       } : {},
     };
 

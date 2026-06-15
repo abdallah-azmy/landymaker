@@ -13,6 +13,7 @@ class CustomGalleryWidget extends StatefulWidget {
   final List<String>? galleryLinks;
   final String displayMode; // 'grid' or 'carousel'
   final int gridColumns;
+  final int mobileColumns;
   final LandingPageTheme? theme;
   final String? bgImageUrl;
   final String? bgOverlayColor;
@@ -26,6 +27,7 @@ class CustomGalleryWidget extends StatefulWidget {
     this.galleryLinks,
     this.displayMode = 'grid',
     this.gridColumns = 3,
+    this.mobileColumns = 1,
     this.theme,
     this.bgImageUrl,
     this.bgOverlayColor,
@@ -250,7 +252,7 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
       constraints.maxWidth,
       desktop: widget.gridColumns,
       tablet: widget.gridColumns > 1 ? 2 : 1,
-      mobile: 1,
+      mobile: widget.mobileColumns,
     );
 
     final List<Widget> rows = [];

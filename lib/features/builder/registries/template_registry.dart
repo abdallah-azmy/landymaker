@@ -35,15 +35,15 @@ class TemplateRegistry {
           'Use when the user explicitly wants a blank page or a fully custom layout.',
     ),
     TemplateMetadata(
-      id: 'barber_shop',
-      name: 'Barber Shop',
-      description: 'Classic barber shop layout with pricing and hours.',
+      id: 'saas_startup',
+      name: 'SaaS Startup',
+      description: 'Modern SaaS landing page with features, pricing, and testimonials.',
       imageUrl:
-          'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
-      category: 'local_services',
-      recommendedSections: ['hero', 'working_hours', 'pricing', 'whatsapp'],
+          'https://cdn.pixabay.com/photo/2021/09/23/11/19/dashboard-6649784_1280.jpg',
+      category: 'technology',
+      recommendedSections: ['hero_saas', 'features', 'pricing', 'testimonials', 'contact_info'],
       aiPromptHint:
-          'Use for barbers, grooming studios, appointment services, and local walk-in businesses.',
+          'Use for software startups, SaaS products, mobile apps, tech services, and digital platforms.',
     ),
     TemplateMetadata(
       id: 'store',
@@ -337,8 +337,8 @@ class TemplateRegistry {
   /// Get initial design JSON for a template type
   static Map<String, dynamic> getTemplateDesign(String templateType) {
     switch (templateType) {
-      case 'barber_shop':
-        return _getBarberShopTemplate();
+      case 'saas_startup':
+        return _getSaaSStartupTemplate();
       case 'store':
         return _getStoreTemplate();
       case 'personal':
@@ -385,9 +385,9 @@ class TemplateRegistry {
   /// Get recommended theme palette for a template
   static LandingPageTheme getTemplateTheme(String templateType) {
     switch (templateType) {
-      case 'barber_shop':
+      case 'saas_startup':
         return LandingPageTheme.palettes.firstWhere(
-          (e) => e.name == 'Midnight Ocean',
+          (e) => e.name == 'Tech Indigo',
         );
       case 'store':
         return LandingPageTheme.palettes.firstWhere(
@@ -691,53 +691,113 @@ class TemplateRegistry {
     };
   }
 
-  static Map<String, dynamic> _getBarberShopTemplate() {
+  static Map<String, dynamic> _getSaaSStartupTemplate() {
     return {
       'blocks': [
         {
-          'type': 'hero',
-          'title': 'أناقة وفخامة تليق بك',
+          'type': 'hero_saas',
+          'title': 'حوّل أفكارك إلى واقع رقمي',
           'subtitle':
-              'نحن لا نقص الشعر فقط، بل نصنع الثقة والمظهر المثالي الذي تستحقه بأحدث القصات العالمية.',
-          'button_text': 'احجز مقعدك الآن عبر واتساب',
+              'منصة متكاملة لبناء وإدارة تطبيقات الأعمال بذكاء. انطلق مع أدواتنا المتطورة وزبائنك سيرون الفرق.',
+          'button_text': 'اطلب نسختك التجريبية',
           'image_url':
-              'https://cdn.pixabay.com/photo/2017/12/26/09/15/woman-3040029_1280.jpg',
+              'https://cdn.pixabay.com/photo/2018/03/22/02/37/smart-3248678_1280.png',
           'animation': {'type': 'fadeIn', 'duration': 1000},
         },
         {
-          'type': 'working_hours',
-          'title': 'مواعيد العمل الرسمية',
-          'schedule': {
-            'السبت - الخميس': '10:00 AM - 11:00 PM',
-            'الجمعة': '2:00 PM - 12:00 AM',
-          },
-          'animation': {'type': 'slideInRight', 'duration': 800},
+          'type': 'features',
+          'title': 'مميزات المنصة',
+          'layout_style': 'bento',
+          'items': [
+            {
+              'title': 'لوحة تحكم تفاعلية',
+              'description': 'تحليلات آنية وتقارير ذكية لفهم أداء عملك.',
+            },
+            {
+              'title': 'تكامل سلس',
+              'description': 'اربط مع أدواتك المفضلة عبر API مفتوح.',
+            },
+            {
+              'title': 'دعم فني 24/7',
+              'description': 'فريق دعم متخصص جاهز لمساعدتك في أي وقت.',
+            },
+            {
+              'title': 'أتمتة ذكية',
+              'description': 'وفّر وقتك مع سير العمل الآلي المدعوم بالذكاء الاصطناعي.',
+            },
+            {
+              'title': 'أمان من الدرجة الأولى',
+              'description': 'تشفير كامل وحماية متقدمة لبياناتك.',
+            },
+            {
+              'title': 'قابلية توسع لا محدودة',
+              'description': 'ينمو معاك من البداية وحتى آلاف المستخدمين.',
+            },
+          ],
+          'animation': {'type': 'slideUp', 'duration': 800},
         },
         {
           'type': 'pricing',
-          'title': 'قائمة خدماتنا وأسعارنا',
+          'title': 'خطط الأسعار',
+          'has_toggle': true,
+          'toggle_labels': {'monthly': 'شهري', 'yearly': 'سنوي (وفر 20%)'},
           'items': [
             {
-              'name': 'قص شعر ستايل عالي الجودة',
-              'price': '200 EGP',
-              'features': ['غسيل شعر بشامبو طبي', 'استشوار وتصفيف سيروم'],
+              'name': 'الباقة الأساسية',
+              'price': '99',
+              'currency': 'ريال',
+              'period': '/شهر',
+              'features': ['3 مشاريع', '5GB تخزين', 'دعم عبر البريد'],
+              'is_popular': false,
+            },
+            {
+              'name': 'باقة الأعمال',
+              'price': '199',
+              'currency': 'ريال',
+              'period': '/شهر',
+              'features': ['مشاريع غير محدودة', '50GB تخزين', 'دعم فوري', 'API كامل'],
               'is_popular': true,
             },
             {
-              'name': 'تحديد وحلاقة ذقن ملكي بالبخار',
-              'price': '150 EGP',
-              'features': ['فوطة ساخنة مرطبة', 'ماسك الصبار الطبيعي'],
+              'name': 'باقة المؤسسات',
+              'price': '499',
+              'currency': 'ريال',
+              'period': '/شهر',
+              'features': ['كل شيء', '500GB تخزين', 'مدير حساب مخصص', 'SLA مضمون'],
               'is_popular': false,
             },
           ],
-          'animation': {'type': 'zoomIn', 'duration': 800},
+          'animation': {'type': 'zoomIn', 'duration': 1000},
         },
         {
-          'type': 'whatsapp',
-          'title': 'تواصل مباشر مع الإدارة',
-          'phone_number': '201000000000',
-          'message': 'مرحباً، أود الاستفسار عن المواعيد المتاحة اليوم للحجز.',
-          'button_text': 'تواصل معنا الآن',
+          'type': 'testimonials',
+          'title': 'ماذا قالوا عنا',
+          'items': [
+            {
+              'name': 'نورة الأحمدي',
+              'role': 'رائدة أعمال',
+              'text': 'هذه المنصة غيرت طريقة إدارة أعمالي بالكامل. وفرت عليّ ساعات طويلة من العمل اليدوي.',
+            },
+            {
+              'name': 'عبدالله السبيعي',
+              'role': 'مدير تقني',
+              'text': 'التكامل مع أنظمتنا كان سلساً جداً. فريق الدعم احترافي وسريع.',
+            },
+            {
+              'name': 'سارة آل سعود',
+              'role': 'مؤسسة شركة ناشئة',
+              'text': 'منصة مثالية للشركات الناشئة. الباقة المجانية سخية جداً والتوسع سهل.',
+            },
+          ],
+          'animation': {'type': 'slideInRight', 'duration': 900},
+        },
+        {
+          'type': 'contact_info',
+          'title': 'تواصل معنا',
+          'email': 'hello@saasstartup.com',
+          'phone': '966500000000',
+          'location': 'الرياض، المملكة العربية السعودية',
+          'animation': {'type': 'fadeIn', 'duration': 800},
         },
       ],
     };

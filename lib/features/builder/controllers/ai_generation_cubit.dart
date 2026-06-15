@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:html' as html;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import '../../../services/supabase_service.dart';
@@ -97,6 +98,26 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     );
   }
 
+  bool get _isGuest => _supabase.client.auth.currentSession?.accessToken == null;
+
+  static const String _guestPromptCountKey = 'guest_ai_prompt_count';
+
+  int _getGuestPromptCount() {
+    final val = html.window.localStorage[_guestPromptCountKey];
+    if (val == null) return 0;
+    return int.tryParse(val) ?? 0;
+  }
+
+  void _incrementGuestPromptCount() {
+    final current = _getGuestPromptCount();
+    html.window.localStorage[_guestPromptCountKey] = (current + 1).toString();
+  }
+
+  bool _hasReachedGuestLimit() {
+    if (!_isGuest) return false;
+    return _getGuestPromptCount() >= 1;
+  }
+
   void startNewSession() {
     _session = AIConversationSession(
       sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -131,6 +152,15 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
       return;
     }
     _lastMessage = message;
+
+    // Guest limit check: unregistered users get exactly one prompt
+    if (_hasReachedGuestLimit()) {
+      emit(AIGenerationFailure(
+        "لقد استخدمت طلبك المجاني الوحيد! سجل حساباً مجاناً لمواصلة التعديل والحصول على تصميم غير محدود. 🎁",
+        canRetry: false,
+      ));
+      return;
+    }
 
     _isProcessing = true;
     _activeRequestId = myRequestId;
@@ -405,6 +435,12 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
           }
 
           _builderCubit.applyDesignJson(validatedDesign);
+
+          // Track guest prompt usage in local storage
+          if (_isGuest) {
+            _incrementGuestPromptCount();
+          }
+
           emit(
             AIGenerationSuccess(
               validatedDesign,

@@ -59,6 +59,22 @@ class ProductsEditor extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
+        FormGroup(
+          label: 'أعمدة الجوال',
+          child: SegmentedButton<int>(
+            segments: const [
+              ButtonSegment(value: 1, label: Text('1')),
+              ButtonSegment(value: 2, label: Text('2')),
+            ],
+            selected: {block['mobile_columns'] ?? 2},
+            onSelectionChanged: (val) => cubit.updateBlockProperty(index, 'mobile_columns', val.first),
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
         SwitchListTile(
           value: block['show_category_filter'] ?? true,
           onChanged: (val) => cubit.updateBlockProperty(index, 'show_category_filter', val),

@@ -8,7 +8,6 @@ import '../controllers/builder_cubit.dart';
 import '../controllers/builder_state.dart';
 import '../models/preview_mode.dart';
 import '../widgets/organisms/builder_canvas.dart';
-import '../widgets/modals/ai_chat_modal.dart';
 
 class GuestPreviewScreen extends StatefulWidget {
   const GuestPreviewScreen({super.key});
@@ -20,13 +19,120 @@ class GuestPreviewScreen extends StatefulWidget {
 class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
   final PreviewMode _previewMode = PreviewMode.fullscreen;
 
-  void _showAiWizard(BuildContext context) {
-    final currentPath = GoRouterState.of(context).uri.path;
+  void _showAuthGateModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AIChatModal(currentPath: currentPath),
+      builder: (ctx) => Container(
+        height: MediaQuery.of(ctx).size.height * 0.6,
+        decoration: const BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          children: [
+            // Drag handle
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textMuted.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.rocket_launch_rounded,
+                      size: 64,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      "صفحتك جاهزة! 🎉",
+                      style: AppTypography.h2.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      "للحصول على رابط دائم، تعديل الكتل يدوياً، وإضافة منتجات غير محدودة",
+                      textAlign: TextAlign.center,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          context.go('/register');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text(
+                          "إنشاء حساب مجاني",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          context.go('/login');
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(color: AppColors.primary),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text(
+                          "تسجيل الدخول",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      "صفحتك الأولى مجانية بالكامل! 🎁",
+                      style: AppTypography.caption.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -54,7 +160,7 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
             const Icon(Icons.visibility_rounded, color: AppColors.secondary),
             const SizedBox(width: 8),
             Text(
-              "استعراض الصفحة الذكية (مسودة زائر)",
+              "معاينة الصفحة (زائر)",
               style: AppTypography.h3.copyWith(color: Colors.white, fontSize: 16),
             ),
           ],
@@ -67,82 +173,118 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Registration Offer Banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.95),
-                  AppColors.secondary.withValues(alpha: 0.95),
+          // Main Preview Canvas
+          Column(
+            children: [
+              Expanded(
+                child: BuilderCanvas(
+                  isMobile: false,
+                  previewMode: _previewMode,
+                  state: state,
+                  loc: loc,
+                  onBlockTapped: (_) => _showAuthGateModal(context),
+                ),
+              ),
+            ],
+          ),
+          // Auth gate overlay at the bottom of the screen
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 20,
+                bottom: MediaQuery.of(context).padding.bottom + 24,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    const Color(0xFF030712).withValues(alpha: 0.97),
+                    const Color(0xFF030712).withValues(alpha: 0.85),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.6, 1.0],
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.edit_note_rounded,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "حرر صفحتك واحفظها",
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "سجل مجاناً لتحصل على رابط دائم وتعديل غير محدود",
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () => _showAuthGateModal(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.black,
+                      elevation: 4,
+                      shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    child: const Text(
+                      "تسجيل",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
+                  ),
                 ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline_rounded, color: Colors.white, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    "عزيزي الزائر: لحفظ هذه الصفحة، نشرها، أو تعديل الكتل يدوياً، يرجى تسجيل حساب مجاني. صفحتك الأولى مجانية بالكامل! 🎁",
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                    textDirection: TextDirection.rtl,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () => context.go('/register'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primary,
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  ),
-                  child: const Text(
-                    "سجل مجاناً",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Main Preview Canvas
-          Expanded(
-            child: BuilderCanvas(
-              isMobile: false,
-              previewMode: _previewMode,
-              state: state,
-              loc: loc,
-              onBlockTapped: (_) {}, // Non-interactive in guest mode
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAiWizard(context),
+        onPressed: () => _showAuthGateModal(context),
         backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.auto_awesome_rounded, color: Colors.white),
+        elevation: 6,
+        icon: const Icon(Icons.lock_open_rounded, color: Colors.black87),
         label: const Text(
-          "المساعد الذكي (AI)",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          "فعل التعديل الكامل",
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
       ),
     );

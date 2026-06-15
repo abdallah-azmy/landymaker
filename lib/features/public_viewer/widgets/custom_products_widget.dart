@@ -22,6 +22,7 @@ class CustomProductsWidget extends StatefulWidget {
   final String title;
   final List<Map<String, dynamic>> items;
   final String layoutStyle;
+  final int mobileColumns;
   final LandingPageTheme? theme;
 
   /// Map populated by this widget so the parent can scroll to a product.
@@ -40,6 +41,7 @@ class CustomProductsWidget extends StatefulWidget {
     required this.title,
     required this.items,
     this.layoutStyle = 'grid_2',
+    this.mobileColumns = 2,
     this.theme,
     this.productKeys,
     this.bgImageUrl,
@@ -183,97 +185,95 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
 
-    return SectionBackground(
-      bgImageUrl: widget.bgImageUrl,
-      bgOverlayColor: widget.bgOverlayColor,
-      bgOverlayOpacity: widget.bgOverlayOpacity,
-      bgBlur: widget.bgBlur,
-      theme: widget.theme,
-      padding: EdgeInsetsDirectional.symmetric(
-        vertical: MediaQuery.of(context).size.width < 600 ? 40 : 80,
-        horizontal: 24,
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // ── Title ─────────────────────────────────────────────────────
-              Text(
-                widget.title,
-                style: AppTypography.h2.copyWith(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: 60,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: secondaryColor,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // ── Category Tabs (auto-generated) ────────────────────────────
-              if (widget.showCategoryFilter &&
-                  _categories.length > 1 &&
-                  _tabController != null) ...[
-                TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  labelColor: secondaryColor,
-                  unselectedLabelColor: subTextColor,
-                  indicatorColor: secondaryColor,
-                  dividerColor: Colors.transparent,
-                  tabs: _categories
-                      .map((c) => Tab(text: c == 'all' ? 'الكل' : c))
-                      .toList(),
-                ),
-                const SizedBox(height: 24),
-              ],
-
-              // ── Sort Chips ────────────────────────────────────────────────
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _sortChip(
-                      'الافتراضي',
-                      _SortMode.defaultOrder,
-                      secondaryColor,
-                      subTextColor,
-                    ),
-                    const SizedBox(width: 8),
-                    _sortChip(
-                      'السعر: الأقل أولاً',
-                      _SortMode.priceLow,
-                      secondaryColor,
-                      subTextColor,
-                    ),
-                    const SizedBox(width: 8),
-                    _sortChip(
-                      'السعر: الأعلى أولاً',
-                      _SortMode.priceHigh,
-                      secondaryColor,
-                      subTextColor,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // ── Product Grid / List ───────────────────────────────────────
-              _buildProductLayout(context),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isMobile = constraints.maxWidth < 600;
+        return SectionBackground(
+          bgImageUrl: widget.bgImageUrl,
+          bgOverlayColor: widget.bgOverlayColor,
+          bgOverlayOpacity: widget.bgOverlayOpacity,
+          bgBlur: widget.bgBlur,
+          theme: widget.theme,
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical: isMobile ? 40 : 80,
+            horizontal: 24,
           ),
-        ),
-      ),
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 1100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.title,
+                    style: AppTypography.h2.copyWith(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: 60,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: secondaryColor,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  if (widget.showCategoryFilter &&
+                      _categories.length > 1 &&
+                      _tabController != null) ...[
+                    TabBar(
+                      controller: _tabController,
+                      isScrollable: true,
+                      labelColor: secondaryColor,
+                      unselectedLabelColor: subTextColor,
+                      indicatorColor: secondaryColor,
+                      dividerColor: Colors.transparent,
+                      tabs: _categories
+                          .map((c) => Tab(text: c == 'all' ? 'الكل' : c))
+                          .toList(),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _sortChip(
+                          'الافتراضي',
+                          _SortMode.defaultOrder,
+                          secondaryColor,
+                          subTextColor,
+                        ),
+                        const SizedBox(width: 8),
+                        _sortChip(
+                          'السعر: الأقل أولاً',
+                          _SortMode.priceLow,
+                          secondaryColor,
+                          subTextColor,
+                        ),
+                        const SizedBox(width: 8),
+                        _sortChip(
+                          'السعر: الأعلى أولاً',
+                          _SortMode.priceHigh,
+                          secondaryColor,
+                          subTextColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  _buildProductLayout(context),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -347,7 +347,7 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
            width,
            desktop: requestedColumns,
            tablet: 2,
-           mobile: 2,
+           mobile: widget.mobileColumns,
         );
 
         final List<Widget> rows = [];
@@ -411,7 +411,7 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
         ),
         const SizedBox(width: 16),
         Text(
-          "Page \$_currentPage of \$_totalPages",
+          "${_currentPage} / ${_totalPages}",
           style: AppTypography.bodyMedium.copyWith(color: textColor),
         ),
         const SizedBox(width: 16),

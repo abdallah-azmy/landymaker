@@ -119,6 +119,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
     'layout_style': PropDef(type: PropType.string, defaultValue: 'grid_2', allowedValues: ['grid_2', 'grid_3', 'list']),
     'whatsapp_number': PropDef(type: PropType.string),
     'show_category_filter': PropDef(type: PropType.boolean, defaultValue: true),
+    'mobile_columns': PropDef(type: PropType.int, defaultValue: 2, min: 1, max: 2),
     'categories': PropDef(type: PropType.stringList),
     'items': PropDef(type: PropType.mapList),
   },
@@ -131,6 +132,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
   'gallery': {
     'display_mode': PropDef(type: PropType.string, defaultValue: 'grid', allowedValues: ['grid', 'carousel', 'masonry']),
     'grid_columns': PropDef(type: PropType.int, defaultValue: 3, min: 1, max: 6),
+    'mobile_columns': PropDef(type: PropType.int, defaultValue: 1, min: 1, max: 2),
     'items': PropDef(type: PropType.stringList),
     'gallery_links': PropDef(type: PropType.stringList),
   },

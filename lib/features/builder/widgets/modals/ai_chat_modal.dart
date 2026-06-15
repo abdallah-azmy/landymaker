@@ -117,7 +117,9 @@ class _AIChatModalState extends State<AIChatModal> {
       finalUrl = imageData.url;
     } else {
       String? uploadedUrl;
+      final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
       await uploadCubit.upload(
+        uploadId: uploadId,
         data: imageData,
         onSuccess: (url) => uploadedUrl = url,
       );
@@ -126,9 +128,10 @@ class _AIChatModalState extends State<AIChatModal> {
 
     if (finalUrl == null || !mounted) return;
 
+    final label = type == 'logo' ? 'شعار' : 'صورة';
+
     setState(() {
       _uploadedImages.add(finalUrl!);
-      final label = type == 'logo' ? 'شعار' : 'صورة';
       _chatHistory.add({
         'role': 'user',
         'content': '📎 تم رفع $label',

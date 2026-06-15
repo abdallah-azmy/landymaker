@@ -246,6 +246,8 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
         ],
       ),
     );
+      },
+    );
   }
 }
 
@@ -459,8 +461,6 @@ class _NavigationButton extends StatelessWidget {
           ),
         ),
       ),
-    );
-      },
     );
   }
 }

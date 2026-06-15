@@ -796,8 +796,8 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             initialView: initialView,
             onAddBlock: () => _showAddBlockMenu(context, cubit),
             onPublish: () {
-              builderCubit.updateSettings(isPublished: true);
-              builderCubit.saveForCurrentUser();
+              cubit.updateSettings(isPublished: true);
+              cubit.saveForCurrentUser();
             },
           );
         },

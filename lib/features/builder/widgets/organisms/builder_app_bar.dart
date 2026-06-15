@@ -274,7 +274,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                   const SizedBox(width: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                    child: _buildPublishButton(),
+                    child: _buildPublishButton(context),
                   ),
                 ],
               ),
@@ -315,7 +315,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildPublishButton() {
+  Widget _buildPublishButton(BuildContext context) {
     final bool canSave = state.hasUnsavedChanges && !state.isSaving;
     final bool isDraft = !state.isPublished;
 
@@ -533,7 +533,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildActionButton({
     required IconData icon,
     required String label,
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
     Color? color,
   }) {
     return TextButton.icon(

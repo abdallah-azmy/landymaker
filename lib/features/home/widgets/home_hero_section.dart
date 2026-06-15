@@ -559,6 +559,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
         ),
       ],
     );
+      },
+    );
   }
 }
 
@@ -941,8 +943,7 @@ class _PhonePreviewState extends State<_PhonePreview> {
             ),
           ),
       ],
-    ));
-      },
-    );
+    ),
+  );
   }
 }

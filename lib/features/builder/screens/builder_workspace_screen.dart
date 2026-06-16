@@ -659,7 +659,7 @@ class _SidebarWrapper extends StatelessWidget {
                     onSetSidebarTab(0);
                     onSetEditingBlock(index);
                   },
-                  onAddBlock: (_) => DraggableModalSheet.show(context: context, title: "مكتبة الأقسام", initialChildSize: 0.8, child: const SectionLibraryModal()),
+                  onAddBlock: (context, cubit) => DraggableModalSheet.show(context: context, title: "مكتبة الأقسام", initialChildSize: 0.8, child: const SectionLibraryModal()),
                   onDoneEditing: () => onSetEditingBlock(null),
                 ),
                 DesignTab(loc: loc, cubit: cubit, state: state),

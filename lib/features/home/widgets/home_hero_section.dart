@@ -37,7 +37,6 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
     with TickerProviderStateMixin, EntranceAnimationMixin {
   late AnimationController _bgAnimationController;
 
-
   final List<String> _typewriterTexts = [
     "منيو مطعم إلكتروني تفاعلي",
     "معرض أعمال شخصي للمستقلين",
@@ -61,19 +60,27 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         {
           'type': 'hero',
           'title': 'أناقة وفخامة تليق بك',
-          'subtitle': 'نحن لا نقص الشعر فقط، بل نصنع الثقة والمظهر المثالي الذي تستحقه بأحدث القصات العالمية.',
+          'subtitle':
+              'نحن لا نقص الشعر فقط، بل نصنع الثقة والمظهر المثالي الذي تستحقه بأحدث القصات العالمية.',
           'button_text': 'احجز مقعدك الآن',
-          'image_url': 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400'
+          'image_url':
+              'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400',
         },
         {
           'type': 'features',
           'title': 'خدماتنا المميزة',
           'items': [
-            {'title': 'قص وتصفيف احترافي', 'description': 'أحدث القصات والستايلات العالمية.'},
-            {'title': 'حلاقة ذقن بالبخار', 'description': 'جلسة تنظيف ذقن متكاملة بالبخار.'}
-          ]
-        }
-      ]
+            {
+              'title': 'قص وتصفيف احترافي',
+              'description': 'أحدث القصات والستايلات العالمية.',
+            },
+            {
+              'title': 'حلاقة ذقن بالبخار',
+              'description': 'جلسة تنظيف ذقن متكاملة بالبخار.',
+            },
+          ],
+        },
+      ],
     },
     {
       'name': 'Lux-Earth',
@@ -90,9 +97,11 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         {
           'type': 'hero',
           'title': 'ساعات ذكية فاخرة',
-          'subtitle': 'اكتشف مجموعتنا الحصرية من الساعات الذكية والأجهزة التقنية الراقية.',
+          'subtitle':
+              'اكتشف مجموعتنا الحصرية من الساعات الذكية والأجهزة التقنية الراقية.',
           'button_text': 'تسوق الآن',
-          'image_url': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400'
+          'image_url':
+              'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
         },
         {
           'type': 'products',
@@ -102,12 +111,13 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
               'name': 'ساعة ذكية فاخرة Pro',
               'price': '1200 EGP',
               'description': 'تتبع نشاطك وصحتك بكل سهولة مع تصميم عصري.',
-              'image_url': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+              'image_url':
+                  'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
               'button_text': 'طلب مباشر',
-            }
-          ]
-        }
-      ]
+            },
+          ],
+        },
+      ],
     },
     {
       'name': 'Butter & Sky',
@@ -124,9 +134,11 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         {
           'type': 'hero',
           'title': 'تصميم هويات بصرية مذهلة',
-          'subtitle': 'نساعد الشركات الناشئة على بناء هويات وتجارب مستخدم فريدة للويب والهاتف.',
+          'subtitle':
+              'نساعد الشركات الناشئة على بناء هويات وتجارب مستخدم فريدة للويب والهاتف.',
           'button_text': 'شاهد أعمالي',
-          'image_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400'
+          'image_url':
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
         },
         {
           'type': 'social_qr',
@@ -135,10 +147,10 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           'links': [
             {'platform': 'instagram', 'url': 'https://instagram.com'},
             {'platform': 'linkedin', 'url': 'https://linkedin.com'},
-          ]
-        }
-      ]
-    }
+          ],
+        },
+      ],
+    },
   ];
 
   @override
@@ -268,7 +280,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                   else
                     Expanded(
                       flex: 6,
-                      child: buildEntranceAnimation(_buildTextContent(context, isMobile)),
+                      child: buildEntranceAnimation(
+                        _buildTextContent(context, isMobile),
+                      ),
                     ),
 
                   if (isMobile)
@@ -303,7 +317,10 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
 
   // ── Layout: centered (full-width bg with overlay) ────────────────────────
   Widget _buildCenteredLayout(
-      BuildContext context, bool isMobile, BoxConstraints constraints) {
+    BuildContext context,
+    bool isMobile,
+    BoxConstraints constraints,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: Stack(
@@ -483,7 +500,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
             ),
           ),
           Positioned.fill(
-            child: Container(color: Colors.black.withValues(alpha: widget.overlayOpacity)),
+            child: Container(
+              color: Colors.black.withValues(alpha: widget.overlayOpacity),
+            ),
           ),
           Center(
             child: Container(
@@ -544,7 +563,10 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
   Widget _buildBadge({Color? textColor}) {
     final effectiveColor = textColor ?? Colors.white;
     return Container(
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 14,
+        vertical: 8,
+      ),
       decoration: BoxDecoration(
         color: AppColors.secondary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(30),
@@ -556,11 +578,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.auto_awesome_rounded,
-            color: effectiveColor,
-            size: 16,
-          ),
+          Icon(Icons.auto_awesome_rounded, color: effectiveColor, size: 16),
           const SizedBox(width: 8),
           Text(
             'أطلق موقعك في ٥ دقائق فقط 🚀',
@@ -589,14 +607,17 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: darkMode ? AppColors.secondary : const Color(0xFF030712),
+            backgroundColor: darkMode
+                ? AppColors.secondary
+                : const Color(0xFF030712),
             foregroundColor: darkMode ? Colors.white : AppColors.primary,
             padding: const EdgeInsetsDirectional.symmetric(
               horizontal: 36,
               vertical: 20,
             ),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             elevation: 8,
             shadowColor: Colors.black.withValues(alpha: 0.4),
           ),
@@ -617,15 +638,18 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           ),
           style: OutlinedButton.styleFrom(
             side: BorderSide(
-              color: darkMode ? Colors.white38 : const Color(0xFF030712).withValues(alpha: 0.4),
+              color: darkMode
+                  ? Colors.white38
+                  : const Color(0xFF030712).withValues(alpha: 0.4),
               width: 1.5,
             ),
             padding: const EdgeInsetsDirectional.symmetric(
               horizontal: 32,
               vertical: 20,
             ),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
       ],
@@ -634,8 +658,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
 
   Widget _buildTextContent(BuildContext context, bool isMobile) {
     return Column(
-      crossAxisAlignment:
-          isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment: isMobile
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
         _buildBadge(),
         const SizedBox(height: 24),
@@ -652,10 +677,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         const SizedBox(height: 18),
         ConstrainedBox(
           constraints: BoxConstraints(minHeight: 50),
-          child: _TypewriterText(
-            texts: _typewriterTexts,
-            isMobile: isMobile,
-          ),
+          child: _TypewriterText(texts: _typewriterTexts, isMobile: isMobile),
         ),
         const SizedBox(height: 20),
         Text(
@@ -680,6 +702,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
 class _TypewriterText extends StatefulWidget {
   final List<String> texts;
   final bool isMobile;
+
   /// Optional color override for use on bright backgrounds.
   /// Defaults to [AppColors.secondary] when null.
   final Color? colorOverride;
@@ -694,7 +717,8 @@ class _TypewriterText extends StatefulWidget {
   State<_TypewriterText> createState() => _TypewriterTextState();
 }
 
-class _TypewriterTextState extends State<_TypewriterText> with SingleTickerProviderStateMixin {
+class _TypewriterTextState extends State<_TypewriterText>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   String _currentText = "";
   Timer? _timer;
@@ -830,7 +854,8 @@ class _PhonePreviewState extends State<_PhonePreview> {
     _previewCycleTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (mounted) {
         setState(() {
-          _activePreviewIndex = (_activePreviewIndex + 1) % widget.previewPages.length;
+          _activePreviewIndex =
+              (_activePreviewIndex + 1) % widget.previewPages.length;
         });
       }
     });
@@ -852,228 +877,269 @@ class _PhonePreviewState extends State<_PhonePreview> {
         children: [
           // Left cycle button (desktop only)
           if (!widget.isMobile)
-          Semantics(
-            label: 'Previous template',
-            button: true,
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () {
-                  _previewCycleTimer?.cancel();
-                  setState(() {
-                    _activePreviewIndex = (_activePreviewIndex - 1 + widget.previewPages.length) % widget.previewPages.length;
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            Semantics(
+              label: 'Previous template',
+              button: true,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () {
+                    _previewCycleTimer?.cancel();
+                    setState(() {
+                      _activePreviewIndex =
+                          (_activePreviewIndex -
+                              1 +
+                              widget.previewPages.length) %
+                          widget.previewPages.length;
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white60,
+                      size: 14,
+                    ),
                   ),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white60, size: 14),
                 ),
               ),
             ),
-          ),
-        if (!widget.isMobile) const SizedBox(width: 16),
+          if (!widget.isMobile) const SizedBox(width: 16),
 
-        // Phone Frame
-        Semantics(
-          label: 'Template preview',
-          container: true,
-          child: Container(
-          width: mockupWidth,
-          height: mockupHeight,
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E293B),
-            borderRadius: BorderRadius.circular(outerRadius),
-            border: Border.all(
-              color: const Color(0xFF475569),
-              width: 8,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.secondary.withValues(alpha: 0.25),
-                blurRadius: 40,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(innerRadius),
+          // Phone Frame
+          Semantics(
+            label: 'Template preview',
+            container: true,
             child: Container(
-              color: const Color(0xFF0F172A),
-              child: Stack(
-                children: [
-                  Column(
+              width: mockupWidth,
+              height: mockupHeight,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(outerRadius),
+                border: Border.all(color: const Color(0xFF475569), width: 8),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.secondary.withValues(alpha: 0.25),
+                    blurRadius: 40,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(innerRadius),
+                child: Container(
+                  color: const Color(0xFF0F172A),
+                  child: Stack(
                     children: [
-                      // Status bar mock
-                      Container(
-                        height: 24,
-                        color: const Color(0xFF0F172A),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "9:41",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Row(
+                      Column(
+                        children: [
+                          // Status bar mock
+                          Container(
+                            height: 24,
+                            color: const Color(0xFF0F172A),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Icon(
-                                  Icons.signal_cellular_alt_rounded,
-                                  color: Colors.white,
-                                  size: 10,
+                                Text(
+                                  "9:41",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                                SizedBox(width: 4),
-                                Icon(
-                                  Icons.wifi_rounded,
-                                  color: Colors.white,
-                                  size: 10,
-                                ),
-                                SizedBox(width: 4),
-                                Icon(
-                                  Icons.battery_std_rounded,
-                                  color: Colors.white,
-                                  size: 10,
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.signal_cellular_alt_rounded,
+                                      color: Colors.white,
+                                      size: 10,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Icon(
+                                      Icons.wifi_rounded,
+                                      color: Colors.white,
+                                      size: 10,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Icon(
+                                      Icons.battery_std_rounded,
+                                      color: Colors.white,
+                                      size: 10,
+                                    ),
+                                  ],
                                 ),
                               ],
-                            )
-                          ],
-                        ),
-                      ),
-                      // Scrollable Preview with dynamic propagation on overscroll
-                      Expanded(
-                        child: NotificationListener<ScrollNotification>(
-                          onNotification: (ScrollNotification notification) {
-                            if (notification is ScrollUpdateNotification) {
-                              final parent = widget.parentScrollController;
-                              if (parent != null && parent.hasClients) {
-                                final double delta = notification.scrollDelta ?? 0;
-                                final pos = _innerScrollController.position;
+                            ),
+                          ),
+                          // Scrollable Preview with dynamic propagation on overscroll
+                          Expanded(
+                            child: NotificationListener<ScrollNotification>(
+                              onNotification: (ScrollNotification notification) {
+                                if (notification is ScrollUpdateNotification) {
+                                  final parent = widget.parentScrollController;
+                                  if (parent != null && parent.hasClients) {
+                                    final double delta =
+                                        notification.scrollDelta ?? 0;
+                                    final pos = _innerScrollController.position;
 
-                                // Overscroll Down: inner view is at bottom, drag down -> scroll parent
-                                if (pos.pixels >= pos.maxScrollExtent && delta > 0) {
-                                  parent.position.jumpTo((parent.offset + delta).clamp(0.0, parent.position.maxScrollExtent));
+                                    // Overscroll Down: inner view is at bottom, drag down -> scroll parent
+                                    if (pos.pixels >= pos.maxScrollExtent &&
+                                        delta > 0) {
+                                      parent.position.jumpTo(
+                                        (parent.offset + delta).clamp(
+                                          0.0,
+                                          parent.position.maxScrollExtent,
+                                        ),
+                                      );
+                                    }
+                                    // Overscroll Up: inner view is at top, drag up -> scroll parent
+                                    else if (pos.pixels <= 0 && delta < 0) {
+                                      parent.position.jumpTo(
+                                        (parent.offset + delta).clamp(
+                                          0.0,
+                                          parent.position.maxScrollExtent,
+                                        ),
+                                      );
+                                    }
+                                  }
                                 }
-                                // Overscroll Up: inner view is at top, drag up -> scroll parent
-                                else if (pos.pixels <= 0 && delta < 0) {
-                                  parent.position.jumpTo((parent.offset + delta).clamp(0.0, parent.position.maxScrollExtent));
-                                }
-                              }
-                            }
-                            return false;
-                          },
-                          child: SingleChildScrollView(
-                            controller: _innerScrollController,
-                            physics: const ClampingScrollPhysics(), // Clamping prevents rubber-banding blocks
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 600),
-                              transitionBuilder: (Widget child, Animation<double> animation) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                );
+                                return false;
                               },
-                              child: KeyedSubtree(
-                                key: ValueKey<int>(_activePreviewIndex),
-                                child: Container(
-                                  color: widget.previewPages[_activePreviewIndex]['theme'].background,
-                                  child: SectionRenderer(
-                                    pageId: 'demo',
-                                    theme: widget.previewPages[_activePreviewIndex]['theme'],
-                                    blocks: List<Map<String, dynamic>>.from(
-                                      widget.previewPages[_activePreviewIndex]['blocks'],
+                              child: SingleChildScrollView(
+                                controller: _innerScrollController,
+                                physics:
+                                    const ClampingScrollPhysics(), // Clamping prevents rubber-banding blocks
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 600),
+                                  transitionBuilder:
+                                      (
+                                        Widget child,
+                                        Animation<double> animation,
+                                      ) {
+                                        return FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        );
+                                      },
+                                  child: KeyedSubtree(
+                                    key: ValueKey<int>(_activePreviewIndex),
+                                    child: Container(
+                                      color: widget
+                                          .previewPages[_activePreviewIndex]['theme']
+                                          .background,
+                                      child: SectionRenderer(
+                                        pageId: 'demo',
+                                        theme: widget
+                                            .previewPages[_activePreviewIndex]['theme'],
+                                        blocks: List<Map<String, dynamic>>.from(
+                                          widget
+                                              .previewPages[_activePreviewIndex]['blocks'],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
+                        ],
+                      ),
+
+                      // Floating page indicator dots
+                      Positioned(
+                        bottom: 16,
+                        left: 0,
+                        right: 0,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(widget.previewPages.length, (
+                            index,
+                          ) {
+                            final isActive = index == _activePreviewIndex;
+                            return Semantics(
+                              label: 'Template ${index + 1}',
+                              button: true,
+                              child: GestureDetector(
+                                onTap: () {
+                                  _previewCycleTimer?.cancel();
+                                  setState(() {
+                                    _activePreviewIndex = index;
+                                  });
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 250),
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  width: isActive ? 18 : 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? AppColors.secondary
+                                        : Colors.white.withValues(alpha: 0.4),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
                         ),
                       ),
                     ],
                   ),
-
-                  // Floating page indicator dots
-                  Positioned(
-                    bottom: 16,
-                    left: 0,
-                    right: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(widget.previewPages.length, (index) {
-                        final isActive = index == _activePreviewIndex;
-                        return Semantics(
-                          label: 'Template ${index + 1}',
-                          button: true,
-                          child: GestureDetector(
-                          onTap: () {
-                            _previewCycleTimer?.cancel();
-                            setState(() {
-                              _activePreviewIndex = index;
-                            });
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            width: isActive ? 18 : 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: isActive
-                                  ? AppColors.secondary
-                                  : Colors.white.withValues(alpha: 0.4),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-
-        // Right cycle button (desktop only)
-        if (!widget.isMobile) const SizedBox(width: 16),
-        if (!widget.isMobile)
-          Semantics(
-            label: 'Next template',
-            button: true,
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () {
-                  _previewCycleTimer?.cancel();
-                  setState(() {
-                    _activePreviewIndex = (_activePreviewIndex + 1) % widget.previewPages.length;
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-                  ),
-                  child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white60, size: 14),
                 ),
               ),
             ),
           ),
-      ],
-    ),
-  );
+
+          // Right cycle button (desktop only)
+          if (!widget.isMobile) const SizedBox(width: 16),
+          if (!widget.isMobile)
+            Semantics(
+              label: 'Next template',
+              button: true,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () {
+                    _previewCycleTimer?.cancel();
+                    setState(() {
+                      _activePreviewIndex =
+                          (_activePreviewIndex + 1) %
+                          widget.previewPages.length;
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white60,
+                      size: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }

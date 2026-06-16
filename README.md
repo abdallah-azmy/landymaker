@@ -14,6 +14,8 @@
 
 > **LandyMaker** is an AI-powered, high-performance Landing Page and E-commerce Store Builder engineered specifically for the MENA region with native Right-to-Left (RTL) and Arabic-first support. It empowers startups, SaaS founders, small businesses, and freelancers to build, manage, host, and optimize conversion-driven pages and stores without writing any code.
 
+> 🤖 **AI Assistants & New Developers:** Please read [AI_CONTEXT.md](./AI_CONTEXT.md) as the single source of truth for project architecture, rules, and documentation before contributing.
+
 ---
 
 ## 📑 Table of Contents
@@ -140,7 +142,7 @@ LandyMaker features a professional logging suite based on the `logger` package:
 - **Auto-Filtering**: Logs are fully detailed in **Debug mode** and automatically stripped in **Release mode** to protect performance.
 - **Logging Mixin**: `SupabaseLoggingMixin` wraps database queries, authentication flows, and storage uploads to output detailed structured logs including request bodies, response payloads, query duration, and full stack traces for errors.
 - **Developer Guides**:
-  - Refer to [API_LOGGING_GUIDE.md](./API_LOGGING_GUIDE.md) for full developer documentation.
+  - Refer to [API_LOGGING_GUIDE.md](./docs/ai/API_LOGGING_GUIDE.md) for full developer documentation.
 
 ---
 

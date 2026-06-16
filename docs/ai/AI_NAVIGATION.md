@@ -2,6 +2,27 @@
 
 This document is the fastest onboarding tool for future AI models. It explains where major systems live without requiring a full codebase scan.
 
+## 🧭 0. Primary Sources of Truth & Documentation Ownership
+
+| Document | Purpose |
+|----------|---------|
+| **AI_CONTEXT.md** | Master Entry Point — Project state, architecture, implemented features, decisions. |
+| **docs/ai/AI_DOCUMENTATION_RULES.md** | AI Execution Rules — Rules for keeping docs synchronized, builder standards, UI/UX patterns. |
+| **docs/ai/DEVOPS_AND_ASSETS.md** | Deployment Rules — CI/CD, ImgBB, Vercel edge middleware, image management. |
+| **docs/ai/PROJECT_STRUCTURE.md** | Folder hierarchy and architecture boundaries. |
+| **docs/ai/BUILDER_ARCHITECTURE.md** | Builder system data flow. |
+| **docs/ai/BLOCK_SCHEMA_REGISTRY.md** | JSON schema for AI-agent editing. |
+| **docs/ai/API_LOGGING_GUIDE.md** | Developer guide and cheat sheet for structured logging. |
+| **docs/ai/FEATURE_INDEX.md** | Feature-to-file mapping. |
+| **docs/ai/SCREEN_INDEX.md** | Screen-to-file-and-route mapping. |
+| **docs/ai/SERVICE_INDEX.md** | Global service directory with dependencies. |
+| **docs/ai/ROUTE_INDEX.md** | Route definitions with guards. |
+| **docs/ai/DEPENDENCY_MAPS.md** | System relationship diagrams. |
+
+*(Note: All historical artifacts and execution logs have been removed to keep context clean.)*
+
+---
+
 ## 🧱 1. Where is the Builder?
 
 The Builder is the heart of the platform.

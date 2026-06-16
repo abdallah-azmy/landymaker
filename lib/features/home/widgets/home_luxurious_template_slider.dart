@@ -22,53 +22,73 @@ class HomeLuxuriousTemplateSlider extends StatefulWidget {
   });
 
   @override
-  State<HomeLuxuriousTemplateSlider> createState() => _HomeLuxuriousTemplateSliderState();
+  State<HomeLuxuriousTemplateSlider> createState() =>
+      _HomeLuxuriousTemplateSliderState();
 }
 
-class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlider> with TickerProviderStateMixin {
+class _HomeLuxuriousTemplateSliderState
+    extends State<HomeLuxuriousTemplateSlider>
+    with TickerProviderStateMixin {
   late PageController _pageController;
   late AnimationController _headerController;
   int _currentPage = 0;
-  final List<TemplateMetadata> _templates = TemplateRegistry.availableTemplates.where((t) => t.id != 'empty').toList();
+  final List<TemplateMetadata> _templates = TemplateRegistry.availableTemplates
+      .where((t) => t.id != 'empty')
+      .toList();
 
   void _showTemplatePreview(TemplateMetadata template) {
     final design = TemplateRegistry.getTemplateDesign(template.id);
-    final blocks = (design['blocks'] as List<dynamic>?)
-        ?.cast<Map<String, dynamic>>() ?? [];
+    final blocks =
+        (design['blocks'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ??
+        [];
     final theme = TemplateRegistry.getTemplateTheme(template.id);
 
-    Navigator.push(context, MaterialPageRoute(
-      builder: (_) => Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
           backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          title: Text(template.name, style: AppTypography.h3.copyWith(color: Colors.white)),
-          actions: [
-            TextButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-                widget.onGetStartedPressed(template.id);
-              },
-              icon: const Icon(Icons.auto_awesome_rounded, color: AppColors.secondary),
-              label: Text(
-                context.read<LocalizationCubit>().isRtl ? "استخدم هذا القالب" : "Use this Template",
-                style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold),
-              ),
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            title: Text(
+              template.name,
+              style: AppTypography.h3.copyWith(color: Colors.white),
             ),
-            const SizedBox(width: 8),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: SectionRenderer(
-            blocks: blocks,
-            pageId: 'preview',
-            theme: theme,
+            actions: [
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  widget.onGetStartedPressed(template.id);
+                },
+                icon: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: AppColors.secondary,
+                ),
+                label: Text(
+                  context.read<LocalizationCubit>().isRtl
+                      ? "استخدم هذا القالب"
+                      : "Use this Template",
+                  style: const TextStyle(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: SectionRenderer(
+              blocks: blocks,
+              pageId: 'preview',
+              theme: theme,
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 
   @override
@@ -102,13 +122,19 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
 
   void _nextPage() {
     if (_currentPage < _templates.length - 1) {
-      _pageController.nextPage(duration: const Duration(milliseconds: 600), curve: Curves.easeInOutQuart);
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOutQuart,
+      );
     }
   }
 
   void _prevPage() {
     if (_currentPage > 0) {
-      _pageController.previousPage(duration: const Duration(milliseconds: 600), curve: Curves.easeInOutQuart);
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOutQuart,
+      );
     }
   }
 
@@ -117,33 +143,54 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
       child: FadeTransition(
         opacity: _headerController,
         child: SlideTransition(
-          position: Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-            CurvedAnimation(parent: _headerController, curve: Curves.easeOut),
-          ),
+          position: Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
+              .animate(
+                CurvedAnimation(
+                  parent: _headerController,
+                  curve: Curves.easeOut,
+                ),
+              ),
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: AppColors.secondary.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Text(
                   loc.isRtl ? "✨ قوالب عالمية" : "✨ World-Class Templates",
-                  style: AppTypography.caption.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold),
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
               Text(
-                loc.isRtl ? "صمم موقعك بلمسة فنية" : "Design Your Site with an Artistic Touch",
-                style: AppTypography.h1.copyWith(fontSize: isMobile ? 32 : 48, fontWeight: FontWeight.w900),
+                loc.isRtl
+                    ? "صمم موقعك بلمسة فنية"
+                    : "Design Your Site with an Artistic Touch",
+                style: AppTypography.h1.copyWith(
+                  fontSize: isMobile ? 32 : 48,
+                  fontWeight: FontWeight.w900,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               Text(
-                loc.isRtl ? "اختر من بين مجموعة واسعة من القوالب المصممة بعناية لتناسب هويتك." : "Choose from a wide range of carefully designed templates to match your identity.",
-                style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+                loc.isRtl
+                    ? "اختر من بين مجموعة واسعة من القوالب المصممة بعناية لتناسب هويتك."
+                    : "Choose from a wide range of carefully designed templates to match your identity.",
+                style: AppTypography.bodyLarge.copyWith(
+                  color: AppColors.textSecondary,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -164,72 +211,77 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
                 height: isMobile ? 450 : 550,
                 child: PageView.builder(
                   controller: _pageController,
-                  onPageChanged: (int page) => setState(() => _currentPage = page),
+                  onPageChanged: (int page) =>
+                      setState(() => _currentPage = page),
                   itemCount: _templates.length,
                   itemBuilder: (context, index) {
                     return AnimatedBuilder(
                       animation: _pageController,
                       builder: (context, child) {
-                      double value = 1.0;
-                      if (_pageController.position.haveDimensions) {
-                        value = _pageController.page! - index;
-                        value = (1 - (value.abs() * 0.25)).clamp(0.0, 1.0);
-                      } else if (index != 0) {
-                         value = 0.75;
-                      }
-                      return Center(
-                        child: Transform.scale(
-                          scale: Curves.easeOutQuart.transform(value),
-                          child: Opacity(
-                            opacity: value.clamp(0.5, 1.0),
-                            child: child,
+                        double value = 1.0;
+                        if (_pageController.position.haveDimensions) {
+                          value = _pageController.page! - index;
+                          value = (1 - (value.abs() * 0.25)).clamp(0.0, 1.0);
+                        } else if (index != 0) {
+                          value = 0.75;
+                        }
+                        return Center(
+                          child: Transform.scale(
+                            scale: Curves.easeOutQuart.transform(value),
+                            child: Opacity(
+                              opacity: value.clamp(0.5, 1.0),
+                              child: child,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: _LuxuriousTemplateCard(
-                      template: _templates[index],
-                      onPressed: () => widget.onGetStartedPressed(_templates[index].id),
-                    ),
-                  );
-                },
+                        );
+                      },
+                      child: _LuxuriousTemplateCard(
+                        template: _templates[index],
+                        onPressed: () =>
+                            widget.onGetStartedPressed(_templates[index].id),
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            Positioned(
-              left: isMobile ? 4 : 40,
-              child: _NavigationButton(
-                icon: Icons.arrow_back_ios_new_rounded,
-                onPressed: loc.isRtl ? _nextPage : _prevPage,
-                isMobile: isMobile,
+              Positioned(
+                left: isMobile ? 4 : 40,
+                child: _NavigationButton(
+                  icon: Icons.arrow_back_ios_new_rounded,
+                  onPressed: loc.isRtl ? _nextPage : _prevPage,
+                  isMobile: isMobile,
+                ),
               ),
-            ),
-            Positioned(
-              right: isMobile ? 4 : 40,
-              child: _NavigationButton(
-                icon: Icons.arrow_forward_ios_rounded,
-                onPressed: loc.isRtl ? _prevPage : _nextPage,
-                isMobile: isMobile,
+              Positioned(
+                right: isMobile ? 4 : 40,
+                child: _NavigationButton(
+                  icon: Icons.arrow_forward_ios_rounded,
+                  onPressed: loc.isRtl ? _prevPage : _nextPage,
+                  isMobile: isMobile,
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 40),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_templates.length, (index) {
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              height: 8,
-              width: _currentPage == index ? 24 : 8,
-              decoration: BoxDecoration(
-                color: _currentPage == index ? AppColors.secondary : AppColors.border,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            );
-          }),
-        ),
-      ],
+            ],
+          ),
+          const SizedBox(height: 40),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(_templates.length, (index) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                height: 8,
+                width: _currentPage == index ? 24 : 8,
+                decoration: BoxDecoration(
+                  color: _currentPage == index
+                      ? AppColors.secondary
+                      : AppColors.border,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 
@@ -238,14 +290,19 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
-          children: List.generate(_templates.length, (i) => Padding(
-            padding: EdgeInsets.only(bottom: i < _templates.length - 1 ? 16 : 0),
-            child: _GridTemplateCard(
-              template: _templates[i],
-              onPressed: () => widget.onGetStartedPressed(_templates[i].id),
-              onPreview: () => _showTemplatePreview(_templates[i]),
+          children: List.generate(
+            _templates.length,
+            (i) => Padding(
+              padding: EdgeInsets.only(
+                bottom: i < _templates.length - 1 ? 16 : 0,
+              ),
+              child: _GridTemplateCard(
+                template: _templates[i],
+                onPressed: () => widget.onGetStartedPressed(_templates[i].id),
+                onPreview: () => _showTemplatePreview(_templates[i]),
+              ),
             ),
-          )),
+          ),
         ),
       );
     }
@@ -257,14 +314,18 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
         children: [
           Expanded(
             child: Column(
-              children: List.generate(mid, (i) => Padding(
-                padding: EdgeInsets.only(bottom: i < mid - 1 ? 20 : 0),
-                child: _GridTemplateCard(
-                  template: _templates[i],
-                  onPressed: () => widget.onGetStartedPressed(_templates[i].id),
-                  onPreview: () => _showTemplatePreview(_templates[i]),
+              children: List.generate(
+                mid,
+                (i) => Padding(
+                  padding: EdgeInsets.only(bottom: i < mid - 1 ? 20 : 0),
+                  child: _GridTemplateCard(
+                    template: _templates[i],
+                    onPressed: () =>
+                        widget.onGetStartedPressed(_templates[i].id),
+                    onPreview: () => _showTemplatePreview(_templates[i]),
+                  ),
                 ),
-              )),
+              ),
             ),
           ),
           const SizedBox(width: 20),
@@ -273,10 +334,13 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
               children: List.generate(_templates.length - mid, (i) {
                 final idx = mid + i;
                 return Padding(
-                  padding: EdgeInsets.only(bottom: i < _templates.length - mid - 1 ? 20 : 0),
+                  padding: EdgeInsets.only(
+                    bottom: i < _templates.length - mid - 1 ? 20 : 0,
+                  ),
                   child: _GridTemplateCard(
                     template: _templates[idx],
-                    onPressed: () => widget.onGetStartedPressed(_templates[idx].id),
+                    onPressed: () =>
+                        widget.onGetStartedPressed(_templates[idx].id),
                     onPreview: () => _showTemplatePreview(_templates[idx]),
                   ),
                 );
@@ -290,7 +354,7 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
 
   Widget _buildTwoColsGrid(bool isMobile) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: isMobile ? 24 : 40),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 24.0 : 40.0),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -324,14 +388,19 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
           padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
           decoration: BoxDecoration(
             color: AppColors.background,
-            border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+            border: const Border(
+              top: BorderSide(color: AppColors.border, width: 0.5),
+            ),
           ),
           child: Column(
             children: [
               _buildSectionHeader(isMobile, loc),
               const SizedBox(height: 64),
               switch (widget.layout) {
-                TemplateSliderLayout.horizontalSlider => _buildHorizontalSlider(isMobile, loc),
+                TemplateSliderLayout.horizontalSlider => _buildHorizontalSlider(
+                  isMobile,
+                  loc,
+                ),
                 TemplateSliderLayout.masonryGrid => _buildMasonryGrid(isMobile),
                 TemplateSliderLayout.twoColsGrid => _buildTwoColsGrid(isMobile),
               },
@@ -347,7 +416,10 @@ class _LuxuriousTemplateCard extends StatefulWidget {
   final TemplateMetadata template;
   final VoidCallback onPressed;
 
-  const _LuxuriousTemplateCard({required this.template, required this.onPressed});
+  const _LuxuriousTemplateCard({
+    required this.template,
+    required this.onPressed,
+  });
 
   @override
   State<_LuxuriousTemplateCard> createState() => _LuxuriousTemplateCardState();
@@ -362,161 +434,209 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOutQuint,
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
-          boxShadow: [
-            BoxShadow(
-              color: (_isHovered ? AppColors.secondary : Colors.black).withValues(alpha: 0.2),
-              blurRadius: _isHovered ? 40 : 20,
-              offset: Offset(0, _isHovered ? 20 : 10),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(32),
-          child: Stack(
-            children: [
-              // Image
-              Positioned.fill(
-                child: AnimatedScale(
-                  scale: _isHovered ? 1.1 : 1.0,
-                  duration: const Duration(milliseconds: 800),
-                  curve: Curves.easeOut,
-                  child: Image.network(
-                    widget.template.imageUrl,
-                    fit: BoxFit.cover,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOutQuint,
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: (_isHovered ? AppColors.secondary : Colors.black)
+                    .withValues(alpha: 0.2),
+                blurRadius: _isHovered ? 40 : 20,
+                offset: Offset(0, _isHovered ? 20 : 10),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(32),
+            child: Stack(
+              children: [
+                // Image
+                Positioned.fill(
+                  child: AnimatedScale(
+                    scale: _isHovered ? 1.1 : 1.0,
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOut,
+                    child: Image.network(
+                      widget.template.imageUrl,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
-              
-              // Gradient Overlay
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.2),
-                        Colors.black.withValues(alpha: 0.8),
+
+                // Gradient Overlay
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.2),
+                          Colors.black.withValues(alpha: 0.8),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Content
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            widget.template.category.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          widget.template.name,
+                          style: AppTypography.h3.copyWith(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.template.description,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: Colors.white70,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: widget.onPressed,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      context.read<LocalizationCubit>().isRtl
+                                          ? "ابدأ بهذا القالب"
+                                          : "Start with this Template",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    const Icon(
+                                      Icons.arrow_forward_rounded,
+                                      size: 14,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            OutlinedButton(
+                              onPressed: () {
+                                final state = context
+                                    .findAncestorStateOfType<
+                                      _HomeLuxuriousTemplateSliderState
+                                    >();
+                                state?._showTemplatePreview(widget.template);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: const BorderSide(color: Colors.white38),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.visibility_outlined,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    context.read<LocalizationCubit>().isRtl
+                                        ? "معاينة"
+                                        : "Preview",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
-              ),
 
-              // Content
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(12),
+                // Glass Border Overlay on Hover
+                if (_isHovered)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 2,
                         ),
-                        child: Text(
-                          widget.template.category.toUpperCase(),
-                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-                        ),
+                        borderRadius: BorderRadius.circular(32),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        widget.template.name,
-                        style: AppTypography.h3.copyWith(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.template.description,
-                        style: AppTypography.bodySmall.copyWith(color: Colors.white70),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: widget.onPressed,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                elevation: 0,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    context.read<LocalizationCubit>().isRtl ? "ابدأ بهذا القالب" : "Start with this Template",
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  const Icon(Icons.arrow_forward_rounded, size: 14),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          OutlinedButton(
-                            onPressed: () {
-                              final state = context.findAncestorStateOfType<_HomeLuxuriousTemplateSliderState>();
-                              state?._showTemplatePreview(widget.template);
-                            },
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(color: Colors.white38),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.visibility_outlined, size: 16),
-                                const SizedBox(width: 6),
-                                Text(
-                                  context.read<LocalizationCubit>().isRtl ? "معاينة" : "Preview",
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Glass Border Overlay on Hover
-              if (_isHovered)
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
-                      borderRadius: BorderRadius.circular(32),
                     ),
                   ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 }
 
@@ -547,125 +667,159 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: _hovered ? AppColors.secondary.withValues(alpha: 0.5) : AppColors.border,
-            width: 1.5,
-          ),
-          boxShadow: _hovered
-              ? [BoxShadow(color: AppColors.secondary.withValues(alpha: 0.15), blurRadius: 24, offset: const Offset(0, 8))]
-              : [],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(19),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: AnimatedScale(
-                        scale: _hovered ? 1.08 : 1.0,
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeOut,
-                        child: Image.network(
-                          widget.template.imageUrl,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: _hovered
+                  ? AppColors.secondary.withValues(alpha: 0.5)
+                  : AppColors.border,
+              width: 1.5,
+            ),
+            boxShadow: _hovered
+                ? [
+                    BoxShadow(
+                      color: AppColors.secondary.withValues(alpha: 0.15),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
                     ),
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.6)],
+                  ]
+                : [],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(19),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: AnimatedScale(
+                          scale: _hovered ? 1.08 : 1.0,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOut,
+                          child: Image.network(
+                            widget.template.imageUrl,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
-                    ),
-                    Positioned(
-                      top: 12,
-                      left: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          widget.template.category.toUpperCase(),
-                          style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1),
-                        ),
-                      ),
-                    ),
-                    if (_hovered)
                       Positioned.fill(
                         child: Container(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          child: Center(
-                            child: IconButton(
-                              onPressed: widget.onPreview,
-                              icon: const Icon(Icons.visibility_rounded, color: Colors.white, size: 28),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.6),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.template.name,
-                        style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.template.description,
-                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const Spacer(),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: widget.onPressed,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            elevation: 0,
+                      Positioned(
+                        top: 12,
+                        left: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            context.read<LocalizationCubit>().isRtl ? "استخدم القالب" : "Use Template",
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                            widget.template.category.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
                           ),
                         ),
                       ),
+                      if (_hovered)
+                        Positioned.fill(
+                          child: Container(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            child: Center(
+                              child: IconButton(
+                                onPressed: widget.onPreview,
+                                icon: const Icon(
+                                  Icons.visibility_rounded,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
-              ),
-            ],
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.template.name,
+                          style: AppTypography.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.template.description,
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Spacer(),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: widget.onPressed,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.secondary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              context.read<LocalizationCubit>().isRtl
+                                  ? "استخدم القالب"
+                                  : "Use Template",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  ));
+    );
   }
 }
 

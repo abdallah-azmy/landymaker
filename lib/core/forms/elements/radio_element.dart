@@ -42,10 +42,10 @@ class RadioElement extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
           ...options.map((opt) {
-            if (opt is! Map) return const SizedBox.shrink();
+            if (opt is! Map) return SizedBox.shrink();
             final String optValue = opt['value']?.toString() ?? '';
             final String optLabel = LocalizedTextParser.extractText(
               opt['label'],
@@ -67,7 +67,7 @@ class RadioElement extends StatelessWidget {
               padding: const EdgeInsets.only(top: 4.0, right: 8.0, left: 8.0),
               child: Text(
                 errorMessage!,
-                style: const TextStyle(color: Colors.red, fontSize: 12),
+                style: TextStyle(color: Colors.red, fontSize: 12),
               ),
             ),
         ],

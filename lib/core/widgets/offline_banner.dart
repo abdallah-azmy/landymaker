@@ -53,12 +53,12 @@ class _OfflineBannerState extends State<OfflineBanner> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.wifi_off_rounded,
                   color: Colors.white,
                   size: 16,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   loc.translate('offline_banner'),
                   style: AppTypography.caption.copyWith(color: Colors.white),

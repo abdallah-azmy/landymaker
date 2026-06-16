@@ -23,13 +23,13 @@ class SocialSignInButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: isLoading ? null : onPressed,
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: AppColors.border, width: 1.5),
+          side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          backgroundColor: AppColors.cardBg,
-          foregroundColor: AppColors.textPrimary,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.secondary),
@@ -41,13 +41,13 @@ class SocialSignInButton extends StatelessWidget {
                     'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
                     height: 22,
                     width: 22,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata, color: Colors.white),
+                    errorBuilder: (_, __, ___) => Icon(Icons.g_mobiledata, color: Colors.white),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Text(
                     label,
                     style: AppTypography.button.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

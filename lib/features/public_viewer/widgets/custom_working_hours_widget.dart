@@ -29,8 +29,8 @@ class CustomWorkingHoursWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = blockData['title'] ?? 'مواعيد العمل';
     final schedule = blockData['schedule'] as Map<String, dynamic>? ?? {};
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     final now = DateTime.now();
     final currentHour = now.hour;
@@ -127,11 +127,11 @@ class _DesktopWorkingHoursLayout extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 24))),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   _WorkingHoursStatusBadge(isOpen: props.isOpen),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               ...props.schedule.entries.map((entry) {
                 final valStr = entry.value.toString();
                 final bool isNumeric = RegExp(r'[0-9]').hasMatch(valStr);
@@ -141,7 +141,7 @@ class _DesktopWorkingHoursLayout extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 17))),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           valStr,
@@ -196,11 +196,11 @@ class _MobileWorkingHoursLayout extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20))),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   _WorkingHoursStatusBadge(isOpen: props.isOpen),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               ...props.schedule.entries.map((entry) {
                 final valStr = entry.value.toString();
                 final bool isNumeric = RegExp(r'[0-9]').hasMatch(valStr);
@@ -210,7 +210,7 @@ class _MobileWorkingHoursLayout extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 15))),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           valStr,
@@ -253,7 +253,7 @@ class _WorkingHoursStatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(width: 8, height: 8, decoration: BoxDecoration(color: isOpen ? AppColors.activeGreen : AppColors.dangerRed, shape: BoxShape.circle)),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(isOpen ? "مفتوح الآن" : "مغلق الآن", style: AppTypography.caption.copyWith(color: isOpen ? AppColors.activeGreen : AppColors.dangerRed, fontWeight: FontWeight.bold)),
         ],
       ),

@@ -41,7 +41,7 @@ class FaqEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -53,12 +53,12 @@ class FaqEditor extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () => cubit.addFaqItem(index),
-              icon: const Icon(Icons.add_rounded, size: 16),
+              icon: Icon(Icons.add_rounded, size: 16),
               label: const Text("أضف سؤال"),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         ...List.generate(((block['items'] as List?) ?? []).length, (fIndex) {
           final item =
               ((block['items'] as List?) ?? [])[fIndex] as Map<String, dynamic>;
@@ -66,9 +66,9 @@ class FaqEditor extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               children: [
@@ -82,7 +82,7 @@ class FaqEditor extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.delete_outline_rounded,
                         color: AppColors.dangerRed,
                         size: 20,
@@ -101,7 +101,7 @@ class FaqEditor extends StatelessWidget {
                   onChanged: (val) =>
                       cubit.updateFaqItem(index, fIndex, 'question', val),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: "الإجابة",
                   maxLines: 3,
@@ -113,7 +113,7 @@ class FaqEditor extends StatelessWidget {
                   onChanged: (val) =>
                       cubit.updateFaqItem(index, fIndex, 'answer', val),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 PrimaryButton(
                   text: "ابحث في الصور (Stock Images)",
                   icon: Icons.search_rounded,

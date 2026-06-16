@@ -80,8 +80,8 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
     final String liveUrl = subdomain != null ? '$baseUrl/$subdomain' : baseUrl;
 
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
-    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -176,9 +176,9 @@ class _DesktopSocialQrLayout extends StatelessWidget {
           child: Column(
             children: [
               Text(props.title, style: AppTypography.h2.copyWith(fontSize: 32, color: props.textColor), textAlign: TextAlign.center),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14), textAlign: TextAlign.center),
-              const SizedBox(height: 64),
+              SizedBox(height: 64),
               Wrap(
                 spacing: 40,
                 runSpacing: 40,
@@ -221,9 +221,9 @@ class _MobileSocialQrLayout extends StatelessWidget {
           child: Column(
             children: [
               Text(props.title, style: AppTypography.h2.copyWith(fontSize: 24, color: props.textColor), textAlign: TextAlign.center),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 12), textAlign: TextAlign.center),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               Wrap(
                 spacing: 24,
                 runSpacing: 24,
@@ -286,7 +286,7 @@ class _SocialQrCodeCard extends StatelessWidget {
               subTextColor: props.subTextColor,
               isMobile: props.isMobile,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             _SocialQrActionButton(
               icon: Icons.copy_rounded,
               label: "نسخ الرابط",
@@ -318,9 +318,9 @@ class _SocialLinksList extends StatelessWidget {
         crossAxisAlignment: props.isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         children: [
           Text("روابط سريعة", style: AppTypography.h3.copyWith(color: props.secondaryColor, fontSize: props.isMobile ? 18 : 22)),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ...props.links.map((link) => _SocialLinkItem(link: link, textColor: props.textColor, subTextColor: props.subTextColor, isMobile: props.isMobile)),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -331,7 +331,7 @@ class _SocialLinksList extends StatelessWidget {
             child: Row(
               children: [
                 Icon(Icons.link_rounded, color: props.secondaryColor, size: 18),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     props.liveUrl.replaceFirst('https://', ''),
@@ -408,7 +408,7 @@ class _SocialLinkItem extends StatelessWidget {
           child: Row(
             children: [
               Icon(iconData, color: color, size: isMobile ? 18 : 22),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Text(
                   platform.toUpperCase(),

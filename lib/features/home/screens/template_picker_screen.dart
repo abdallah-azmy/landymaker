@@ -93,14 +93,14 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             size: 20,
           ),
           onPressed: () => context.safePop(fallbackPath: '/'),
@@ -162,7 +162,7 @@ class _TemplatePickerDesktop extends StatelessWidget {
           selectedCategory: selectedCategory,
           onCategorySelected: onCategorySelected,
         ),
-        const SizedBox(width: 24),
+        SizedBox(width: 24),
         Expanded(
           child: Column(
             children: [
@@ -239,9 +239,9 @@ class _Sidebar extends StatelessWidget {
       margin: const EdgeInsetsDirectional.only(top: 24, start: 24),
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,11 +253,11 @@ class _Sidebar extends StatelessWidget {
               'التصنيفات',
               style: AppTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
-          const Divider(color: AppColors.border, height: 1),
+          Divider(color: Theme.of(context).colorScheme.outlineVariant, height: 1),
           _SidebarItem(
             category: null,
             label: 'الكل',
@@ -349,7 +349,7 @@ class _MobileFilterBar extends StatelessWidget {
           ),
           TextButton.icon(
             onPressed: () => _showFilterSheet(context),
-            icon: const Icon(Icons.filter_list_rounded, size: 18),
+            icon: Icon(Icons.filter_list_rounded, size: 18),
             label: const Text('تصفية'),
             style: TextButton.styleFrom(foregroundColor: AppColors.secondary),
           ),
@@ -371,19 +371,19 @@ class _MobileFilterBar extends StatelessWidget {
         builder: (context, scrollController) {
           return Container(
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: Column(
               children: [
                 _Handle(),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text('تصنيف القوالب', style: AppTypography.h3),
                 ),
-                const SizedBox(height: 16),
-                const Divider(color: AppColors.border, height: 1),
+                SizedBox(height: 16),
+                Divider(color: Theme.of(context).colorScheme.outlineVariant, height: 1),
                 Expanded(
                   child: ListView(
                     controller: scrollController,
@@ -438,7 +438,7 @@ class _SheetItem extends StatelessWidget {
       selectedTileColor: AppColors.secondary.withValues(alpha: 0.1),
       leading: Icon(
         isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
-        color: isSelected ? AppColors.secondary : AppColors.textSecondary,
+        color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
         size: 20,
       ),
       title: Text(
@@ -494,7 +494,7 @@ class _WarningText extends StatelessWidget {
       child: Text(
         context.translate('template_warning'),
         textAlign: TextAlign.center,
-        style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+        style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
     );
   }
@@ -509,7 +509,7 @@ class _Handle extends StatelessWidget {
       width: 40,
       height: 4,
       decoration: BoxDecoration(
-        color: AppColors.textSecondary.withValues(alpha: 0.3),
+        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(2),
       ),
     );
@@ -546,10 +546,10 @@ class _TemplateCardState extends State<_TemplateCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: AppColors.cardBg,
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: _isHovered ? AppColors.secondary : AppColors.border,
+            color: _isHovered ? AppColors.secondary : Theme.of(context).colorScheme.outlineVariant,
             width: 2,
           ),
           boxShadow: _isHovered
@@ -568,7 +568,7 @@ class _TemplateCardState extends State<_TemplateCard> {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
                 child: Stack(
                   children: [
                     CustomNetworkImage(
@@ -610,10 +610,10 @@ class _TemplateCardState extends State<_TemplateCard> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       widget.template.description,
-                      style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

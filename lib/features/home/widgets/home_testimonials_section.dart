@@ -1,6 +1,5 @@
 /// Testimonials Section — shows customer reviews after Stats section.
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
 
@@ -96,8 +95,8 @@ class _HomeTestimonialsSectionState extends State<HomeTestimonialsSection>
           horizontal: 24,
         ),
         decoration: BoxDecoration(
-          color: AppColors.background,
-          border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+          color: Theme.of(context).colorScheme.surface,
+          border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
         ),
         child: Center(
           child: Container(
@@ -125,7 +124,7 @@ class _HomeTestimonialsSectionState extends State<HomeTestimonialsSection>
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         Text(
                           'ماذا يقول عملاؤنا؟',
                           style: AppTypography.h2.copyWith(
@@ -134,11 +133,11 @@ class _HomeTestimonialsSectionState extends State<HomeTestimonialsSection>
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12),
                         Text(
                           'أكثر من ١٥٬٠٠٠ صاحب عمل يثقون بـ Landymaker.',
                           style: AppTypography.bodyLarge.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             height: 1.6,
                           ),
                           textAlign: TextAlign.center,
@@ -147,7 +146,7 @@ class _HomeTestimonialsSectionState extends State<HomeTestimonialsSection>
                     ),
                   ),
                 ),
-                const SizedBox(height: 64),
+                SizedBox(height: 64),
                 isMobile
                   ? Column(
                       children: List.generate(_testimonials.length, (i) => Padding(
@@ -217,10 +216,10 @@ class _TestimonialCardState extends State<_TestimonialCard> {
             curve: Curves.easeOutCubic,
             padding: const EdgeInsetsDirectional.all(28),
             decoration: BoxDecoration(
-              color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
+              color: _hovered ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) : Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: _hovered ? d.avatarColor.withValues(alpha: 0.4) : AppColors.border,
+                color: _hovered ? d.avatarColor.withValues(alpha: 0.4) : Theme.of(context).colorScheme.outlineVariant,
                 width: 1.5,
               ),
             ),
@@ -228,21 +227,21 @@ class _TestimonialCardState extends State<_TestimonialCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: List.generate(d.rating, (_) => const Padding(
+                  children: List.generate(d.rating, (_) => Padding(
                     padding: EdgeInsetsDirectional.only(end: 2),
                     child: Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
                   )),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Text(
                   '"${d.text}"',
                   style: AppTypography.bodyLarge.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                     height: 1.7,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Row(
                   children: [
                     CircleAvatar(
@@ -250,7 +249,7 @@ class _TestimonialCardState extends State<_TestimonialCard> {
                       backgroundColor: d.avatarColor,
                       child: Text(
                         d.initial,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -258,17 +257,17 @@ class _TestimonialCardState extends State<_TestimonialCard> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(d.name, style: AppTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         )),
                         Text(
                           '${d.role} • ${d.city}',
-                          style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                          style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
                         ),
                       ],
                     ),

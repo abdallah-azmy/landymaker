@@ -45,7 +45,7 @@ class CustomFeaturesWidget extends StatelessWidget {
     final primaryColor = theme?.primary ?? AppColors.primary;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
     final textColor = theme?.textPrimary ?? Colors.white;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -165,7 +165,7 @@ class _FeaturesHeader extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Container(
           width: 40,
           height: 3,
@@ -241,7 +241,7 @@ class _FeaturesBentoLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (props.items.isEmpty) return const SizedBox.shrink();
+    if (props.items.isEmpty) return SizedBox.shrink();
 
     final List<Widget> rows = [];
     
@@ -261,7 +261,7 @@ class _FeaturesBentoLayout extends StatelessWidget {
                 isBento: true,
               ),
             ),
-            const SizedBox(width: 24),
+            SizedBox(width: 24),
             Expanded(
               flex: 2,
               child: FeatureCard(
@@ -280,7 +280,7 @@ class _FeaturesBentoLayout extends StatelessWidget {
     }
     
     if (props.items.length >= 4) {
-      rows.add(const SizedBox(height: 24));
+      rows.add(SizedBox(height: 24));
       rows.add(
         Row(
           children: [
@@ -296,7 +296,7 @@ class _FeaturesBentoLayout extends StatelessWidget {
                 isBento: true,
               ),
             ),
-            const SizedBox(width: 24),
+            SizedBox(width: 24),
             Expanded(
               flex: 3,
               child: FeatureCard(
@@ -318,10 +318,10 @@ class _FeaturesBentoLayout extends StatelessWidget {
     if (props.items.length > 4) {
       // For more than 4, just add them as a grid below
       final remaining = props.items.sublist(4);
-      rows.add(const SizedBox(height: 24));
+      rows.add(SizedBox(height: 24));
       rows.add(_FeaturesGridLayout(props: props, constraints: const BoxConstraints(maxWidth: 1100)));
     } else if (props.items.length == 3) {
-       rows.add(const SizedBox(height: 24));
+       rows.add(SizedBox(height: 24));
        rows.add(FeatureCard(title: props.items[2]['title'] ?? '', description: props.items[2]['description'] ?? '', linkUrl: props.items[2]['link_url'], iconName: props.items[2]['icon'], index: 2, props: props));
     }
 
@@ -405,7 +405,7 @@ class _FeatureCardState extends State<FeatureCard> {
               decoration: BoxDecoration(color: accent.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Icon(_resolveIcon(widget.iconName, widget.index), color: accent),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,7 +476,7 @@ class _FeatureCardState extends State<FeatureCard> {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             widget.title,
             style: AppTypography.bodyLarge.copyWith(
@@ -485,7 +485,7 @@ class _FeatureCardState extends State<FeatureCard> {
               color: widget.props.textColor,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             widget.description,
             style: AppTypography.bodyMedium.copyWith(

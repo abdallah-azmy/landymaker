@@ -68,39 +68,39 @@ final GoRouter appRouter = GoRouter(
   errorBuilder: (context, state) {
     final loc = context.read<LocalizationCubit>();
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.link_off_rounded, size: 72, color: AppColors.primary),
-              const SizedBox(height: 24),
+              Icon(Icons.link_off_rounded, size: 72, color: AppColors.primary),
+              SizedBox(height: 24),
               Text(
                 '404',
                 style: AppTypography.h1.copyWith(color: AppColors.primary, fontSize: 72),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 loc.translate('page_not_found'),
                 style: AppTypography.h3,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
                 loc.translate('page_not_found_desc'),
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               ElevatedButton.icon(
                 onPressed: () {
                   WidgetsBinding.instance.addPostFrameCallback(
                     (_) => context.go('/'),
                   );
                 },
-                icon: const Icon(Icons.home_rounded),
+                icon: Icon(Icons.home_rounded),
                 label: Text(loc.translate('back_to_home')),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

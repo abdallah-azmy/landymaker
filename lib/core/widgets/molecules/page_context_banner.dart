@@ -21,9 +21,9 @@ class PageContextBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 32),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.2),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -43,7 +43,7 @@ class PageContextBanner extends StatelessWidget {
             ),
             child: Icon(icon, size: 28, color: AppColors.primary),
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,15 +52,15 @@ class PageContextBanner extends StatelessWidget {
                   title,
                   style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Text(
                   description,
-                  style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 24),
+          SizedBox(width: 24),
           Container(
             width: 250,
             padding: const EdgeInsets.only(top: 4),
@@ -71,10 +71,10 @@ class PageContextBanner extends StatelessWidget {
                   "الصفحة المحددة حالياً:",
                   style: AppTypography.caption.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 const WebsiteSwitcher(),
               ],
             ),

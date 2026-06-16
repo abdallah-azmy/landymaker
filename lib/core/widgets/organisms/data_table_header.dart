@@ -39,7 +39,7 @@ class DataTableHeader extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 300),
                 child: CustomTextField(
                   hintText: "بحث...",
-                  prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.textSecondary),
+                  prefixIcon: Icon(Icons.search_rounded, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   onChanged: onSearch,
                 ),
               ),
@@ -47,14 +47,14 @@ class DataTableHeader extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: AppColors.cardBg,
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                   ),
                   child: DropdownButton<String>(
                     value: currentSort,
-                    underline: const SizedBox(),
-                    icon: const Icon(Icons.sort_rounded, color: AppColors.secondary),
+                    underline: SizedBox(),
+                    icon: Icon(Icons.sort_rounded, color: AppColors.secondary),
                     hint: const Text("ترتيب حسب"),
                     items: sortOptions.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
                     onChanged: onSort,

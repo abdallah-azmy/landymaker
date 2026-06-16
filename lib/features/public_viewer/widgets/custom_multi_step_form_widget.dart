@@ -304,8 +304,8 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
     );
 
     final primaryColor = widget.theme?.primary ?? AppColors.primary;
-    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -371,7 +371,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
     }
 
     final currentStep = _steps[_currentStepIndex];
-    if (currentStep is! Map) return const SizedBox.shrink();
+    if (currentStep is! Map) return SizedBox.shrink();
 
     final stepTitle = LocalizedTextParser.extractText(
       currentStep['step_title'],
@@ -392,14 +392,14 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
               color: textColor,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
         ],
         if (subtitle.isNotEmpty) ...[
           Text(
             subtitle,
             style: TextStyle(fontSize: isMobile ? 14 : 16, color: subTextColor),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
         ],
         // Progress Indicator
         Row(
@@ -411,7 +411,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: LinearProgressIndicator(
                 value: (_currentStepIndex + 1) / _steps.length,
@@ -421,23 +421,23 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         if (stepTitle.isNotEmpty) ...[
           Text(
             stepTitle,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
         ],
         // Fields
         ...fields.map((field) {
-          if (field is! Map) return const SizedBox.shrink();
+          if (field is! Map) return SizedBox.shrink();
           final fieldId = field['field_id'] as String?;
-          if (fieldId == null) return const SizedBox.shrink();
+          if (fieldId == null) return SizedBox.shrink();
 
           // Hide field if it fails condition
           if (!_evaluateCondition(field['show_if'])) {
-            return const SizedBox.shrink();
+            return SizedBox.shrink();
           }
 
           return FieldRenderer.render(
@@ -450,15 +450,15 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
         }),
 
         if (_errorMessage != null) ...[
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             _errorMessage!,
-            style: const TextStyle(color: AppColors.dangerRed, fontSize: 14, fontWeight: FontWeight.bold),
+            style: TextStyle(color: AppColors.dangerRed, fontSize: 14, fontWeight: FontWeight.bold),
           ),
         ],
 
         if (_findNextVisibleStep(_currentStepIndex, 1) >= _steps.length) ...[
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Center(
             child: SizedBox(
               width: 300,
@@ -468,7 +468,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
           ),
         ],
 
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         // Navigation Buttons
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -479,7 +479,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
                 child: const Text('السابق'),
               )
             else
-              const SizedBox.shrink(),
+              SizedBox.shrink(),
             ElevatedButton(
               onPressed: _isSubmitting ? null : _nextStep,
               style: ElevatedButton.styleFrom(
@@ -491,7 +491,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
                 ),
               ),
               child: _isSubmitting
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
@@ -518,10 +518,10 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(Icons.check_circle_outline, color: primaryColor, size: 80),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Text(
           msg,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
       ],

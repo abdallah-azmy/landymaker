@@ -199,8 +199,8 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
   @override
   Widget build(BuildContext context) {
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
-    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -331,22 +331,22 @@ class _LeadFormContainer extends StatelessWidget {
         children: [
           Offstage(child: TextField(controller: props.honeypotController, decoration: const InputDecoration(labelText: 'Leave this field empty'))),
           Text(props.title, style: AppTypography.h2.copyWith(fontSize: props.isMobile ? 22 : 26, fontWeight: FontWeight.bold, color: props.textColor)),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(context.translate('form_subtitle'), style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 12 : 14)),
           SizedBox(height: props.isMobile ? 24 : 32),
           if (props.successMessage != null) _StatusBanner(message: props.successMessage!, color: AppColors.activeGreen, isMobile: props.isMobile),
           if (props.errorMessage != null) _StatusBanner(message: props.errorMessage!, color: AppColors.dangerRed, isMobile: props.isMobile),
           ...props.fields.map((field) {
-            if (field is! Map) return const SizedBox.shrink();
+            if (field is! Map) return SizedBox.shrink();
             final fieldId = field['field_id'] as String?;
-            if (fieldId == null) return const SizedBox.shrink();
+            if (fieldId == null) return SizedBox.shrink();
             final controller = props.controllers[fieldId];
-            if (controller == null) return const SizedBox.shrink();
+            if (controller == null) return SizedBox.shrink();
             return _LeadFormField(field: field.cast<String, dynamic>(), controller: controller, props: props);
           }),
           SizedBox(height: props.isMobile ? 8 : 16),
           Center(child: SizedBox(width: 300, height: 70, child: HtmlElementView(viewType: props.turnstileViewId))),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _LeadFormSubmitButton(props: props),
         ],
       ),
@@ -372,7 +372,7 @@ class _StatusBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(color == AppColors.activeGreen ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14))),
         ],
       ),
@@ -428,7 +428,7 @@ class _LeadFormSubmitButton extends StatelessWidget {
           elevation: 4,
         ),
         child: props.isSubmitting
-            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0))
+            ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0))
             : Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16)),
       ),
     );

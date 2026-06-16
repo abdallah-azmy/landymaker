@@ -170,7 +170,7 @@ class BuilderCanvas extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Container(
               height: 20,
@@ -182,7 +182,7 @@ class BuilderCanvas extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
                 "https://landymaker.com/${state.subdomain.isEmpty ? 'your-brand' : state.subdomain}",
-                style: const TextStyle(fontSize: 9, color: Colors.grey),
+                style: TextStyle(fontSize: 9, color: Colors.grey),
               ),
             ),
           ),

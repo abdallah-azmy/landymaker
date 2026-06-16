@@ -13,14 +13,14 @@ class GlobalUploadManagerWidget extends StatelessWidget {
     return BlocBuilder<UploadManagerCubit, UploadManagerState>(
       bloc: sl<UploadManagerCubit>(),
       builder: (context, state) {
-        if (state.uploads.isEmpty) return const SizedBox.shrink();
+        if (state.uploads.isEmpty) return SizedBox.shrink();
 
         return Container(
           width: 240,
           decoration: BoxDecoration(
-            color: AppColors.cardBg,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.3),
@@ -34,8 +34,8 @@ class GlobalUploadManagerWidget extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: AppColors.border)),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
                 ),
                 child: const Row(
                   children: [
@@ -83,7 +83,7 @@ class GlobalUploadManagerWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.black,
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
@@ -95,7 +95,7 @@ class GlobalUploadManagerWidget extends StatelessWidget {
                   else if (task.data.url != null)
                     Image.network(task.data.url!, fit: BoxFit.cover, cacheWidth: 100)
                   else
-                    const Icon(Icons.image, color: Colors.white24),
+                    Icon(Icons.image, color: Colors.white24),
                   
                   // Dark overlay for progress visibility
                   Container(color: Colors.black54),
@@ -121,7 +121,7 @@ class GlobalUploadManagerWidget extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           
           // Progress text / Status
           Expanded(
@@ -147,7 +147,7 @@ class GlobalUploadManagerWidget extends StatelessWidget {
           
           // Cancel Button
           IconButton(
-            icon: const Icon(Icons.close_rounded, color: Colors.white54, size: 20),
+            icon: Icon(Icons.close_rounded, color: Colors.white54, size: 20),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             onPressed: () => sl<UploadManagerCubit>().cancelUpload(task.id),

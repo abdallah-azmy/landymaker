@@ -125,9 +125,9 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text("Failed to load leads list", style: AppTypography.h2),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(state.message, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 cubit.fetchStatsForCurrentUser();
@@ -189,7 +189,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
         Text(formattedDate, style: AppTypography.caption),
         phone.isNotEmpty
             ? IconButton(
-                icon: const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF25D366)),
+                icon: Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF25D366)),
                 tooltip: loc.translate('chat_on_whatsapp'),
                 onPressed: () {
                   final cleanNumber = _normalizePhoneNumber(phone);
@@ -200,7 +200,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
                   html.window.open(url, '_blank');
                 },
               )
-            : const Icon(Icons.phone_disabled_rounded, color: AppColors.textMuted, size: 20),
+            : Icon(Icons.phone_disabled_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), size: 20),
       ];
     }).toList();
 
@@ -219,7 +219,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
                     loc.translate('leads'),
                     style: AppTypography.h1.copyWith(fontSize: 28),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     "Track visitor signups captured from your public landing pages.",
                     style: AppTypography.bodyMedium,
@@ -239,33 +239,33 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      icon: const Icon(Icons.download_rounded, size: 18),
+                      icon: Icon(Icons.download_rounded, size: 18),
                       label: Text(loc.translate('export_csv')),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                   ],
                   IconButton(
                     onPressed: () {
                       cubit.fetchStatsForCurrentUser();
                     },
-                    icon: const Icon(Icons.refresh_rounded, color: AppColors.secondary),
+                    icon: Icon(Icons.refresh_rounded, color: AppColors.secondary),
                     tooltip: "Reload Leads List",
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           const PageContextBanner(
             title: "إدارة العملاء المحتملين",
             description: "هنا يمكنك استعراض قائمة العملاء الذين قاموا بالتسجيل أو ترك بياناتهم عبر صفحة الهبوط المحددة حالياً.",
             icon: Icons.contacts_rounded,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           if (errorMessage != null) ...[
             Text(errorMessage, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
           ],
 
           Expanded(

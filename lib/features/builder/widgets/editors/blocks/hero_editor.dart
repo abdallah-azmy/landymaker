@@ -47,11 +47,11 @@ class HeroEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(context.translate('subtitle'), style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(context.translate('subtitle'), style: TextStyle(fontWeight: FontWeight.bold)),
             AiCopywriterTrigger(
               fieldType: 'Hero Subtitle',
               contextData: businessContext,
@@ -59,22 +59,22 @@ class HeroEditor extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         CustomTextField(
           controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
           focusNode: getFocusNode("${index}_subtitle"),
           maxLines: 3,
           onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         CustomImageField(
           label: context.translate('hero_image'),
           imageUrl: block['image_url'],
           onAction: () => pickImage(cubit, index),
         ),
-        const SizedBox(height: 24),
-        const Divider(color: Colors.white10),
-        const SizedBox(height: 16),
+        SizedBox(height: 24),
+        Divider(color: Colors.white10),
+        SizedBox(height: 16),
         FormGroup(
           label: context.translate('button_text'),
           child: CustomTextField(
@@ -83,7 +83,7 @@ class HeroEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: context.translate('button_url'),
           helperText: "https://...",
@@ -94,7 +94,7 @@ class HeroEditor extends StatelessWidget {
             keyboardType: TextInputType.url,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "الهامش الرأسي (Vertical Padding)",
           child: Slider(
@@ -106,7 +106,7 @@ class HeroEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'vertical_padding', val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         FormGroup(
           label: 'نوع التخطيط',
           child: DropdownButtonFormField<String>(

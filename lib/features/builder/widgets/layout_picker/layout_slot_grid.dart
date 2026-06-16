@@ -29,24 +29,24 @@ class LayoutSlotGrid extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Text(
           'عناصر التخطيط',
           style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           'اضغط على عنصر لتغيير نوعه',
-          style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+          style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         if (slots.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Center(
               child: Text(
                 'لا توجد عناصر قابلة للتخصيص',
-                style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
           )
@@ -119,9 +119,9 @@ class _SlotCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Row(
               children: [
@@ -134,7 +134,7 @@ class _SlotCard extends StatelessWidget {
                   ),
                   child: Icon(_icon, color: AppColors.secondary, size: 20),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,19 +146,19 @@ class _SlotCard extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         _typeName,
                         style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.chevron_left_rounded,
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 20,
                 ),
               ],

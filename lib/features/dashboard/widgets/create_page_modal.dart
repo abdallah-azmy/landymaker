@@ -265,7 +265,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
     final loc = context.watch<LocalizationCubit>();
 
     if (_isCheckingLimit) {
-      return const SizedBox(
+      return SizedBox(
         height: 300,
         child: Center(child: CircularProgressIndicator()),
       );
@@ -282,8 +282,8 @@ class _CreatePageModalState extends State<CreatePageModal> {
         top: 24,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Form(
@@ -297,28 +297,28 @@ class _CreatePageModalState extends State<CreatePageModal> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: Theme.of(context).colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(loc.translate('create_new_page'), style: AppTypography.h3),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               loc.translate('choose_template'),
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             SizedBox(
               height: 120,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: TemplateRegistry.availableTemplates.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                separatorBuilder: (_, __) => SizedBox(width: 12),
                 itemBuilder: (context, index) {
                   final template = TemplateRegistry.availableTemplates[index];
                   final isSelected = _selectedTemplateId == template.id;
@@ -332,7 +332,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
                         border: Border.all(
                           color: isSelected
                               ? AppColors.primary
-                              : AppColors.border,
+                              : Theme.of(context).colorScheme.outlineVariant,
                           width: isSelected ? 2 : 1,
                         ),
                         image: DecorationImage(
@@ -377,25 +377,25 @@ class _CreatePageModalState extends State<CreatePageModal> {
                 },
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               loc.translate('enter_page_slug'),
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             CustomTextField(
               controller: _slugController,
               hintText: loc.translate('slug_hint'),
               onChanged: _onSlugChanged,
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.link,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               suffixIcon: _isCheckingSlug
-                  ? const Padding(
+                  ? Padding(
                       padding: EdgeInsets.all(12),
                       child: SizedBox(
                         width: 16,
@@ -404,9 +404,9 @@ class _CreatePageModalState extends State<CreatePageModal> {
                       ),
                     )
                   : _isSlugAvailable
-                  ? const Icon(Icons.check_circle, color: AppColors.activeGreen)
+                  ? Icon(Icons.check_circle, color: AppColors.activeGreen)
                   : _slugError != null
-                  ? const Icon(Icons.error_outline, color: AppColors.dangerRed)
+                  ? Icon(Icons.error_outline, color: AppColors.dangerRed)
                   : null,
             ),
             if (_slugError != null)
@@ -414,12 +414,12 @@ class _CreatePageModalState extends State<CreatePageModal> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
                       color: AppColors.dangerRed,
                       size: 14,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       _slugError!,
                       style: AppTypography.caption.copyWith(
@@ -434,12 +434,12 @@ class _CreatePageModalState extends State<CreatePageModal> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.check_circle_outline,
                       color: AppColors.activeGreen,
                       size: 14,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       loc.translate('slug_available'),
                       style: AppTypography.caption.copyWith(
@@ -449,21 +449,21 @@ class _CreatePageModalState extends State<CreatePageModal> {
                   ],
                 ),
               ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               loc.translate('live_url_preview'),
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.cardBg,
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -480,27 +480,27 @@ class _CreatePageModalState extends State<CreatePageModal> {
                       horizontal: 12,
                       vertical: 6,
                     ),
-                    decoration: const BoxDecoration(
-                      color: AppColors.background,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(11),
                       ),
                       border: Border(
-                        bottom: BorderSide(color: AppColors.border),
+                        bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                       ),
                     ),
                     child: Row(
                       children: [
                         _buildDot(Colors.red[300]!),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         _buildDot(Colors.orange[300]!),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         _buildDot(Colors.green[300]!),
                         const Expanded(child: SizedBox()),
-                        const Icon(
+                        Icon(
                           Icons.add,
                           size: 14,
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ],
                     ),
@@ -514,18 +514,18 @@ class _CreatePageModalState extends State<CreatePageModal> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.background,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                       ),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.lock,
                             size: 12,
                             color: AppColors.activeGreen,
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               "landymaker.com/${_slugController.text.isEmpty ? '...' : _slugController.text}",
@@ -544,7 +544,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             Row(
               children: [
                 Expanded(
@@ -553,7 +553,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
                     child: Text(loc.translate('cancel')),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(
                   child: PrimaryButton(
                     text: loc.translate('confirm_and_create'),

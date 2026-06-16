@@ -286,9 +286,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                     ),
 
                   if (isMobile)
-                    const SizedBox(height: 48)
+                    SizedBox(height: 48)
                   else
-                    const SizedBox(width: 48),
+                    SizedBox(width: 48),
 
                   // Phone Preview container with auto-cycling templates
                   if (isMobile)
@@ -366,7 +366,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                     children: [
                       // Badge
                       _buildBadge(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       Text(
                         'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                         style: AppTypography.h1.copyWith(
@@ -377,7 +377,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 14),
                       ConstrainedBox(
                         constraints: BoxConstraints(minHeight: 44),
                         child: _TypewriterText(
@@ -385,7 +385,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                           isMobile: isMobile,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Text(
                         'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
                         style: AppTypography.bodyLarge.copyWith(
@@ -395,7 +395,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       _buildCTAButtons(context),
                     ],
                   ),
@@ -445,7 +445,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildBadge(),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     Text(
                       'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                       style: AppTypography.h1.copyWith(
@@ -456,7 +456,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
                     ConstrainedBox(
                       constraints: BoxConstraints(minHeight: 44),
                       child: _TypewriterText(
@@ -465,7 +465,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                         colorOverride: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Text(
                       'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
                       style: AppTypography.bodyLarge.copyWith(
@@ -475,7 +475,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
                     _buildCTAButtons(context, darkMode: false),
                   ],
                 ),
@@ -519,7 +519,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildBadge(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       Text(
                         'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                         style: AppTypography.h1.copyWith(
@@ -530,7 +530,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 14),
                     ConstrainedBox(
                       constraints: BoxConstraints(minHeight: 50),
                       child: _TypewriterText(
@@ -539,7 +539,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                         colorOverride: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     Text(
                       'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
                       style: AppTypography.bodyLarge.copyWith(
@@ -548,7 +548,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                     _buildCTAButtons(context, darkMode: false),
                   ],
                 ),
@@ -581,7 +581,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.auto_awesome_rounded, color: effectiveColor, size: 16),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             'أطلق موقعك في ٥ دقائق فقط 🚀',
             style: AppTypography.caption.copyWith(
@@ -603,7 +603,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
       children: [
         ElevatedButton.icon(
           onPressed: widget.onGetStartedPressed,
-          icon: const Icon(Icons.flash_on_rounded, size: 20),
+          icon: Icon(Icons.flash_on_rounded, size: 20),
           label: const Text(
             'ابدأ الآن مجاناً',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -667,7 +667,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
             : CrossAxisAlignment.start,
         children: [
           _buildBadge(),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Text(
             'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
             style: AppTypography.h1.copyWith(
@@ -678,22 +678,22 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
             ),
             textAlign: isMobile ? TextAlign.center : TextAlign.start,
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: 44),
             child: _TypewriterText(texts: _typewriterTexts, isMobile: isMobile),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.',
             style: AppTypography.bodyLarge.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               height: 1.5,
               fontSize: 15,
             ),
             textAlign: isMobile ? TextAlign.center : TextAlign.start,
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: 28),
           _buildCTAButtons(context),
         ],
       ),
@@ -801,7 +801,7 @@ class _TypewriterTextState extends State<_TypewriterText>
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         FadeTransition(
           opacity: _cursorController,
           child: Container(
@@ -916,7 +916,7 @@ class _PhonePreviewState extends State<_PhonePreview> {
             ),
           ),
           // if (!widget.isMobile)
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
 
           // Phone Frame
           Semantics(
@@ -1108,7 +1108,7 @@ class _PhonePreviewState extends State<_PhonePreview> {
 
           // Right cycle button (desktop only)
           // if (!widget.isMobile)
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           // if (!widget.isMobile)
           Semantics(
             label: 'Next template',

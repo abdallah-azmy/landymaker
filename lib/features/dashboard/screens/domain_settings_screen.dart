@@ -52,7 +52,7 @@ class DomainSettingsScreen extends StatelessWidget {
                   description: "يمكنك من هنا ربط صفحة الهبوط الحالية بدومين احترافي خاص بعلامتك التجارية لتزيد من ثقة عملائك.",
                   icon: Icons.language_rounded,
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 if (isLoadingAccess)
                   const Center(child: CircularProgressIndicator())
@@ -80,19 +80,19 @@ class DomainSettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(48),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.touch_app_rounded,
               size: 64,
               color: AppColors.secondary,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               "يرجى اختيار الصفحة التي تريد تخصيص نطاق مستقل لها أولاً",
               style: AppTypography.h3,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
-            const SizedBox(width: 300, child: WebsiteSwitcher()),
+            SizedBox(height: 32),
+            SizedBox(width: 300, child: WebsiteSwitcher()),
           ],
         ),
       ),
@@ -109,26 +109,26 @@ class DomainSettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(48),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.lock_rounded,
               size: 64,
               color: AppColors.warningOrange,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               "ميزة النطاقات الخاصة متاحة فقط للمشتركين في باقة برو",
               style: AppTypography.h3,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               "اربط موقعك بدومين خاص مثل (yourbrand.com) لتعزيز احترافية علامتك التجارية.",
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             PrimaryButton(
               text: "اشترك الآن في باقة برو",
               icon: Icons.star_rounded,
@@ -167,12 +167,12 @@ class DomainSettingsScreen extends StatelessWidget {
                 color: AppColors.secondary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.language_rounded,
                 color: AppColors.secondary,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -184,7 +184,7 @@ class DomainSettingsScreen extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 40),
+        SizedBox(height: 40),
         const DomainSetupWidget(),
       ],
     );

@@ -62,7 +62,7 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(loc, isMobile),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               _buildGalleryContent(loc, isMobile),
             ],
           ),
@@ -82,13 +82,13 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
               loc.translate('gallery'),
               style: AppTypography.h1.copyWith(fontSize: isMobile ? 28 : 32),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               loc.isRtl 
                 ? "أدر صورك المرفوعة واستخدمها في صفحاتك."
                 : "Manage your uploaded images and use them in your pages.",
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -117,7 +117,7 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
         }
 
         if (state is MediaGalleryFailure) {
-          return Center(child: Text(state.message, style: const TextStyle(color: AppColors.dangerRed)));
+          return Center(child: Text(state.message, style: TextStyle(color: AppColors.dangerRed)));
         }
 
         if (state is MediaGalleryLoaded) {
@@ -136,7 +136,7 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
                   onPressed: _pickAndUpload,
                   width: double.infinity,
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
               ],
               GridView.builder(
                 shrinkWrap: true,
@@ -165,7 +165,7 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
           );
         }
 
-        return const SizedBox();
+        return SizedBox();
       },
     );
   }
@@ -175,31 +175,31 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(60),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.image_not_supported_rounded,
             size: 80,
             color: Colors.white12,
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Text(
             loc.isRtl ? "لا توجد صور مرفوعة" : "No images uploaded yet",
             style: AppTypography.h3,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             loc.isRtl 
               ? "ابدأ برفع صورك الاحترافية لتتمكن من استخدامها في بناء صفحاتك."
               : "Start uploading your professional images to use them in your pages.",
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           PrimaryButton(
             text: loc.translate('upload_image'),
             icon: Icons.cloud_upload_rounded,
@@ -244,7 +244,7 @@ class _ImageGalleryCardState extends State<_ImageGalleryCard> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _isHovered ? AppColors.secondary : AppColors.border,
+            color: _isHovered ? AppColors.secondary : Theme.of(context).colorScheme.outlineVariant,
             width: 2,
           ),
           boxShadow: _isHovered ? [
@@ -296,7 +296,7 @@ class _ImageGalleryCardState extends State<_ImageGalleryCard> {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            backgroundColor: AppColors.cardBg,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                             title: const Text("حذف الصورة"),
                             content: const Text("هل أنت متأكد من حذف هذه الصورة؟ لا يمكن التراجع عن هذا الإجراء."),
                             actions: [

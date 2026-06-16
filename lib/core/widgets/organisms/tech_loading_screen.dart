@@ -8,7 +8,7 @@ class TechLoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -38,7 +38,7 @@ class TechLoadingScreen extends StatelessWidget {
                   height: 100,
                 ),
                 // Glowing Progress Indicator
-                const SizedBox(
+                SizedBox(
                   width: 140,
                   height: 140,
                   child: CircularProgressIndicator(
@@ -48,7 +48,7 @@ class TechLoadingScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 48),
+            SizedBox(height: 48),
             const CustomLoader(size: 24),
           ],
         ),

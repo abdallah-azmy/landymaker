@@ -49,7 +49,7 @@ class _AIChatInputState extends State<AIChatInput> {
       children: [
         if (_controller.text.isEmpty && !widget.isLoading) _buildExamplePrompts(),
         if (widget.onImageUpload != null) _buildUploadButtons(),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         _buildInputField(),
       ],
     );
@@ -66,12 +66,12 @@ class _AIChatInputState extends State<AIChatInput> {
             child: ActionChip(
               label: Text(
                 prompt,
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
-              backgroundColor: AppColors.cardBg,
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: AppColors.border),
+                side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
               ),
               onPressed: () {
                 _controller.text = prompt;
@@ -85,7 +85,7 @@ class _AIChatInputState extends State<AIChatInput> {
   }
 
   Widget _buildUploadButtons() {
-    if (widget.onImageUpload == null) return const SizedBox.shrink();
+    if (widget.onImageUpload == null) return SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 12, right: 12),
       child: Row(
@@ -95,7 +95,7 @@ class _AIChatInputState extends State<AIChatInput> {
             label: "شعار",
             onTap: () => widget.onImageUpload!('logo'),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _UploadChip(
             icon: Icons.image_rounded,
             label: "صور",
@@ -110,9 +110,9 @@ class _AIChatInputState extends State<AIChatInput> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
@@ -131,14 +131,14 @@ class _AIChatInputState extends State<AIChatInput> {
               style: AppTypography.bodyMedium,
               decoration: InputDecoration(
                 hintText: "كيف يمكنني مساعدتك في بناء صفحتك؟",
-                hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
+                hintStyle: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               onSubmitted: (_) => _handleSend(),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildSendButton(),
         ],
       ),
@@ -152,11 +152,11 @@ class _AIChatInputState extends State<AIChatInput> {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: widget.isLoading ? AppColors.border : AppColors.primary,
+          color: widget.isLoading ? Theme.of(context).colorScheme.outlineVariant : AppColors.primary,
           borderRadius: BorderRadius.circular(12),
         ),
         child: widget.isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
@@ -164,7 +164,7 @@ class _AIChatInputState extends State<AIChatInput> {
                   color: Colors.white,
                 ),
               )
-            : const Icon(
+            : Icon(
                 Icons.send_rounded,
                 color: Colors.black,
                 size: 20,

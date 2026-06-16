@@ -41,7 +41,7 @@ class SlotWidgetSelector extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Expanded(
             child: GridView.count(
               crossAxisCount: 2,
@@ -60,18 +60,18 @@ class SlotWidgetSelector extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.secondary.withValues(alpha: 0.15)
-                            : AppColors.cardBg,
+                            : Theme.of(context).colorScheme.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? AppColors.secondary : AppColors.border,
+                          color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.outlineVariant,
                           width: isSelected ? 2 : 1,
                         ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(wt.icon, color: isSelected ? AppColors.secondary : AppColors.textSecondary, size: 28),
-                          const SizedBox(height: 6),
+                          Icon(wt.icon, color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant, size: 28),
+                          SizedBox(height: 6),
                           Text(
                             wt.label,
                             style: AppTypography.bodySmall.copyWith(

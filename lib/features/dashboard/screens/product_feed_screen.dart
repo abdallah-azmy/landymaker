@@ -47,7 +47,7 @@ class ProductFeedScreen extends StatelessWidget {
               Text(
                 "Sync your products automatically with Google Shopping, Facebook, and Instagram.",
                 style: AppTypography.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 24),
@@ -80,9 +80,9 @@ class ProductFeedScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(48),
         decoration: BoxDecoration(
-          color: AppColors.cardBg,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
         ),
         child: Column(
           children: [
@@ -101,7 +101,7 @@ class ProductFeedScreen extends StatelessWidget {
             Text(
               "قم بتصدير منتجاتك آلياً إلى Google Shopping و Facebook لتحقيق مبيعات أكثر.",
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -142,7 +142,7 @@ class ProductFeedScreen extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoCard(),
+            _buildInfoCard(context),
             const SizedBox(height: 32),
 
             Text("Your Feed URL", style: AppTypography.h3),
@@ -150,14 +150,14 @@ class ProductFeedScreen extends StatelessWidget {
             _buildUrlField(context, feedUrl),
 
             const SizedBox(height: 40),
-            _buildStepsSection(),
+            _buildStepsSection(context),
           ],
         );
       },
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(BuildContext context) {
     return GlassContainer(
       padding: const EdgeInsets.all(24),
       child: Row(
@@ -184,7 +184,7 @@ class ProductFeedScreen extends StatelessWidget {
                 Text(
                   "It's a dynamic file that contains all your product data. Major platforms use this URL to keep your product listings updated in real-time.",
                   style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -199,20 +199,20 @@ class ProductFeedScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.2),
+        border: Border.all(color: Theme.of(context).colorScheme.outline, width: 1.2),
       ),
       child: Row(
         children: [
-          const Icon(Icons.link_rounded, color: AppColors.textMuted),
+          Icon(Icons.link_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               url,
               style: AppTypography.bodyMedium.copyWith(
                 fontFamily: 'monospace',
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -233,7 +233,7 @@ class ProductFeedScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStepsSection() {
+  Widget _buildStepsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -244,30 +244,31 @@ class ProductFeedScreen extends StatelessWidget {
           runSpacing: 16,
           children: [
             _buildPlatformChip(
+              context,
               "Google Shopping",
               Icons.shopping_basket_rounded,
             ),
-            _buildPlatformChip("Facebook Commerce", Icons.facebook_rounded),
-            _buildPlatformChip("Instagram Shop", Icons.camera_alt_rounded),
-            _buildPlatformChip("TikTok Catalog", Icons.music_note_rounded),
+            _buildPlatformChip(context, "Facebook Commerce", Icons.facebook_rounded),
+            _buildPlatformChip(context, "Instagram Shop", Icons.camera_alt_rounded),
+            _buildPlatformChip(context, "TikTok Catalog", Icons.music_note_rounded),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildPlatformChip(String name, IconData icon) {
+  Widget _buildPlatformChip(BuildContext context, String name, IconData icon) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: AppColors.textSecondary),
+          Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           const SizedBox(width: 10),
           Text(name, style: AppTypography.bodyMedium),
         ],

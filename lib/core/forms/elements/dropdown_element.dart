@@ -46,7 +46,7 @@ class DropdownElement extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
           DropdownButtonFormField<String>(
             initialValue: (currentValue != null && currentValue!.isNotEmpty)

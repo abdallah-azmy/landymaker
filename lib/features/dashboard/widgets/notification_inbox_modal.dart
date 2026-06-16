@@ -34,9 +34,9 @@ class NotificationInboxModal extends StatelessWidget {
             width: 400,
             constraints: const BoxConstraints(maxHeight: 500),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
@@ -49,7 +49,7 @@ class NotificationInboxModal extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildHeader(context),
-                const Divider(height: 1),
+                Divider(height: 1),
                 Flexible(child: _buildList(context)),
               ],
             ),
@@ -105,9 +105,9 @@ class NotificationInboxModal extends StatelessWidget {
                     Icon(
                       Icons.notifications_none_rounded,
                       size: 48,
-                      color: AppColors.textMuted.withValues(alpha: 0.5),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5).withValues(alpha: 0.5),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Text(
                       context.translate('no_notifications'),
                       style: AppTypography.bodyMedium,
@@ -121,14 +121,14 @@ class NotificationInboxModal extends StatelessWidget {
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: list.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
+            separatorBuilder: (_, __) => Divider(height: 1),
             itemBuilder: (context, index) {
               final n = list[index];
               return _NotificationItem(notification: n);
             },
           );
         }
-        return const SizedBox();
+        return SizedBox();
       },
     );
   }
@@ -158,7 +158,7 @@ class _NotificationItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildIcon(type),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,18 +169,18 @@ class _NotificationItem extends StatelessWidget {
                       fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     notification['message'] ?? '',
                     style: AppTypography.caption.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     context.translate('just_now'), // Simplified
                     style: AppTypography.caption.copyWith(
-                      color: AppColors.textMuted,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                       fontSize: 10,
                     ),
                   ),
@@ -191,7 +191,7 @@ class _NotificationItem extends StatelessWidget {
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.secondary,
                   shape: BoxShape.circle,
                 ),

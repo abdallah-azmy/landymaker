@@ -51,17 +51,25 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Row(
           children: [
-            const Expanded(child: Divider(color: AppColors.border)),
+            Expanded(
+              child: Divider(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 loc.translate('or_continue_with'),
                 style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
-            const Expanded(child: Divider(color: AppColors.border)),
+            Expanded(
+              child: Divider(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 20),
@@ -77,13 +85,16 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: Icon(
+            Icons.arrow_back_rounded,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => context.safePop(fallbackPath: '/'),
         ),
       ),
@@ -175,9 +186,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _emailController,
                                   hintText: 'name@domain.com',
                                   keyboardType: TextInputType.emailAddress,
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.email_outlined,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                   validator: (val) {
                                     if (val == null || val.isEmpty) {
@@ -199,9 +212,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _passwordController,
                                   hintText: '••••••••',
                                   obscureText: true,
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.lock_outline,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                   validator: (val) {
                                     if (val == null || val.isEmpty) {
@@ -272,7 +287,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Text(
                                     "Don't have an account? ",
                                     style: AppTypography.bodyMedium.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                   GestureDetector(

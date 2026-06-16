@@ -44,10 +44,10 @@ class _PrimaryButtonState extends State<PrimaryButton> {
               color: widget.isSecondary ? cs.onSurface : cs.onPrimary,
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
         ] else if (widget.icon != null) ...[
           Icon(widget.icon, size: 16, color: widget.isSecondary ? cs.onSurface : cs.onPrimary),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
         ],
         Text(
           widget.text,

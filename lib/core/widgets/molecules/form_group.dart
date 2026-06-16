@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 
 class FormGroup extends StatelessWidget {
@@ -29,16 +28,16 @@ class FormGroup extends StatelessWidget {
           style: labelStyle ?? AppTypography.h3.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         child,
         if (helperText != null) ...[
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             helperText!,
-            style: helperStyle ?? AppTypography.caption.copyWith(color: AppColors.textMuted),
+            style: helperStyle ?? AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
           ),
         ],
       ],

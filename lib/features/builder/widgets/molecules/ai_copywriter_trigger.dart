@@ -31,8 +31,8 @@ class AiCopywriterTrigger extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.auto_awesome_rounded, size: 14, color: AppColors.primary),
-            const SizedBox(width: 4),
+            Icon(Icons.auto_awesome_rounded, size: 14, color: AppColors.primary),
+            SizedBox(width: 4),
             Text(
               "تحسين بالذكاء الاصطناعي",
               style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary),

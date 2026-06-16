@@ -210,12 +210,12 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.visibility_off_rounded,
                             color: Colors.white,
                             size: 14,
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Text(
                             "مخفي من الصفحة المباشرة",
                             style: AppTypography.caption.copyWith(
@@ -271,7 +271,7 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.cardBg,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         title: Text(
           loc.translate('delete_confirm_title'),
           style: AppTypography.h3,
@@ -282,7 +282,7 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               loc.translate('cancel'),
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           ElevatedButton(

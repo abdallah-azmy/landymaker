@@ -37,7 +37,7 @@ class LocationMapEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "العنوان التفصيلي (Address)",
           child: CustomTextField(
@@ -46,7 +46,7 @@ class LocationMapEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'address', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "رابط خريطة جوجل (Google Maps Embed Iframe URL)",
           helperText: "قم بنسخ رابط الـ iframe من خرائط جوجل والصقه هنا.",

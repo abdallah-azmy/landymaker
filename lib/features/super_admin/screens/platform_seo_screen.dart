@@ -41,7 +41,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(isNew ? "Add New SEO Route" : "Edit SEO & Content: ${seoData['route_path']}"),
         content: SizedBox(
           width: 600,
@@ -54,36 +54,36 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                   hintText: "Route Path (e.g. / or /pricing)",
                   enabled: isNew,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 CustomTextField(
                   controller: titleController,
                   hintText: "Meta Title",
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 CustomTextField(
                   controller: descController,
                   hintText: "Meta Description",
                   maxLines: 3,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 CustomTextField(
                   controller: imgController,
                   hintText: "OG Image URL",
                 ),
-                const SizedBox(height: 16),
-                const Divider(color: AppColors.border),
-                const SizedBox(height: 8),
+                SizedBox(height: 16),
+                Divider(color: Theme.of(context).colorScheme.outlineVariant),
+                SizedBox(height: 8),
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text("Page Content (JSON Format - Optional)", style: TextStyle(color: AppColors.secondary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomTextField(
                   controller: contentController,
                   hintText: '[{"title": "Section Title", "body": "Section content..."}]',
                   maxLines: 10,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 const Text(
                   "This content is used in Legal/About pages. Must be a valid JSON list of objects with 'title' and 'body' keys.",
                   style: TextStyle(color: Colors.white24, fontSize: 10),
@@ -165,12 +165,12 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Text(
                   "هذه الواجهة مخصصة لإدارة الـ SEO الخاص بالمنصة فقط (مثل الصفحة الرئيسية، صفحة الأسعار). التعديلات هنا تنعكس فوراً وتؤثر على المنصة بالكامل وليس صفحات المستخدمين.",
-                  style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 ResponsiveDataTable(
                   title: "Dynamic Routes",
                   headers: const ["Route Path", "Title", "Description", "Action"],
@@ -183,7 +183,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                         child: Text(seo['meta_description'] ?? '-', maxLines: 1, overflow: TextOverflow.ellipsis),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.edit_rounded, color: AppColors.secondary),
+                        icon: Icon(Icons.edit_rounded, color: AppColors.secondary),
                         onPressed: () => _showEditSeoDialog(seo),
                       ),
                     ];

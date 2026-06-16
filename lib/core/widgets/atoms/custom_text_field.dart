@@ -51,12 +51,12 @@ class CustomTextField extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: (textTheme.bodySmall ?? const TextStyle()).copyWith(
+            style: (textTheme.bodySmall ?? TextStyle()).copyWith(
               color: cs.onSurface.withValues(alpha: 0.7),
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
         ],
         TextFormField(
           controller: controller,
@@ -70,14 +70,14 @@ class CustomTextField extends StatelessWidget {
           validator: validator,
           readOnly: readOnly,
           enabled: enabled,
-          style: (textTheme.bodyLarge ?? const TextStyle()).copyWith(
+          style: (textTheme.bodyLarge ?? TextStyle()).copyWith(
               color: enabled ? cs.onSurface : cs.onSurface.withValues(alpha: 0.4)),
           cursorColor: cs.secondary,
           decoration: InputDecoration(
             hintText: hintText ?? hint,
             errorText: errorText,
             hintStyle:
-                (textTheme.bodyLarge ?? const TextStyle()).copyWith(color: cs.onSurface.withValues(alpha: 0.4)),
+                (textTheme.bodyLarge ?? TextStyle()).copyWith(color: cs.onSurface.withValues(alpha: 0.4)),
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             filled: true,

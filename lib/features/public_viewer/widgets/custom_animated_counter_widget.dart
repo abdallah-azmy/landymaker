@@ -30,8 +30,8 @@ class CustomAnimatedCounterWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -119,7 +119,7 @@ class _DesktopAnimatedCounterLayout extends StatelessWidget {
             children: [
               if (props.title.isNotEmpty) ...[
                 Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontWeight: FontWeight.w800, fontSize: 32), textAlign: TextAlign.center),
-                const SizedBox(height: 64),
+                SizedBox(height: 64),
               ],
               Wrap(
                 alignment: WrapAlignment.center,
@@ -161,7 +161,7 @@ class _MobileAnimatedCounterLayout extends StatelessWidget {
             children: [
               if (props.title.isNotEmpty) ...[
                 Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontWeight: FontWeight.w800, fontSize: 24), textAlign: TextAlign.center),
-                const SizedBox(height: 40),
+                SizedBox(height: 40),
               ],
               Wrap(
                 alignment: WrapAlignment.center,
@@ -211,7 +211,7 @@ class _AnimatedCounterCard extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(item['label'] ?? '', style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16), textAlign: TextAlign.center),
         ],
       ),

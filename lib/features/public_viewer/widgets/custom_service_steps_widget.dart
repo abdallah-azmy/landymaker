@@ -19,8 +19,8 @@ class CustomServiceStepsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final accentColor = theme?.secondary ?? AppColors.secondary;
     final title = block['title'] ?? '';
     final subtitle = block['subtitle'] ?? '';
@@ -59,11 +59,11 @@ class CustomServiceStepsWidget extends StatelessWidget {
                 children: [
                   if (props.title.isNotEmpty) ...[
                     Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                   ],
                   if (props.subtitle.isNotEmpty) ...[
                     Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18), textAlign: TextAlign.center),
-                    const SizedBox(height: 64),
+                    SizedBox(height: 64),
                   ],
                   if (props.isMobile)
                     _MobileServiceStepsLayout(props: props)
@@ -139,9 +139,9 @@ class _DesktopServiceStepsLayout extends StatelessWidget {
                   if (!isLast) Expanded(child: Divider(color: props.accentColor.withValues(alpha: 0.3), thickness: 2)),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Text(item['title'] ?? '', style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 18), textAlign: TextAlign.center),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(item['description'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.subTextColor), textAlign: TextAlign.center),
@@ -181,7 +181,7 @@ class _MobileServiceStepsLayout extends StatelessWidget {
                     Expanded(child: Container(width: 2, color: props.accentColor.withValues(alpha: 0.3))),
                 ],
               ),
-              const SizedBox(width: 24),
+              SizedBox(width: 24),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 32),
@@ -190,7 +190,7 @@ class _MobileServiceStepsLayout extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(item['title'] ?? '', style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 18)),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(item['description'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.subTextColor)),
                     ],
                   ),
@@ -225,7 +225,7 @@ class _StepNumber extends StatelessWidget {
         boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Center(
-        child: Text('${index + 1}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+        child: Text('${index + 1}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
       ),
     );
   }

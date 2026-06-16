@@ -157,7 +157,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('حدث خطأ أثناء الحفظ: $e', style: const TextStyle(color: Colors.white)),
+            content: Text('حدث خطأ أثناء الحفظ: $e', style: TextStyle(color: Colors.white)),
             backgroundColor: AppColors.dangerRed,
             behavior: SnackBarBehavior.floating,
           ),
@@ -187,14 +187,14 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
     final isMobile = screenWidth < 600;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
         title: Text(
           widget.post == null ? "مقال جديد" : "تعديل المقال",
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 18),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18),
         ),
         centerTitle: true,
       ),
@@ -205,8 +205,8 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.cardBg,
-                border: const Border(bottom: BorderSide(color: AppColors.border)),
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
@@ -214,17 +214,17 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                   Expanded(
                     child: Theme(
                       data: ThemeData.dark().copyWith(
-                        canvasColor: AppColors.cardBg,
+                        canvasColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                       ),
                       child: quill.QuillSimpleToolbar(
                         controller: _quillController,
-                        config: const quill.QuillSimpleToolbarConfig(
+                        config: quill.QuillSimpleToolbarConfig(
                           multiRowsDisplay: false, // Force single row, let horizontal scroll handle overflow
                           buttonOptions: quill.QuillSimpleToolbarButtonOptions(
                             base: quill.QuillToolbarBaseButtonOptions(
                               iconTheme: quill.QuillIconTheme(
                                 iconButtonUnselectedData: quill.IconButtonData(
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                                 iconButtonSelectedData: quill.IconButtonData(
                                   color: AppColors.primary,
@@ -236,11 +236,11 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   // Import HTML Button
                   ElevatedButton.icon(
                     onPressed: _importAiContentFromClipboard,
-                    icon: const Icon(Icons.auto_awesome, size: 18),
+                    icon: Icon(Icons.auto_awesome, size: 18),
                     label: const Text("استيراد الذكاء الاصطناعي", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary.withValues(alpha: .1),
@@ -264,8 +264,8 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                     // Title Input
                     TextField(
                       controller: _titleController,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         height: 1.3,
@@ -274,7 +274,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                       decoration: InputDecoration(
                         hintText: "عنوان المقال الرهيب...",
                         hintStyle: TextStyle(
-                          color: AppColors.textMuted.withValues(alpha: .5),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5).withValues(alpha: .5),
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
                         ),
@@ -284,20 +284,20 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     
                     // Slug Input
                     TextField(
                       controller: _slugController,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 14,
                         fontFamily: 'monospace',
                       ),
                       decoration: InputDecoration(
                         prefixText: "landymaker.com/blog/ ",
-                        prefixStyle: const TextStyle(
-                          color: AppColors.textMuted,
+                        prefixStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                           fontSize: 14,
                           fontFamily: 'monospace',
                         ),
@@ -313,13 +313,13 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     
                     // Meta Description Input
                     TextField(
                       controller: _metaDescController,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 14,
                         height: 1.5,
                       ),
@@ -328,37 +328,37 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                       decoration: InputDecoration(
                         hintText: "وصف قصير للمقال (يظهر في كروت المدونة ومحركات البحث)...",
                         hintStyle: TextStyle(
-                          color: AppColors.textMuted.withValues(alpha: .5),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5).withValues(alpha: .5),
                           fontSize: 14,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppColors.border.withValues(alpha: .5)),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: .5)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppColors.border.withValues(alpha: .5)),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: .5)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppColors.primary),
+                          borderSide: BorderSide(color: AppColors.primary),
                         ),
                         filled: true,
-                        fillColor: AppColors.background,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         contentPadding: const EdgeInsets.all(16),
-                        counterStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                        counterStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 12),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    Divider(color: AppColors.border.withValues(alpha: .5)),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
+                    Divider(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: .5)),
+                    SizedBox(height: 24),
                     
                     // Content Input (Quill Editor)
                     Container(
                       constraints: const BoxConstraints(minHeight: 200),
                       child: DefaultTextStyle(
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 16,
                           height: 1.8,
                         ),
@@ -373,7 +373,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                       ),
                     ),
                     
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                     
                     // AI Hint Box
                     Container(
@@ -389,7 +389,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                           Row(
                             children: [
                               Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               const Expanded(
                                 child: Text(
                                   "نصيحة الذكاء الاصطناعي (SEO)",
@@ -402,14 +402,14 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          const Text(
+                          SizedBox(height: 12),
+                          Text(
                             "انسخ هذه الجملة والصقها في نهاية أي طلب لـ ChatGPT للحصول على نتيجة مثالية للنسخ واللصق هنا:",
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           Material(
-                            color: AppColors.background,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(12),
@@ -421,22 +421,22 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                                     Expanded(
                                       child: Text(
                                         _aiPrompt,
-                                        style: const TextStyle(
-                                          color: AppColors.textMuted,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                                           fontSize: 13,
                                           height: 1.5,
                                           fontStyle: FontStyle.italic,
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 12),
+                                    SizedBox(width: 12),
                                     Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
                                         color: AppColors.primary.withValues(alpha: .1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: const Icon(Icons.copy_rounded, color: AppColors.primary, size: 20),
+                                      child: Icon(Icons.copy_rounded, color: AppColors.primary, size: 20),
                                     ),
                                   ],
                                 ),
@@ -448,7 +448,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                     ),
                     
                     // Extra padding at bottom to ensure scrolling past the keyboard and bottom bar
-                    const SizedBox(height: 100), 
+                    SizedBox(height: 100), 
                   ],
                 ),
               ),
@@ -461,8 +461,8 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                 vertical: 16
               ),
               decoration: BoxDecoration(
-                color: AppColors.cardBg,
-                border: const Border(top: BorderSide(color: AppColors.border)),
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: .2),
@@ -480,7 +480,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                         color: _isPublished ? AppColors.activeGreen.withValues(alpha: .1) : Colors.transparent,
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                          color: _isPublished ? AppColors.activeGreen.withValues(alpha: .5) : AppColors.border,
+                          color: _isPublished ? AppColors.activeGreen.withValues(alpha: .5) : Theme.of(context).colorScheme.outlineVariant,
                         ),
                       ),
                       padding: const EdgeInsets.only(right: 4, left: 12, top: 4, bottom: 4),
@@ -494,14 +494,14 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                             },
                             activeColor: AppColors.activeGreen,
                             activeTrackColor: AppColors.activeGreen.withValues(alpha: .3),
-                            inactiveThumbColor: AppColors.textMuted,
-                            inactiveTrackColor: AppColors.background,
+                            inactiveThumbColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                            inactiveTrackColor: Theme.of(context).colorScheme.surface,
                           ),
                           Expanded(
                             child: Text(
                               _isPublished ? "منشور" : "مسودة",
                               style: TextStyle(
-                                color: _isPublished ? AppColors.activeGreen : AppColors.textMuted,
+                                color: _isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -513,7 +513,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   
                   // Save Button
                   SizedBox(
@@ -522,7 +522,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                       onPressed: _isLoading ? null : _savePost,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.background,
+                        foregroundColor: Theme.of(context).colorScheme.surface,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         shape: RoundedRectangleBorder(
@@ -530,11 +530,11 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                         ),
                       ),
                       icon: _isLoading 
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.background, strokeWidth: 2))
-                        : const Icon(Icons.cloud_upload_rounded),
+                        ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface, strokeWidth: 2))
+                        : Icon(Icons.cloud_upload_rounded),
                       label: Text(
                         _isLoading ? "جاري الحفظ..." : (isMobile ? "حفظ" : "حفظ المقال"),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                       ),
                     ),
                   ),

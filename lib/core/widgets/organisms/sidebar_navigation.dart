@@ -45,7 +45,8 @@ class SidebarNavigation extends StatelessWidget {
         'route': '/dashboard/super-admin',
       });
       finalItems.add({
-        'title_key': 'إعدادات المنصة (SEO)', // We can hardcode Arabic here or add it to localization. 'Platform SEO' is fine.
+        'title_key':
+            'إعدادات المنصة (SEO)', // We can hardcode Arabic here or add it to localization. 'Platform SEO' is fine.
         'icon': Icons.travel_explore_rounded,
         'route': '/dashboard/platform-seo',
       });
@@ -62,8 +63,12 @@ class SidebarNavigation extends StatelessWidget {
     } else {
       finalItems.add({'is_header': true, 'title': 'مساحة العمل الخاصة بك'});
       finalItems.add({'is_switcher': true});
-      finalItems.add({'title_key': 'dashboard', 'icon': Icons.dashboard_rounded, 'route': '/dashboard'});
-      
+      finalItems.add({
+        'title_key': 'dashboard',
+        'icon': Icons.dashboard_rounded,
+        'route': '/dashboard',
+      });
+
       if (activeSiteType == 'store') {
         finalItems.add({
           'title_key': 'Products',
@@ -72,9 +77,21 @@ class SidebarNavigation extends StatelessWidget {
         });
       }
 
-      finalItems.add({'title_key': 'leads', 'icon': Icons.contacts_rounded, 'route': '/dashboard/leads'});
-      finalItems.add({'title_key': 'gallery', 'icon': Icons.collections_rounded, 'route': '/dashboard/gallery'});
-      finalItems.add({'title_key': 'analytics', 'icon': Icons.analytics_rounded, 'route': '/dashboard/analytics'});
+      finalItems.add({
+        'title_key': 'leads',
+        'icon': Icons.contacts_rounded,
+        'route': '/dashboard/leads',
+      });
+      finalItems.add({
+        'title_key': 'gallery',
+        'icon': Icons.collections_rounded,
+        'route': '/dashboard/gallery',
+      });
+      finalItems.add({
+        'title_key': 'analytics',
+        'icon': Icons.analytics_rounded,
+        'route': '/dashboard/analytics',
+      });
 
       if (activeSiteType == 'store') {
         finalItems.add({
@@ -84,26 +101,45 @@ class SidebarNavigation extends StatelessWidget {
         });
       }
 
-      final builderRoute = activeSubdomain != null && activeSubdomain.isNotEmpty 
-          ? '/builder/$activeSubdomain' 
+      final builderRoute = activeSubdomain != null && activeSubdomain.isNotEmpty
+          ? '/builder/$activeSubdomain'
           : '/builder';
-      finalItems.add({'title_key': 'hero', 'icon': Icons.construction_rounded, 'is_builder': true, 'route': builderRoute});
-      finalItems.add({'title_key': 'custom_domain_menu', 'icon': Icons.language_rounded, 'route': '/dashboard/domain'});
+      finalItems.add({
+        'title_key': 'hero',
+        'icon': Icons.construction_rounded,
+        'is_builder': true,
+        'route': builderRoute,
+      });
+      finalItems.add({
+        'title_key': 'custom_domain_menu',
+        'icon': Icons.language_rounded,
+        'route': '/dashboard/domain',
+      });
       finalItems.add({'is_divider': true});
-      finalItems.add({'title_key': 'settings', 'icon': Icons.settings_rounded, 'route': '/dashboard/settings'});
+      finalItems.add({
+        'title_key': 'settings',
+        'icon': Icons.settings_rounded,
+        'route': '/dashboard/settings',
+      });
     }
 
     return Container(
       width: 270,
       height: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
           right: loc.isRtl
               ? BorderSide.none
-              : const BorderSide(color: AppColors.border, width: 1.5),
+              : BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  width: 1.5,
+                ),
           left: loc.isRtl
-              ? const BorderSide(color: AppColors.border, width: 1.5)
+              ? BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  width: 1.5,
+                )
               : BorderSide.none,
         ),
       ),
@@ -143,12 +179,17 @@ class SidebarNavigation extends StatelessWidget {
 
                 if (item['is_header'] == true) {
                   return Padding(
-                    padding: const EdgeInsets.only(top: 16, bottom: 8, left: 8, right: 8),
+                    padding: const EdgeInsets.only(
+                      top: 16,
+                      bottom: 8,
+                      left: 8,
+                      right: 8,
+                    ),
                     child: Text(
                       item['title'] as String,
                       style: AppTypography.caption.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         letterSpacing: 1.2,
                       ),
                     ),
@@ -156,9 +197,12 @@ class SidebarNavigation extends StatelessWidget {
                 }
 
                 if (item['is_divider'] == true) {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Divider(color: AppColors.border, thickness: 1.2),
+                    child: Divider(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      thickness: 1.2,
+                    ),
                   );
                 }
 
@@ -169,7 +213,11 @@ class SidebarNavigation extends StatelessWidget {
                   );
                 }
 
-                final String label = item['title_key'] == 'Platform SEO' || item['title_key'] == 'إعدادات المنصة (SEO)' || item['title_key'] == 'Products' || item['title_key'] == 'Product Feed'
+                final String label =
+                    item['title_key'] == 'Platform SEO' ||
+                        item['title_key'] == 'إعدادات المنصة (SEO)' ||
+                        item['title_key'] == 'Products' ||
+                        item['title_key'] == 'Product Feed'
                     ? item['title_key'] as String
                     : loc.translate(item['title_key'] as String);
 
@@ -181,21 +229,24 @@ class SidebarNavigation extends StatelessWidget {
                 bool isSelected = false;
                 if (!isLocked && route != null) {
                   if (route == '/dashboard') {
-                     isSelected = currentPath == '/dashboard';
+                    isSelected = currentPath == '/dashboard';
                   } else {
-                     isSelected = currentPath.startsWith(route);
+                    isSelected = currentPath.startsWith(route);
                   }
                 }
 
                 return InkWell(
-                  onTap: isLocked ? null : () {
-                    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
-                      Navigator.pop(context);
-                    }
-                    if (route != null) {
-                      context.go(route);
-                    }
-                  },
+                  onTap: isLocked
+                      ? null
+                      : () {
+                          if (Scaffold.maybeOf(context)?.isDrawerOpen ??
+                              false) {
+                            Navigator.pop(context);
+                          }
+                          if (route != null) {
+                            context.go(route);
+                          }
+                        },
                   borderRadius: BorderRadius.circular(10),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
@@ -206,9 +257,11 @@ class SidebarNavigation extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primary.withValues(alpha: 0.15)
-                          : (isPremium 
-                              ? AppColors.warningOrange.withValues(alpha: 0.05) 
-                              : Colors.transparent),
+                          : (isPremium
+                                ? AppColors.warningOrange.withValues(
+                                    alpha: 0.05,
+                                  )
+                                : Colors.transparent),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: isSelected
@@ -218,9 +271,11 @@ class SidebarNavigation extends StatelessWidget {
                                       alpha: 0.15,
                                     )
                                   : (isLocked
-                                        ? AppColors.textMuted.withValues(
-                                            alpha: 0.1,
-                                          )
+                                        ? Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.5)
+                                              .withValues(alpha: 0.1)
                                         : Colors.transparent)),
                         width: 1.2,
                       ),
@@ -231,12 +286,16 @@ class SidebarNavigation extends StatelessWidget {
                           item['icon'] as IconData,
                           size: 20,
                           color: isLocked
-                              ? AppColors.textMuted.withValues(alpha: 0.5)
+                              ? Theme.of(context).colorScheme.onSurface
+                                    .withValues(alpha: 0.5)
+                                    .withValues(alpha: 0.5)
                               : (isSelected
                                     ? AppColors.secondary
                                     : (isPremium
                                           ? AppColors.warningOrange
-                                          : AppColors.textSecondary)),
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant)),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -244,12 +303,18 @@ class SidebarNavigation extends StatelessWidget {
                             label,
                             style: AppTypography.bodyLarge.copyWith(
                               color: isLocked
-                                  ? AppColors.textMuted.withValues(alpha: 0.5)
+                                  ? Theme.of(context).colorScheme.onSurface
+                                        .withValues(alpha: 0.5)
+                                        .withValues(alpha: 0.5)
                                   : (isSelected
-                                        ? AppColors.textPrimary
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface
                                         : (isPremium
                                               ? AppColors.warningOrange
-                                              : AppColors.textSecondary)),
+                                              : Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant)),
                               fontWeight: isSelected
                                   ? FontWeight.w600
                                   : FontWeight.normal,
@@ -267,7 +332,9 @@ class SidebarNavigation extends StatelessWidget {
                           Icon(
                             Icons.lock_outline_rounded,
                             size: 12,
-                            color: AppColors.textMuted.withValues(alpha: 0.4),
+                            color: Theme.of(context).colorScheme.onSurface
+                                .withValues(alpha: 0.5)
+                                .withValues(alpha: 0.4),
                           ),
                       ],
                     ),
@@ -276,7 +343,11 @@ class SidebarNavigation extends StatelessWidget {
               },
             ),
           ),
-          const Divider(color: AppColors.border, height: 24, thickness: 1.2),
+          Divider(
+            color: Theme.of(context).colorScheme.outlineVariant,
+            height: 24,
+            thickness: 1.2,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -313,9 +384,12 @@ class SidebarNavigation extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border, width: 1.2),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                width: 1.2,
+              ),
             ),
             child: Column(
               children: [
@@ -340,7 +414,7 @@ class SidebarNavigation extends StatelessWidget {
                           Text(
                             userEmail,
                             style: AppTypography.caption.copyWith(
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -376,7 +450,10 @@ class SidebarNavigation extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                const Divider(color: AppColors.border, height: 1),
+                Divider(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  height: 1,
+                ),
                 const SizedBox(height: 12),
                 BlocBuilder<LandingPagesCubit, LandingPagesState>(
                   builder: (context, state) {
@@ -411,7 +488,9 @@ class SidebarNavigation extends StatelessWidget {
                             child: LinearProgressIndicator(
                               value: usage,
                               minHeight: 4,
-                              backgroundColor: AppColors.border,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.outlineVariant,
                               color: usage >= 1.0
                                   ? AppColors.dangerRed
                                   : AppColors.secondary,

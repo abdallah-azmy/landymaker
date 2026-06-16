@@ -140,12 +140,12 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.auto_awesome_rounded,
                       color: AppColors.secondary,
                       size: 14,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       "مجاني تماماً • بدون بطاقة ائتمان",
                       style: AppTypography.caption.copyWith(
@@ -156,7 +156,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Text(
                 "جاهز تطلق موقعك الآن؟",
                 style: AppTypography.h1.copyWith(
@@ -166,18 +166,18 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 "انضم لآلاف الأعمال التي تستخدم Landymaker.\nابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.",
                 style: AppTypography.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.65,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               _CtaButton(onPressed: widget.onGetStartedPressed),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               Wrap(
                 spacing: 24,
                 runSpacing: 8,
@@ -236,12 +236,12 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.auto_awesome_rounded,
                               color: AppColors.secondary,
                               size: 14,
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Text(
                               "مجاني تماماً • بدون بطاقة ائتمان",
                               style: AppTypography.caption.copyWith(
@@ -252,7 +252,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                           ],
                         ),
                       ),
-                      const SizedBox(height: 28),
+                      SizedBox(height: 28),
                       Text(
                         "جاهز تطلق موقعك الآن؟",
                         style: AppTypography.h1.copyWith(
@@ -263,7 +263,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Text(
                         "انضم لآلاف الأعمال التي تستخدم Landymaker.\nابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.",
                         style: AppTypography.bodyLarge.copyWith(
@@ -272,9 +272,9 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 40),
+                      SizedBox(height: 40),
                       _CtaButton(onPressed: widget.onGetStartedPressed),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       Wrap(
                         spacing: 24,
                         runSpacing: 8,
@@ -344,13 +344,13 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   style: AppTypography.h2.copyWith(fontSize: 28, fontWeight: FontWeight.w900),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(
                   'ابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.',
-                  style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary, height: 1.6),
+                  style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 _CtaButton(onPressed: widget.onGetStartedPressed),
               ],
             )
@@ -367,15 +367,15 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                         'جاهز تطلق موقعك الآن؟',
                         style: AppTypography.h2.copyWith(fontSize: 38, fontWeight: FontWeight.w900),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
                         'ابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.',
-                        style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary, height: 1.6),
+                        style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 48),
+                SizedBox(width: 48),
                 _CtaButton(onPressed: widget.onGetStartedPressed),
               ],
             ),
@@ -426,7 +426,7 @@ class _CtaButtonState extends State<_CtaButton> {
             ),
             child: ElevatedButton.icon(
               onPressed: widget.onPressed,
-              icon: const Icon(Icons.flash_on_rounded, size: 20),
+              icon: Icon(Icons.flash_on_rounded, size: 20),
               label: const Text(
                 "ابدأ مجاناً الآن",
                 style: TextStyle(
@@ -469,11 +469,11 @@ class _TrustChip extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, color: AppColors.activeGreen, size: 16),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Text(
           text,
           style: AppTypography.caption.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),

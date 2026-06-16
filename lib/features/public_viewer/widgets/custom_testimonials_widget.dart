@@ -37,8 +37,8 @@ class CustomTestimonialsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -121,7 +121,7 @@ class _TestimonialsMasonryLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (props.items.isEmpty) return const SizedBox.shrink();
+    if (props.items.isEmpty) return SizedBox.shrink();
 
     final int columnCount = ResponsiveUtils.getContentColumns(
       constraints.maxWidth,
@@ -180,7 +180,7 @@ class _TestimonialsCarouselLayout extends StatelessWidget {
         _TestimonialsHeader(props: props),
         SizedBox(height: props.isMobile ? 24 : 40),
         if (props.items.isEmpty)
-          const SizedBox.shrink()
+          SizedBox.shrink()
         else
           SizedBox(
             height: props.isMobile ? 300 : 280,
@@ -188,7 +188,7 @@ class _TestimonialsCarouselLayout extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsetsDirectional.only(end: 24),
               itemCount: props.items.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 20),
+              separatorBuilder: (_, __) => SizedBox(width: 20),
               itemBuilder: (_, index) {
                 return SizedBox(
                   width: props.isMobile ? constraints.maxWidth * 0.75 : 340,
@@ -224,16 +224,16 @@ class _TestimonialCard extends StatelessWidget {
           Row(
             children: List.generate(5, (index) => Icon(Icons.star_rounded, color: props.secondaryColor, size: props.isMobile ? 14 : 16)),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             item['quote'] ?? 'Testimonial quote goes here.',
             style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontStyle: FontStyle.italic, fontSize: props.isMobile ? 12 : 14, height: 1.4),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               _AuthorAvatar(imageUrl: item['image_url'], authorName: item['author'], props: props),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               _AuthorInfo(authorName: item['author'], role: item['role'], props: props),
             ],
           ),

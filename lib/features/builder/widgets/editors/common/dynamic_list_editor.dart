@@ -50,7 +50,7 @@ class DynamicListEditor extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         
         // 2. Items List
         ...List.generate(itemCount, (index) {
@@ -58,7 +58,7 @@ class DynamicListEditor extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -74,7 +74,7 @@ class DynamicListEditor extends StatelessWidget {
                         style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+                        icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
                         onPressed: () => onDelete(index),
                       ),
                     ],

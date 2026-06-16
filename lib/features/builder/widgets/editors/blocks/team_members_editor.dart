@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/app_typography.dart';
 import '../../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
@@ -42,7 +41,7 @@ class TeamMembersEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'العنوان الفرعي',
           child: CustomTextField(
@@ -51,9 +50,9 @@ class TeamMembersEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Text("أعضاء الفريق", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         ...List.generate(items.length, (i) {
           final item = items[i];
           final String imageUrl = item['image_url'] ?? '';
@@ -63,9 +62,9 @@ class TeamMembersEditor extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 20),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               children: [
@@ -81,7 +80,7 @@ class TeamMembersEditor extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                      icon: Icon(Icons.delete_outline, color: Colors.redAccent),
                       onPressed: () {
                         items.removeAt(i);
                         cubit.updateBlockProperty(index, 'items', items);
@@ -89,7 +88,7 @@ class TeamMembersEditor extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 CustomTextField(
                   hintText: "الاسم",
                   controller: getController("${index}_member_${i}_name", item['name'] ?? ''),
@@ -99,7 +98,7 @@ class TeamMembersEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'items', items);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomTextField(
                   hintText: "المسمى الوظيفي",
                   controller: getController("${index}_member_${i}_role", item['role'] ?? ''),
@@ -109,7 +108,7 @@ class TeamMembersEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'items', items);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomTextField(
                   hintText: "نبذة مختصرة",
                   maxLines: 2,
@@ -120,19 +119,19 @@ class TeamMembersEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'items', items);
                   },
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _buildSocialsEditor(i, item['socials'] ?? []),
               ],
             ),
           );
         }),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: () {
             items.add({'name': 'عضو جديد', 'role': 'مسمى وظيفي', 'bio': '', 'image_url': 'https://cdn.pixabay.com/photo/2016/11/21/14/53/man-1845814_1280.jpg', 'socials': []});
             cubit.updateBlockProperty(index, 'items', items);
           },
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           label: const Text("إضافة عضو"),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),
@@ -151,7 +150,7 @@ class TeamMembersEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text("روابط التواصل", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         ...List.generate(currentSocials.length, (si) {
           final s = currentSocials[si];
           return Padding(
@@ -166,7 +165,7 @@ class TeamMembersEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'items', items);
                   }),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   flex: 3,
                   child: CustomTextField(
@@ -181,7 +180,7 @@ class TeamMembersEditor extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.remove_circle_outline, size: 20, color: Colors.redAccent),
+                  icon: Icon(Icons.remove_circle_outline, size: 20, color: Colors.redAccent),
                   onPressed: () {
                     currentSocials.removeAt(si);
                     items[memberIndex]['socials'] = currentSocials;
@@ -198,7 +197,7 @@ class TeamMembersEditor extends StatelessWidget {
             items[memberIndex]['socials'] = currentSocials;
             cubit.updateBlockProperty(index, 'items', items);
           },
-          icon: const Icon(Icons.add, size: 16),
+          icon: Icon(Icons.add, size: 16),
           label: const Text("إضافة رابط", style: TextStyle(fontSize: 11)),
         ),
       ],
@@ -210,7 +209,7 @@ class TeamMembersEditor extends StatelessWidget {
     return DropdownButton<String>(
       value: platforms.contains(current) ? current : platforms.first,
       isExpanded: true,
-      items: platforms.map((p) => DropdownMenuItem(value: p, child: Text(p, style: const TextStyle(fontSize: 11)))).toList(),
+      items: platforms.map((p) => DropdownMenuItem(value: p, child: Text(p, style: TextStyle(fontSize: 11)))).toList(),
       onChanged: (val) => onSelect(val!),
     );
   }

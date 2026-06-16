@@ -102,7 +102,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
               ),
             );
           }
-          return const SizedBox();
+          return SizedBox();
         },
       ),
     );
@@ -136,19 +136,19 @@ class _DesktopDashboardHome extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _DashboardHeader(loc: loc, state: state, isMobile: false),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           AnalyticsOverviewWidget(
             totalViews: totalViews,
             totalLeads: totalLeads,
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           if (state.currentTier == 'free' && pages.isNotEmpty)
             _UpgradeCard(
               userId: pages.first['user_id'],
               showUpgradeModal: showUpgradeModal,
               isMobile: false,
             ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -164,7 +164,7 @@ class _DesktopDashboardHome extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           pages.isEmpty ? _EmptyState(loc: loc) : _PagesList(pages: pages, onOpenBuilder: onOpenBuilder),
         ],
       ),
@@ -199,19 +199,19 @@ class _MobileDashboardHome extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _DashboardHeader(loc: loc, state: state, isMobile: true),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           AnalyticsOverviewWidget(
             totalViews: totalViews,
             totalLeads: totalLeads,
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           if (state.currentTier == 'free' && pages.isNotEmpty)
             _UpgradeCard(
               userId: pages.first['user_id'],
               showUpgradeModal: showUpgradeModal,
               isMobile: true,
             ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -219,7 +219,7 @@ class _MobileDashboardHome extends StatelessWidget {
                 loc.translate('your_landing_pages'),
                 style: AppTypography.h3,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               PrimaryButton(
                 text: loc.translate('create_new_page'),
                 icon: Icons.add_rounded,
@@ -228,7 +228,7 @@ class _MobileDashboardHome extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           pages.isEmpty ? _EmptyState(loc: loc) : _PagesList(pages: pages, onOpenBuilder: onOpenBuilder),
         ],
       ),
@@ -280,22 +280,22 @@ class _DashboardHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   "${state.pages.length} / ${state.maxPages} ${loc.translate('active_pages')}",
                   style: AppTypography.caption.copyWith(
-                    color: AppColors.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(
           loc.translate('track_performance_msg'),
           style: AppTypography.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -330,22 +330,22 @@ class _UpgradeCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.white, size: 32),
-                    const SizedBox(width: 12),
+                    Icon(Icons.star_rounded, color: Colors.white, size: 32),
+                    SizedBox(width: 12),
                     Text(
                       loc.translate('upgrade_to_pro'),
                       style: AppTypography.h3.copyWith(color: Colors.white),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(
                   loc.translate('upgrade_msg'),
                   style: AppTypography.bodyMedium.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -358,7 +358,7 @@ class _UpgradeCard extends StatelessWidget {
                     ),
                     child: Text(
                       loc.translate('upgrade_now'),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -366,8 +366,8 @@ class _UpgradeCard extends StatelessWidget {
             )
           : Row(
               children: [
-                const Icon(Icons.star_rounded, color: Colors.white, size: 40),
-                const SizedBox(width: 24),
+                Icon(Icons.star_rounded, color: Colors.white, size: 40),
+                SizedBox(width: 24),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,7 +385,7 @@ class _UpgradeCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 24),
+                SizedBox(width: 24),
                 ElevatedButton(
                   onPressed: () => showUpgradeModal("Pro", 299.0, userId),
                   style: ElevatedButton.styleFrom(
@@ -396,7 +396,7 @@ class _UpgradeCard extends StatelessWidget {
                   ),
                   child: Text(
                     loc.translate('upgrade_now'),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -417,20 +417,20 @@ class _EmptyState extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
           Icon(
             Icons.auto_awesome_motion_rounded,
             size: 64,
-            color: AppColors.textMuted.withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5).withValues(alpha: 0.5),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(loc.translate('no_pages_created'), style: AppTypography.h3),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             loc.translate('start_building_msg'),
             style: AppTypography.bodyMedium,
@@ -455,7 +455,7 @@ class _PagesList extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: pages.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, __) => SizedBox(height: 10),
       itemBuilder: (context, index) {
         final page = pages[index];
         return _PageItemCard(page: page, onOpenBuilder: onOpenBuilder);
@@ -486,11 +486,11 @@ class _PageItemCardState extends State<_PageItemCard> {
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
-      color: AppColors.cardBg,
+      color: Theme.of(context).colorScheme.surfaceContainerHigh,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -502,7 +502,7 @@ class _PageItemCardState extends State<_PageItemCard> {
               child: Row(
                 children: [
                   _PageAvatar(isActive: isActive, isPublished: isPublished),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,16 +519,16 @@ class _PageItemCardState extends State<_PageItemCard> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   _buildPublishToggle(page['id'], isPublished, isActive),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   _EditButton(onPressed: () => widget.onOpenBuilder(page['id'])),
                 ],
               ),
             ),
           ),
           if (_isLoading)
-            const LinearProgressIndicator(
+            LinearProgressIndicator(
               minHeight: 3,
               backgroundColor: Colors.transparent,
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
@@ -574,7 +574,7 @@ class _PageItemCardState extends State<_PageItemCard> {
         Text(
           isPublished ? "نشط" : "غير نشط",
           style: TextStyle(
-            color: isPublished ? AppColors.activeGreen : AppColors.textMuted,
+            color: isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             fontSize: 10,
             fontWeight: FontWeight.bold,
           ),
@@ -596,7 +596,7 @@ class _PageAvatar extends StatelessWidget {
       children: [
         CircleAvatar(
           backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-          child: const Icon(Icons.language_rounded, color: AppColors.primary),
+          child: Icon(Icons.language_rounded, color: AppColors.primary),
         ),
         Positioned(
           right: 0,
@@ -607,9 +607,9 @@ class _PageAvatar extends StatelessWidget {
             decoration: BoxDecoration(
               color: !isActive
                   ? AppColors.dangerRed
-                  : (isPublished ? AppColors.activeGreen : AppColors.textMuted),
+                  : (isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.cardBg, width: 2),
+              border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh, width: 2),
             ),
           ),
         ),
@@ -634,7 +634,7 @@ class _EditButton extends StatelessWidget {
           color: AppColors.primary.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Icon(Icons.edit_rounded, color: AppColors.primary, size: 24),
+        child: Icon(Icons.edit_rounded, color: AppColors.primary, size: 24),
       ),
     );
   }
@@ -687,7 +687,7 @@ class _CopyableUrlWidgetState extends State<_CopyableUrlWidget> {
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         InkWell(
           onTap: () => _copyToClipboard(context),
           borderRadius: BorderRadius.circular(4),
@@ -699,7 +699,7 @@ class _CopyableUrlWidgetState extends State<_CopyableUrlWidget> {
                 _isCopied ? Icons.check_circle_rounded : Icons.copy_rounded,
                 key: ValueKey(_isCopied),
                 size: 16,
-                color: _isCopied ? AppColors.activeGreen : AppColors.textSecondary,
+                color: _isCopied ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),

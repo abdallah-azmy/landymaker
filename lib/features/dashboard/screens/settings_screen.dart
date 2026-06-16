@@ -67,14 +67,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0E1A),
       appBar: AppBar(
-        backgroundColor: AppColors.cardBg,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         title: Text(
           loc.translate('settings'),
           style: AppTypography.h3,
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.5),
-          child: Container(color: AppColors.border, height: 1.5),
+          child: Container(color: Theme.of(context).colorScheme.outlineVariant, height: 1.5),
         ),
       ),
       body: LayoutBuilder(
@@ -123,15 +123,15 @@ class _SettingsDesktop extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _SectionHeader(title: loc.translate('notifications_settings')),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _NotificationToggleTile(
                 notificationsEnabled: notificationsEnabled,
                 toggleNotifications: toggleNotifications,
                 loc: loc,
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               _SectionHeader(title: loc.translate('install_app')),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _InstallAppTile(loc: loc),
             ],
           ),
@@ -161,15 +161,15 @@ class _SettingsMobile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _SectionHeader(title: loc.translate('notifications_settings')),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _NotificationToggleTile(
             notificationsEnabled: notificationsEnabled,
             toggleNotifications: toggleNotifications,
             loc: loc,
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
           _SectionHeader(title: loc.translate('install_app')),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _InstallAppTile(loc: loc),
         ],
       ),
@@ -188,7 +188,7 @@ class _SectionHeader extends StatelessWidget {
     return Text(
       title,
       style: AppTypography.h3.copyWith(
-        color: AppColors.textPrimary,
+        color: Theme.of(context).colorScheme.onSurface,
         fontWeight: FontWeight.w700,
       ),
     );
@@ -212,14 +212,14 @@ class _NotificationToggleTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.2),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
       ),
       child: Row(
         children: [
           _IconWrapper(icon: Icons.notifications_active_rounded),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,14 +228,14 @@ class _NotificationToggleTile extends StatelessWidget {
                   loc.translate('enable_notifications'),
                   style: AppTypography.bodyLarge.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   loc.translate('enable_notifications_desc'),
                   style: AppTypography.caption.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -266,14 +266,14 @@ class _InstallAppTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.2),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
       ),
       child: Row(
         children: [
           _IconWrapper(icon: Icons.download_for_offline_rounded),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,26 +282,26 @@ class _InstallAppTile extends StatelessWidget {
                   loc.translate('install_app'),
                   style: AppTypography.bodyLarge.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   canInstall
                       ? loc.translate('install_app_desc')
                       : loc.translate('app_already_installed'),
                   style: AppTypography.caption.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           if (canInstall)
             ElevatedButton.icon(
               onPressed: PwaInstallService.promptInstall,
-              icon: const Icon(Icons.download_rounded, size: 18),
+              icon: Icon(Icons.download_rounded, size: 18),
               label: Text(loc.translate('install_now')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondary,

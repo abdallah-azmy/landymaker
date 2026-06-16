@@ -60,9 +60,9 @@ class _CustomGalleryWidgetState extends State<CustomGalleryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
+    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -147,7 +147,7 @@ class _DesktopGalleryLayout extends StatelessWidget {
     return Column(
       children: [
         _GalleryHeader(props: props),
-        const SizedBox(height: 64),
+        SizedBox(height: 64),
         if (props.displayMode == 'carousel') _GalleryCarousel(props: props) else _GalleryGrid(props: props),
       ],
     );
@@ -164,7 +164,7 @@ class _MobileGalleryLayout extends StatelessWidget {
     return Column(
       children: [
         _GalleryHeader(props: props),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
         if (props.displayMode == 'carousel') _GalleryCarousel(props: props) else _GalleryGrid(props: props),
       ],
     );
@@ -234,7 +234,7 @@ class _GalleryGrid extends StatelessWidget {
           );
 
           rows.add(rowWidget);
-          if (i + columnCount < props.items.length) rows.add(const SizedBox(height: 16));
+          if (i + columnCount < props.items.length) rows.add(SizedBox(height: 16));
         }
         return Column(children: rows);
       },
@@ -249,7 +249,7 @@ class _GalleryCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (props.items.isEmpty) return const SizedBox.shrink();
+    if (props.items.isEmpty) return SizedBox.shrink();
 
     return Column(
       children: [
@@ -281,7 +281,7 @@ class _GalleryCarousel extends StatelessWidget {
             ],
           ],
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         _CarouselIndicators(props: props),
       ],
     );
@@ -299,11 +299,11 @@ class _CarouselIndicators extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (props.isMobile) _NavButton(icon: Icons.arrow_back_ios_new_rounded, onTap: () => props.pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut), small: true),
-        const SizedBox(width: 16),
+        SizedBox(width: 16),
         Column(
           children: [
             Text("${props.currentIndex + 1} / ${props.items.length}", style: AppTypography.caption.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: List.generate(props.items.length, (index) {
@@ -321,7 +321,7 @@ class _CarouselIndicators extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: 16),
         if (props.isMobile) _NavButton(icon: Icons.arrow_forward_ios_rounded, onTap: () => props.pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut), small: true),
       ],
     );
@@ -412,7 +412,7 @@ class _HoverableGalleryItemState extends State<_HoverableGalleryItem> {
                   child: AnimatedOpacity(
                     opacity: _isHovered ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 200),
-                    child: const Icon(Icons.open_in_new_rounded, color: Colors.white, size: 28),
+                    child: Icon(Icons.open_in_new_rounded, color: Colors.white, size: 28),
                   ),
                 ),
               ),

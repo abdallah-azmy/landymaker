@@ -44,7 +44,7 @@ class GalleryEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'أعمدة الجوال',
           child: SegmentedButton<int>(
@@ -60,7 +60,7 @@ class GalleryEditor extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -72,12 +72,12 @@ class GalleryEditor extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () => cubit.addGalleryImage(index),
-              icon: const Icon(Icons.add_photo_alternate_rounded, size: 16),
+              icon: Icon(Icons.add_photo_alternate_rounded, size: 16),
               label: Text(context.translate('add_image')),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         ...List.generate(((block['items'] as List?) ?? []).length, (gIndex) {
           final String imageUrl = ((block['items'] as List?) ?? [])[gIndex];
           final List galleryLinks = List.from(block['gallery_links'] ?? []);
@@ -89,9 +89,9 @@ class GalleryEditor extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               children: [
@@ -103,7 +103,7 @@ class GalleryEditor extends StatelessWidget {
                       style: AppTypography.bodySmall,
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.delete_outline_rounded,
                         size: 18,
                         color: AppColors.dangerRed,
@@ -113,7 +113,7 @@ class GalleryEditor extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomImageField(
                   label: "",
                   imageUrl: imageUrl,
@@ -131,7 +131,7 @@ class GalleryEditor extends StatelessWidget {
                     itemKey: 'items_array',
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: context.translate('redirect_url'),
                   controller: getController(

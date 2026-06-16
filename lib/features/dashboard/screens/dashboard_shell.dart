@@ -143,7 +143,7 @@ class _DesktopDashboardShell extends StatelessWidget {
     final loc = context.watch<LocalizationCubit>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Row(
         children: [
           sidebar,
@@ -192,24 +192,24 @@ class _MobileDashboardShell extends StatelessWidget {
 
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.cardBg,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         title: Text(loc.translate('app_title'), style: AppTypography.h3),
         leading: IconButton(
-          icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
+          icon: Icon(Icons.menu_rounded, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
           _NotificationBell(notificationCubit: notificationCubit),
           IconButton(
-            icon: const Icon(Icons.language_rounded, color: AppColors.secondary),
+            icon: Icon(Icons.language_rounded, color: AppColors.secondary),
             onPressed: () => loc.toggleLanguage(),
           ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.5),
-          child: Container(color: AppColors.border, height: 1.5),
+          child: Container(color: Theme.of(context).colorScheme.outlineVariant, height: 1.5),
         ),
       ),
       drawer: Drawer(child: sidebar),
@@ -238,17 +238,17 @@ class _DashboardTopBar extends StatelessWidget {
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: const BoxDecoration(
-        color: AppColors.cardBg,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 1.5)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           _NotificationBell(notificationCubit: notificationCubit),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           IconButton(
-            icon: const Icon(Icons.language_rounded, color: AppColors.secondary),
+            icon: Icon(Icons.language_rounded, color: AppColors.secondary),
             onPressed: () => loc.toggleLanguage(),
           ),
         ],
@@ -276,7 +276,7 @@ class _NotificationBell extends StatelessWidget {
         return Stack(
           children: [
             IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
+              icon: Icon(Icons.notifications_outlined, color: Theme.of(context).colorScheme.onSurface),
               onPressed: () {
                 NotificationInboxModal.show(
                   context: context,
@@ -297,7 +297,7 @@ class _NotificationBell extends StatelessWidget {
                   constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                   child: Text(
                     unreadCount > 9 ? '9+' : unreadCount.toString(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,

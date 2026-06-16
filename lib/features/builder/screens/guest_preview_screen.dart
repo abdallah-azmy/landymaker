@@ -26,8 +26,8 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         height: MediaQuery.of(ctx).size.height * 0.6,
-        decoration: const BoxDecoration(
-          color: AppColors.background,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: Column(
@@ -38,7 +38,7 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.textMuted.withValues(alpha: 0.3),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5).withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -48,28 +48,28 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.rocket_launch_rounded,
                       size: 64,
                       color: AppColors.primary,
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     Text(
                       "صفحتك جاهزة! 🎉",
                       style: AppTypography.h2.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     Text(
                       "للحصول على رابط دائم، تعديل الكتل يدوياً، وإضافة منتجات غير محدودة",
                       textAlign: TextAlign.center,
                       style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -94,7 +94,7 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(
@@ -104,7 +104,7 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary),
+                          side: BorderSide(color: AppColors.primary),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -119,11 +119,11 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     Text(
                       "صفحتك الأولى مجانية بالكامل! 🎁",
                       style: AppTypography.caption.copyWith(
-                        color: AppColors.textMuted,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
                     ),
                   ],
@@ -143,8 +143,8 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
     final loc = context.watch<LocalizationCubit>();
 
     if (state is! BuilderLoaded) {
-      return const Scaffold(
-        backgroundColor: AppColors.background,
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: Center(
           child: CircularProgressIndicator(color: AppColors.secondary),
         ),
@@ -157,8 +157,8 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
         backgroundColor: const Color(0xFF0F172A),
         title: Row(
           children: [
-            const Icon(Icons.visibility_rounded, color: AppColors.secondary),
-            const SizedBox(width: 8),
+            Icon(Icons.visibility_rounded, color: AppColors.secondary),
+            SizedBox(width: 8),
             Text(
               "معاينة الصفحة (زائر)",
               style: AppTypography.h3.copyWith(color: Colors.white, fontSize: 16),
@@ -168,7 +168,7 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
         actions: [
           IconButton(
             onPressed: () => context.go('/'),
-            icon: const Icon(Icons.home_rounded, color: Colors.white70),
+            icon: Icon(Icons.home_rounded, color: Colors.white70),
             tooltip: "العودة للرئيسية",
           ),
         ],
@@ -222,13 +222,13 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                       color: AppColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.edit_note_rounded,
                       color: AppColors.primary,
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,23 +237,23 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                         Text(
                           "حرر صفحتك واحفظها",
                           style: AppTypography.bodyMedium.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           "سجل مجاناً لتحصل على رابط دائم وتعديل غير محدود",
                           style: AppTypography.caption.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 12,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   ElevatedButton(
                     onPressed: () => _showAuthGateModal(context),
                     style: ElevatedButton.styleFrom(
@@ -281,7 +281,7 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
         onPressed: () => _showAuthGateModal(context),
         backgroundColor: AppColors.primary,
         elevation: 6,
-        icon: const Icon(Icons.lock_open_rounded, color: Colors.black87),
+        icon: Icon(Icons.lock_open_rounded, color: Colors.black87),
         label: const Text(
           "فعل التعديل الكامل",
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),

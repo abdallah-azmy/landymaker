@@ -124,9 +124,9 @@ class _DesktopNavbar extends StatelessWidget {
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.background.withValues(alpha: 0.7),
-            border: const Border(
-              bottom: BorderSide(color: AppColors.border, width: 1),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+            border: Border(
+              bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
             ),
           ),
           child: SizedBox(
@@ -148,31 +148,31 @@ class _DesktopNavbar extends StatelessWidget {
                           TextButton.icon(
                             onPressed: () =>
                                 context.read<LocalizationCubit>().toggleLanguage(),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.language_rounded,
                               size: 18,
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             label: Text(
                               context.translate('switch_language'),
                               style: AppTypography.bodyMedium.copyWith(
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 20),
+                          SizedBox(width: 20),
                           TextButton(
                             onPressed: onLoginPressed,
                             child: Text(
                               context.translate('login'),
                               style: AppTypography.bodyMedium.copyWith(
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           ElevatedButton(
                             onPressed: onGetStartedPressed,
                             style: ElevatedButton.styleFrom(
@@ -195,7 +195,7 @@ class _DesktopNavbar extends StatelessWidget {
                               context.translate('start_free'),
                               style: AppTypography.bodyMedium.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -243,9 +243,9 @@ class _MobileNavbar extends StatelessWidget {
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.background.withValues(alpha: 0.7),
-            border: const Border(
-              bottom: BorderSide(color: AppColors.border, width: 1),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+            border: Border(
+              bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
             ),
           ),
           child: Column(
@@ -271,15 +271,15 @@ class _MobileNavbar extends StatelessWidget {
                             children: [
                               IconButton(
                                 tooltip: context.translate('switch_language'),
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.language_rounded,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   size: 22,
                                 ),
                                 onPressed: () =>
                                     context.read<LocalizationCubit>().toggleLanguage(),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               RepaintBoundary(
                                 child: IconButton(
                                   tooltip: menuOpen
@@ -300,7 +300,7 @@ class _MobileNavbar extends StatelessWidget {
                                           ? Icons.close_rounded
                                           : Icons.menu_rounded,
                                       key: ValueKey(menuOpen),
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       size: 28,
                                     ),
                                   ),
@@ -332,9 +332,9 @@ class _MobileNavbar extends StatelessWidget {
                 },
                 child: Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     border: Border(
-                      top: BorderSide(color: AppColors.border, width: 0.5),
+                      top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
                     ),
                   ),
                   padding: const EdgeInsetsDirectional.symmetric(
@@ -350,8 +350,8 @@ class _MobileNavbar extends StatelessWidget {
                           onLoginPressed();
                         },
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                              color: AppColors.border, width: 1.5),
+                          side: BorderSide(
+                              color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14)),
@@ -359,12 +359,12 @@ class _MobileNavbar extends StatelessWidget {
                         child: Text(
                           context.translate('login'),
                           style: AppTypography.bodyMedium.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () {
                           closeMenu();
@@ -406,7 +406,7 @@ class _LogoSection extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const LandyMakerLogo(fontSize: 22),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Image.asset(
           'assets/images/logo_small.webp',
           height: 38,

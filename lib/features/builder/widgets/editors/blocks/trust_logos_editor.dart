@@ -45,7 +45,7 @@ class TrustLogosEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         DynamicListEditor(
           title: "الشعارات (Logos)",
           addLabel: "أضف شعار",
@@ -72,12 +72,12 @@ class TrustLogosEditor extends StatelessWidget {
                   children: [
                     Text("شعار رقم ${tIndex + 1}", style: AppTypography.bodySmall),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 18),
+                      icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 18),
                       onPressed: onDelete,
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomImageField(
                   label: "",
                   imageUrl: url,
@@ -85,7 +85,7 @@ class TrustLogosEditor extends StatelessWidget {
                   onAction: () => pickImage(cubit, index, itemIndex: tIndex, itemKey: 'items_array'),
                   onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: tIndex, itemKey: 'items_array'),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
               ],
             );
           },

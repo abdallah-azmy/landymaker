@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/app_typography.dart';
 import '../../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
@@ -36,7 +35,7 @@ class ServiceStepsEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'العنوان الفرعي',
           child: CustomTextField(
@@ -45,18 +44,18 @@ class ServiceStepsEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Text("خطوات العمل", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         ...List.generate(items.length, (i) {
           final item = items[i];
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               children: [
@@ -65,7 +64,7 @@ class ServiceStepsEditor extends StatelessWidget {
                   children: [
                     Text("الخطوة ${i + 1}", style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold)),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
+                      icon: Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
                       onPressed: () {
                         items.removeAt(i);
                         cubit.updateBlockProperty(index, 'items', items);
@@ -82,7 +81,7 @@ class ServiceStepsEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'items', items);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomTextField(
                   hintText: "الشرح",
                   maxLines: 2,
@@ -97,13 +96,13 @@ class ServiceStepsEditor extends StatelessWidget {
             ),
           );
         }),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: () {
             items.add({'title': 'خطوة جديدة', 'description': 'اشرح ماذا يحدث في هذه المرحلة.'});
             cubit.updateBlockProperty(index, 'items', items);
           },
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           label: const Text("إضافة خطوة"),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),

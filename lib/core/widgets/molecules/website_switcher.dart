@@ -33,25 +33,25 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: AppColors.cardBg,
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border, width: 1.2),
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
                 ),
                 child: Row(
                   children: [
                     _buildTypeIcon(activeState.websiteType),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         activeSite?['subdomain'] ?? "Select Website",
                         style: AppTypography.bodyLarge.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: activeSite != null ? AppColors.textPrimary : AppColors.textMuted,
+                          color: activeSite != null ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const Icon(Icons.unfold_more_rounded, color: AppColors.textMuted, size: 20),
+                    Icon(Icons.unfold_more_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), size: 20),
                   ],
                 ),
               ),
@@ -97,7 +97,7 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
-              backgroundColor: AppColors.background,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               child: Container(
                 width: 400,
@@ -107,22 +107,22 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("Switch Website", style: AppTypography.h3),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     TextField(
                       controller: _searchController,
                       onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
                       decoration: InputDecoration(
                         hintText: "Search websites...",
-                        prefixIcon: const Icon(Icons.search_rounded),
+                        prefixIcon: Icon(Icons.search_rounded),
                         filled: true,
-                        fillColor: AppColors.cardBg,
+                        fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxHeight: 400),
                       child: BlocBuilder<LandingPagesCubit, LandingPagesState>(
@@ -140,7 +140,7 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
                             return ListView.separated(
                               shrinkWrap: true,
                               itemCount: filtered.length,
-                              separatorBuilder: (_, __) => const SizedBox(height: 8),
+                              separatorBuilder: (_, __) => SizedBox(height: 8),
                               itemBuilder: (context, index) {
                                 final site = filtered[index];
                                 return _buildSiteItem(context, site);
@@ -185,7 +185,7 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
         child: Row(
           children: [
             _buildTypeIcon(site['website_type']),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +194,7 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
                     site['subdomain'],
                     style: AppTypography.bodyLarge.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
+                      color: isActive ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   Text(
@@ -205,7 +205,7 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
               ),
             ),
             if (isActive)
-              const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
+              Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
           ],
         ),
       ),
@@ -218,8 +218,8 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.search_off_rounded, size: 48, color: AppColors.textMuted),
-            const SizedBox(height: 12),
+            Icon(Icons.search_off_rounded, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+            SizedBox(height: 12),
             Text("No websites found", style: AppTypography.bodyMedium),
           ],
         ),

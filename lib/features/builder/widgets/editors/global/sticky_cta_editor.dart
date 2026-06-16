@@ -59,7 +59,7 @@ class _StickyCtaEditorState extends State<StickyCtaEditor> {
   Widget build(BuildContext context) {
     return BlocBuilder<LandingPageBuilderCubit, BuilderState>(
       builder: (context, state) {
-        if (state is! BuilderLoaded) return const SizedBox.shrink();
+        if (state is! BuilderLoaded) return SizedBox.shrink();
 
         final cubit = context.read<LandingPageBuilderCubit>();
         final config = state.designMap['sticky_cta'] as Map<String, dynamic>? ?? {
@@ -98,53 +98,53 @@ class _StickyCtaEditorState extends State<StickyCtaEditor> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 "يظهر شريط التثبيت أسفل الشاشة لزيادة التحويلات",
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               
               if (config['is_enabled'] == true) ...[
                 Text("النص الأساسي", style: AppTypography.bodyMedium),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomTextField(
                   controller: _textController,
                   onChanged: (val) => updateLocalizedText('text', val),
                   hintText: "مثال: اشترك الآن واحصل على خصم",
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 Text("السعر (اختياري)", style: AppTypography.bodyMedium),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomTextField(
                   controller: _priceController,
                   onChanged: (val) => updateLocalizedText('price_text', val),
                   hintText: "مثال: 99 ج.م بدلاً من 150 ج.م",
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 Text("نص الزر", style: AppTypography.bodyMedium),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomTextField(
                   controller: _btnTextController,
                   onChanged: (val) => updateLocalizedText('button_text', val),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 Text("إجراء الزر", style: AppTypography.bodyMedium),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: AppColors.cardBg,
-                    border: Border.all(color: AppColors.textSecondary.withValues(alpha: 0.2)),
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    border: Border.all(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2)),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       isExpanded: true,
-                      dropdownColor: AppColors.cardBg,
+                      dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                       value: config['button_action_type'] ?? 'link',
                       items: const [
                         DropdownMenuItem(value: 'link', child: Text("رابط خارجي")),
@@ -154,10 +154,10 @@ class _StickyCtaEditorState extends State<StickyCtaEditor> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 Text("قيمة الإجراء (رابط الدفع أو الرابط الخارجي)", style: AppTypography.bodyMedium),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomTextField(
                   controller: _actionValueController,
                   onChanged: (val) => updateConfig('button_action_value', val),

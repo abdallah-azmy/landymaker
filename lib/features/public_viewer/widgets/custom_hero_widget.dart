@@ -65,8 +65,8 @@ class CustomHeroWidget extends StatelessWidget {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     final primaryColor = theme?.primary ?? AppColors.primary;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -178,7 +178,7 @@ class _HeroStandardLayout extends StatelessWidget {
             flex: 5,
             child: _HeroTextContent(props: props, alignment: CrossAxisAlignment.start),
           ),
-          const SizedBox(width: 48),
+          SizedBox(width: 48),
           Expanded(
             flex: 5,
             child: _HeroImage(props: props),
@@ -189,7 +189,7 @@ class _HeroStandardLayout extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           _HeroImage(props: props),
         ],
       ),
@@ -208,14 +208,14 @@ class _HeroSplitLayout extends StatelessWidget {
       desktop: Row(
         children: [
           Expanded(child: _HeroImage(props: props)),
-          const SizedBox(width: 48),
+          SizedBox(width: 48),
           Expanded(child: _HeroTextContent(props: props, alignment: CrossAxisAlignment.start)),
         ],
       ),
       mobile: Column(
         children: [
           _HeroImage(props: props),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
         ],
       ),
@@ -244,7 +244,7 @@ class _HeroCenteredLayout extends StatelessWidget {
     return Column(
       children: [
         _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
-        const SizedBox(height: 48),
+        SizedBox(height: 48),
         _HeroImage(props: props),
       ],
     );
@@ -314,7 +314,7 @@ class _HeroTextContent extends StatelessWidget {
       crossAxisAlignment: alignment,
       children: [
         _HeroPremiumTag(props: props),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Text(
           props.title,
           style: AppTypography.h1.copyWith(
@@ -325,7 +325,7 @@ class _HeroTextContent extends StatelessWidget {
           ),
           textAlign: alignment == CrossAxisAlignment.center ? TextAlign.center : TextAlign.start,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(
           props.subtitle,
           style: AppTypography.bodyLarge.copyWith(
@@ -335,7 +335,7 @@ class _HeroTextContent extends StatelessWidget {
           ),
           textAlign: alignment == CrossAxisAlignment.center ? TextAlign.center : TextAlign.start,
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         _HeroButton(props: props),
       ],
     );
@@ -406,7 +406,7 @@ class _HeroButton extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Icon(props.isRtl ? Icons.arrow_back : Icons.arrow_forward, size: 18),
         ],
       ),

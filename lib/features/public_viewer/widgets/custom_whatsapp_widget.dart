@@ -37,8 +37,8 @@ class CustomWhatsappWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
     final hasPhone = cleanNumber.isNotEmpty;
 
@@ -135,13 +135,13 @@ class _DesktopWhatsappLayout extends StatelessWidget {
           child: Column(
             children: [
               Icon(Icons.chat_bubble_outline_rounded, color: props.secondaryColor, size: 44),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 32), textAlign: TextAlign.center),
               if (props.message.isNotEmpty) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(props.message, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.6), textAlign: TextAlign.center),
               ],
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _WhatsappButton(props: props),
             ],
           ),
@@ -175,13 +175,13 @@ class _MobileWhatsappLayout extends StatelessWidget {
           child: Column(
             children: [
               Icon(Icons.chat_bubble_outline_rounded, color: props.secondaryColor, size: 36),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 24), textAlign: TextAlign.center),
               if (props.message.isNotEmpty) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(props.message, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.6), textAlign: TextAlign.center),
               ],
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _WhatsappButton(props: props),
             ],
           ),
@@ -217,7 +217,7 @@ class _WhatsappButton extends StatelessWidget {
               );
             }
           : null,
-      icon: const Icon(Icons.send_rounded, size: 18),
+      icon: Icon(Icons.send_rounded, size: 18),
       label: Text(props.buttonText, overflow: TextOverflow.ellipsis),
       style: ElevatedButton.styleFrom(
         backgroundColor: props.secondaryColor,

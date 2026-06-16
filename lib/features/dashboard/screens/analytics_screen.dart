@@ -50,14 +50,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text("Failed to load analytics data", style: AppTypography.h2),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               state.message,
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.dangerRed,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 cubit.fetchStatsForCurrentUser();
@@ -92,7 +92,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     loc.translate('analytics'),
                     style: AppTypography.h1.copyWith(fontSize: 28),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     "Track landing page views and capture conversions.",
                     style: AppTypography.bodyMedium,
@@ -103,7 +103,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 onPressed: () {
                   cubit.fetchStatsForCurrentUser();
                 },
-                icon: const Icon(
+                icon: Icon(
                   Icons.refresh_rounded,
                   color: AppColors.secondary,
                 ),
@@ -111,13 +111,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           const PageContextBanner(
             title: "إحصائيات الصفحة",
             description: "تابع أداء صفحة الهبوط المحددة حالياً من زيارات وتحويلات لمعرفة مدى نجاح حملاتك.",
             icon: Icons.analytics_rounded,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           if (errorMessage != null) ...[
             Text(
@@ -126,7 +126,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 color: AppColors.dangerRed,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
           ],
 
           // Metric Cards Grid
@@ -168,21 +168,21 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
 
           // Custom Animated Bar Chart Card
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border, width: 1.5),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Daily Performance Trend", style: AppTypography.h3),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 SizedBox(
                   height: 240,
                   child: Row(
@@ -226,7 +226,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(label, style: AppTypography.caption),
         ],
       );

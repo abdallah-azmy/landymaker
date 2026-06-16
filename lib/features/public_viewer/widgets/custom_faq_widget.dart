@@ -33,8 +33,8 @@ class CustomFaqWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -101,7 +101,7 @@ class _DesktopFaqLayout extends StatelessWidget {
     return Column(
       children: [
         _FaqHeader(props: props),
-        const SizedBox(height: 48),
+        SizedBox(height: 48),
         ...props.items.map((item) => _FaqItem(item: item, props: props)),
       ],
     );
@@ -118,7 +118,7 @@ class _MobileFaqLayout extends StatelessWidget {
     return Column(
       children: [
         _FaqHeader(props: props),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         ...props.items.map((item) => _FaqItem(item: item, props: props)),
       ],
     );

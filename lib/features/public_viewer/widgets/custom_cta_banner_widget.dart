@@ -153,7 +153,7 @@ class _DesktopCtaCenteredGradientLayout extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               if (props.subtitle.isNotEmpty) ...[
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Text(
                   props.subtitle,
                   style: AppTypography.bodyLarge.copyWith(
@@ -163,7 +163,7 @@ class _DesktopCtaCenteredGradientLayout extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ],
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               _CtaButtonRow(props: props),
             ],
           ),
@@ -227,7 +227,7 @@ class _MobileCtaCenteredGradientLayout extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               if (props.subtitle.isNotEmpty) ...[
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Text(
                   props.subtitle,
                   style: AppTypography.bodyLarge.copyWith(
@@ -237,7 +237,7 @@ class _MobileCtaCenteredGradientLayout extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ],
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               _CtaButtonRow(props: props),
             ],
           ),
@@ -294,13 +294,13 @@ class _DesktopCtaSplitLayout extends StatelessWidget {
                   children: [
                     Text(props.title, style: AppTypography.h2.copyWith(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)),
                     if (props.subtitle.isNotEmpty) ...[
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: Colors.white.withValues(alpha: 0.9))),
                     ],
                   ],
                 ),
               ),
-              const SizedBox(width: 40),
+              SizedBox(width: 40),
               _CtaButtonRow(props: props),
             ],
           ),
@@ -352,10 +352,10 @@ class _MobileCtaSplitLayout extends StatelessWidget {
             children: [
               Text(props.title, style: AppTypography.h2.copyWith(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w900), textAlign: TextAlign.center),
               if (props.subtitle.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: Colors.white.withValues(alpha: 0.9)), textAlign: TextAlign.center),
               ],
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               _CtaButtonRow(props: props),
             ],
           ),
@@ -390,18 +390,18 @@ class _CtaButtonRow extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             elevation: 0,
           ),
-          child: Text(props.buttonText, style: const TextStyle(fontWeight: FontWeight.w900)),
+          child: Text(props.buttonText, style: TextStyle(fontWeight: FontWeight.w900)),
         ),
         if (props.secondaryButtonText.isNotEmpty)
           OutlinedButton(
             onPressed: () => _launchUrl(props.secondaryButtonUrl),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.white,
-              side: const BorderSide(color: Colors.white24, width: 2),
+              side: BorderSide(color: Colors.white24, width: 2),
               padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: Text(props.secondaryButtonText, style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(props.secondaryButtonText, style: TextStyle(fontWeight: FontWeight.bold)),
           ),
       ],
     );

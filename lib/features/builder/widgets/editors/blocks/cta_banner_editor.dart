@@ -32,7 +32,7 @@ class CtaBannerEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'العنوان الفرعي',
           child: CustomTextField(
@@ -41,7 +41,7 @@ class CtaBannerEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'نص الزر',
           child: CustomTextField(
@@ -50,7 +50,7 @@ class CtaBannerEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'رابط الزر',
           child: CustomTextField(
@@ -59,7 +59,7 @@ class CtaBannerEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'button_url', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'نص الزر الثانوي',
           child: CustomTextField(
@@ -68,7 +68,7 @@ class CtaBannerEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'secondary_button_text', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'رابط الزر الثانوي',
           child: CustomTextField(
@@ -77,7 +77,7 @@ class CtaBannerEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'secondary_button_url', val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         FormGroup(
           label: 'نوع التخطيط',
           child: DropdownButtonFormField<String>(

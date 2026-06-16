@@ -60,7 +60,7 @@ class _FeatureGateWrapperState extends State<FeatureGateWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const SizedBox(
+      return SizedBox(
         width: 20,
         height: 20,
         child: CircularProgressIndicator(strokeWidth: 2),
@@ -71,7 +71,7 @@ class _FeatureGateWrapperState extends State<FeatureGateWrapper> {
 
     switch (widget.gatingType) {
       case GatingType.hidden:
-        return const SizedBox.shrink();
+        return SizedBox.shrink();
       case GatingType.opacity:
         return Stack(
           children: [
@@ -79,7 +79,7 @@ class _FeatureGateWrapperState extends State<FeatureGateWrapper> {
             Positioned.fill(
               child: Center(
                 child: IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.lock_rounded,
                     color: AppColors.warningOrange,
                   ),
@@ -103,7 +103,7 @@ class _FeatureGateWrapperState extends State<FeatureGateWrapper> {
               child: Center(
                 child: ElevatedButton.icon(
                   onPressed: _showUpgradePrompt,
-                  icon: const Icon(Icons.star_rounded, size: 16),
+                  icon: Icon(Icons.star_rounded, size: 16),
                   label: const Text("ترقية"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.warningOrange,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/custom_network_image.dart';
 
@@ -40,7 +39,7 @@ class CustomImageField extends StatelessWidget {
           label,
           style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         InkWell(
           onTap: onAction,
           borderRadius: BorderRadius.circular(16),
@@ -48,9 +47,9 @@ class CustomImageField extends StatelessWidget {
             height: 120,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border, width: 2),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
             ),
             child: Stack(
               fit: StackFit.expand,
@@ -68,9 +67,9 @@ class CustomImageField extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.add_photo_alternate_rounded, size: 32, color: Colors.white24),
-                        const SizedBox(height: 8),
-                        Text(context.translate('choose_image') ?? "اختر صورة", style: const TextStyle(color: Colors.white24, fontSize: 12)),
+                        Icon(Icons.add_photo_alternate_rounded, size: 32, color: Colors.white24),
+                        SizedBox(height: 8),
+                        Text(context.translate('choose_image') ?? "اختر صورة", style: TextStyle(color: Colors.white24, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -97,10 +96,10 @@ class CustomImageField extends StatelessWidget {
                             size: 16, 
                             color: const Color(0xFF00E5FF),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Text(
                             hasImage ? (context.translate('edit') ?? "تغيير") : (context.translate('upload_image') ?? "رفع صورة"),
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -140,7 +139,7 @@ class CustomImageField extends StatelessWidget {
                               )
                             ],
                           ),
-                          child: const Icon(Icons.download_for_offline_rounded, size: 20, color: Colors.black),
+                          child: Icon(Icons.download_for_offline_rounded, size: 20, color: Colors.black),
                         ),
                       ),
                     ),

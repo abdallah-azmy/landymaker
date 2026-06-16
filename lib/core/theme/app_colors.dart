@@ -32,28 +32,28 @@ class AppColors {
   /// These names are kept so existing widgets compile without changes.
   /// New code should use `Theme.of(context).colorScheme` instead.
   @Deprecated('Use Theme.of(context).colorScheme.surface instead')
-  static Color get background => darkBackground;
+  static const Color background = darkBackground;
 
   @Deprecated('Use Theme.of(context).colorScheme.surface instead')
-  static Color get cardBg => darkCardBg;
+  static const Color cardBg = darkCardBg;
 
   @Deprecated('Use Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) instead')
-  static Color get cardBgHover => const Color(0xFF1E293B);
+  static const Color cardBgHover = Color(0xFF1E293B);
 
   @Deprecated('Use Theme.of(context).colorScheme.outline instead')
-  static Color get border => darkBorder;
+  static const Color border = darkBorder;
 
   @Deprecated('Use Theme.of(context).colorScheme.primary instead')
-  static Color get borderGlow => primary;
+  static const Color borderGlow = primary;
 
   @Deprecated('Use Theme.of(context).colorScheme.onSurface instead')
-  static Color get textPrimary => darkTextPrimary;
+  static const Color textPrimary = darkTextPrimary;
 
   @Deprecated('Use Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7) instead')
-  static Color get textSecondary => darkTextSecondary;
+  static const Color textSecondary = darkTextSecondary;
 
   @Deprecated('Use Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5) instead')
-  static Color get textMuted => darkTextMuted;
+  static const Color textMuted = darkTextMuted;
 
   // ── Gradients ──────────────────────────────────────────────────────
   static const Gradient primaryGradient = LinearGradient(

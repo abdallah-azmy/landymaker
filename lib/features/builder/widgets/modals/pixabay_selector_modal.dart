@@ -80,21 +80,21 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildSearchArea(),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildFilters(),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           if (_suggestedKeywords.isNotEmpty) _buildSuggestions(),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Expanded(child: _buildGrid()),
         ],
       ),
@@ -108,7 +108,7 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
         Text("اختر صورة من Pixabay", style: AppTypography.h3),
         IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.close_rounded),
+          icon: Icon(Icons.close_rounded),
         ),
       ],
     );
@@ -119,9 +119,9 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
       controller: _searchController,
       decoration: InputDecoration(
         hintText: "بحث...",
-        prefixIcon: const Icon(Icons.search_rounded),
+        prefixIcon: Icon(Icons.search_rounded),
         suffixIcon: IconButton(
-          icon: const Icon(Icons.send_rounded, color: AppColors.secondary),
+          icon: Icon(Icons.send_rounded, color: AppColors.secondary),
           onPressed: () => _search(),
         ),
       ),
@@ -152,19 +152,19 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
             );
           }).toList(),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         // Orientation filters
         Row(
           children: [
             Text('اتجاه: ', style: AppTypography.caption),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             ...[null, 'horizontal', 'vertical', 'square'].map((o) {
               final isSelected = _selectedOrientation == o;
               final label = o == null ? 'الكل' : o;
               return Padding(
                 padding: const EdgeInsetsDirectional.only(end: 6),
                 child: ChoiceChip(
-                  label: Text(label, style: const TextStyle(fontSize: 11)),
+                  label: Text(label, style: TextStyle(fontSize: 11)),
                   selected: isSelected,
                   onSelected: (selected) {
                     if (selected) {
@@ -188,11 +188,11 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _suggestedKeywords.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 6),
+        separatorBuilder: (_, __) => SizedBox(width: 6),
         itemBuilder: (context, index) {
           final kw = _suggestedKeywords[index];
           return ActionChip(
-            label: Text(kw, style: const TextStyle(fontSize: 11)),
+            label: Text(kw, style: TextStyle(fontSize: 11)),
             visualDensity: VisualDensity.compact,
             onPressed: () {
               _searchController.text = kw;
@@ -225,7 +225,7 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
         }
         if (state is PixabaySelectorFailure) {
           return Center(
-            child: Text(state.error, style: const TextStyle(color: Colors.red)),
+            child: Text(state.error, style: TextStyle(color: Colors.red)),
           );
         }
         if (state is PixabaySelectorLoaded) {
@@ -270,7 +270,7 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
             ),
           );
         }
-        return const SizedBox();
+        return SizedBox();
       },
     );
   }

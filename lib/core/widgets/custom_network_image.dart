@@ -174,13 +174,13 @@ class CustomNetworkImage extends StatelessWidget {
             if (task.progress > 0)
               Text(
                 '${(task.progress * 100).toInt()}%',
-                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
               ),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         IconButton(
-          icon: const Icon(Icons.cancel, color: Colors.white70),
+          icon: Icon(Icons.cancel, color: Colors.white70),
           onPressed: () => sl<UploadManagerCubit>().cancelUpload(task.id),
         ),
       ],
@@ -191,14 +191,14 @@ class CustomNetworkImage extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.error_outline, color: Colors.redAccent, size: 32),
-        const SizedBox(height: 8),
+        Icon(Icons.error_outline, color: Colors.redAccent, size: 32),
+        SizedBox(height: 8),
         const Text('فشل الرفع', style: TextStyle(color: Colors.white, fontSize: 12)),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.cancel, color: Colors.white70),
+              icon: Icon(Icons.cancel, color: Colors.white70),
               onPressed: () => sl<UploadManagerCubit>().cancelUpload(task.id),
             ),
           ],

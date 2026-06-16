@@ -106,7 +106,7 @@ class _CustomVideoEmbedWidgetState extends State<CustomVideoEmbedWidget> {
     final String customThumbnail = widget.block['thumbnail_url'] ?? '';
 
     final textColor = widget.theme?.textPrimary ?? Colors.white;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final primaryColor = widget.theme?.primary ?? AppColors.primary;
 
     double ratio = 16 / 9;
@@ -221,11 +221,11 @@ class _DesktopVideoEmbedLayout extends StatelessWidget {
             children: [
               if (props.title.isNotEmpty) ...[
                 Text(props.title, textAlign: TextAlign.center, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 40, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
               ],
               if (props.subtitle.isNotEmpty) ...[
                 Text(props.subtitle, textAlign: TextAlign.center, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, height: 1.5)),
-                const SizedBox(height: 40),
+                SizedBox(height: 40),
               ],
               _VideoPlayerArea(props: props),
             ],
@@ -262,11 +262,11 @@ class _MobileVideoEmbedLayout extends StatelessWidget {
             children: [
               if (props.title.isNotEmpty) ...[
                 Text(props.title, textAlign: TextAlign.center, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 28, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
               ],
               if (props.subtitle.isNotEmpty) ...[
                 Text(props.subtitle, textAlign: TextAlign.center, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, height: 1.5)),
-                const SizedBox(height: 40),
+                SizedBox(height: 40),
               ],
               _VideoPlayerArea(props: props),
             ],
@@ -302,7 +302,7 @@ class _VideoPlayerArea extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.video_library_rounded, size: 48, color: props.subTextColor.withValues(alpha: 0.5)),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text('قم بإضافة رابط الفيديو من لوحة التحكم', style: TextStyle(color: props.subTextColor)),
             ],
           ),
@@ -339,7 +339,7 @@ class _VideoPlayerArea extends StatelessWidget {
                               shape: BoxShape.circle,
                               boxShadow: [BoxShadow(color: props.primaryColor.withValues(alpha: 0.5), blurRadius: 20, spreadRadius: 5)],
                             ),
-                            child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 40),
+                            child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 40),
                           ),
                         ),
                       ),

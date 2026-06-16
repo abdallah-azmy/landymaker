@@ -42,18 +42,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_rounded, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => context.safePop(fallbackPath: '/login'),
         ),
       ),
       body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.darkGradient),
+        decoration: BoxDecoration(gradient: AppColors.darkGradient),
         child: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is PasswordResetSuccess) {
@@ -88,7 +88,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircularProgressIndicator(color: AppColors.secondary),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     Text(
                       loc.isRtl
                           ? "جاري التحقق من الرابط وتأكيد الجلسة..."
@@ -118,7 +118,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             : Alignment.topRight,
                         child: TextButton.icon(
                           onPressed: () => loc.toggleLanguage(),
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.language,
                             color: AppColors.secondary,
                             size: 18,
@@ -131,7 +131,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
                       // Brand Header
                       Row(
@@ -143,13 +143,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               gradient: AppColors.primaryGradient,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.vpn_key_rounded,
                               color: Colors.white,
                               size: 24,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Text(
                             loc.translate('app_title'),
                             style: AppTypography.h1.copyWith(
@@ -159,7 +159,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 28),
+                      SizedBox(height: 28),
 
                       // Form Container Card
                       GlassContainer(
@@ -172,7 +172,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 loc.translate('reset_password'),
                                 style: AppTypography.h2.copyWith(fontSize: 20),
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: 20),
 
                               // New Password Input
                               FormGroup(
@@ -181,9 +181,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   controller: _passwordController,
                                   hintText: '••••••••',
                                   obscureText: true,
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.lock_outline,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                   validator: (val) {
                                     if (val == null || val.isEmpty) {
@@ -196,7 +196,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
 
                               // Confirm New Password Input
                               FormGroup(
@@ -205,9 +205,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   controller: _confirmPasswordController,
                                   hintText: '••••••••',
                                   obscureText: true,
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.lock_outline,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                   validator: (val) {
                                     if (val == null || val.isEmpty) {
@@ -220,7 +220,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              SizedBox(height: 24),
 
                               if (errorMessage != null) ...[
                                 Text(
@@ -229,7 +229,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                     color: AppColors.dangerRed,
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: 16),
                               ],
 
                               // Submit Button
@@ -239,7 +239,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 isLoading: isLoading,
                                 width: double.infinity,
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: 20),
 
                               // Back to Login Link
                               Center(

@@ -19,15 +19,15 @@ class MissionUpgradeModal extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.85),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildHeader(isRtl),
+            _buildHeader(context, isRtl),
             const SizedBox(height: 32),
             _buildPlanCard(
               context,
@@ -59,7 +59,7 @@ class MissionUpgradeModal extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
               child: Text(
                 isRtl ? "إغلاق" : "Close",
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
               ),
             ),
           ],
@@ -68,7 +68,7 @@ class MissionUpgradeModal extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(bool isRtl) {
+  Widget _buildHeader(BuildContext context, bool isRtl) {
     return Column(
       children: [
         Container(
@@ -84,11 +84,11 @@ class MissionUpgradeModal extends StatelessWidget {
           isRtl ? "ضاعف تحويلاتك مع لاندي ميكر برو" : "Multiply Conversions with LandyMaker Pro",
           style: AppTypography.h2,
           textAlign: TextAlign.center,
-        ),
+         ),
         const SizedBox(height: 8),
         Text(
           isRtl ? "اختر الباقة المناسبة لنمو تجارتك" : "Choose the right plan for your business growth",
-          style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+          style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           textAlign: TextAlign.center,
         ),
       ],
@@ -106,10 +106,10 @@ class MissionUpgradeModal extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isHighlighted ? const Color(0xFF0F172A) : AppColors.cardBg,
+        color: isHighlighted ? const Color(0xFF0F172A) : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isHighlighted ? AppColors.primary : AppColors.border,
+          color: isHighlighted ? AppColors.primary : Theme.of(context).colorScheme.outline,
           width: isHighlighted ? 2 : 1,
         ),
       ),
@@ -138,7 +138,7 @@ class MissionUpgradeModal extends StatelessWidget {
             children: [
               Text("\$$price", style: AppTypography.h1.copyWith(color: isHighlighted ? Colors.white : null)),
               const SizedBox(width: 4),
-              Text("/mo", style: AppTypography.bodySmall.copyWith(color: isHighlighted ? Colors.white70 : AppColors.textSecondary)),
+              Text("/mo", style: AppTypography.bodySmall.copyWith(color: isHighlighted ? Colors.white70 : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
             ],
           ),
           const SizedBox(height: 20),

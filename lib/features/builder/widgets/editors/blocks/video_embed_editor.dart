@@ -35,7 +35,7 @@ class VideoEmbedEditor extends StatelessWidget {
             hintText: "مثال: https://youtube.com/watch?v=...",
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "العنوان (Title)",
           child: CustomTextField(
@@ -44,7 +44,7 @@ class VideoEmbedEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "وصف فرعي (Subtitle)",
           child: CustomTextField(
@@ -54,7 +54,7 @@ class VideoEmbedEditor extends StatelessWidget {
             maxLines: 2,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           children: [
             Expanded(
@@ -78,7 +78,7 @@ class VideoEmbedEditor extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: FormGroup(
                 label: "أقصى عرض (Max Width)",
@@ -97,12 +97,12 @@ class VideoEmbedEditor extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         const Text(
           "الإعدادات الإضافية",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         SwitchListTile(
           title: const Text('استخدام صورة مصغرة (Lazy Load)'),
           subtitle: const Text('يزيد من سرعة الموقع بتأجيل تحميل الفيديو'),
@@ -110,7 +110,7 @@ class VideoEmbedEditor extends StatelessWidget {
           onChanged: (val) => cubit.updateBlockProperty(index, 'use_thumbnail', val),
         ),
         if (block['use_thumbnail'] ?? true) ...[
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           FormGroup(
             label: "رابط صورة مصغرة مخصصة (Custom Thumbnail URL)",
             helperText: "اتركه فارغاً للسحب التلقائي من يوتيوب",

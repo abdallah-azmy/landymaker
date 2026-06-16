@@ -71,12 +71,12 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
         ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppColors.secondary : AppColors.textSecondary, size: 20),
-            const SizedBox(width: 8),
+            Icon(icon, color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+            SizedBox(width: 8),
             Text(
               label,
               style: AppTypography.bodyMedium.copyWith(
-                color: isSelected ? AppColors.secondary : AppColors.textSecondary,
+                color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -95,30 +95,30 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         // Tabs Header
         Row(
           children: [
             _buildTabButton(loc, 0, loc.translate('advanced_settings'), Icons.search_rounded),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             _buildTabButton(loc, 1, loc.translate('tracking_pixels'), Icons.analytics_rounded),
           ],
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
 
         if (_selectedTab == 0) ...[
           Text(
             loc.translate('seo_help'),
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           
           // Google Preview
           Text(loc.translate('google_preview'), style: AppTypography.h3),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildGoogleSnippet(loc),
           
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           
           // Form Fields
           FormGroup(
@@ -127,7 +127,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                 .replaceAll('{current}', _titleController.text.length.toString())
                 .replaceAll('{max}', '60'),
             helperStyle: TextStyle(
-              color: _titleController.text.length > 60 ? AppColors.dangerRed : AppColors.textSecondary,
+              color: _titleController.text.length > 60 ? AppColors.dangerRed : Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: _titleController.text.length > 60 ? FontWeight.bold : FontWeight.normal,
             ),
             child: CustomTextField(
@@ -139,14 +139,14 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
               hintText: "e.g. My Awesome Shop",
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           FormGroup(
             label: loc.translate('seo_description'),
             helperText: loc.translate('chars_limit')
                 .replaceAll('{current}', _descController.text.length.toString())
                 .replaceAll('{max}', '155'),
             helperStyle: TextStyle(
-              color: _descController.text.length > 155 ? AppColors.dangerRed : AppColors.textSecondary,
+              color: _descController.text.length > 155 ? AppColors.dangerRed : Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: _descController.text.length > 155 ? FontWeight.bold : FontWeight.normal,
             ),
             child: CustomTextField(
@@ -159,7 +159,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
               hintText: "Describe what you offer in a few words...",
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           FormGroup(
             label: loc.translate('seo_keywords'),
             helperText: loc.translate('seo_keywords_help'),
@@ -173,7 +173,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
               maxLines: 2,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           FormGroup(
             label: loc.translate('seo_og_image'),
             helperText: loc.translate('seo_og_image_help'),
@@ -189,7 +189,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                     hintText: "https://example.com/image.jpg",
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 ElevatedButton.icon(
                   onPressed: () async {
                     final selectedData = await ImagePickerModal.show(context);
@@ -225,20 +225,20 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  icon: const Icon(Icons.image_search, size: 18),
+                  icon: Icon(Icons.image_search, size: 18),
                   label: Text(loc.translate('upload_image')),
                 ),
               ],
             ),
           ),
           if (_ogImageController.text.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Container(
               height: 180,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border, width: 1.5),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
@@ -252,9 +252,9 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
         ] else ...[
           Text(
             loc.translate('pixel_help'),
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           FormGroup(
             label: loc.translate('fb_pixel_id'),
             child: CustomTextField(
@@ -265,14 +265,14 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
               hintText: "e.g. 123456789012345",
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           // Cookie Consent Toggle
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,10 +288,10 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                             loc.translate('show_cookie_banner'),
                             style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             loc.translate('cookie_banner_help'),
-                            style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                            style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -309,7 +309,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           FormGroup(
             label: loc.translate('tiktok_pixel_id'),
             child: CustomTextField(
@@ -320,7 +320,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
               hintText: "e.g. C1234567890ABCDE",
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           FormGroup(
             label: loc.translate('snap_pixel_id'),
             child: CustomTextField(
@@ -333,7 +333,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
           ),
         ],
         
-        const SizedBox(height: 40),
+        SizedBox(height: 40),
         PrimaryButton(
           text: loc.translate('save_and_close'),
           width: double.infinity,
@@ -356,7 +356,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,27 +364,27 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
           Row(
             children: [
               const CircleAvatar(radius: 12, backgroundColor: Color(0xFFF1F3F4), child: Icon(Icons.public, size: 14, color: Colors.grey)),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
                   url,
-                  style: const TextStyle(color: Color(0xFF202124), fontSize: 12, fontFamily: 'Arial'),
+                  style: TextStyle(color: Color(0xFF202124), fontSize: 12, fontFamily: 'Arial'),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(color: Color(0xFF1A0DAB), fontSize: 18, fontFamily: 'Arial', fontWeight: FontWeight.w400),
+            style: TextStyle(color: Color(0xFF1A0DAB), fontSize: 18, fontFamily: 'Arial', fontWeight: FontWeight.w400),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             desc,
-            style: const TextStyle(color: Color(0xFF4D5156), fontSize: 14, fontFamily: 'Arial', height: 1.4),
+            style: TextStyle(color: Color(0xFF4D5156), fontSize: 14, fontFamily: 'Arial', height: 1.4),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),

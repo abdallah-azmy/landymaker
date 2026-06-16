@@ -88,7 +88,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildDomainInputSection(),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
         if (hasDomain) _buildDNSInstructionsSection(activeState),
       ],
     );
@@ -101,20 +101,20 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("عنوان الدومين الخاص", style: AppTypography.h3),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             "أدخل الدومين الذي قمت بشرائه (مثال: yourbrand.com)",
             style: AppTypography.caption,
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           if (isMobile)
             Column(
               children: [
@@ -123,7 +123,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                   hintText: "example.com",
                   onChanged: (v) => setState(() => _error = null),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 PrimaryButton(
                   text: "حفظ الدومين",
                   width: double.infinity,
@@ -143,7 +143,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                     onChanged: (_) => setState(() => _error = null),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 PrimaryButton(
                   text: "حفظ",
                   width: 120,
@@ -174,7 +174,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -204,9 +204,9 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,22 +218,22 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
               _buildStatusBadge(state.domainStatus),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             "يرجى إضافة السجلات التالية في لوحة تحكم الدومين الخاص بك (مثل Namecheap أو GoDaddy):",
             style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildDNSRow("Type", "A"),
           _buildDNSRow("Name", "@"),
           _buildDNSRow("Value", "76.76.21.21"), // Vercel IP
-          const Divider(height: 32, color: AppColors.border),
+          Divider(height: 32, color: Theme.of(context).colorScheme.outlineVariant),
           _buildDNSRow("Type", "CNAME"),
           _buildDNSRow("Name", "www"),
           _buildDNSRow("Value", "cname.vercel-dns.com"),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -276,7 +276,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                     if (mounted) setState(() => _isLoading = false);
                   }
                 },
-                icon: const Icon(Icons.refresh_rounded, size: 14),
+                icon: Icon(Icons.refresh_rounded, size: 14),
                 label: const Text(
                   "تجديد الرمز",
                   style: TextStyle(fontSize: 12),
@@ -284,10 +284,10 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDNSRow("Name", "_landymaker-challenge"),
           _buildDNSRow("Value", state.domainVerificationToken ?? "---"),
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -343,7 +343,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                   },
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Container(
                 width: 48,
                 height: 48,
@@ -355,7 +355,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                   onPressed: _isLoading
                       ? null
                       : () => _showRemoveConfirmation(context),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.delete_outline_rounded,
                     color: AppColors.dangerRed,
                     size: 20,
@@ -374,7 +374,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.cardBg,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         title: const Text(
           "إزالة الدومين",
           style: TextStyle(color: Colors.white),
@@ -462,7 +462,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    icon: Icon(Icons.copy_rounded, size: 18),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(
                       minWidth: 48,

@@ -196,8 +196,8 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
   @override
   Widget build(BuildContext context) {
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
-    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -237,9 +237,9 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1200),
               decoration: BoxDecoration(
-                color: widget.theme?.background.withValues(alpha: 0.9) ?? AppColors.cardBg,
+                color: widget.theme?.background.withValues(alpha: 0.9) ?? Theme.of(context).colorScheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                 boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 24, offset: const Offset(0, 8))],
               ),
               child: ClipRRect(
@@ -373,22 +373,22 @@ class _LeadMagnetForm extends StatelessWidget {
       children: [
         Offstage(child: TextField(controller: props.honeypotController, decoration: const InputDecoration(labelText: 'Leave this field empty'))),
         Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.5)),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
         if (props.successMessage != null) _MagnetStatusBanner(message: props.successMessage!, color: AppColors.activeGreen, isMobile: props.isMobile),
         if (props.errorMessage != null) _MagnetStatusBanner(message: props.errorMessage!, color: AppColors.dangerRed, isMobile: props.isMobile),
         ...props.fields.map((field) {
-          if (field is! Map) return const SizedBox.shrink();
+          if (field is! Map) return SizedBox.shrink();
           final fieldId = field['field_id'] as String?;
-          if (fieldId == null) return const SizedBox.shrink();
+          if (fieldId == null) return SizedBox.shrink();
           final controller = props.controllers[fieldId];
-          if (controller == null) return const SizedBox.shrink();
+          if (controller == null) return SizedBox.shrink();
           return _LeadMagnetField(field: field.cast<String, dynamic>(), controller: controller, props: props);
         }),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Center(child: SizedBox(width: 300, height: 70, child: HtmlElementView(viewType: props.turnstileViewId))),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         _LeadMagnetSubmitButton(props: props),
       ],
     );
@@ -413,7 +413,7 @@ class _MagnetStatusBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(color == AppColors.activeGreen ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14))),
         ],
       ),
@@ -468,7 +468,7 @@ class _LeadMagnetSubmitButton extends StatelessWidget {
           elevation: 4,
         ),
         child: props.isSubmitting
-            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
             : Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
       ),
     );

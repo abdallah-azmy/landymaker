@@ -33,7 +33,7 @@ class WhatsappEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "رقم الواتساب",
           helperText: "2010...",
@@ -44,7 +44,7 @@ class WhatsappEditor extends StatelessWidget {
             keyboardType: TextInputType.phone,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "الرسالة الافتراضية",
           child: CustomTextField(
@@ -54,7 +54,7 @@ class WhatsappEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'message', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "نص الزر",
           child: CustomTextField(

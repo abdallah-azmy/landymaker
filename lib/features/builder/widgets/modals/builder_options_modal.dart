@@ -77,7 +77,7 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
             height: 4,
             margin: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.textSecondary.withValues(alpha: 0.2),
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -92,9 +92,9 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_rounded,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     onPressed: () => _changeView(BuilderOptionView.main),
                   ),
@@ -201,35 +201,35 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text("اسم الصفحة (الرابط)", style: AppTypography.h3),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextField(
                 controller: _nameController,
                 style: AppTypography.bodyLarge,
                 decoration: InputDecoration(
                   hintText: "أدخل اسم الصفحة بالإنجليزية",
-                  hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
-                  prefixIcon: const Icon(Icons.link_rounded, color: AppColors.textSecondary),
+                  hintStyle: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  prefixIcon: Icon(Icons.link_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   suffixText: ".landymaker.com",
-                  suffixStyle: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                  suffixStyle: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   filled: true,
-                  fillColor: AppColors.background,
+                  fillColor: Theme.of(context).colorScheme.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(color: AppColors.primary),
                   ),
                 ),
                 onChanged: (val) {
                   widget.cubit.updateSettings(subdomain: val);
                 },
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: SwitchListTile(
@@ -246,12 +246,12 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                   secondary: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: (widget.state.isPublished ? AppColors.activeGreen : AppColors.textSecondary).withValues(alpha: 0.1),
+                      color: (widget.state.isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurfaceVariant).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       widget.state.isPublished ? Icons.public_rounded : Icons.public_off_rounded,
-                      color: widget.state.isPublished ? AppColors.activeGreen : AppColors.textSecondary,
+                      color: widget.state.isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -259,7 +259,7 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         _buildOptionTile(
           icon: Icons.auto_awesome_rounded,
           title: "تغيير القالب",
@@ -300,7 +300,7 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
             widget.onAddBlock();
           },
         ),
-        const Divider(color: AppColors.border, height: 32),
+        Divider(color: Theme.of(context).colorScheme.outlineVariant, height: 32),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
@@ -326,13 +326,13 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                icon: const Icon(Icons.rocket_launch_rounded),
+                icon: Icon(Icons.rocket_launch_rounded),
                 label: Text(
                   "نشر الصفحة (Publish)",
                   style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
@@ -343,14 +343,14 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textPrimary,
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: AppColors.border),
+                  side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                icon: const Icon(Icons.save_rounded),
+                icon: Icon(Icons.save_rounded),
                 label: Text(
                   "حفظ كمسودة (Save Draft)",
                   style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
@@ -359,7 +359,7 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
       ],
     );
   }
@@ -376,15 +376,15 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: (color ?? AppColors.textPrimary).withValues(alpha: 0.1),
+          color: (color ?? Theme.of(context).colorScheme.onSurface).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(icon, color: color ?? AppColors.textPrimary, size: 24),
+        child: Icon(icon, color: color ?? Theme.of(context).colorScheme.onSurface, size: 24),
       ),
       title: Text(
         title,
         style: AppTypography.bodyMedium.copyWith(
-          color: color ?? AppColors.textPrimary,
+          color: color ?? Theme.of(context).colorScheme.onSurface,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -392,7 +392,7 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
           ? Text(
               subtitle,
               style: AppTypography.caption.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 11,
               ),
             )

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/app_typography.dart';
 import '../../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
@@ -37,7 +36,7 @@ class StatisticsGridEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: context.translate('subtitle'),
           child: CustomTextField(
@@ -46,7 +45,7 @@ class StatisticsGridEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         FormGroup(
           label: 'نوع التخطيط',
           child: DropdownButtonFormField<String>(
@@ -58,18 +57,18 @@ class StatisticsGridEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Text(context.translate('statistics'), style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         ...List.generate(items.length, (i) {
           final item = items[i];
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               children: [
@@ -82,7 +81,7 @@ class StatisticsGridEditor extends StatelessWidget {
                       }),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                      icon: Icon(Icons.delete_outline, color: Colors.redAccent),
                       onPressed: () {
                         items.removeAt(i);
                         cubit.updateBlockProperty(index, 'items', items);
@@ -90,7 +89,7 @@ class StatisticsGridEditor extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: context.translate('value_hint'), // e.g. 500+
                   controller: getController("${index}_stat_${i}_val", item['value'] ?? ''),
@@ -100,7 +99,7 @@ class StatisticsGridEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'items', items);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 CustomTextField(
                   hintText: context.translate('label_hint'), // e.g. Happy Customers
                   controller: getController("${index}_stat_${i}_label", item['label'] ?? ''),
@@ -114,13 +113,13 @@ class StatisticsGridEditor extends StatelessWidget {
             ),
           );
         }),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: () {
             items.add({'value': '0', 'label': context.translate('new_stat'), 'icon': 'star'});
             cubit.updateBlockProperty(index, 'items', items);
           },
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           label: Text(context.translate('add_statistic')),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),
@@ -141,7 +140,7 @@ class StatisticsGridEditor extends StatelessWidget {
         child: Row(
           children: [
             Icon(_getIconData(icon), size: 18),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Text(icon),
           ],
         ),

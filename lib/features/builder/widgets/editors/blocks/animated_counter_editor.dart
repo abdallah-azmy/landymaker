@@ -36,7 +36,7 @@ class AnimatedCounterEditor extends StatelessWidget {
           focusNode: getFocusNode("${index}_title"),
           onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -50,19 +50,19 @@ class AnimatedCounterEditor extends StatelessWidget {
                 items.add({'value': '100', 'label': 'تسمية جديدة', 'prefix': '', 'suffix': ''});
                 cubit.updateBlockProperty(index, 'items', items);
               },
-              icon: const Icon(Icons.add_rounded, size: 16),
+              icon: Icon(Icons.add_rounded, size: 16),
               label: const Text("أضف عداد"),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         ...List.generate(((block['items'] as List?) ?? []).length, (tIndex) {
           final Map<String, dynamic> item = ((block['items'] as List?) ?? [])[tIndex];
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -72,7 +72,7 @@ class AnimatedCounterEditor extends StatelessWidget {
                   children: [
                     Text("عداد #${tIndex + 1}", style: AppTypography.caption),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+                      icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
                       onPressed: () {
                         final List items = List.from(block['items'] ?? []);
                         items.removeAt(tIndex);
@@ -94,7 +94,7 @@ class AnimatedCounterEditor extends StatelessWidget {
                   },
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: "التسمية (مثال: عميل سعيد)",
                   controller: getController("${index}_counter_${tIndex}_label", item['label'] ?? ''),
@@ -107,7 +107,7 @@ class AnimatedCounterEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'items', items);
                   },
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
@@ -124,7 +124,7 @@ class AnimatedCounterEditor extends StatelessWidget {
                         },
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: CustomTextField(
                         hintText: "خاتمة (Suffix)",

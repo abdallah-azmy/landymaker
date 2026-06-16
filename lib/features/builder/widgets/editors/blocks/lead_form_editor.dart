@@ -44,7 +44,7 @@ class LeadFormEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         if (block['type'] == 'lead_magnet') ...[
           FormGroup(
             label: context.translate('subtitle'),
@@ -55,7 +55,7 @@ class LeadFormEditor extends StatelessWidget {
               onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           CustomImageField(
             label: context.translate('image_url'),
             imageUrl: imageUrl,
@@ -63,7 +63,7 @@ class LeadFormEditor extends StatelessWidget {
             onAction: () => pickImage(cubit, index),
             onSaveTemplateAsset: () => persistAsset(cubit, index),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
         ],
         FormGroup(
           label: context.translate('button_text'),
@@ -73,11 +73,11 @@ class LeadFormEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
           ),
         ),
-        const SizedBox(height: 24),
-        const Divider(),
-        const SizedBox(height: 16),
+        SizedBox(height: 24),
+        Divider(),
+        SizedBox(height: 16),
         Text("Smart WhatsApp Leads", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         SwitchListTile(
           title: const Text("فتح واتساب تلقائياً بعد الإرسال"),
           subtitle: const Text("يحول الفورم إلى قمع تحويل لواتساب"),
@@ -86,7 +86,7 @@ class LeadFormEditor extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
         ),
         if (block['whatsapp_auto_open'] == true) ...[
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           FormGroup(
             label: "رقم الواتساب",
             child: CustomTextField(
@@ -95,7 +95,7 @@ class LeadFormEditor extends StatelessWidget {
               onChanged: (val) => cubit.updateBlockProperty(index, 'whatsapp_number', val),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           FormGroup(
             label: "قالب الرسالة (استخدم {{name}} للتعويض)",
             child: CustomTextField(

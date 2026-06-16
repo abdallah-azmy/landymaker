@@ -15,7 +15,7 @@ class FloatingCartWidget extends StatelessWidget {
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, state) {
         if (state.items.isEmpty) {
-          return const SizedBox.shrink();
+          return SizedBox.shrink();
         }
 
         final int totalQuantity = state.items.fold(
@@ -38,7 +38,7 @@ class FloatingCartWidget extends StatelessWidget {
                 backgroundColor: AppColors.secondary,
                 foregroundColor: Colors.white,
                 elevation: 8,
-                child: const Icon(Icons.shopping_cart_rounded),
+                child: Icon(Icons.shopping_cart_rounded),
               ),
               if (totalQuantity > 0)
                 Positioned(
@@ -46,13 +46,13 @@ class FloatingCartWidget extends StatelessWidget {
                   right: -6,
                   child: Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.dangerRed,
                       shape: BoxShape.circle,
                     ),
                     child: Text(
                       '$totalQuantity',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -87,8 +87,8 @@ class FloatingCartWidget extends StatelessWidget {
                   maxHeight: MediaQuery.of(context).size.height * 0.8,
                   maxWidth: 500, // Limit width on web
                 ),
-                decoration: const BoxDecoration(
-                  color: AppColors.cardBg,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   boxShadow: [
                     BoxShadow(color: Colors.black26, blurRadius: 20, spreadRadius: 5)
@@ -101,28 +101,28 @@ class FloatingCartWidget extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "سلة المشتريات",
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary),
+                              color: Theme.of(context).colorScheme.onSurface),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                          icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           onPressed: () => Navigator.of(ctx).pop(),
                         )
                       ],
                     ),
-                    const Divider(color: Colors.white12),
-                    const SizedBox(height: 16),
+                    Divider(color: Colors.white12),
+                    SizedBox(height: 16),
 
                     // Items List
                     if (cartState.items.isEmpty)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.all(32),
                         child: Text("السلة فارغة",
-                            style: TextStyle(color: AppColors.textSecondary)),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                       )
                     else
                       Flexible(
@@ -130,7 +130,7 @@ class FloatingCartWidget extends StatelessWidget {
                           shrinkWrap: true,
                           itemCount: cartState.items.length,
                           separatorBuilder: (_, __) =>
-                              const Divider(color: Colors.white12, height: 24),
+                              Divider(color: Colors.white12, height: 24),
                           itemBuilder: (context, index) {
                             final item = cartState.items[index];
                             final id = item['id']?.toString() ??
@@ -157,11 +157,11 @@ class FloatingCartWidget extends StatelessWidget {
                                         : null,
                                   ),
                                   child: imageUrl == null || imageUrl.isEmpty
-                                      ? const Icon(Icons.image,
+                                      ? Icon(Icons.image,
                                           color: Colors.white24)
                                       : null,
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 // Details
                                 Expanded(
                                   child: Column(
@@ -169,16 +169,16 @@ class FloatingCartWidget extends StatelessWidget {
                                     children: [
                                       Text(
                                         name,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            color: AppColors.textPrimary),
+                                            color: Theme.of(context).colorScheme.onSurface),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      const SizedBox(height: 4),
+                                      SizedBox(height: 4),
                                       Text(
                                         priceStr,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             color: AppColors.secondary,
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold),
@@ -195,7 +195,7 @@ class FloatingCartWidget extends StatelessWidget {
                                   child: Row(
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Icons.remove, size: 16),
+                                        icon: Icon(Icons.remove, size: 16),
                                         onPressed: () => cubit.updateQuantity(
                                             id, qty - 1),
                                         splashRadius: 16,
@@ -204,10 +204,10 @@ class FloatingCartWidget extends StatelessWidget {
                                             minWidth: 32, minHeight: 32),
                                       ),
                                       Text('$qty',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               fontWeight: FontWeight.bold)),
                                       IconButton(
-                                        icon: const Icon(Icons.add, size: 16),
+                                        icon: Icon(Icons.add, size: 16),
                                         onPressed: () => cubit.updateQuantity(
                                             id, qty + 1),
                                         splashRadius: 16,
@@ -224,38 +224,38 @@ class FloatingCartWidget extends StatelessWidget {
                         ),
                       ),
 
-                    const SizedBox(height: 24),
-                    const Divider(color: Colors.white12),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 24),
+                    Divider(color: Colors.white12),
+                    SizedBox(height: 16),
 
                     // Total & Checkout
                     if (cartState.items.isNotEmpty) ...[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             "الإجمالي:",
                             style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary),
+                                color: Theme.of(context).colorScheme.onSurface),
                           ),
                           Text(
                             "${cartState.totalPrice.toStringAsFixed(2)}", // Assuming currency is appended manually or implied
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.secondary),
+                                color: Theme.of(context).colorScheme.secondary),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton.icon(
                           onPressed: () => _completeOrder(context, cartState),
-                          icon: const Icon(Icons.send_rounded),
+                          icon: Icon(Icons.send_rounded),
                           label: const Text(
                             "إكمال الطلب عبر واتساب",
                             style: TextStyle(

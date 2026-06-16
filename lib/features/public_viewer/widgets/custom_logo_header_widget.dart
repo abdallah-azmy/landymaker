@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
@@ -34,7 +33,7 @@ class CustomLogoHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final borderColor = textColor.withValues(alpha: 0.1);
 
     MainAxisAlignment mainAxisAlignment;
@@ -139,12 +138,12 @@ class _DesktopLogoHeaderLayout extends StatelessWidget {
                 if (props.logoUrl != null && props.logoUrl!.isNotEmpty)
                   CustomNetworkImage(imageUrl: props.logoUrl!, height: props.logoHeight),
                 if (props.logoUrl != null && props.logoUrl!.isNotEmpty && props.title.isNotEmpty)
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                 if (props.title.isNotEmpty)
                   Text(props.title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: props.textColor)),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
           ],
         ),
       ),
@@ -182,12 +181,12 @@ class _MobileLogoHeaderLayout extends StatelessWidget {
                 if (props.logoUrl != null && props.logoUrl!.isNotEmpty)
                   CustomNetworkImage(imageUrl: props.logoUrl!, height: (props.logoHeight * 0.8).clamp(24.0, 60.0)),
                 if (props.logoUrl != null && props.logoUrl!.isNotEmpty && props.title.isNotEmpty)
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                 if (props.title.isNotEmpty)
                   Text(props.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: props.textColor)),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
           ],
         ),
       ),

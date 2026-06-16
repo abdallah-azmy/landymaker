@@ -315,15 +315,15 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 size: 18,
                 color: isSelected
                     ? AppColors.secondary
-                    : AppColors.textSecondary,
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 label,
                 style: AppTypography.bodyMedium.copyWith(
                   color: isSelected
                       ? AppColors.secondary
-                      : AppColors.textSecondary,
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
@@ -356,7 +356,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         ),
       ),
     );
-    list.add(const SizedBox(height: 16));
+    list.add(SizedBox(height: 16));
 
     switch (type) {
       case 'hero':
@@ -375,7 +375,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                   cubit.updateBlockProperty(widget.index, 'subtitle', val),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           CustomImageField(
             label: loc.translate('image_url'),
             imageUrl: block['image_url'],
@@ -740,7 +740,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 cubit.updateBlockProperty(widget.index, 'button_text', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: loc.translate('button_url'),
           helperText: "https://...",
@@ -788,7 +788,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 cubit.updateBlockProperty(widget.index, 'button_text', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: loc.translate('button_url'),
           child: CustomTextField(
@@ -801,7 +801,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 cubit.updateBlockProperty(widget.index, 'button_url', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: loc.translate('secondary_button_text'),
           child: CustomTextField(
@@ -817,7 +817,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: loc.translate('secondary_button_url'),
           child: CustomTextField(
@@ -857,13 +857,13 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         loc.translate('variants'),
         style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       SizedBox(
         height: 80,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: StyleRegistry.variants.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 12),
+          separatorBuilder: (_, __) => SizedBox(width: 12),
           itemBuilder: (context, i) {
             final v = StyleRegistry.variants[i];
             final isSelected = selectedVariant == v.index;
@@ -878,12 +878,12 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.secondary
-                          : AppColors.cardBg,
+                          : Theme.of(context).colorScheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
                             ? AppColors.secondary
-                            : AppColors.border,
+                            : Theme.of(context).colorScheme.outlineVariant,
                         width: 2,
                       ),
                     ),
@@ -893,19 +893,19 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                         style: TextStyle(
                           color: isSelected
                               ? Colors.white
-                              : AppColors.textSecondary,
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     v.index == 0 ? "Std" : "V${v.index}",
                     style: AppTypography.caption.copyWith(
                       color: isSelected
                           ? AppColors.secondary
-                          : AppColors.textSecondary,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 10,
                     ),
                   ),
@@ -915,15 +915,15 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           },
         ),
       ),
-      const SizedBox(height: 24),
-      const Divider(color: AppColors.border),
-      const SizedBox(height: 16),
+      SizedBox(height: 24),
+      Divider(color: Theme.of(context).colorScheme.outlineVariant),
+      SizedBox(height: 16),
 
       Text(
         'تخطيط القسم',
         style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       SizedBox(
         width: double.infinity,
         child: InkWell(
@@ -932,9 +932,9 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Row(
               children: [
@@ -945,9 +945,9 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                     color: AppColors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.dashboard_customize_rounded, color: AppColors.secondary, size: 20),
+                  child: Icon(Icons.dashboard_customize_rounded, color: AppColors.secondary, size: 20),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -958,20 +958,20 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                       ),
                       Text(
                         'اختر تخطيطاً وخصّص العناصر',
-                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                        style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_left_rounded, color: AppColors.textSecondary, size: 20),
+                Icon(Icons.chevron_left_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
               ],
             ),
           ),
         ),
       ),
-      const SizedBox(height: 24),
-      const Divider(color: AppColors.border),
-      const SizedBox(height: 16),
+      SizedBox(height: 24),
+      Divider(color: Theme.of(context).colorScheme.outlineVariant),
+      SizedBox(height: 16),
 
       // Block Specific Design Settings
       if (type == 'gallery') ...[
@@ -979,7 +979,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           loc.translate('display_mode'),
           style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Row(
           children: [
             _buildAdvancedOption(
@@ -992,7 +992,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 'grid',
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             _buildAdvancedOption(
               isSelected: (block['display_mode'] ?? 'grid') == 'carousel',
               icon: Icons.view_carousel_rounded,
@@ -1005,9 +1005,9 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
             ),
           ],
         ),
-        const SizedBox(height: 24),
-        const Divider(color: AppColors.border),
-        const SizedBox(height: 16),
+        SizedBox(height: 24),
+        Divider(color: Theme.of(context).colorScheme.outlineVariant),
+        SizedBox(height: 16),
       ],
 
       if (type == 'basic_section') ...[
@@ -1025,16 +1025,16 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           100,
           (val) => cubit.updateBlockProperty(widget.index, 'spacing', val),
         ),
-        const SizedBox(height: 24),
-        const Divider(color: AppColors.border),
-        const SizedBox(height: 16),
+        SizedBox(height: 24),
+        Divider(color: Theme.of(context).colorScheme.outlineVariant),
+        SizedBox(height: 16),
       ],
 
       Text(
         loc.translate('animation'),
         style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
       ),
-      const SizedBox(height: 16),
+      SizedBox(height: 16),
       _buildDropdown(
         loc.translate('anim_type'),
         'animation.type',
@@ -1072,23 +1072,23 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           currentValue: (anim['delay'] ?? 0).toDouble(),
         ),
       ],
-      const SizedBox(height: 24),
-      const Divider(color: AppColors.border),
-      const SizedBox(height: 16),
+      SizedBox(height: 24),
+      Divider(color: Theme.of(context).colorScheme.outlineVariant),
+      SizedBox(height: 16),
       FormGroup(
         label: loc.translate('font_family'),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.cardBg,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: block['fontFamily'],
               isExpanded: true,
-              dropdownColor: AppColors.cardBg,
+              dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
               items: [
                 DropdownMenuItem<String>(
                   value: null,
@@ -1099,7 +1099,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                     value: font['family'],
                     child: Text(
                       font['family']!,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -1110,7 +1110,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           ),
         ),
       ),
-      const SizedBox(height: 16),
+      SizedBox(height: 16),
       CustomImageField(
         label: loc.translate('bg_image_url'),
         imageUrl: block['bg_image_url'],
@@ -1121,7 +1121,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         onSaveTemplateAsset: () =>
             _persistAsset(cubit, widget.index, isBackground: true),
       ),
-      const SizedBox(height: 16),
+      SizedBox(height: 16),
       FormGroup(
         label: loc.translate('overlay_opacity'),
         child: Column(
@@ -1149,7 +1149,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           ],
         ),
       ),
-      const SizedBox(height: 16),
+      SizedBox(height: 16),
       SwitchListTile(
         title: Text(loc.translate('visible')),
         value: block['is_visible'] ?? true,
@@ -1177,10 +1177,10 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.secondary.withValues(alpha: 0.1)
-                : AppColors.cardBg,
+                : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? AppColors.secondary : AppColors.border,
+              color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.outlineVariant,
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -1190,16 +1190,16 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 icon,
                 color: isSelected
                     ? AppColors.secondary
-                    : AppColors.textSecondary,
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 24,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 label,
                 style: AppTypography.caption.copyWith(
                   color: isSelected
                       ? AppColors.secondary
-                      : AppColors.textSecondary,
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
@@ -1216,7 +1216,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
     final loc = context.read<LocalizationCubit>();
     final blocks = (widget.state.designMap['blocks'] as List?) ?? [];
 
-    if (widget.index >= blocks.length) return const SizedBox.shrink();
+    if (widget.index >= blocks.length) return SizedBox.shrink();
 
     final block = blocks[widget.index] as Map<String, dynamic>;
     final String type = block['type'] ?? '';
@@ -1250,7 +1250,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           if (widget.isBottomSheet) ...[
             PrimaryButton(
               text: loc.translate('delete'),
@@ -1262,16 +1262,16 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 widget.onDone();
               },
             ),
-            const SizedBox(height: 24),
-            const Divider(color: AppColors.border),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
+            Divider(color: Theme.of(context).colorScheme.outlineVariant),
+            SizedBox(height: 24),
           ],
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Row(
               children: [
@@ -1293,7 +1293,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           ...activeWidgets,
         ],
       ),
@@ -1324,21 +1324,21 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
           ),
           child: DropdownButton<String>(
             value: options.contains(stringValue) ? stringValue : options.first,
             isExpanded: true,
-            underline: const SizedBox(),
-            dropdownColor: AppColors.background,
+            underline: SizedBox(),
+            dropdownColor: Theme.of(context).colorScheme.surface,
             items: options
                 .map(
                   (o) => DropdownMenuItem(
@@ -1350,7 +1350,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
             onChanged: onChanged,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
       ],
     );
   }
@@ -1382,7 +1382,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
       children: [
         Text(
           "$label: ${value.toInt()}",
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         Slider(
           value: value.clamp(min, max),

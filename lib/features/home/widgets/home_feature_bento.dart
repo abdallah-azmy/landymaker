@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../models/home_layouts.dart';
@@ -157,9 +156,9 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        border: const Border(
-          top: BorderSide(color: AppColors.border, width: 0.5),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
         ),
       ),
       child: Center(
@@ -169,7 +168,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildSectionHeader(isMobile),
-              const SizedBox(height: 48),
+              SizedBox(height: 48),
               if (isMobile)
                 Column(
                   children: List.generate(_features.length, (i) => Column(
@@ -181,7 +180,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                           child: _BentoCard(feature: _features[i]),
                         ),
                       ),
-                      if (i < _features.length - 1) const SizedBox(height: 16),
+                      if (i < _features.length - 1) SizedBox(height: 16),
                     ],
                   )),
                 )
@@ -202,7 +201,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           Expanded(
                             flex: 2,
                             child: Column(
@@ -217,7 +216,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: 16),
                                 Expanded(
                                   child: FadeTransition(
                                     opacity: _cardFades[2],
@@ -233,7 +232,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     IntrinsicHeight(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -252,7 +251,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: 16),
                                 Expanded(
                                   child: FadeTransition(
                                     opacity: _cardFades[4],
@@ -265,7 +264,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                               ],
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           Expanded(
                             flex: 3,
                             child: FadeTransition(
@@ -312,7 +311,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               "كل ما تحتاجه للنمو\nفي مكان واحد",
               style: AppTypography.h2.copyWith(
@@ -322,11 +321,11 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               "أدوات ذكية متكاملة مصممة خصيصاً لمساعدتك على بناء حضورك الرقمي بسرعة واحترافية.",
               style: AppTypography.bodyLarge.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.6,
               ),
               textAlign: TextAlign.center,
@@ -342,8 +341,8 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
       ),
       child: Center(
         child: Container(
@@ -351,7 +350,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
           child: Column(
             children: [
               _buildSectionHeader(isMobile),
-              const SizedBox(height: 48),
+              SizedBox(height: 48),
               isMobile
                 ? Column(
                     children: _features.map((f) => Padding(
@@ -364,7 +363,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                     children: [
                       for (int i = 0; i < _features.length; i++) ...[
                         Expanded(child: _buildSimpleCard(_features[i])),
-                        if (i < _features.length - 1) const SizedBox(width: 20),
+                        if (i < _features.length - 1) SizedBox(width: 20),
                       ],
                     ],
                   ),
@@ -379,9 +378,9 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
     return Container(
       padding: const EdgeInsetsDirectional.all(28),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border, width: 1.5),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -394,10 +393,10 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
             ),
             child: Icon(f.icon, color: f.color, size: 26),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(f.title, style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text(f.desc, style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary, height: 1.65)),
+          SizedBox(height: 8),
+          Text(f.desc, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.65)),
         ],
       ),
     );
@@ -408,8 +407,8 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
       ),
       child: Center(
         child: Container(
@@ -417,7 +416,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
           child: Column(
             children: [
               _buildSectionHeader(isMobile),
-              const SizedBox(height: 48),
+              SizedBox(height: 48),
               isMobile
                 ? Column(
                     children: _features.map((f) => _buildIconLeftRow(f)).toList(),
@@ -430,7 +429,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                           child: Row(
                             children: [
                               Expanded(child: _buildIconLeftRow(_features[i])),
-                              const SizedBox(width: 20),
+                              SizedBox(width: 20),
                               if (i + 1 < _features.length)
                                 Expanded(child: _buildIconLeftRow(_features[i + 1]))
                               else
@@ -451,9 +450,9 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
     return Container(
       padding: const EdgeInsetsDirectional.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -466,14 +465,14 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
             ),
             child: Icon(f.icon, color: f.color, size: 22),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(f.title, style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold, fontSize: 15)),
-                const SizedBox(height: 6),
-                Text(f.desc, style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary, height: 1.6)),
+                SizedBox(height: 6),
+                Text(f.desc, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6)),
               ],
             ),
           ),
@@ -536,10 +535,10 @@ class _BentoCardState extends State<_BentoCard> {
             padding: EdgeInsets.all(widget.tall ? 36 : 28),
             constraints: widget.tall ? const BoxConstraints(minHeight: 240) : null,
             decoration: BoxDecoration(
-              color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
+              color: _hovered ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) : Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: _hovered ? f.color.withValues(alpha: 0.55) : AppColors.border,
+                color: _hovered ? f.color.withValues(alpha: 0.55) : Theme.of(context).colorScheme.outlineVariant,
                 width: 1.5,
               ),
             ),
@@ -557,11 +556,11 @@ class _BentoCardState extends State<_BentoCard> {
                     child: Icon(f.icon, color: f.color, size: 28),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Row(
                   children: [
-                    Text(f.emoji, style: const TextStyle(fontSize: 18)),
-                    const SizedBox(width: 8),
+                    Text(f.emoji, style: TextStyle(fontSize: 18)),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         f.title,
@@ -573,11 +572,11 @@ class _BentoCardState extends State<_BentoCard> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   f.desc,
                   style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     height: 1.65,
                   ),
                 ),
@@ -594,8 +593,8 @@ class _BentoCardState extends State<_BentoCard> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
+                      SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
                     ],
                   ),
                 ),

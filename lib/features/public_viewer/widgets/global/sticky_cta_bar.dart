@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/services/action_handler_service.dart';
 import '../../../../core/services/event_analytics_service.dart';
@@ -92,7 +91,7 @@ class _StickyCtaBarState extends State<StickyCtaBar> {
   @override
   Widget build(BuildContext context) {
     if (widget.config['is_enabled'] != true) {
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
     }
 
     final String text = _getLocalizedText(widget.config['text'], widget.lang) ?? '';
@@ -112,7 +111,7 @@ class _StickyCtaBarState extends State<StickyCtaBar> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AppColors.cardBg,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -145,7 +144,7 @@ class _StickyCtaBarState extends State<StickyCtaBar> {
                           Text(
                             priceText,
                             style: AppTypography.caption.copyWith(
-                              color: AppColors.textSecondary,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -153,7 +152,7 @@ class _StickyCtaBarState extends State<StickyCtaBar> {
                       ],
                     ),
                   ),
-                if (text.isNotEmpty || priceText.isNotEmpty) const SizedBox(width: 16),
+                if (text.isNotEmpty || priceText.isNotEmpty) SizedBox(width: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: widget.primaryColor,
@@ -191,7 +190,7 @@ class _StickyCtaBarState extends State<StickyCtaBar> {
                           }
                         },
                   child: _isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
@@ -201,7 +200,7 @@ class _StickyCtaBarState extends State<StickyCtaBar> {
                         )
                       : Text(
                           buttonText,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                 ),
               ],

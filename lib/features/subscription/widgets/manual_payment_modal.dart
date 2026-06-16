@@ -30,9 +30,9 @@ class ManualPaymentModal extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -48,7 +48,7 @@ class ManualPaymentModal extends StatelessWidget {
           const SizedBox(height: 8),
           Text("قيمة الاشتراك: $price EGP", style: AppTypography.bodyLarge.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
-          _buildInfoBox("خطوات التفعيل:", "1. قم بتحويل المبلغ عبر فودافون كاش أو إنستا باي.\n2. اضغط على الزر أدناه لإرسال صورة الإيصال عبر واتساب.\n3. سيتم تفعيل حسابك فور مراجعة التحويل."),
+          _buildInfoBox(context, "خطوات التفعيل:", "1. قم بتحويل المبلغ عبر فودافون كاش أو إنستا باي.\n2. اضغط على الزر أدناه لإرسال صورة الإيصال عبر واتساب.\n3. سيتم تفعيل حسابك فور مراجعة التحويل."),
           const SizedBox(height: 24),
           _buildPaymentDetail("فودافون كاش", "010XXXXXXXX"),
           _buildPaymentDetail("إنستا باي", "user@instapay"),
@@ -63,7 +63,7 @@ class ManualPaymentModal extends StatelessWidget {
           Center(
             child: Text(
               "نحن متواجدون 24/7 لخدمتك",
-              style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+              style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
             ),
           ),
         ],
@@ -71,7 +71,7 @@ class ManualPaymentModal extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoBox(String title, String content) {
+  Widget _buildInfoBox(BuildContext context, String title, String content) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -84,7 +84,7 @@ class ManualPaymentModal extends StatelessWidget {
         children: [
           Text(title, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: AppColors.secondary)),
           const SizedBox(height: 4),
-          Text(content, style: AppTypography.caption.copyWith(color: AppColors.textSecondary, height: 1.5)),
+          Text(content, style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), height: 1.5)),
         ],
       ),
     );

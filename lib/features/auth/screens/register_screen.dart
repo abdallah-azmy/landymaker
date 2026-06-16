@@ -88,14 +88,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         textAlign: TextAlign.center,
         text: TextSpan(
           style: AppTypography.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             height: 1.5,
           ),
           children: [
             TextSpan(text: part1),
             TextSpan(
               text: privacyText,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.secondary,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,
@@ -106,7 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextSpan(text: part2),
             TextSpan(
               text: termsText,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.secondary,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,
@@ -124,18 +124,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_rounded, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => context.safePop(fallbackPath: '/'),
         ),
       ),
       body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.darkGradient),
+        decoration: BoxDecoration(gradient: AppColors.darkGradient),
         child: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
@@ -170,7 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             : Alignment.topRight,
                         child: TextButton.icon(
                           onPressed: () => loc.toggleLanguage(),
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.language,
                             color: AppColors.secondary,
                             size: 18,
@@ -183,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
                       // Brand Header
                       Row(
@@ -195,13 +195,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               gradient: AppColors.primaryGradient,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.auto_awesome,
                               color: Colors.white,
                               size: 24,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Text(
                             loc.translate('app_title'),
                             style: AppTypography.h1.copyWith(
@@ -211,7 +211,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 28),
+                      SizedBox(height: 28),
 
                       // Form Container Card
                       GlassContainer(
@@ -224,7 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 loc.translate('register'),
                                 style: AppTypography.h2.copyWith(fontSize: 20),
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: 20),
 
                               // Name input
                               FormGroup(
@@ -232,9 +232,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: CustomTextField(
                                   controller: _nameController,
                                   hintText: 'John Doe',
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.person_outline,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                   validator: (val) {
                                     if (val == null || val.isEmpty) {
@@ -244,7 +244,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
 
                               // Email input
                               FormGroup(
@@ -253,9 +253,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   controller: _emailController,
                                   hintText: 'name@domain.com',
                                   keyboardType: TextInputType.emailAddress,
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.email_outlined,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                   validator: (val) {
                                     if (val == null || val.isEmpty)
@@ -266,7 +266,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
 
                               // Password input
                               FormGroup(
@@ -275,9 +275,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   controller: _passwordController,
                                   hintText: '••••••••',
                                   obscureText: true,
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.lock_outline,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                   validator: (val) {
                                     if (val == null || val.isEmpty)
@@ -288,7 +288,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
 
                               if (errorMessage != null) ...[
                                 Text(
@@ -297,7 +297,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     color: AppColors.dangerRed,
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: 16),
                               ],
 
                               // Submit Button
@@ -307,11 +307,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 isLoading: isLoading,
                                 width: double.infinity,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
 
                               _buildLegalNotice(context, loc),
 
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8),
 
                               // Google Sign In
                               SocialSignInButton(
@@ -322,7 +322,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     .signInWithGoogle(),
                               ),
 
-                              const SizedBox(height: 20),
+                              SizedBox(height: 20),
 
                               // Link back to Login
                               Row(
@@ -331,7 +331,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   Text(
                                     "Already have an account? ",
                                     style: AppTypography.bodyMedium.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                   GestureDetector(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
 import '../../molecules/custom_image_field.dart';
@@ -44,20 +43,20 @@ class LogoHeaderEditor extends StatelessWidget {
           onAction: () => pickImage(cubit, index, itemKey: 'logo_url'),
           onSaveTemplateAsset: () => persistAsset(cubit, index, itemKey: 'logo_url'),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: context.translate('display_mode'),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: block['alignment'] ?? 'center',
-                dropdownColor: AppColors.cardBg,
+                dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                 isExpanded: true,
                 style: AppTypography.bodyMedium,
                 items: const [
@@ -70,7 +69,7 @@ class LogoHeaderEditor extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
       ],
     );
   }

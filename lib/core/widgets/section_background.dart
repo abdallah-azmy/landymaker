@@ -35,7 +35,7 @@ class SectionBackground extends StatelessWidget {
     final bool hasGlobalBg = (theme?.globalBgImageUrl?.isNotEmpty ?? false) || 
                              (theme?.globalBgColorHex?.isNotEmpty ?? false);
                              
-    final bgColor = hasGlobalBg ? Colors.transparent : (theme?.background ?? AppColors.background);
+    final bgColor = hasGlobalBg ? Colors.transparent : (theme?.background ?? Theme.of(context).colorScheme.surface);
     final primaryColor = theme?.primary ?? AppColors.primary;
     final double blurValue = bgBlur ?? 0.0;
     
@@ -111,7 +111,7 @@ class SectionBackground extends StatelessWidget {
               Positioned.fill(
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: blurValue, sigmaY: blurValue),
-                  child: const SizedBox.shrink(),
+                  child: SizedBox.shrink(),
                 ),
               ),
 

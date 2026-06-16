@@ -39,7 +39,7 @@ class WorkingHoursEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -53,12 +53,12 @@ class WorkingHoursEditor extends StatelessWidget {
                 schedule['يوم جديد'] = '10:00 ص - 10:00 م';
                 cubit.updateBlockProperty(index, 'schedule', schedule);
               },
-              icon: const Icon(Icons.add_rounded, size: 16),
+              icon: Icon(Icons.add_rounded, size: 16),
               label: const Text("إضافة يوم"),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         ...((block['schedule'] as Map<String, dynamic>?) ?? {}).entries.map((entry) {
           final sKey = entry.key;
           final sVal = entry.value.toString();
@@ -66,7 +66,7 @@ class WorkingHoursEditor extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -85,7 +85,7 @@ class WorkingHoursEditor extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   child: CustomTextField(
                     hintText: "الوقت",
@@ -99,7 +99,7 @@ class WorkingHoursEditor extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed),
+                  icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed),
                   onPressed: () {
                     final Map<String, dynamic> schedule = Map.from(block['schedule'] ?? {});
                     schedule.remove(sKey);

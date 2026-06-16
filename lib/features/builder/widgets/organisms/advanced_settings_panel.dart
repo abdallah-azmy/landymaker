@@ -43,31 +43,31 @@ class _AdvancedSettingsPanelState extends State<AdvancedSettingsPanel> {
     final cubit = context.watch<LandingPageBuilderCubit>();
     final state = cubit.state;
 
-    if (state is! BuilderLoaded) return const SizedBox.shrink();
+    if (state is! BuilderLoaded) return SizedBox.shrink();
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.psychology_rounded, color: AppColors.secondary),
-              const SizedBox(width: 12),
+              Icon(Icons.psychology_rounded, color: AppColors.secondary),
+              SizedBox(width: 12),
               Text("الإعدادات المتقدمة (SEO)", style: AppTypography.h3),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildInfoBox(
             "ما هي إعدادات SEO؟",
             "هذه الإعدادات تساعد موقعك على الظهور في نتائج بحث جوجل. هي المعلومات التي يراها الشخص عندما يبحث عن مجالك ويظهر موقعك أمامه.",
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           FormGroup(
             label: "عنوان الصفحة في البحث (SEO Title)",
             helperText:
@@ -78,7 +78,7 @@ class _AdvancedSettingsPanelState extends State<AdvancedSettingsPanel> {
               hintText: "أدخل عنواناً جذاباً لجوجل",
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           FormGroup(
             label: "وصف الصفحة (SEO Description)",
             helperText:
@@ -90,7 +90,7 @@ class _AdvancedSettingsPanelState extends State<AdvancedSettingsPanel> {
               maxLines: 3,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           FormGroup(
             label: "الكلمات المفتاحية (Keywords)",
             helperText: "كلمات مفتاحية يفصل بينها فواصل.",
@@ -124,11 +124,11 @@ class _AdvancedSettingsPanelState extends State<AdvancedSettingsPanel> {
               color: AppColors.secondary,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             content,
             style: AppTypography.caption.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               height: 1.5,
             ),
           ),

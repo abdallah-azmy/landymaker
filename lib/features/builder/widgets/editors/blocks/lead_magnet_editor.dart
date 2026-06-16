@@ -40,7 +40,7 @@ class LeadMagnetEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: context.translate('button_text'),
           child: CustomTextField(
@@ -49,13 +49,13 @@ class LeadMagnetEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         CustomImageField(
           label: context.translate('image_url'),
           imageUrl: block['image_url'],
           onAction: () => pickImage(cubit, index),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
       ],
     );
   }

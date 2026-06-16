@@ -93,7 +93,7 @@ class _HomeLuxuriousTemplateSliderState
                   Navigator.pop(context);
                   widget.onGetStartedPressed(template.id);
                 },
-                icon: const Icon(
+                icon: Icon(
                   Icons.auto_awesome_rounded,
                   color: AppColors.secondary,
                 ),
@@ -101,13 +101,13 @@ class _HomeLuxuriousTemplateSliderState
                   context.read<LocalizationCubit>().isRtl
                       ? "استخدم هذا القالب"
                       : "Use this Template",
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.secondary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
             ],
           ),
           body: SingleChildScrollView(
@@ -204,7 +204,7 @@ class _HomeLuxuriousTemplateSliderState
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               Text(
                 loc.isRtl
                     ? "صمم موقعك بلمسة فنية"
@@ -215,13 +215,13 @@ class _HomeLuxuriousTemplateSliderState
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
                 loc.isRtl
                     ? "اختر من بين مجموعة واسعة من القوالب المصممة بعناية لتناسب هويتك."
                     : "Choose from a wide range of carefully designed templates to match your identity.",
                 style: AppTypography.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -294,7 +294,7 @@ class _HomeLuxuriousTemplateSliderState
               ),
             ],
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(_templates.length, (index) {
@@ -306,7 +306,7 @@ class _HomeLuxuriousTemplateSliderState
                 decoration: BoxDecoration(
                   color: _currentPage == index
                       ? AppColors.secondary
-                      : AppColors.border,
+                      : Theme.of(context).colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(4),
                 ),
               );
@@ -360,7 +360,7 @@ class _HomeLuxuriousTemplateSliderState
               ),
             ),
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: 20),
           Expanded(
             child: Column(
               children: List.generate(_templates.length - mid, (i) {
@@ -416,7 +416,7 @@ class _HomeLuxuriousTemplateSliderState
         final isMobile = constraints.maxWidth < 700;
 
         if (_isLoadingTemplates) {
-          return const SizedBox(
+          return SizedBox(
             height: 300,
             child: Center(child: CircularProgressIndicator()),
           );
@@ -426,15 +426,15 @@ class _HomeLuxuriousTemplateSliderState
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60),
           decoration: BoxDecoration(
-            color: AppColors.background,
-            border: const Border(
-              top: BorderSide(color: AppColors.border, width: 0.5),
+            color: Theme.of(context).colorScheme.surface,
+            border: Border(
+              top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
             ),
           ),
           child: Column(
             children: [
               _buildSectionHeader(isMobile, loc),
-              const SizedBox(height: 64),
+              SizedBox(height: 64),
               switch (widget.layout) {
                 TemplateSliderLayout.horizontalSlider => _buildHorizontalSlider(
                   isMobile,
@@ -544,7 +544,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                           ),
                           child: Text(
                             widget.template.category.toUpperCase(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -552,7 +552,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12),
                         Text(
                           widget.template.name,
                           style: AppTypography.h3.copyWith(
@@ -561,7 +561,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Text(
                           widget.template.description,
                           style: AppTypography.bodySmall.copyWith(
@@ -570,7 +570,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         Row(
                           children: [
                             Expanded(
@@ -596,13 +596,13 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                                       context.read<LocalizationCubit>().isRtl
                                           ? "ابدأ بهذا القالب"
                                           : "Start with this Template",
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12,
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
-                                    const Icon(
+                                    SizedBox(width: 6),
+                                    Icon(
                                       Icons.arrow_forward_rounded,
                                       size: 14,
                                     ),
@@ -610,7 +610,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             OutlinedButton(
                               onPressed: () {
                                 final state = context
@@ -621,7 +621,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                               },
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.white,
-                                side: const BorderSide(color: Colors.white38),
+                                side: BorderSide(color: Colors.white38),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 14,
@@ -633,16 +633,16 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.visibility_outlined,
                                     size: 16,
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6),
                                   Text(
                                     context.read<LocalizationCubit>().isRtl
                                         ? "معاينة"
                                         : "Preview",
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
                                     ),
@@ -711,7 +711,7 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
             border: Border.all(
               color: _hovered
                   ? AppColors.secondary.withValues(alpha: 0.5)
-                  : AppColors.border,
+                  : Theme.of(context).colorScheme.outlineVariant,
               width: 1.5,
             ),
             boxShadow: _hovered
@@ -772,7 +772,7 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
                           ),
                           child: Text(
                             widget.template.category.toUpperCase(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -788,7 +788,7 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
                             child: Center(
                               child: IconButton(
                                 onPressed: widget.onPreview,
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.visibility_rounded,
                                   color: Colors.white,
                                   size: 28,
@@ -815,11 +815,11 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           widget.template.description,
                           style: AppTypography.caption.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -842,7 +842,7 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
                               context.read<LocalizationCubit>().isRtl
                                   ? "استخدم القالب"
                                   : "Use Template",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11,
                               ),

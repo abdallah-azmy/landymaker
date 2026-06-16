@@ -42,7 +42,7 @@ class TestimonialsEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'نوع التخطيط',
           child: DropdownButtonFormField<String>(
@@ -54,7 +54,7 @@ class TestimonialsEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -66,12 +66,12 @@ class TestimonialsEditor extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () => cubit.addTestimonialItem(index),
-              icon: const Icon(Icons.add_rounded, size: 16),
+              icon: Icon(Icons.add_rounded, size: 16),
               label: const Text("أضف رأي"),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         ...List.generate(((block['items'] as List?) ?? []).length, (tIndex) {
           final item =
               ((block['items'] as List?) ?? [])[tIndex] as Map<String, dynamic>;
@@ -82,9 +82,9 @@ class TestimonialsEditor extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               children: [
@@ -98,7 +98,7 @@ class TestimonialsEditor extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.delete_outline_rounded,
                         color: AppColors.dangerRed,
                         size: 20,
@@ -125,7 +125,7 @@ class TestimonialsEditor extends StatelessWidget {
                     itemKey: 'image_url',
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 CustomTextField(
                   hintText: "الاسم",
                   controller: getController(
@@ -138,7 +138,7 @@ class TestimonialsEditor extends StatelessWidget {
                   onChanged: (val) =>
                       cubit.updateTestimonialItem(index, tIndex, 'author', val),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: "المنصب/الوصف",
                   controller: getController(
@@ -151,7 +151,7 @@ class TestimonialsEditor extends StatelessWidget {
                   onChanged: (val) =>
                       cubit.updateTestimonialItem(index, tIndex, 'role', val),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: "الرأي",
                   maxLines: 3,

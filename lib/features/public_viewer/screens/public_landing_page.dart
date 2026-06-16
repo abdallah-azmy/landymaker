@@ -178,31 +178,31 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.search_off_rounded,
                               size: 80,
                               color: AppColors.dangerRed,
                             ),
-                            const SizedBox(height: 24),
+                            SizedBox(height: 24),
                             Text(
                               loc.isRtl
                                   ? "الصفحة غير موجودة"
                                   : "404 - Page Not Found",
                               style: AppTypography.h1.copyWith(
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             Text(
                               loc.isRtl
                                   ? "الصفحة المطلوبة '${state.identifier}' غير متوفرة أو لم يتم نشرها بعد."
                                   : "The requested page '${state.identifier}' could not be found or is not published.",
                               style: AppTypography.bodyLarge.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 32),
+                            SizedBox(height: 32),
                             ElevatedButton(
                               onPressed: () =>
                                   launchUrl(Uri.parse(Uri.base.origin)),
@@ -239,27 +239,27 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.error_outline_rounded,
                               size: 80,
                               color: AppColors.dangerRed,
                             ),
-                            const SizedBox(height: 24),
+                            SizedBox(height: 24),
                             Text(
                               loc.isRtl ? "حدث خطأ ما" : "Something Went Wrong",
                               style: AppTypography.h1.copyWith(
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             Text(
                               state.message,
                               style: AppTypography.bodyLarge.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 32),
+                            SizedBox(height: 32),
                             ElevatedButton(
                               onPressed: _loadTenantPage,
                               style: ElevatedButton.styleFrom(
@@ -291,7 +291,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     final bool isActive = state.pageData['is_active'] ?? true;
 
                     if (!isActive) {
-                      return _buildSuspendedState(loc);
+                      return _buildSuspendedState(context, loc);
                     }
 
                     final rawDesign = state.pageData['design_json'];
@@ -378,7 +378,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     );
                   }
 
-                  return const SizedBox.shrink();
+                  return SizedBox.shrink();
                 },
               ),
               BlocBuilder<PublicPageCubit, PublicPageState>(
@@ -409,7 +409,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                       );
                     }
                   }
-                  return const SizedBox.shrink();
+                  return SizedBox.shrink();
                 },
               ),
               FloatingCartWidget(isStickyVisible: _isStickyVisible),
@@ -429,7 +429,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     final theme = LandingPageTheme.fromJson(themeJson);
                     return CookieConsentBanner(designJson: designJson, theme: theme);
                   }
-                  return const SizedBox.shrink();
+                  return SizedBox.shrink();
                 },
               ),
             ],
@@ -449,8 +449,8 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
             height: 60,
             width: 60,
           ),
-          const SizedBox(height: 24),
-          const SizedBox(
+          SizedBox(height: 24),
+          SizedBox(
             width: 40,
             height: 2,
             child: LinearProgressIndicator(
@@ -486,7 +486,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
         color: Colors.black,
         border: Border(
           top: BorderSide(
-            color: AppColors.textSecondary.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.05),
             width: 1,
           ),
         ),
@@ -497,29 +497,29 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.auto_awesome_rounded,
                   color: AppColors.secondary,
                   size: 20,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   "LANDYMAKER",
                   style: AppTypography.bodyLarge.copyWith(
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2.0,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               loc.isRtl
                   ? "صنع بفخر باستخدام منصة لاندي ميكر لبناء الصفحات الهابطة."
                   : "Proudly powered by LandyMaker SaaS Landing Page Builder.",
               style: AppTypography.caption.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -530,36 +530,36 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
   }
 }
 
-Widget _buildSuspendedState(LocalizationCubit loc) {
+Widget _buildSuspendedState(BuildContext context, LocalizationCubit loc) {
   return Center(
     child: Container(
       padding: const EdgeInsets.all(40),
       margin: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.dangerRed.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.block_rounded, color: AppColors.dangerRed, size: 64),
-          const SizedBox(height: 24),
+          Icon(Icons.block_rounded, color: AppColors.dangerRed, size: 64),
+          SizedBox(height: 24),
           Text(
             loc.isRtl ? "الصفحة معطلة حالياً" : "Page Currently Suspended",
             style: AppTypography.h2,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             loc.isRtl
                 ? "نعتذر، هذه الصفحة لم تعد متاحة حالياً. ربما انتهت فترة الاشتراك أو تم إيقافها يدوياً."
                 : "We apologize, this page is no longer available. The subscription might have expired or it was manually disabled.",
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           ElevatedButton(
             onPressed: () => launchUrl(Uri.parse(Uri.base.origin)),
             style: ElevatedButton.styleFrom(

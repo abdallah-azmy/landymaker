@@ -161,8 +161,8 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
   @override
   Widget build(BuildContext context) {
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
-    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -213,9 +213,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
   void _showProductDetail(BuildContext context, Map<String, dynamic> item) {
     final secondary = widget.theme?.secondary ?? AppColors.secondary;
-    final bgColor = widget.theme?.background ?? AppColors.background;
-    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+    final bgColor = widget.theme?.background ?? Theme.of(context).colorScheme.surface;
+    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     showDialog(
       context: context,
@@ -298,9 +298,9 @@ class _DesktopProductsLayout extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _ProductsHeader(props: props),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
         _ProductsToolbar(props: props),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
         _ProductsContent(props: props),
       ],
     );
@@ -318,9 +318,9 @@ class _MobileProductsLayout extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _ProductsHeader(props: props),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
         _ProductsToolbar(props: props),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
         _ProductsContent(props: props),
       ],
     );
@@ -341,7 +341,7 @@ class _ProductsHeader extends StatelessWidget {
           style: AppTypography.h2.copyWith(fontSize: 32, fontWeight: FontWeight.bold, color: props.textColor),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Container(
           width: 60,
           height: 4,
@@ -371,16 +371,16 @@ class _ProductsToolbar extends StatelessWidget {
             dividerColor: Colors.transparent,
             tabs: props.categories.map((c) => Tab(text: c == 'all' ? 'الكل' : c)).toList(),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
         ],
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
               _SortChip(label: 'الافتراضي', mode: _SortMode.defaultOrder, props: props),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               _SortChip(label: 'السعر: الأقل أولاً', mode: _SortMode.priceLow, props: props),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               _SortChip(label: 'السعر: الأعلى أولاً', mode: _SortMode.priceHigh, props: props),
             ],
           ),
@@ -445,7 +445,7 @@ class _ProductsContent extends StatelessWidget {
         return Column(
           children: [
             content,
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             _Pagination(props: props),
           ],
         );
@@ -483,15 +483,15 @@ class _Pagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (props.totalPages <= 1) return const SizedBox.shrink();
+    if (props.totalPages <= 1) return SizedBox.shrink();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(onPressed: props.currentPage > 1 ? () => props.onPageChanged(props.currentPage - 1) : null, icon: const Icon(Icons.chevron_left_rounded), color: props.secondaryColor),
-        const SizedBox(width: 16),
+        IconButton(onPressed: props.currentPage > 1 ? () => props.onPageChanged(props.currentPage - 1) : null, icon: Icon(Icons.chevron_left_rounded), color: props.secondaryColor),
+        SizedBox(width: 16),
         Text("${props.currentPage} / ${props.totalPages}", style: AppTypography.bodyMedium.copyWith(color: props.textColor)),
-        const SizedBox(width: 16),
-        IconButton(onPressed: props.currentPage < props.totalPages ? () => props.onPageChanged(props.currentPage + 1) : null, icon: const Icon(Icons.chevron_right_rounded), color: props.secondaryColor),
+        SizedBox(width: 16),
+        IconButton(onPressed: props.currentPage < props.totalPages ? () => props.onPageChanged(props.currentPage + 1) : null, icon: Icon(Icons.chevron_right_rounded), color: props.secondaryColor),
       ],
     );
   }
@@ -554,7 +554,7 @@ class _ProductCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTiny ? 11 : (isSmall ? 13 : 15), color: props.textColor), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _ProductActionButton(item: item, props: props, isTiny: isTiny, isSmall: isSmall),
                 ],
               ),
@@ -605,7 +605,7 @@ class _ProductListItem extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(child: Text(name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 15 : 18, color: props.textColor), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(price, style: AppTypography.bodyLarge.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16)),
                       ],
                     ),
@@ -724,17 +724,17 @@ class _ProductDetailModal extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(child: Text(name, style: AppTypography.h2.copyWith(color: textColor, fontSize: 22))),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(color: secondary, borderRadius: BorderRadius.circular(10)),
-                        child: Text(price, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                        child: Text(price, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Text(description, style: AppTypography.bodyMedium.copyWith(color: subTextColor, height: 1.6)),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   Row(
                     children: [
                       Expanded(
@@ -762,10 +762,10 @@ class _ProductDetailModal extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: Text(buttonText == 'Buy Now' ? 'إضافة للسلة' : buttonText, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                          child: Text(buttonText == 'Buy Now' ? 'إضافة للسلة' : buttonText, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: OutlinedButton.styleFrom(foregroundColor: subTextColor, side: BorderSide(color: subTextColor.withValues(alpha: 0.4)), padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),

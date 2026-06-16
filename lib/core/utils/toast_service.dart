@@ -15,7 +15,7 @@ class ToastService {
       type: ToastificationType.success,
       style: ToastificationStyle.fillColored,
       primaryColor: AppColors.secondary, // Neon Cyan brand color
-      backgroundColor: AppColors.cardBg,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       title: title != null 
           ? Text(title, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white))
           : Text("تم بنجاح", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
@@ -51,7 +51,7 @@ class ToastService {
       type: ToastificationType.error,
       style: ToastificationStyle.fillColored,
       primaryColor: AppColors.dangerRed,
-      backgroundColor: AppColors.cardBg,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       title: title != null 
           ? Text(title, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white))
           : Text("خطأ", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
@@ -87,7 +87,7 @@ class ToastService {
       type: ToastificationType.info,
       style: ToastificationStyle.fillColored,
       primaryColor: AppColors.primary,
-      backgroundColor: AppColors.cardBg,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       title: title != null 
           ? Text(title, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white))
           : Text("تنبيه", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),

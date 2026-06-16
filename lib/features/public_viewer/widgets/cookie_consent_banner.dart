@@ -64,12 +64,12 @@ class _CookieConsentBannerState extends State<CookieConsentBanner> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isVisible) return const SizedBox.shrink();
+    if (!_isVisible) return SizedBox.shrink();
 
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
-    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
-    final bgColor = widget.theme?.background ?? AppColors.cardBg;
+    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    final bgColor = widget.theme?.background ?? Theme.of(context).colorScheme.surfaceContainerHigh;
 
     return Positioned(
       bottom: 24,
@@ -82,7 +82,7 @@ class _CookieConsentBannerState extends State<CookieConsentBanner> {
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black54,
@@ -102,7 +102,7 @@ class _CookieConsentBannerState extends State<CookieConsentBanner> {
                   color: textColor,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 context.translate('cookie_consent_message'),
                 style: AppTypography.bodyMedium.copyWith(
@@ -110,7 +110,7 @@ class _CookieConsentBannerState extends State<CookieConsentBanner> {
                   fontSize: 13,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -121,7 +121,7 @@ class _CookieConsentBannerState extends State<CookieConsentBanner> {
                       style: TextStyle(color: subTextColor),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   ElevatedButton(
                     onPressed: () => _setConsent(true),
                     style: ElevatedButton.styleFrom(

@@ -34,29 +34,29 @@ class BuilderSidebar extends StatelessWidget {
     return Container(
       width: 380,
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
           right: loc.isRtl
               ? BorderSide.none
-              : const BorderSide(color: AppColors.border, width: 1.5),
+              : BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
           left: loc.isRtl
-              ? const BorderSide(color: AppColors.border, width: 1.5)
+              ? BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5)
               : BorderSide.none,
         ),
       ),
       child: state.focusedElementId != null
-          ? _buildElementEditor()
+          ? _buildElementEditor(context)
           : (editingBlockIndex != null && editingBlockIndex! < blocksList.length
                 ? BlockPropertiesEditor(
                     index: editingBlockIndex!,
                     state: state,
                     onDone: onDoneEditing,
                   )
-                : _buildTabs()),
+                : _buildTabs(context)),
     );
   }
 
-  Widget _buildElementEditor() {
+  Widget _buildElementEditor(BuildContext context) {
     final section = state.designMap['blocks'][state.focusedSectionIndex];
     final element = (section['elements'] as List).firstWhere(
       (e) => e['id'] == state.focusedElementId,
@@ -65,13 +65,13 @@ class BuilderSidebar extends StatelessWidget {
     return Column(
       children: [
         AppBar(
-          backgroundColor: AppColors.cardBg,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
           title: Text(
             loc.translate('edit_element'),
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.close_rounded),
+            icon: Icon(Icons.close_rounded),
             onPressed: () => cubit.selectSection(null),
           ),
         ),
@@ -94,33 +94,33 @@ class BuilderSidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildTabs() {
+  Widget _buildTabs(BuildContext context) {
     return DefaultTabController(
       length: 4,
       child: Column(
         children: [
           Container(
-            color: AppColors.cardBg,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             child: TabBar(
               labelColor: AppColors.secondary,
-              unselectedLabelColor: AppColors.textSecondary,
+              unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
               indicatorColor: AppColors.secondary,
               isScrollable: true,
               tabs: [
                 Tab(
-                  icon: const Icon(Icons.layers_rounded, size: 20),
+                  icon: Icon(Icons.layers_rounded, size: 20),
                   text: loc.translate('added_sections'),
                 ),
                 Tab(
-                  icon: const Icon(Icons.auto_awesome_rounded, size: 20),
+                  icon: Icon(Icons.auto_awesome_rounded, size: 20),
                   text: loc.translate('templates'),
                 ),
                 Tab(
-                  icon: const Icon(Icons.color_lens_rounded, size: 20),
+                  icon: Icon(Icons.color_lens_rounded, size: 20),
                   text: loc.translate('design'),
                 ),
                 Tab(
-                  icon: const Icon(Icons.edit_note_rounded, size: 20),
+                  icon: Icon(Icons.edit_note_rounded, size: 20),
                   text: loc.translate('content'),
                 ),
               ],

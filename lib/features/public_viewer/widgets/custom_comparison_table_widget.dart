@@ -19,8 +19,8 @@ class CustomComparisonTableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final accentColor = theme?.secondary ?? AppColors.secondary;
     final title = block['title'] ?? '';
     final subtitle = block['subtitle'] ?? '';
@@ -65,7 +65,7 @@ class CustomComparisonTableWidget extends StatelessWidget {
                       style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                   ],
                   if (props.subtitle.isNotEmpty) ...[
                     Text(
@@ -73,7 +73,7 @@ class CustomComparisonTableWidget extends StatelessWidget {
                       style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 48),
+                    SizedBox(height: 48),
                   ],
                   if (props.isMobile)
                     _MobileComparisonTableLayout(props: props)
@@ -137,9 +137,9 @@ class _DesktopComparisonTableLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: Table(
@@ -183,7 +183,7 @@ class _DesktopComparisonTableLayout extends StatelessWidget {
 
             return TableRow(
               decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.5))),
+                border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5))),
               ),
               children: [
                 TableCell(
@@ -227,15 +227,15 @@ class _MobileComparisonTableLayout extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 24),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.cardBg,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(plan['name'] ?? '', style: AppTypography.h3.copyWith(color: props.accentColor)),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ...props.features.map((feature) {
                 final values = feature['values'] ?? [];
                 final value = planIndex < values.length ? values[planIndex] : null;
@@ -280,7 +280,7 @@ class _ComparisonFeatureValue extends StatelessWidget {
     if (value is bool) {
       return Icon(
         value ? Icons.check_circle_rounded : Icons.cancel_rounded,
-        color: value ? accentColor : AppColors.textMuted.withValues(alpha: 0.5),
+        color: value ? accentColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5).withValues(alpha: 0.5),
         size: 20,
       );
     }

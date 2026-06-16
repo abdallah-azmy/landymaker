@@ -156,8 +156,8 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
             AppColors.primary.withValues(alpha: 0.05),
           ],
         ),
-        border: const Border(
-          top: BorderSide(color: AppColors.border, width: 0.5),
+        border: Border(
+          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
         ),
       ),
       child: Center(
@@ -190,7 +190,7 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Text(
                         "ابدأ بقالب مصمم مسبقاً",
                         style: AppTypography.h2.copyWith(
@@ -199,11 +199,11 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 14),
                       Text(
                         "جميع القوالب قابلة للتخصيص بالكامل ومتجاوبة مع جميع الأجهزة.",
                         style: AppTypography.bodyLarge
-                            .copyWith(color: AppColors.textSecondary, height: 1.6),
+                            .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -211,7 +211,7 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
                 ),
               ),
 
-              const SizedBox(height: 64),
+              SizedBox(height: 64),
 
               // Scrollable Cards
               SizedBox(
@@ -236,14 +236,14 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
                 ),
               ),
 
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
 
               // Browse All CTA
               FadeTransition(
                 opacity: _headerFade,
                 child: OutlinedButton.icon(
                   onPressed: () {},
-                  icon: const Icon(Icons.grid_view_rounded),
+                  icon: Icon(Icons.grid_view_rounded),
                   label: const Text("استعرض جميع القوالب"),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.secondary,
@@ -332,12 +332,12 @@ class _TemplateCardState extends State<_TemplateCard> {
           margin: const EdgeInsetsDirectional.only(start: 20),
           // Only animate color + border — no boxShadow blur (expensive)
           decoration: BoxDecoration(
-            color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
+            color: _hovered ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: _hovered
                   ? widget.template.color.withValues(alpha: 0.6)
-                  : AppColors.border,
+                  : Theme.of(context).colorScheme.outlineVariant,
               width: 1.5,
             ),
           ),
@@ -401,7 +401,7 @@ class _TemplateCardState extends State<_TemplateCard> {
                       ),
                       child: Text(
                         widget.template.tag,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -424,7 +424,7 @@ class _TemplateCardState extends State<_TemplateCard> {
                       ),
                       child: Text(
                         widget.template.category,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 9,
                             color: Colors.white70,
                             fontWeight: FontWeight.bold),
@@ -447,14 +447,14 @@ class _TemplateCardState extends State<_TemplateCard> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     widget.template.desc,
                     style: AppTypography.caption.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: AnimatedContainer(

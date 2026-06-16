@@ -47,9 +47,9 @@ class QrCodeEditor extends StatelessWidget {
                   readOnly: true,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               IconButton(
-                icon: const Icon(Icons.copy_rounded, color: AppColors.secondary),
+                icon: Icon(Icons.copy_rounded, color: AppColors.secondary),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: "https://landymaker.com/$subdomain"));
                   ToastService.showSuccess(context, message: "تم نسخ الرابط بنجاح!");
@@ -58,7 +58,7 @@ class QrCodeEditor extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "العنوان الفرعي (Subtitle)",
           child: CustomTextField(
@@ -67,7 +67,7 @@ class QrCodeEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "رابط مخصص للـ QR (Custom QR Link) (اختياري)",
           child: CustomTextField(
@@ -76,7 +76,7 @@ class QrCodeEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'qr_payload', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Text(
           "حجم الكود: ${((block['qr_size'] ?? 200.0) as num).toStringAsFixed(0)}px",
           style: AppTypography.caption,

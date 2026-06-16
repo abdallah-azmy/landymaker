@@ -33,8 +33,8 @@ class CustomLocationMapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
 
     final String viewId = 'map-iframe-${mapIframeUrl.hashCode}';
@@ -138,15 +138,15 @@ class _DesktopLocationMapLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 22)),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Row(
                 children: [
                   Icon(Icons.location_on_rounded, color: props.secondaryColor, size: 20),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(child: Text(props.address, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 15))),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: SizedBox(height: 350, width: double.infinity, child: HtmlElementView(viewType: props.viewId)),
@@ -190,15 +190,15 @@ class _MobileLocationMapLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20)),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Row(
                 children: [
                   Icon(Icons.location_on_rounded, color: props.secondaryColor, size: 20),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(child: Text(props.address, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14))),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: SizedBox(height: 250, width: double.infinity, child: HtmlElementView(viewType: props.viewId)),

@@ -63,7 +63,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         isScrollable: true,
         indicatorColor: AppColors.secondary,
         labelColor: AppColors.secondary,
-        unselectedLabelColor: AppColors.textSecondary,
+        unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
         tabs: const [
           Tab(text: "Users", icon: Icon(Icons.people_rounded)),
           Tab(text: "Plans & Config", icon: Icon(Icons.settings_suggest_rounded)),
@@ -119,7 +119,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 ),
                 StatusPill(label: "نشط", color: AppColors.activeGreen),
                 IconButton(
-                  icon: const Icon(Icons.manage_accounts_rounded, color: AppColors.secondary),
+                  icon: Icon(Icons.manage_accounts_rounded, color: AppColors.secondary),
                   onPressed: () => _showEditUserDialog(u, state.plans),
                 ),
               ],
@@ -142,29 +142,29 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           title: Text("Manage User: ${user['full_name']}"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text("Subscription Tier", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: selectedTier,
-                dropdownColor: AppColors.cardBg,
+                dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                 items: plans.map((p) => DropdownMenuItem(
                   value: p['id'].toString(),
                   child: Text(p['display_name']),
                 )).toList(),
                 onChanged: (val) => setDialogState(() => selectedTier = val!),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               const Text("System Role", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: selectedRole,
-                dropdownColor: AppColors.cardBg,
+                dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                 items: const [
                   DropdownMenuItem(value: 'user', child: Text("Regular User")),
                   DropdownMenuItem(value: 'super_admin', child: Text("Super Admin")),
@@ -202,15 +202,15 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("Business Configuration (Plans)", style: AppTypography.h3),
-              const Icon(Icons.info_outline, color: AppColors.textMuted),
+              Icon(Icons.info_outline, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             "Admins can modify pricing and limits. Changes are restricted by Security Boundaries.",
             style: AppTypography.caption,
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           ...state.plans.map((plan) => _buildPlanEditCard(plan, state.securityLimits['MAX_PLAN_PAGE_LIMIT'] ?? 50)),
         ],
       ),
@@ -222,9 +222,9 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -234,11 +234,11 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
               children: [
                 Text(plan['display_name'], style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
                 Text("Price: ${plan['monthly_price']} EGP/mo", style: AppTypography.caption),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.web_rounded, size: 14, color: AppColors.secondary),
-                    const SizedBox(width: 8),
+                    Icon(Icons.web_rounded, size: 14, color: AppColors.secondary),
+                    SizedBox(width: 8),
                     Text("Limit: ${plan['page_limit']} pages", style: AppTypography.bodyMedium),
                   ],
                 ),
@@ -266,26 +266,26 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           title: Text("Edit Plan: ${plan['id']}"),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CustomTextField(controller: nameController, hintText: "Display Name"),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 CustomTextField(
                   controller: priceController,
                   hintText: "Monthly Price (EGP)",
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 CustomTextField(
                   controller: limitController,
                   hintText: "Page Limit (Max $maxAllowed)",
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 SwitchListTile(
                   title: const Text("Custom Domain Access", style: TextStyle(fontSize: 14)),
                   value: customDomain,
@@ -346,19 +346,19 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.security_rounded, color: AppColors.dangerRed),
-              const SizedBox(width: 12),
+              Icon(Icons.security_rounded, color: AppColors.dangerRed),
+              SizedBox(width: 12),
               Text("Infrastructure Security Boundaries", style: AppTypography.h3),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             "These limits are fixed at the database level and cannot be changed through the UI. They prevent accidental or intentional abuse of system resources.",
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           _buildSecurityLimitCard("Global Plan Cap", "${state.securityLimits['MAX_PLAN_PAGE_LIMIT'] ?? 50} pages", "The highest page limit any business plan can be configured to have."),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildSecurityLimitCard("Super Admin Cap", "${state.securityLimits['SUPER_ADMIN_PAGE_LIMIT'] ?? 500} pages", "The absolute hard limit for Super Admin accounts."),
         ],
       ),
@@ -383,11 +383,11 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(color: AppColors.dangerRed, borderRadius: BorderRadius.circular(20)),
-                child: Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                child: Text(value, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(desc, style: AppTypography.caption),
         ],
       ),
@@ -475,11 +475,11 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen),
+                    icon: Icon(Icons.check_circle_rounded, color: AppColors.activeGreen),
                     onPressed: () => context.read<SuperAdminCubit>().approveRequest(r['id']),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.cancel_rounded, color: AppColors.dangerRed),
+                    icon: Icon(Icons.cancel_rounded, color: AppColors.dangerRed),
                     onPressed: () => context.read<SuperAdminCubit>().rejectRequest(r['id']),
                   ),
                 ],
@@ -504,17 +504,17 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("إحصائيات المنصة الشاملة", style: AppTypography.h3),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Row(
             children: [
               Expanded(child: _buildMetricMiniCard("إجمالي المشاهدات", stats['total_views'].toString(), Icons.visibility_rounded, AppColors.secondary)),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(child: _buildMetricMiniCard("إجمالي المبيات", stats['total_purchases'].toString(), Icons.shopping_cart_rounded, AppColors.activeGreen)),
             ],
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           Text("آخر النشاطات", style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ResponsiveDataTable(
             title: "سجل العمليات",
             headers: const ["نوع الحدث", "رقم الصفحة", "الوقت"],
@@ -536,12 +536,12 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
   Widget _buildMetricMiniCard(String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 22),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Text(title, style: AppTypography.caption),
           Text(value, style: AppTypography.h3),
         ],
@@ -560,7 +560,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
             Text(user, style: AppTypography.bodyLarge),
             Text(a['promo_code'], style: AppTypography.bodyMedium.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold)),
             Text("${a['commission_percent']}%"),
-            Text("${a['balance']} EGP", style: const TextStyle(color: AppColors.activeGreen, fontWeight: FontWeight.bold)),
+            Text("${a['balance']} EGP", style: TextStyle(color: AppColors.activeGreen, fontWeight: FontWeight.bold)),
           ];
         }).toList(),
         emptyMessage: "لا يوجد مسوقين مسجلين",
@@ -593,7 +593,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                     isSecondary: true,
                     onPressed: () => _seedTemplatesFromRegistry(),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   PrimaryButton(
                     text: "Add Template",
                     width: 160,
@@ -603,7 +603,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           ResponsiveDataTable(
             title: "All Templates",
             headers: const [
@@ -632,13 +632,13 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 ),
                 StatusPill(
                   label: isFeatured ? "Featured" : "Standard",
-                  color: isFeatured ? AppColors.secondary : AppColors.textSecondary,
+                  color: isFeatured ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit_rounded, size: 18, color: AppColors.secondary),
+                      icon: Icon(Icons.edit_rounded, size: 18, color: AppColors.secondary),
                       tooltip: "Edit",
                       onPressed: () => _showTemplateEditorDialog(t),
                     ),
@@ -656,7 +656,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                     ),
                     if (isActive)
                       IconButton(
-                        icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.dangerRed),
+                        icon: Icon(Icons.delete_rounded, size: 18, color: AppColors.dangerRed),
                         tooltip: "Delete",
                         onPressed: () => _confirmDeleteTemplate(t['id']),
                       ),
@@ -678,7 +678,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text("Confirm Delete"),
         content: const Text("Are you sure you want to soft-delete this template? It will be hidden from users."),
         actions: [
@@ -755,7 +755,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           title: Text(isEditing ? "Edit Template: ${existing!['name']}" : "Add New Template"),
           content: SingleChildScrollView(
             child: Column(
@@ -767,50 +767,50 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                   hintText: "Template ID (e.g. saas_startup)",
                   label: "ID",
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   controller: nameController,
                   hintText: "Template Name",
                   label: "Name",
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   controller: descriptionController,
                   hintText: "Brief description",
                   label: "Description",
                   maxLines: 2,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   controller: imageUrlController,
                   hintText: "Cover image URL",
                   label: "Image URL",
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   controller: categoryController,
                   hintText: "e.g. technology, ecommerce",
                   label: "Category",
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   controller: aiHintController,
                   hintText: "AI generation hint",
                   label: "AI Prompt Hint",
                   maxLines: 2,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Text("Design JSON (blocks map)", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: jsonError != null ? AppColors.dangerRed : AppColors.border),
+                    border: Border.all(color: jsonError != null ? AppColors.dangerRed : Theme.of(context).colorScheme.outlineVariant),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TextField(
                     controller: designJsonController,
                     maxLines: 8,
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                    style: TextStyle(fontFamily: 'monospace', fontSize: 12),
                     decoration: InputDecoration(
                       hintText: '{ "blocks": [...] }',
                       border: InputBorder.none,
@@ -824,7 +824,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                     },
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 SwitchListTile(
                   title: const Text("Is Draft (hidden from users)", style: TextStyle(fontSize: 14)),
                   value: isDraft,

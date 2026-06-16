@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/widgets/custom_network_image.dart';
@@ -30,8 +29,8 @@ class CustomTrustLogosWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -113,7 +112,7 @@ class _DesktopTrustLogosLayout extends StatelessWidget {
             children: [
               if (props.title.isNotEmpty) ...[
                 Text(props.title, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14), textAlign: TextAlign.center),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
               ],
               Wrap(
                 alignment: WrapAlignment.center,
@@ -160,7 +159,7 @@ class _MobileTrustLogosLayout extends StatelessWidget {
             children: [
               if (props.title.isNotEmpty) ...[
                 Text(props.title, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12), textAlign: TextAlign.center),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
               ],
               Wrap(
                 alignment: WrapAlignment.center,

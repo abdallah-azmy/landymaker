@@ -37,7 +37,7 @@ class ContactInfoEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "البريد الإلكتروني",
           child: CustomTextField(
@@ -46,7 +46,7 @@ class ContactInfoEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'email', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "رقم الهاتف",
           child: CustomTextField(
@@ -55,7 +55,7 @@ class ContactInfoEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'phone', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "العنوان",
           child: CustomTextField(
@@ -64,7 +64,7 @@ class ContactInfoEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'location', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "أيقونة البريد الإلكتروني (Email Icon Name)",
           child: CustomTextField(
@@ -73,7 +73,7 @@ class ContactInfoEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'email_icon', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "أيقونة الهاتف (Phone Icon Name)",
           child: CustomTextField(
@@ -82,7 +82,7 @@ class ContactInfoEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'phone_icon', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "أيقونة العنوان (Location Icon Name)",
           child: CustomTextField(

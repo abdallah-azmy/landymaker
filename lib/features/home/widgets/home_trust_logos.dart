@@ -1,7 +1,6 @@
 /// Trust Logos Section — shows brand/partner logos below the Hero.
 /// Builds trust quickly. Uses RepaintBoundary for animation isolation.
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
 
@@ -59,10 +58,10 @@ class _HomeTrustLogosState extends State<HomeTrustLogos>
             vertical: isMobile ? 32 : 48,
             horizontal: 24,
           ),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(
-              top: BorderSide(color: AppColors.border, width: 0.5),
-              bottom: BorderSide(color: AppColors.border, width: 0.5),
+              top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
+              bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
             ),
           ),
           child: Center(
@@ -73,13 +72,13 @@ class _HomeTrustLogosState extends State<HomeTrustLogos>
                   Text(
                     'يثق بنا آلاف الأعمال في المنطقة العربية',
                     style: AppTypography.caption.copyWith(
-                      color: AppColors.textMuted,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                       fontWeight: FontWeight.w500,
                       letterSpacing: 0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 28),
+                  SizedBox(height: 28),
                   Wrap(
                     alignment: WrapAlignment.center,
                     spacing: isMobile ? 20 : 40,
@@ -124,12 +123,12 @@ class _BrandChipState extends State<_BrandChip> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(widget.brand.icon, size: 18, color: AppColors.textSecondary),
-            const SizedBox(width: 8),
+            Icon(widget.brand.icon, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            SizedBox(width: 8),
             Text(
               widget.brand.name,
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),

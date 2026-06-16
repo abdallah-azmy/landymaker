@@ -137,8 +137,8 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
         color: const Color(0xFF030712),
-        border: const Border(
-          top: BorderSide(color: AppColors.border, width: 0.5),
+        border: Border(
+          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
         ),
       ),
       child: Center(
@@ -148,7 +148,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildSectionHeader(isMobile),
-              const SizedBox(height: 64),
+              SizedBox(height: 64),
               if (isMobile)
                 Column(
                   children: List.generate(_stats.length, (i) => Column(
@@ -162,7 +162,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
                           ),
                         ),
                       ),
-                      if (i < _stats.length - 1) const SizedBox(height: 16),
+                      if (i < _stats.length - 1) SizedBox(height: 16),
                     ],
                   )),
                 )
@@ -221,7 +221,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 "لاندي ميكر في أرقام",
                 style: AppTypography.h2.copyWith(
@@ -231,11 +231,11 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 "ثقة متزايدة وأرقام قياسية تعكس التزامنا بنجاح مشروعك الرقمي وتسهيل وصولك لجمهورك.",
                 style: AppTypography.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.6,
                 ),
                 textAlign: TextAlign.center,
@@ -253,7 +253,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
         color: AppColors.darkBackground,
-        border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
       ),
       child: Center(
         child: Container(
@@ -261,7 +261,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
           child: Column(
             children: [
               _buildSectionHeader(isMobile),
-              const SizedBox(height: 48),
+              SizedBox(height: 48),
               isMobile
                 ? Column(
                     children: List.generate(_stats.length, (i) => Padding(
@@ -295,9 +295,9 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
         child: Container(
           padding: const EdgeInsetsDirectional.all(28),
           decoration: BoxDecoration(
-            color: AppColors.cardBg,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.border, width: 1.5),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
           ),
           child: Column(
             children: [
@@ -309,16 +309,16 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
                 ),
                 child: Icon(icons[index], color: stat.color, size: 28),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 stat.value,
                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: stat.color, fontFamily: 'Cairo'),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(stat.label, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-              const SizedBox(height: 4),
-                Text(stat.desc, style: AppTypography.caption.copyWith(color: AppColors.textSecondary, height: 1.5), textAlign: TextAlign.center),
+              SizedBox(height: 4),
+                Text(stat.desc, style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5), textAlign: TextAlign.center),
             ],
           ),
         ),
@@ -377,10 +377,10 @@ class _StatCardState extends State<_StatCard> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
           // Only animate color + border — no boxShadow blur changes (expensive)
           decoration: BoxDecoration(
-            color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
+            color: _hovered ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: _hovered ? s.color.withValues(alpha: 0.55) : AppColors.border,
+              color: _hovered ? s.color.withValues(alpha: 0.55) : Theme.of(context).colorScheme.outlineVariant,
               width: 1.5,
             ),
           ),
@@ -398,7 +398,7 @@ class _StatCardState extends State<_StatCard> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               Text(
                 s.label,
                 style: AppTypography.bodyLarge.copyWith(
@@ -407,11 +407,11 @@ class _StatCardState extends State<_StatCard> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 s.desc,
                 style: AppTypography.caption.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,

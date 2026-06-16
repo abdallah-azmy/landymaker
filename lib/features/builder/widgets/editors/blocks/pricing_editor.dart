@@ -36,7 +36,7 @@ class PricingEditor extends StatelessWidget {
           focusNode: getFocusNode("${index}_title"),
           onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         DropdownButtonFormField<String>(
           initialValue: (block['layout_style'] as String?) ?? 'cards',
           decoration: const InputDecoration(labelText: 'نوع التخطيط'),
@@ -46,7 +46,7 @@ class PricingEditor extends StatelessWidget {
           ],
           onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         if (isV2) ...[
           SwitchListTile(
             title: const Text("تفعيل نظام الدفع المتعدد (شهري/سنوي)"),
@@ -54,7 +54,7 @@ class PricingEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'has_toggle', val),
             contentPadding: EdgeInsets.zero,
           ),
-          const Divider(),
+          Divider(),
         ],
         DynamicListEditor(
           title: "خطط الأسعار (Pricing Plans)",
@@ -85,9 +85,9 @@ class PricingEditor extends StatelessWidget {
             final prices = (item['prices'] as Map?) ?? {};
             return Container(
               padding: const EdgeInsetsDirectional.only(start: 12, top: 8),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: BorderDirectional(
-                  start: BorderSide(color: AppColors.border, width: 2),
+                  start: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                 ),
               ),
               child: Column(
@@ -101,7 +101,7 @@ class PricingEditor extends StatelessWidget {
                     _updateItemProp(pIndex, 'name', val);
                   },
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 if (!isV2) ...[
                   CustomTextField(
                     hintText: "السعر",
@@ -124,7 +124,7 @@ class PricingEditor extends StatelessWidget {
                           },
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Expanded(
                         child: CustomTextField(
                           hintText: "السعر السنوي",
@@ -139,7 +139,7 @@ class PricingEditor extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: ['auto', 'manual', 'hidden'].contains(item['discount_mode']) ? item['discount_mode'] : 'hidden',
                     decoration: const InputDecoration(labelText: "وضع الخصم"),
@@ -151,7 +151,7 @@ class PricingEditor extends StatelessWidget {
                     onChanged: (val) => _updateItemProp(pIndex, 'discount_mode', val),
                   ),
                   if (item['discount_mode'] == 'manual') ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     CustomTextField(
                       hintText: "مثال: الأكثر توفيراً!",
                       controller: getController("${index}_pricing_${pIndex}_mdisc", LocalizedTextParser.extractText(item['manual_discount_text'], 'ar')),
@@ -160,7 +160,7 @@ class PricingEditor extends StatelessWidget {
                     ),
                   ],
                 ],
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 SwitchListTile(
                   title: Text("خطة مميزة؟", style: AppTypography.caption),
                   value: item['is_popular'] ?? false,

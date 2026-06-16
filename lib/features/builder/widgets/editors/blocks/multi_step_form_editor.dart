@@ -36,7 +36,7 @@ class MultiStepFormEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "وصف فرعي (Subtitle)",
           child: CustomTextField(
@@ -46,7 +46,7 @@ class MultiStepFormEditor extends StatelessWidget {
             maxLines: 2,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "رسالة النجاح (Success Message)",
           child: CustomTextField(
@@ -55,7 +55,7 @@ class MultiStepFormEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'success_message', val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         SwitchListTile(
           title: const Text('حفظ التقدم محلياً (Local Save)'),
           subtitle: const Text('يمنع ضياع البيانات إذا تم تحديث الصفحة'),
@@ -63,11 +63,11 @@ class MultiStepFormEditor extends StatelessWidget {
           onChanged: (val) => cubit.updateBlockProperty(index, 'enable_local_save', val),
           contentPadding: EdgeInsets.zero,
         ),
-        const SizedBox(height: 16),
-        const Divider(),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
+        Divider(),
+        SizedBox(height: 16),
         Text("Smart WhatsApp Leads", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         SwitchListTile(
           title: const Text("فتح واتساب تلقائياً بعد الإرسال"),
           subtitle: const Text("يحول الفورم إلى قمع تحويل لواتساب"),
@@ -76,7 +76,7 @@ class MultiStepFormEditor extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
         ),
         if (block['whatsapp_auto_open'] == true) ...[
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           FormGroup(
             label: "رقم الواتساب",
             child: CustomTextField(
@@ -85,7 +85,7 @@ class MultiStepFormEditor extends StatelessWidget {
               onChanged: (val) => cubit.updateBlockProperty(index, 'whatsapp_number', val),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           FormGroup(
             label: "قالب الرسالة (استخدم {{field_id}} للتعويض)",
             child: CustomTextField(
@@ -96,12 +96,12 @@ class MultiStepFormEditor extends StatelessWidget {
             ),
           ),
         ],
-        const Divider(height: 32),
+        Divider(height: 32),
         const Text(
           "خطوات النموذج (Steps)",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         // Simple Reorderable list for Steps (In a production app, we'd use ReorderableListView but Column is fine for MVP)
         ...steps.asMap().entries.map((entry) {
           final stepIndex = entry.key;
@@ -112,7 +112,7 @@ class MultiStepFormEditor extends StatelessWidget {
               title: Text(step['step_title'] ?? 'خطوة بدون عنوان'),
               subtitle: Text('${(step['fields'] as List?)?.length ?? 0} حقول'),
               trailing: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: Icon(Icons.delete, color: Colors.red),
                 onPressed: () {
                   final newSteps = List.from(steps);
                   newSteps.removeAt(stepIndex);
@@ -126,9 +126,9 @@ class MultiStepFormEditor extends StatelessWidget {
             ),
           );
         }),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         ElevatedButton.icon(
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           label: const Text('إضافة خطوة جديدة'),
           onPressed: () {
             final newSteps = List.from(steps);

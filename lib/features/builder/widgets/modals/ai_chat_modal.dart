@@ -244,8 +244,8 @@ class _AIChatModalState extends State<AIChatModal> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          decoration: const BoxDecoration(
-            color: AppColors.background,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
           ),
           child: Column(
@@ -284,22 +284,22 @@ class _AIChatModalState extends State<AIChatModal> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome_rounded, color: AppColors.primary),
-              const SizedBox(width: 12),
+              Icon(Icons.auto_awesome_rounded, color: AppColors.primary),
+              SizedBox(width: 12),
               Text("مساعد لاندي ميكر الذكي", style: AppTypography.h3),
             ],
           ),
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.close_rounded),
+            icon: Icon(Icons.close_rounded),
           ),
         ],
       ),
@@ -321,14 +321,14 @@ class _AIChatModalState extends State<AIChatModal> {
           maxWidth: MediaQuery.of(context).size.width * 0.7,
         ),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.secondary : AppColors.cardBg,
+          color: isUser ? AppColors.secondary : Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
             bottomLeft: Radius.circular(isUser ? 0 : 16),
             bottomRight: Radius.circular(isUser ? 16 : 0),
           ),
-          border: isUser ? null : Border.all(color: AppColors.border),
+          border: isUser ? null : Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,12 +337,12 @@ class _AIChatModalState extends State<AIChatModal> {
             Text(
               content,
               style: AppTypography.bodyMedium.copyWith(
-                color: isUser ? Colors.white : AppColors.textPrimary,
+                color: isUser ? Colors.white : Theme.of(context).colorScheme.onSurface,
               ),
               textDirection: TextDirection.rtl,
             ),
             if (imageUrl != null && imageUrl.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
@@ -350,12 +350,12 @@ class _AIChatModalState extends State<AIChatModal> {
                   width: 160,
                   height: 120,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  errorBuilder: (_, __, ___) => SizedBox.shrink(),
                 ),
               ),
             ],
             if (showPreviewButton) ...[
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -363,7 +363,7 @@ class _AIChatModalState extends State<AIChatModal> {
                     Navigator.pop(context); // Close the bottom sheet
                     context.go('/guest-preview');
                   },
-                  icon: const Icon(Icons.visibility_rounded, size: 18),
+                  icon: Icon(Icons.visibility_rounded, size: 18),
                   label: const Text(
                     "معاينة صفحة الهبوط",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
@@ -390,7 +390,7 @@ class _AIChatModalState extends State<AIChatModal> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         children: [
-          const SizedBox(
+          SizedBox(
             width: 16,
             height: 16,
             child: CircularProgressIndicator(
@@ -398,7 +398,7 @@ class _AIChatModalState extends State<AIChatModal> {
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Text(
             message,
             style: AppTypography.caption.copyWith(color: AppColors.primary),

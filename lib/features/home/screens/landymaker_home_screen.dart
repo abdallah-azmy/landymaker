@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../services/tenant_routing_service.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/visibility_observer.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_hero_section.dart';
@@ -61,7 +60,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: HomeNavbar(
         onLoginPressed: () => context.go('/login'),
         onGetStartedPressed: () => context.go('/templates'),

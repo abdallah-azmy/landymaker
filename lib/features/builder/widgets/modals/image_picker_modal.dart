@@ -92,7 +92,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
             SnackBar(
               content: Text(
                 state.message,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
               backgroundColor: Colors.red,
             ),
@@ -102,7 +102,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
             SnackBar(
               content: Text(
                 state.message,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
               backgroundColor: Colors.red,
             ),
@@ -125,7 +125,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               decoration: BoxDecoration(
                 color: const Color(0xFF0F172A), // Slate 900
                 borderRadius: isMobile
-                    ? const BorderRadius.vertical(top: Radius.circular(20))
+                    ? BorderRadius.vertical(top: Radius.circular(20))
                     : BorderRadius.circular(20),
                 border: Border.all(color: const Color(0xFF1E293B)), // Slate 800
                 boxShadow: const [
@@ -138,7 +138,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               ),
               child: ClipRRect(
                 borderRadius: isMobile
-                    ? const BorderRadius.vertical(top: Radius.circular(20))
+                    ? BorderRadius.vertical(top: Radius.circular(20))
                     : BorderRadius.circular(20),
                 child: Stack(
                   children: [
@@ -172,7 +172,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Color(0xFF1E293B))),
       ),
       child: Row(
@@ -187,7 +187,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, color: Colors.white70),
+            icon: Icon(Icons.close, color: Colors.white70),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -215,20 +215,20 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.cloud_upload_outlined,
             size: 64,
             color: Colors.white24,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           const Text(
             'Upload from your device',
             style: TextStyle(color: Colors.white70, fontSize: 16),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () => context.read<ImagePickerCubit>().pickLocalImage(),
-            icon: const Icon(Icons.photo_library),
+            icon: Icon(Icons.photo_library),
             label: const Text('Browse Files'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF00E5FF),
@@ -239,7 +239,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           const Text(
             'Max size: 5MB • Formats: JPG, PNG, WEBP\nImages will be automatically optimized.',
             textAlign: TextAlign.center,
@@ -270,16 +270,16 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.image_not_supported_outlined,
+                  Icon(Icons.image_not_supported_outlined,
                       size: 48, color: Colors.white24),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   const Text('No uploaded images yet.',
                       style: TextStyle(color: Colors.white54)),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   TextButton.icon(
                     onPressed: () => _tabController.animateTo(0),
                     icon:
-                        const Icon(Icons.upload_file, color: Color(0xFF00E5FF)),
+                        Icon(Icons.upload_file, color: Color(0xFF00E5FF)),
                     label: const Text('Go to Upload',
                         style: TextStyle(color: Color(0xFF00E5FF))),
                   ),
@@ -325,7 +325,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
         if (state is ImagePickerGalleryError) {
           return Center(
               child: Text(state.message,
-                  style: const TextStyle(color: Colors.redAccent)));
+                  style: TextStyle(color: Colors.redAccent)));
         }
 
         return const Center(
@@ -346,10 +346,10 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               Expanded(
                 child: TextField(
                   controller: _searchController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Search free images...',
-                    hintStyle: const TextStyle(color: Colors.white38),
+                    hintStyle: TextStyle(color: Colors.white38),
                     filled: true,
                     fillColor: const Color(0xFF1E293B), // Slate 800
                     border: OutlineInputBorder(
@@ -357,7 +357,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                       borderSide: BorderSide.none,
                     ),
                     suffixIcon: IconButton(
-                      icon: const Icon(Icons.search, color: Color(0xFF00E5FF)),
+                      icon: Icon(Icons.search, color: Color(0xFF00E5FF)),
                       onPressed: () {
                         context.read<ImagePickerCubit>().searchPixabay(
                           _searchController.text,
@@ -371,7 +371,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                       .searchPixabay(val, imageType: _selectedImageType),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
@@ -382,8 +382,8 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                   child: DropdownButton<String>(
                     value: _selectedImageType,
                     dropdownColor: const Color(0xFF1E293B),
-                    style: const TextStyle(color: Colors.white),
-                    icon: const Icon(
+                    style: TextStyle(color: Colors.white),
+                    icon: Icon(
                       Icons.filter_list,
                       color: Color(0xFF00E5FF),
                     ),
@@ -468,7 +468,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                       ),
                     ),
                     if (state.isFetchingMore)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.all(8.0),
                         child: CircularProgressIndicator(
                           color: Color(0xFF00E5FF),
@@ -484,7 +484,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                     child: Text(
                       state.message,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.redAccent),
+                      style: TextStyle(color: Colors.redAccent),
                     ),
                   ),
                 );
@@ -516,18 +516,18 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           const Text(
             'Ensure the URL points directly to an image file (e.g. .jpg, .png).',
             style: TextStyle(color: Colors.white54, fontSize: 13),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           TextField(
             controller: _urlController,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: 'https://example.com/image.jpg',
-              hintStyle: const TextStyle(color: Colors.white38),
+              hintStyle: TextStyle(color: Colors.white38),
               filled: true,
               fillColor: const Color(0xFF1E293B),
               border: OutlineInputBorder(
@@ -536,7 +536,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(

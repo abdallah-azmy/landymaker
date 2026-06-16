@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../molecules/pagination_control.dart';
 import 'data_table_header.dart';
@@ -45,9 +44,9 @@ class ResponsiveDataTable extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            color: AppColors.cardBg,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border, width: 1.5),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -102,7 +101,7 @@ class _DesktopDataTable extends StatelessWidget {
               style: AppTypography.h3.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           );
@@ -133,7 +132,7 @@ class _MobileDataTable extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: rows.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => SizedBox(height: 12),
       itemBuilder: (context, index) {
         final row = rows[index];
         return Container(
@@ -141,7 +140,7 @@ class _MobileDataTable extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
           ),
           child: Column(
             children: List.generate(headers.length, (i) {
@@ -156,13 +155,13 @@ class _MobileDataTable extends StatelessWidget {
                         headers[i],
                         style: AppTypography.caption.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       flex: 4,
                       child: Align(
@@ -194,11 +193,11 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.inbox_rounded, color: AppColors.textMuted, size: 48),
-          const SizedBox(height: 16),
+          Icon(Icons.inbox_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), size: 48),
+          SizedBox(height: 16),
           Text(
             message,
-            style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],

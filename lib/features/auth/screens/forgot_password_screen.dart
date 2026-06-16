@@ -26,9 +26,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void _handleSubmit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
 
-    context.read<AuthCubit>().sendPasswordReset(
-      _emailController.text.trim(),
-    );
+    context.read<AuthCubit>().sendPasswordReset(_emailController.text.trim());
   }
 
   @override
@@ -40,13 +38,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: Icon(
+            Icons.arrow_back_rounded,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => context.safePop(fallbackPath: '/login'),
         ),
       ),
@@ -147,9 +148,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   controller: _emailController,
                                   hintText: 'name@domain.com',
                                   keyboardType: TextInputType.emailAddress,
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.email_outlined,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                   validator: (val) {
                                     if (val == null || val.isEmpty) {

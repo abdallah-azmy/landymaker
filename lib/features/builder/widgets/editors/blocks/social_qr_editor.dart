@@ -48,9 +48,9 @@ class SocialQrEditor extends StatelessWidget {
                   readOnly: true,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               IconButton(
-                icon: const Icon(Icons.copy_rounded, color: AppColors.secondary),
+                icon: Icon(Icons.copy_rounded, color: AppColors.secondary),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: "https://landymaker.com/$subdomain"));
                   ToastService.showSuccess(context, message: "تم نسخ الرابط بنجاح!");
@@ -59,7 +59,7 @@ class SocialQrEditor extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: "العنوان الفرعي (Subtitle)",
           child: CustomTextField(
@@ -68,7 +68,7 @@ class SocialQrEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -82,19 +82,19 @@ class SocialQrEditor extends StatelessWidget {
                 links.add({'platform': 'website', 'url': 'https://'});
                 cubit.updateBlockProperty(index, 'links', links);
               },
-              icon: const Icon(Icons.add_link_rounded, size: 16),
+              icon: Icon(Icons.add_link_rounded, size: 16),
               label: const Text("أضف رابط"),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         ...List.generate(((block['links'] as List?) ?? []).length, (lIndex) {
           final link = ((block['links'] as List?) ?? [])[lIndex] as Map<String, dynamic>;
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -105,7 +105,7 @@ class SocialQrEditor extends StatelessWidget {
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: link['platform'] ?? 'website',
-                          dropdownColor: AppColors.cardBg,
+                          dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                           items: const [
                             DropdownMenuItem(value: 'website', child: Text("موقع إلكتروني")),
                             DropdownMenuItem(value: 'instagram', child: Text("انستجرام")),
@@ -125,7 +125,7 @@ class SocialQrEditor extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+                      icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
                       onPressed: () {
                         final List links = List.from(block['links']);
                         links.removeAt(lIndex);
@@ -146,7 +146,7 @@ class SocialQrEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'links', links);
                   },
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 PrimaryButton(
                   text: "ابحث في الصور (Stock Images)",
                   icon: Icons.search_rounded,

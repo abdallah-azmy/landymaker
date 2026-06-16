@@ -51,10 +51,10 @@ class HomeFooter extends StatelessWidget {
 
         return Container(
           width: double.infinity,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Color(0xFF030712),
             border: Border(
-              top: BorderSide(color: AppColors.border, width: 0.5),
+              top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
             ),
           ),
           padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
@@ -67,9 +67,9 @@ class HomeFooter extends StatelessWidget {
                     const _MobileFooter(socialLinks: _socialLinks)
                   else
                     const _DesktopFooter(socialLinks: _socialLinks),
-                  const SizedBox(height: 48),
-                  const Divider(color: AppColors.border, height: 1),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 48),
+                  Divider(color: Theme.of(context).colorScheme.outlineVariant, height: 1),
+                  SizedBox(height: 24),
                   const _BottomRow(),
                 ],
               ),
@@ -99,15 +99,15 @@ class _DesktopFooter extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const _BrandSection(),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 "ابنِ حضورك الرقمي\nباحترافية وبساطة.",
                 style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.6,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               // Social links
               Row(
                 children: socialLinks
@@ -126,7 +126,7 @@ class _DesktopFooter extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 40),
+        SizedBox(width: 40),
 
         // Links
         const Expanded(
@@ -177,15 +177,15 @@ class _MobileFooter extends StatelessWidget {
     return Column(
       children: [
         const _BrandSection(center: true),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(
           "ابنِ حضورك الرقمي باحترافية وبساطة.",
           style: AppTypography.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         const Wrap(
           spacing: 16,
           children: [
@@ -194,7 +194,7 @@ class _MobileFooter extends StatelessWidget {
             _MobileFooterLink(label: "شروط الخدمة", path: '/terms'),
           ],
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Wrap(
           spacing: 12,
           runSpacing: 8,
@@ -223,7 +223,7 @@ class _BrandSection extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const LandyMakerLogo(fontSize: 20),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Image.asset('assets/images/logo_small.webp', height: 30, width: 30),
       ],
     );
@@ -243,7 +243,7 @@ class _BottomRow extends StatelessWidget {
       children: [
         Text(
           "© 2026 Landymaker. جميع الحقوق محفوظة.",
-          style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+          style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -251,7 +251,7 @@ class _BottomRow extends StatelessWidget {
             Text(
               "V 1.0.5",
               style: AppTypography.caption.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -310,18 +310,18 @@ class _SocialBtnState extends State<_SocialBtn> {
           decoration: BoxDecoration(
             color: _hovered
                 ? AppColors.secondary.withValues(alpha: 0.15)
-                : AppColors.cardBg,
+                : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: _hovered
                   ? AppColors.secondary.withValues(alpha: 0.4)
-                  : AppColors.border,
+                  : Theme.of(context).colorScheme.outlineVariant,
             ),
           ),
           child: Icon(
             widget.icon,
             size: 16,
-            color: _hovered ? AppColors.secondary : AppColors.textSecondary,
+            color: _hovered ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -350,10 +350,10 @@ class _FooterLinks extends StatelessWidget {
           title,
           style: AppTypography.bodyMedium.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         ...items.map(
           (item) => Padding(
             padding: const EdgeInsets.only(bottom: 10),
@@ -379,7 +379,7 @@ class _FooterLinks extends StatelessWidget {
               child: Text(
                 item.label,
                 style: AppTypography.caption.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ),

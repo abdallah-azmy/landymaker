@@ -38,8 +38,8 @@ class CustomContactInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -75,7 +75,7 @@ class CustomContactInfoWidget extends StatelessWidget {
                           {'icon': _resolveIcon(locationIcon, Icons.location_on_rounded), 'label': "Address", 'value': location!},
                       ];
 
-                      if (activeItems.isEmpty) return const SizedBox.shrink();
+                      if (activeItems.isEmpty) return SizedBox.shrink();
 
                       final int columnCount = ResponsiveUtils.getContentColumns(
                         constraints.maxWidth,
@@ -154,9 +154,9 @@ class CustomContactInfoWidget extends StatelessWidget {
             ),
             child: Icon(icon, color: secondary, size: 28),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(label, style: AppTypography.caption.copyWith(color: subTextColor, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(

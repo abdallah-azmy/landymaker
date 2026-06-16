@@ -30,8 +30,8 @@ class CustomStatisticsGridWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final accentColor = theme?.secondary ?? AppColors.secondary;
     final title = block['title'] ?? '';
     final subtitle = block['subtitle'] ?? '';
@@ -73,11 +73,11 @@ class CustomStatisticsGridWidget extends StatelessWidget {
                 children: [
                   if (props.title.isNotEmpty) ...[
                     Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                   ],
                   if (props.subtitle.isNotEmpty) ...[
                     Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18), textAlign: TextAlign.center),
-                    const SizedBox(height: 48),
+                    SizedBox(height: 48),
                   ],
                   if (props.isMobile)
                     _MobileStatisticsGridLayout(props: props)
@@ -143,7 +143,7 @@ class _DesktopStatisticsGridLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (props.items.isEmpty) return const SizedBox.shrink();
+    if (props.items.isEmpty) return SizedBox.shrink();
 
     final int columnCount = ResponsiveUtils.getContentColumns(
       props.constraintsWidth,
@@ -183,7 +183,7 @@ class _DesktopStatisticsGridLayout extends StatelessWidget {
       );
 
       rows.add(props.layoutMode == CardLayoutMode.equal ? IntrinsicHeight(child: rowWidget) : rowWidget);
-      if (i + columnCount < props.items.length) rows.add(const SizedBox(height: 24));
+      if (i + columnCount < props.items.length) rows.add(SizedBox(height: 24));
     }
     return Column(children: rows);
   }
@@ -200,7 +200,7 @@ class _MobileStatisticsGridLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (props.items.isEmpty) return const SizedBox.shrink();
+    if (props.items.isEmpty) return SizedBox.shrink();
     return Column(
       children: List.generate(props.items.length, (index) {
         return Padding(
@@ -257,13 +257,13 @@ class _StatCard extends StatelessWidget {
               decoration: BoxDecoration(color: props.accentColor.withValues(alpha: 0.12), shape: BoxShape.circle),
               child: Icon(_getIconData(item['icon']), color: props.accentColor, size: 28),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
           ] else if (item['icon'] != null) ...[
             Icon(_getIconData(item['icon']), color: props.accentColor, size: 32),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
           ],
           Text(item['value'] ?? '0', style: AppTypography.h1.copyWith(color: props.accentColor, fontSize: props.isMobile ? 28 : 36, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(item['label'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
         ],
       ),

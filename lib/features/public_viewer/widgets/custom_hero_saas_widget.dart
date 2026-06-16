@@ -48,8 +48,8 @@ class CustomHeroSaasWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final primaryColor = theme?.primary ?? AppColors.primary;
     final secondaryColor = theme?.secondary ?? AppColors.secondary;
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return LayoutBuilder(
@@ -143,13 +143,13 @@ class _HeroSaasDesktop extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _SaasUpdateTag(props: props),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         _SaasTitle(props: props, fontSize: 56),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         _SaasSubtitle(props: props, fontSize: 20),
-        const SizedBox(height: 40),
+        SizedBox(height: 40),
         _SaasActionButton(props: props),
-        const SizedBox(height: 64),
+        SizedBox(height: 64),
         _SaasImage(props: props),
       ],
     );
@@ -167,13 +167,13 @@ class _HeroSaasMobile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _SaasUpdateTag(props: props),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         _SaasTitle(props: props, fontSize: 32),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         _SaasSubtitle(props: props, fontSize: 16),
-        const SizedBox(height: 40),
+        SizedBox(height: 40),
         _SaasActionButton(props: props),
-        const SizedBox(height: 64),
+        SizedBox(height: 64),
         _SaasImage(props: props),
       ],
     );

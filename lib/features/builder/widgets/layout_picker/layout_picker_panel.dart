@@ -382,11 +382,11 @@ class _LayoutPickerPanelState extends State<LayoutPickerPanel> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.dashboard_customize_rounded, size: 48, color: AppColors.textSecondary),
-              const SizedBox(height: 16),
+              Icon(Icons.dashboard_customize_rounded, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              SizedBox(height: 16),
               Text(
                 'هذا القسم لا يدعم تغيير التخطيط',
-                style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -416,18 +416,18 @@ class _LayoutPickerPanelState extends State<LayoutPickerPanel> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'اختر تخطيطاً للقسم ثم خصص عناصره',
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           Text(
             'أنماط التخطيط',
             style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -451,8 +451,8 @@ class _LayoutPickerPanelState extends State<LayoutPickerPanel> {
           ),
 
           if (_selectedLayoutStyle != null && _currentSlots.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            const Divider(color: AppColors.border),
+            SizedBox(height: 24),
+            Divider(color: Theme.of(context).colorScheme.outlineVariant),
             LayoutSlotGrid(
               slots: _currentSlots,
               selections: _slotSelections,
@@ -460,14 +460,14 @@ class _LayoutPickerPanelState extends State<LayoutPickerPanel> {
             ),
           ],
 
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           PrimaryButton(
             text: loc.translate('apply'),
             icon: Icons.check_rounded,
             width: double.infinity,
             onPressed: () => Navigator.pop(context, true),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
         ],
       ),
     );

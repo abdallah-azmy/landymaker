@@ -86,8 +86,8 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
   Widget build(BuildContext context) {
     final primaryColor = widget.theme?.primary ?? AppColors.primary;
     final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
-    final textColor = widget.theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = widget.theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -176,10 +176,10 @@ class _DesktopPricingLayout extends StatelessWidget {
       children: [
         _PricingHeader(props: props),
         if (props.model.hasToggle && props.model.toggleLabels.length > 1) ...[
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           _PricingToggle(props: props),
         ],
-        const SizedBox(height: 64),
+        SizedBox(height: 64),
         _PricingContent(props: props),
       ],
     );
@@ -197,10 +197,10 @@ class _MobilePricingLayout extends StatelessWidget {
       children: [
         _PricingHeader(props: props),
         if (props.model.hasToggle && props.model.toggleLabels.length > 1) ...[
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           _PricingToggle(props: props),
         ],
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
         _PricingContent(props: props),
       ],
     );
@@ -222,7 +222,7 @@ class _PricingHeader extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         if (props.model.subtitle.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             props.model.subtitle,
             style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18),
@@ -325,7 +325,7 @@ class _PricingCardsLayout extends StatelessWidget {
       rows.add(props.layoutMode == CardLayoutMode.equal ? IntrinsicHeight(child: rowWidget) : rowWidget);
 
       if (i + columnCount < props.model.items.length) {
-        rows.add(const SizedBox(height: 20));
+        rows.add(SizedBox(height: 20));
       }
     }
     return Column(children: rows);
@@ -366,7 +366,7 @@ class _PricingTableStyle extends StatelessWidget {
                 flex: 2,
                 child: Text(priceDisplay, textAlign: TextAlign.center, style: AppTypography.h3.copyWith(color: props.secondaryColor)),
               ),
-              const SizedBox(width: 24),
+              SizedBox(width: 24),
               ElevatedButton(
                 onPressed: () => _handlePricingAction(context, item, props),
                 style: ElevatedButton.styleFrom(
@@ -424,7 +424,7 @@ class _PricingCard extends StatelessWidget {
                       child: const Text("الأكثر شيوعاً", style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
                     ),
                   Text(item.name, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: props.isMobile ? 18 : 22)),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: Container(
@@ -435,7 +435,7 @@ class _PricingCard extends StatelessWidget {
                   ),
                   SizedBox(height: props.isMobile ? 16 : 24),
                   _PricingFeaturesList(item: item, props: props),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                 ],
               ),
               _PricingActionButton(item: item, props: props),
@@ -448,7 +448,7 @@ class _PricingCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))]),
-                child: Text(discountBadge, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                child: Text(discountBadge, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
               ),
             ),
         ],
@@ -478,7 +478,7 @@ class _PricingFeaturesList extends StatelessWidget {
           child: Row(
             children: [
               Icon(Icons.check_circle_rounded, color: props.secondaryColor, size: 16),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(child: Text(f, style: TextStyle(color: props.subTextColor, fontSize: props.isMobile ? 12 : 14))),
             ],
           ),

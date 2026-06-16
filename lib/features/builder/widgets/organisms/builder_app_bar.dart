@@ -40,8 +40,10 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
       showDialog(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          backgroundColor: AppColors.cardBg,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Text(
             loc.translate('warning'),
             style: AppTypography.h3.copyWith(color: AppColors.dangerRed),
@@ -55,7 +57,9 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 loc.translate('cancel'),
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.bodyMedium.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             TextButton(
@@ -65,7 +69,10 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               },
               child: Text(
                 loc.translate('exit'),
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed, fontWeight: FontWeight.bold),
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.dangerRed,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -79,23 +86,23 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.cardBg,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       elevation: 0,
       centerTitle: !isMobile,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_rounded),
+        icon: Icon(Icons.arrow_back_rounded),
         onPressed: () => _handleBack(context),
       ),
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (!isMobile) ...[
-            const Icon(
+            Icon(
               Icons.auto_awesome_motion_rounded,
               color: AppColors.secondary,
               size: 20,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
           ],
           Flexible(
             child: Column(
@@ -120,10 +127,10 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                         shape: BoxShape.circle,
                         color: state.isPublished
                             ? AppColors.activeGreen
-                            : AppColors.textSecondary,
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       state.isPublished ? "LIVE" : "DRAFT",
                       style: AppTypography.caption.copyWith(
@@ -131,7 +138,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                         fontWeight: FontWeight.bold,
                         color: state.isPublished
                             ? AppColors.activeGreen
-                            : AppColors.textSecondary,
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -140,26 +147,30 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           if (!isMobile) ...[
-            const SizedBox(width: 16),
-            const VerticalDivider(
-              color: AppColors.border,
+            SizedBox(width: 16),
+            VerticalDivider(
+              color: Theme.of(context).colorScheme.outlineVariant,
               indent: 12,
               endIndent: 12,
               width: 16,
             ),
             IconButton(
-              icon: const Icon(Icons.undo_rounded),
+              icon: Icon(Icons.undo_rounded),
               color: state.canUndo
-                  ? AppColors.textPrimary
-                  : AppColors.textMuted,
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
               onPressed: state.canUndo ? cubit.undo : null,
               tooltip: loc.translate('undo'),
             ),
             IconButton(
-              icon: const Icon(Icons.redo_rounded),
+              icon: Icon(Icons.redo_rounded),
               color: state.canRedo
-                  ? AppColors.textPrimary
-                  : AppColors.textMuted,
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
               onPressed: state.canRedo ? cubit.redo : null,
               tooltip: loc.translate('redo'),
             ),
@@ -175,6 +186,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildActionButton(
+                    context,
                     icon: state.isPublished
                         ? Icons.visibility_off_rounded
                         : Icons.language_rounded,
@@ -186,46 +198,51 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       cubit.saveForCurrentUser();
                     },
                     color: state.isPublished
-                        ? AppColors.textPrimary
+                        ? Theme.of(context).colorScheme.onSurface
                         : AppColors.secondary,
                   ),
                   if (!state.isPublished)
                     _buildActionButton(
+                      context,
                       icon: Icons.save_rounded,
                       label: loc.translate('save_draft'),
                       onPressed: state.hasUnsavedChanges
                           ? () => cubit.saveForCurrentUser()
                           : null,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
-                  const VerticalDivider(
-                    color: AppColors.border,
+                  VerticalDivider(
+                    color: Theme.of(context).colorScheme.outlineVariant,
                     indent: 12,
                     endIndent: 12,
                     width: 32,
                   ),
                   _buildActionButton(
+                    context,
                     icon: Icons.auto_awesome_rounded,
                     label: loc.translate('templates'),
                     onPressed: onShowTemplates,
                   ),
                   _buildActionButton(
+                    context,
                     icon: Icons.color_lens_rounded,
                     label: loc.translate('design'),
                     onPressed: onShowDesign,
                   ),
                   _buildActionButton(
+                    context,
                     icon: Icons.font_download_rounded,
                     label: loc.translate('fonts'),
                     onPressed: onShowFonts,
                   ),
                   _buildActionButton(
+                    context,
                     icon: Icons.search_rounded,
                     label: "SEO",
                     onPressed: onShowSeo,
                   ),
-                  const VerticalDivider(
-                    color: AppColors.border,
+                  VerticalDivider(
+                    color: Theme.of(context).colorScheme.outlineVariant,
                     indent: 12,
                     endIndent: 12,
                     width: 32,
@@ -235,7 +252,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       Icons.smartphone_rounded,
                       color: previewMode == PreviewMode.mobile
                           ? AppColors.secondary
-                          : AppColors.textSecondary,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () => onChangePreview(PreviewMode.mobile),
                     tooltip: "Mobile Preview",
@@ -245,7 +262,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       Icons.desktop_windows_rounded,
                       color: previewMode == PreviewMode.desktop
                           ? AppColors.secondary
-                          : AppColors.textSecondary,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () => onChangePreview(PreviewMode.desktop),
                     tooltip: "Desktop Preview",
@@ -255,14 +272,14 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       Icons.visibility_rounded,
                       color: previewMode == PreviewMode.fullscreen
                           ? AppColors.secondary
-                          : AppColors.textSecondary,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () => onChangePreview(PreviewMode.fullscreen),
                     tooltip: "Full Screen Preview",
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.open_in_new_rounded,
                       color: AppColors.secondary,
                     ),
@@ -271,9 +288,12 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     },
                     tooltip: loc.translate('view_as_guest'),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 8,
+                    ),
                     child: _buildPublishButton(context),
                   ),
                 ],
@@ -282,35 +302,26 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           )
         else ...[
           IconButton(
-            icon: const Icon(
-              Icons.auto_awesome_rounded,
-              color: AppColors.secondary,
-            ),
+            icon: Icon(Icons.auto_awesome_rounded, color: AppColors.secondary),
             onPressed: onShowTemplates,
           ),
           IconButton(
-            icon: const Icon(
-              Icons.color_lens_rounded,
-              color: AppColors.secondary,
-            ),
+            icon: Icon(Icons.color_lens_rounded, color: AppColors.secondary),
             onPressed: onShowDesign,
           ),
           IconButton(
-            icon: const Icon(Icons.search_rounded, color: AppColors.secondary),
+            icon: Icon(Icons.search_rounded, color: AppColors.secondary),
             onPressed: onShowSeo,
           ),
         ],
         IconButton(
-          icon: const Icon(
-            Icons.open_in_new_rounded,
-            color: AppColors.secondary,
-          ),
+          icon: Icon(Icons.open_in_new_rounded, color: AppColors.secondary),
           onPressed: () {
             html.window.open('/${state.subdomain}', '_blank');
           },
           tooltip: loc.translate('view_as_guest'),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
       ],
     );
   }
@@ -333,11 +344,15 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 : AppColors.activeGreen.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: canSave ? AppColors.activeGreen : AppColors.textMuted,
+              color: canSave
+                  ? AppColors.activeGreen
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
           child: state.isSaving
-              ? const SizedBox(
+              ? SizedBox(
                   width: 20,
                   height: 20,
                   child: CircularProgressIndicator(
@@ -352,16 +367,20 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       Icons.rocket_launch_rounded,
                       color: canSave
                           ? AppColors.activeGreen
-                          : AppColors.textMuted,
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
                       size: 18,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       loc.translate('publish'),
                       style: AppTypography.bodyMedium.copyWith(
                         color: canSave
                             ? AppColors.activeGreen
-                            : AppColors.textMuted,
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -383,11 +402,13 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: canSave ? AppColors.secondary : AppColors.border,
+            color: canSave
+                ? AppColors.secondary
+                : Theme.of(context).colorScheme.outlineVariant,
           ),
         ),
         child: state.isSaving
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
@@ -402,10 +423,12 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Icons.cloud_done_rounded,
                     color: canSave
                         ? AppColors.secondary
-                        : AppColors.textMuted,
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
                     size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     canSave
                         ? loc.translate('save_changes')
@@ -413,7 +436,9 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     style: AppTypography.bodyMedium.copyWith(
                       color: canSave
                           ? AppColors.secondary
-                          : AppColors.textMuted,
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
                       fontWeight: canSave ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
@@ -432,7 +457,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardBg,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
@@ -442,9 +467,9 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: AppColors.activeGreen.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.public_rounded, color: AppColors.activeGreen),
+              child: Icon(Icons.public_rounded, color: AppColors.activeGreen),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Text(
               loc.translate('publish_confirm_title'),
               style: AppTypography.h3,
@@ -458,22 +483,24 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             Text(
               loc.translate('publish_confirm_desc'),
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.lock, size: 14, color: AppColors.activeGreen),
-                  const SizedBox(width: 8),
+                  Icon(Icons.lock, size: 14, color: AppColors.activeGreen),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'landymaker.com/${state.subdomain}',
@@ -485,13 +512,13 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                    icon: Icon(Icons.open_in_new_rounded, size: 16),
                     onPressed: () {
                       html.window.open('/${state.subdomain}', '_blank');
                     },
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
@@ -503,7 +530,9 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               loc.translate('cancel'),
-              style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.bodyMedium.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           ElevatedButton(
@@ -522,7 +551,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             },
             child: Text(
               loc.translate('publish_confirm_go'),
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -530,7 +559,8 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildActionButton({
+  Widget _buildActionButton(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required VoidCallback? onPressed,
@@ -538,11 +568,15 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
   }) {
     return TextButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, size: 18, color: color ?? AppColors.textPrimary),
+      icon: Icon(
+        icon,
+        size: 18,
+        color: color ?? Theme.of(context).colorScheme.onSurface,
+      ),
       label: Text(
         label,
         style: AppTypography.bodyMedium.copyWith(
-          color: color ?? AppColors.textPrimary,
+          color: color ?? Theme.of(context).colorScheme.onSurface,
         ),
       ),
       style: TextButton.styleFrom(

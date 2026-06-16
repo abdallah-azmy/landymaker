@@ -63,7 +63,7 @@ class TextFieldElement extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
           CustomTextField(
             controller: controller,

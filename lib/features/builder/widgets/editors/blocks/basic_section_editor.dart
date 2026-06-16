@@ -35,7 +35,7 @@ class BasicSectionEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -46,8 +46,8 @@ class BasicSectionEditor extends StatelessWidget {
               ),
             ),
             PopupMenuButton<String>(
-              color: AppColors.cardBg,
-              icon: const Icon(
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+              icon: Icon(
                 Icons.add_circle_outline_rounded,
                 color: AppColors.secondary,
               ),
@@ -82,16 +82,16 @@ class BasicSectionEditor extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         ...List.generate((block['elements'] ?? []).length, (i) {
           final elem = (block['elements'] ?? [])[i] as Map<String, dynamic>;
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +104,7 @@ class BasicSectionEditor extends StatelessWidget {
                       color: AppColors.secondary,
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.delete_outline_rounded,
                         color: AppColors.dangerRed,
                         size: 18,
@@ -119,7 +119,7 @@ class BasicSectionEditor extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 if (elem['type'] == 'text')
                   CustomTextField(
                     controller: getController(
@@ -143,7 +143,7 @@ class BasicSectionEditor extends StatelessWidget {
                     onAction: () => pickImage(cubit, index, itemIndex: i, itemKey: 'url'),
                     onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: i, itemKey: 'url'),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
@@ -169,7 +169,7 @@ class BasicSectionEditor extends StatelessWidget {
                           },
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Expanded(
                         child: CustomTextField(
                           hintText: "الطول",

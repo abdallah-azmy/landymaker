@@ -21,9 +21,9 @@ class PageStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.5),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: 0.05),
@@ -42,7 +42,7 @@ class PageStatCard extends StatelessWidget {
             ),
             child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,10 +50,10 @@ class PageStatCard extends StatelessWidget {
                 Text(
                   title,
                   style: AppTypography.caption.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(value, style: AppTypography.h3.copyWith(fontSize: 20)),
               ],
             ),

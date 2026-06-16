@@ -1,19 +1,17 @@
-# FULL THEME AND UI OVERHAUL PROTOCOL
+# FULL THEME AND UI OVERHAUL PROTOCOL (PHASED EXECUTION)
 
-## 1. The Core Problem
-The previous AI implementation failed drastically. It hardcoded `AppColors.darkSurface` and `AppColors.darkBackground` in several widgets (like `dashboard_shell.dart`, `home_template_strip.dart`) and completely ignored over 1,200 instances of `AppColors.background`, `AppColors.textPrimary`, etc., spread across the codebase, particularly in `lib/features/builder/`. 
-This means the Builder and Dashboard screens are permanently stuck in an incomplete Dark Mode and will completely break in Light Mode.
+## 1. The Core Problem & Current Status
+The app contains nearly 900 remaining instances of hardcoded `AppColors.*` (e.g., `AppColors.background`, `AppColors.textPrimary`), mostly concentrated in the Builder editors. This breaks dynamic Light/Dark mode.
+Because this is a massive operation, attempting to fix all files at once will hit rate limits. Therefore, this protocol is split into **bite-sized stages**.
 
 ## 2. Objective
-To completely eradicate all hardcoded `AppColors` across the ENTIRE application, ensuring 100% compatibility with `Theme.of(context).colorScheme`, and to elevate the UI density and professionalism across all screens to a premium level. Every single page must support dynamic Light/Dark mode flawlessly.
+To completely eradicate all hardcoded `AppColors` across the ENTIRE application, ensuring 100% compatibility with `Theme.of(context).colorScheme`, and to elevate the UI density and professionalism to a premium level without hitting AI usage limits.
 
-## 3. Strict Execution Protocol for AI
-
+## 3. Strict Execution Rules for AI
 > [!WARNING]
 > **CRITICAL RULE**: Do NOT modify, delete, or "refactor" any business logic, `Cubit` states, routing, or database calls. Only touch the visual layer (`build` methods, `Color` assignments, `Padding`, `BoxDecoration`).
 
-### Phase 1: Eradicate Hardcoded Colors
-You must do a systematic search-and-replace across the UI files. Replace static `AppColors` with their dynamic equivalents using `Theme.of(context)`:
+When you are asked to execute a stage, you must replace static `AppColors` with their dynamic equivalents using `Theme.of(context)`:
 *   `AppColors.background` ➔ `Theme.of(context).colorScheme.surface`
 *   `AppColors.cardBg` ➔ `Theme.of(context).colorScheme.surfaceContainer` (or `surface`)
 *   `AppColors.border` ➔ `Theme.of(context).colorScheme.outline`
@@ -24,24 +22,37 @@ You must do a systematic search-and-replace across the UI files. Replace static 
 *   `AppColors.primary` ➔ `Theme.of(context).colorScheme.primary`
 *   `AppColors.dangerRed` ➔ `Theme.of(context).colorScheme.error`
 *   `AppColors.activeGreen` ➔ `Colors.green`
-*   `AppColors.darkSurface` / `darkBackground` ➔ `Theme.of(context).colorScheme.surface`
 
-**Primary Target Directories**:
-1. `lib/features/builder/widgets/organisms/`
-2. `lib/features/builder/widgets/modals/`
-3. `lib/features/dashboard/screens/`
-4. `lib/features/home/`
+*Note: If the widget is stateless or extracts colors outside the `build` method, move the color assignments inside `build` to access `context`.*
 
-### Phase 2: Fixing Context and Stateless Widgets
-Because `Theme.of(context)` requires a `BuildContext`, you will encounter variables declared outside the `build` method. 
-*   **Fix**: Move color declarations inside the `build` method.
-*   Do not try to pass colors into widget constructors if the widget can just call `Theme.of(context)` itself.
+---
 
-### Phase 3: Premium UX & Density Polish (The "Wow" Factor)
-*   **Paddings & Spacing**: The app currently suffers from "empty space syndrome" on desktop. Reduce massive `EdgeInsets.all(32+)` to `16` or `20`. 
-*   **Max Widths**: Use `ConstrainedBox` with a `maxWidth` of `1200` for main dashboard content and `800` for reading/form content so things don't stretch indefinitely on large monitors.
-*   **Card Styling**: Ensure all cards use `Theme.of(context).cardTheme`. Standardize the corner radii to `16px`. Add very subtle drop shadows in Light Mode, and sharp 1px borders in Dark Mode.
-*   **Typography**: Ensure `Theme.of(context).textTheme` is used everywhere instead of manually declaring `TextStyle(color: ...)` unless adding a specific weight.
+## 4. Execution Stages (Run One Stage Per Prompt)
 
-## 4. Verification Check
-After updating a file, you must verify that `AppColors` is no longer imported or used in that file. Your job is not done until a global search for `AppColors.` yields ZERO results in the `lib/features` directory.
+### Stage 1: Layout Picker & Global Editors
+**Target Directories:**
+- `lib/features/builder/widgets/layout_picker/` (e.g., `layout_slot_grid.dart`, `slot_widget_selector.dart`)
+- `lib/features/builder/widgets/editors/global/` (e.g., `sticky_cta_editor.dart`)
+
+**Goal:** Clean these specific directories entirely. Improve padding (reduce from 32 to 16/24 where appropriate) and ensure cards don't look empty.
+
+### Stage 2: Main Block Properties & Sub-Editors
+**Target Directories:**
+- `lib/features/builder/widgets/editors/block_properties_editor.dart` (This file is huge and has dozens of `AppColors`. Focus heavily here).
+- `lib/features/builder/widgets/editors/` (Any other remaining `*_editor.dart` or tabs).
+
+**Goal:** This is the heaviest UI part of the builder. Be extremely careful not to break the callbacks. Only swap the colors and tighten the layout density.
+
+### Stage 3: Public Viewer & Builder Core
+**Target Directories:**
+- `lib/features/public_viewer/` (If any `AppColors` exist here)
+- `lib/features/builder/widgets/modals/` (Clean up any remaining modals that were missed)
+- `lib/features/builder/widgets/organisms/` (Clean up anything missed like bottom bars)
+
+### Stage 4: Core, Auth, and Home Polish
+**Target Directories:**
+- `lib/core/` (e.g., `app_router.dart`, `atoms`, `molecules`)
+- `lib/features/auth/`
+- `lib/features/home/`
+
+**Goal:** The final sweep. Ensure all login screens, routing error screens, and homepage sections are flawless and 100% dynamic. At the end of Stage 4, a grep for `AppColors.` in `lib/` (excluding `app_colors.dart`) should yield ZERO results.

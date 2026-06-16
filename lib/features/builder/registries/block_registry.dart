@@ -385,7 +385,7 @@ class BlockRegistry {
         child: blockWidget,
       );
     }
-    return const SizedBox.shrink();
+    return SizedBox.shrink();
   }
 
   static Widget _applyGlobalVariant(Widget child, int variant, LandingPageTheme? theme) {

@@ -22,8 +22,8 @@ class CustomTeamMembersWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = theme?.textPrimary ?? AppColors.textPrimary;
-    final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
+    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final accentColor = theme?.secondary ?? AppColors.secondary;
     final title = block['title'] ?? '';
     final subtitle = block['subtitle'] ?? '';
@@ -63,11 +63,11 @@ class CustomTeamMembersWidget extends StatelessWidget {
                 children: [
                   if (props.title.isNotEmpty) ...[
                     Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                   ],
                   if (props.subtitle.isNotEmpty) ...[
                     Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18), textAlign: TextAlign.center),
-                    const SizedBox(height: 48),
+                    SizedBox(height: 48),
                   ],
                   if (props.isMobile)
                     _MobileTeamMembersLayout(props: props)
@@ -129,7 +129,7 @@ class _DesktopTeamMembersLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (props.items.isEmpty) return const SizedBox.shrink();
+    if (props.items.isEmpty) return SizedBox.shrink();
 
     final int columnCount = ResponsiveUtils.getContentColumns(
       props.constraintsWidth,
@@ -160,7 +160,7 @@ class _DesktopTeamMembersLayout extends StatelessWidget {
           }),
         ),
       );
-      if (i + columnCount < props.items.length) rows.add(const SizedBox(height: 32));
+      if (i + columnCount < props.items.length) rows.add(SizedBox(height: 32));
     }
     return Column(children: rows);
   }
@@ -177,7 +177,7 @@ class _MobileTeamMembersLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (props.items.isEmpty) return const SizedBox.shrink();
+    if (props.items.isEmpty) return SizedBox.shrink();
     return Column(
       children: List.generate(props.items.length, (index) {
         return Padding(
@@ -214,15 +214,15 @@ class _TeamMemberCard extends StatelessWidget {
             child: CustomNetworkImage(imageUrl: item['image_url'] ?? '', borderRadius: BorderRadius.circular(20), fit: BoxFit.cover),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Text(item['name'] ?? '', style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20), textAlign: TextAlign.center),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(item['role'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.accentColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
         if (item['bio'] != null && (item['bio'] as String).isNotEmpty) ...[
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(item['bio'], style: AppTypography.caption.copyWith(color: props.subTextColor), textAlign: TextAlign.center),
         ],
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         _TeamSocialLinks(socials: item['socials'], accentColor: props.accentColor),
       ],
     );
@@ -237,7 +237,7 @@ class _TeamSocialLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (socials == null || socials is! List) return const SizedBox.shrink();
+    if (socials == null || socials is! List) return SizedBox.shrink();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: socials.map<Widget>((s) {

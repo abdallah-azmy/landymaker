@@ -56,7 +56,7 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
   Widget build(BuildContext context) {
     return BlocBuilder<LandingPageBuilderCubit, BuilderState>(
       builder: (context, dynamicState) {
-        if (dynamicState is! BuilderLoaded) return const SizedBox.shrink();
+        if (dynamicState is! BuilderLoaded) return SizedBox.shrink();
         
         final currentBgUrl = dynamicState.theme.globalBgImageUrl;
         final hasBackground = currentBgUrl != null && currentBgUrl.isNotEmpty;
@@ -65,12 +65,12 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("خلفية الصفحة", style: AppTypography.h3),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               "اختر صورة لجعلها خلفية لكامل صفحة الهبوط. سيؤدي هذا إلى إخفاء ألوان خلفية الأقسام.",
               style: AppTypography.caption,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             if (hasBackground)
               Container(
@@ -78,7 +78,7 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
                 height: 200,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
@@ -93,23 +93,23 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
                 width: double.infinity,
                 height: 200,
                 decoration: BoxDecoration(
-                  color: AppColors.cardBg,
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                 ),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.image_not_supported_outlined, color: AppColors.textMuted, size: 48),
+                      Icon(Icons.image_not_supported_outlined, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), size: 48),
                       SizedBox(height: 16),
-                      Text("لا توجد صورة خلفية محددة", style: TextStyle(color: AppColors.textMuted)),
+                      Text("لا توجد صورة خلفية محددة", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))),
                     ],
                   ),
                 ),
               ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
             SizedBox(
               width: double.infinity,
@@ -121,13 +121,13 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                icon: const Icon(Icons.image_search),
+                icon: Icon(Icons.image_search),
                 label: const Text('اختيار أو رفع صورة جديدة'),
               ),
             ),
 
             if (hasBackground) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -141,16 +141,16 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: const BorderSide(color: AppColors.dangerRed),
+                      side: BorderSide(color: AppColors.dangerRed),
                     ),
                   ),
-                  icon: const Icon(Icons.delete_outline_rounded),
+                  icon: Icon(Icons.delete_outline_rounded),
                   label: const Text('إزالة صورة الخلفية (استعادة الألوان)'),
                 ),
               ),
             ],
               
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
           ],
         );
       },

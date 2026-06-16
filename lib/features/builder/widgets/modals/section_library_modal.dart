@@ -723,17 +723,17 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
     }).toList();
 
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
         child: Container(
           height: MediaQuery.of(context).size.height * 0.9,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            color: AppColors.background.withValues(alpha: 0.88),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.88),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             border: Border.all(
-              color: AppColors.border.withValues(alpha: 0.4),
+              color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
               width: 1.5,
             ),
           ),
@@ -744,49 +744,49 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                 height: 4,
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.border.withValues(alpha: 0.5),
+                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               Text("إضافة قسم جديد", style: AppTypography.h2),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 "اختر القسم والشكل الأقرب للتصميم المطلوب. يمكنك تعديل البيانات والألوان لاحقاً.",
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               TextField(
                 onChanged: (v) => setState(() => _searchQuery = v),
                 decoration: InputDecoration(
                   hintText: "بحث عن قسم أو شكل...",
                   hintStyle: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   filled: true,
-                  fillColor: AppColors.cardBg,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.border, width: 1),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
+                    borderSide: BorderSide(
                       color: AppColors.secondary,
                       width: 1.5,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -799,17 +799,17 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                           cat.value,
                           style: AppTypography.caption.copyWith(
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? Colors.white : AppColors.textSecondary,
+                            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         selected: isSelected,
                         onSelected: (_) => setState(() => _selectedCategory = cat.key),
                         selectedColor: AppColors.secondary,
-                        backgroundColor: AppColors.cardBg,
+                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                            color: isSelected ? Colors.transparent : AppColors.border,
+                            color: isSelected ? Colors.transparent : Theme.of(context).colorScheme.outlineVariant,
                           ),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -818,7 +818,7 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                   }).toList(),
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               Expanded(
                 child: filteredSections.isEmpty
                     ? _buildEmptyState()
@@ -848,14 +848,14 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                         },
                       ),
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
               PrimaryButton(
                 text: "إغلاق",
                 isSecondary: true,
                 width: double.infinity,
                 onPressed: () => Navigator.pop(context),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
             ],
           ),
         ),
@@ -868,8 +868,8 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.search_off_rounded, size: 48, color: AppColors.textMuted),
-          const SizedBox(height: 12),
+          Icon(Icons.search_off_rounded, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+          SizedBox(height: 12),
           Text("لا توجد أقسام تطابق بحثك", style: AppTypography.bodyMedium),
         ],
       ),
@@ -947,12 +947,12 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
           duration: const Duration(milliseconds: 220),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: _isHovered ? AppColors.cardBgHover : AppColors.cardBg,
+            color: _isHovered ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: _isHovered
                   ? AppColors.secondary.withValues(alpha: 0.65)
-                  : AppColors.border,
+                  : Theme.of(context).colorScheme.outlineVariant,
               width: _isHovered ? 1.6 : 1,
             ),
             boxShadow: [
@@ -983,7 +983,7 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -999,7 +999,7 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                         Text(
                           widget.section.desc,
                           style: AppTypography.caption.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             height: 1.2,
                           ),
                           maxLines: 1,
@@ -1010,24 +1010,24 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Expanded(
                 child: _SectionMiniPreview(
                   variant: _selectedVariant,
                   accent: AppColors.secondary,
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               Text(
                 _selectedVariant.description,
                 style: AppTypography.caption.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.25,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
@@ -1053,7 +1053,7 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                       child: Text(
                         variant.name,
                         style: AppTypography.caption.copyWith(
-                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                          color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -1061,7 +1061,7 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                   );
                 }),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
                 height: 38,
@@ -1073,7 +1073,7 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                     );
                     Navigator.pop(context);
                   },
-                  icon: const Icon(Icons.add_rounded, size: 18),
+                  icon: Icon(Icons.add_rounded, size: 18),
                   label: Text("إضافة ${_selectedVariant.name}"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.secondary,
@@ -1105,9 +1105,9 @@ class _SectionMiniPreview extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.background.withValues(alpha: 0.66),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.66),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.55)),
       ),
       child: _buildPattern(),
     );
@@ -1210,16 +1210,16 @@ class _SectionMiniPreview extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _bar(74, height: 10, color: accent.withValues(alpha: 0.7)),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _bar(92),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               _bar(58),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _box(width: 64, height: 18, color: accent),
             ],
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(child: _box(height: double.infinity, radius: 12)),
       ],
     );
@@ -1230,11 +1230,11 @@ class _SectionMiniPreview extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _bar(96, height: 12, color: accent.withValues(alpha: 0.7)),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _bar(124),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         _bar(82),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         _box(width: 80, height: 20, color: accent),
       ],
     );
@@ -1256,9 +1256,9 @@ class _SectionMiniPreview extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _box(width: double.infinity, height: 24),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _box(width: double.infinity, height: 24, color: accent.withValues(alpha: 0.34)),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _box(width: double.infinity, height: 24),
       ],
     );
@@ -1282,7 +1282,7 @@ class _SectionMiniPreview extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _bar(34, height: 14, color: accent),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _bar(42, height: 7),
               ],
             ),
@@ -1297,11 +1297,11 @@ class _SectionMiniPreview extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _bar(90, height: 10, color: accent.withValues(alpha: 0.7)),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         _box(width: double.infinity, height: 22, color: Colors.white.withValues(alpha: 0.12)),
-        const SizedBox(height: 7),
+        SizedBox(height: 7),
         _box(width: double.infinity, height: 22, color: Colors.white.withValues(alpha: 0.12)),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         _box(width: double.infinity, height: 24, color: accent),
       ],
     );
@@ -1311,7 +1311,7 @@ class _SectionMiniPreview extends StatelessWidget {
     return Row(
       children: [
         _box(width: 58, height: double.infinity, color: accent.withValues(alpha: 0.35)),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(child: _form()),
       ],
     );
@@ -1335,18 +1335,18 @@ class _SectionMiniPreview extends StatelessWidget {
           child: Row(
             children: [
               Expanded(flex: 3, child: _box(color: accent.withValues(alpha: 0.32))),
-              const SizedBox(width: 7),
+              SizedBox(width: 7),
               Expanded(flex: 2, child: _box()),
             ],
           ),
         ),
-        const SizedBox(height: 7),
+        SizedBox(height: 7),
         Expanded(
           flex: 2,
           child: Row(
             children: [
               Expanded(flex: 2, child: _box()),
-              const SizedBox(width: 7),
+              SizedBox(width: 7),
               Expanded(flex: 3, child: _box(color: accent.withValues(alpha: 0.32))),
             ],
           ),
@@ -1365,9 +1365,9 @@ class _SectionMiniPreview extends StatelessWidget {
           child: Row(
             children: [
               _box(width: 36, height: 28),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(child: _bar(double.infinity)),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               _box(width: 34, height: 18, color: accent),
             ],
           ),
@@ -1417,7 +1417,7 @@ class _SectionMiniPreview extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _box(width: double.infinity, height: 52),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _bar(48, height: 8, color: accent),
               ],
             ),
@@ -1438,7 +1438,7 @@ class _SectionMiniPreview extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _box(width: 32, height: 32, radius: 99, color: accent.withValues(alpha: 0.4)),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _bar(38, height: 7),
               ],
             ),
@@ -1458,7 +1458,7 @@ class _SectionMiniPreview extends StatelessWidget {
           child: Row(
             children: [
               Expanded(child: _bar(double.infinity)),
-              const SizedBox(width: 18),
+              SizedBox(width: 18),
               _bar(50, color: index == 0 ? accent : null),
             ],
           ),
@@ -1487,7 +1487,7 @@ class _SectionMiniPreview extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
-            child: const Icon(Icons.play_arrow_rounded, color: Colors.white),
+            child: Icon(Icons.play_arrow_rounded, color: Colors.white),
           ),
         ),
       ],
@@ -1498,9 +1498,9 @@ class _SectionMiniPreview extends StatelessWidget {
     return Row(
       children: [
         _box(width: 24, height: 54, color: Colors.white.withValues(alpha: 0.08)),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Expanded(child: _box(height: double.infinity, color: accent.withValues(alpha: 0.32))),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         _box(width: 24, height: 54, color: Colors.white.withValues(alpha: 0.08)),
       ],
     );
@@ -1542,7 +1542,7 @@ class _SectionMiniPreview extends StatelessWidget {
             (_) => _box(width: 28, height: 28, radius: 99, color: accent.withValues(alpha: 0.35)),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         _qr(),
       ],
     );

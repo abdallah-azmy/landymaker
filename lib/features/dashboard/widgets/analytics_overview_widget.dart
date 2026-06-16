@@ -59,7 +59,7 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
               loc, isMobile, loading,
               widget.totalViews, uniqueVisitors, conversions, conversionRate,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _buildChartSection(loc),
           ],
         );
@@ -89,15 +89,15 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
           Row(
             children: [
               Expanded(child: _buildCard(stats[0], loading)),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(child: _buildCard(stats[1], loading)),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               Expanded(child: _buildCard(stats[2], loading)),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(child: _buildCard(stats[3], loading)),
             ],
           ),
@@ -118,9 +118,9 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.cardBg,
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border, width: 1.5),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
         ),
         child: Row(
           children: [
@@ -128,11 +128,11 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppColors.border.withValues(alpha: 0.3),
+                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,16 +141,16 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
                     width: 60,
                     height: 12,
                     decoration: BoxDecoration(
-                      color: AppColors.border.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     width: 80,
                     height: 20,
                     decoration: BoxDecoration(
-                      color: AppColors.border.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -176,15 +176,15 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 1.5),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(loc.translate('daily_performance_trend'), style: AppTypography.h3),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           SizedBox(
             height: 200,
             child: Row(
@@ -209,7 +209,7 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(days[index], style: AppTypography.caption),
                   ],
                 );

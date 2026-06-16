@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
@@ -41,20 +40,20 @@ class FeaturesEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: context.translate('layout_style'),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: block['layout_style'] ?? 'grid',
-                dropdownColor: AppColors.cardBg,
+                dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                 isExpanded: true,
                 style: AppTypography.bodyMedium,
                 items: const [
@@ -66,21 +65,21 @@ class FeaturesEditor extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Text(
           context.translate('feature_list'),
           style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         ...List.generate(((block['items'] as List?) ?? []).length, (fIndex) {
           final item = ((block['items'] as List?) ?? [])[fIndex] as Map<String, dynamic>;
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               children: [
@@ -90,7 +89,7 @@ class FeaturesEditor extends StatelessWidget {
                   focusNode: getFocusNode("${index}_feature_${fIndex}_title"),
                   onChanged: (val) => cubit.updateFeatureItem(index, fIndex, 'title', val),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: context.translate('description'),
                   controller: getController("${index}_feature_${fIndex}_description", item['description'] ?? ''),
@@ -98,7 +97,7 @@ class FeaturesEditor extends StatelessWidget {
                   maxLines: 2,
                   onChanged: (val) => cubit.updateFeatureItem(index, fIndex, 'description', val),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: context.translate('redirect_url'),
                   controller: getController("${index}_feature_${fIndex}_link_url", item['link_url'] ?? ''),
@@ -106,7 +105,7 @@ class FeaturesEditor extends StatelessWidget {
                   onChanged: (val) => cubit.updateFeatureItem(index, fIndex, 'link_url', val),
                   keyboardType: TextInputType.url,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 CustomImageField(
                   label: context.translate('image_url'),
                   imageUrl: item['image_url'],

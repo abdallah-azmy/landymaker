@@ -90,7 +90,7 @@ class _LegalPageState extends State<LegalPage> {
     _applySeo(context, title);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: HomeNavbar(
         onLoginPressed: () => context.go('/login'),
         onGetStartedPressed: () => context.go('/templates'),
@@ -102,9 +102,9 @@ class _LegalPageState extends State<LegalPage> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: AppColors.darkGradient,
-                  border: Border(bottom: BorderSide(color: AppColors.border)),
+                  border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
                 ),
                 child: Column(
                   children: [
@@ -113,7 +113,7 @@ class _LegalPageState extends State<LegalPage> {
                       textAlign: TextAlign.center,
                       style: AppTypography.h1.copyWith(fontSize: 40),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Text(
                       context.isRtl ? "لاندي ميكر 🚀" : "LandyMaker 🚀",
                       style: AppTypography.bodyLarge.copyWith(
@@ -214,15 +214,15 @@ class _LegalPageState extends State<LegalPage> {
               Text(
                 sec['title']!,
                 style: AppTypography.h3.copyWith(
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 sec['body']!,
                 style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.8,
                 ),
               ),

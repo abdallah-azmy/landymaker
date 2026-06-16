@@ -17,8 +17,8 @@ class UpgradeLimitModal extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(32),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -30,26 +30,26 @@ class UpgradeLimitModal extends StatelessWidget {
               color: AppColors.warningOrange.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.lock_rounded, color: AppColors.warningOrange, size: 40),
+            child: Icon(Icons.lock_rounded, color: AppColors.warningOrange, size: 40),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Text(
             "لقد وصلت إلى الحد الأقصى المسموح به في الباقة المجانية",
             style: AppTypography.h2,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             "تسمح لك الباقة المجانية بإنشاء صفحة هبوط واحدة فقط. قم بالترقية للاستمتاع بإنشاء صفحات متعددة وربط نطاقات مخصصة والحصول على مزايا إضافية.",
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           _buildFeatureRow(loc, "إنشاء صفحات متعددة (حتى 5 صفحات)"),
           _buildFeatureRow(loc, "ربط نطاقات مخصصة (Custom Domains)"),
           _buildFeatureRow(loc, "إحصائيات متقدمة وتقارير أداء"),
           _buildFeatureRow(loc, "دعم فني مخصص وأولوية في المساعدة"),
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
           PrimaryButton(
             text: "اشترك الآن في باقة برو",
             icon: Icons.star_rounded,
@@ -64,12 +64,12 @@ class UpgradeLimitModal extends StatelessWidget {
             },
             width: double.infinity,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               "لاحقاً",
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
         ],
@@ -82,8 +82,8 @@ class UpgradeLimitModal extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
-          const SizedBox(width: 12),
+          Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
+          SizedBox(width: 12),
           Expanded(child: Text(text, style: AppTypography.bodyMedium)),
         ],
       ),

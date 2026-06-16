@@ -47,7 +47,7 @@ class ProductsEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: context.translate('whatsapp_orders'),
           helperText: "2010...",
@@ -58,7 +58,7 @@ class ProductsEditor extends StatelessWidget {
             keyboardType: TextInputType.phone,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: 'أعمدة الجوال',
           child: SegmentedButton<int>(
@@ -74,7 +74,7 @@ class ProductsEditor extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         SwitchListTile(
           value: block['show_category_filter'] ?? true,
           onChanged: (val) => cubit.updateBlockProperty(index, 'show_category_filter', val),
@@ -82,7 +82,7 @@ class ProductsEditor extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           activeThumbColor: AppColors.secondary,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         FormGroup(
           label: context.translate('categories'),
           child: Column(
@@ -96,7 +96,7 @@ class ProductsEditor extends StatelessWidget {
                       hintText: context.translate('add_category'),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   IconButton(
                     onPressed: () {
                       final val = getController("new_category", "").text.trim();
@@ -108,18 +108,18 @@ class ProductsEditor extends StatelessWidget {
                         getController("new_category", "").clear();
                       }
                     },
-                    icon: const Icon(Icons.add_circle),
+                    icon: Icon(Icons.add_circle),
                     color: AppColors.secondary,
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: ((block['categories'] as List?)?.cast<String>() ?? []).map((cat) {
                   return Chip(
-                    label: Text(cat, style: const TextStyle(fontSize: 12)),
+                    label: Text(cat, style: TextStyle(fontSize: 12)),
                     onDeleted: () {
                       final List<String> cats = (block['categories'] as List?)?.cast<String>() ?? [];
                       cats.remove(cat);
@@ -131,28 +131,28 @@ class ProductsEditor extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(context.translate('product_list'), style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
             TextButton.icon(
               onPressed: () => cubit.addProductItem(index),
-              icon: const Icon(Icons.add_shopping_cart_rounded, size: 16),
+              icon: Icon(Icons.add_shopping_cart_rounded, size: 16),
               label: Text(context.translate('add_product')),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         ...List.generate(((block['items'] as List?) ?? []).length, (pIndex) {
           final item = ((block['items'] as List?) ?? [])[pIndex] as Map<String, dynamic>;
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.cardBgHover,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,14 +164,14 @@ class ProductsEditor extends StatelessWidget {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.qr_code_2_rounded, color: AppColors.secondary, size: 20),
+                          icon: Icon(Icons.qr_code_2_rounded, color: AppColors.secondary, size: 20),
                           onPressed: () {
                             final state = cubit.state;
                             if (state is BuilderLoaded) _showProductQrShare(context, item, state.subdomain);
                           },
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+                          icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
                           onPressed: () => cubit.deleteProductItem(index, pIndex),
                         ),
                       ],
@@ -184,14 +184,14 @@ class ProductsEditor extends StatelessWidget {
                   focusNode: getFocusNode("${index}_product_${pIndex}_name"),
                   onChanged: (val) => cubit.updateProductItem(index, pIndex, 'name', val),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: context.translate('price'),
                   controller: getController("${index}_product_${pIndex}_price", item['price'] ?? ''),
                   focusNode: getFocusNode("${index}_product_${pIndex}_price"),
                   onChanged: (val) => cubit.updateProductItem(index, pIndex, 'price', val),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomTextField(
                   hintText: context.translate('purchase_url'),
                   controller: getController("${index}_product_${pIndex}_purchase_url", item['purchase_url'] ?? ''),
@@ -199,13 +199,13 @@ class ProductsEditor extends StatelessWidget {
                   onChanged: (val) => cubit.updateProductItem(index, pIndex, 'purchase_url', val),
                   keyboardType: TextInputType.url,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
                   children: ((block['categories'] as List?)?.cast<String>() ?? []).map((cat) {
                     final bool isSelected = (item['category'] ?? '') == cat;
                     return ChoiceChip(
-                      label: Text(cat, style: const TextStyle(fontSize: 10)),
+                      label: Text(cat, style: TextStyle(fontSize: 10)),
                       selected: isSelected,
                       onSelected: (selected) {
                         if (selected) cubit.updateProductItem(index, pIndex, 'category', cat);
@@ -213,7 +213,7 @@ class ProductsEditor extends StatelessWidget {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 CustomImageField(
                   label: context.translate('image_url'),
                   imageUrl: item['image_url'],
@@ -234,7 +234,7 @@ class ProductsEditor extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(context.translate('share'), style: AppTypography.h3),
         content: Column(
@@ -243,17 +243,17 @@ class ProductsEditor extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-              child: PrettyQrView.data(data: productUrl, decoration: const PrettyQrDecoration(shape: PrettyQrSmoothSymbol(color: AppColors.background))),
+              child: PrettyQrView.data(data: productUrl, decoration: PrettyQrDecoration(shape: PrettyQrSmoothSymbol(color: Theme.of(context).colorScheme.surface))),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(productUrl, textAlign: TextAlign.center, style: AppTypography.caption),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: productUrl));
                 ToastService.showSuccess(context, message: context.translate('copy_link_success'));
               },
-              icon: const Icon(Icons.copy_rounded, size: 18),
+              icon: Icon(Icons.copy_rounded, size: 18),
               label: Text(context.translate('copy')),
             ),
           ],

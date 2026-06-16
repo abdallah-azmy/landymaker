@@ -23,7 +23,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
@@ -32,10 +32,10 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
           );
         },
         backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.edit_document, color: AppColors.background),
-        label: const Text(
+        icon: Icon(Icons.edit_document, color: Theme.of(context).colorScheme.surface),
+        label: Text(
           "كتابة مقال",
-          style: TextStyle(color: AppColors.background, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold),
         ),
       ),
       body: BlocBuilder<BlogCubit, BlogState>(
@@ -46,13 +46,13 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                 expandedHeight: 160.0,
                 floating: false,
                 pinned: true,
-                backgroundColor: AppColors.background,
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 flexibleSpace: FlexibleSpaceBar(
                   titlePadding: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
-                  title: const Text(
+                  title: Text(
                     "إدارة المقالات",
                     style: TextStyle(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
                     ),
@@ -89,7 +89,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                   child: Center(
                     child: Text(
                       "Error: ${state.message}",
-                      style: const TextStyle(color: AppColors.dangerRed),
+                      style: TextStyle(color: AppColors.dangerRed),
                     ),
                   ),
                 )
@@ -99,16 +99,16 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.article_outlined, size: 80, color: AppColors.textMuted.withValues(alpha: .5)),
-                        const SizedBox(height: 16),
-                        const Text(
+                        Icon(Icons.article_outlined, size: 80, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5).withValues(alpha: .5)),
+                        SizedBox(height: 16),
+                        Text(
                           "لا توجد مقالات حتى الآن",
-                          style: TextStyle(color: AppColors.textSecondary, fontSize: 18),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 18),
                         ),
-                        const SizedBox(height: 8),
-                        const Text(
+                        SizedBox(height: 8),
+                        Text(
                           "ابدأ بكتابة مقالك الأول لإلهام عملائك",
-                          style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 14),
                         ),
                       ],
                     ),
@@ -126,9 +126,9 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                         return Container(
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: AppColors.cardBg,
+                            color: Theme.of(context).colorScheme.surfaceContainerHigh,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: .2),
@@ -161,15 +161,15 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                                         Expanded(
                                           child: Text(
                                             post.title,
-                                            style: const TextStyle(
-                                              color: AppColors.textPrimary,
+                                            style: TextStyle(
+                                              color: Theme.of(context).colorScheme.onSurface,
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
                                               height: 1.3,
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(width: 12),
+                                        SizedBox(width: 12),
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                           decoration: BoxDecoration(
@@ -194,33 +194,33 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 8),
+                                    SizedBox(height: 8),
                                     Text(
                                       "/${post.slug}",
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: AppColors.primary,
                                         fontSize: 13,
                                         fontFamily: 'monospace',
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
-                                    Divider(color: AppColors.border.withValues(alpha: .5)),
-                                    const SizedBox(height: 8),
+                                    SizedBox(height: 16),
+                                    Divider(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: .5)),
+                                    SizedBox(height: 8),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Row(
                                           children: [
-                                            const Icon(Icons.calendar_today, size: 14, color: AppColors.textMuted),
-                                            const SizedBox(width: 6),
+                                            Icon(Icons.calendar_today, size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                                            SizedBox(width: 6),
                                             Text(
                                               dateStr,
-                                              style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
                                             ),
                                           ],
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.delete_outline, color: AppColors.dangerRed, size: 20),
+                                          icon: Icon(Icons.delete_outline, color: AppColors.dangerRed, size: 20),
                                           onPressed: () {
                                             _showDeleteDialog(context, post.id, post.title);
                                           },
@@ -251,16 +251,16 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardBg,
-        title: const Text("حذف المقال", style: TextStyle(color: AppColors.textPrimary)),
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        title: Text("حذف المقال", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         content: Text(
           "هل أنت متأكد من حذف مقال '$postTitle'؟ لا يمكن التراجع عن هذا الإجراء.",
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("إلغاء", style: TextStyle(color: AppColors.textMuted)),
+            child: Text("إلغاء", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.dangerRed),

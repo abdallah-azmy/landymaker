@@ -45,8 +45,8 @@ class _AiCopywriterModalState extends State<AiCopywriterModal> {
     return Container(
       constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
@@ -57,12 +57,12 @@ class _AiCopywriterModalState extends State<AiCopywriterModal> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("كاتب المحتوى الذكي", style: AppTypography.h3),
-              IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+              IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.close)),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildSettings(),
-          const Divider(height: 32),
+          Divider(height: 32),
           Expanded(
             child: BlocBuilder<AICopywriterCubit, AICopywriterState>(
               builder: (context, state) {
@@ -82,7 +82,7 @@ class _AiCopywriterModalState extends State<AiCopywriterModal> {
                         child: ListTile(
                           title: Text(text),
                           trailing: IconButton(
-                            icon: const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen),
+                            icon: Icon(Icons.check_circle_rounded, color: AppColors.activeGreen),
                             onPressed: () {
                               widget.onApply(text);
                               Navigator.pop(context);
@@ -93,11 +93,11 @@ class _AiCopywriterModalState extends State<AiCopywriterModal> {
                     },
                   );
                 }
-                return const SizedBox.shrink();
+                return SizedBox.shrink();
               },
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           PrimaryButton(
             text: "إعادة التوليد",
             icon: Icons.refresh_rounded,
@@ -122,7 +122,7 @@ class _AiCopywriterModalState extends State<AiCopywriterModal> {
             onChanged: (val) => setState(() => _tone = val!),
           ),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: 16),
         Expanded(
           child: DropdownButtonFormField<String>(
             value: _length,

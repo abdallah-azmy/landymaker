@@ -21,9 +21,9 @@ class EmptyWorkspaceState extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 500),
         padding: const EdgeInsets.all(40),
         decoration: BoxDecoration(
-          color: AppColors.cardBg,
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -35,25 +35,25 @@ class EmptyWorkspaceState extends StatelessWidget {
                 color: AppColors.secondary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.web_rounded,
                 size: 64,
                 color: AppColors.secondary,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               title,
               style: AppTypography.h2,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               description,
-              style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             PrimaryButton(
               text: 'العودة للرئيسية لإنشاء صفحة',
               onPressed: () => context.go('/dashboard'),

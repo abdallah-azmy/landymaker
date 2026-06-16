@@ -73,7 +73,7 @@ class _DataCardState extends State<DataCard> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     widget.value,
                     style: TextStyle(
@@ -83,7 +83,7 @@ class _DataCardState extends State<DataCard> {
                     ),
                   ),
                   if (widget.subtitle != null) ...[
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Row(
                       children: [
                         if (widget.trendUp != null) ...[
@@ -92,7 +92,7 @@ class _DataCardState extends State<DataCard> {
                             size: 14,
                             color: widget.trendUp! ? AppColors.activeGreen : AppColors.dangerRed,
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                         ],
                         Text(
                           widget.subtitle!,
@@ -110,7 +110,7 @@ class _DataCardState extends State<DataCard> {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(

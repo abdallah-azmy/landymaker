@@ -23,7 +23,8 @@ class HomeFooter extends StatelessWidget {
     _SocialLinkData(
       icon: Icons.camera_alt_outlined,
       label: 'Instagram',
-      url: 'https://www.instagram.com/landymaker?fbclid=IwY2xjawSNJZdleHRuA2FlbQIxMABicmlkETFVcGlPQnBwc3JJdUxqbVpuc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHiEHxo2N0Z-pvEP9GTaje8Tg03N1pKh5hFNn8Vdaqtiwhj-26-2Fzsf3ySe2_aem_RtR4tJB0TRboWLJaUb8k5w',
+      url:
+          'https://www.instagram.com/landymaker?fbclid=IwY2xjawSNJZdleHRuA2FlbQIxMABicmlkETFVcGlPQnBwc3JJdUxqbVpuc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHiEHxo2N0Z-pvEP9GTaje8Tg03N1pKh5hFNn8Vdaqtiwhj-26-2Fzsf3ySe2_aem_RtR4tJB0TRboWLJaUb8k5w',
     ),
     _SocialLinkData(
       icon: Icons.music_note_rounded,
@@ -110,14 +111,16 @@ class _DesktopFooter extends StatelessWidget {
               // Social links
               Row(
                 children: socialLinks
-                    .map((s) => Padding(
-                          padding: const EdgeInsetsDirectional.only(end: 8),
-                          child: _SocialBtn(
-                            icon: s.icon,
-                            label: s.label,
-                            url: s.url,
-                          ),
-                        ))
+                    .map(
+                      (s) => Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 8),
+                        child: _SocialBtn(
+                          icon: s.icon,
+                          label: s.label,
+                          url: s.url,
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
             ],
@@ -144,10 +147,7 @@ class _DesktopFooter extends StatelessWidget {
               _FooterLinkData(label: "من نحن", path: '/about'),
               _FooterLinkData(label: "المدونة", path: '/blog'),
               _FooterLinkData(label: "تواصل معنا", path: '/'),
-              _FooterLinkData(
-                label: "سياسة الخصوصية",
-                path: '/privacy-policy',
-              ),
+              _FooterLinkData(label: "سياسة الخصوصية", path: '/privacy-policy'),
             ],
           ),
         ),
@@ -156,10 +156,7 @@ class _DesktopFooter extends StatelessWidget {
             title: "الدعم",
             items: [
               _FooterLinkData(label: "مركز المساعدة", path: '/'),
-              _FooterLinkData(
-                label: "شروط الخدمة",
-                path: '/terms',
-              ),
+              _FooterLinkData(label: "شروط الخدمة", path: '/terms'),
               _FooterLinkData(label: "الإبلاغ عن مشكلة", path: '/'),
             ],
           ),
@@ -192,18 +189,9 @@ class _MobileFooter extends StatelessWidget {
         const Wrap(
           spacing: 16,
           children: [
-            _MobileFooterLink(
-              label: "من نحن",
-              path: '/about',
-            ),
-            _MobileFooterLink(
-              label: "سياسة الخصوصية",
-              path: '/privacy-policy',
-            ),
-            _MobileFooterLink(
-              label: "شروط الخدمة",
-              path: '/terms',
-            ),
+            _MobileFooterLink(label: "من نحن", path: '/about'),
+            _MobileFooterLink(label: "سياسة الخصوصية", path: '/privacy-policy'),
+            _MobileFooterLink(label: "شروط الخدمة", path: '/terms'),
           ],
         ),
         const SizedBox(height: 24),
@@ -212,11 +200,7 @@ class _MobileFooter extends StatelessWidget {
           runSpacing: 8,
           alignment: WrapAlignment.center,
           children: socialLinks
-              .map((s) => _SocialBtn(
-                    icon: s.icon,
-                    label: s.label,
-                    url: s.url,
-                  ))
+              .map((s) => _SocialBtn(icon: s.icon, label: s.label, url: s.url))
               .toList(),
         ),
       ],
@@ -233,16 +217,14 @@ class _BrandSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
+      mainAxisAlignment: center
+          ? MainAxisAlignment.center
+          : MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         const LandyMakerLogo(fontSize: 20),
         const SizedBox(width: 8),
-        Image.asset(
-          'assets/images/logo_small.webp',
-          height: 30,
-          width: 30,
-        ),
+        Image.asset('assets/images/logo_small.webp', height: 30, width: 30),
       ],
     );
   }
@@ -261,15 +243,13 @@ class _BottomRow extends StatelessWidget {
       children: [
         Text(
           "© 2026 Landymaker. جميع الحقوق محفوظة.",
-          style: AppTypography.caption.copyWith(
-            color: AppColors.textSecondary,
-          ),
+          style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "V 1.0.4",
+              "V 1.0.5",
               style: AppTypography.caption.copyWith(
                 color: AppColors.textSecondary,
                 fontWeight: FontWeight.bold,

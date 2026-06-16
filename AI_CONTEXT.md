@@ -393,3 +393,21 @@ This section documents the UI/UX patterns introduced during Phase 2 enhancements
 - **Location**: `lib/core/responsive/responsive_utils.dart`
 - **Utility**: `HomeBreakpoint.isMobile(width)` returns `true` for `width < 700`.
 - **Rule**: Use `LayoutBuilder` + `HomeBreakpoint.isMobile(constraints.maxWidth)` for responsive decisions in home section widgets. Keep `isMobile` local to the builder function; do NOT store it in state.
+
+## 🏛️ 18. Phase 3: Clean Responsive Architecture
+
+This section documents the massive architectural refactoring executed to eliminate inline `if (isMobile)` spaghetti code and improve AI readability and render performance.
+
+### A. Factory Pattern & Layout Splitting
+- **Pattern**: Core components (e.g., `HomeNavbar`, `HomeFooter`, `dashboard_shell`) and Builder Sections (e.g., `CustomCtaBannerWidget`, `CustomComparisonTableWidget`) act as **Factory Widgets**. 
+- **Behavior**: The main factory widget reads the `layout_style` and utilizes a `LayoutBuilder`. It then delegates the actual rendering to independent `_DesktopLayout` and `_MobileLayout` classes.
+- **Rule**: Never nest complex `if (isMobile)` blocks deeply inside rows and columns. Split them at the root of the component.
+
+### B. State Preservation (Hoisting)
+- **Pattern**: When transitioning between `_DesktopLayout` and `_MobileLayout` upon window resize, the Render Tree destroys and recreates the widgets.
+- **Rule**: All stateful data (e.g., `ScrollController`, `TextEditingController`, `GlobalKey`, async playback flags) MUST be hoisted into the parent `StatefulWidget` (the Factory). The delegated layout classes should be `StatelessWidget`s that receive this data via constructor properties (`_Props` class).
+
+### C. AI-Friendly "Sweet Spot" File Sizing
+- **Pattern**: To optimize token context windows for future AI models, all related classes (Factory, Props, Desktop Layout, Mobile Layout, Shared Sub-widgets) are kept in a **single file** as long as the file is under ~800 lines.
+- **Formatting**: Files utilizing this pattern are strictly segmented using large visual comments (`/// ==========================`) to delineate the Factory, Props, Layouts, and Shared sections, preventing AI hallucination during complex reads.
+

@@ -47,6 +47,18 @@ class StatisticsGridEditor extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
+        FormGroup(
+          label: 'نوع التخطيط',
+          child: DropdownButtonFormField<String>(
+            initialValue: (block['layout_style'] as String?) ?? 'horizontal',
+            items: const [
+              DropdownMenuItem(value: 'horizontal', child: Text('أفقي (بدون أيقونات)')),
+              DropdownMenuItem(value: 'withIcons', child: Text('مع أيقونات')),
+            ],
+            onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
+          ),
+        ),
+        const SizedBox(height: 24),
         Text(context.translate('statistics'), style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         ...List.generate(items.length, (i) {

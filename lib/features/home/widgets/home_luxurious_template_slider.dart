@@ -7,15 +7,18 @@ import '../../builder/registries/template_registry.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../public_viewer/widgets/section_renderer.dart';
 import '../../../core/localization/localization_cubit.dart';
+import '../models/home_layouts.dart';
 
 class HomeLuxuriousTemplateSlider extends StatefulWidget {
   final Function(String templateId) onGetStartedPressed;
   final bool isVisible;
+  final TemplateSliderLayout layout;
 
   const HomeLuxuriousTemplateSlider({
     super.key,
     required this.onGetStartedPressed,
     required this.isVisible,
+    this.layout = TemplateSliderLayout.horizontalSlider,
   });
 
   @override
@@ -109,63 +112,51 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final loc = context.read<LocalizationCubit>();
-        final isMobile = constraints.maxWidth < 700;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 100),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+  Widget _buildSectionHeader(bool isMobile, loc) {
+    return RepaintBoundary(
+      child: FadeTransition(
+        opacity: _headerController,
+        child: SlideTransition(
+          position: Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+            CurvedAnimation(parent: _headerController, curve: Curves.easeOut),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  loc.isRtl ? "✨ قوالب عالمية" : "✨ World-Class Templates",
+                  style: AppTypography.caption.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                loc.isRtl ? "صمم موقعك بلمسة فنية" : "Design Your Site with an Artistic Touch",
+                style: AppTypography.h1.copyWith(fontSize: isMobile ? 32 : 48, fontWeight: FontWeight.w900),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                loc.isRtl ? "اختر من بين مجموعة واسعة من القوالب المصممة بعناية لتناسب هويتك." : "Choose from a wide range of carefully designed templates to match your identity.",
+                style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildHorizontalSlider(bool isMobile, loc) {
+    return RepaintBoundary(
       child: Column(
         children: [
-          // Header
-          FadeTransition(
-            opacity: _headerController,
-            child: SlideTransition(
-              position: Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-                CurvedAnimation(parent: _headerController, curve: Curves.easeOut),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.secondary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
-                    ),
-                    child: Text(
-                      loc.isRtl ? "✨ قوالب عالمية" : "✨ World-Class Templates",
-                      style: AppTypography.caption.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    loc.isRtl ? "صمم موقعك بلمسة فنية" : "Design Your Site with an Artistic Touch",
-                    style: AppTypography.h1.copyWith(fontSize: isMobile ? 32 : 48, fontWeight: FontWeight.w900),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    loc.isRtl ? "اختر من بين مجموعة واسعة من القوالب المصممة بعناية لتناسب هويتك." : "Choose from a wide range of carefully designed templates to match your identity.",
-                    style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 80),
-
-          // Slider Area
           Stack(
             alignment: Alignment.center,
             children: [
@@ -179,73 +170,174 @@ class _HomeLuxuriousTemplateSliderState extends State<HomeLuxuriousTemplateSlide
                     return AnimatedBuilder(
                       animation: _pageController,
                       builder: (context, child) {
-                        double value = 1.0;
-                        if (_pageController.position.haveDimensions) {
-                          value = _pageController.page! - index;
-                          value = (1 - (value.abs() * 0.25)).clamp(0.0, 1.0);
-                        } else if (index != 0) {
-                           value = 0.75; // More depth
-                        }
-                        return Center(
-                          child: Transform.scale(
-                            scale: Curves.easeOutQuart.transform(value),
-                            child: Opacity(
-                              opacity: value.clamp(0.5, 1.0),
-                              child: child,
-                            ),
+                      double value = 1.0;
+                      if (_pageController.position.haveDimensions) {
+                        value = _pageController.page! - index;
+                        value = (1 - (value.abs() * 0.25)).clamp(0.0, 1.0);
+                      } else if (index != 0) {
+                         value = 0.75;
+                      }
+                      return Center(
+                        child: Transform.scale(
+                          scale: Curves.easeOutQuart.transform(value),
+                          child: Opacity(
+                            opacity: value.clamp(0.5, 1.0),
+                            child: child,
                           ),
-                        );
-                      },
-                      child: _LuxuriousTemplateCard(
-                        template: _templates[index],
-                        onPressed: () => widget.onGetStartedPressed(_templates[index].id),
-                      ),
-                    );
-                  },
-                ),
+                        ),
+                      );
+                    },
+                    child: _LuxuriousTemplateCard(
+                      template: _templates[index],
+                      onPressed: () => widget.onGetStartedPressed(_templates[index].id),
+                    ),
+                  );
+                },
               ),
+            ),
+            Positioned(
+              left: isMobile ? 4 : 40,
+              child: _NavigationButton(
+                icon: Icons.arrow_back_ios_new_rounded,
+                onPressed: loc.isRtl ? _nextPage : _prevPage,
+                isMobile: isMobile,
+              ),
+            ),
+            Positioned(
+              right: isMobile ? 4 : 40,
+              child: _NavigationButton(
+                icon: Icons.arrow_forward_ios_rounded,
+                onPressed: loc.isRtl ? _prevPage : _nextPage,
+                isMobile: isMobile,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 40),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(_templates.length, (index) {
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              height: 8,
+              width: _currentPage == index ? 24 : 8,
+              decoration: BoxDecoration(
+                color: _currentPage == index ? AppColors.secondary : AppColors.border,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
 
-              // Navigation Buttons (visible on all screen sizes)
-              Positioned(
-                left: isMobile ? 4 : 40,
-                child: _NavigationButton(
-                  icon: Icons.arrow_back_ios_new_rounded,
-                  onPressed: loc.isRtl ? _nextPage : _prevPage,
-                  isMobile: isMobile,
+  Widget _buildMasonryGrid(bool isMobile) {
+    if (isMobile) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          children: List.generate(_templates.length, (i) => Padding(
+            padding: EdgeInsets.only(bottom: i < _templates.length - 1 ? 16 : 0),
+            child: _GridTemplateCard(
+              template: _templates[i],
+              onPressed: () => widget.onGetStartedPressed(_templates[i].id),
+              onPreview: () => _showTemplatePreview(_templates[i]),
+            ),
+          )),
+        ),
+      );
+    }
+    final mid = (_templates.length + 1) ~/ 2;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              children: List.generate(mid, (i) => Padding(
+                padding: EdgeInsets.only(bottom: i < mid - 1 ? 20 : 0),
+                child: _GridTemplateCard(
+                  template: _templates[i],
+                  onPressed: () => widget.onGetStartedPressed(_templates[i].id),
+                  onPreview: () => _showTemplatePreview(_templates[i]),
                 ),
-              ),
-              Positioned(
-                right: isMobile ? 4 : 40,
-                child: _NavigationButton(
-                  icon: Icons.arrow_forward_ios_rounded,
-                  onPressed: loc.isRtl ? _prevPage : _nextPage,
-                  isMobile: isMobile,
-                ),
-              ),
-            ],
+              )),
+            ),
           ),
-
-          const SizedBox(height: 40),
-          
-          // Page Indicator
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(_templates.length, (index) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                height: 8,
-                width: _currentPage == index ? 24 : 8,
-                decoration: BoxDecoration(
-                  color: _currentPage == index ? AppColors.secondary : AppColors.border,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              );
-            }),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              children: List.generate(_templates.length - mid, (i) {
+                final idx = mid + i;
+                return Padding(
+                  padding: EdgeInsets.only(bottom: i < _templates.length - mid - 1 ? 20 : 0),
+                  child: _GridTemplateCard(
+                    template: _templates[idx],
+                    onPressed: () => widget.onGetStartedPressed(_templates[idx].id),
+                    onPreview: () => _showTemplatePreview(_templates[idx]),
+                  ),
+                );
+              }),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildTwoColsGrid(bool isMobile) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: isMobile ? 24 : 40),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: isMobile ? 1 : 2,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+          childAspectRatio: 0.85,
+        ),
+        itemCount: _templates.length,
+        itemBuilder: (context, index) {
+          return _GridTemplateCard(
+            template: _templates[index],
+            onPressed: () => widget.onGetStartedPressed(_templates[index].id),
+            onPreview: () => _showTemplatePreview(_templates[index]),
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final loc = context.read<LocalizationCubit>();
+        final isMobile = constraints.maxWidth < 700;
+
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+          ),
+          child: Column(
+            children: [
+              _buildSectionHeader(isMobile, loc),
+              const SizedBox(height: 64),
+              switch (widget.layout) {
+                TemplateSliderLayout.horizontalSlider => _buildHorizontalSlider(isMobile, loc),
+                TemplateSliderLayout.masonryGrid => _buildMasonryGrid(isMobile),
+                TemplateSliderLayout.twoColsGrid => _buildTwoColsGrid(isMobile),
+              },
+            ],
+          ),
+        );
       },
     );
   }
@@ -266,9 +358,10 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutQuint,
@@ -418,12 +511,161 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                       borderRadius: BorderRadius.circular(32),
                     ),
                   ),
-                ),
+              ),
             ],
           ),
         ),
       ),
-    );
+    ));
+  }
+}
+
+class _GridTemplateCard extends StatefulWidget {
+  final TemplateMetadata template;
+  final VoidCallback onPressed;
+  final VoidCallback onPreview;
+
+  const _GridTemplateCard({
+    required this.template,
+    required this.onPressed,
+    required this.onPreview,
+  });
+
+  @override
+  State<_GridTemplateCard> createState() => _GridTemplateCardState();
+}
+
+class _GridTemplateCardState extends State<_GridTemplateCard> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: _hovered ? AppColors.secondary.withValues(alpha: 0.5) : AppColors.border,
+            width: 1.5,
+          ),
+          boxShadow: _hovered
+              ? [BoxShadow(color: AppColors.secondary.withValues(alpha: 0.15), blurRadius: 24, offset: const Offset(0, 8))]
+              : [],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(19),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: AnimatedScale(
+                        scale: _hovered ? 1.08 : 1.0,
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeOut,
+                        child: Image.network(
+                          widget.template.imageUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.6)],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          widget.template.category.toUpperCase(),
+                          style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1),
+                        ),
+                      ),
+                    ),
+                    if (_hovered)
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          child: Center(
+                            child: IconButton(
+                              onPressed: widget.onPreview,
+                              icon: const Icon(Icons.visibility_rounded, color: Colors.white, size: 28),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.template.name,
+                        style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.template.description,
+                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const Spacer(),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: widget.onPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.secondary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            context.read<LocalizationCubit>().isRtl ? "استخدم القالب" : "Use Template",
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  ));
   }
 }
 

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../models/home_layouts.dart';
 
 class HomeFeatureBento extends StatefulWidget {
   final bool isVisible;
+  final FeatureLayout layout;
 
   const HomeFeatureBento({
     super.key,
     required this.isVisible,
+    this.layout = FeatureLayout.bentoGrid,
   });
 
   @override
@@ -136,192 +139,345 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 900;
+        switch (widget.layout) {
+          case FeatureLayout.threeCols:
+            return _buildThreeColsLayout(context, isMobile);
+          case FeatureLayout.iconLeft:
+            return _buildIconLeftLayout(context, isMobile);
+          case FeatureLayout.bentoGrid:
+            return _buildBentoGridLayout(context, isMobile);
+        }
+      },
+    );
+  }
 
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            border: const Border(
-              top: BorderSide(color: AppColors.border, width: 0.5),
-            ),
-          ),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Section Header
-                  FadeTransition(
-                    opacity: _headerFade,
-                    child: SlideTransition(
-                      position: _headerSlide,
-                      child: Column(
+  Widget _buildBentoGridLayout(BuildContext context, bool isMobile) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        border: const Border(
+          top: BorderSide(color: AppColors.border, width: 0.5),
+        ),
+      ),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildSectionHeader(isMobile),
+              const SizedBox(height: 64),
+              if (isMobile)
+                Column(
+                  children: List.generate(_features.length, (i) => Column(
+                    children: [
+                      FadeTransition(
+                        opacity: _cardFades[i],
+                        child: SlideTransition(
+                          position: _cardSlides[i],
+                          child: _BentoCard(feature: _features[i]),
+                        ),
+                      ),
+                      if (i < _features.length - 1) const SizedBox(height: 16),
+                    ],
+                  )),
+                )
+              else
+                Column(
+                  children: [
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(
-                                color: const Color(0xFF6366F1).withValues(alpha: 0.3),
-                              ),
-                            ),
-                            child: Text(
-                              "✨ المميزات",
-                              style: AppTypography.caption.copyWith(
-                                color: const Color(0xFF818CF8),
-                                fontWeight: FontWeight.bold,
+                          Expanded(
+                            flex: 3,
+                            child: FadeTransition(
+                              opacity: _cardFades[0],
+                              child: SlideTransition(
+                                position: _cardSlides[0],
+                                child: _BentoCard(feature: _features[0], tall: true),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "كل ما تحتاجه للنمو\nفي مكان واحد",
-                            style: AppTypography.h2.copyWith(
-                              fontSize: isMobile ? 28 : 42,
-                              fontWeight: FontWeight.w900,
-                              height: 1.2,
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: FadeTransition(
+                                    opacity: _cardFades[1],
+                                    child: SlideTransition(
+                                      position: _cardSlides[1],
+                                      child: _BentoCard(feature: _features[1]),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Expanded(
+                                  child: FadeTransition(
+                                    opacity: _cardFades[2],
+                                    child: SlideTransition(
+                                      position: _cardSlides[2],
+                                      child: _BentoCard(feature: _features[2]),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "أدوات ذكية متكاملة مصممة خصيصاً لمساعدتك على بناء حضورك الرقمي بسرعة واحترافية.",
-                            style: AppTypography.bodyLarge.copyWith(
-                              color: AppColors.textSecondary,
-                              height: 1.6,
-                            ),
-                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
                     ),
-                  ),
-
-                  const SizedBox(height: 64),
-
-                  // Bento Grid
-                  if (isMobile)
-                    Column(
-                      children: List.generate(_features.length, (i) => Column(
+                    const SizedBox(height: 16),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          FadeTransition(
-                            opacity: _cardFades[i],
-                            child: SlideTransition(
-                              position: _cardSlides[i],
-                              child: _BentoCard(feature: _features[i]),
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: FadeTransition(
+                                    opacity: _cardFades[3],
+                                    child: SlideTransition(
+                                      position: _cardSlides[3],
+                                      child: _BentoCard(feature: _features[3]),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Expanded(
+                                  child: FadeTransition(
+                                    opacity: _cardFades[4],
+                                    child: SlideTransition(
+                                      position: _cardSlides[4],
+                                      child: _BentoCard(feature: _features[4]),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          if (i < _features.length - 1) const SizedBox(height: 16),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 3,
+                            child: FadeTransition(
+                              opacity: _cardFades[5],
+                              child: SlideTransition(
+                                position: _cardSlides[5],
+                                child: _BentoCard(feature: _features[5], tall: true),
+                              ),
+                            ),
+                          ),
                         ],
-                      )),
-                    )
-                  else
-                    Column(
-                      children: [
-                        // Row 1: 3/5 + 2/5 (IntrinsicHeight allows content to grow without overflow)
-                        IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: FadeTransition(
-                                  opacity: _cardFades[0],
-                                  child: SlideTransition(
-                                    position: _cardSlides[0],
-                                    child: _BentoCard(feature: _features[0], tall: true),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                flex: 2,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    Expanded(
-                                      child: FadeTransition(
-                                        opacity: _cardFades[1],
-                                        child: SlideTransition(
-                                          position: _cardSlides[1],
-                                          child: _BentoCard(feature: _features[1]),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Expanded(
-                                      child: FadeTransition(
-                                        opacity: _cardFades[2],
-                                        child: SlideTransition(
-                                          position: _cardSlides[2],
-                                          child: _BentoCard(feature: _features[2]),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Row 2: 2/5 + 3/5
-                        IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    Expanded(
-                                      child: FadeTransition(
-                                        opacity: _cardFades[3],
-                                        child: SlideTransition(
-                                          position: _cardSlides[3],
-                                          child: _BentoCard(feature: _features[3]),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Expanded(
-                                      child: FadeTransition(
-                                        opacity: _cardFades[4],
-                                        child: SlideTransition(
-                                          position: _cardSlides[4],
-                                          child: _BentoCard(feature: _features[4]),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                flex: 3,
-                                child: FadeTransition(
-                                  opacity: _cardFades[5],
-                                  child: SlideTransition(
-                                    position: _cardSlides[5],
-                                    child: _BentoCard(feature: _features[5], tall: true),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                ],
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(bool isMobile) {
+    return FadeTransition(
+      opacity: _headerFade,
+      child: SlideTransition(
+        position: _headerSlide,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                ),
+              ),
+              child: Text(
+                "✨ المميزات",
+                style: AppTypography.caption.copyWith(
+                  color: const Color(0xFF818CF8),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
+            const SizedBox(height: 16),
+            Text(
+              "كل ما تحتاجه للنمو\nفي مكان واحد",
+              style: AppTypography.h2.copyWith(
+                fontSize: isMobile ? 28 : 42,
+                fontWeight: FontWeight.w900,
+                height: 1.2,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "أدوات ذكية متكاملة مصممة خصيصاً لمساعدتك على بناء حضورك الرقمي بسرعة واحترافية.",
+              style: AppTypography.bodyLarge.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThreeColsLayout(BuildContext context, bool isMobile) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              _buildSectionHeader(isMobile),
+              const SizedBox(height: 64),
+              isMobile
+                ? Column(
+                    children: _features.map((f) => Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: _buildSimpleCard(f),
+                    )).toList(),
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (int i = 0; i < _features.length; i++) ...[
+                        Expanded(child: _buildSimpleCard(_features[i])),
+                        if (i < _features.length - 1) const SizedBox(width: 20),
+                      ],
+                    ],
+                  ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSimpleCard(_FeatureData f) {
+    return Container(
+      padding: const EdgeInsetsDirectional.all(28),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border, width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsetsDirectional.all(12),
+            decoration: BoxDecoration(
+              color: f.color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(f.icon, color: f.color, size: 26),
+          ),
+          const SizedBox(height: 16),
+          Text(f.title, style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text(f.desc, style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary, height: 1.65)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIconLeftLayout(BuildContext context, bool isMobile) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              _buildSectionHeader(isMobile),
+              const SizedBox(height: 64),
+              isMobile
+                ? Column(
+                    children: _features.map((f) => _buildIconLeftRow(f)).toList(),
+                  )
+                : Column(
+                    children: [
+                      for (int i = 0; i < _features.length; i += 2)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: Row(
+                            children: [
+                              Expanded(child: _buildIconLeftRow(_features[i])),
+                              const SizedBox(width: 20),
+                              if (i + 1 < _features.length)
+                                Expanded(child: _buildIconLeftRow(_features[i + 1]))
+                              else
+                                const Expanded(child: SizedBox()),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIconLeftRow(_FeatureData f) {
+    return Container(
+      padding: const EdgeInsetsDirectional.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border, width: 1),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsetsDirectional.all(10),
+            decoration: BoxDecoration(
+              color: f.color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(f.icon, color: f.color, size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(f.title, style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold, fontSize: 15)),
+                const SizedBox(height: 6),
+                Text(f.desc, style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary, height: 1.6)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -440,12 +596,12 @@ class _BentoCardState extends State<_BentoCard> {
                     Text(
                       "اكتشف أكثر",
                       style: AppTypography.caption.copyWith(
-                        color: f.color,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Icon(Icons.arrow_forward_rounded, color: f.color, size: 14),
+                    Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
                   ],
                 ),
               ),

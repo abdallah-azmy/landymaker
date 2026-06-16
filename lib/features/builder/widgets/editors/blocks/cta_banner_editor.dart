@@ -77,6 +77,18 @@ class CtaBannerEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'secondary_button_url', val),
           ),
         ),
+        const SizedBox(height: 24),
+        FormGroup(
+          label: 'نوع التخطيط',
+          child: DropdownButtonFormField<String>(
+            initialValue: (block['layout_style'] as String?) ?? 'centeredGradient',
+            items: const [
+              DropdownMenuItem(value: 'centeredGradient', child: Text('مركز مع تدرج')),
+              DropdownMenuItem(value: 'split', child: Text('نص + أزرار (Split)')),
+            ],
+            onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
+          ),
+        ),
       ],
     );
   }

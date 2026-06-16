@@ -11,6 +11,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
+import '../localization/localization_cubit.dart';
 import '../../features/auth/controllers/auth_cubit.dart';
 import '../../features/auth/controllers/auth_state.dart';
 import '../../features/auth/screens/login_screen.dart';
@@ -38,6 +41,56 @@ import '../../features/blog_admin/screens/blog_management_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
+  errorBuilder: (context, state) {
+    final loc = context.read<LocalizationCubit>();
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.link_off_rounded, size: 72, color: AppColors.primary),
+              const SizedBox(height: 24),
+              Text(
+                '404',
+                style: AppTypography.h1.copyWith(color: AppColors.primary, fontSize: 72),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                loc.translate('page_not_found'),
+                style: AppTypography.h3,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                loc.translate('page_not_found_desc'),
+                style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: () {
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) => context.go('/'),
+                  );
+                },
+                icon: const Icon(Icons.home_rounded),
+                label: Text(loc.translate('back_to_home')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  },
   routes: [
     GoRoute(
       path: '/',
@@ -102,9 +155,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/dashboard/products',
-              builder: (context, state) => const Center(
-                child: Text("Products"),
-              ), // Left as placeholder for now since there's no product screen in the codebase yet? Wait, is there? I didn't see one imported. Let me check later.
+              builder: (context, state) => const ProductFeedScreen(),
             ),
           ],
         ),
@@ -245,19 +296,10 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/builder',
-      builder: (context, state) {
-        return BlocBuilder<AuthCubit, AuthState>(
-          builder: (context, authState) {
-            if (authState is Authenticated) {
-              return BuilderWorkspaceScreen(
-                onBackToDashboard: () {
-                  context.go('/');
-                },
-              );
-            }
-            return const LoginScreen();
-          },
-        );
+      redirect: (context, state) {
+        // /builder without a pageId shows an empty workspace — redirect to dashboard instead
+        if (state.uri.path == '/builder') return '/dashboard';
+        return null;
       },
       routes: [
         GoRoute(

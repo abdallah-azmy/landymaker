@@ -106,6 +106,22 @@ class HeroEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'vertical_padding', val),
           ),
         ),
+        const SizedBox(height: 24),
+        FormGroup(
+          label: 'نوع التخطيط',
+          child: DropdownButtonFormField<String>(
+            initialValue: (block['layout_style'] as String?) ?? 'default',
+            items: const [
+              DropdownMenuItem(value: 'default', child: Text('افتراضي')),
+              DropdownMenuItem(value: 'split', child: Text('نص + صورة (Split)')),
+              DropdownMenuItem(value: 'centered', child: Text('مركز')),
+              DropdownMenuItem(value: 'glass', child: Text('زجاجي')),
+              DropdownMenuItem(value: 'fullWidthBg', child: Text('خلفية كاملة')),
+              DropdownMenuItem(value: 'minimal', child: Text('بسيط')),
+            ],
+            onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
+          ),
+        ),
       ],
     );
   }

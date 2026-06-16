@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../models/home_layouts.dart';
 
 class HomeCtaSection extends StatefulWidget {
   final bool isVisible;
   final VoidCallback onGetStartedPressed;
+  final CtaLayout layout;
 
   const HomeCtaSection({
     super.key,
     required this.isVisible,
     required this.onGetStartedPressed,
+    this.layout = CtaLayout.centeredGradient,
   });
 
   @override
@@ -60,7 +63,17 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 700;
+        switch (widget.layout) {
+          case CtaLayout.split:
+            return _buildSplitLayout(context, isMobile);
+          case CtaLayout.centeredGradient:
+            return _buildCenteredGradientLayout(context, isMobile);
+        }
+      },
+    );
+  }
 
+  Widget _buildCenteredGradientLayout(BuildContext context, bool isMobile) {
     return AnimatedBuilder(
       animation: _bgController,
       builder: (context, child) {
@@ -68,7 +81,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         return RepaintBoundary(
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: isMobile ? 40 : 80),
             child: Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1100),
@@ -111,7 +124,6 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
           position: _slide,
           child: Column(
             children: [
-              // Badge
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
@@ -141,8 +153,6 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                 ),
               ),
               const SizedBox(height: 28),
-
-              // Main heading
               Text(
                 "جاهز تطلق موقعك الآن؟",
                 style: AppTypography.h1.copyWith(
@@ -162,13 +172,8 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
-
-              // Isolated hover CTA Button to prevent rebuilding the text block
               _CtaButton(onPressed: widget.onGetStartedPressed),
-
               const SizedBox(height: 32),
-
-              // Trust signals
               Wrap(
                 spacing: 24,
                 runSpacing: 8,
@@ -184,7 +189,92 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         ),
       ),
     );
+  }
+
+  Widget _buildSplitLayout(BuildContext context, bool isMobile) {
+    return AnimatedBuilder(
+      animation: _bgController,
+      builder: (context, child) {
+        final val = _bgController.value;
+        return RepaintBoundary(
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              vertical: isMobile ? 40 : 80,
+              horizontal: 24,
+            ),
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 1100),
+                padding: EdgeInsetsDirectional.symmetric(
+                  vertical: isMobile ? 48 : 72,
+                  horizontal: isMobile ? 24 : 60,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(32),
+                  gradient: LinearGradient(
+                    begin: Alignment(-0.8 + 0.4 * val, -0.8),
+                    end: Alignment(0.8 - 0.4 * val, 0.8),
+                    colors: const [Color(0xFF1E1B4B), Color(0xFF0F172A), Color(0xFF0C1A3A)],
+                  ),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3 + 0.1 * val),
+                    width: 1.5,
+                  ),
+                ),
+                child: child,
+              ),
+            ),
+          ),
+        );
       },
+      child: FadeTransition(
+        opacity: _fade,
+        child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'جاهز تطلق موقعك الآن؟',
+                  style: AppTypography.h2.copyWith(fontSize: 28, fontWeight: FontWeight.w900),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'ابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.',
+                  style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary, height: 1.6),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                _CtaButton(onPressed: widget.onGetStartedPressed),
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 6,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'جاهز تطلق موقعك الآن؟',
+                        style: AppTypography.h2.copyWith(fontSize: 38, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'ابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.',
+                        style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary, height: 1.6),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 48),
+                _CtaButton(onPressed: widget.onGetStartedPressed),
+              ],
+            ),
+      ),
     );
   }
 }
@@ -215,7 +305,7 @@ class _CtaButtonState extends State<_CtaButton> {
         child: Container(
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [AppColors.primary, AppColors.secondary],
+              colors: [AppColors.secondary, Color(0xFF0C1A3A)],
               begin: Alignment.centerRight,
               end: Alignment.centerLeft,
             ),

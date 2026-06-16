@@ -43,6 +43,18 @@ class TestimonialsEditor extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
+        FormGroup(
+          label: 'نوع التخطيط',
+          child: DropdownButtonFormField<String>(
+            initialValue: (block['layout_style'] as String?) ?? 'masonry',
+            items: const [
+              DropdownMenuItem(value: 'masonry', child: Text('شبكي (Masonry)')),
+              DropdownMenuItem(value: 'carousel', child: Text('شريط متحرك (Carousel)')),
+            ],
+            onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
+          ),
+        ),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

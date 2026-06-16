@@ -37,6 +37,16 @@ class PricingEditor extends StatelessWidget {
           onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
         ),
         const SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          initialValue: (block['layout_style'] as String?) ?? 'cards',
+          decoration: const InputDecoration(labelText: 'نوع التخطيط'),
+          items: const [
+            DropdownMenuItem(value: 'cards', child: Text('بطاقات')),
+            DropdownMenuItem(value: 'table', child: Text('جدول')),
+          ],
+          onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
+        ),
+        const SizedBox(height: 16),
         if (isV2) ...[
           SwitchListTile(
             title: const Text("تفعيل نظام الدفع المتعدد (شهري/سنوي)"),

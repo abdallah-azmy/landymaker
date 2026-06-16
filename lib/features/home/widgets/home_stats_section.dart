@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../models/home_layouts.dart';
 
 class HomeStatsSection extends StatefulWidget {
   final bool isVisible;
+  final StatsLayout layout;
 
   const HomeStatsSection({
     super.key,
     required this.isVisible,
+    this.layout = StatsLayout.horizontal,
   });
 
   @override
@@ -117,10 +120,20 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 900;
+        switch (widget.layout) {
+          case StatsLayout.withIcons:
+            return _buildWithIconsLayout(context, isMobile);
+          case StatsLayout.horizontal:
+            return _buildHorizontalLayout(context, isMobile);
+        }
+      },
+    );
+  }
 
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+  Widget _buildHorizontalLayout(BuildContext context, bool isMobile) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
       decoration: BoxDecoration(
         color: const Color(0xFF030712),
         border: const Border(
@@ -133,66 +146,19 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Section Header
-              FadeTransition(
-                opacity: _headerFade,
-                child: SlideTransition(
-                  position: _headerSlide,
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: const Color(0xFF10B981).withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Text(
-                          "📈 إحصائيات",
-                          style: AppTypography.caption.copyWith(
-                            color: const Color(0xFF34D399),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "لاندي ميكر في أرقام",
-                        style: AppTypography.h2.copyWith(
-                          fontSize: isMobile ? 28 : 42,
-                          fontWeight: FontWeight.w900,
-                          height: 1.2,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "ثقة متزايدة وأرقام قياسية تعكس التزامنا بنجاح مشروعك الرقمي وتسهيل وصولك لجمهورك.",
-                        style: AppTypography.bodyLarge.copyWith(
-                          color: AppColors.textSecondary,
-                          height: 1.6,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
+              _buildSectionHeader(isMobile),
               const SizedBox(height: 64),
-
-              // Stats Grid
               if (isMobile)
                 Column(
                   children: List.generate(_stats.length, (i) => Column(
                     children: [
-                      FadeTransition(
-                        opacity: _statFades[i],
-                        child: SlideTransition(
-                          position: _statSlides[i],
-                          child: _StatCard(stat: _stats[i]),
+                      RepaintBoundary(
+                        child: FadeTransition(
+                          opacity: _statFades[i],
+                          child: SlideTransition(
+                            position: _statSlides[i],
+                            child: _StatCard(stat: _stats[i]),
+                          ),
                         ),
                       ),
                       if (i < _stats.length - 1) const SizedBox(height: 16),
@@ -211,11 +177,13 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
                   ),
                   itemCount: _stats.length,
                   itemBuilder: (context, i) {
-                    return FadeTransition(
-                      opacity: _statFades[i],
-                      child: SlideTransition(
-                        position: _statSlides[i],
-                        child: _StatCard(stat: _stats[i]),
+                    return RepaintBoundary(
+                      child: FadeTransition(
+                        opacity: _statFades[i],
+                        child: SlideTransition(
+                          position: _statSlides[i],
+                          child: _StatCard(stat: _stats[i]),
+                        ),
                       ),
                     );
                   },
@@ -225,8 +193,136 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
         ),
       ),
     );
-  },
-);
+  }
+
+  Widget _buildSectionHeader(bool isMobile) {
+    return RepaintBoundary(
+      child: FadeTransition(
+        opacity: _headerFade,
+        child: SlideTransition(
+          position: _headerSlide,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Text(
+                  "📈 إحصائيات",
+                  style: AppTypography.caption.copyWith(
+                    color: const Color(0xFF34D399),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "لاندي ميكر في أرقام",
+                style: AppTypography.h2.copyWith(
+                  fontSize: isMobile ? 28 : 42,
+                  fontWeight: FontWeight.w900,
+                  height: 1.2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "ثقة متزايدة وأرقام قياسية تعكس التزامنا بنجاح مشروعك الرقمي وتسهيل وصولك لجمهورك.",
+                style: AppTypography.bodyLarge.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.6,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWithIconsLayout(BuildContext context, bool isMobile) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF030712),
+        border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              _buildSectionHeader(isMobile),
+              const SizedBox(height: 64),
+              isMobile
+                ? Column(
+                    children: List.generate(_stats.length, (i) => Padding(
+                      padding: EdgeInsets.only(bottom: i < _stats.length - 1 ? 16 : 0),
+                      child: _buildIconStatCard(_stats[i], i),
+                    )),
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(_stats.length, (i) => Expanded(
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.only(end: i < _stats.length - 1 ? 20 : 0),
+                        child: _buildIconStatCard(_stats[i], i),
+                      ),
+                    )),
+                  ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIconStatCard(_StatData stat, int index) {
+    final icons = [Icons.pages_rounded, Icons.people_rounded, Icons.verified_rounded, Icons.support_agent_rounded];
+    return RepaintBoundary(
+      child: FadeTransition(
+        opacity: _statFades[index],
+        child: SlideTransition(
+          position: _statSlides[index],
+        child: Container(
+          padding: const EdgeInsetsDirectional.all(28),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.border, width: 1.5),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsetsDirectional.all(14),
+                decoration: BoxDecoration(
+                  color: stat.color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icons[index], color: stat.color, size: 28),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                stat.value,
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: stat.color, fontFamily: 'Cairo'),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(stat.label, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+              const SizedBox(height: 4),
+                Text(stat.desc, style: AppTypography.caption.copyWith(color: AppColors.textSecondary, height: 1.5), textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+      ),
+    ));
   }
 }
 

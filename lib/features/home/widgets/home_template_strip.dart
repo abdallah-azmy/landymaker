@@ -144,7 +144,7 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -373,7 +373,7 @@ class _TemplateCardState extends State<_TemplateCard> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withValues(alpha: _hovered ? 0.5 : 0.3),
+                            Colors.black.withValues(alpha: _hovered ? 0.5 : 0.45),
                           ],
                         ),
                       ),

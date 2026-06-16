@@ -29,7 +29,7 @@ const Map<String, PropDef> _globalProps = {
   'fontFamily': PropDef(type: PropType.string),
   'bg_image_url': PropDef(type: PropType.string),
   'bg_overlay_color': PropDef(type: PropType.string),
-  'bg_overlay_opacity': PropDef(type: PropType.doubleNum, defaultValue: 0.4, min: 0, max: 1),
+  'bg_overlay_opacity': PropDef(type: PropType.doubleNum, defaultValue: 0.45, min: 0, max: 1),
   'overlay_opacity': PropDef(type: PropType.doubleNum, min: 0, max: 1),
   'bg_blur': PropDef(type: PropType.doubleNum, min: 0),
   'is_visible': PropDef(type: PropType.boolean, defaultValue: true),
@@ -47,12 +47,14 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
     'image_url': PropDef(type: PropType.string),
     'button_text': PropDef(type: PropType.string),
     'button_url': PropDef(type: PropType.string),
+    'layout_style': PropDef(type: PropType.string, defaultValue: 'standard', allowedValues: ['standard', 'split', 'centered', 'glass', 'fullWidthBg', 'minimal']),
   },
   'hero_saas': {
     'subtitle': PropDef(type: PropType.string),
     'image_url': PropDef(type: PropType.string),
     'button_text': PropDef(type: PropType.string),
     'button_url': PropDef(type: PropType.string),
+    'layout_style': PropDef(type: PropType.string, defaultValue: 'dashboardSplit', allowedValues: ['dashboardSplit', 'launchCenter', 'darkSaas']),
   },
   'logo_header': {
     'logo_url': PropDef(type: PropType.string),
@@ -113,6 +115,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
     'subtitle': PropDef(type: PropType.string),
     'has_toggle': PropDef(type: PropType.boolean, defaultValue: true),
     'toggle_labels': PropDef(type: PropType.map),
+    'layout_style': PropDef(type: PropType.string, defaultValue: 'table', allowedValues: ['table', 'cards']),
     'items': PropDef(type: PropType.mapList),
   },
   'products': {
@@ -127,6 +130,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
     'items': PropDef(type: PropType.mapList),
   },
   'testimonials': {
+    'layout_style': PropDef(type: PropType.string, defaultValue: 'cards', allowedValues: ['cards', 'carousel']),
     'items': PropDef(type: PropType.mapList),
   },
   'gallery': {
@@ -171,6 +175,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
   },
   'statistics_grid': {
     'subtitle': PropDef(type: PropType.string),
+    'layout_style': PropDef(type: PropType.string, defaultValue: 'horizontal', allowedValues: ['horizontal', 'withIcons']),
     'items': PropDef(type: PropType.mapList),
   },
   'team_members': {
@@ -187,6 +192,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
     'button_url': PropDef(type: PropType.string),
     'secondary_button_text': PropDef(type: PropType.string),
     'secondary_button_url': PropDef(type: PropType.string),
+    'layout_style': PropDef(type: PropType.string, defaultValue: 'centeredGradient', allowedValues: ['centeredGradient', 'split']),
   },
   'comparison_table': {
     'subtitle': PropDef(type: PropType.string),

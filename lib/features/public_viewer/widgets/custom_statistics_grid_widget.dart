@@ -23,6 +23,8 @@ class CustomStatisticsGridWidget extends StatelessWidget {
     return CardLayoutModeExt.fromString(raw);
   }
 
+  String get _layoutStyle => block['layout_style'] as String? ?? 'horizontal';
+
   @override
   Widget build(BuildContext context) {
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;
@@ -130,6 +132,7 @@ class CustomStatisticsGridWidget extends StatelessWidget {
   }
 
   Widget _buildStatCard(Map<String, dynamic> item, Color accent, Color textColor, Color subTextColor, bool isMobile) {
+    final showIcon = _layoutStyle == 'withIcons';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -141,7 +144,17 @@ class CustomStatisticsGridWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (item['icon'] != null) ...[
+          if (showIcon) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(_getIconData(item['icon']), color: accent, size: 28),
+            ),
+            const SizedBox(height: 16),
+          ] else if (item['icon'] != null) ...[
              Icon(_getIconData(item['icon']), color: accent, size: 32),
              const SizedBox(height: 12),
           ],

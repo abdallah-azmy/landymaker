@@ -331,10 +331,12 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
       variants: [
         _variant('شهري/سنوي', 'خطط اشتراك قابلة للمقارنة', 'pricing', {
           'variant_style': 'toggle_pricing',
+          'layout_style': 'cards',
           'has_toggle': true,
         }),
         _variant('باقات ثابتة', 'خدمات أو أسعار مباشرة', 'pricing_cards', {
           'variant_style': 'fixed_packages',
+          'layout_style': 'cards',
           'has_toggle': false,
           'items': [
             {
@@ -348,6 +350,26 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
               'name': 'الباقة المتقدمة',
               'price': '999 EGP',
               'features': ['كل الأساسيات', 'دعم أسرع', 'إعداد مخصص'],
+              'button_text': 'ابدأ',
+              'is_popular': true,
+            },
+          ],
+        }),
+        _variant('جدول أسعار', 'مقارنة أفقية بسيطة', 'table', {
+          'layout_style': 'table',
+          'has_toggle': false,
+          'items': [
+            {
+              'name': 'الباقة الأساسية',
+              'price': '499 EGP',
+              'features': ['ميزة 1', 'ميزة 2'],
+              'button_text': 'اطلب الآن',
+              'is_popular': false,
+            },
+            {
+              'name': 'الباقة المتقدمة',
+              'price': '999 EGP',
+              'features': ['كل الأساسيات', 'دعم أسرع'],
               'button_text': 'ابدأ',
               'is_popular': true,
             },
@@ -390,9 +412,18 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
       variants: [
         _variant('بطاقات', 'آراء مختصرة', 'quotes', {
           'variant_style': 'testimonial_cards',
+          'layout_style': 'masonry',
         }),
         _variant('قصص نجاح', 'نصوص أطول ونتائج', 'quotes_dense', {
           'variant_style': 'success_stories',
+          'layout_style': 'masonry',
+          'items': [
+            {'author': 'عميل سعيد', 'role': 'صاحب مشروع', 'quote': 'التجربة كانت واضحة وساعدتنا نزيد الطلبات بسرعة.'},
+            {'author': 'مدير تسويق', 'role': 'شركة خدمات', 'quote': 'الصفحة شرحت العرض بشكل بسيط ورفعت جودة العملاء المحتملين.'},
+          ],
+        }),
+        _variant('كاروسيل', 'شريط أفقي متحرك', 'carousel', {
+          'layout_style': 'carousel',
           'items': [
             {'author': 'عميل سعيد', 'role': 'صاحب مشروع', 'quote': 'التجربة كانت واضحة وساعدتنا نزيد الطلبات بسرعة.'},
             {'author': 'مدير تسويق', 'role': 'شركة خدمات', 'quote': 'الصفحة شرحت العرض بشكل بسيط ورفعت جودة العملاء المحتملين.'},
@@ -561,6 +592,16 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
       aiWhenToUse: 'Use to showcase company growth, satisfied customers, or project impact.',
       variants: [
         _variant('شبكة 2x2', 'عرض ٤ إحصائيات ببطاقات', 'grid', {
+          'layout_style': 'horizontal',
+          'items': [
+            {'value': '500+', 'label': 'عميل سعيد', 'icon': 'people'},
+            {'value': '12', 'label': 'سنة خبرة', 'icon': 'star'},
+            {'value': '24/7', 'label': 'دعم فني', 'icon': 'speed'},
+            {'value': '100%', 'label': 'جودة مضمونة', 'icon': 'check'},
+          ],
+        }),
+        _variant('مع أيقونات', 'دوائر ملونة مع أيقونات', 'icons', {
+          'layout_style': 'withIcons',
           'items': [
             {'value': '500+', 'label': 'عميل سعيد', 'icon': 'people'},
             {'value': '12', 'label': 'سنة خبرة', 'icon': 'star'},
@@ -617,6 +658,13 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
       aiWhenToUse: 'Use at the end of the page or between sections to drive immediate action.',
       variants: [
         _variant('بانر ملون', 'تدرج لوني مع زر كبير', 'immersive', {
+          'layout_style': 'centeredGradient',
+          'title': 'هل أنت جاهز للبدء؟',
+          'subtitle': 'انضم إلينا اليوم واحصل على عرض خاص.',
+          'button_text': 'سجل الآن',
+        }),
+        _variant('نص + أزرار', 'نص على اليسار وأزرار على اليمين', 'split', {
+          'layout_style': 'split',
           'title': 'هل أنت جاهز للبدء؟',
           'subtitle': 'انضم إلينا اليوم واحصل على عرض خاص.',
           'button_text': 'سجل الآن',

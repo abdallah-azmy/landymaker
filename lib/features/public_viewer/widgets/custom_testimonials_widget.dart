@@ -14,6 +14,7 @@ class CustomTestimonialsWidget extends StatelessWidget {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String? layoutStyle;
 
   const CustomTestimonialsWidget({
     super.key,
@@ -24,6 +25,7 @@ class CustomTestimonialsWidget extends StatelessWidget {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.layoutStyle,
   });
 
   @override
@@ -37,69 +39,121 @@ class CustomTestimonialsWidget extends StatelessWidget {
         final bool isMobile = constraints.maxWidth < 768;
         final double verticalPadding = isMobile ? 40 : 80;
 
-        return SectionBackground(
-          bgImageUrl: bgImageUrl,
-          bgOverlayColor: bgOverlayColor,
-          bgOverlayOpacity: bgOverlayOpacity,
-          bgBlur: bgBlur,
-          theme: theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 1100),
-              child: Column(
-                children: [
-                  Text(
-                    title,
-                    style: AppTypography.h2.copyWith(color: textColor, fontSize: isMobile ? 24 : 32),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: isMobile ? 32 : 64),
-                  Builder(
-                    builder: (context) {
-                      if (items.isEmpty) return const SizedBox.shrink();
+        if (layoutStyle == 'carousel') {
+          return _buildCarouselLayout(context, constraints, secondaryColor, textColor, subTextColor, isMobile, verticalPadding);
+        }
 
-                      final int columnCount = ResponsiveUtils.getContentColumns(
-                        constraints.maxWidth,
-                        desktop: 3,
-                        tablet: 2,
-                        mobile: 1,
+        return _buildMasonryLayout(context, constraints, secondaryColor, textColor, subTextColor, isMobile, verticalPadding);
+      },
+    );
+  }
+
+  Widget _buildMasonryLayout(BuildContext context, BoxConstraints constraints, Color secondaryColor, Color textColor, Color subTextColor, bool isMobile, double verticalPadding) {
+    return SectionBackground(
+      bgImageUrl: bgImageUrl,
+      bgOverlayColor: bgOverlayColor,
+      bgOverlayOpacity: bgOverlayOpacity,
+      bgBlur: bgBlur,
+      theme: theme,
+      padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: Column(
+            children: [
+              Text(
+                title,
+                style: AppTypography.h2.copyWith(color: textColor, fontSize: isMobile ? 24 : 32),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: isMobile ? 32 : 64),
+              Builder(
+                builder: (context) {
+                  if (items.isEmpty) return const SizedBox.shrink();
+
+                  final int columnCount = ResponsiveUtils.getContentColumns(
+                    constraints.maxWidth,
+                    desktop: 3,
+                    tablet: 2,
+                    mobile: 1,
+                  );
+
+                  final List<List<Map<String, dynamic>>> columns = List.generate(columnCount, (_) => []);
+                  for (int i = 0; i < items.length; i++) {
+                    columns[i % columnCount].add(items[i]);
+                  }
+
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(columnCount, (colIndex) {
+                      final isLastColumn = colIndex == columnCount - 1;
+                      return Expanded(
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.only(end: isLastColumn ? 0 : 20.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: columns[colIndex].asMap().entries.map((entry) {
+                              final isLastItem = entry.key == columns[colIndex].length - 1;
+                              return Padding(
+                                padding: EdgeInsets.only(bottom: isLastItem ? 0 : 20.0),
+                                child: _buildTestimonialCard(entry.value, secondaryColor, textColor, subTextColor, isMobile),
+                              );
+                            }).toList(),
+                          ),
+                        ),
                       );
+                    }),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                      final List<List<Map<String, dynamic>>> columns = List.generate(columnCount, (_) => []);
-                      for (int i = 0; i < items.length; i++) {
-                        columns[i % columnCount].add(items[i]);
-                      }
-
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List.generate(columnCount, (colIndex) {
-                          final isLastColumn = colIndex == columnCount - 1;
-                          return Expanded(
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.only(end: isLastColumn ? 0 : 20.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: columns[colIndex].asMap().entries.map((entry) {
-                                  final isLastItem = entry.key == columns[colIndex].length - 1;
-                                  return Padding(
-                                    padding: EdgeInsets.only(bottom: isLastItem ? 0 : 20.0),
-                                    child: _buildTestimonialCard(entry.value, secondaryColor, textColor, subTextColor, isMobile),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          );
-                        }),
+  Widget _buildCarouselLayout(BuildContext context, BoxConstraints constraints, Color secondaryColor, Color textColor, Color subTextColor, bool isMobile, double verticalPadding) {
+    return SectionBackground(
+      bgImageUrl: bgImageUrl,
+      bgOverlayColor: bgOverlayColor,
+      bgOverlayOpacity: bgOverlayOpacity,
+      bgBlur: bgBlur,
+      theme: theme,
+      padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTypography.h2.copyWith(color: textColor, fontSize: isMobile ? 24 : 32),
+              ),
+              SizedBox(height: isMobile ? 24 : 40),
+              if (items.isEmpty)
+                const SizedBox.shrink()
+              else
+                SizedBox(
+                  height: isMobile ? 300 : 280,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsetsDirectional.only(end: 24),
+                    itemCount: items.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 20),
+                    itemBuilder: (_, index) {
+                      return SizedBox(
+                        width: isMobile ? constraints.maxWidth * 0.75 : 340,
+                        child: _buildTestimonialCard(items[index], secondaryColor, textColor, subTextColor, isMobile),
                       );
                     },
                   ),
-                ],
-              ),
-            ),
+                ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 

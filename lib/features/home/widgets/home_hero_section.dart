@@ -6,15 +6,19 @@ import '../../../core/theme/app_typography.dart';
 import '../../public_viewer/widgets/section_renderer.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../builder/widgets/modals/ai_chat_modal.dart';
+import '../models/home_layouts.dart';
 
 class HomeHeroSection extends StatefulWidget {
   final VoidCallback onGetStartedPressed;
   final ScrollController? parentScrollController;
+  /// Layout variant — defaults to the original split layout.
+  final HeroLayout layout;
 
   const HomeHeroSection({
     super.key,
     required this.onGetStartedPressed,
     this.parentScrollController,
+    this.layout = HeroLayout.split,
   });
 
   @override
@@ -27,7 +31,6 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
   late Animation<double> _entranceFade;
   late Animation<double> _entranceSlide;
 
-  bool _btnHovered = false;
 
   final List<String> _typewriterTexts = [
     "منيو مطعم إلكتروني تفاعلي",
@@ -185,7 +188,20 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 900;
+        switch (widget.layout) {
+          case HeroLayout.centered:
+            return _buildCenteredLayout(context, isMobile, constraints);
+          case HeroLayout.gradientOnly:
+            return _buildGradientOnlyLayout(context, isMobile);
+          case HeroLayout.split:
+            return _buildSplitLayout(context, isMobile);
+        }
+      },
+    );
+  }
 
+  // ── Layout: split (original) ─────────────────────────────────────────────
+  Widget _buildSplitLayout(BuildContext context, bool isMobile) {
     return Stack(
       children: [
         // Mesh Gradient background spot effect 1
@@ -247,7 +263,10 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
         // Core Hero Layout
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical: isMobile ? 40 : 80,
+            horizontal: 24,
+          ),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1200),
@@ -268,129 +287,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                           ),
                         );
                       },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(
-                                color: AppColors.secondary.withValues(alpha: 0.2),
-                                width: 1.2,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.auto_awesome_rounded,
-                                  color: AppColors.secondary,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "أطلق موقعك في ٥ دقائق فقط 🚀",
-                                  style: AppTypography.caption.copyWith(
-                                    color: AppColors.secondary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            "ابنِ صفحة هبوط احترافية متكاملة لخدماتك",
-                            style: AppTypography.h1.copyWith(
-                              fontSize: 36,
-                              fontWeight: FontWeight.w900,
-                              height: 1.15,
-                              letterSpacing: -1,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 18),
-                          SizedBox(
-                            height: 50,
-                            child: _TypewriterText(
-                              texts: _typewriterTexts,
-                              isMobile: true,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            "بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.",
-                            style: AppTypography.bodyLarge.copyWith(
-                              color: AppColors.textSecondary,
-                              height: 1.6,
-                              fontSize: 16,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 36),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 16,
-                            runSpacing: 16,
-                            children: [
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                onEnter: (_) => setState(() => _btnHovered = true),
-                                onExit: (_) => setState(() => _btnHovered = false),
-                                child: AnimatedScale(
-                                  scale: _btnHovered ? 1.04 : 1.0,
-                                  duration: const Duration(milliseconds: 200),
-                                  curve: Curves.easeOutCubic,
-                                  child: ElevatedButton.icon(
-                                    onPressed: widget.onGetStartedPressed,
-                                    icon: const Icon(
-                                      Icons.flash_on_rounded,
-                                      size: 20,
-                                    ),
-                                    label: const Text(
-                                      "ابدأ الآن مجاناً",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primary,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 36,
-                                        vertical: 20,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      elevation: 8,
-                                      shadowColor:
-                                          AppColors.primary.withValues(alpha: 0.4),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              OutlinedButton.icon(
-                                onPressed: () => _showAiWizard(context),
-                                icon: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
-                                label: const Text("المنشئ الذكي (AI)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(color: Colors.white24, width: 1.5),
-                                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                      child: _buildTextContent(context, isMobile),
                     )
                   else
                     Expanded(
@@ -406,128 +303,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                             ),
                           );
                         },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                  color: AppColors.secondary.withValues(alpha: 0.2),
-                                  width: 1.2,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.auto_awesome_rounded,
-                                    color: AppColors.secondary,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    "أطلق موقعك في ٥ دقائق فقط 🚀",
-                                    style: AppTypography.caption.copyWith(
-                                      color: AppColors.secondary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            Text(
-                              "ابنِ صفحة هبوط احترافية متكاملة لخدماتك",
-                              style: AppTypography.h1.copyWith(
-                                fontSize: 56,
-                                fontWeight: FontWeight.w900,
-                                height: 1.15,
-                                letterSpacing: -1,
-                              ),
-                              textAlign: TextAlign.start,
-                            ),
-                            const SizedBox(height: 18),
-                            SizedBox(
-                              height: 50,
-                              child: _TypewriterText(
-                                texts: _typewriterTexts,
-                                isMobile: false,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              "بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.",
-                              style: AppTypography.bodyLarge.copyWith(
-                                color: AppColors.textSecondary,
-                                height: 1.6,
-                                fontSize: 16,
-                              ),
-                              textAlign: TextAlign.start,
-                            ),
-                            const SizedBox(height: 36),
-                            Wrap(
-                              spacing: 16,
-                              runSpacing: 16,
-                              children: [
-                                MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  onEnter: (_) => setState(() => _btnHovered = true),
-                                  onExit: (_) => setState(() => _btnHovered = false),
-                                  child: AnimatedScale(
-                                    scale: _btnHovered ? 1.04 : 1.0,
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.easeOutCubic,
-                                    child: ElevatedButton.icon(
-                                      onPressed: widget.onGetStartedPressed,
-                                      icon: const Icon(
-                                        Icons.flash_on_rounded,
-                                        size: 20,
-                                      ),
-                                      label: const Text(
-                                        "ابدأ الآن مجاناً",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 36,
-                                          vertical: 20,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                        elevation: 8,
-                                        shadowColor:
-                                            AppColors.primary.withValues(alpha: 0.4),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                OutlinedButton.icon(
-                                  onPressed: () => _showAiWizard(context),
-                                  icon: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
-                                  label: const Text("المنشئ الذكي (AI)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                  style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: Colors.white24, width: 1.5),
-                                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                        child: _buildTextContent(context, isMobile),
                       ),
                     ),
 
@@ -559,7 +335,306 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
         ),
       ],
     );
-      },
+  }
+
+  // ── Layout: centered (full-width bg with overlay) ────────────────────────
+  Widget _buildCenteredLayout(
+      BuildContext context, bool isMobile, BoxConstraints constraints) {
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        children: [
+          // Animated gradient background (same as split for consistency)
+          Positioned.fill(
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _bgAnimationController,
+                builder: (context, child) {
+                  final val = _bgAnimationController.value;
+                  return Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment(-0.8 + 0.4 * val, -0.8),
+                        end: Alignment(0.8 - 0.4 * val, 0.8),
+                        colors: const [
+                          Color(0xFF1E1B4B),
+                          Color(0xFF030712),
+                          Color(0xFF0C1A3A),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+
+          // Centered content
+          Padding(
+            padding: EdgeInsetsDirectional.symmetric(
+              vertical: isMobile ? 72 : 120,
+              horizontal: 24,
+            ),
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: FadeTransition(
+                  opacity: _entranceFade,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Badge
+                      _buildBadge(),
+                      const SizedBox(height: 28),
+                      Text(
+                        'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                        style: AppTypography.h1.copyWith(
+                          fontSize: isMobile ? 32 : 58,
+                          fontWeight: FontWeight.w900,
+                          height: 1.15,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 18),
+                      SizedBox(
+                        height: 50,
+                        child: _TypewriterText(
+                          texts: _typewriterTexts,
+                          isMobile: isMobile,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
+                        style: AppTypography.bodyLarge.copyWith(
+                          color: Colors.white70,
+                          height: 1.6,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 40),
+                      _buildCTAButtons(context),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Layout: gradientOnly ─────────────────────────────────────────────────
+  Widget _buildGradientOnlyLayout(BuildContext context, bool isMobile) {
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _bgAnimationController,
+        builder: (context, child) {
+          final val = _bgAnimationController.value;
+          return Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment(-1.0 + 0.6 * val, -1.0),
+                end: Alignment(1.0 - 0.6 * val, 1.0),
+                colors: [
+                  AppColors.primary.withValues(alpha: 0.35),
+                  AppColors.secondary,
+                  const Color(0xFF0C1A3A),
+                ],
+              ),
+            ),
+            child: child,
+          );
+        },
+        child: Padding(
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical: isMobile ? 80 : 130,
+            horizontal: 24,
+          ),
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 780),
+              child: FadeTransition(
+                opacity: _entranceFade,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildBadge(),
+                    const SizedBox(height: 28),
+                    Text(
+                      'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                      style: AppTypography.h1.copyWith(
+                        fontSize: isMobile ? 32 : 56,
+                        fontWeight: FontWeight.w900,
+                        height: 1.15,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      height: 50,
+                      child: _TypewriterText(
+                        texts: _typewriterTexts,
+                        isMobile: isMobile,
+                        colorOverride: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        height: 1.6,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 40),
+                    _buildCTAButtons(context, darkMode: false),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Shared sub-widgets ───────────────────────────────────────────────────
+
+  Widget _buildBadge({Color? textColor}) {
+    final effectiveColor = textColor ?? Colors.white;
+    return Container(
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.secondary.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: AppColors.secondary.withValues(alpha: 0.3),
+          width: 1.2,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.auto_awesome_rounded,
+            color: effectiveColor,
+            size: 16,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'أطلق موقعك في ٥ دقائق فقط 🚀',
+            style: AppTypography.caption.copyWith(
+              color: effectiveColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCTAButtons(BuildContext context, {bool darkMode = true}) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 16,
+      children: [
+        ElevatedButton.icon(
+          onPressed: widget.onGetStartedPressed,
+          icon: const Icon(Icons.flash_on_rounded, size: 20),
+          label: const Text(
+            'ابدأ الآن مجاناً',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: darkMode ? AppColors.secondary : const Color(0xFF030712),
+            foregroundColor: darkMode ? Colors.white : AppColors.primary,
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 36,
+              vertical: 20,
+            ),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 8,
+            shadowColor: Colors.black.withValues(alpha: 0.4),
+          ),
+        ),
+        OutlinedButton.icon(
+          onPressed: () => _showAiWizard(context),
+          icon: Icon(
+            Icons.auto_awesome_rounded,
+            color: darkMode ? Colors.white : const Color(0xFF030712),
+            size: 20,
+          ),
+          label: Text(
+            'المنشئ الذكي (AI)',
+            style: TextStyle(
+              color: darkMode ? Colors.white : const Color(0xFF030712),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(
+              color: darkMode ? Colors.white38 : const Color(0xFF030712).withValues(alpha: 0.4),
+              width: 1.5,
+            ),
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 32,
+              vertical: 20,
+            ),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextContent(BuildContext context, bool isMobile) {
+    return Column(
+      crossAxisAlignment:
+          isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      children: [
+        _buildBadge(),
+        const SizedBox(height: 24),
+        Text(
+          'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+          style: AppTypography.h1.copyWith(
+            fontSize: isMobile ? 36 : 56,
+            fontWeight: FontWeight.w900,
+            height: 1.15,
+            letterSpacing: -1,
+          ),
+          textAlign: isMobile ? TextAlign.center : TextAlign.start,
+        ),
+        const SizedBox(height: 18),
+        SizedBox(
+          height: 50,
+          child: _TypewriterText(
+            texts: _typewriterTexts,
+            isMobile: isMobile,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.',
+          style: AppTypography.bodyLarge.copyWith(
+            color: AppColors.textSecondary,
+            height: 1.6,
+            fontSize: 16,
+          ),
+          textAlign: isMobile ? TextAlign.center : TextAlign.start,
+        ),
+        const SizedBox(height: 36),
+        _buildCTAButtons(context),
+      ],
     );
   }
 }
@@ -570,10 +645,14 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
 class _TypewriterText extends StatefulWidget {
   final List<String> texts;
   final bool isMobile;
+  /// Optional color override for use on bright backgrounds.
+  /// Defaults to [AppColors.secondary] when null.
+  final Color? colorOverride;
 
   const _TypewriterText({
     required this.texts,
     required this.isMobile,
+    this.colorOverride,
   });
 
   @override
@@ -643,6 +722,7 @@ class _TypewriterTextState extends State<_TypewriterText> with SingleTickerProvi
 
   @override
   Widget build(BuildContext context) {
+    final textColor = widget.colorOverride ?? AppColors.secondary;
     return Row(
       mainAxisAlignment: widget.isMobile
           ? MainAxisAlignment.center
@@ -652,7 +732,7 @@ class _TypewriterTextState extends State<_TypewriterText> with SingleTickerProvi
         Text(
           _currentText,
           style: AppTypography.h2.copyWith(
-            color: AppColors.secondary,
+            color: textColor,
             fontSize: widget.isMobile ? 22 : 30,
             fontWeight: FontWeight.bold,
           ),
@@ -664,7 +744,7 @@ class _TypewriterTextState extends State<_TypewriterText> with SingleTickerProvi
             width: 3,
             height: widget.isMobile ? 24 : 32,
             decoration: BoxDecoration(
-              color: AppColors.secondary,
+              color: textColor,
               borderRadius: BorderRadius.circular(2),
             ),
           ),

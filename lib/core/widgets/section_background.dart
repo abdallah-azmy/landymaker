@@ -40,7 +40,7 @@ class SectionBackground extends StatelessWidget {
     final double blurValue = bgBlur ?? 0.0;
     
     final hasBgImage = bgImageUrl != null && bgImageUrl!.trim().isNotEmpty;
-    final double overlayOpacity = overlayOpacityOverride ?? bgOverlayOpacity ?? (hasBgImage ? 0.4 : 1.0);
+    final double overlayOpacity = overlayOpacityOverride ?? bgOverlayOpacity ?? (hasBgImage ? 0.45 : 1.0);
 
     // Default padding logic
     EdgeInsetsGeometry finalPadding = padding ?? const EdgeInsets.symmetric(vertical: 60, horizontal: 24);

@@ -21,6 +21,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
   final double? bgBlur;
   final String? buttonUrl;
   final double? verticalPadding;
+  final String? layoutStyle;
 
   const CustomHeroSaasWidget({
     super.key,
@@ -36,6 +37,7 @@ class CustomHeroSaasWidget extends StatelessWidget {
     this.bgBlur,
     this.buttonUrl,
     this.verticalPadding,
+    this.layoutStyle,
   });
 
   @override

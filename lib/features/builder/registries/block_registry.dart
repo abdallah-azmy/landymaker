@@ -83,6 +83,7 @@ class BlockRegistry {
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
           buttonUrl: data['button_url'],
           variant: data['variant'] ?? 0,
+          layoutStyle: data['layout_style'],
         ),
     'hero_saas': (data, theme, pageId, key, __, ___, lang) => CustomHeroSaasWidget(
           key: key,
@@ -100,6 +101,7 @@ class BlockRegistry {
           verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
           buttonUrl: data['button_url'],
+          layoutStyle: data['layout_style'],
         ),
     'features': (data, theme, _, key, __, ___, lang) => CustomFeaturesWidget(
           key: key,
@@ -227,6 +229,7 @@ class BlockRegistry {
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          layoutStyle: data['layout_style'],
         ),
     'contact_info': (data, theme, _, key, __, ___, lang) => CustomContactInfoWidget(
           key: key,

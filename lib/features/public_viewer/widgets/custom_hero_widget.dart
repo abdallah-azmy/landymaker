@@ -23,6 +23,7 @@ class CustomHeroWidget extends StatelessWidget {
   final String? buttonUrl;
   final double? verticalPadding;
   final int variant;
+  final String? layoutStyle;
 
   const CustomHeroWidget({
     super.key,
@@ -39,7 +40,21 @@ class CustomHeroWidget extends StatelessWidget {
     this.buttonUrl,
     this.verticalPadding,
     this.variant = 0,
+    this.layoutStyle,
   });
+
+  int get _effectiveVariant {
+    if (variant > 0) return variant;
+    if (layoutStyle == null) return 0;
+    switch (layoutStyle) {
+      case 'split': return 1;
+      case 'centered': return 2;
+      case 'glass': return 3;
+      case 'fullWidthBg': return 4;
+      case 'minimal': return 8;
+      default: return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +89,7 @@ class CustomHeroWidget extends StatelessWidget {
   }
 
   Widget _buildVariant(BuildContext context, BoxConstraints constraints, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
-    switch (variant) {
+    switch (_effectiveVariant) {
       case 1: // Split
         return _buildSplitVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
       case 2: // Centered

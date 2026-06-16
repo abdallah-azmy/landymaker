@@ -70,10 +70,11 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
 
   CardLayoutMode get _layoutMode {
     final raw = widget.block['card_layout_mode'];
-    // Default to equal for Pricing
     if (raw == null) return CardLayoutMode.equal;
     return CardLayoutModeExt.fromString(raw);
   }
+
+  String get _layoutStyle => widget.block['layout_style'] as String? ?? '';
 
   @override
   Widget build(BuildContext context) {
@@ -128,10 +129,14 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
   }
 
   Widget _buildPricingContent(BuildContext context, BoxConstraints constraints, Color primary, Color secondary, Color textColor, Color subTextColor, bool isMobile) {
-    if (widget.variant == 2 && !isMobile) { // Table style
+    if (_layoutStyle == 'table' || (widget.variant == 2 && !isMobile)) {
        return _buildTableStyle(primary, secondary, textColor, subTextColor);
     }
 
+    return _buildCardsLayout(constraints, primary, secondary, textColor, subTextColor, isMobile);
+  }
+
+  Widget _buildCardsLayout(BoxConstraints constraints, Color primary, Color secondary, Color textColor, Color subTextColor, bool isMobile) {
     final int columnCount = widget.variant == 1 ? 2 : ResponsiveUtils.getContentColumns(
       constraints.maxWidth,
       desktop: _model.items.length >= 3 ? 3 : _model.items.length,
@@ -142,25 +147,25 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
     final List<Widget> rows = [];
     for (int i = 0; i < _model.items.length; i += columnCount) {
       final rowItems = _model.items.sublist(i, (i + columnCount > _model.items.length) ? _model.items.length : i + columnCount);
-      
+
       Widget rowWidget = Row(
         crossAxisAlignment: _layoutMode == CardLayoutMode.equal ? CrossAxisAlignment.stretch : CrossAxisAlignment.start,
         children: List.generate(columnCount, (colIndex) {
           if (colIndex < rowItems.length) {
             final item = rowItems[colIndex];
-                final isLastInRow = colIndex == columnCount - 1;
-                return Expanded(
-                  child: Padding(
-                    padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : 20.0),
-                    child: _buildPricingCard(item, primary, secondary, textColor, subTextColor, isMobile),
-                  ),
-                );
-              } else {
-                return const Expanded(child: SizedBox.shrink());
-              }
-            }),
+            final isLastInRow = colIndex == columnCount - 1;
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : 20.0),
+                child: _buildPricingCard(item, primary, secondary, textColor, subTextColor, isMobile),
+              ),
+            );
+          } else {
+            return const Expanded(child: SizedBox.shrink());
+          }
+        }),
       );
-      
+
       rows.add(_layoutMode == CardLayoutMode.equal ? IntrinsicHeight(child: rowWidget) : rowWidget);
 
       if (i + columnCount < _model.items.length) {

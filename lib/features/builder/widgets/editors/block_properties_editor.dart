@@ -37,7 +37,9 @@ import 'blocks/cta_banner_editor.dart';
 import 'blocks/comparison_table_editor.dart';
 
 import '../../../../core/widgets/block_animation_wrapper.dart';
+import '../../../../core/widgets/draggable_modal_sheet.dart';
 import '../../registries/style_registry.dart';
+import '../layout_picker/layout_picker_panel.dart';
 
 class BlockPropertiesEditor extends StatefulWidget {
   final int index;
@@ -239,6 +241,16 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
       onSuccess: (finalUrl) {
         updateProp(finalUrl);
       },
+    );
+  }
+
+  void _showLayoutPicker(BuildContext context) {
+    DraggableModalSheet.show(
+      context: context,
+      title: 'مُنتقي التخطيط',
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      child: LayoutPickerPanel(blockIndex: widget.index),
     );
   }
 
@@ -901,6 +913,60 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
               ),
             );
           },
+        ),
+      ),
+      const SizedBox(height: 24),
+      const Divider(color: AppColors.border),
+      const SizedBox(height: 16),
+
+      Text(
+        'تخطيط القسم',
+        style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 12),
+      SizedBox(
+        width: double.infinity,
+        child: InkWell(
+          onTap: () => _showLayoutPicker(context),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColors.cardBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.dashboard_customize_rounded, color: AppColors.secondary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'مُنتقي التخطيط',
+                        style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      Text(
+                        'اختر تخطيطاً وخصّص العناصر',
+                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_left_rounded, color: AppColors.textSecondary, size: 20),
+              ],
+            ),
+          ),
         ),
       ),
       const SizedBox(height: 24),

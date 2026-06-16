@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/responsive/responsive_utils.dart';
 
 class HomeTrustLogos extends StatefulWidget {
   final bool isVisible;
@@ -49,7 +50,7 @@ class _HomeTrustLogosState extends State<HomeTrustLogos>
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final isMobile = constraints.maxWidth < 900;
+      final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
       return FadeTransition(
         opacity: _fade,
         child: Container(

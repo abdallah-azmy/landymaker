@@ -66,6 +66,16 @@ List<Map<String, dynamic>> _getLayoutsForType(String type) {
           ],
         },
         {
+          'layoutStyle': 'fullWidthImage',
+          'name': 'خلفية صورة كاملة',
+          'description': 'خلفية كاملة مع طبقة تعتيم',
+          'slots': [
+            {'slotKey': 'headline', 'defaultType': 'heading', 'label': 'العنوان الرئيسي'},
+            {'slotKey': 'description', 'defaultType': 'paragraph', 'label': 'النص الوصفي'},
+            {'slotKey': 'cta', 'defaultType': 'button', 'label': 'زر الدعوة'},
+          ],
+        },
+        {
           'layoutStyle': 'minimal',
           'name': 'بسيط',
           'description': 'عنوان ونص فقط',
@@ -152,6 +162,16 @@ List<Map<String, dynamic>> _getLayoutsForType(String type) {
           'layoutStyle': 'imageBackground',
           'name': 'خلفية صورة',
           'description': 'نص فوق صورة خلفية',
+          'slots': [
+            {'slotKey': 'headline', 'defaultType': 'heading', 'label': 'العنوان'},
+            {'slotKey': 'description', 'defaultType': 'paragraph', 'label': 'الوصف'},
+            {'slotKey': 'cta', 'defaultType': 'button', 'label': 'الزر'},
+          ],
+        },
+        {
+          'layoutStyle': 'fullWidthImage',
+          'name': 'خلفية صورة كاملة',
+          'description': 'خلفية كاملة مع طبقة تعتيم',
           'slots': [
             {'slotKey': 'headline', 'defaultType': 'heading', 'label': 'العنوان'},
             {'slotKey': 'description', 'defaultType': 'paragraph', 'label': 'الوصف'},

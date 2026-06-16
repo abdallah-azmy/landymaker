@@ -3,33 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/custom_network_image.dart';
+import '../../../core/animations/entrance_animation_mixin.dart';
+import '../../../core/responsive/responsive_utils.dart';
 import '../../public_viewer/widgets/section_renderer.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../builder/widgets/modals/ai_chat_modal.dart';
 import '../models/home_layouts.dart';
 
+/// Pixabay background image used in the [HeroLayout.fullWidthImage] layout.
+const _kHeroBgImage =
+    'https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_1280.jpg';
+
 class HomeHeroSection extends StatefulWidget {
   final VoidCallback onGetStartedPressed;
   final ScrollController? parentScrollController;
-  /// Layout variant — defaults to the original split layout.
   final HeroLayout layout;
+  final double overlayOpacity;
 
   const HomeHeroSection({
     super.key,
     required this.onGetStartedPressed,
     this.parentScrollController,
     this.layout = HeroLayout.split,
+    this.overlayOpacity = 0.55,
   });
 
   @override
   State<HomeHeroSection> createState() => _HomeHeroSectionState();
 }
 
-class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderStateMixin {
+class _HomeHeroSectionState extends State<HomeHeroSection>
+    with TickerProviderStateMixin, EntranceAnimationMixin {
   late AnimationController _bgAnimationController;
-  late AnimationController _entranceController;
-  late Animation<double> _entranceFade;
-  late Animation<double> _entranceSlide;
 
 
   final List<String> _typewriterTexts = [
@@ -139,37 +145,17 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
   void initState() {
     super.initState();
 
-    // Background gradient pulse animation
     _bgAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 8),
     )..repeat(reverse: true);
 
-    // Entrance animation
-    _entranceController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-
-    _entranceFade = CurvedAnimation(
-      parent: _entranceController,
-      curve: const Interval(0.0, 0.8, curve: Curves.easeOut),
-    );
-
-    _entranceSlide = Tween<double>(begin: 30.0, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.0, 1.0, curve: Curves.fastOutSlowIn),
-      ),
-    );
-
-    _entranceController.forward();
+    startEntrance();
   }
 
   @override
   void dispose() {
     _bgAnimationController.dispose();
-    _entranceController.dispose();
     super.dispose();
   }
 
@@ -187,7 +173,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 900;
+        final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
         switch (widget.layout) {
           case HeroLayout.centered:
             return _buildCenteredLayout(context, isMobile, constraints);
@@ -195,6 +181,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
             return _buildGradientOnlyLayout(context, isMobile);
           case HeroLayout.split:
             return _buildSplitLayout(context, isMobile);
+          case HeroLayout.fullWidthImage:
+            return _buildFullWidthImageLayout(context, isMobile);
         }
       },
     );
@@ -276,35 +264,11 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                 children: [
                   // Text and CTA
                   if (isMobile)
-                    AnimatedBuilder(
-                      animation: _entranceController,
-                      builder: (context, child) {
-                        return Transform.translate(
-                          offset: Offset(0, _entranceSlide.value),
-                          child: Opacity(
-                            opacity: _entranceFade.value,
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: _buildTextContent(context, isMobile),
-                    )
+                    buildEntranceAnimation(_buildTextContent(context, isMobile))
                   else
                     Expanded(
                       flex: 6,
-                      child: AnimatedBuilder(
-                        animation: _entranceController,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(0, _entranceSlide.value),
-                            child: Opacity(
-                              opacity: _entranceFade.value,
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: _buildTextContent(context, isMobile),
-                      ),
+                      child: buildEntranceAnimation(_buildTextContent(context, isMobile)),
                     ),
 
                   if (isMobile)
@@ -372,14 +336,14 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
           // Centered content
           Padding(
             padding: EdgeInsetsDirectional.symmetric(
-              vertical: isMobile ? 72 : 120,
+              vertical: isMobile ? 40 : 80,
               horizontal: 24,
             ),
             child: Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 800),
                 child: FadeTransition(
-                  opacity: _entranceFade,
+                  opacity: entranceFade,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -397,8 +361,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 18),
-                      SizedBox(
-                        height: 50,
+                      ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: 50),
                         child: _TypewriterText(
                           texts: _typewriterTexts,
                           isMobile: isMobile,
@@ -451,14 +415,14 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
         },
         child: Padding(
           padding: EdgeInsetsDirectional.symmetric(
-            vertical: isMobile ? 80 : 130,
+            vertical: isMobile ? 40 : 80,
             horizontal: 24,
           ),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 780),
               child: FadeTransition(
-                opacity: _entranceFade,
+                opacity: entranceFade,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -475,8 +439,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 18),
-                    SizedBox(
-                      height: 50,
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: 50),
                       child: _TypewriterText(
                         texts: _typewriterTexts,
                         isMobile: isMobile,
@@ -500,6 +464,77 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // ── Layout: fullWidthImage (edge-to-edge bg image) ───────────────────────
+  Widget _buildFullWidthImageLayout(BuildContext context, bool isMobile) {
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: RepaintBoundary(
+              child: CustomNetworkImage(
+                imageUrl: _kHeroBgImage,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(color: Colors.black.withValues(alpha: widget.overlayOpacity)),
+          ),
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              padding: EdgeInsetsDirectional.symmetric(
+                vertical: isMobile ? 40 : 80,
+                horizontal: 24,
+              ),
+              child: FadeTransition(
+                opacity: entranceFade,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildBadge(),
+                    const SizedBox(height: 28),
+                    Text(
+                      'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                      style: AppTypography.h1.copyWith(
+                        fontSize: isMobile ? 32 : 58,
+                        fontWeight: FontWeight.w900,
+                        height: 1.15,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 18),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: 50),
+                      child: _TypewriterText(
+                        texts: _typewriterTexts,
+                        isMobile: isMobile,
+                        colorOverride: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        height: 1.6,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 40),
+                    _buildCTAButtons(context, darkMode: false),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -615,8 +650,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection> with TickerProviderSt
           textAlign: isMobile ? TextAlign.center : TextAlign.start,
         ),
         const SizedBox(height: 18),
-        SizedBox(
-          height: 50,
+        ConstrainedBox(
+          constraints: BoxConstraints(minHeight: 50),
           child: _TypewriterText(
             texts: _typewriterTexts,
             isMobile: isMobile,
@@ -817,31 +852,38 @@ class _PhonePreviewState extends State<_PhonePreview> {
         children: [
           // Left cycle button (desktop only)
           if (!widget.isMobile)
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () {
-                _previewCycleTimer?.cancel();
-                setState(() {
-                  _activePreviewIndex = (_activePreviewIndex - 1 + widget.previewPages.length) % widget.previewPages.length;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          Semantics(
+            label: 'Previous template',
+            button: true,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  _previewCycleTimer?.cancel();
+                  setState(() {
+                    _activePreviewIndex = (_activePreviewIndex - 1 + widget.previewPages.length) % widget.previewPages.length;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  ),
+                  child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white60, size: 14),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white60, size: 14),
               ),
             ),
           ),
         if (!widget.isMobile) const SizedBox(width: 16),
 
         // Phone Frame
-        Container(
+        Semantics(
+          label: 'Template preview',
+          container: true,
+          child: Container(
           width: mockupWidth,
           height: mockupHeight,
           decoration: BoxDecoration(
@@ -969,7 +1011,10 @@ class _PhonePreviewState extends State<_PhonePreview> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(widget.previewPages.length, (index) {
                         final isActive = index == _activePreviewIndex;
-                        return GestureDetector(
+                        return Semantics(
+                          label: 'Template ${index + 1}',
+                          button: true,
+                          child: GestureDetector(
                           onTap: () {
                             _previewCycleTimer?.cancel();
                             setState(() {
@@ -997,28 +1042,33 @@ class _PhonePreviewState extends State<_PhonePreview> {
             ),
           ),
         ),
+      ),
 
         // Right cycle button (desktop only)
         if (!widget.isMobile) const SizedBox(width: 16),
         if (!widget.isMobile)
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () {
-                _previewCycleTimer?.cancel();
-                setState(() {
-                  _activePreviewIndex = (_activePreviewIndex + 1) % widget.previewPages.length;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          Semantics(
+            label: 'Next template',
+            button: true,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  _previewCycleTimer?.cancel();
+                  setState(() {
+                    _activePreviewIndex = (_activePreviewIndex + 1) % widget.previewPages.length;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  ),
+                  child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white60, size: 14),
                 ),
-                child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white60, size: 14),
               ),
             ),
           ),

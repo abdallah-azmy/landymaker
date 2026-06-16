@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/responsive/responsive_utils.dart';
 
 class HomeTemplateStrip extends StatefulWidget {
   final Function(String templateId) onGetStartedPressed;
@@ -140,7 +141,7 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 900;
+        final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
 
     return Container(
       width: double.infinity,
@@ -313,7 +314,7 @@ class _TemplateCardState extends State<_TemplateCard> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 900;
+        final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
     final cardW = isMobile ? 240.0 : 300.0;
 
     return MouseRegion(
@@ -328,7 +329,7 @@ class _TemplateCardState extends State<_TemplateCard> {
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
           width: cardW,
-          margin: const EdgeInsets.only(left: 20),
+          margin: const EdgeInsetsDirectional.only(start: 20),
           // Only animate color + border — no boxShadow blur (expensive)
           decoration: BoxDecoration(
             color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,

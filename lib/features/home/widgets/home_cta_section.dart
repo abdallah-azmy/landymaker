@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/custom_network_image.dart';
+import '../../../core/animations/entrance_animation_mixin.dart';
 import '../models/home_layouts.dart';
+
+/// Pixabay background image used in the [CtaLayout.fullWidthImage] layout.
+const _kCtaBgImage =
+    'https://cdn.pixabay.com/photo/2016/11/29/13/14/attractive-1869761_1280.jpg';
 
 class HomeCtaSection extends StatefulWidget {
   final bool isVisible;
   final VoidCallback onGetStartedPressed;
   final CtaLayout layout;
+  final double overlayOpacity;
 
   const HomeCtaSection({
     super.key,
     required this.isVisible,
     required this.onGetStartedPressed,
     this.layout = CtaLayout.centeredGradient,
+    this.overlayOpacity = 0.55,
   });
 
   @override
@@ -20,40 +28,34 @@ class HomeCtaSection extends StatefulWidget {
 }
 
 class _HomeCtaSectionState extends State<HomeCtaSection>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
+    with TickerProviderStateMixin, EntranceAnimationMixin {
   late AnimationController _bgController;
-  late Animation<double> _fade;
-  late Animation<Offset> _slide;
+
+  @override
+  Duration get entranceDuration => const Duration(milliseconds: 900);
+
+  @override
+  Offset get entranceSlideBegin => const Offset(0, 0.25);
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
     _bgController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 6),
     )..repeat(reverse: true);
-
-    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _slide = Tween<Offset>(begin: const Offset(0, 0.25), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn));
   }
 
   @override
   void didUpdateWidget(HomeCtaSection oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isVisible && !oldWidget.isVisible) {
-      _controller.forward();
+      startEntrance();
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     _bgController.dispose();
     super.dispose();
   }
@@ -68,6 +70,8 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
             return _buildSplitLayout(context, isMobile);
           case CtaLayout.centeredGradient:
             return _buildCenteredGradientLayout(context, isMobile);
+          case CtaLayout.fullWidthImage:
+            return _buildFullWidthImageLayout(context, isMobile);
         }
       },
     );
@@ -119,9 +123,9 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         );
       },
       child: FadeTransition(
-        opacity: _fade,
+        opacity: entranceFade,
         child: SlideTransition(
-          position: _slide,
+          position: entranceSlide,
           child: Column(
             children: [
               Container(
@@ -191,6 +195,107 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
     );
   }
 
+  Widget _buildFullWidthImageLayout(BuildContext context, bool isMobile) {
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: RepaintBoundary(
+              child: CustomNetworkImage(
+                imageUrl: _kCtaBgImage,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(color: Colors.black.withValues(alpha: widget.overlayOpacity)),
+          ),
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 1100),
+              padding: EdgeInsetsDirectional.symmetric(
+                vertical: isMobile ? 40 : 80,
+                horizontal: 24,
+              ),
+              child: FadeTransition(
+                opacity: entranceFade,
+                child: SlideTransition(
+                  position: entranceSlide,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.auto_awesome_rounded,
+                              color: AppColors.secondary,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "مجاني تماماً • بدون بطاقة ائتمان",
+                              style: AppTypography.caption.copyWith(
+                                color: AppColors.secondary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      Text(
+                        "جاهز تطلق موقعك الآن؟",
+                        style: AppTypography.h1.copyWith(
+                          fontSize: isMobile ? 32 : 52,
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "انضم لآلاف الأعمال التي تستخدم Landymaker.\nابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.",
+                        style: AppTypography.bodyLarge.copyWith(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          height: 1.65,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 40),
+                      _CtaButton(onPressed: widget.onGetStartedPressed),
+                      const SizedBox(height: 32),
+                      Wrap(
+                        spacing: 24,
+                        runSpacing: 8,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          _TrustChip(icon: Icons.check_circle_rounded, text: "لا يحتاج بطاقة"),
+                          _TrustChip(icon: Icons.check_circle_rounded, text: "لا حاجة لخبرة تقنية"),
+                          _TrustChip(icon: Icons.check_circle_rounded, text: "نشر فوري"),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSplitLayout(BuildContext context, bool isMobile) {
     return AnimatedBuilder(
       animation: _bgController,
@@ -199,7 +304,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         return RepaintBoundary(
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(
+            padding: EdgeInsets.symmetric(
               vertical: isMobile ? 40 : 80,
               horizontal: 24,
             ),
@@ -229,7 +334,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         );
       },
       child: FadeTransition(
-        opacity: _fade,
+        opacity: entranceFade,
         child: isMobile
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -295,50 +400,51 @@ class _CtaButtonState extends State<_CtaButton> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedSlide(
-        offset: _hovered ? const Offset(0, -0.018) : Offset.zero,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.secondary, Color(0xFF0C1A3A)],
-              begin: Alignment.centerRight,
-              end: Alignment.centerLeft,
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedSlide(
+          offset: _hovered ? const Offset(0, -0.018) : Offset.zero,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.secondary, Color(0xFF0C1A3A)],
+                begin: Alignment.centerRight,
+                end: Alignment.centerLeft,
+              ),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            borderRadius: BorderRadius.circular(18),
-            // Static shadow — no expensive dynamic blur changes
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.4),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
+            child: ElevatedButton.icon(
+              onPressed: widget.onPressed,
+              icon: const Icon(Icons.flash_on_rounded, size: 20),
+              label: const Text(
+                "ابدأ مجاناً الآن",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-            ],
-          ),
-          child: ElevatedButton.icon(
-            onPressed: widget.onPressed,
-            icon: const Icon(Icons.flash_on_rounded, size: 20),
-            label: const Text(
-              "ابدأ مجاناً الآن",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              foregroundColor: Colors.white,
-              shadowColor: Colors.transparent,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 44,
-                vertical: 20,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                shadowColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 44,
+                  vertical: 20,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
             ),
           ),

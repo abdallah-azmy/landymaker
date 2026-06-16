@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/responsive/responsive_utils.dart';
 import '../models/home_layouts.dart';
 
 class HomeStatsSection extends StatefulWidget {
@@ -119,7 +120,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 900;
+        final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
         switch (widget.layout) {
           case StatsLayout.withIcons:
             return _buildWithIconsLayout(context, isMobile);

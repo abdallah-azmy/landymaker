@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/responsive/responsive_utils.dart';
 
 class HomeTestimonialsSection extends StatefulWidget {
   final bool isVisible;
@@ -87,7 +88,7 @@ class _HomeTestimonialsSectionState extends State<HomeTestimonialsSection>
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final isMobile = constraints.maxWidth < 900;
+      final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
       return Container(
         width: double.infinity,
         padding: EdgeInsetsDirectional.symmetric(
@@ -203,76 +204,78 @@ class _TestimonialCardState extends State<_TestimonialCard> {
   @override
   Widget build(BuildContext context) {
     final d = widget.data;
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedSlide(
-        offset: _hovered ? const Offset(0, -0.015) : Offset.zero,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutCubic,
-        child: AnimatedContainer(
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedSlide(
+          offset: _hovered ? const Offset(0, -0.015) : Offset.zero,
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsetsDirectional.all(28),
-          decoration: BoxDecoration(
-            color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: _hovered ? d.avatarColor.withValues(alpha: 0.4) : AppColors.border,
-              width: 1.5,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsetsDirectional.all(28),
+            decoration: BoxDecoration(
+              color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: _hovered ? d.avatarColor.withValues(alpha: 0.4) : AppColors.border,
+                width: 1.5,
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: List.generate(d.rating, (_) => const Padding(
-                  padding: EdgeInsetsDirectional.only(end: 2),
-                  child: Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
-                )),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '"${d.text}"',
-                style: AppTypography.bodyLarge.copyWith(
-                  color: AppColors.textPrimary,
-                  height: 1.7,
-                  fontStyle: FontStyle.italic,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: List.generate(d.rating, (_) => const Padding(
+                    padding: EdgeInsetsDirectional.only(end: 2),
+                    child: Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
+                  )),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundColor: d.avatarColor,
-                    child: Text(
-                      d.initial,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        fontFamily: 'Cairo',
+                const SizedBox(height: 16),
+                Text(
+                  '"${d.text}"',
+                  style: AppTypography.bodyLarge.copyWith(
+                    color: AppColors.textPrimary,
+                    height: 1.7,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundColor: d.avatarColor,
+                      child: Text(
+                        d.initial,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontFamily: 'Cairo',
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(d.name, style: AppTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      )),
-                      Text(
-                        '${d.role} • ${d.city}',
-                        style: AppTypography.caption.copyWith(color: AppColors.textMuted),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(d.name, style: AppTypography.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        )),
+                        Text(
+                          '${d.role} • ${d.city}',
+                          style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

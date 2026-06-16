@@ -304,9 +304,10 @@ Any task affecting one of these systems MUST:
    - **Content**: Pure text, images, and list data.
    - **Actions**: Buttons, links, WhatsApp numbers, and form success redirects.
    - **Design**: Section Variants (0-9), Animations, Fonts, Backgrounds, and Opacity.
-2. **Animation Performance**: All block animations must utilize `BlockAnimationWrapper` with `RepaintBoundary` to prevent global repaints.
+2. **Animation Performance**: All block animations must utilize `BlockAnimationWrapper` with `RepaintBoundary` to prevent global repaints. Additionally, any widget with continuous or expensive per-frame animations (AnimatedBuilder, staggered entrance sequences, hover-driven AnimatedSlide/AnimatedContainer changes) MUST be wrapped in `RepaintBoundary` to isolate repaint cycles. Apply this especially to: section-level scroll-triggered entrance animations, card hover effects inside grids (bento, stats, testimonials), and background gradient pulsers.
 3. **RTL Responsiveness**: Always use `EdgeInsetsDirectional` and ensure `Transform` animations respect the text direction (LTR/RTL).
 4. **Image Management**: Use `CustomImageField` for all image properties.
+5. **Deprecated API Prohibition**: Always use `withValues(alpha:)` instead of the deprecated `withOpacity()` method for color opacity. `withValues()` is the Dart 3.9+ standard and avoids the implicit `Color` → `Color` conversion that `withOpacity()` performs internally.
 3. **Visual Safety**: Every section with a background image MUST include a `bg_overlay_opacity` slider (0.0 to 1.0) to ensure text remains readable.
 4. **Reusability First**: Do not build redundant code. Check `lib/core/widgets/` first. Use `CustomTextField` for all inputs to maintain the slate-dark theme.
 5. **State-Management Cleanliness**: UI widgets must rebuild reactively. Local state (`setState`) is permitted for strictly internal component UI logic (e.g. form validation, loading spinners).
@@ -314,9 +315,11 @@ Any task affecting one of these systems MUST:
 7. **Bilingual Arabic-First Support**: Always add keys to both `translations_ar` and `translations_en`.
 8. **Slug Validation**: Validate subdomains against reserved paths.
 9. **Layout & Responsivity Rules (CRITICAL)**: 
-   - 80px desktop vertical padding, 40px mobile. Do not hardcode heights for containers wrapping text.
+   - Standard sections: 80px desktop vertical padding, 40px mobile. Content container constrained to `BoxConstraints(maxWidth: 1200)` and centered. Edge-to-edge full-width layouts (like `HeroLayout.fullWidthImage` or `CtaLayout.fullWidthImage`): the outermost container has ZERO padding, the image uses `Positioned.fill` with a dark overlay (alpha ≥ 0.55), and the content wraps inside a centered container with `BoxConstraints(maxWidth: 1200)` and `EdgeInsetsDirectional.symmetric(horizontal: 24)`.
+   - Do not hardcode heights for containers wrapping text. Use `minHeight` and `ConstrainedBox` where flexible sizing is needed.
    - **Never** use `MediaQuery.of(context).size` inside block widgets to determine `isMobile`.
    - **Always** wrap the widget in `LayoutBuilder` and use `constraints.maxWidth` (e.g., `final bool isMobile = constraints.maxWidth < 600;`).
+   - **Strict `EdgeInsetsDirectional` rule**: Never use `EdgeInsets.only(left: ...)` or `EdgeInsets.only(right: ...)`. Always prefer `EdgeInsetsDirectional.only(start: ...)` / `EdgeInsetsDirectional.only(end: ...)` for RTL/LTR support. `EdgeInsets.symmetric(horizontal: ...)` is acceptable where the padding is equal on both sides.
    - **Never** use `GridView` with `SliverGridDelegateWithFixedCrossAxisCount` and a fixed `childAspectRatio` for text-heavy content cards, as this causes overflow or excessive white space. Use `Row`/`Column` loops with `ResponsiveUtils.getContentColumns` and auto-height instead.
    - **Never** use a `LayoutBuilder` inside the children of an `IntrinsicHeight` widget. `LayoutBuilder` cannot return intrinsic dimensions and will cause an immediate crash. Pre-calculate layout decisions at the parent level.
    - For complex presentation mockups or rigid decorative elements (like Hero Phone Previews), wrap them in `FittedBox(fit: BoxFit.scaleDown)` to prevent `RenderFlex overflow` on intermediate screen widths.
@@ -632,3 +635,52 @@ LandyMaker has evolved into an AI-powered conversion platform with "Omnipotent C
 - **Conversion Goal**: Converts clicks into identified leads.
 - **Logic**: Forms can auto-open WhatsApp with pre-filled user data after submission.
 - **Enforcement**: Managed via `SubscriptionService`, `FeatureGateWrapper`, and `ai_usage_log`.
+
+## 🏗️ 17. Phase 2 Architecture & UX Patterns
+
+This section documents the UI/UX patterns introduced during Phase 2 enhancements.
+
+### A. Layout Picker System (Builder Feature)
+- **Location**: `lib/features/builder/widgets/layout_picker/`
+- **Components**: `LayoutPickerPanel`, `LayoutOptionCard`, `LayoutSlotGrid`
+- **Pattern**: Each block type maps to a list of available layouts via `_getLayoutsForType(type)`. Each layout entry contains `layoutStyle`, `name`, `description`, and `slots`.
+- **State Flow**: `LayoutPickerPanel` reads `BuilderState` to determine current layout, writes updates via `builder_cubit.updateBlockProperty()` (property keys: `layout_style`, `slot_widgets`).
+- **Mini Preview**: `LayoutOptionCard` renders a small schematic preview using `_LayoutMiniPreview`, which matches the `layoutStyle` string to a visual representation.
+- **Fallback**: If a block type has no registered layouts, the panel shows a centered message "هذا القسم لا يدعم تغيير التخطيط".
+- **Rule**: When adding a new layout variant to any home section (Hero, CTA, etc.), register its corresponding entry in both the `_getLayoutsForType()` function and the `layout_option_card.dart` switch cases.
+
+### B. Mobile Bottom Sheet Pattern (Template Picker)
+- **Pattern**: Desktop >= 900px renders an inline sidebar. Below 900px, a filter button opens a `DraggableScrollableSheet` as a modal bottom sheet.
+- **Implementation**: `template_picker_screen.dart` — uses `showModalBottomSheet` with `DraggableScrollableSheet(initialChildSize: 0.5, minChildSize: 0.3, maxChildSize: 0.8)`.
+- **Selection Flow**: Tapping a sheet item calls `setState` to update the selection, then `Navigator.pop(context)` to dismiss the sheet.
+- **Rule**: Always use `DraggableScrollableSheet` (not a fixed `Container`) for mobile filter/sidebar panels to support small screens (320px). Never hardcode a `ListView` outside a scrollable container in bottom sheets.
+
+### C. CustomNetworkImage Patterns
+- **Location**: `lib/core/widgets/custom_network_image.dart`
+- **Loading State**: Uses `Shimmer.fromColors` (shimmer/skeleton) while the image loads. Default fallback height is `200.0` when no explicit height is given.
+- **Error State**: Displays a grey container with a `broken_image_rounded` icon.
+- **URL Validation**: Empty and malformed URLs (`Uri.tryParse` returning null or non-absolute) show the error widget instead of crashing.
+- **Platform Split**: Web uses `Image.network` with `loadingBuilder`/`errorBuilder`. Native uses `CachedNetworkImage` with `placeholder`/`errorWidget`.
+- **Upload Handling**: URLs starting with `upload://` are managed via `UploadManagerCubit` with progress overlay, cancel button, and error display.
+- **Rule**: Always wrap `CustomNetworkImage` in a `ClipRRect` (or ensure it's within a clipped parent) for consistent border rounding. Do NOT specify explicit `width`/`height` when the parent provides tight constraints (e.g., inside `Positioned.fill`).
+
+### D. Home Section Layout Enums
+- **Location**: `lib/features/home/models/home_layouts.dart`
+- **Enums**: `HeroLayout`, `FeatureLayout`, `StatsLayout`, `CtaLayout`, `TemplateSliderLayout`
+- **Rule**: Every layout variant must support both Desktop (>= 900px) and Mobile (< 900px) via `LayoutBuilder`. Every layout must respect RTL via `EdgeInsetsDirectional`. Do NOT use `MediaQuery.of(context).size` for layout decisions inside section widgets — use the `constraints` from `LayoutBuilder` or `HomeBreakpoint`.
+- **Rule**: When adding a new layout, add its enum entry, implement the rendering method in the section widget (e.g., `_buildFullWidthImageLayout`), and register the mini preview in `layout_option_card.dart`.
+
+### E. Scroll-Triggered Visibility
+- **Pattern**: Use `VisibilityObserver` (in `lib/core/widgets/visibility_observer.dart`) instead of `GlobalKey` + `_checkAndReveal`.
+- **Behavior**: Observes its ancestor `Scrollable` via `Scrollable.maybeOf(context)`, listens for scroll position changes, and fires `onVisible` once the widget enters the viewport.
+- **Rule**: Use `ScrollPosition.viewportDimension` instead of `MediaQuery.of(context).size.height` for viewport calculations. Remove the scroll listener after the widget becomes visible to avoid wasted work.
+
+### F. Entrance Animation Mixin
+- **Location**: `lib/core/animations/entrance_animation_mixin.dart`
+- **Pattern**: `EntranceAnimationMixin` provides `entranceFade`, `entranceSlide`, `entranceDuration`, `entranceSlideBegin`, `startEntrance()`, and `buildEntranceAnimation()`.
+- **Rule**: Any widget that needs a fade + slide entrance animation on visibility should mix in `EntranceAnimationMixin` and respond to `widget.isVisible` in `didUpdateWidget` by calling `startEntrance()`.
+
+### G. Responsive Breakpoint
+- **Location**: `lib/core/responsive/responsive_utils.dart`
+- **Utility**: `HomeBreakpoint.isMobile(width)` returns `true` for `width < 700`.
+- **Rule**: Use `LayoutBuilder` + `HomeBreakpoint.isMobile(constraints.maxWidth)` for responsive decisions in home section widgets. Keep `isMobile` local to the builder function; do NOT store it in state.

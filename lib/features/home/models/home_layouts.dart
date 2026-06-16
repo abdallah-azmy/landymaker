@@ -29,6 +29,11 @@ enum HeroLayout {
   /// Animated gradient background only — no image.
   /// Text centered on both desktop and mobile.
   gradientOnly,
+
+  /// Edge-to-edge background image with dark overlay and centered text.
+  /// Outer container has zero padding; image spans full width/height.
+  /// Content is constrained to 1200px max-width with 24px horizontal padding.
+  fullWidthImage,
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -71,6 +76,11 @@ enum CtaLayout {
   /// Text on the leading side, button on the trailing side.
   /// Mobile: stacked vertically.
   split,
+
+  /// Edge-to-edge background image with dark overlay and centered CTA content.
+  /// Outer container has zero padding; image spans full width/height.
+  /// Content is constrained to 1100px max-width with 24px horizontal padding.
+  fullWidthImage,
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

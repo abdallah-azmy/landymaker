@@ -160,9 +160,12 @@ class _LayoutMiniPreview extends StatelessWidget {
         );
 
       case 'fullWidthBg':
+      case 'fullWidthImage':
         return Stack(
           children: [
             Container(color: _imageColor),
+            if (layoutStyle == 'fullWidthImage')
+              Container(color: Colors.black.withValues(alpha: 0.35)),
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

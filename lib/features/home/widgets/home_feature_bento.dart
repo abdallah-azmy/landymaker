@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/responsive/responsive_utils.dart';
 import '../models/home_layouts.dart';
 
 class HomeFeatureBento extends StatefulWidget {
@@ -138,7 +139,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 900;
+        final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
         switch (widget.layout) {
           case FeatureLayout.threeCols:
             return _buildThreeColsLayout(context, isMobile);
@@ -521,91 +522,86 @@ class _BentoCardState extends State<_BentoCard> {
   @override
   Widget build(BuildContext context) {
     final f = widget.feature;
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      // AnimatedSlide uses Transform internally = GPU compositing, not Dart lerp
-      child: AnimatedSlide(
-        offset: _hovered ? const Offset(0, -0.015) : Offset.zero,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutCubic,
-        child: AnimatedContainer(
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedSlide(
+          offset: _hovered ? const Offset(0, -0.015) : Offset.zero,
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          padding: EdgeInsets.all(widget.tall ? 36 : 28),
-          constraints: widget.tall ? const BoxConstraints(minHeight: 240) : null,
-          // Only animate color + border (cheap). NO boxShadow blur change (expensive).
-          decoration: BoxDecoration(
-            color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: _hovered ? f.color.withValues(alpha: 0.55) : AppColors.border,
-              width: 1.5,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            padding: EdgeInsets.all(widget.tall ? 36 : 28),
+            constraints: widget.tall ? const BoxConstraints(minHeight: 240) : null,
+            decoration: BoxDecoration(
+              color: _hovered ? AppColors.cardBgHover : AppColors.cardBg,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: _hovered ? f.color.withValues(alpha: 0.55) : AppColors.border,
+                width: 1.5,
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // RepaintBoundary: icon glow changes won't repaint the text below
-              RepaintBoundary(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: f.color.withValues(alpha: _hovered ? 0.18 : 0.1),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Icon(f.icon, color: f.color, size: 28),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              Row(
-                children: [
-                  Text(f.emoji, style: const TextStyle(fontSize: 18)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      f.title,
-                      style: AppTypography.h3.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                      ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RepaintBoundary(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: f.color.withValues(alpha: _hovered ? 0.18 : 0.1),
+                      borderRadius: BorderRadius.circular(18),
                     ),
+                    child: Icon(f.icon, color: f.color, size: 28),
                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              Text(
-                f.desc,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                  height: 1.65,
                 ),
-              ),
-
-              // Always in tree (no layout jump) — animated via opacity only
-              const SizedBox(height: 14),
-              AnimatedOpacity(
-                opacity: _hovered ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 180),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                const SizedBox(height: 20),
+                Row(
                   children: [
-                    Text(
-                      "اكتشف أكثر",
-                      style: AppTypography.caption.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                    Text(f.emoji, style: const TextStyle(fontSize: 18)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        f.title,
+                        style: AppTypography.h3.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Text(
+                  f.desc,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.65,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                AnimatedOpacity(
+                  opacity: _hovered ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 180),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "اكتشف أكثر",
+                        style: AppTypography.caption.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

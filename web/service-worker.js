@@ -1,4 +1,4 @@
-const CACHE_NAME = 'landymaker-v1';
+const CACHE_NAME = 'landymaker-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -35,6 +35,16 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Bypass service worker for blog, nextjs assets, api, and SEO files
+  if (url.pathname.startsWith('/blog') ||
+      url.pathname.startsWith('/_next') ||
+      url.pathname.startsWith('/api') ||
+      url.pathname === '/sitemap.xml' ||
+      url.pathname === '/robots.txt' ||
+      url.pathname === '/llms.txt') {
+    return; // Let the browser handle the request natively from the network
+  }
 
   // Cache-first for static assets
   if (STATIC_ASSETS.includes(url.pathname) ||

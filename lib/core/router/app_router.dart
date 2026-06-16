@@ -48,7 +48,12 @@ final GoRouter appRouter = GoRouter(
     if (path == '/blog' || path.startsWith('/blog/')) {
       final String url;
       if (kIsWeb) {
-        url = '${Uri.base.origin}$path';
+        final origin = Uri.base.origin;
+        if (origin.contains('localhost') || origin.contains('127.0.0.1')) {
+          url = 'https://landymaker.com$path';
+        } else {
+          url = '$origin$path';
+        }
       } else {
         url = 'https://landymaker.com$path';
       }

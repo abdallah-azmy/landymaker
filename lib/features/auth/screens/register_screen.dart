@@ -59,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (widget.onRegisterSuccess != null) {
       widget.onRegisterSuccess!();
     } else {
-      context.go('/');
+      context.go('/dashboard');
     }
   }
 
@@ -130,14 +130,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () {
-            if (Navigator.of(context).canPop()) {
-              Navigator.of(context).pop();
-            } else {
-              context.go('/');
-            }
-          },
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          onPressed: () => context.safePop(fallbackPath: '/'),
         ),
       ),
       body: Container(

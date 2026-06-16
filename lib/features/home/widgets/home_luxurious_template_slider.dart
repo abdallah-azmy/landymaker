@@ -244,19 +244,19 @@ class _HomeLuxuriousTemplateSliderState
                   },
                 ),
               ),
-              Positioned(
-                left: isMobile ? 4 : 40,
+              PositionedDirectional(
+                start: isMobile ? 4 : 40,
                 child: _NavigationButton(
-                  icon: Icons.arrow_forward_ios_rounded,
-                  onPressed: loc.isRtl ? _nextPage : _prevPage,
+                  icon: Icons.arrow_back_ios_new_rounded,
+                  onPressed: _prevPage,
                   isMobile: isMobile,
                 ),
               ),
-              Positioned(
-                right: isMobile ? 4 : 40,
+              PositionedDirectional(
+                end: isMobile ? 4 : 40,
                 child: _NavigationButton(
                   icon: Icons.arrow_forward_ios_rounded,
-                  onPressed: loc.isRtl ? _prevPage : _nextPage,
+                  onPressed: _nextPage,
                   isMobile: isMobile,
                 ),
               ),

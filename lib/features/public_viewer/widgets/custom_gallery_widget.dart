@@ -276,8 +276,8 @@ class _GalleryCarousel extends StatelessWidget {
               ),
             ),
             if (!props.isMobile) ...[
-              Positioned(left: 0, child: _NavButton(icon: Icons.arrow_back_ios_rounded, onTap: () => props.pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut))),
-              Positioned(right: 0, child: _NavButton(icon: Icons.arrow_forward_ios_rounded, onTap: () => props.pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut))),
+              PositionedDirectional(start: 0, child: _NavButton(icon: Icons.arrow_back_ios_new_rounded, onTap: () => props.pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut))),
+              PositionedDirectional(end: 0, child: _NavButton(icon: Icons.arrow_forward_ios_rounded, onTap: () => props.pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut))),
             ],
           ],
         ),
@@ -298,7 +298,7 @@ class _CarouselIndicators extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (props.isMobile) _NavButton(icon: Icons.arrow_back_ios_rounded, onTap: () => props.pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut), small: true),
+        if (props.isMobile) _NavButton(icon: Icons.arrow_back_ios_new_rounded, onTap: () => props.pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut), small: true),
         const SizedBox(width: 16),
         Column(
           children: [
@@ -344,7 +344,10 @@ class _NavButton extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(small ? 12 : 16),
-        child: Container(padding: EdgeInsets.all(small ? 8 : 12), child: Icon(icon, color: Colors.white, size: small ? 18 : 24)),
+        child: Container(
+          padding: EdgeInsets.all(small ? 8 : 12),
+          child: Icon(icon, color: Colors.white, size: small ? 18 : 24),
+        ),
       ),
     );
   }

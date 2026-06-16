@@ -83,14 +83,8 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () {
-            if (Navigator.of(context).canPop()) {
-              Navigator.of(context).pop();
-            } else {
-              context.go('/');
-            }
-          },
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          onPressed: () => context.safePop(fallbackPath: '/'),
         ),
       ),
       body: Container(
@@ -101,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
               if (widget.onLoginSuccess != null) {
                 widget.onLoginSuccess!();
               } else {
-                context.go('/');
+                context.go('/dashboard');
               }
             }
           },

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../theme/app_typography.dart';
+import '../../../features/auth/controllers/auth_cubit.dart';
+import '../../../features/auth/controllers/auth_state.dart';
 
 class LandyMakerLogo extends StatelessWidget {
   final double fontSize;
@@ -43,7 +46,16 @@ class LandyMakerLogo extends StatelessWidget {
     if (!isClickable) return logo;
 
     return InkWell(
-      onTap: () => context.go('/'),
+      onTap: () {
+        try {
+          final authState = context.read<AuthCubit>().state;
+          if (authState is Authenticated) {
+            context.go('/dashboard');
+            return;
+          }
+        } catch (_) {}
+        context.go('/');
+      },
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.all(4.0),

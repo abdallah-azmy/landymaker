@@ -581,7 +581,6 @@ class _BentoCardState extends State<_BentoCard> {
                     height: 1.65,
                   ),
                 ),
-                const SizedBox(height: 14),
                 AnimatedOpacity(
                   opacity: _hovered ? 1.0 : 0.0,
                   duration: const Duration(milliseconds: 180),
@@ -596,7 +595,7 @@ class _BentoCardState extends State<_BentoCard> {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
+                      const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
                     ],
                   ),
                 ),

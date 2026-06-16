@@ -861,10 +861,9 @@ class _FullscreenCloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
+    return PositionedDirectional(
       top: 24,
-      left: loc.isRtl ? null : 24,
-      right: loc.isRtl ? 24 : null,
+      start: 24,
       child: ClipOval(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
@@ -894,10 +893,9 @@ class _UploadManagerWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
+    return PositionedDirectional(
       top: isMobile ? 80 : 24,
-      right: loc.isRtl ? null : (isMobile ? 16 : 350 + 24),
-      left: loc.isRtl ? (isMobile ? 16 : 350 + 24) : null,
+      end: isMobile ? 16 : 350 + 24,
       child: const GlobalUploadManagerWidget(),
     );
   }

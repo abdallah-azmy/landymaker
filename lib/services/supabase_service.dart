@@ -908,6 +908,81 @@ class SupabaseService extends ChangeNotifier {
   }
 
   // ----------------------------------------------------
+  // TEMPLATE OPERATIONS
+  // ----------------------------------------------------
+
+  Future<List<Map<String, dynamic>>> fetchPublicTemplates() async {
+    try {
+      final res = await _client!
+          .from(DbConstants.templatesTable)
+          .select()
+          .eq('is_active', true)
+          .eq('is_draft', false)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching public templates: $e");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFeaturedTemplates() async {
+    try {
+      final res = await _client!
+          .from(DbConstants.templatesTable)
+          .select()
+          .eq('is_active', true)
+          .eq('is_draft', false)
+          .eq('is_featured', true)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching featured templates: $e");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllTemplates() async {
+    try {
+      final res = await _client!
+          .from(DbConstants.templatesTable)
+          .select()
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching all templates: $e");
+      return [];
+    }
+  }
+
+  Future<void> createTemplate(Map<String, dynamic> data) async {
+    try {
+      await _client!.from(DbConstants.templatesTable).insert(data);
+    } catch (e) {
+      debugPrint("Error creating template: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateTemplate(String id, Map<String, dynamic> data) async {
+    try {
+      await _client!.from(DbConstants.templatesTable).update(data).eq('id', id);
+    } catch (e) {
+      debugPrint("Error updating template: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteTemplate(String id) async {
+    try {
+      await _client!.from(DbConstants.templatesTable).update({'is_active': false}).eq('id', id);
+    } catch (e) {
+      debugPrint("Error soft-deleting template: $e");
+      rethrow;
+    }
+  }
+
+  // ----------------------------------------------------
   // NOTIFICATIONS OPERATIONS
   // ----------------------------------------------------
 

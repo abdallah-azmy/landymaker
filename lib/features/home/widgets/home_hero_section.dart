@@ -876,43 +876,42 @@ class _PhonePreviewState extends State<_PhonePreview> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Left cycle button (desktop only)
-          if (!widget.isMobile)
-            Semantics(
-              label: 'Previous template',
-              button: true,
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () {
-                    _previewCycleTimer?.cancel();
-                    setState(() {
-                      _activePreviewIndex =
-                          (_activePreviewIndex -
-                              1 +
-                              widget.previewPages.length) %
-                          widget.previewPages.length;
-                    });
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
+          // if (!widget.isMobile)
+          Semantics(
+            label: 'Previous template',
+            button: true,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  _previewCycleTimer?.cancel();
+                  setState(() {
+                    _activePreviewIndex =
+                        (_activePreviewIndex - 1 + widget.previewPages.length) %
+                        widget.previewPages.length;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.1),
                     ),
-                    child: const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.white60,
-                      size: 14,
-                    ),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white60,
+                    size: 14,
                   ),
                 ),
               ),
             ),
-          if (!widget.isMobile) const SizedBox(width: 16),
+          ),
+          // if (!widget.isMobile)
+          const SizedBox(width: 16),
 
           // Phone Frame
           Semantics(
@@ -1103,41 +1102,41 @@ class _PhonePreviewState extends State<_PhonePreview> {
           ),
 
           // Right cycle button (desktop only)
-          if (!widget.isMobile) const SizedBox(width: 16),
-          if (!widget.isMobile)
-            Semantics(
-              label: 'Next template',
-              button: true,
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () {
-                    _previewCycleTimer?.cancel();
-                    setState(() {
-                      _activePreviewIndex =
-                          (_activePreviewIndex + 1) %
-                          widget.previewPages.length;
-                    });
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
+          // if (!widget.isMobile)
+          const SizedBox(width: 16),
+          // if (!widget.isMobile)
+          Semantics(
+            label: 'Next template',
+            button: true,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  _previewCycleTimer?.cancel();
+                  setState(() {
+                    _activePreviewIndex =
+                        (_activePreviewIndex + 1) % widget.previewPages.length;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.1),
                     ),
-                    child: const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.white60,
-                      size: 14,
-                    ),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white60,
+                    size: 14,
                   ),
                 ),
               ),
             ),
+          ),
         ],
       ),
     );

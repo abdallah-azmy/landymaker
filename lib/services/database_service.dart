@@ -155,6 +155,34 @@ class DatabaseService {
   Future<bool> isRouteAvailable(String route, {String? excludePageId, bool checkPlatform = true, bool checkUsers = true}) {
     return _supabase.isRouteAvailable(route, excludePageId: excludePageId, checkPlatform: checkPlatform, checkUsers: checkUsers);
   }
+
+  // ----------------------------------------------------
+  // TEMPLATE OPERATIONS
+  // ----------------------------------------------------
+
+  Future<List<Map<String, dynamic>>> fetchPublicTemplates() {
+    return _supabase.fetchPublicTemplates();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFeaturedTemplates() {
+    return _supabase.fetchFeaturedTemplates();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllTemplates() {
+    return _supabase.fetchAllTemplates();
+  }
+
+  Future<void> createTemplate(Map<String, dynamic> data) {
+    return _supabase.createTemplate(data);
+  }
+
+  Future<void> updateTemplate(String id, Map<String, dynamic> data) {
+    return _supabase.updateTemplate(id, data);
+  }
+
+  Future<void> deleteTemplate(String id) {
+    return _supabase.deleteTemplate(id);
+  }
 }
 
 

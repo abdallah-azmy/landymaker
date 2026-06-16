@@ -46,6 +46,7 @@ const Map<String, String> translationsAr = {
   'edit_block': 'تعديل القسم',
   'landing_page_url': 'رابط الصفحة',
   'switch_language': 'English',
+  'start_free': 'ابدأ مجاناً',
   'whatsapp': 'واتساب',
   'products': 'المنتجات',
   'social_links': 'روابط تواصل',

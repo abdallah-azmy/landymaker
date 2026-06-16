@@ -336,7 +336,7 @@ final GoRouter appRouter = GoRouter(
                   return BuilderWorkspaceScreen(
                     pageId: pageId,
                     onBackToDashboard: () {
-                      context.go('/');
+                      context.go('/dashboard');
                     },
                   );
                 }

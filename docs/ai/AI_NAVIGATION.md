@@ -8,6 +8,7 @@ This document is the fastest onboarding tool for future AI models. It explains w
 |----------|---------|
 | **AI_CONTEXT.md** | Master Entry Point — Project state, architecture, implemented features, decisions. |
 | **docs/ai/AI_DOCUMENTATION_RULES.md** | AI Execution Rules — Rules for keeping docs synchronized, builder standards, UI/UX patterns. |
+| **docs/ai/SUPER_ADMIN_TEMPLATES_PLAN.md** | Super Admin Templates Plan — Plan for migrating templates to database-driven management. |
 | **docs/ai/DEVOPS_AND_ASSETS.md** | Deployment Rules — CI/CD, ImgBB, Vercel edge middleware, image management. |
 | **docs/ai/PROJECT_STRUCTURE.md** | Folder hierarchy and architecture boundaries. |
 | **docs/ai/BUILDER_ARCHITECTURE.md** | Builder system data flow. |

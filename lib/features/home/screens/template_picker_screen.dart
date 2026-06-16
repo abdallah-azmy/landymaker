@@ -54,12 +54,12 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_forward_ios_rounded,
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
             color: AppColors.textPrimary,
             size: 20,
           ),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.safePop(fallbackPath: '/'),
         ),
         title: Text(
           context.translate('choose_template'),

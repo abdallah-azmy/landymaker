@@ -2,7 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
 
 /// ======================================================
@@ -143,10 +145,27 @@ class _DesktopNavbar extends StatelessWidget {
                       _LogoSection(),
                       Row(
                         children: [
+                          TextButton.icon(
+                            onPressed: () =>
+                                context.read<LocalizationCubit>().toggleLanguage(),
+                            icon: const Icon(
+                              Icons.language_rounded,
+                              size: 18,
+                              color: AppColors.textPrimary,
+                            ),
+                            label: Text(
+                              context.translate('switch_language'),
+                              style: AppTypography.bodyMedium.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 20),
                           TextButton(
                             onPressed: onLoginPressed,
                             child: Text(
-                              'تسجيل الدخول',
+                              context.translate('login'),
                               style: AppTypography.bodyMedium.copyWith(
                                 color: AppColors.textPrimary,
                                 fontWeight: FontWeight.bold,
@@ -173,7 +192,7 @@ class _DesktopNavbar extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              'ابدأ مجاناً',
+                              context.translate('start_free'),
                               style: AppTypography.bodyMedium.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textPrimary,
@@ -247,32 +266,48 @@ class _MobileNavbar extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _LogoSection(),
-                          RepaintBoundary(
-                            child: IconButton(
-                              tooltip: menuOpen
-                                  ? context.translate('close_menu')
-                                  : context.translate('open_menu'),
-                              icon: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 200),
-                                transitionBuilder: (child, anim) =>
-                                    RotationTransition(
-                                  turns: anim,
-                                  child: FadeTransition(
-                                    opacity: anim,
-                                    child: child,
-                                  ),
-                                ),
-                                child: Icon(
-                                  menuOpen
-                                      ? Icons.close_rounded
-                                      : Icons.menu_rounded,
-                                  key: ValueKey(menuOpen),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                tooltip: context.translate('switch_language'),
+                                icon: const Icon(
+                                  Icons.language_rounded,
                                   color: AppColors.textPrimary,
-                                  size: 28,
+                                  size: 22,
+                                ),
+                                onPressed: () =>
+                                    context.read<LocalizationCubit>().toggleLanguage(),
+                              ),
+                              const SizedBox(width: 8),
+                              RepaintBoundary(
+                                child: IconButton(
+                                  tooltip: menuOpen
+                                      ? context.translate('close_menu')
+                                      : context.translate('open_menu'),
+                                  icon: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 200),
+                                    transitionBuilder: (child, anim) =>
+                                        RotationTransition(
+                                      turns: anim,
+                                      child: FadeTransition(
+                                        opacity: anim,
+                                        child: child,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      menuOpen
+                                          ? Icons.close_rounded
+                                          : Icons.menu_rounded,
+                                      key: ValueKey(menuOpen),
+                                      color: AppColors.textPrimary,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  onPressed: toggleMenu,
                                 ),
                               ),
-                              onPressed: toggleMenu,
-                            ),
+                            ],
                           ),
                         ],
                       ),
@@ -322,7 +357,7 @@ class _MobileNavbar extends StatelessWidget {
                               borderRadius: BorderRadius.circular(14)),
                         ),
                         child: Text(
-                          'تسجيل الدخول',
+                          context.translate('login'),
                           style: AppTypography.bodyMedium.copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.bold,
@@ -344,7 +379,7 @@ class _MobileNavbar extends StatelessWidget {
                           elevation: 0,
                         ),
                         child: Text(
-                          'ابدأ مجاناً',
+                          context.translate('start_free'),
                           style: AppTypography.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,

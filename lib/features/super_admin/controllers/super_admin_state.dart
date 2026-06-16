@@ -20,6 +20,9 @@ class SuperAdminLoaded extends SuperAdminState {
   final List<Map<String, dynamic>> auditLogs;
   final List<Map<String, dynamic>> platformSeoSettings;
 
+  // Template management
+  final List<Map<String, dynamic>> templates;
+
   SuperAdminLoaded({
     required this.totalUsers,
     required this.activePages,
@@ -33,6 +36,7 @@ class SuperAdminLoaded extends SuperAdminState {
     this.securityLimits = const {},
     this.auditLogs = const [],
     this.platformSeoSettings = const [],
+    this.templates = const [],
   });
 
   SuperAdminLoaded copyWith({
@@ -48,6 +52,7 @@ class SuperAdminLoaded extends SuperAdminState {
     Map<String, int>? securityLimits,
     List<Map<String, dynamic>>? auditLogs,
     List<Map<String, dynamic>>? platformSeoSettings,
+    List<Map<String, dynamic>>? templates,
   }) {
     return SuperAdminLoaded(
       totalUsers: totalUsers ?? this.totalUsers,
@@ -62,6 +67,7 @@ class SuperAdminLoaded extends SuperAdminState {
       securityLimits: securityLimits ?? this.securityLimits,
       auditLogs: auditLogs ?? this.auditLogs,
       platformSeoSettings: platformSeoSettings ?? this.platformSeoSettings,
+      templates: templates ?? this.templates,
     );
   }
 }

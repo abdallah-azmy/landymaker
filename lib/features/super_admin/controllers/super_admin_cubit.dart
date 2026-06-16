@@ -24,6 +24,7 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
       final securityLimits = await _databaseService.getSystemSecurityLimits();
       final auditLogs = await _databaseService.getSystemAuditLogs();
       final platformSeoSettings = await _databaseService.getPlatformSeoSettings();
+      final templates = await _databaseService.fetchAllTemplates();
 
       emit(SuperAdminLoaded(
         totalUsers: metrics['total_users'] ?? 0,
@@ -38,6 +39,7 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
         securityLimits: securityLimits,
         auditLogs: auditLogs,
         platformSeoSettings: platformSeoSettings,
+        templates: templates,
       ));
     } catch (e) {
       emit(SuperAdminFailure("Error loading admin metrics: $e"));

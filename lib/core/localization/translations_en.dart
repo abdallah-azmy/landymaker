@@ -46,6 +46,7 @@ const Map<String, String> translationsEn = {
   'edit_block': 'Edit Block',
   'landing_page_url': 'Page URL',
   'switch_language': 'العربية',
+  'start_free': 'Start for free',
   'whatsapp': 'WhatsApp',
   'products': 'Products',
   'social_links': 'Social Links',

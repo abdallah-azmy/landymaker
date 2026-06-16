@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'translations_ar.dart';
 import 'translations_en.dart';
 
@@ -34,5 +35,15 @@ extension LocalizationExtension on BuildContext {
 
   bool get isRtl {
     return BlocProvider.of<LocalizationCubit>(this).isRtl;
+  }
+
+  /// Safely pops the current screen if possible, otherwise navigates to [fallbackPath]
+  /// to prevent infinite loading screens or navigation loops.
+  void safePop({String fallbackPath = '/'}) {
+    if (this.canPop()) {
+      this.pop();
+    } else {
+      this.go(fallbackPath);
+    }
   }
 }

@@ -4,6 +4,9 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
 
+/// ==========================================
+/// 1. FACTORY WIDGET
+/// ==========================================
 class CustomComparisonTableWidget extends StatelessWidget {
   final Map<String, dynamic> block;
   final LandingPageTheme? theme;
@@ -19,7 +22,6 @@ class CustomComparisonTableWidget extends StatelessWidget {
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
     final accentColor = theme?.secondary ?? AppColors.secondary;
-    
     final title = block['title'] ?? '';
     final subtitle = block['subtitle'] ?? '';
     final List plans = block['plans'] ?? [];
@@ -29,38 +31,54 @@ class CustomComparisonTableWidget extends StatelessWidget {
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 700;
 
-        return SectionBackground(
+        final props = _ComparisonTableProps(
+          title: title,
+          subtitle: subtitle,
+          plans: plans,
+          features: features,
+          accentColor: accentColor,
+          textColor: textColor,
+          subTextColor: subTextColor,
+          isMobile: isMobile,
           theme: theme,
           bgImageUrl: block['bg_image_url'],
           bgOverlayColor: block['bg_overlay_color'],
           bgOverlayOpacity: (block['bg_overlay_opacity'] as num?)?.toDouble(),
           bgBlur: (block['bg_blur'] as num?)?.toDouble(),
-          padding: EdgeInsetsDirectional.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+        );
+
+        return SectionBackground(
+          theme: theme,
+          bgImageUrl: props.bgImageUrl,
+          bgOverlayColor: props.bgOverlayColor,
+          bgOverlayOpacity: props.bgOverlayOpacity,
+          bgBlur: props.bgBlur,
+          padding: EdgeInsetsDirectional.symmetric(vertical: props.isMobile ? 40 : 80, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
               child: Column(
                 children: [
-                  if (title.isNotEmpty) ...[
+                  if (props.title.isNotEmpty) ...[
                     Text(
-                      title,
-                      style: AppTypography.h2.copyWith(color: textColor, fontSize: isMobile ? 24 : 32),
+                      props.title,
+                      style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
                   ],
-                  if (subtitle.isNotEmpty) ...[
+                  if (props.subtitle.isNotEmpty) ...[
                     Text(
-                      subtitle,
-                      style: AppTypography.bodyLarge.copyWith(color: subTextColor, fontSize: isMobile ? 16 : 18),
+                      props.subtitle,
+                      style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 48),
                   ],
-                  if (isMobile)
-                    _buildMobileComparison(plans, features, accentColor, textColor, subTextColor)
+                  if (props.isMobile)
+                    _MobileComparisonTableLayout(props: props)
                   else
-                    _buildDesktopTable(plans, features, accentColor, textColor, subTextColor),
+                    _DesktopComparisonTableLayout(props: props),
                 ],
               ),
             ),
@@ -69,8 +87,54 @@ class CustomComparisonTableWidget extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildDesktopTable(List plans, List features, Color accent, Color textColor, Color subTextColor) {
+/// ==========================================
+/// 2. DATA PROPS CLASS
+/// ==========================================
+class _ComparisonTableProps {
+  final String title;
+  final String subtitle;
+  final List plans;
+  final List features;
+  final Color accentColor;
+  final Color textColor;
+  final Color subTextColor;
+  final bool isMobile;
+  final LandingPageTheme? theme;
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final double? bgBlur;
+
+  const _ComparisonTableProps({
+    required this.title,
+    required this.subtitle,
+    required this.plans,
+    required this.features,
+    required this.accentColor,
+    required this.textColor,
+    required this.subTextColor,
+    required this.isMobile,
+    this.theme,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.bgBlur,
+  });
+}
+
+/// ==========================================
+/// 3. DESKTOP LAYOUT
+/// ==========================================
+
+/// Desktop version of the Comparison Table layout.
+class _DesktopComparisonTableLayout extends StatelessWidget {
+  final _ComparisonTableProps props;
+  const _DesktopComparisonTableLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.cardBg,
@@ -82,18 +146,17 @@ class CustomComparisonTableWidget extends StatelessWidget {
         columnWidths: {
           0: const FlexColumnWidth(2),
           ...Map.fromIterable(
-            List.generate(plans.length, (i) => i + 1),
+            List.generate(props.plans.length, (i) => i + 1),
             key: (i) => i,
             value: (_) => const FlexColumnWidth(1),
           ),
         },
         children: [
-          // Header Row
           TableRow(
-            decoration: BoxDecoration(color: textColor.withValues(alpha: 0.05)),
+            decoration: BoxDecoration(color: props.textColor.withValues(alpha: 0.05)),
             children: [
               const TableCell(child: SizedBox(height: 80)),
-              ...plans.map((plan) => TableCell(
+              ...props.plans.map((plan) => TableCell(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
@@ -101,12 +164,12 @@ class CustomComparisonTableWidget extends StatelessWidget {
                     children: [
                       Text(
                         plan['name'] ?? '',
-                        style: AppTypography.h3.copyWith(color: textColor, fontSize: 18),
+                        style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 18),
                       ),
                       if (plan['price'] != null)
                         Text(
                           plan['price'],
-                          style: AppTypography.bodyMedium.copyWith(color: accent, fontWeight: FontWeight.bold),
+                          style: AppTypography.bodyMedium.copyWith(color: props.accentColor, fontWeight: FontWeight.bold),
                         ),
                     ],
                   ),
@@ -114,8 +177,7 @@ class CustomComparisonTableWidget extends StatelessWidget {
               )),
             ],
           ),
-          // Feature Rows
-          ...features.map((feature) {
+          ...props.features.map((feature) {
             final featureName = feature['name'] ?? '';
             final values = feature['values'] ?? [];
 
@@ -127,14 +189,14 @@ class CustomComparisonTableWidget extends StatelessWidget {
                 TableCell(
                   child: Padding(
                     padding: const EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 20),
-                    child: Text(featureName, style: AppTypography.bodyMedium.copyWith(color: textColor, fontWeight: FontWeight.bold)),
+                    child: Text(featureName, style: AppTypography.bodyMedium.copyWith(color: props.textColor, fontWeight: FontWeight.bold)),
                   ),
                 ),
-                ...List.generate(plans.length, (index) {
+                ...List.generate(props.plans.length, (index) {
                   final value = index < values.length ? values[index] : null;
                   return TableCell(
                     child: Center(
-                      child: _buildFeatureValue(value, accent, subTextColor),
+                      child: _ComparisonFeatureValue(value: value, accentColor: props.accentColor, subTextColor: props.subTextColor),
                     ),
                   );
                 }),
@@ -145,11 +207,22 @@ class CustomComparisonTableWidget extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildMobileComparison(List plans, List features, Color accent, Color textColor, Color subTextColor) {
+/// ==========================================
+/// 4. MOBILE LAYOUT
+/// ==========================================
+
+/// Mobile version of the Comparison Table layout.
+class _MobileComparisonTableLayout extends StatelessWidget {
+  final _ComparisonTableProps props;
+  const _MobileComparisonTableLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
-      children: List.generate(plans.length, (planIndex) {
-        final plan = plans[planIndex];
+      children: List.generate(props.plans.length, (planIndex) {
+        final plan = props.plans[planIndex];
         return Container(
           margin: const EdgeInsets.only(bottom: 24),
           padding: const EdgeInsets.all(24),
@@ -161,9 +234,9 @@ class CustomComparisonTableWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(plan['name'] ?? '', style: AppTypography.h3.copyWith(color: accent)),
+              Text(plan['name'] ?? '', style: AppTypography.h3.copyWith(color: props.accentColor)),
               const SizedBox(height: 16),
-              ...features.map((feature) {
+              ...props.features.map((feature) {
                 final values = feature['values'] ?? [];
                 final value = planIndex < values.length ? values[planIndex] : null;
 
@@ -172,8 +245,8 @@ class CustomComparisonTableWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(feature['name'] ?? '', style: AppTypography.bodySmall.copyWith(color: subTextColor)),
-                      _buildFeatureValue(value, accent, subTextColor),
+                      Text(feature['name'] ?? '', style: AppTypography.bodySmall.copyWith(color: props.subTextColor)),
+                      _ComparisonFeatureValue(value: value, accentColor: props.accentColor, subTextColor: props.subTextColor),
                     ],
                   ),
                 );
@@ -184,12 +257,30 @@ class CustomComparisonTableWidget extends StatelessWidget {
       }).toList(),
     );
   }
+}
 
-  Widget _buildFeatureValue(dynamic value, Color accent, Color subTextColor) {
+/// ==========================================
+/// 5. SHARED SUB-WIDGETS
+/// ==========================================
+
+/// Shared Comparison Feature Value (checkmark, cross, or text).
+class _ComparisonFeatureValue extends StatelessWidget {
+  final dynamic value;
+  final Color accentColor;
+  final Color subTextColor;
+
+  const _ComparisonFeatureValue({
+    required this.value,
+    required this.accentColor,
+    required this.subTextColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     if (value is bool) {
       return Icon(
         value ? Icons.check_circle_rounded : Icons.cancel_rounded,
-        color: value ? accent : AppColors.textMuted.withValues(alpha: 0.5),
+        color: value ? accentColor : AppColors.textMuted.withValues(alpha: 0.5),
         size: 20,
       );
     }

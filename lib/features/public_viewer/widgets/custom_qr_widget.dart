@@ -6,6 +6,9 @@ import '../../../services/tenant_routing_service.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
 
+/// ==========================================
+/// 1. FACTORY WIDGET
+/// ==========================================
 class CustomQrWidget extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -34,7 +37,6 @@ class CustomQrWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final String? subdomain = TenantRoutingService.getTenantIdentifier();
     final String baseUrl = Uri.base.origin;
-    // Construct the live URL based on current routing (landymaker.com/subdomain)
     final String liveUrl = subdomain != null ? '$baseUrl/$subdomain' : baseUrl;
     final String finalPayload = (qrPayload != null && qrPayload!.isNotEmpty) ? qrPayload! : liveUrl;
 
@@ -45,74 +47,168 @@ class CustomQrWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
-        final double verticalPadding = isMobile ? 40 : 80;
 
-        return SectionBackground(
+        final props = _QrProps(
+          title: title,
+          subtitle: subtitle,
+          finalPayload: finalPayload,
+          secondaryColor: secondaryColor,
+          textColor: textColor,
+          subTextColor: subTextColor,
+          isMobile: isMobile,
+          qrSize: qrSize,
+          theme: theme,
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
           bgBlur: bgBlur,
-          theme: theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
-          child: Center(
-            child: Column(
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.h2.copyWith(fontSize: isMobile ? 24 : 28, color: textColor),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  subtitle,
-                  style: AppTypography.bodyMedium.copyWith(color: subTextColor, fontSize: isMobile ? 12 : 14),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: isMobile ? 32 : 48),
-                
-                // Premium QR View
-                Container(
-                  padding: EdgeInsets.all(isMobile ? 16 : 24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(isMobile ? 20 : 32),
-                    boxShadow: [
-                      BoxShadow(
-                        color: secondaryColor.withValues(alpha: 0.2),
-                        blurRadius: 40,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: SizedBox(
-                    width: isMobile ? 160 : qrSize,
-                    height: isMobile ? 160 : qrSize,
-                    child: PrettyQrView.data(
-                      data: finalPayload,
-                      decoration: const PrettyQrDecoration(
-                        shape: PrettyQrSmoothSymbol(
-                          color: Colors.black87, // Fixed dark color for standard scannability
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                
-                SizedBox(height: isMobile ? 24 : 40),
-                Text(
-                  finalPayload.replaceFirst('https://', '').replaceFirst('http://', ''),
-                  style: AppTypography.caption.copyWith(
-                    color: secondaryColor,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.1,
-                    fontSize: isMobile ? 10 : 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
         );
+
+        return isMobile
+            ? _MobileQrLayout(props: props)
+            : _DesktopQrLayout(props: props);
       },
+    );
+  }
+}
+
+/// ==========================================
+/// 2. DATA PROPS CLASS
+/// ==========================================
+class _QrProps {
+  final String title;
+  final String subtitle;
+  final String finalPayload;
+  final Color secondaryColor;
+  final Color textColor;
+  final Color subTextColor;
+  final bool isMobile;
+  final double qrSize;
+  final LandingPageTheme? theme;
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final double? bgBlur;
+
+  const _QrProps({
+    required this.title,
+    required this.subtitle,
+    required this.finalPayload,
+    required this.secondaryColor,
+    required this.textColor,
+    required this.subTextColor,
+    required this.isMobile,
+    required this.qrSize,
+    this.theme,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.bgBlur,
+  });
+}
+
+/// ==========================================
+/// 3. DESKTOP LAYOUT
+/// ==========================================
+
+/// Desktop version of the QR layout.
+class _DesktopQrLayout extends StatelessWidget {
+  final _QrProps props;
+  const _DesktopQrLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionBackground(
+      bgImageUrl: props.bgImageUrl,
+      bgOverlayColor: props.bgOverlayColor,
+      bgOverlayOpacity: props.bgOverlayOpacity,
+      bgBlur: props.bgBlur,
+      theme: props.theme,
+      padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
+      child: Center(
+        child: Column(
+          children: [
+            Text(props.title, style: AppTypography.h2.copyWith(fontSize: 28, color: props.textColor), textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14), textAlign: TextAlign.center),
+            const SizedBox(height: 48),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [BoxShadow(color: props.secondaryColor.withValues(alpha: 0.2), blurRadius: 40, offset: const Offset(0, 10))],
+              ),
+              child: SizedBox(
+                width: props.qrSize,
+                height: props.qrSize,
+                child: PrettyQrView.data(
+                  data: props.finalPayload,
+                  decoration: const PrettyQrDecoration(shape: PrettyQrSmoothSymbol(color: Colors.black87)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+            Text(
+              props.finalPayload.replaceFirst('https://', '').replaceFirst('http://', ''),
+              style: AppTypography.caption.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold, letterSpacing: 1.1, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// ==========================================
+/// 4. MOBILE LAYOUT
+/// ==========================================
+
+/// Mobile version of the QR layout.
+class _MobileQrLayout extends StatelessWidget {
+  final _QrProps props;
+  const _MobileQrLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionBackground(
+      bgImageUrl: props.bgImageUrl,
+      bgOverlayColor: props.bgOverlayColor,
+      bgOverlayOpacity: props.bgOverlayOpacity,
+      bgBlur: props.bgBlur,
+      theme: props.theme,
+      padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
+      child: Center(
+        child: Column(
+          children: [
+            Text(props.title, style: AppTypography.h2.copyWith(fontSize: 24, color: props.textColor), textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 12), textAlign: TextAlign.center),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [BoxShadow(color: props.secondaryColor.withValues(alpha: 0.2), blurRadius: 40, offset: const Offset(0, 10))],
+              ),
+              child: SizedBox(
+                width: 160,
+                height: 160,
+                child: PrettyQrView.data(
+                  data: props.finalPayload,
+                  decoration: const PrettyQrDecoration(shape: PrettyQrSmoothSymbol(color: Colors.black87)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              props.finalPayload.replaceFirst('https://', '').replaceFirst('http://', ''),
+              style: AppTypography.caption.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold, letterSpacing: 1.1, fontSize: 10),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

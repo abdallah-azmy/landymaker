@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
 
+/// ==========================================
+/// 1. FACTORY WIDGET
+/// ==========================================
 class CustomWorkingHoursWidget extends StatelessWidget {
   final Map<String, dynamic> blockData;
   final LandingPageTheme? theme;
@@ -27,11 +29,9 @@ class CustomWorkingHoursWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = blockData['title'] ?? 'مواعيد العمل';
     final schedule = blockData['schedule'] as Map<String, dynamic>? ?? {};
-
     final textColor = theme?.textPrimary ?? AppColors.textPrimary;
     final subTextColor = theme?.textSecondary ?? AppColors.textSecondary;
-    
-    // Quick logic to check if open (10 AM to 11 PM)
+
     final now = DateTime.now();
     final currentHour = now.hour;
     final isOpen = currentHour >= 10 && currentHour < 23;
@@ -39,88 +39,187 @@ class CustomWorkingHoursWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
-        final double verticalPadding = isMobile ? 40 : 80;
 
-        return SectionBackground(
+        final props = _WorkingHoursProps(
+          title: title,
+          schedule: schedule,
+          isOpen: isOpen,
+          textColor: textColor,
+          subTextColor: subTextColor,
+          isMobile: isMobile,
+          theme: theme,
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
           bgBlur: bgBlur,
-          theme: theme,
-          padding: EdgeInsetsDirectional.symmetric(
-            vertical: verticalPadding,
-            horizontal: 24,
-          ),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 800),
-              padding: EdgeInsets.all(isMobile ? 20 : 32),
-              decoration: BoxDecoration(
-                color: subTextColor.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: subTextColor.withValues(alpha: 0.1),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: AppTypography.h3.copyWith(
-                            color: textColor,
-                            fontSize: isMobile ? 20 : 24,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildStatusBadge(isOpen),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  ...schedule.entries.map((entry) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            entry.key,
-                            style: AppTypography.bodyLarge.copyWith(
-                              color: subTextColor,
-                              fontSize: isMobile ? 15 : 17,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            entry.value.toString(),
-                            style: AppTypography.bodyLarge.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                              fontSize: isMobile ? 15 : 17,
-                            ),
-                            textAlign: TextAlign.end,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-                ],
-              ),
-            ),
-          ),
         );
+
+        return isMobile
+            ? _MobileWorkingHoursLayout(props: props)
+            : _DesktopWorkingHoursLayout(props: props);
       },
     );
   }
+}
 
-  Widget _buildStatusBadge(bool isOpen) {
+/// ==========================================
+/// 2. DATA PROPS CLASS
+/// ==========================================
+class _WorkingHoursProps {
+  final String title;
+  final Map<String, dynamic> schedule;
+  final bool isOpen;
+  final Color textColor;
+  final Color subTextColor;
+  final bool isMobile;
+  final LandingPageTheme? theme;
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final double? bgBlur;
+
+  const _WorkingHoursProps({
+    required this.title,
+    required this.schedule,
+    required this.isOpen,
+    required this.textColor,
+    required this.subTextColor,
+    required this.isMobile,
+    this.theme,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.bgBlur,
+  });
+}
+
+/// ==========================================
+/// 3. DESKTOP LAYOUT
+/// ==========================================
+
+/// Desktop version of the Working Hours layout.
+class _DesktopWorkingHoursLayout extends StatelessWidget {
+  final _WorkingHoursProps props;
+  const _DesktopWorkingHoursLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionBackground(
+      bgImageUrl: props.bgImageUrl,
+      bgOverlayColor: props.bgOverlayColor,
+      bgOverlayOpacity: props.bgOverlayOpacity,
+      bgBlur: props.bgBlur,
+      theme: props.theme,
+      padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 800),
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: props.subTextColor.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: props.subTextColor.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 24))),
+                  const SizedBox(width: 8),
+                  _WorkingHoursStatusBadge(isOpen: props.isOpen),
+                ],
+              ),
+              const SizedBox(height: 24),
+              ...props.schedule.entries.map((entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 17))),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(entry.value.toString(), style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor, fontSize: 17), textAlign: TextAlign.end)),
+                  ],
+                ),
+              )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// ==========================================
+/// 4. MOBILE LAYOUT
+/// ==========================================
+
+/// Mobile version of the Working Hours layout.
+class _MobileWorkingHoursLayout extends StatelessWidget {
+  final _WorkingHoursProps props;
+  const _MobileWorkingHoursLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionBackground(
+      bgImageUrl: props.bgImageUrl,
+      bgOverlayColor: props.bgOverlayColor,
+      bgOverlayOpacity: props.bgOverlayOpacity,
+      bgBlur: props.bgBlur,
+      theme: props.theme,
+      padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 800),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: props.subTextColor.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: props.subTextColor.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20))),
+                  const SizedBox(width: 8),
+                  _WorkingHoursStatusBadge(isOpen: props.isOpen),
+                ],
+              ),
+              const SizedBox(height: 24),
+              ...props.schedule.entries.map((entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 15))),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(entry.value.toString(), style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor, fontSize: 15), textAlign: TextAlign.end)),
+                  ],
+                ),
+              )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// ==========================================
+/// 5. SHARED SUB-WIDGETS
+/// ==========================================
+
+/// Shared Open/Closed status badge.
+class _WorkingHoursStatusBadge extends StatelessWidget {
+  final bool isOpen;
+  const _WorkingHoursStatusBadge({required this.isOpen});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -131,21 +230,9 @@ class CustomWorkingHoursWidget extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 8, height: 8,
-            decoration: BoxDecoration(
-              color: isOpen ? AppColors.activeGreen : AppColors.dangerRed,
-              shape: BoxShape.circle,
-            ),
-          ),
+          Container(width: 8, height: 8, decoration: BoxDecoration(color: isOpen ? AppColors.activeGreen : AppColors.dangerRed, shape: BoxShape.circle)),
           const SizedBox(width: 8),
-          Text(
-            isOpen ? "مفتوح الآن" : "مغلق الآن",
-            style: AppTypography.caption.copyWith(
-              color: isOpen ? AppColors.activeGreen : AppColors.dangerRed,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(isOpen ? "مفتوح الآن" : "مغلق الآن", style: AppTypography.caption.copyWith(color: isOpen ? AppColors.activeGreen : AppColors.dangerRed, fontWeight: FontWeight.bold)),
         ],
       ),
     );

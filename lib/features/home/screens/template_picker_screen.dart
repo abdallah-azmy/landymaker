@@ -10,6 +10,12 @@ import '../../auth/controllers/auth_cubit.dart';
 import '../../auth/controllers/auth_state.dart';
 import '../../builder/registries/template_registry.dart';
 
+/// ======================================================
+/// FEATURE: Template Picker Screen
+/// PURPOSE: Allows users to browse and select landing page templates by category.
+/// ARCHITECTURE: State is hoisted to [TemplatePickerScreen]. 
+/// Renders [_TemplatePickerDesktop] or [_TemplatePickerMobile] based on width.
+/// ======================================================
 class TemplatePickerScreen extends StatefulWidget {
   const TemplatePickerScreen({super.key});
 
@@ -36,53 +42,12 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         .toList();
   }
 
-  String _categoryLabel(String category) {
-    switch (category) {
-      case 'general':
-        return 'عام';
-      case 'technology':
-        return 'تقنية';
-      case 'ecommerce':
-        return 'متاجر';
-      case 'creator':
-        return 'مبدعون';
-      case 'professional_services':
-        return 'خدمات مهنية';
-      case 'real_estate':
-        return 'عقارات';
-      case 'education':
-        return 'تعليم';
-      case 'events':
-        return 'مناسبات';
-      case 'food':
-        return 'مطاعم';
-      case 'healthcare':
-        return 'صحة';
-      case 'beauty':
-        return 'تجميل';
-      case 'fitness':
-        return 'لياقة';
-      case 'agency':
-        return 'وكالات';
-      case 'nonprofit':
-        return 'غير ربحي';
-      case 'digital_product':
-        return 'منتجات رقمية';
-      case 'industrial':
-        return 'صناعي';
-      case 'travel':
-        return 'سفر';
-      case 'creative':
-        return 'إبداعي';
-      default:
-        return category[0].toUpperCase() + category.substring(1);
-    }
+  void _onCategorySelected(String? category) {
+    setState(() => _selectedCategory = category);
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isRtl = context.isRtl;
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -106,77 +71,125 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         builder: (context, constraints) {
           final bool isMobile = constraints.maxWidth < 600;
           final bool isDesktop = constraints.maxWidth >= 900;
-          final int crossAxisCount = constraints.maxWidth > 1200
-              ? 4
-              : (constraints.maxWidth > 800 ? 3 : (isMobile ? 1 : 2));
-
-          final grid = _buildGrid(isMobile, crossAxisCount);
-          final warning = _buildWarning();
 
           if (isDesktop) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSidebar(isRtl),
-                const SizedBox(width: 24),
-                Expanded(
-                  child: Column(
-                    children: [
-                      warning,
-                      Expanded(child: grid),
-                    ],
-                  ),
-                ),
-              ],
+            return _TemplatePickerDesktop(
+              categories: _categories,
+              selectedCategory: _selectedCategory,
+              filteredTemplates: _filteredTemplates,
+              onCategorySelected: _onCategorySelected,
             );
           }
 
-          return Column(
-            children: [
-              _buildMobileFilter(),
-              warning,
-              Expanded(child: grid),
-            ],
+          return _TemplatePickerMobile(
+            categories: _categories,
+            selectedCategory: _selectedCategory,
+            filteredTemplates: _filteredTemplates,
+            onCategorySelected: _onCategorySelected,
+            isMobile: isMobile,
           );
         },
       ),
     );
   }
+}
 
-  Widget _buildWarning() {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Text(
-        context.translate('template_warning'),
-        textAlign: TextAlign.center,
-        style: AppTypography.bodyMedium.copyWith(
-          color: AppColors.textSecondary,
+/// Desktop version of the Template Picker.
+class _TemplatePickerDesktop extends StatelessWidget {
+  final List<String> categories;
+  final String? selectedCategory;
+  final List<TemplateMetadata> filteredTemplates;
+  final Function(String?) onCategorySelected;
+
+  const _TemplatePickerDesktop({
+    required this.categories,
+    required this.selectedCategory,
+    required this.filteredTemplates,
+    required this.onCategorySelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Sidebar(
+          categories: categories,
+          selectedCategory: selectedCategory,
+          onCategorySelected: onCategorySelected,
         ),
-      ),
+        const SizedBox(width: 24),
+        Expanded(
+          child: Column(
+            children: [
+              const _WarningText(),
+              Expanded(
+                child: _TemplateGrid(
+                  templates: filteredTemplates,
+                  crossAxisCount: 4,
+                  isMobile: false,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
+}
 
-  Widget _buildGrid(bool isMobile, int crossAxisCount) {
-    return GridView.builder(
-      padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 16 : 40,
-        vertical: 24,
-      ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 24,
-        mainAxisSpacing: 24,
-        childAspectRatio: 0.8,
-      ),
-      itemCount: _filteredTemplates.length,
-      itemBuilder: (context, index) {
-        final template = _filteredTemplates[index];
-        return _TemplateCard(template: template);
-      },
+/// Mobile/Tablet version of the Template Picker.
+class _TemplatePickerMobile extends StatelessWidget {
+  final List<String> categories;
+  final String? selectedCategory;
+  final List<TemplateMetadata> filteredTemplates;
+  final Function(String?) onCategorySelected;
+  final bool isMobile;
+
+  const _TemplatePickerMobile({
+    required this.categories,
+    required this.selectedCategory,
+    required this.filteredTemplates,
+    required this.onCategorySelected,
+    required this.isMobile,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _MobileFilterBar(
+          selectedCategory: selectedCategory,
+          categories: categories,
+          onCategorySelected: onCategorySelected,
+        ),
+        const _WarningText(),
+        Expanded(
+          child: _TemplateGrid(
+            templates: filteredTemplates,
+            crossAxisCount: isMobile ? 1 : 2,
+            isMobile: isMobile,
+          ),
+        ),
+      ],
     );
   }
+}
 
-  Widget _buildSidebar(bool isRtl) {
+/// Shared Sidebar for Desktop.
+class _Sidebar extends StatelessWidget {
+  final List<String> categories;
+  final String? selectedCategory;
+  final Function(String?) onCategorySelected;
+
+  const _Sidebar({
+    required this.categories,
+    required this.selectedCategory,
+    required this.onCategorySelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: 220,
       margin: const EdgeInsetsDirectional.only(top: 24, start: 24),
@@ -201,33 +214,51 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             ),
           ),
           const Divider(color: AppColors.border, height: 1),
-          _buildSidebarItem(null, 'الكل'),
-          ..._categories.map(
-            (cat) => _buildSidebarItem(cat, _categoryLabel(cat)),
+          _SidebarItem(
+            category: null,
+            label: 'الكل',
+            isSelected: selectedCategory == null,
+            onTap: () => onCategorySelected(null),
+          ),
+          ...categories.map(
+            (cat) => _SidebarItem(
+              category: cat,
+              label: _getCategoryLabel(cat),
+              isSelected: selectedCategory == cat,
+              onTap: () => onCategorySelected(cat),
+            ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSidebarItem(String? category, String label) {
-    final isSelected = _selectedCategory == category;
+/// Shared Sidebar Item.
+class _SidebarItem extends StatelessWidget {
+  final String? category;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SidebarItem({
+    required this.category,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => setState(() => _selectedCategory = category),
+        onTap: onTap,
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsetsDirectional.only(
-            start: 16,
-            end: 16,
-            top: 12,
-            bottom: 12,
-          ),
+          padding: const EdgeInsetsDirectional.only(start: 16, end: 16, top: 12, bottom: 12),
           decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.secondary.withValues(alpha: 0.1)
-                : Colors.transparent,
+            color: isSelected ? AppColors.secondary.withValues(alpha: 0.1) : Colors.transparent,
             border: Border(
               left: BorderSide(
                 color: isSelected ? AppColors.secondary : Colors.transparent,
@@ -246,36 +277,44 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
       ),
     );
   }
+}
 
-  Widget _buildMobileFilter() {
+/// Shared Mobile Filter Bar.
+class _MobileFilterBar extends StatelessWidget {
+  final String? selectedCategory;
+  final List<String> categories;
+  final Function(String?) onCategorySelected;
+
+  const _MobileFilterBar({
+    required this.selectedCategory,
+    required this.categories,
+    required this.onCategorySelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsetsDirectional.only(start: 16, end: 16, top: 12),
       child: Row(
         children: [
           Expanded(
             child: Text(
-              _selectedCategory == null
-                  ? 'جميع القوالب'
-                  : _categoryLabel(_selectedCategory!),
-              style: AppTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              selectedCategory == null ? 'جميع القوالب' : _getCategoryLabel(selectedCategory!),
+              style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           TextButton.icon(
-            onPressed: () => _showFilterSheet(),
+            onPressed: () => _showFilterSheet(context),
             icon: const Icon(Icons.filter_list_rounded, size: 18),
             label: const Text('تصفية'),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.secondary,
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppColors.secondary),
           ),
         ],
       ),
     );
   }
 
-  void _showFilterSheet() {
+  void _showFilterSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -289,28 +328,15 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
           return Container(
             decoration: BoxDecoration(
               color: AppColors.cardBg,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(24),
-              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: Column(
               children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 12),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.textSecondary.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
+                _Handle(),
                 const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'تصنيف القوالب',
-                    style: AppTypography.h3,
-                  ),
+                  child: Text('تصنيف القوالب', style: AppTypography.h3),
                 ),
                 const SizedBox(height: 16),
                 const Divider(color: AppColors.border, height: 1),
@@ -319,10 +345,23 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     controller: scrollController,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     children: [
-                      _buildSheetItem(null, 'الكل'),
-                      ..._categories.map(
-                        (cat) =>
-                            _buildSheetItem(cat, _categoryLabel(cat)),
+                      _SheetItem(
+                        label: 'الكل',
+                        isSelected: selectedCategory == null,
+                        onTap: () {
+                          onCategorySelected(null);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ...categories.map(
+                        (cat) => _SheetItem(
+                          label: _getCategoryLabel(cat),
+                          isSelected: selectedCategory == cat,
+                          onTap: () {
+                            onCategorySelected(cat);
+                            Navigator.pop(context);
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -334,16 +373,27 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
       ),
     );
   }
+}
 
-  Widget _buildSheetItem(String? category, String label) {
-    final isSelected = _selectedCategory == category;
+/// Shared Sheet Item.
+class _SheetItem extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SheetItem({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ListTile(
       selected: isSelected,
       selectedTileColor: AppColors.secondary.withValues(alpha: 0.1),
       leading: Icon(
-        isSelected
-            ? Icons.radio_button_checked_rounded
-            : Icons.radio_button_unchecked_rounded,
+        isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
         color: isSelected ? AppColors.secondary : AppColors.textSecondary,
         size: 20,
       ),
@@ -354,10 +404,70 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
-      onTap: () {
-        setState(() => _selectedCategory = category);
-        Navigator.pop(context);
+      onTap: onTap,
+    );
+  }
+}
+
+/// Shared Template Grid.
+class _TemplateGrid extends StatelessWidget {
+  final List<TemplateMetadata> templates;
+  final int crossAxisCount;
+  final bool isMobile;
+
+  const _TemplateGrid({
+    required this.templates,
+    required this.crossAxisCount,
+    required this.isMobile,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40, vertical: 24),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 24,
+        mainAxisSpacing: 24,
+        childAspectRatio: 0.8,
+      ),
+      itemCount: templates.length,
+      itemBuilder: (context, index) {
+        return _TemplateCard(template: templates[index]);
       },
+    );
+  }
+}
+
+/// Shared Warning Text.
+class _WarningText extends StatelessWidget {
+  const _WarningText();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Text(
+        context.translate('template_warning'),
+        textAlign: TextAlign.center,
+        style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+      ),
+    );
+  }
+}
+
+/// Bottom Sheet Drag Handle.
+class _Handle extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      width: 40,
+      height: 4,
+      decoration: BoxDecoration(
+        color: AppColors.textSecondary.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(2),
+      ),
     );
   }
 }
@@ -375,15 +485,11 @@ class _TemplateCardState extends State<_TemplateCard> {
 
   void _onTemplateSelected(BuildContext context) {
     final authState = context.read<AuthCubit>().state;
-
-    // Store selected template ID globally
     TenantRoutingService.pendingTemplateId = widget.template.id;
 
     if (authState is Authenticated) {
-      // If logged in, go to dashboard to create a new page with this template
       context.go('/dashboard');
     } else {
-      // If not logged in, go to register/login
       context.go('/register');
     }
   }
@@ -418,9 +524,7 @@ class _TemplateCardState extends State<_TemplateCard> {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(18),
-                ),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                 child: Stack(
                   children: [
                     CustomNetworkImage(
@@ -438,13 +542,8 @@ class _TemplateCardState extends State<_TemplateCard> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.secondary,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Text(context.translate('apply')),
                           ),
@@ -463,18 +562,14 @@ class _TemplateCardState extends State<_TemplateCard> {
                   children: [
                     Text(
                       widget.template.name,
-                      style: AppTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       widget.template.description,
-                      style: AppTypography.bodyLarge.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                      style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -486,5 +581,29 @@ class _TemplateCardState extends State<_TemplateCard> {
         ),
       ),
     );
+  }
+}
+
+String _getCategoryLabel(String category) {
+  switch (category) {
+    case 'general': return 'عام';
+    case 'technology': return 'تقنية';
+    case 'ecommerce': return 'متاجر';
+    case 'creator': return 'مبدعون';
+    case 'professional_services': return 'خدمات مهنية';
+    case 'real_estate': return 'عقارات';
+    case 'education': return 'تعليم';
+    case 'events': return 'مناسبات';
+    case 'food': return 'مطاعم';
+    case 'healthcare': return 'صحة';
+    case 'beauty': return 'تجميل';
+    case 'fitness': return 'لياقة';
+    case 'agency': return 'وكالات';
+    case 'nonprofit': return 'غير ربحي';
+    case 'digital_product': return 'منتجات رقمية';
+    case 'industrial': return 'صناعي';
+    case 'travel': return 'سفر';
+    case 'creative': return 'إبداعي';
+    default: return category[0].toUpperCase() + category.substring(1);
   }
 }

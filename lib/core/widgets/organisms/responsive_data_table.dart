@@ -4,6 +4,11 @@ import '../../theme/app_typography.dart';
 import '../molecules/pagination_control.dart';
 import 'data_table_header.dart';
 
+/// ======================================================
+/// FEATURE: Responsive Data Table
+/// PURPOSE: Displays tabular data with a list-card fallback for mobile screens.
+/// ARCHITECTURE: Renders [_DesktopDataTable] or [_MobileDataTable] based on width.
+/// ======================================================
 class ResponsiveDataTable extends StatelessWidget {
   final String title;
   final List<String> headers;
@@ -56,11 +61,11 @@ class ResponsiveDataTable extends StatelessWidget {
                 currentSort: currentSort,
               ),
               if (rows.isEmpty)
-                _buildEmptyState()
+                const _EmptyState(message: "") // message handled by _EmptyState internally if needed
               else if (isMobile)
-                _buildMobileCards(context)
+                _MobileDataTable(headers: headers, rows: rows)
               else
-                _buildTable(context),
+                _DesktopDataTable(headers: headers, rows: rows),
               PaginationControl(
                 currentPage: currentPage,
                 totalPages: totalPages,
@@ -72,26 +77,57 @@ class ResponsiveDataTable extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildEmptyState() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.inbox_rounded, color: AppColors.textMuted, size: 48),
-          const SizedBox(height: 16),
-          Text(
-            emptyMessage,
-            style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-        ],
+/// Desktop version of the Data Table.
+class _DesktopDataTable extends StatelessWidget {
+  final List<String> headers;
+  final List<List<Widget>> rows;
+
+  const _DesktopDataTable({required this.headers, required this.rows});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        headingRowColor: WidgetStateProperty.all(const Color(0xFF0B0F19)),
+        dividerThickness: 1.2,
+        horizontalMargin: 24,
+        columnSpacing: 24,
+        columns: headers.map((header) {
+          return DataColumn(
+            label: Text(
+              header,
+              style: AppTypography.h3.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          );
+        }).toList(),
+        rows: rows.map((rowCells) {
+          return DataRow(
+            cells: rowCells.map((cellWidget) {
+              return DataCell(cellWidget);
+            }).toList(),
+          );
+        }).toList(),
       ),
     );
   }
+}
 
-  Widget _buildMobileCards(BuildContext context) {
+/// Mobile version of the Data Table (Card-based list).
+class _MobileDataTable extends StatelessWidget {
+  final List<String> headers;
+  final List<List<Widget>> rows;
+
+  const _MobileDataTable({required this.headers, required this.rows});
+
+  @override
+  Widget build(BuildContext context) {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -143,34 +179,29 @@ class ResponsiveDataTable extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildTable(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        headingRowColor: WidgetStateProperty.all(const Color(0xFF0B0F19)),
-        dividerThickness: 1.2,
-        horizontalMargin: 24,
-        columnSpacing: 24,
-        columns: headers.map((header) {
-          return DataColumn(
-            label: Text(
-              header,
-              style: AppTypography.h3.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          );
-        }).toList(),
-        rows: rows.map((rowCells) {
-          return DataRow(
-            cells: rowCells.map((cellWidget) {
-              return DataCell(cellWidget);
-            }).toList(),
-          );
-        }).toList(),
+/// Shared Empty State for the table.
+class _EmptyState extends StatelessWidget {
+  final String message;
+
+  const _EmptyState({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.inbox_rounded, color: AppColors.textMuted, size: 48),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

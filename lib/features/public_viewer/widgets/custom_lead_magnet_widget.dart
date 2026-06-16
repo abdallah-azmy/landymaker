@@ -15,6 +15,14 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/forms/validation_engine.dart';
 import '../../../core/forms/elements/field_renderer.dart';
 
+/// ======================================================
+/// FEATURE: Custom Lead Magnet Widget
+/// PURPOSE: A split layout section (Image + Form) designed for conversion offers (ebooks, audits, etc).
+/// ARCHITECTURE: 
+/// - State Hoisting: All controllers and form state are managed in [CustomLeadMagnetWidget] state.
+/// - Layout Delegation: Renders [_DesktopLeadMagnetLayout] or [_MobileLeadMagnetLayout] 
+///   based on screen width.
+/// ======================================================
 class CustomLeadMagnetWidget extends StatefulWidget {
   final Map<String, dynamic> block;
   final String title;
@@ -62,7 +70,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
   @override
   void initState() {
     super.initState();
-    _turnstileViewId = 'turnstile-lead-magnet-\${widget.block.hashCode}';
+    _turnstileViewId = 'turnstile-lead-magnet-${widget.block.hashCode}';
     TurnstileService.registerViewFactory(_turnstileViewId, (token) {
       setState(() {
         _turnstileToken = token;
@@ -78,22 +86,9 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
     if (blockFields != null && blockFields is List && blockFields.isNotEmpty) {
       return blockFields;
     }
-    // Fallback schema
     return [
-      {
-        'field_id': 'name',
-        'field_type': 'text',
-        'label': '',
-        'placeholder': context.translate('full_name'),
-        'is_required': true,
-      },
-      {
-        'field_id': 'email',
-        'field_type': 'email',
-        'label': '',
-        'placeholder': context.translate('email'),
-        'is_required': true,
-      }
+      {'field_id': 'name', 'field_type': 'text', 'label': '', 'placeholder': context.translate('full_name'), 'is_required': true},
+      {'field_id': 'email', 'field_type': 'email', 'label': '', 'placeholder': context.translate('email'), 'is_required': true}
     ];
   }
 
@@ -117,7 +112,6 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
 
   Future<void> _submitLead() async {
     if (_honeypotController.text.isNotEmpty) {
-      // Silently discard spam
       setState(() {
         _successMessage = context.translate('lead_success');
         _errorMessage = null;
@@ -139,9 +133,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
     }
 
     if (_turnstileToken == null) {
-      setState(() {
-        _errorMessage = context.translate('captcha_required');
-      });
+      setState(() => _errorMessage = context.translate('captcha_required'));
       return;
     }
 
@@ -154,10 +146,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
     try {
       final fingerprint = FingerprintUtils.getFingerprint();
       final payload = Map<String, dynamic>.from(_dataPayload);
-      payload['__metadata'] = {
-        'fingerprint': fingerprint,
-        'turnstile_token': _turnstileToken,
-      };
+      payload['__metadata'] = {'fingerprint': fingerprint, 'turnstile_token': _turnstileToken};
 
       final cubit = context.read<LeadsAnalyticsCubit>();
       await cubit.submitLead(widget.pageId, payload);
@@ -171,9 +160,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
           });
         } else {
           setState(() {
-            _successMessage = state is LeadsAnalyticsLoaded 
-                ? (state.leadSuccessMessage ?? context.translate('lead_success'))
-                : context.translate('lead_success');
+            _successMessage = state is LeadsAnalyticsLoaded ? (state.leadSuccessMessage ?? context.translate('lead_success')) : context.translate('lead_success');
             _errorMessage = null;
           });
           _clearForm();
@@ -183,7 +170,6 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
         }
       }
     } catch (e) {
-      // In builder mode (where the Cubit might not be provided)
       await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
         setState(() {
@@ -193,7 +179,6 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
         _clearForm();
       }
     }
-    
     if (mounted) setState(() => _isSubmitting = false);
   }
 
@@ -218,6 +203,29 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
         
+        final props = _LeadMagnetProps(
+          title: widget.title,
+          subtitle: widget.subtitle,
+          buttonText: widget.buttonText,
+          imageUrl: widget.imageUrl,
+          theme: widget.theme,
+          secondaryColor: secondaryColor,
+          textColor: textColor,
+          subTextColor: subTextColor,
+          isMobile: isMobile,
+          isSubmitting: _isSubmitting,
+          successMessage: _successMessage,
+          errorMessage: _errorMessage,
+          turnstileViewId: _turnstileViewId,
+          fields: _fields,
+          controllers: _controllers,
+          dataPayload: _dataPayload,
+          validationErrors: _validationErrors,
+          honeypotController: _honeypotController,
+          onFieldValueChanged: _onFieldValueChanged,
+          onSubmit: _submitLead,
+        );
+
         return SectionBackground(
           bgImageUrl: widget.bgImageUrl,
           bgOverlayColor: widget.bgOverlayColor,
@@ -232,57 +240,11 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
                 color: widget.theme?.background.withValues(alpha: 0.9) ?? AppColors.cardBg,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 24, offset: const Offset(0, 8))],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-                child: ResponsiveLayout(
-                  desktop: Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: _buildImageCover(),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(48),
-                          child: _buildFormContent(textColor, subTextColor, secondaryColor, isMobile: false),
-                        ),
-                      ),
-                    ],
-                  ),
-                  tablet: Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: _buildImageCover(),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: _buildFormContent(textColor, subTextColor, secondaryColor, isMobile: false),
-                        ),
-                      ),
-                    ],
-                  ),
-                  mobile: Column(
-                    children: [
-                      _buildImageCover(height: 250),
-                      Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: _buildFormContent(textColor, subTextColor, secondaryColor, isMobile: true),
-                      ),
-                    ],
-                  ),
-                ),
+                child: isMobile ? _MobileLeadMagnetLayout(props: props) : _DesktopLeadMagnetLayout(props: props),
               ),
             ),
           ),
@@ -290,169 +252,225 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
       },
     );
   }
+}
 
-  Widget _buildImageCover({double? height}) {
-    return Container(
-      height: height ?? 500,
-      width: double.infinity,
-      color: widget.theme?.textPrimary.withValues(alpha: 0.05) ?? Colors.white10,
-      child: CustomNetworkImage(
-        imageUrl: widget.imageUrl,
-        fit: BoxFit.cover,
-      ),
+/// Data class for Lead Magnet properties.
+class _LeadMagnetProps {
+  final String title;
+  final String subtitle;
+  final String buttonText;
+  final String imageUrl;
+  final LandingPageTheme? theme;
+  final Color secondaryColor;
+  final Color textColor;
+  final Color subTextColor;
+  final bool isMobile;
+  final bool isSubmitting;
+  final String? successMessage;
+  final String? errorMessage;
+  final String turnstileViewId;
+  final List<dynamic> fields;
+  final Map<String, TextEditingController> controllers;
+  final Map<String, dynamic> dataPayload;
+  final Map<String, String> validationErrors;
+  final TextEditingController honeypotController;
+  final Function(String, String) onFieldValueChanged;
+  final VoidCallback onSubmit;
+
+  const _LeadMagnetProps({
+    required this.title,
+    required this.subtitle,
+    required this.buttonText,
+    required this.imageUrl,
+    this.theme,
+    required this.secondaryColor,
+    required this.textColor,
+    required this.subTextColor,
+    required this.isMobile,
+    required this.isSubmitting,
+    this.successMessage,
+    this.errorMessage,
+    required this.turnstileViewId,
+    required this.fields,
+    required this.controllers,
+    required this.dataPayload,
+    required this.validationErrors,
+    required this.honeypotController,
+    required this.onFieldValueChanged,
+    required this.onSubmit,
+  });
+}
+
+/// Desktop version of the Lead Magnet layout.
+class _DesktopLeadMagnetLayout extends StatelessWidget {
+  final _LeadMagnetProps props;
+  const _DesktopLeadMagnetLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(flex: 1, child: _LeadMagnetImage(props: props, height: 500)),
+        Expanded(
+          flex: 1,
+          child: Padding(
+            padding: const EdgeInsets.all(48),
+            child: _LeadMagnetForm(props: props),
+          ),
+        ),
+      ],
     );
   }
+}
 
-  Widget _buildFormContent(Color textColor, Color subTextColor, Color secondaryColor, {required bool isMobile}) {
+/// Mobile version of the Lead Magnet layout.
+class _MobileLeadMagnetLayout extends StatelessWidget {
+  final _LeadMagnetProps props;
+  const _MobileLeadMagnetLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _LeadMagnetImage(props: props, height: 250),
+        Padding(
+          padding: const EdgeInsets.all(24),
+          child: _LeadMagnetForm(props: props),
+        ),
+      ],
+    );
+  }
+}
+
+/// Shared Lead Magnet Image.
+class _LeadMagnetImage extends StatelessWidget {
+  final _LeadMagnetProps props;
+  final double height;
+
+  const _LeadMagnetImage({required this.props, required this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: double.infinity,
+      color: props.theme?.textPrimary.withValues(alpha: 0.05) ?? Colors.white10,
+      child: CustomNetworkImage(imageUrl: props.imageUrl, fit: BoxFit.cover),
+    );
+  }
+}
+
+/// Shared Lead Magnet Form Content.
+class _LeadMagnetForm extends StatelessWidget {
+  final _LeadMagnetProps props;
+  const _LeadMagnetForm({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Honeypot field (hidden from real users, filled by bots)
-        Offstage(
-          child: TextField(
-            controller: _honeypotController,
-            decoration: const InputDecoration(labelText: 'Leave this field empty'),
-          ),
-        ),
-        Text(
-          widget.title,
-          style: AppTypography.h2.copyWith(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Offstage(child: TextField(controller: props.honeypotController, decoration: const InputDecoration(labelText: 'Leave this field empty'))),
+        Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        Text(
-          widget.subtitle,
-          style: AppTypography.bodyMedium.copyWith(
-            color: subTextColor,
-            height: 1.5,
-          ),
-        ),
+        Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.5)),
         const SizedBox(height: 32),
-
-        if (_successMessage != null) ...[
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.activeGreen.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.activeGreen.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    _successMessage!,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.activeGreen,
-                      fontWeight: FontWeight.bold,
-                      fontSize: isMobile ? 12 : 14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-        ],
-
-        if (_errorMessage != null) ...[
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.dangerRed.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.dangerRed.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.error_outline_rounded, color: AppColors.dangerRed, size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    _errorMessage!,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.dangerRed,
-                      fontWeight: FontWeight.bold,
-                      fontSize: isMobile ? 12 : 14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-        ],
-        
-        ..._fields.map((field) {
+        if (props.successMessage != null) _MagnetStatusBanner(message: props.successMessage!, color: AppColors.activeGreen, isMobile: props.isMobile),
+        if (props.errorMessage != null) _MagnetStatusBanner(message: props.errorMessage!, color: AppColors.dangerRed, isMobile: props.isMobile),
+        ...props.fields.map((field) {
           if (field is! Map) return const SizedBox.shrink();
           final fieldId = field['field_id'] as String?;
           if (fieldId == null) return const SizedBox.shrink();
-          
-          if (!_controllers.containsKey(fieldId)) {
-            _controllers[fieldId] = TextEditingController();
-          }
-
-          return Theme(
-            data: Theme.of(context).copyWith(
-              textTheme: Theme.of(context).textTheme.copyWith(
-                titleSmall: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.bold),
-              ),
-            ),
-            child: FieldRenderer.render(
-              schema: field.cast<String, dynamic>(),
-              controller: _controllers[fieldId]!,
-              currentValue: _dataPayload[fieldId]?.toString(),
-              errorMessage: _validationErrors[fieldId],
-              onChanged: (val) => _onFieldValueChanged(fieldId, val),
-            ),
-          );
+          final controller = props.controllers[fieldId];
+          if (controller == null) return const SizedBox.shrink();
+          return _LeadMagnetField(field: field.cast<String, dynamic>(), controller: controller, props: props);
         }),
-
         const SizedBox(height: 24),
-        
-        // Turnstile Widget
-        Center(
-          child: SizedBox(
-            width: 300,
-            height: 70,
-            child: HtmlElementView(viewType: _turnstileViewId),
-          ),
-        ),
-
+        Center(child: SizedBox(width: 300, height: 70, child: HtmlElementView(viewType: props.turnstileViewId))),
         const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
-            onPressed: _isSubmitting ? null : _submitLead,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: secondaryColor,
-              foregroundColor: widget.theme?.buttonTextColor ?? Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 4,
-            ),
-            child: _isSubmitting
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                  )
-                : Text(
-                    widget.buttonText,
-                    style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-                  ),
-          ),
-        ),
+        _LeadMagnetSubmitButton(props: props),
       ],
+    );
+  }
+}
+
+/// Shared Magnet Status Banner.
+class _MagnetStatusBanner extends StatelessWidget {
+  final String message;
+  final Color color;
+  final bool isMobile;
+
+  const _MagnetStatusBanner({required this.message, required this.color, required this.isMobile});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
+      child: Row(
+        children: [
+          Icon(color == AppColors.activeGreen ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14))),
+        ],
+      ),
+    );
+  }
+}
+
+/// Modular Lead Magnet Field.
+class _LeadMagnetField extends StatelessWidget {
+  final Map<String, dynamic> field;
+  final TextEditingController controller;
+  final _LeadMagnetProps props;
+
+  const _LeadMagnetField({required this.field, required this.controller, required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    final fieldId = field['field_id'] as String;
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: Theme.of(context).textTheme.copyWith(
+          titleSmall: TextStyle(color: props.textColor, fontSize: 14, fontWeight: FontWeight.bold),
+        ),
+      ),
+      child: FieldRenderer.render(
+        schema: field,
+        controller: controller,
+        currentValue: props.dataPayload[fieldId]?.toString(),
+        errorMessage: props.validationErrors[fieldId],
+        onChanged: (val) => props.onFieldValueChanged(fieldId, val),
+      ),
+    );
+  }
+}
+
+/// Shared Lead Magnet Submit Button.
+class _LeadMagnetSubmitButton extends StatelessWidget {
+  final _LeadMagnetProps props;
+  const _LeadMagnetSubmitButton({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: props.isSubmitting ? null : props.onSubmit,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: props.secondaryColor,
+          foregroundColor: props.theme?.buttonTextColor ?? Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 4,
+        ),
+        child: props.isSubmitting
+            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            : Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
+      ),
     );
   }
 }

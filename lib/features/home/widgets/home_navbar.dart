@@ -5,6 +5,12 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
 
+/// ======================================================
+/// FEATURE: Home Navigation Bar
+/// PURPOSE: Responsive header for the landing page with glassmorphism and animated mobile menu.
+/// ARCHITECTURE: State is hoisted to [HomeNavbar] wrapper. 
+/// Renders [_DesktopNavbar] or [_MobileNavbar] based on width.
+/// ======================================================
 class HomeNavbar extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback onLoginPressed;
   final VoidCallback onGetStartedPressed;
@@ -74,219 +80,304 @@ class _HomeNavbarState extends State<HomeNavbar>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 768;
-        return ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.background.withValues(alpha: 0.7),
-                border: const Border(
-                  bottom: BorderSide(color: AppColors.border, width: 1),
-                ),
+        final bool isMobile = constraints.maxWidth < 768;
+
+        if (isMobile) {
+          return _MobileNavbar(
+            onLoginPressed: widget.onLoginPressed,
+            onGetStartedPressed: widget.onGetStartedPressed,
+            menuOpen: _menuOpen,
+            toggleMenu: _toggleMenu,
+            closeMenu: _closeMenu,
+            menuController: _menuController,
+            menuHeight: _menuHeight,
+            menuOpacity: _menuOpacity,
+          );
+        }
+
+        return _DesktopNavbar(
+          onLoginPressed: widget.onLoginPressed,
+          onGetStartedPressed: widget.onGetStartedPressed,
+        );
+      },
+    );
+  }
+}
+
+/// Desktop version of the Navbar with horizontal actions.
+class _DesktopNavbar extends StatelessWidget {
+  final VoidCallback onLoginPressed;
+  final VoidCallback onGetStartedPressed;
+
+  const _DesktopNavbar({
+    required this.onLoginPressed,
+    required this.onGetStartedPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.background.withValues(alpha: 0.7),
+            border: const Border(
+              bottom: BorderSide(color: AppColors.border, width: 1),
+            ),
+          ),
+          child: SizedBox(
+            height: 70,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: 24,
+                vertical: 12,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // ── Main bar ──────────────────────────────────────────
-                  SizedBox(
-                    height: 70,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      child: Center(
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 1200),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // Logo (always visible)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const LandyMakerLogo(fontSize: 22),
-                                  const SizedBox(width: 10),
-                                  Image.asset(
-                                    'assets/images/logo_small.webp',
-                                    height: 38,
-                                    width: 38,
-                                  ),
-                                ],
+              child: Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _LogoSection(),
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: onLoginPressed,
+                            child: Text(
+                              'تسجيل الدخول',
+                              style: AppTypography.bodyMedium.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.bold,
                               ),
-
-                              if (isMobile)
-                                // Hamburger button
-                                RepaintBoundary(
-                                  child: IconButton(
-                                    tooltip: _menuOpen
-                                        ? context.translate('close_menu')
-                                        : context.translate('open_menu'),
-                                    icon: AnimatedSwitcher(
-                                      duration:
-                                          const Duration(milliseconds: 200),
-                                      transitionBuilder: (child, anim) =>
-                                          RotationTransition(
-                                        turns: anim,
-                                        child: FadeTransition(
-                                          opacity: anim,
-                                          child: child,
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        _menuOpen
-                                            ? Icons.close_rounded
-                                            : Icons.menu_rounded,
-                                        key: ValueKey(_menuOpen),
-                                        color: AppColors.textPrimary,
-                                        size: 28,
-                                      ),
-                                    ),
-                                    onPressed: _toggleMenu,
-                                  ),
-                                )
-                              else
-                                // Desktop actions
-                                Row(
-                                  children: [
-                                    TextButton(
-                                      onPressed: widget.onLoginPressed,
-                                      child: Text(
-                                        'تسجيل الدخول',
-                                        style: AppTypography.bodyMedium
-                                            .copyWith(
-                                          color: AppColors.textPrimary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    ElevatedButton(
-                                      onPressed: widget.onGetStartedPressed,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
-                                        foregroundColor: Colors.black,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                          vertical: 12,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(24),
-                                        ),
-                                        elevation: 0,
-                                      ).copyWith(
-                                        shadowColor: WidgetStateProperty.all(
-                                          AppColors.primary
-                                              .withValues(alpha: 0.5),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'ابدأ مجاناً',
-                                        style: AppTypography.bodyMedium
-                                            .copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.textPrimary,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                            ],
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 16),
+                          ElevatedButton(
+                            onPressed: onGetStartedPressed,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              elevation: 0,
+                            ).copyWith(
+                              shadowColor: WidgetStateProperty.all(
+                                AppColors.primary.withValues(alpha: 0.5),
+                              ),
+                            ),
+                            child: Text(
+                              'ابدأ مجاناً',
+                              style: AppTypography.bodyMedium.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                    ],
                   ),
-
-                  // ── Mobile drop-down menu ─────────────────────────────
-                  if (isMobile)
-                    AnimatedBuilder(
-                      animation: _menuController,
-                      builder: (context, child) {
-                        return ClipRect(
-                          child: SizedBox(
-                            height: _menuHeight.value,
-                            child: Opacity(
-                              opacity: _menuOpacity.value,
-                              child: child,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                                color: AppColors.border, width: 0.5),
-                          ),
-                        ),
-                        padding: const EdgeInsetsDirectional.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Login button (outlined)
-                            OutlinedButton(
-                              onPressed: () {
-                                _closeMenu();
-                                widget.onLoginPressed();
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(
-                                    color: AppColors.border, width: 1.5),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14)),
-                              ),
-                              child: Text(
-                                'تسجيل الدخول',
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: AppColors.textPrimary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            // Get started button (filled)
-                            ElevatedButton(
-                              onPressed: () {
-                                _closeMenu();
-                                widget.onGetStartedPressed();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14)),
-                                elevation: 0,
-                              ),
-                              child: Text(
-                                'ابدأ مجاناً',
-                                style: AppTypography.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
+                ),
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+}
+
+/// Mobile version of the Navbar with hamburger menu and animated dropdown.
+class _MobileNavbar extends StatelessWidget {
+  final VoidCallback onLoginPressed;
+  final VoidCallback onGetStartedPressed;
+  final bool menuOpen;
+  final VoidCallback toggleMenu;
+  final VoidCallback closeMenu;
+  final AnimationController menuController;
+  final Animation<double> menuHeight;
+  final Animation<double> menuOpacity;
+
+  const _MobileNavbar({
+    required this.onLoginPressed,
+    required this.onGetStartedPressed,
+    required this.menuOpen,
+    required this.toggleMenu,
+    required this.closeMenu,
+    required this.menuController,
+    required this.menuHeight,
+    required this.menuOpacity,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.background.withValues(alpha: 0.7),
+            border: const Border(
+              bottom: BorderSide(color: AppColors.border, width: 1),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Main bar
+              SizedBox(
+                height: 70,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  child: Center(
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _LogoSection(),
+                          RepaintBoundary(
+                            child: IconButton(
+                              tooltip: menuOpen
+                                  ? context.translate('close_menu')
+                                  : context.translate('open_menu'),
+                              icon: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 200),
+                                transitionBuilder: (child, anim) =>
+                                    RotationTransition(
+                                  turns: anim,
+                                  child: FadeTransition(
+                                    opacity: anim,
+                                    child: child,
+                                  ),
+                                ),
+                                child: Icon(
+                                  menuOpen
+                                      ? Icons.close_rounded
+                                      : Icons.menu_rounded,
+                                  key: ValueKey(menuOpen),
+                                  color: AppColors.textPrimary,
+                                  size: 28,
+                                ),
+                              ),
+                              onPressed: toggleMenu,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Mobile drop-down menu
+              AnimatedBuilder(
+                animation: menuController,
+                builder: (context, child) {
+                  return ClipRect(
+                    child: SizedBox(
+                      height: menuHeight.value,
+                      child: Opacity(
+                        opacity: menuOpacity.value,
+                        child: child,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: AppColors.border, width: 0.5),
+                    ),
+                  ),
+                  padding: const EdgeInsetsDirectional.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () {
+                          closeMenu();
+                          onLoginPressed();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                              color: AppColors.border, width: 1.5),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                        ),
+                        child: Text(
+                          'تسجيل الدخول',
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () {
+                          closeMenu();
+                          onGetStartedPressed();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'ابدأ مجاناً',
+                          style: AppTypography.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shared Logo section for both layouts.
+class _LogoSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const LandyMakerLogo(fontSize: 22),
+        const SizedBox(width: 10),
+        Image.asset(
+          'assets/images/logo_small.webp',
+          height: 38,
+          width: 38,
+        ),
+      ],
     );
   }
 }

@@ -16,6 +16,12 @@ import '../controllers/notification_state.dart';
 import '../widgets/notification_inbox_modal.dart';
 import '../../../../services/supabase_service.dart';
 
+/// ======================================================
+/// FEATURE: Dashboard Shell
+/// PURPOSE: Main layout wrapper for the dashboard with responsive sidebar and top bar.
+/// ARCHITECTURE: State is hoisted to [DashboardShell] wrapper.
+/// Renders [_DesktopDashboardShell] or [_MobileDashboardShell] based on screen size.
+/// ======================================================
 class DashboardShell extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
   final VoidCallback onLogout;
@@ -74,26 +80,18 @@ class _DashboardShellState extends State<DashboardShell> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = context.watch<LocalizationCubit>();
     final authState = context.watch<AuthCubit>().state;
-    context.watch<ActiveWebsiteCubit>();
+    if (authState is! Authenticated) return const Scaffold();
 
-    String? currentUserId;
-    bool isSuperAdmin = false;
-    String userEmail = 'user@landymaker.com';
-
-    if (authState is Authenticated) {
-      currentUserId = authState.userId;
-      isSuperAdmin = authState.role == 'super_admin';
-      userEmail = authState.email;
-    }
-
-    if (currentUserId == null) return const Scaffold();
+    final isSuperAdmin = authState.role == 'super_admin';
+    final userEmail = authState.email;
 
     return BlocProvider.value(
       value: _notificationCubit!,
-      child: Builder(
-        builder: (context) {
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isDesktop = constraints.maxWidth >= 900;
+
           final sidebar = SidebarNavigation(
             currentIndex: widget.navigationShell.currentIndex,
             isAdmin: isSuperAdmin,
@@ -102,67 +100,139 @@ class _DashboardShellState extends State<DashboardShell> {
               context.read<AuthCubit>().logout();
             },
             onTabSelected: (index) {
-              // Handled directly inside SidebarNavigation now via GoRouter
+              // Navigation handled via GoRouter
             },
           );
 
-          return Scaffold(
-            key: _scaffoldKey,
-            backgroundColor: AppColors.background,
-            appBar: !ResponsiveLayout.isDesktop(context)
-                ? AppBar(
-                    backgroundColor: AppColors.cardBg,
-                    title: Text(loc.translate('app_title'), style: AppTypography.h3),
-                    leading: IconButton(
-                      icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
-                      onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                    ),
-                    actions: [
-                      _buildNotificationBell(context),
-                      IconButton(
-                        icon: const Icon(Icons.language_rounded, color: AppColors.secondary),
-                        onPressed: () => loc.toggleLanguage(),
-                      ),
-                    ],
-                    bottom: PreferredSize(
-                      preferredSize: const Size.fromHeight(1.5),
-                      child: Container(color: AppColors.border, height: 1.5),
-                    ),
-                  )
-                : null,
-            drawer: !ResponsiveLayout.isDesktop(context) ? Drawer(child: sidebar) : null,
-            body: Row(
-              children: [
-                if (ResponsiveLayout.isDesktop(context)) ...[
-                  sidebar,
-                  // On Desktop, add a small header or floating button for notifications if sidebar doesn't have it
-                ],
-                Expanded(
-                  child: Container(
-                    color: const Color(0xFF0A0E1A),
-                    child: SafeArea(
-                      child: Column(
-                        children: [
-                          if (ResponsiveLayout.isDesktop(context))
-                            _buildDesktopTopBar(context, loc),
-                          Expanded(
-                            key: ValueKey(widget.navigationShell.currentIndex),
-                            child: widget.navigationShell,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          if (isDesktop) {
+            return _DesktopDashboardShell(
+              navigationShell: widget.navigationShell,
+              sidebar: sidebar,
+              notificationCubit: _notificationCubit!,
+            );
+          }
+
+          return _MobileDashboardShell(
+            scaffoldKey: _scaffoldKey,
+            navigationShell: widget.navigationShell,
+            sidebar: sidebar,
+            notificationCubit: _notificationCubit!,
           );
         },
       ),
     );
   }
+}
 
-  Widget _buildDesktopTopBar(BuildContext context, LocalizationCubit loc) {
+/// Desktop version of the Dashboard Shell with fixed sidebar.
+class _DesktopDashboardShell extends StatelessWidget {
+  final StatefulNavigationShell navigationShell;
+  final Widget sidebar;
+  final NotificationCubit notificationCubit;
+
+  const _DesktopDashboardShell({
+    required this.navigationShell,
+    required this.sidebar,
+    required this.notificationCubit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = context.watch<LocalizationCubit>();
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Row(
+        children: [
+          sidebar,
+          Expanded(
+            child: Container(
+              color: const Color(0xFF0A0E1A),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    _DashboardTopBar(
+                      notificationCubit: notificationCubit,
+                      loc: loc,
+                    ),
+                    Expanded(
+                      key: ValueKey(navigationShell.currentIndex),
+                      child: navigationShell,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Mobile version of the Dashboard Shell with drawer and app bar.
+class _MobileDashboardShell extends StatelessWidget {
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final StatefulNavigationShell navigationShell;
+  final Widget sidebar;
+  final NotificationCubit notificationCubit;
+
+  const _MobileDashboardShell({
+    required this.scaffoldKey,
+    required this.navigationShell,
+    required this.sidebar,
+    required this.notificationCubit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = context.watch<LocalizationCubit>();
+
+    return Scaffold(
+      key: scaffoldKey,
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.cardBg,
+        title: Text(loc.translate('app_title'), style: AppTypography.h3),
+        leading: IconButton(
+          icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
+          onPressed: () => scaffoldKey.currentState?.openDrawer(),
+        ),
+        actions: [
+          _NotificationBell(notificationCubit: notificationCubit),
+          IconButton(
+            icon: const Icon(Icons.language_rounded, color: AppColors.secondary),
+            onPressed: () => loc.toggleLanguage(),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.5),
+          child: Container(color: AppColors.border, height: 1.5),
+        ),
+      ),
+      drawer: Drawer(child: sidebar),
+      body: Container(
+        color: const Color(0xFF0A0E1A),
+        child: SafeArea(
+          child: navigationShell,
+        ),
+      ),
+    );
+  }
+}
+
+/// Shared top bar for desktop view.
+class _DashboardTopBar extends StatelessWidget {
+  final NotificationCubit notificationCubit;
+  final LocalizationCubit loc;
+
+  const _DashboardTopBar({
+    required this.notificationCubit,
+    required this.loc,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       height: 70,
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -173,7 +243,7 @@ class _DashboardShellState extends State<DashboardShell> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          _buildNotificationBell(context),
+          _NotificationBell(notificationCubit: notificationCubit),
           const SizedBox(width: 16),
           IconButton(
             icon: const Icon(Icons.language_rounded, color: AppColors.secondary),
@@ -183,9 +253,18 @@ class _DashboardShellState extends State<DashboardShell> {
       ),
     );
   }
+}
 
-  Widget _buildNotificationBell(BuildContext context) {
+/// Shared notification bell widget.
+class _NotificationBell extends StatelessWidget {
+  final NotificationCubit notificationCubit;
+
+  const _NotificationBell({required this.notificationCubit});
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<NotificationCubit, NotificationState>(
+      bloc: notificationCubit,
       builder: (context, state) {
         int unreadCount = 0;
         if (state is NotificationLoaded) {
@@ -199,7 +278,7 @@ class _DashboardShellState extends State<DashboardShell> {
               onPressed: () {
                 NotificationInboxModal.show(
                   context: context,
-                  cubit: _notificationCubit!,
+                  cubit: notificationCubit,
                 );
               },
             ),
@@ -216,7 +295,11 @@ class _DashboardShellState extends State<DashboardShell> {
                   constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                   child: Text(
                     unreadCount > 9 ? '9+' : unreadCount.toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),

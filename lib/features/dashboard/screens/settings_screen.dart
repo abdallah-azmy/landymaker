@@ -6,9 +6,13 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/services/fcm_service.dart';
 import '../../../core/services/pwa_install_service.dart';
-import '../../auth/controllers/auth_cubit.dart';
-import '../../auth/controllers/auth_state.dart';
 
+/// ======================================================
+/// FEATURE: Settings Screen
+/// PURPOSE: Handles user preferences like notifications and PWA installation.
+/// ARCHITECTURE: State is hoisted to [SettingsScreen]. 
+/// Renders [_SettingsDesktop] or [_SettingsMobile] based on width.
+/// ======================================================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -59,8 +63,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = context.watch<LocalizationCubit>();
-    final authState = context.watch<AuthCubit>().state;
-    final userEmail = authState is Authenticated ? authState.email : '';
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0E1A),
@@ -75,25 +77,114 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Container(color: AppColors.border, height: 1.5),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader(loc.translate('notifications_settings')),
-            const SizedBox(height: 16),
-            _buildNotificationToggle(loc),
-            const SizedBox(height: 40),
-            _buildSectionHeader(loc.translate('install_app')),
-            const SizedBox(height: 16),
-            _buildInstallAppTile(loc),
-          ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isMobile = constraints.maxWidth < 600;
+
+          if (isMobile) {
+            return _SettingsMobile(
+              notificationsEnabled: _notificationsEnabled,
+              toggleNotifications: _toggleNotifications,
+              loc: loc,
+            );
+          }
+
+          return _SettingsDesktop(
+            notificationsEnabled: _notificationsEnabled,
+            toggleNotifications: _toggleNotifications,
+            loc: loc,
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Desktop version of the Settings Screen.
+class _SettingsDesktop extends StatelessWidget {
+  final bool notificationsEnabled;
+  final Function(bool) toggleNotifications;
+  final LocalizationCubit loc;
+
+  const _SettingsDesktop({
+    required this.notificationsEnabled,
+    required this.toggleNotifications,
+    required this.loc,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _SectionHeader(title: loc.translate('notifications_settings')),
+              const SizedBox(height: 16),
+              _NotificationToggleTile(
+                notificationsEnabled: notificationsEnabled,
+                toggleNotifications: toggleNotifications,
+                loc: loc,
+              ),
+              const SizedBox(height: 40),
+              _SectionHeader(title: loc.translate('install_app')),
+              const SizedBox(height: 16),
+              _InstallAppTile(loc: loc),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildSectionHeader(String title) {
+/// Mobile version of the Settings Screen.
+class _SettingsMobile extends StatelessWidget {
+  final bool notificationsEnabled;
+  final Function(bool) toggleNotifications;
+  final LocalizationCubit loc;
+
+  const _SettingsMobile({
+    required this.notificationsEnabled,
+    required this.toggleNotifications,
+    required this.loc,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionHeader(title: loc.translate('notifications_settings')),
+          const SizedBox(height: 16),
+          _NotificationToggleTile(
+            notificationsEnabled: notificationsEnabled,
+            toggleNotifications: toggleNotifications,
+            loc: loc,
+          ),
+          const SizedBox(height: 40),
+          _SectionHeader(title: loc.translate('install_app')),
+          const SizedBox(height: 16),
+          _InstallAppTile(loc: loc),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shared Section Header.
+class _SectionHeader extends StatelessWidget {
+  final String title;
+
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
     return Text(
       title,
       style: AppTypography.h3.copyWith(
@@ -102,8 +193,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+}
 
-  Widget _buildNotificationToggle(LocalizationCubit loc) {
+/// Shared Notification Toggle Tile.
+class _NotificationToggleTile extends StatelessWidget {
+  final bool notificationsEnabled;
+  final Function(bool) toggleNotifications;
+  final LocalizationCubit loc;
+
+  const _NotificationToggleTile({
+    required this.notificationsEnabled,
+    required this.toggleNotifications,
+    required this.loc,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -111,59 +216,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border, width: 1.2),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+          _IconWrapper(icon: Icons.notifications_active_rounded),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  loc.translate('enable_notifications'),
+                  style: AppTypography.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.notifications_active_rounded,
-                  color: AppColors.secondary,
-                  size: 22,
+                const SizedBox(height: 4),
+                Text(
+                  loc.translate('enable_notifications_desc'),
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      loc.translate('enable_notifications'),
-                      style: AppTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      loc.translate('enable_notifications_desc'),
-                      style: AppTypography.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Switch(
-                value: _notificationsEnabled,
-                onChanged: _toggleNotifications,
-                activeColor: AppColors.secondary,
-                activeTrackColor: AppColors.secondary.withValues(alpha: 0.3),
-              ),
-            ],
+              ],
+            ),
+          ),
+          Switch(
+            value: notificationsEnabled,
+            onChanged: toggleNotifications,
+            activeColor: AppColors.secondary,
+            activeTrackColor: AppColors.secondary.withValues(alpha: 0.3),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildInstallAppTile(LocalizationCubit loc) {
+/// Shared Install App Tile.
+class _InstallAppTile extends StatelessWidget {
+  final LocalizationCubit loc;
+
+  const _InstallAppTile({required this.loc});
+
+  @override
+  Widget build(BuildContext context) {
     final canInstall = PwaInstallService.canInstall;
 
     return Container(
@@ -175,19 +272,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       child: Row(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.download_for_offline_rounded,
-              color: AppColors.secondary,
-              size: 22,
-            ),
-          ),
+          _IconWrapper(icon: Icons.download_for_offline_rounded),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -221,17 +306,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondary,
                 foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
         ],
       ),
+    );
+  }
+}
+
+/// Shared Icon Wrapper.
+class _IconWrapper extends StatelessWidget {
+  final IconData icon;
+
+  const _IconWrapper({required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(icon, color: AppColors.secondary, size: 22),
     );
   }
 }

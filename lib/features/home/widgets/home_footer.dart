@@ -6,6 +6,11 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
 import '../../../core/localization/app_localizations.dart';
 
+/// ======================================================
+/// FEATURE: Home Footer
+/// PURPOSE: Responsive footer containing brand info, links, and social media.
+/// ARCHITECTURE: Renders [_DesktopFooter] or [_MobileFooter] based on layout width.
+/// ======================================================
 class HomeFooter extends StatelessWidget {
   const HomeFooter({super.key});
 
@@ -41,7 +46,7 @@ class HomeFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 700;
+        final bool isMobile = constraints.maxWidth < 700;
 
         return Container(
           width: double.infinity,
@@ -57,206 +62,222 @@ class HomeFooter extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 1200),
               child: Column(
                 children: [
-                  // Top row
-                  if (!isMobile)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Brand
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const LandyMakerLogo(fontSize: 22),
-                                  const SizedBox(width: 10),
-                                  Image.asset(
-                                    'assets/images/logo_small.webp',
-                                    height: 34,
-                                    width: 34,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "ابنِ حضورك الرقمي\nباحترافية وبساطة.",
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: AppColors.textSecondary,
-                                  height: 1.6,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              // Social links
-                              Row(
-                                children: _socialLinks
-                                    .map((s) => Padding(
-                                          padding:
-                                              const EdgeInsetsDirectional.only(
-                                                  end: 8),
-                                          child: _SocialBtn(
-                                            icon: s.icon,
-                                            label: s.label,
-                                            url: s.url,
-                                          ),
-                                        ))
-                                    .toList(),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 40),
-
-                        // Links
-                        Expanded(
-                          child: _FooterLinks(
-                            title: "المنتج",
-                            items: [
-                              _FooterLinkData(
-                                  label: "المميزات", path: '/'),
-                              _FooterLinkData(
-                                  label: "القوالب",
-                                  path: '/templates'),
-                              _FooterLinkData(
-                                  label: "الأسعار", path: '/'),
-                              _FooterLinkData(
-                                  label: "الأمان", path: '/'),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: _FooterLinks(
-                            title: "الشركة",
-                            items: [
-                              _FooterLinkData(
-                                  label: "من نحن", path: '/about'),
-                              _FooterLinkData(
-                                  label: "المدونة", path: '/blog'),
-                              _FooterLinkData(
-                                  label: "تواصل معنا", path: '/'),
-                              _FooterLinkData(
-                                label:
-                                    context.translate('privacy_policy'),
-                                path: '/privacy-policy',
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: _FooterLinks(
-                            title: "الدعم",
-                            items: [
-                              _FooterLinkData(
-                                  label: "مركز المساعدة",
-                                  path: '/'),
-                              _FooterLinkData(
-                                label:
-                                    context.translate('terms_of_service'),
-                                path: '/terms',
-                              ),
-                              _FooterLinkData(
-                                  label: "الإبلاغ عن مشكلة",
-                                  path: '/'),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
+                  if (isMobile)
+                    const _MobileFooter(socialLinks: _socialLinks)
                   else
-                    Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const LandyMakerLogo(fontSize: 20),
-                            const SizedBox(width: 8),
-                            Image.asset(
-                              'assets/images/logo_small.webp',
-                              height: 30,
-                              width: 30,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          "ابنِ حضورك الرقمي باحترافية وبساطة.",
-                          style: AppTypography.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 24),
-                        Wrap(
-                          spacing: 16,
-                          children: [
-                            _MobileFooterLink(
-                              label: context.translate('about_us'),
-                              path: '/about',
-                            ),
-                            _MobileFooterLink(
-                              label: context.translate('privacy_policy'),
-                              path: '/privacy-policy',
-                            ),
-                            _MobileFooterLink(
-                              label: context.translate('terms_of_service'),
-                              path: '/terms',
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 8,
-                          alignment: WrapAlignment.center,
-                          children: _socialLinks
-                              .map((s) => _SocialBtn(
-                                    icon: s.icon,
-                                    label: s.label,
-                                    url: s.url,
-                                  ))
-                              .toList(),
-                        ),
-                      ],
-                    ),
-
+                    const _DesktopFooter(socialLinks: _socialLinks),
                   const SizedBox(height: 48),
                   const Divider(color: AppColors.border, height: 1),
                   const SizedBox(height: 24),
-
-                  // Bottom row
-                  Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    spacing: 16,
-                    runSpacing: 8,
-                    children: [
-                      Text(
-                        "© 2026 Landymaker. جميع الحقوق محفوظة.",
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "V 1.0.4",
-                            style: AppTypography.caption.copyWith(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  const _BottomRow(),
                 ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+/// Desktop version of the Footer with multi-column links.
+class _DesktopFooter extends StatelessWidget {
+  final List<_SocialLinkData> socialLinks;
+
+  const _DesktopFooter({required this.socialLinks});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Brand
+        Expanded(
+          flex: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _BrandSection(),
+              const SizedBox(height: 16),
+              Text(
+                "ابنِ حضورك الرقمي\nباحترافية وبساطة.",
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Social links
+              Row(
+                children: socialLinks
+                    .map((s) => Padding(
+                          padding: const EdgeInsetsDirectional.only(end: 8),
+                          child: _SocialBtn(
+                            icon: s.icon,
+                            label: s.label,
+                            url: s.url,
+                          ),
+                        ))
+                    .toList(),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 40),
+
+        // Links
+        const Expanded(
+          child: _FooterLinks(
+            title: "المنتج",
+            items: [
+              _FooterLinkData(label: "المميزات", path: '/'),
+              _FooterLinkData(label: "القوالب", path: '/templates'),
+              _FooterLinkData(label: "الأسعار", path: '/'),
+              _FooterLinkData(label: "الأمان", path: '/'),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _FooterLinks(
+            title: "الشركة",
+            items: [
+              _FooterLinkData(label: "من نحن", path: '/about'),
+              _FooterLinkData(label: "المدونة", path: '/blog'),
+              _FooterLinkData(label: "تواصل معنا", path: '/'),
+              _FooterLinkData(
+                label: "سياسة الخصوصية",
+                path: '/privacy-policy',
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _FooterLinks(
+            title: "الدعم",
+            items: [
+              _FooterLinkData(label: "مركز المساعدة", path: '/'),
+              _FooterLinkData(
+                label: "شروط الخدمة",
+                path: '/terms',
+              ),
+              _FooterLinkData(label: "الإبلاغ عن مشكلة", path: '/'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Mobile version of the Footer with centered content and collapsed links.
+class _MobileFooter extends StatelessWidget {
+  final List<_SocialLinkData> socialLinks;
+
+  const _MobileFooter({required this.socialLinks});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const _BrandSection(center: true),
+        const SizedBox(height: 12),
+        Text(
+          "ابنِ حضورك الرقمي باحترافية وبساطة.",
+          style: AppTypography.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 24),
+        const Wrap(
+          spacing: 16,
+          children: [
+            _MobileFooterLink(
+              label: "من نحن",
+              path: '/about',
+            ),
+            _MobileFooterLink(
+              label: "سياسة الخصوصية",
+              path: '/privacy-policy',
+            ),
+            _MobileFooterLink(
+              label: "شروط الخدمة",
+              path: '/terms',
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          alignment: WrapAlignment.center,
+          children: socialLinks
+              .map((s) => _SocialBtn(
+                    icon: s.icon,
+                    label: s.label,
+                    url: s.url,
+                  ))
+              .toList(),
+        ),
+      ],
+    );
+  }
+}
+
+/// Shared Brand Section with Logo.
+class _BrandSection extends StatelessWidget {
+  final bool center;
+
+  const _BrandSection({this.center = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const LandyMakerLogo(fontSize: 20),
+        const SizedBox(width: 8),
+        Image.asset(
+          'assets/images/logo_small.webp',
+          height: 30,
+          width: 30,
+        ),
+      ],
+    );
+  }
+}
+
+/// Footer copyright and version row.
+class _BottomRow extends StatelessWidget {
+  const _BottomRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      spacing: 16,
+      runSpacing: 8,
+      children: [
+        Text(
+          "© 2026 Landymaker. جميع الحقوق محفوظة.",
+          style: AppTypography.caption.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "V 1.0.4",
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -331,7 +352,7 @@ class _SocialBtnState extends State<_SocialBtn> {
 class _FooterLinkData {
   final String label;
   final String path;
-  _FooterLinkData({required this.label, required this.path});
+  const _FooterLinkData({required this.label, required this.path});
 }
 
 class _FooterLinks extends StatelessWidget {

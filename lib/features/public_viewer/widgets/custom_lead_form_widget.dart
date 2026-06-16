@@ -12,9 +12,16 @@ import '../../dashboard/controllers/leads_analytics_state.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/forms/validation_engine.dart';
 import '../../../core/forms/elements/field_renderer.dart';
-
 import '../../../core/services/action_handler_service.dart';
 
+/// ======================================================
+/// FEATURE: Custom Lead Form Widget
+/// PURPOSE: Standard lead capture form with anti-spam (Turnstile + Honeypot) and Smart WhatsApp integration.
+/// ARCHITECTURE: 
+/// - State Hoisting: All controllers and form state are managed in [CustomLeadFormWidget] state.
+/// - Layout Delegation: Renders [_DesktopLeadFormLayout] or [_MobileLeadFormLayout] 
+///   based on screen width.
+/// ======================================================
 class CustomLeadFormWidget extends StatefulWidget {
   final Map<String, dynamic> block;
   final String title;
@@ -58,7 +65,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
   @override
   void initState() {
     super.initState();
-    _turnstileViewId = 'turnstile-lead-form-\${widget.block.hashCode}';
+    _turnstileViewId = 'turnstile-lead-form-${widget.block.hashCode}';
     TurnstileService.registerViewFactory(_turnstileViewId, (token) {
       setState(() {
         _turnstileToken = token;
@@ -74,29 +81,10 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
     if (blockFields != null && blockFields is List && blockFields.isNotEmpty) {
       return blockFields;
     }
-    // Fallback schema
     return [
-      {
-        'field_id': 'name',
-        'field_type': 'text',
-        'label': context.translate('full_name'),
-        'placeholder': context.translate('name_hint'),
-        'is_required': true,
-      },
-      {
-        'field_id': 'email',
-        'field_type': 'email',
-        'label': context.translate('email'),
-        'placeholder': context.translate('email_hint'),
-        'is_required': true,
-      },
-      {
-        'field_id': 'message',
-        'field_type': 'textarea',
-        'label': context.translate('message_label'),
-        'placeholder': context.translate('message_hint'),
-        'is_required': true,
-      }
+      {'field_id': 'name', 'field_type': 'text', 'label': context.translate('full_name'), 'placeholder': context.translate('name_hint'), 'is_required': true},
+      {'field_id': 'email', 'field_type': 'email', 'label': context.translate('email'), 'placeholder': context.translate('email_hint'), 'is_required': true},
+      {'field_id': 'message', 'field_type': 'textarea', 'label': context.translate('message_label'), 'placeholder': context.translate('message_hint'), 'is_required': true}
     ];
   }
 
@@ -118,9 +106,8 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
     });
   }
 
-  Future<void> _submitForm(BuildContext context) async {
+  Future<void> _submitForm() async {
     if (_honeypotController.text.isNotEmpty) {
-      // Silently discard spam and mimic successful response to bot
       setState(() {
         _successMessage = context.translate('form_spam_success');
         _errorMessage = null;
@@ -142,9 +129,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
     }
 
     if (_turnstileToken == null) {
-      setState(() {
-        _errorMessage = context.translate('captcha_required');
-      });
+      setState(() => _errorMessage = context.translate('captcha_required'));
       return;
     }
 
@@ -157,10 +142,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
     try {
       final fingerprint = FingerprintUtils.getFingerprint();
       final payload = Map<String, dynamic>.from(_dataPayload);
-      payload['__metadata'] = {
-        'fingerprint': fingerprint,
-        'turnstile_token': _turnstileToken,
-      };
+      payload['__metadata'] = {'fingerprint': fingerprint, 'turnstile_token': _turnstileToken};
 
       final cubit = context.read<LeadsAnalyticsCubit>();
       await cubit.submitLead(widget.pageId, payload);
@@ -174,9 +156,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
           });
         } else {
           setState(() {
-            _successMessage = state is LeadsAnalyticsLoaded 
-                ? (state.leadSuccessMessage ?? context.translate('lead_success'))
-                : context.translate('lead_success');
+            _successMessage = state is LeadsAnalyticsLoaded ? (state.leadSuccessMessage ?? context.translate('lead_success')) : context.translate('lead_success');
             _errorMessage = null;
           });
           _clearForm();
@@ -184,27 +164,15 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
           setState(() => _turnstileToken = null);
           PixelEventService.trackLead();
 
-          // MISSION: Smart WhatsApp Leads
           if (widget.block['whatsapp_auto_open'] == true) {
             final String whatsappNumber = widget.block['whatsapp_number']?.toString() ?? '';
             String template = widget.block['whatsapp_message_template']?.toString() ?? 'New Lead Submission';
-            
-            // Replace placeholders {{field_id}}
-            _dataPayload.forEach((key, value) {
-              template = template.replaceAll('{{$key}}', value.toString());
-            });
-
-            await ActionHandlerService.openWhatsApp(
-              phoneNumber: whatsappNumber,
-              message: template,
-              pageId: widget.pageId,
-              blockType: 'lead_form',
-            );
+            _dataPayload.forEach((key, value) => template = template.replaceAll('{{$key}}', value.toString()));
+            await ActionHandlerService.openWhatsApp(phoneNumber: whatsappNumber, message: template, pageId: widget.pageId, blockType: 'lead_form');
           }
         }
       }
     } catch (e) {
-      // Fallback for preview mode or complete failure
       await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
         setState(() {
@@ -214,10 +182,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
         _clearForm();
       }
     }
-
-    if (mounted) {
-      setState(() => _isSubmitting = false);
-    }
+    if (mounted) setState(() => _isSubmitting = false);
   }
 
   void _clearForm() {
@@ -242,6 +207,27 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
         final bool isMobile = constraints.maxWidth < 600;
         final double verticalPadding = isMobile ? 40 : 80;
 
+        final props = _LeadFormProps(
+          title: widget.title,
+          buttonText: widget.buttonText,
+          theme: widget.theme,
+          secondaryColor: secondaryColor,
+          textColor: textColor,
+          subTextColor: subTextColor,
+          isMobile: isMobile,
+          isSubmitting: _isSubmitting,
+          successMessage: _successMessage,
+          errorMessage: _errorMessage,
+          turnstileViewId: _turnstileViewId,
+          fields: _fields,
+          controllers: _controllers,
+          dataPayload: _dataPayload,
+          validationErrors: _validationErrors,
+          honeypotController: _honeypotController,
+          onFieldValueChanged: _onFieldValueChanged,
+          onSubmit: _submitForm,
+        );
+
         return SectionBackground(
           bgImageUrl: widget.bgImageUrl,
           bgOverlayColor: widget.bgOverlayColor,
@@ -252,171 +238,199 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 600),
-              padding: EdgeInsetsDirectional.all(isMobile ? 24 : 40),
-              decoration: BoxDecoration(
-                color: subTextColor.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(isMobile ? 16 : 24),
-                border: Border.all(
-                  color: subTextColor.withValues(alpha: 0.08),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Honeypot field (hidden from real users, filled by bots)
-                  Offstage(
-                    child: TextField(
-                      controller: _honeypotController,
-                      decoration: const InputDecoration(labelText: 'Leave this field empty'),
-                    ),
-                  ),
-                  Text(
-                    widget.title,
-                    style: AppTypography.h2.copyWith(
-                      fontSize: isMobile ? 22 : 26, 
-                      fontWeight: FontWeight.bold, 
-                      color: textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    context.translate('form_subtitle'),
-                    style: AppTypography.bodyMedium.copyWith(color: subTextColor, fontSize: isMobile ? 12 : 14),
-                  ),
-                  SizedBox(height: isMobile ? 24 : 32),
-
-                  if (_successMessage != null) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.activeGreen.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.activeGreen.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              _successMessage!,
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: AppColors.activeGreen,
-                                fontWeight: FontWeight.bold,
-                                fontSize: isMobile ? 12 : 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-
-                  if (_errorMessage != null) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.dangerRed.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.dangerRed.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.error_outline_rounded, color: AppColors.dangerRed, size: 20),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              _errorMessage!,
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: AppColors.dangerRed,
-                                fontWeight: FontWeight.bold,
-                                fontSize: isMobile ? 12 : 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-
-                  ..._fields.map((field) {
-                    if (field is! Map) return const SizedBox.shrink();
-                    final fieldId = field['field_id'] as String?;
-                    if (fieldId == null) return const SizedBox.shrink();
-                    
-                    if (!_controllers.containsKey(fieldId)) {
-                      _controllers[fieldId] = TextEditingController();
-                    }
-
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        textTheme: Theme.of(context).textTheme.copyWith(
-                          titleSmall: TextStyle(color: textColor, fontSize: isMobile ? 12 : 14, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      child: FieldRenderer.render(
-                        schema: field.cast<String, dynamic>(),
-                        controller: _controllers[fieldId]!,
-                        currentValue: _dataPayload[fieldId]?.toString(),
-                        errorMessage: _validationErrors[fieldId],
-                        onChanged: (val) => _onFieldValueChanged(fieldId, val),
-                      ),
-                    );
-                  }),
-
-                  SizedBox(height: isMobile ? 8 : 16),
-
-                  // Turnstile Widget
-                  Center(
-                    child: SizedBox(
-                      width: 300,
-                      height: 70,
-                      child: HtmlElementView(viewType: _turnstileViewId),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: isMobile ? 48 : 54,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : () => _submitForm(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: secondaryColor,
-                        foregroundColor: widget.theme?.buttonTextColor ?? Colors.white,
-                        disabledBackgroundColor: secondaryColor.withValues(alpha: 0.5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 4,
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.0,
-                              ),
-                            )
-                          : Text(
-                              widget.buttonText,
-                              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: isMobile ? 14 : 16),
-                            ),
-                    ),
-                  ),
-                ],
-              ),
+              child: isMobile ? _MobileLeadFormLayout(props: props) : _DesktopLeadFormLayout(props: props),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+/// Data class for Lead Form properties.
+class _LeadFormProps {
+  final String title;
+  final String buttonText;
+  final LandingPageTheme? theme;
+  final Color secondaryColor;
+  final Color textColor;
+  final Color subTextColor;
+  final bool isMobile;
+  final bool isSubmitting;
+  final String? successMessage;
+  final String? errorMessage;
+  final String turnstileViewId;
+  final List<dynamic> fields;
+  final Map<String, TextEditingController> controllers;
+  final Map<String, dynamic> dataPayload;
+  final Map<String, String> validationErrors;
+  final TextEditingController honeypotController;
+  final Function(String, String) onFieldValueChanged;
+  final VoidCallback onSubmit;
+
+  const _LeadFormProps({
+    required this.title,
+    required this.buttonText,
+    this.theme,
+    required this.secondaryColor,
+    required this.textColor,
+    required this.subTextColor,
+    required this.isMobile,
+    required this.isSubmitting,
+    this.successMessage,
+    this.errorMessage,
+    required this.turnstileViewId,
+    required this.fields,
+    required this.controllers,
+    required this.dataPayload,
+    required this.validationErrors,
+    required this.honeypotController,
+    required this.onFieldValueChanged,
+    required this.onSubmit,
+  });
+}
+
+/// Desktop version of the Lead Form layout.
+class _DesktopLeadFormLayout extends StatelessWidget {
+  final _LeadFormProps props;
+  const _DesktopLeadFormLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return _LeadFormContainer(props: props);
+  }
+}
+
+/// Mobile version of the Lead Form layout.
+class _MobileLeadFormLayout extends StatelessWidget {
+  final _LeadFormProps props;
+  const _MobileLeadFormLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return _LeadFormContainer(props: props);
+  }
+}
+
+/// Shared Lead Form Container.
+class _LeadFormContainer extends StatelessWidget {
+  final _LeadFormProps props;
+  const _LeadFormContainer({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsetsDirectional.all(props.isMobile ? 24 : 40),
+      decoration: BoxDecoration(
+        color: props.subTextColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(props.isMobile ? 16 : 24),
+        border: Border.all(color: props.subTextColor.withValues(alpha: 0.08), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Offstage(child: TextField(controller: props.honeypotController, decoration: const InputDecoration(labelText: 'Leave this field empty'))),
+          Text(props.title, style: AppTypography.h2.copyWith(fontSize: props.isMobile ? 22 : 26, fontWeight: FontWeight.bold, color: props.textColor)),
+          const SizedBox(height: 8),
+          Text(context.translate('form_subtitle'), style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 12 : 14)),
+          SizedBox(height: props.isMobile ? 24 : 32),
+          if (props.successMessage != null) _StatusBanner(message: props.successMessage!, color: AppColors.activeGreen, isMobile: props.isMobile),
+          if (props.errorMessage != null) _StatusBanner(message: props.errorMessage!, color: AppColors.dangerRed, isMobile: props.isMobile),
+          ...props.fields.map((field) {
+            if (field is! Map) return const SizedBox.shrink();
+            final fieldId = field['field_id'] as String?;
+            if (fieldId == null) return const SizedBox.shrink();
+            final controller = props.controllers[fieldId];
+            if (controller == null) return const SizedBox.shrink();
+            return _LeadFormField(field: field.cast<String, dynamic>(), controller: controller, props: props);
+          }),
+          SizedBox(height: props.isMobile ? 8 : 16),
+          Center(child: SizedBox(width: 300, height: 70, child: HtmlElementView(viewType: props.turnstileViewId))),
+          const SizedBox(height: 16),
+          _LeadFormSubmitButton(props: props),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shared Status Banner (Success/Error).
+class _StatusBanner extends StatelessWidget {
+  final String message;
+  final Color color;
+  final bool isMobile;
+
+  const _StatusBanner({required this.message, required this.color, required this.isMobile});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
+      child: Row(
+        children: [
+          Icon(color == AppColors.activeGreen ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14))),
+        ],
+      ),
+    );
+  }
+}
+
+/// Modular Lead Form Field.
+class _LeadFormField extends StatelessWidget {
+  final Map<String, dynamic> field;
+  final TextEditingController controller;
+  final _LeadFormProps props;
+
+  const _LeadFormField({required this.field, required this.controller, required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    final fieldId = field['field_id'] as String;
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: Theme.of(context).textTheme.copyWith(
+          titleSmall: TextStyle(color: props.textColor, fontSize: props.isMobile ? 12 : 14, fontWeight: FontWeight.bold),
+        ),
+      ),
+      child: FieldRenderer.render(
+        schema: field,
+        controller: controller,
+        currentValue: props.dataPayload[fieldId]?.toString(),
+        errorMessage: props.validationErrors[fieldId],
+        onChanged: (val) => props.onFieldValueChanged(fieldId, val),
+      ),
+    );
+  }
+}
+
+/// Shared Lead Form Submit Button.
+class _LeadFormSubmitButton extends StatelessWidget {
+  final _LeadFormProps props;
+  const _LeadFormSubmitButton({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: props.isMobile ? 48 : 54,
+      child: ElevatedButton(
+        onPressed: props.isSubmitting ? null : props.onSubmit,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: props.secondaryColor,
+          foregroundColor: props.theme?.buttonTextColor ?? Colors.white,
+          disabledBackgroundColor: props.secondaryColor.withValues(alpha: 0.5),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 4,
+        ),
+        child: props.isSubmitting
+            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0))
+            : Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16)),
+      ),
     );
   }
 }

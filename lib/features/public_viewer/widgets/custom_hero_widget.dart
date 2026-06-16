@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
-
 import '../../../core/services/action_handler_service.dart';
 
+/// ======================================================
+/// FEATURE: Custom Hero Widget
+/// PURPOSE: Primary header section for the landing page.
+/// ARCHITECTURE: Factory Pattern - Delegates rendering to specific layout 
+/// classes based on [_effectiveVariant] and screen size.
+/// ======================================================
 class CustomHeroWidget extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -80,7 +84,7 @@ class CustomHeroWidget extends StatelessWidget {
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
-              child: _buildVariant(context, constraints, isRtl, isMobile, primaryColor, secondaryColor, textColor, subTextColor),
+              child: _buildLayout(context, constraints, isRtl, isMobile, primaryColor, secondaryColor, textColor, subTextColor),
             ),
           ),
         );
@@ -88,97 +92,172 @@ class CustomHeroWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildVariant(BuildContext context, BoxConstraints constraints, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+  Widget _buildLayout(
+    BuildContext context, 
+    BoxConstraints constraints, 
+    bool isRtl, 
+    bool isMobile, 
+    Color primary, 
+    Color secondary, 
+    Color textColor, 
+    Color subTextColor
+  ) {
+    final commonProps = _HeroProps(
+      title: title,
+      subtitle: subtitle,
+      buttonText: buttonText,
+      imageUrl: imageUrl,
+      buttonUrl: buttonUrl,
+      pageId: pageId,
+      theme: theme,
+      primary: primary,
+      secondary: secondary,
+      textColor: textColor,
+      subTextColor: subTextColor,
+      isRtl: isRtl,
+      isMobile: isMobile,
+    );
+
     switch (_effectiveVariant) {
-      case 1: // Split
-        return _buildSplitVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
-      case 2: // Centered
-        return _buildCenteredVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
-      case 3: // Glassmorphism / Card
-        return _buildGlassVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
-      case 4: // Full Width BG
-        return _buildFullWidthBGVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
-      case 5: // Reverse
-        return _buildReverseVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor);
-      case 8: // Minimal
-        return _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, isMobile);
-      default: // Standard
-        return ResponsiveLayout(
-          desktop: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 5,
-                child: _buildTextContent(context, isRtl, CrossAxisAlignment.start, primary, secondary, textColor, subTextColor, false),
-              ),
-              const SizedBox(width: 48),
-              Expanded(
-                flex: 5,
-                child: _buildHeroImage(primary, false),
-              ),
-            ],
-          ),
-          mobile: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, true),
-              const SizedBox(height: 32),
-              _buildHeroImage(primary, true),
-            ],
-          ),
-        );
+      case 1: return _HeroSplitLayout(props: commonProps);
+      case 2: return _HeroCenteredLayout(props: commonProps);
+      case 3: return _HeroGlassLayout(props: commonProps);
+      case 4: return _HeroFullWidthBGLayout(props: commonProps);
+      case 5: return _HeroReverseLayout(props: commonProps);
+      case 8: return _HeroMinimalLayout(props: commonProps);
+      default: return _HeroStandardLayout(props: commonProps);
     }
   }
+}
 
-  Widget _buildSplitVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+/// Data class to pass shared properties to hero sub-layouts.
+class _HeroProps {
+  final String title;
+  final String subtitle;
+  final String buttonText;
+  final String imageUrl;
+  final String? buttonUrl;
+  final String pageId;
+  final LandingPageTheme? theme;
+  final Color primary;
+  final Color secondary;
+  final Color textColor;
+  final Color subTextColor;
+  final bool isRtl;
+  final bool isMobile;
+
+  const _HeroProps({
+    required this.title,
+    required this.subtitle,
+    required this.buttonText,
+    required this.imageUrl,
+    this.buttonUrl,
+    required this.pageId,
+    this.theme,
+    required this.primary,
+    required this.secondary,
+    required this.textColor,
+    required this.subTextColor,
+    required this.isRtl,
+    required this.isMobile,
+  });
+}
+
+/// Standard layout: Text on one side, image on the other.
+class _HeroStandardLayout extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroStandardLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return ResponsiveLayout(
+      desktop: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 5,
+            child: _HeroTextContent(props: props, alignment: CrossAxisAlignment.start),
+          ),
+          const SizedBox(width: 48),
+          Expanded(
+            flex: 5,
+            child: _HeroImage(props: props),
+          ),
+        ],
+      ),
+      mobile: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
+          const SizedBox(height: 32),
+          _HeroImage(props: props),
+        ],
+      ),
+    );
+  }
+}
+
+/// Split layout with image first on desktop.
+class _HeroSplitLayout extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroSplitLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
     return ResponsiveLayout(
       desktop: Row(
         children: [
-          Expanded(child: _buildHeroImage(primary, false)),
+          Expanded(child: _HeroImage(props: props)),
           const SizedBox(width: 48),
-          Expanded(child: _buildTextContent(context, isRtl, CrossAxisAlignment.start, primary, secondary, textColor, subTextColor, false)),
+          Expanded(child: _HeroTextContent(props: props, alignment: CrossAxisAlignment.start)),
         ],
       ),
       mobile: Column(
         children: [
-          _buildHeroImage(primary, true),
+          _HeroImage(props: props),
           const SizedBox(height: 32),
-          _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, true),
+          _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
         ],
       ),
     );
   }
+}
 
-  Widget _buildReverseVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
-     return ResponsiveLayout(
-      desktop: Row(
-        children: [
-          Expanded(child: _buildHeroImage(primary, false)),
-          const SizedBox(width: 48),
-          Expanded(child: _buildTextContent(context, isRtl, CrossAxisAlignment.start, primary, secondary, textColor, subTextColor, false)),
-        ],
-      ),
-      mobile: Column(
-        children: [
-          _buildHeroImage(primary, true),
-          const SizedBox(height: 32),
-          _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, true),
-        ],
-      ),
-    );
+/// Reverse layout (duplicate of split currently in original code).
+class _HeroReverseLayout extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroReverseLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return _HeroSplitLayout(props: props);
   }
+}
 
-  Widget _buildCenteredVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+/// Centered layout with text above image.
+class _HeroCenteredLayout extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroCenteredLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, isMobile),
+        _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
         const SizedBox(height: 48),
-        _buildHeroImage(primary, isMobile),
+        _HeroImage(props: props),
       ],
     );
   }
+}
 
-  Widget _buildGlassVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+/// Glassmorphism card layout.
+class _HeroGlassLayout extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroGlassLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
@@ -186,131 +265,178 @@ class CustomHeroWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
       ),
-      child: _buildCenteredVariant(context, isRtl, isMobile, primary, secondary, textColor, subTextColor),
+      child: _HeroCenteredLayout(props: props),
     );
   }
+}
 
-  Widget _buildFullWidthBGVariant(BuildContext context, bool isRtl, bool isMobile, Color primary, Color secondary, Color textColor, Color subTextColor) {
+/// Full width background image layout with text overlay.
+class _HeroFullWidthBGLayout extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroFullWidthBGLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
         Opacity(
           opacity: 0.3,
-          child: _buildHeroImage(primary, isMobile),
+          child: _HeroImage(props: props),
         ),
-        _buildTextContent(context, isRtl, CrossAxisAlignment.center, primary, secondary, textColor, subTextColor, isMobile),
+        _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
       ],
     );
   }
+}
 
-  Widget _buildTextContent(BuildContext context, bool isRtl, CrossAxisAlignment alignment, Color primary, Color secondary, Color textColor, Color subTextColor, bool isMobile) {
+/// Minimal layout: Text only.
+class _HeroMinimalLayout extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroMinimalLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return _HeroTextContent(props: props, alignment: CrossAxisAlignment.center);
+  }
+}
+
+/// Shared Text Content widget.
+class _HeroTextContent extends StatelessWidget {
+  final _HeroProps props;
+  final CrossAxisAlignment alignment;
+
+  const _HeroTextContent({required this.props, required this.alignment});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: alignment,
       children: [
-        // Premium accent tag
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: secondary.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: secondary.withValues(alpha: 0.3), width: 1),
-          ),
-          child: Text(
-            isRtl ? "شريك نجاحك الرقمي" : "Your Digital Partner",
-            style: AppTypography.caption.copyWith(
-              color: secondary,
-              fontWeight: FontWeight.bold,
-              fontSize: isMobile ? 10 : 12,
-              letterSpacing: isRtl ? 0 : 1.2,
-            ),
-          ),
-        ),
+        _HeroPremiumTag(props: props),
         const SizedBox(height: 16),
         Text(
-          title,
+          props.title,
           style: AppTypography.h1.copyWith(
             height: 1.1,
-            fontSize: isMobile ? 32 : 48,
+            fontSize: props.isMobile ? 32 : 48,
             fontWeight: FontWeight.w900,
-            color: textColor,
+            color: props.textColor,
           ),
           textAlign: alignment == CrossAxisAlignment.center ? TextAlign.center : TextAlign.start,
         ),
         const SizedBox(height: 12),
         Text(
-          subtitle,
+          props.subtitle,
           style: AppTypography.bodyLarge.copyWith(
-            color: subTextColor,
-            fontSize: isMobile ? 14 : 18,
+            color: props.subTextColor,
+            fontSize: props.isMobile ? 14 : 18,
             height: 1.5,
           ),
           textAlign: alignment == CrossAxisAlignment.center ? TextAlign.center : TextAlign.start,
         ),
         const SizedBox(height: 24),
-        ElevatedButton(
-          onPressed: () async {
-            if (buttonUrl != null && buttonUrl!.isNotEmpty) {
-              await ActionHandlerService.executeAction(
-                context,
-                actionType: 'link',
-                actionValue: buttonUrl!,
-                pageId: pageId,
-                buttonText: buttonText,
-                blockType: 'hero',
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: secondary,
-            foregroundColor: theme?.buttonTextColor ?? Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: isMobile ? 24 : 32, vertical: isMobile ? 14 : 18),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 4,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  buttonText,
-                  style: AppTypography.bodyLarge.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: isMobile ? 14 : 16,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                isRtl ? Icons.arrow_back : Icons.arrow_forward,
-                size: 18,
-              ),
-            ],
-          ),
-        ),
+        _HeroButton(props: props),
       ],
     );
   }
+}
 
-  Widget _buildHeroImage(Color primary, bool isMobile) {
+/// Shared Premium Tag widget.
+class _HeroPremiumTag extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroPremiumTag({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: props.secondary.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: props.secondary.withValues(alpha: 0.3), width: 1),
+      ),
+      child: Text(
+        props.isRtl ? "شريك نجاحك الرقمي" : "Your Digital Partner",
+        style: AppTypography.caption.copyWith(
+          color: props.secondary,
+          fontWeight: FontWeight.bold,
+          fontSize: props.isMobile ? 10 : 12,
+          letterSpacing: props.isRtl ? 0 : 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+/// Shared Hero Button widget.
+class _HeroButton extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroButton({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        if (props.buttonUrl != null && props.buttonUrl!.isNotEmpty) {
+          await ActionHandlerService.executeAction(
+            context,
+            actionType: 'link',
+            actionValue: props.buttonUrl!,
+            pageId: props.pageId,
+            buttonText: props.buttonText,
+            blockType: 'hero',
+          );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: props.secondary,
+        foregroundColor: props.theme?.buttonTextColor ?? Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: props.isMobile ? 24 : 32, vertical: props.isMobile ? 14 : 18),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 4,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              props.buttonText,
+              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(props.isRtl ? Icons.arrow_back : Icons.arrow_forward, size: 18),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shared Hero Image widget.
+class _HeroImage extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroImage({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: primary.withValues(alpha: 0.2),
+            color: props.primary.withValues(alpha: 0.2),
             blurRadius: 30,
             spreadRadius: 1,
           ),
         ],
       ),
       child: CustomNetworkImage(
-        imageUrl: imageUrl,
+        imageUrl: props.imageUrl,
         borderRadius: BorderRadius.circular(20),
         fit: BoxFit.cover,
-        height: isMobile ? 300 : null,
+        height: props.isMobile ? 300 : null,
       ),
     );
   }

@@ -337,6 +337,7 @@ class _SocialLinksList extends StatelessWidget {
                     props.liveUrl.replaceFirst('https://', ''),
                     style: AppTypography.caption.copyWith(color: props.textColor, fontWeight: FontWeight.bold, fontSize: props.isMobile ? 11 : 12),
                     overflow: TextOverflow.ellipsis,
+                    textDirection: TextDirection.ltr,
                   ),
                 ),
               ],

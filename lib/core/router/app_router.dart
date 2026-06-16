@@ -11,6 +11,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import '../localization/localization_cubit.dart';
@@ -41,6 +43,23 @@ import '../../features/blog_admin/screens/blog_management_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
+  redirect: (context, state) {
+    final path = state.uri.path;
+    if (path == '/blog' || path.startsWith('/blog/')) {
+      final String url;
+      if (kIsWeb) {
+        url = '${Uri.base.origin}$path';
+      } else {
+        url = 'https://landymaker.com$path';
+      }
+      launchUrl(
+        Uri.parse(url),
+        webOnlyWindowName: '_self',
+      );
+      return '/';
+    }
+    return null;
+  },
   errorBuilder: (context, state) {
     final loc = context.read<LocalizationCubit>();
     return Scaffold(

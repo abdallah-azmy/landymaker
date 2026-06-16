@@ -2,23 +2,27 @@ class AIConversationMessage {
   final String role; // 'user' | 'assistant'
   final String content;
   final DateTime timestamp;
+  final bool showPreviewButton;
 
   AIConversationMessage({
     required this.role,
     required this.content,
     required this.timestamp,
+    this.showPreviewButton = false,
   });
 
   Map<String, dynamic> toJson() => {
     'role': role,
     'content': content,
     'timestamp': timestamp.toIso8601String(),
+    'show_preview_button': showPreviewButton,
   };
 
   factory AIConversationMessage.fromJson(Map<String, dynamic> json) => AIConversationMessage(
     role: json['role'],
     content: json['content'],
     timestamp: DateTime.parse(json['timestamp']),
+    showPreviewButton: json['show_preview_button'] ?? false,
   );
 }
 
@@ -96,11 +100,12 @@ class AIConversationSession {
   static const int fullMessageThreshold = 10;
   static const int maxContentLength = 200;
 
-  void addMessage(String role, String content) {
+  void addMessage(String role, String content, {bool showPreviewButton = false}) {
     messages.add(AIConversationMessage(
       role: role,
       content: content,
       timestamp: DateTime.now(),
+      showPreviewButton: showPreviewButton,
     ));
     
     // Maintain last 30 messages (up from 10)

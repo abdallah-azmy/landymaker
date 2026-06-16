@@ -130,6 +130,12 @@ class CustomContactInfoWidget extends StatelessWidget {
   }
 
   Widget _buildContactCard(IconData icon, String label, String value, Color secondary, Color textColor, Color subTextColor) {
+    final cleanValue = value.trim();
+    final bool isLtr = cleanValue.contains('@') ||
+                      RegExp(r'^\+?[0-9\-\s()]+$').hasMatch(cleanValue) ||
+                      cleanValue.startsWith('http') ||
+                      cleanValue.contains('www.');
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -153,7 +159,12 @@ class CustomContactInfoWidget extends StatelessWidget {
           const SizedBox(height: 8),
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text(value, style: AppTypography.bodyLarge.copyWith(color: textColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            child: Text(
+              value,
+              style: AppTypography.bodyLarge.copyWith(color: textColor, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+              textDirection: isLtr ? TextDirection.ltr : null,
+            ),
           ),
         ],
       ),

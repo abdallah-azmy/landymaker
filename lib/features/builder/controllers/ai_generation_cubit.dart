@@ -372,7 +372,11 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
         await _saveSession();
       }
       if (data['assistant_message'] != null) {
-        _session.addMessage('assistant', data['assistant_message']);
+        _session.addMessage(
+          'assistant',
+          data['assistant_message'],
+          showPreviewButton: data['designJson'] != null,
+        );
         await _saveSession();
       }
 

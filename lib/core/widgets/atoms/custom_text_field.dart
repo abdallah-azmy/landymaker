@@ -19,6 +19,7 @@ class CustomTextField extends StatelessWidget {
   final String? errorText;
   final String? label;
   final String? hint;
+  final TextDirection? textDirection;
 
   const CustomTextField({
     super.key,
@@ -38,6 +39,7 @@ class CustomTextField extends StatelessWidget {
     this.errorText,
     this.label,
     this.hint,
+    this.textDirection,
   });
 
   @override
@@ -61,6 +63,7 @@ class CustomTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          textDirection: textDirection,
           onChanged: onChanged,
           onFieldSubmitted: onSubmitted,
           validator: validator,

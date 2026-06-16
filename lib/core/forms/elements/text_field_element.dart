@@ -38,6 +38,9 @@ class TextFieldElement extends StatelessWidget {
     }
 
     final int maxLines = fieldType == 'textarea' ? 4 : 1;
+    final TextDirection? textDirection = (fieldType == 'email' || fieldType == 'phone' || fieldType == 'number')
+        ? TextDirection.ltr
+        : null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -69,6 +72,7 @@ class TextFieldElement extends StatelessWidget {
             maxLines: maxLines,
             errorText: errorMessage,
             onChanged: onChanged,
+            textDirection: textDirection,
           ),
         ],
       ),

@@ -132,17 +132,28 @@ class _DesktopWorkingHoursLayout extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              ...props.schedule.entries.map((entry) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 17))),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(entry.value.toString(), style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor, fontSize: 17), textAlign: TextAlign.end)),
-                  ],
-                ),
-              )),
+              ...props.schedule.entries.map((entry) {
+                final valStr = entry.value.toString();
+                final bool isNumeric = RegExp(r'[0-9]').hasMatch(valStr);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 17))),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          valStr,
+                          style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor, fontSize: 17),
+                          textAlign: TextAlign.end,
+                          textDirection: isNumeric ? TextDirection.ltr : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
         ),
@@ -190,17 +201,28 @@ class _MobileWorkingHoursLayout extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              ...props.schedule.entries.map((entry) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 15))),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(entry.value.toString(), style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor, fontSize: 15), textAlign: TextAlign.end)),
-                  ],
-                ),
-              )),
+              ...props.schedule.entries.map((entry) {
+                final valStr = entry.value.toString();
+                final bool isNumeric = RegExp(r'[0-9]').hasMatch(valStr);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 15))),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          valStr,
+                          style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor, fontSize: 15),
+                          textAlign: TextAlign.end,
+                          textDirection: isNumeric ? TextDirection.ltr : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
         ),

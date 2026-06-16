@@ -152,6 +152,7 @@ class _DesktopQrLayout extends StatelessWidget {
             Text(
               props.finalPayload.replaceFirst('https://', '').replaceFirst('http://', ''),
               style: AppTypography.caption.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold, letterSpacing: 1.1, fontSize: 12),
+              textDirection: TextDirection.ltr,
             ),
           ],
         ),
@@ -205,6 +206,7 @@ class _MobileQrLayout extends StatelessWidget {
             Text(
               props.finalPayload.replaceFirst('https://', '').replaceFirst('http://', ''),
               style: AppTypography.caption.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold, letterSpacing: 1.1, fontSize: 10),
+              textDirection: TextDirection.ltr,
             ),
           ],
         ),

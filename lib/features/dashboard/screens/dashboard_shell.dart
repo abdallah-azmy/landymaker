@@ -15,6 +15,7 @@ import '../controllers/notification_cubit.dart';
 import '../controllers/notification_state.dart';
 import '../widgets/notification_inbox_modal.dart';
 import '../../../../services/supabase_service.dart';
+import '../../home/screens/landymaker_home_screen.dart';
 
 /// ======================================================
 /// FEATURE: Dashboard Shell
@@ -43,6 +44,7 @@ class _DashboardShellState extends State<DashboardShell> {
   @override
   void initState() {
     super.initState();
+    LandyMakerHomeScreen.resetScrollPosition();
     _loadData();
     _initNotificationCubit();
   }

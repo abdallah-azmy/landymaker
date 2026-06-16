@@ -26,6 +26,7 @@ import '../widgets/molecules/builder_mobile_toolbar.dart';
 import '../../dashboard/widgets/empty_workspace_state.dart';
 import '../models/preview_mode.dart';
 import '../widgets/modals/ai_chat_modal.dart';
+import '../../home/screens/landymaker_home_screen.dart';
 
 /// ======================================================
 /// FEATURE: Builder Workspace Screen
@@ -58,6 +59,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   @override
   void initState() {
     super.initState();
+    LandyMakerHomeScreen.resetScrollPosition();
     final builderCubit = context.read<LandingPageBuilderCubit>();
     if (widget.pageId != null && widget.pageId != 'new') {
       builderCubit.loadPageById(widget.pageId!);

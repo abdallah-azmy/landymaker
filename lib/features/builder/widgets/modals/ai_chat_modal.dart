@@ -33,7 +33,7 @@ class _AIChatModalState extends State<AIChatModal> {
     final builderCubit = context.read<LandingPageBuilderCubit>();
     final aiCubit = context.read<AIGenerationCubit>();
 
-    if (widget.currentPath == '/') {
+    if (widget.currentPath == '/' && aiCubit.session.messages.isEmpty) {
       aiCubit.startNewSession();
     }
 
@@ -43,7 +43,11 @@ class _AIChatModalState extends State<AIChatModal> {
 
     if (aiCubit.session.messages.isNotEmpty) {
       for (final msg in aiCubit.session.messages) {
-        _chatHistory.add({'role': msg.role, 'content': msg.content});
+        _chatHistory.add({
+          'role': msg.role,
+          'content': msg.content,
+          'showPreviewButton': msg.showPreviewButton ? 'true' : 'false',
+        });
       }
     } else {
       final bool isNewSite =
@@ -78,9 +82,13 @@ class _AIChatModalState extends State<AIChatModal> {
     }
   }
 
-  void _addSystemMessage(String message) {
+  void _addSystemMessage(String message, {bool showPreviewButton = false}) {
     setState(() {
-      _chatHistory.add({'role': 'assistant', 'content': message});
+      _chatHistory.add({
+        'role': 'assistant',
+        'content': message,
+        'showPreviewButton': showPreviewButton ? 'true' : 'false',
+      });
     });
     _scrollToBottom();
   }
@@ -177,10 +185,11 @@ class _AIChatModalState extends State<AIChatModal> {
     return BlocConsumer<AIGenerationCubit, AIGenerationState>(
       listener: (context, state) {
         if (state is AIGenerationSuccess) {
+          final bool hasDesign = state.designJson.isNotEmpty;
           if (state.assistantMessage != null) {
-            _addSystemMessage(state.assistantMessage!);
+            _addSystemMessage(state.assistantMessage!, showPreviewButton: hasDesign);
           } else {
-            _addSystemMessage("تم تنفيذ طلبك بنجاح! هل هناك شيء آخر؟");
+            _addSystemMessage("تم تنفيذ طلبك بنجاح! هل هناك شيء آخر؟", showPreviewButton: hasDesign);
           }
           ToastService.showSuccess(context, message: "تم تحديث التصميم بنجاح");
 
@@ -302,6 +311,7 @@ class _AIChatModalState extends State<AIChatModal> {
     final String content = msg['content']!;
     final String? imageUrl = msg['imageUrl'];
     final bool isUser = role == 'user';
+    final bool showPreviewButton = msg['showPreviewButton'] == 'true';
     return Align(
       alignment: isUser ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
@@ -341,6 +351,31 @@ class _AIChatModalState extends State<AIChatModal> {
                   height: 120,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+            ],
+            if (showPreviewButton) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the bottom sheet
+                    context.go('/guest-preview');
+                  },
+                  icon: const Icon(Icons.visibility_rounded, size: 18),
+                  label: const Text(
+                    "معاينة صفحة الهبوط",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                 ),
               ),
             ],

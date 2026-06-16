@@ -14,12 +14,18 @@ import '../models/home_layouts.dart';
 class LandyMakerHomeScreen extends StatefulWidget {
   const LandyMakerHomeScreen({super.key});
 
+  static double lastScrollOffset = 0.0;
+
+  static void resetScrollPosition() {
+    lastScrollOffset = 0.0;
+  }
+
   @override
   State<LandyMakerHomeScreen> createState() => _LandyMakerHomeScreenState();
 }
 
 class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
 
   bool _bentoVisible = false;
   bool _templatesVisible = false;
@@ -31,7 +37,23 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   CtaLayout _ctaLayout = CtaLayout.centeredGradient;
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController(
+      initialScrollOffset: LandyMakerHomeScreen.lastScrollOffset,
+    );
+    _scrollController.addListener(_saveScrollPosition);
+  }
+
+  void _saveScrollPosition() {
+    if (_scrollController.hasClients) {
+      LandyMakerHomeScreen.lastScrollOffset = _scrollController.offset;
+    }
+  }
+
+  @override
   void dispose() {
+    _scrollController.removeListener(_saveScrollPosition);
     _scrollController.dispose();
     super.dispose();
   }

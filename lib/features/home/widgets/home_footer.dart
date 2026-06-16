@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
-import '../../../core/localization/app_localizations.dart';
 
 /// ======================================================
 /// FEATURE: Home Footer
@@ -358,7 +358,19 @@ class _FooterLinks extends StatelessWidget {
           (item) => Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: InkWell(
-              onTap: () => context.go(item.path),
+              onTap: () {
+                if (item.path == '/blog' || item.path.startsWith('/blog/')) {
+                  final String url;
+                  if (kIsWeb) {
+                    url = '${Uri.base.origin}${item.path}';
+                  } else {
+                    url = 'https://landymaker.com${item.path}';
+                  }
+                  launchUrl(Uri.parse(url), webOnlyWindowName: '_self');
+                } else {
+                  context.go(item.path);
+                }
+              },
               child: Text(
                 item.label,
                 style: AppTypography.caption.copyWith(
@@ -381,7 +393,19 @@ class _MobileFooterLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => context.go(path),
+      onTap: () {
+        if (path == '/blog' || path.startsWith('/blog/')) {
+          final String url;
+          if (kIsWeb) {
+            url = '${Uri.base.origin}$path';
+          } else {
+            url = 'https://landymaker.com$path';
+          }
+          launchUrl(Uri.parse(url), webOnlyWindowName: '_self');
+        } else {
+          context.go(path);
+        }
+      },
       child: Text(
         label,
         style: AppTypography.caption.copyWith(

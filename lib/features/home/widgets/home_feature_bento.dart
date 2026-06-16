@@ -155,7 +155,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
   Widget _buildBentoGridLayout(BuildContext context, bool isMobile) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
         color: AppColors.background,
         border: const Border(
@@ -169,7 +169,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildSectionHeader(isMobile),
-              const SizedBox(height: 64),
+              const SizedBox(height: 48),
               if (isMobile)
                 Column(
                   children: List.generate(_features.length, (i) => Column(
@@ -340,7 +340,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
   Widget _buildThreeColsLayout(BuildContext context, bool isMobile) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
         color: AppColors.background,
         border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
@@ -351,7 +351,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
           child: Column(
             children: [
               _buildSectionHeader(isMobile),
-              const SizedBox(height: 64),
+              const SizedBox(height: 48),
               isMobile
                 ? Column(
                     children: _features.map((f) => Padding(
@@ -406,7 +406,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
   Widget _buildIconLeftLayout(BuildContext context, bool isMobile) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
         color: AppColors.background,
         border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
@@ -417,7 +417,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
           child: Column(
             children: [
               _buildSectionHeader(isMobile),
-              const SizedBox(height: 64),
+              const SizedBox(height: 48),
               isMobile
                 ? Column(
                     children: _features.map((f) => _buildIconLeftRow(f)).toList(),

@@ -106,9 +106,9 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
     }
 
     return Wrap(
-      spacing: 20,
-      runSpacing: 20,
-      children: stats.map((s) => SizedBox(width: 250, child: _buildCard(s, loading))).toList(),
+      spacing: 16,
+      runSpacing: 16,
+      children: stats.map((s) => SizedBox(width: 230, child: _buildCard(s, loading))).toList(),
     );
   }
 
@@ -174,19 +174,19 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
     final List<String> days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(loc.translate('daily_performance_trend'), style: AppTypography.h3),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           SizedBox(
-            height: 240,
+            height: 200,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.end,

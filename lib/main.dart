@@ -14,6 +14,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'core/theme/app_colors.dart';
+import 'core/theme/app_theme.dart';
+import 'core/theme/theme_cubit.dart';
 import 'core/localization/localization_cubit.dart';
 import 'core/router/app_router.dart';
 import 'injection_container.dart';
@@ -125,6 +127,7 @@ class LandyMakerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<ThemeCubit>(create: (_) => sl<ThemeCubit>()),
         BlocProvider<LocalizationCubit>(create: (_) => sl<LocalizationCubit>()),
         BlocProvider<ActiveWebsiteCubit>(
           create: (_) => sl<ActiveWebsiteCubit>(),
@@ -158,52 +161,34 @@ class LandyMakerApp extends StatelessWidget {
       ],
       child: BlocBuilder<LocalizationCubit, Locale>(
         builder: (context, locale) {
-          return ToastificationWrapper(
-            child: OfflineBanner(
-              child: MaterialApp.router(
-              title: 'LandyMaker',
-              debugShowCheckedModeBanner: false,
-              routerConfig: appRouter,
+          return BlocBuilder<ThemeCubit, ThemeMode>(
+            builder: (context, themeMode) {
+              return ToastificationWrapper(
+                child: OfflineBanner(
+                  child: MaterialApp.router(
+                  title: 'LandyMaker',
+                  debugShowCheckedModeBanner: false,
+                  routerConfig: appRouter,
 
-              // Locale Configurations
-              locale: locale,
-              supportedLocales: const [Locale('ar'), Locale('en')],
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                quill.FlutterQuillLocalizations.delegate,
-              ],
+                  // Locale Configurations
+                  locale: locale,
+                  supportedLocales: const [Locale('ar'), Locale('en')],
+                  localizationsDelegates: const [
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                    quill.FlutterQuillLocalizations.delegate,
+                  ],
 
-              // Theme specifications
-              theme: ThemeData(
-                fontFamily: GoogleFonts.cairo().fontFamily,
-                brightness: Brightness.dark,
-                primaryColor: AppColors.primary,
-                scaffoldBackgroundColor: AppColors.background,
-                cardTheme: CardThemeData(
-                  color: AppColors.cardBg,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                ),
-                elevatedButtonTheme: ElevatedButtonThemeData(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                ),
-                colorScheme: const ColorScheme.dark(
-                  primary: AppColors.primary,
-                  secondary: AppColors.secondary,
-                  surface: AppColors.cardBg,
-                  error: AppColors.dangerRed,
+                  // Dual-mode theme system
+                  theme: AppTheme.light(),
+                  darkTheme: AppTheme.dark(),
+                  themeMode: themeMode,
                 ),
               ),
-            ),
-          ),
-        );
+            );
+            },
+          );
         },
       ),
     );

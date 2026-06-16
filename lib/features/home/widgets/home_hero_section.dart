@@ -264,7 +264,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         Container(
           width: double.infinity,
           padding: EdgeInsetsDirectional.symmetric(
-            vertical: isMobile ? 40 : 80,
+            vertical: isMobile ? 32 : 60,
             horizontal: 24,
           ),
           child: Center(
@@ -286,9 +286,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                     ),
 
                   if (isMobile)
-                    const SizedBox(height: 64)
+                    const SizedBox(height: 48)
                   else
-                    const SizedBox(width: 64),
+                    const SizedBox(width: 48),
 
                   // Phone Preview container with auto-cycling templates
                   if (isMobile)
@@ -353,7 +353,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           // Centered content
           Padding(
             padding: EdgeInsetsDirectional.symmetric(
-              vertical: isMobile ? 40 : 80,
+              vertical: isMobile ? 32 : 60,
               horizontal: 24,
             ),
             child: Center(
@@ -366,7 +366,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                     children: [
                       // Badge
                       _buildBadge(),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 24),
                       Text(
                         'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                         style: AppTypography.h1.copyWith(
@@ -377,24 +377,25 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 14),
                       ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: 50),
+                        constraints: BoxConstraints(minHeight: 44),
                         child: _TypewriterText(
                           texts: _typewriterTexts,
                           isMobile: isMobile,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       Text(
                         'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
                         style: AppTypography.bodyLarge.copyWith(
                           color: Colors.white70,
-                          height: 1.6,
+                          height: 1.5,
+                          fontSize: 15,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 32),
                       _buildCTAButtons(context),
                     ],
                   ),
@@ -432,7 +433,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         },
         child: Padding(
           padding: EdgeInsetsDirectional.symmetric(
-            vertical: isMobile ? 40 : 80,
+            vertical: isMobile ? 32 : 60,
             horizontal: 24,
           ),
           child: Center(
@@ -444,36 +445,37 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildBadge(),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 24),
                     Text(
                       'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                       style: AppTypography.h1.copyWith(
-                        fontSize: isMobile ? 32 : 56,
+                        fontSize: isMobile ? 30 : 52,
                         fontWeight: FontWeight.w900,
                         height: 1.15,
                         color: Colors.white,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 14),
                     ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: 50),
+                      constraints: BoxConstraints(minHeight: 44),
                       child: _TypewriterText(
                         texts: _typewriterTexts,
                         isMobile: isMobile,
                         colorOverride: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     Text(
                       'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
                       style: AppTypography.bodyLarge.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
-                        height: 1.6,
+                        height: 1.5,
+                        fontSize: 15,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 32),
                     _buildCTAButtons(context, darkMode: false),
                   ],
                 ),
@@ -506,9 +508,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           ),
           Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 1200),
+              constraints: const BoxConstraints(maxWidth: 800),
               padding: EdgeInsetsDirectional.symmetric(
-                vertical: isMobile ? 40 : 80,
+                vertical: isMobile ? 32 : 60,
                 horizontal: 24,
               ),
               child: FadeTransition(
@@ -517,18 +519,18 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildBadge(),
-                    const SizedBox(height: 28),
-                    Text(
-                      'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
-                      style: AppTypography.h1.copyWith(
-                        fontSize: isMobile ? 32 : 58,
-                        fontWeight: FontWeight.w900,
-                        height: 1.15,
-                        color: Colors.white,
+                      const SizedBox(height: 24),
+                      Text(
+                        'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                        style: AppTypography.h1.copyWith(
+                          fontSize: isMobile ? 30 : 52,
+                          fontWeight: FontWeight.w900,
+                          height: 1.15,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 18),
+                      const SizedBox(height: 14),
                     ConstrainedBox(
                       constraints: BoxConstraints(minHeight: 50),
                       child: _TypewriterText(
@@ -657,41 +659,44 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
   }
 
   Widget _buildTextContent(BuildContext context, bool isMobile) {
-    return Column(
-      crossAxisAlignment: isMobile
-          ? CrossAxisAlignment.center
-          : CrossAxisAlignment.start,
-      children: [
-        _buildBadge(),
-        const SizedBox(height: 24),
-        Text(
-          'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
-          style: AppTypography.h1.copyWith(
-            fontSize: isMobile ? 36 : 56,
-            fontWeight: FontWeight.w900,
-            height: 1.15,
-            letterSpacing: -1,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 800),
+      child: Column(
+        crossAxisAlignment: isMobile
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.start,
+        children: [
+          _buildBadge(),
+          const SizedBox(height: 20),
+          Text(
+            'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+            style: AppTypography.h1.copyWith(
+              fontSize: isMobile ? 32 : 52,
+              fontWeight: FontWeight.w900,
+              height: 1.15,
+              letterSpacing: -1,
+            ),
+            textAlign: isMobile ? TextAlign.center : TextAlign.start,
           ),
-          textAlign: isMobile ? TextAlign.center : TextAlign.start,
-        ),
-        const SizedBox(height: 18),
-        ConstrainedBox(
-          constraints: BoxConstraints(minHeight: 50),
-          child: _TypewriterText(texts: _typewriterTexts, isMobile: isMobile),
-        ),
-        const SizedBox(height: 20),
-        Text(
-          'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.',
-          style: AppTypography.bodyLarge.copyWith(
-            color: AppColors.textSecondary,
-            height: 1.6,
-            fontSize: 16,
+          const SizedBox(height: 14),
+          ConstrainedBox(
+            constraints: BoxConstraints(minHeight: 44),
+            child: _TypewriterText(texts: _typewriterTexts, isMobile: isMobile),
           ),
-          textAlign: isMobile ? TextAlign.center : TextAlign.start,
-        ),
-        const SizedBox(height: 36),
-        _buildCTAButtons(context),
-      ],
+          const SizedBox(height: 16),
+          Text(
+            'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.',
+            style: AppTypography.bodyLarge.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.5,
+              fontSize: 15,
+            ),
+            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+          ),
+          const SizedBox(height: 28),
+          _buildCTAButtons(context),
+        ],
+      ),
     );
   }
 }

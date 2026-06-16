@@ -6,6 +6,7 @@ import 'services/database_service.dart';
 import 'services/subscription_service.dart';
 import 'services/image_media_service.dart';
 import 'core/localization/localization_cubit.dart';
+import 'core/theme/theme_cubit.dart';
 import 'core/http_client.dart';
 import 'features/auth/controllers/auth_cubit.dart';
 import 'features/builder/controllers/builder_cubit.dart';
@@ -46,6 +47,9 @@ Future<void> initDependencies() async {
   sl.registerFactory<AIGenerationCubit>(() => AIGenerationCubit(sl<SupabaseService>(), sl<LandingPageBuilderCubit>()));
 
   // 4. Global Cubits / State Managers (Registered as Singletons / Factories)
+  // Theme: App-wide light/dark mode toggle
+  sl.registerSingleton<ThemeCubit>(ThemeCubit());
+
   // Localization: App-wide language toggle persists globally
   sl.registerSingleton<LocalizationCubit>(LocalizationCubit());
 

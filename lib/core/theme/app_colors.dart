@@ -1,26 +1,61 @@
 import 'package:flutter/material.dart';
 
+/// Design tokens for LandyMaker.
+/// These hold the raw brand palette and semantic colors used across themes.
 class AppColors {
-  // Theme Backgrounds
-  static const Color background = Color(0xFF030712); // Deep Space Black
-  static const Color cardBg = Color(0xFF111827); // Dark Slate (Surface)
-  static const Color cardBgHover = Color(0xFF1E293B); // Slate 800 (for hover)
-  static const Color border = Color(0xFF1F2937); // Deep Slate Border
-  static const Color borderGlow = Color(0xFF00E5FF); // Cyan Glow
+  // ── Brand Primaries & Accents ──────────────────────────────────────
+  static const Color primary = Color(0xFF00E5FF);
+  static const Color secondary = Color(0xFF1E3A8A);
+  static const Color activeGreen = Color(0xFF10B981);
+  static const Color dangerRed = Color(0xFFEF4444);
+  static const Color warningOrange = Color(0xFFF59E0B);
 
-  // Brand Primaries & Accents
-  static const Color primary = Color(0xFF00E5FF); // Cyan Glow
-  static const Color secondary = Color(0xFF1E3A8A); // Deep Tech Blue
-  static const Color activeGreen = Color(0xFF10B981); // Emerald Success
-  static const Color dangerRed = Color(0xFFEF4444); // Crimson Error
-  static const Color warningOrange = Color(0xFFF59E0B); // Amber Warning
+  // ── Light Surface Palette ──────────────────────────────────────────
+  static const Color lightBackground = Color(0xFFF8FAFC);
+  static const Color lightSurface = Color(0xFFFFFFFF);
+  static const Color lightCardBg = Color(0xFFFFFFFF);
+  static const Color lightBorder = Color(0xFFE2E8F0);
+  static const Color lightTextPrimary = Color(0xFF0F172A);
+  static const Color lightTextSecondary = Color(0xFF475569);
+  static const Color lightTextMuted = Color(0xFF94A3B8);
 
-  // Text Hierarchy
-  static const Color textPrimary = Color(0xFFF3F4F6); // Ice White
-  static const Color textSecondary = Color(0xFF94A3B8); // Slate 400
-  static const Color textMuted = Color(0xFF64748B); // Slate 500
+  // ── Dark Surface Palette ───────────────────────────────────────────
+  static const Color darkBackground = Color(0xFF030712);
+  static const Color darkSurface = Color(0xFF0F172A);
+  static const Color darkCardBg = Color(0xFF111827);
+  static const Color darkBorder = Color(0xFF1F2937);
+  static const Color darkTextPrimary = Color(0xFFF3F4F6);
+  static const Color darkTextSecondary = Color(0xFF94A3B8);
+  static const Color darkTextMuted = Color(0xFF64748B);
 
-  // Gradients for Hero sections, dashboard stats, and premium glass cards
+  // ── Deprecated Aliases (kept for backward compatibility) ───────────
+  /// These names are kept so existing widgets compile without changes.
+  /// New code should use `Theme.of(context).colorScheme` instead.
+  @Deprecated('Use Theme.of(context).colorScheme.surface instead')
+  static Color get background => darkBackground;
+
+  @Deprecated('Use Theme.of(context).colorScheme.surface instead')
+  static Color get cardBg => darkCardBg;
+
+  @Deprecated('Use Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) instead')
+  static Color get cardBgHover => const Color(0xFF1E293B);
+
+  @Deprecated('Use Theme.of(context).colorScheme.outline instead')
+  static Color get border => darkBorder;
+
+  @Deprecated('Use Theme.of(context).colorScheme.primary instead')
+  static Color get borderGlow => primary;
+
+  @Deprecated('Use Theme.of(context).colorScheme.onSurface instead')
+  static Color get textPrimary => darkTextPrimary;
+
+  @Deprecated('Use Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7) instead')
+  static Color get textSecondary => darkTextSecondary;
+
+  @Deprecated('Use Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5) instead')
+  static Color get textMuted => darkTextMuted;
+
+  // ── Gradients ──────────────────────────────────────────────────────
   static const Gradient primaryGradient = LinearGradient(
     colors: [primary, secondary],
     begin: Alignment.topLeft,
@@ -41,8 +76,8 @@ class AppColors {
 
   static const Gradient glassGradient = LinearGradient(
     colors: [
-      Color(0x1AFFFFFF), // White with 10% opacity
-      Color(0x05FFFFFF), // White with 2% opacity
+      Color(0x1AFFFFFF),
+      Color(0x05FFFFFF),
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,

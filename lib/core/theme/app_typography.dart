@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
 
+/// Typography scale for LandyMaker.
+///
+/// **Important**: These styles intentionally omit a hardcoded [Color]
+/// so that callers apply the appropriate foreground colour from the
+/// active [ColorScheme] (e.g. via `Theme.of(context).colorScheme.onSurface`).
+/// This guarantees correct contrast in both light and dark mode without
+/// duplicated theme logic.
 class AppTypography {
   // Font Family Fallbacks for Arabic & English clean rendering
   static const List<String> fontFallbacks = [
@@ -24,7 +30,6 @@ class AppTypography {
         fontWeight: FontWeight.w800,
         height: 1.2,
         letterSpacing: -0.5,
-        color: AppColors.textPrimary,
       );
 
   static TextStyle get h2 => const TextStyle(
@@ -33,7 +38,6 @@ class AppTypography {
         fontWeight: FontWeight.bold,
         height: 1.3,
         letterSpacing: -0.3,
-        color: AppColors.textPrimary,
       );
 
   static TextStyle get h3 => const TextStyle(
@@ -41,7 +45,6 @@ class AppTypography {
         fontSize: 18,
         fontWeight: FontWeight.w600,
         height: 1.4,
-        color: AppColors.textPrimary,
       );
 
   static TextStyle get bodyLarge => const TextStyle(
@@ -49,7 +52,6 @@ class AppTypography {
         fontSize: 15,
         fontWeight: FontWeight.normal,
         height: 1.5,
-        color: AppColors.textPrimary,
       );
 
   static TextStyle get bodyMedium => const TextStyle(
@@ -57,7 +59,6 @@ class AppTypography {
         fontSize: 13,
         fontWeight: FontWeight.normal,
         height: 1.5,
-        color: AppColors.textSecondary,
       );
 
   static TextStyle get bodySmall => const TextStyle(
@@ -65,7 +66,6 @@ class AppTypography {
         fontSize: 12,
         fontWeight: FontWeight.normal,
         height: 1.5,
-        color: AppColors.textSecondary,
       );
 
   static TextStyle get button => const TextStyle(
@@ -73,7 +73,6 @@ class AppTypography {
         fontSize: 13,
         fontWeight: FontWeight.w600,
         height: 1.0,
-        color: Colors.white,
       );
 
   static TextStyle get caption => const TextStyle(
@@ -81,6 +80,5 @@ class AppTypography {
         fontSize: 11,
         fontWeight: FontWeight.normal,
         height: 1.4,
-        color: AppColors.textMuted,
       );
 }

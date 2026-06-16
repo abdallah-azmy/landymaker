@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_typography.dart';
 
 class DataCard extends StatefulWidget {
   final String title;
@@ -29,25 +28,27 @@ class _DataCardState extends State<DataCard> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         transform: Matrix4.translationValues(0.0, _isHovered ? -4.0 : 0.0, 0.0),
         decoration: BoxDecoration(
-          color: _isHovered ? AppColors.cardBgHover : AppColors.cardBg,
+          color: cs.surface,
           border: Border.all(
-            color: _isHovered ? AppColors.secondary.withValues(alpha: 0.5) : AppColors.border,
+            color: _isHovered ? cs.secondary.withValues(alpha: 0.5) : cs.outline.withValues(alpha: 0.6),
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: _isHovered
               ? [
                   BoxShadow(
-                    color: AppColors.secondary.withValues(alpha: 0.08),
+                    color: cs.secondary.withValues(alpha: 0.08),
                     blurRadius: 16,
                     offset: const Offset(0, 8),
                   )
@@ -64,17 +65,25 @@ class _DataCardState extends State<DataCard> {
                 children: [
                   Text(
                     widget.title,
-                    style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                    style: TextStyle(
+                      color: cs.onSurface.withValues(alpha: 0.7),
+                      fontSize: 13,
+                      fontWeight: FontWeight.normal,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Text(
                     widget.value,
-                    style: AppTypography.h1.copyWith(fontSize: 28, fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: cs.onSurface,
+                    ),
                   ),
                   if (widget.subtitle != null) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
                         if (widget.trendUp != null) ...[
@@ -87,9 +96,10 @@ class _DataCardState extends State<DataCard> {
                         ],
                         Text(
                           widget.subtitle!,
-                          style: AppTypography.caption.copyWith(
+                          style: TextStyle(
+                            fontSize: 11,
                             color: widget.trendUp == null
-                                ? AppColors.textMuted
+                                ? cs.onSurface.withValues(alpha: 0.5)
                                 : (widget.trendUp! ? AppColors.activeGreen : AppColors.dangerRed),
                             fontWeight: widget.trendUp == null ? FontWeight.normal : FontWeight.w600,
                           ),

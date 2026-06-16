@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_typography.dart';
-import 'custom_loader.dart';
 
 class PrimaryButton extends StatefulWidget {
   final String text;
@@ -30,47 +28,56 @@ class _PrimaryButtonState extends State<PrimaryButton> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final bool isDisabled = widget.onPressed == null || widget.isLoading;
 
-    // Outer container layout
     Widget buttonContent = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (widget.isLoading) ...[
-          const CustomLoader(size: 16),
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: widget.isSecondary ? cs.onSurface : cs.onPrimary,
+            ),
+          ),
           const SizedBox(width: 8),
         ] else if (widget.icon != null) ...[
-          Icon(widget.icon, size: 16, color: Colors.white),
+          Icon(widget.icon, size: 16, color: widget.isSecondary ? cs.onSurface : cs.onPrimary),
           const SizedBox(width: 8),
         ],
         Text(
           widget.text,
-          style: AppTypography.button.copyWith(
-            color: widget.isSecondary ? AppColors.textPrimary : Colors.black,
+          style: TextStyle(
+            fontFamily: Theme.of(context).textTheme.bodySmall?.fontFamily,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
+            color: widget.isSecondary ? cs.onSurface : cs.onPrimary,
           ),
         ),
       ],
     );
 
-    // Decorative shape & gradient
     final BoxDecoration decoration = widget.isSecondary
         ? BoxDecoration(
-            color: _isHovered ? AppColors.cardBgHover : AppColors.cardBg,
-            border: Border.all(color: AppColors.border, width: 1.5),
-            borderRadius: BorderRadius.circular(24),
+            color: _isHovered
+                ? cs.surface.withValues(alpha: 0.8)
+                : cs.surface,
+            border: Border.all(color: cs.outline, width: 1.5),
+            borderRadius: BorderRadius.circular(12),
           )
         : BoxDecoration(
-            color: isDisabled ? AppColors.border : AppColors.primary,
-            borderRadius: BorderRadius.circular(24),
+            color: isDisabled ? cs.outline.withValues(alpha: 0.4) : cs.primary,
+            borderRadius: BorderRadius.circular(12),
             boxShadow: _isHovered && !isDisabled
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.6),
+                      color: cs.primary.withValues(alpha: 0.4),
                       blurRadius: 20,
                       spreadRadius: 2,
-                      offset: const Offset(0, 0),
                     ),
                   ]
                 : [],

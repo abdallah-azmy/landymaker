@@ -136,19 +136,19 @@ class _DesktopDashboardHome extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _DashboardHeader(loc: loc, state: state, isMobile: false),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           AnalyticsOverviewWidget(
             totalViews: totalViews,
             totalLeads: totalLeads,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           if (state.currentTier == 'free' && pages.isNotEmpty)
             _UpgradeCard(
               userId: pages.first['user_id'],
               showUpgradeModal: showUpgradeModal,
               isMobile: false,
             ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -164,7 +164,7 @@ class _DesktopDashboardHome extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           pages.isEmpty ? _EmptyState(loc: loc) : _PagesList(pages: pages, onOpenBuilder: onOpenBuilder),
         ],
       ),
@@ -199,19 +199,19 @@ class _MobileDashboardHome extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _DashboardHeader(loc: loc, state: state, isMobile: true),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           AnalyticsOverviewWidget(
             totalViews: totalViews,
             totalLeads: totalLeads,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           if (state.currentTier == 'free' && pages.isNotEmpty)
             _UpgradeCard(
               userId: pages.first['user_id'],
               showUpgradeModal: showUpgradeModal,
               isMobile: true,
             ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 32),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -219,7 +219,7 @@ class _MobileDashboardHome extends StatelessWidget {
                 loc.translate('your_landing_pages'),
                 style: AppTypography.h3,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               PrimaryButton(
                 text: loc.translate('create_new_page'),
                 icon: Icons.add_rounded,
@@ -228,7 +228,7 @@ class _MobileDashboardHome extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           pages.isEmpty ? _EmptyState(loc: loc) : _PagesList(pages: pages, onOpenBuilder: onOpenBuilder),
         ],
       ),
@@ -319,10 +319,10 @@ class _UpgradeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = context.read<LocalizationCubit>();
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: isMobile
           ? Column(
@@ -455,7 +455,7 @@ class _PagesList extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: pages.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final page = pages[index];
         return _PageItemCard(page: page, onOpenBuilder: onOpenBuilder);
@@ -489,7 +489,7 @@ class _PageItemCardState extends State<_PageItemCard> {
       color: AppColors.cardBg,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: AppColors.border),
       ),
       child: Column(
@@ -498,7 +498,7 @@ class _PageItemCardState extends State<_PageItemCard> {
           InkWell(
             onTap: () => widget.onOpenBuilder(page['id']),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
                   _PageAvatar(isActive: isActive, isPublished: isPublished),

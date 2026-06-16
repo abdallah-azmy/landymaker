@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_typography.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -44,14 +42,17 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
           Text(
             label!,
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+            style: (textTheme.bodySmall ?? const TextStyle()).copyWith(
+              color: cs.onSurface.withValues(alpha: 0.7),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -69,45 +70,20 @@ class CustomTextField extends StatelessWidget {
           validator: validator,
           readOnly: readOnly,
           enabled: enabled,
-          style: AppTypography.bodyLarge.copyWith(
-              color: enabled ? AppColors.textPrimary : AppColors.textMuted),
-          cursorColor: AppColors.secondary,
+          style: (textTheme.bodyLarge ?? const TextStyle()).copyWith(
+              color: enabled ? cs.onSurface : cs.onSurface.withValues(alpha: 0.4)),
+          cursorColor: cs.secondary,
           decoration: InputDecoration(
             hintText: hintText ?? hint,
             errorText: errorText,
             hintStyle:
-                AppTypography.bodyLarge.copyWith(color: AppColors.textMuted),
+                (textTheme.bodyLarge ?? const TextStyle()).copyWith(color: cs.onSurface.withValues(alpha: 0.4)),
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: AppColors.cardBg,
+            fillColor: cs.surface,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppColors.border, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppColors.border, width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  const BorderSide(color: AppColors.secondary, width: 1.8),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  const BorderSide(color: AppColors.dangerRed, width: 1.5),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  const BorderSide(color: AppColors.dangerRed, width: 1.8),
-            ),
-            errorStyle:
-                AppTypography.caption.copyWith(color: AppColors.dangerRed),
           ),
         ),
       ],

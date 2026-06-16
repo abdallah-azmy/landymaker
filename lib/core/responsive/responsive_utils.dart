@@ -11,7 +11,7 @@ class ResponsiveUtils {
       case ScreenType.tablet:
         return 24.0;
       case ScreenType.desktop:
-        return 32.0;
+        return 24.0;
     }
   }
 

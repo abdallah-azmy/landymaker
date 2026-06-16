@@ -148,8 +148,8 @@ class _DesktopDashboardShell extends StatelessWidget {
         children: [
           sidebar,
           Expanded(
-            child: Container(
-              color: const Color(0xFF0A0E1A),
+              child: Container(
+              color: AppColors.darkSurface,
               child: SafeArea(
                 child: Column(
                   children: [
@@ -236,8 +236,8 @@ class _DashboardTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      height: 60,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: const BoxDecoration(
         color: AppColors.cardBg,
         border: Border(bottom: BorderSide(color: AppColors.border, width: 1.5)),

@@ -92,7 +92,7 @@ class _HomeTestimonialsSectionState extends State<HomeTestimonialsSection>
       return Container(
         width: double.infinity,
         padding: EdgeInsetsDirectional.symmetric(
-          vertical: isMobile ? 40 : 80,
+          vertical: isMobile ? 32 : 60,
           horizontal: 24,
         ),
         decoration: BoxDecoration(

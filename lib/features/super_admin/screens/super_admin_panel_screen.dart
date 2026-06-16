@@ -104,7 +104,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         .toList();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: ResponsiveDataTable(
         title: "إدارة المستخدمين",
         headers: const ["الاسم", "البريد", "المستوى", "الحالة", "إجراء"],
@@ -194,7 +194,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
   Widget _buildPlansTab(SuperAdminLoaded state) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -220,10 +220,10 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
   Widget _buildPlanEditCard(Map<String, dynamic> plan, int maxAllowed) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
@@ -340,7 +340,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
   Widget _buildSecurityTab(SuperAdminLoaded state) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -367,7 +367,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
   Widget _buildSecurityLimitCard(String title, String value, String desc) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.dangerRed.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
@@ -396,7 +396,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
   Widget _buildAuditTab(SuperAdminLoaded state) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: ResponsiveDataTable(
         title: "Configuration Audit History",
         headers: const ["Admin", "Action", "Changes", "Timestamp"],
@@ -456,7 +456,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
   Widget _buildPaymentsTab(SuperAdminLoaded state) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: ResponsiveDataTable(
         title: "طلبات الاشتراك",
         headers: const ["المستخدم", "الخطة", "المبلغ", "الحالة", "إجراء"],
@@ -499,7 +499,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
   Widget _buildStatsTab(SuperAdminLoaded state) {
     final stats = state.globalStats;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -535,13 +535,13 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
   Widget _buildMetricMiniCard(String title, String value, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 12),
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 10),
           Text(title, style: AppTypography.caption),
           Text(value, style: AppTypography.h3),
         ],
@@ -550,7 +550,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
   }
   Widget _buildAffiliatesTab(SuperAdminLoaded state) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: ResponsiveDataTable(
         title: "إدارة المسوقين",
         headers: const ["المسوق", "الكود", "العمولة (%)", "الرصيد"],
@@ -577,7 +577,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
   Widget _buildTemplatesTab(SuperAdminLoaded state) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

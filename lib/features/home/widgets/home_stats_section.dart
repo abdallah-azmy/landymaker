@@ -134,7 +134,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
   Widget _buildHorizontalLayout(BuildContext context, bool isMobile) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
         color: const Color(0xFF030712),
         border: const Border(
@@ -250,9 +250,9 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
   Widget _buildWithIconsLayout(BuildContext context, bool isMobile) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF030712),
+        color: AppColors.darkBackground,
         border: const Border(top: BorderSide(color: AppColors.border, width: 0.5)),
       ),
       child: Center(
@@ -261,7 +261,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
           child: Column(
             children: [
               _buildSectionHeader(isMobile),
-              const SizedBox(height: 64),
+              const SizedBox(height: 48),
               isMobile
                 ? Column(
                     children: List.generate(_stats.length, (i) => Padding(

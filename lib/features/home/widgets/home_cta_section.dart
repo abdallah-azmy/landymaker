@@ -85,13 +85,13 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         return RepaintBoundary(
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: isMobile ? 40 : 80),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: isMobile ? 32 : 60),
             child: Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1100),
                 padding: EdgeInsets.symmetric(
-                  vertical: isMobile ? 60 : 90,
-                  horizontal: isMobile ? 28 : 80,
+                  vertical: isMobile ? 48 : 72,
+                  horizontal: isMobile ? 28 : 64,
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(32),
@@ -156,7 +156,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   ],
                 ),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 24),
               Text(
                 "جاهز تطلق موقعك الآن؟",
                 style: AppTypography.h1.copyWith(
@@ -213,9 +213,9 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
           ),
           Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 1100),
+              constraints: const BoxConstraints(maxWidth: 800),
               padding: EdgeInsetsDirectional.symmetric(
-                vertical: isMobile ? 40 : 80,
+                vertical: isMobile ? 32 : 60,
                 horizontal: 24,
               ),
               child: FadeTransition(
@@ -302,12 +302,12 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
       builder: (context, child) {
         final val = _bgController.value;
         return RepaintBoundary(
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              vertical: isMobile ? 40 : 80,
-              horizontal: 24,
-            ),
+            child: Container(
+             width: double.infinity,
+             padding: EdgeInsets.symmetric(
+               vertical: isMobile ? 32 : 60,
+               horizontal: 24,
+             ),
             child: Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1100),

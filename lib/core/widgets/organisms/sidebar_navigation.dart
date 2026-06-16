@@ -107,7 +107,7 @@ class SidebarNavigation extends StatelessWidget {
               : BorderSide.none,
         ),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -137,7 +137,7 @@ class SidebarNavigation extends StatelessWidget {
           Expanded(
             child: ListView.separated(
               itemCount: finalItems.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 6),
+              separatorBuilder: (context, index) => const SizedBox(height: 4),
               itemBuilder: (context, index) {
                 final item = finalItems[index];
 

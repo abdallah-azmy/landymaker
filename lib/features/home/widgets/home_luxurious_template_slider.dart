@@ -424,7 +424,7 @@ class _HomeLuxuriousTemplateSliderState
 
         return Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
+          padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60),
           decoration: BoxDecoration(
             color: AppColors.background,
             border: const Border(

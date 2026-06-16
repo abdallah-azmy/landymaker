@@ -145,14 +145,14 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF0F172A),
-            const Color(0xFF030712),
+            AppColors.darkSurface,
+            AppColors.darkBackground,
             AppColors.primary.withValues(alpha: 0.05),
           ],
         ),

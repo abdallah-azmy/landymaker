@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
@@ -8,218 +9,278 @@ import '../../../core/localization/app_localizations.dart';
 class HomeFooter extends StatelessWidget {
   const HomeFooter({super.key});
 
+  static const _socialLinks = [
+    _SocialLinkData(
+      icon: Icons.facebook_rounded,
+      label: 'Facebook',
+      url: 'https://www.facebook.com/profile.php?id=61590693741943',
+    ),
+    _SocialLinkData(
+      icon: Icons.camera_alt_outlined,
+      label: 'Instagram',
+      url: 'https://www.instagram.com/landymaker?fbclid=IwY2xjawSNJZdleHRuA2FlbQIxMABicmlkETFVcGlPQnBwc3JJdUxqbVpuc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHiEHxo2N0Z-pvEP9GTaje8Tg03N1pKh5hFNn8Vdaqtiwhj-26-2Fzsf3ySe2_aem_RtR4tJB0TRboWLJaUb8k5w',
+    ),
+    _SocialLinkData(
+      icon: Icons.music_note_rounded,
+      label: 'TikTok',
+      url: 'https://www.tiktok.com/@landymaker.com?_r=1&_t=ZS-96uDLu5yuKi',
+    ),
+    _SocialLinkData(
+      icon: Icons.chat_rounded,
+      label: 'WhatsApp',
+      url: 'https://wa.me/201557497830',
+    ),
+    _SocialLinkData(
+      icon: Icons.play_circle_filled_rounded,
+      label: 'YouTube',
+      url: 'https://www.youtube.com/@LandyMaker',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 700;
 
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Color(0xFF030712),
-        border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              // Top row
-              if (!isMobile)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Brand
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const LandyMakerLogo(fontSize: 22),
-                              const SizedBox(width: 10),
-                              Image.asset(
-                                'assets/images/logo_small.webp',
-                                height: 34,
-                                width: 34,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "ابنِ حضورك الرقمي\nباحترافية وبساطة.",
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
-                              height: 1.6,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          // Social links
-                          Row(
-                            children: [
-                              _SocialBtn(
-                                icon: Icons.camera_alt_outlined,
-                                onTap: () {},
-                              ),
-                              const SizedBox(width: 8),
-                              _SocialBtn(
-                                icon: Icons.facebook_rounded,
-                                onTap: () {},
-                              ),
-                              const SizedBox(width: 8),
-                              _SocialBtn(
-                                icon: Icons.link_rounded,
-                                onTap: () {},
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 40),
-
-                    // Links
-                    Expanded(
-                      child: _FooterLinks(
-                        title: "المنتج",
-                        items: [
-                          _FooterLinkData(label: "المميزات", path: '/'),
-                          _FooterLinkData(label: "القوالب", path: '/templates'),
-                          _FooterLinkData(label: "الأسعار", path: '/'),
-                          _FooterLinkData(label: "الأمان", path: '/'),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: _FooterLinks(
-                        title: "الشركة",
-                        items: [
-                          _FooterLinkData(label: "من نحن", path: '/about'),
-                          _FooterLinkData(label: "المدونة", path: '/blog'),
-                          _FooterLinkData(label: "تواصل معنا", path: '/'),
-                          _FooterLinkData(
-                            label: context.translate('privacy_policy'),
-                            path: '/privacy-policy',
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: _FooterLinks(
-                        title: "الدعم",
-                        items: [
-                          _FooterLinkData(label: "مركز المساعدة", path: '/'),
-                          _FooterLinkData(
-                            label: context.translate('terms_of_service'),
-                            path: '/terms',
-                          ),
-                          _FooterLinkData(label: "الإبلاغ عن مشكلة", path: '/'),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-              else
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const LandyMakerLogo(fontSize: 20),
-                        const SizedBox(width: 8),
-                        Image.asset(
-                          'assets/images/logo_small.webp',
-                          height: 30,
-                          width: 30,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      "ابنِ حضورك الرقمي باحترافية وبساطة.",
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    Wrap(
-                      spacing: 16,
-                      children: [
-                        _MobileFooterLink(
-                          label: context.translate('about_us'),
-                          path: '/about',
-                        ),
-                        _MobileFooterLink(
-                          label: context.translate('privacy_policy'),
-                          path: '/privacy-policy',
-                        ),
-                        _MobileFooterLink(
-                          label: context.translate('terms_of_service'),
-                          path: '/terms',
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-              const SizedBox(height: 48),
-              const Divider(color: AppColors.border, height: 1),
-              const SizedBox(height: 24),
-
-              // Bottom row
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: 16,
-                runSpacing: 8,
+        return Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            color: Color(0xFF030712),
+            border: Border(
+              top: BorderSide(color: AppColors.border, width: 0.5),
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Column(
                 children: [
-                  Text(
-                    "© 2026 Landymaker. جميع الحقوق محفوظة.",
-                    style: AppTypography.caption.copyWith(
-                      color: AppColors.textSecondary,
+                  // Top row
+                  if (!isMobile)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Brand
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const LandyMakerLogo(fontSize: 22),
+                                  const SizedBox(width: 10),
+                                  Image.asset(
+                                    'assets/images/logo_small.webp',
+                                    height: 34,
+                                    width: 34,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "ابنِ حضورك الرقمي\nباحترافية وبساطة.",
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: AppColors.textSecondary,
+                                  height: 1.6,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              // Social links
+                              Row(
+                                children: _socialLinks
+                                    .map((s) => Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.only(
+                                                  end: 8),
+                                          child: _SocialBtn(
+                                            icon: s.icon,
+                                            label: s.label,
+                                            url: s.url,
+                                          ),
+                                        ))
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 40),
+
+                        // Links
+                        Expanded(
+                          child: _FooterLinks(
+                            title: "المنتج",
+                            items: [
+                              _FooterLinkData(
+                                  label: "المميزات", path: '/'),
+                              _FooterLinkData(
+                                  label: "القوالب",
+                                  path: '/templates'),
+                              _FooterLinkData(
+                                  label: "الأسعار", path: '/'),
+                              _FooterLinkData(
+                                  label: "الأمان", path: '/'),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: _FooterLinks(
+                            title: "الشركة",
+                            items: [
+                              _FooterLinkData(
+                                  label: "من نحن", path: '/about'),
+                              _FooterLinkData(
+                                  label: "المدونة", path: '/blog'),
+                              _FooterLinkData(
+                                  label: "تواصل معنا", path: '/'),
+                              _FooterLinkData(
+                                label:
+                                    context.translate('privacy_policy'),
+                                path: '/privacy-policy',
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: _FooterLinks(
+                            title: "الدعم",
+                            items: [
+                              _FooterLinkData(
+                                  label: "مركز المساعدة",
+                                  path: '/'),
+                              _FooterLinkData(
+                                label:
+                                    context.translate('terms_of_service'),
+                                path: '/terms',
+                              ),
+                              _FooterLinkData(
+                                  label: "الإبلاغ عن مشكلة",
+                                  path: '/'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const LandyMakerLogo(fontSize: 20),
+                            const SizedBox(width: 8),
+                            Image.asset(
+                              'assets/images/logo_small.webp',
+                              height: 30,
+                              width: 30,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          "ابنِ حضورك الرقمي باحترافية وبساطة.",
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        Wrap(
+                          spacing: 16,
+                          children: [
+                            _MobileFooterLink(
+                              label: context.translate('about_us'),
+                              path: '/about',
+                            ),
+                            _MobileFooterLink(
+                              label: context.translate('privacy_policy'),
+                              path: '/privacy-policy',
+                            ),
+                            _MobileFooterLink(
+                              label: context.translate('terms_of_service'),
+                              path: '/terms',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.center,
+                          children: _socialLinks
+                              .map((s) => _SocialBtn(
+                                    icon: s.icon,
+                                    label: s.label,
+                                    url: s.url,
+                                  ))
+                              .toList(),
+                        ),
+                      ],
                     ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+
+                  const SizedBox(height: 48),
+                  const Divider(color: AppColors.border, height: 1),
+                  const SizedBox(height: 24),
+
+                  // Bottom row
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: 16,
+                    runSpacing: 8,
                     children: [
-                      // Text(
-                      //   "مدعوم بـ",
-                      //   style: AppTypography.caption
-                      //       .copyWith(color: AppColors.textSecondary),
-                      // ),
-                      // const SizedBox(width: 6),
-                      // const Icon(Icons.favorite_rounded,
-                      //     color: AppColors.secondary, size: 12),
-                      // const SizedBox(width: 6),
                       Text(
-                        "V 1.0.3",
+                        "© 2026 Landymaker. جميع الحقوق محفوظة.",
                         style: AppTypography.caption.copyWith(
                           color: AppColors.textSecondary,
-                          fontWeight: FontWeight.bold,
                         ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "V 1.0.4",
+                            style: AppTypography.caption.copyWith(
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        );
       },
     );
   }
 }
 
+class _SocialLinkData {
+  final IconData icon;
+  final String label;
+  final String url;
+  const _SocialLinkData({
+    required this.icon,
+    required this.label,
+    required this.url,
+  });
+}
+
 class _SocialBtn extends StatefulWidget {
   final IconData icon;
-  final VoidCallback onTap;
-  const _SocialBtn({required this.icon, required this.onTap});
+  final String label;
+  final String url;
+  const _SocialBtn({
+    required this.icon,
+    required this.label,
+    required this.url,
+  });
 
   @override
   State<_SocialBtn> createState() => _SocialBtnState();
@@ -228,13 +289,20 @@ class _SocialBtn extends StatefulWidget {
 class _SocialBtnState extends State<_SocialBtn> {
   bool _hovered = false;
 
+  Future<void> _launchUrl() async {
+    final uri = Uri.parse(widget.url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
-        onTap: widget.onTap,
+        onTap: _launchUrl,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.all(8),

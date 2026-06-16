@@ -26,7 +26,7 @@ class HomeHeroSection extends StatefulWidget {
     required this.onGetStartedPressed,
     this.parentScrollController,
     this.layout = HeroLayout.split,
-    this.overlayOpacity = 0.55,
+    this.overlayOpacity = 0.6,
   });
 
   @override
@@ -904,7 +904,7 @@ class _PhonePreviewState extends State<_PhonePreview> {
                       ),
                     ),
                     child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
+                      Icons.arrow_forward_ios_rounded,
                       color: Colors.white60,
                       size: 14,
                     ),

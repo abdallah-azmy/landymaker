@@ -20,7 +20,7 @@ class HomeCtaSection extends StatefulWidget {
     required this.isVisible,
     required this.onGetStartedPressed,
     this.layout = CtaLayout.centeredGradient,
-    this.overlayOpacity = 0.55,
+    this.overlayOpacity = 0.6,
   });
 
   @override

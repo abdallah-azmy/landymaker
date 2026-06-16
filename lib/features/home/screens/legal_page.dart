@@ -28,31 +28,46 @@ class LegalPage extends StatefulWidget {
 class _LegalPageState extends State<LegalPage> {
   List<Map<String, String>>? _dbContent;
   bool _isLoading = true;
+  bool _hasLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _loadContent();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadContent();
+    });
   }
 
   Future<void> _loadContent() async {
+    if (_hasLoaded) return;
+    _hasLoaded = true;
+
     try {
       final res = await SupabaseService.instance.client
           .from('platform_seo_settings')
           .select('page_content')
           .eq('route_path', widget.path)
-          .maybeSingle();
-      
+          .maybeSingle()
+          .timeout(const Duration(seconds: 8));
+
       if (res != null && res['page_content'] != null) {
         final List rawList = res['page_content'] as List;
-        setState(() {
-          _dbContent = rawList.map((e) => Map<String, String>.from(e as Map)).toList();
-        });
+        if (mounted) {
+          setState(() {
+            _dbContent = rawList
+                .map((e) => Map<String, String>.from(e as Map))
+                .toList();
+            _isLoading = false;
+          });
+          return;
+        }
       }
     } catch (e) {
       debugPrint("Error loading dynamic content for ${widget.path}: $e");
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -139,7 +154,7 @@ class _LegalPageState extends State<LegalPage> {
             : 'LandyMaker is the first Arabic platform specialized in building professional landing pages easily and quickly.',
         },
       ],
-      'privacy_content': [
+      'privacy_policy_content': [
         {
           'title': isRtl ? '1. البيانات التي نجمعها' : '1. Data Collection',
           'body': isRtl

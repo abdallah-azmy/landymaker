@@ -90,7 +90,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(
-            isRtl ? Icons.arrow_forward_ios : Icons.arrow_back_ios,
+            Icons.arrow_forward_ios_rounded,
             color: AppColors.textPrimary,
             size: 20,
           ),

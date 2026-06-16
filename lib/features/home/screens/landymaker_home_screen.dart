@@ -5,11 +5,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/visibility_observer.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_hero_section.dart';
-import '../widgets/home_trust_logos.dart';
 import '../widgets/home_feature_bento.dart';
 import '../widgets/home_luxurious_template_slider.dart';
-import '../widgets/home_stats_section.dart';
-import '../widgets/home_testimonials_section.dart';
 import '../widgets/home_cta_section.dart';
 import '../widgets/home_footer.dart';
 import '../models/home_layouts.dart';
@@ -24,17 +21,13 @@ class LandyMakerHomeScreen extends StatefulWidget {
 class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   final ScrollController _scrollController = ScrollController();
 
-  bool _trustLogosVisible = false;
   bool _bentoVisible = false;
   bool _templatesVisible = false;
-  bool _statsVisible = false;
-  bool _testimonialsVisible = false;
   bool _ctaVisible = false;
 
   HeroLayout _heroLayout = HeroLayout.split;
   FeatureLayout _featureLayout = FeatureLayout.bentoGrid;
   TemplateSliderLayout _templateSliderLayout = TemplateSliderLayout.horizontalSlider;
-  StatsLayout _statsLayout = StatsLayout.horizontal;
   CtaLayout _ctaLayout = CtaLayout.centeredGradient;
 
   @override
@@ -53,77 +46,56 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
-        child: Column(
-          children: [
-            HomeHeroSection(
-              layout: _heroLayout,
-              onGetStartedPressed: () => context.go('/templates'),
-              parentScrollController: _scrollController,
-            ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: Column(
+              children: [
+                HomeHeroSection(
+                  layout: _heroLayout,
+                  onGetStartedPressed: () => context.go('/templates'),
+                  parentScrollController: _scrollController,
+                ),
 
-            VisibilityObserver(
-              onVisible: () {
-                if (!_trustLogosVisible) setState(() => _trustLogosVisible = true);
-              },
-              child: HomeTrustLogos(isVisible: _trustLogosVisible),
-            ),
+                VisibilityObserver(
+                  onVisible: () {
+                    if (!_bentoVisible) setState(() => _bentoVisible = true);
+                  },
+                  child: HomeFeatureBento(
+                    isVisible: _bentoVisible,
+                    layout: _featureLayout,
+                  ),
+                ),
 
-            VisibilityObserver(
-              onVisible: () {
-                if (!_bentoVisible) setState(() => _bentoVisible = true);
-              },
-              child: HomeFeatureBento(
-                isVisible: _bentoVisible,
-                layout: _featureLayout,
-              ),
-            ),
+                VisibilityObserver(
+                  onVisible: () {
+                    if (!_templatesVisible) setState(() => _templatesVisible = true);
+                  },
+                  child: HomeLuxuriousTemplateSlider(
+                    isVisible: _templatesVisible,
+                    layout: _templateSliderLayout,
+                    onGetStartedPressed: (templateId) {
+                      TenantRoutingService.pendingTemplateId = templateId;
+                      context.go('/register');
+                    },
+                  ),
+                ),
 
-            VisibilityObserver(
-              onVisible: () {
-                if (!_templatesVisible) setState(() => _templatesVisible = true);
-              },
-              child: HomeLuxuriousTemplateSlider(
-                isVisible: _templatesVisible,
-                layout: _templateSliderLayout,
-                onGetStartedPressed: (templateId) {
-                  TenantRoutingService.pendingTemplateId = templateId;
-                  context.go('/register');
-                },
-              ),
-            ),
+                VisibilityObserver(
+                  onVisible: () {
+                    if (!_ctaVisible) setState(() => _ctaVisible = true);
+                  },
+                  child: HomeCtaSection(
+                    isVisible: _ctaVisible,
+                    onGetStartedPressed: () => context.go('/templates'),
+                    layout: _ctaLayout,
+                  ),
+                ),
 
-            VisibilityObserver(
-              onVisible: () {
-                if (!_statsVisible) setState(() => _statsVisible = true);
-              },
-              child: HomeStatsSection(
-                isVisible: _statsVisible,
-                layout: _statsLayout,
-              ),
+                const HomeFooter(),
+              ],
             ),
-
-            VisibilityObserver(
-              onVisible: () {
-                if (!_testimonialsVisible) setState(() => _testimonialsVisible = true);
-              },
-              child: HomeTestimonialsSection(
-                isVisible: _testimonialsVisible,
-              ),
-            ),
-
-            VisibilityObserver(
-              onVisible: () {
-                if (!_ctaVisible) setState(() => _ctaVisible = true);
-              },
-              child: HomeCtaSection(
-                isVisible: _ctaVisible,
-                onGetStartedPressed: () => context.go('/templates'),
-                layout: _ctaLayout,
-              ),
-            ),
-
-            const HomeFooter(),
-          ],
+          ),
         ),
       ),
     );

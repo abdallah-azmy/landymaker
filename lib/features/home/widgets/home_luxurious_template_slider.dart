@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../services/database_service.dart';
+import '../../../injection_container.dart';
 import '../../builder/registries/template_registry.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../public_viewer/widgets/section_renderer.dart';
@@ -32,9 +34,38 @@ class _HomeLuxuriousTemplateSliderState
   late PageController _pageController;
   late AnimationController _headerController;
   int _currentPage = 0;
-  final List<TemplateMetadata> _templates = TemplateRegistry.availableTemplates
-      .where((t) => t.id != 'empty')
-      .toList();
+  List<TemplateMetadata> _templates = [];
+  bool _isLoadingTemplates = true;
+
+  Future<void> _loadTemplates() async {
+    try {
+      final db = sl<DatabaseService>();
+      final featured = await db.fetchFeaturedTemplates();
+      if (featured.isNotEmpty) {
+        final mapped = featured.map((t) => TemplateMetadata(
+          id: t['id'] ?? '',
+          name: t['name'] ?? '',
+          description: t['description'] ?? '',
+          imageUrl: t['image_url'] ?? '',
+          category: t['category'] ?? 'general',
+          recommendedSections: (t['recommended_sections'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ?? [],
+          aiPromptHint: t['ai_prompt_hint'] ?? '',
+        )).toList();
+        if (mounted) setState(() { _templates = mapped; _isLoadingTemplates = false; });
+        return;
+      }
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _templates = TemplateRegistry.availableTemplates
+            .where((t) => t.id != 'empty')
+            .toList();
+        _isLoadingTemplates = false;
+      });
+    }
+  }
 
   void _showTemplatePreview(TemplateMetadata template) {
     final design = TemplateRegistry.getTemplateDesign(template.id);
@@ -103,6 +134,7 @@ class _HomeLuxuriousTemplateSliderState
     if (widget.isVisible) {
       _headerController.forward();
     }
+    _loadTemplates();
   }
 
   @override
@@ -382,6 +414,13 @@ class _HomeLuxuriousTemplateSliderState
       builder: (context, constraints) {
         final loc = context.read<LocalizationCubit>();
         final isMobile = constraints.maxWidth < 700;
+
+        if (_isLoadingTemplates) {
+          return const SizedBox(
+            height: 300,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
 
         return Container(
           width: double.infinity,

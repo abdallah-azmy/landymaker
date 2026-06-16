@@ -5,7 +5,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/widgets/custom_network_image.dart';
+import '../../../services/database_service.dart';
 import '../../../services/tenant_routing_service.dart';
+import '../../../injection_container.dart';
 import '../../auth/controllers/auth_cubit.dart';
 import '../../auth/controllers/auth_state.dart';
 import '../../builder/registries/template_registry.dart';
@@ -25,9 +27,11 @@ class TemplatePickerScreen extends StatefulWidget {
 
 class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   String? _selectedCategory;
+  List<TemplateMetadata> _templates = [];
+  bool _isLoading = true;
 
   List<String> get _categories {
-    final cats = TemplateRegistry.availableTemplates
+    final cats = _templates
         .map((t) => t.category)
         .toSet()
         .toList()
@@ -36,8 +40,8 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   }
 
   List<TemplateMetadata> get _filteredTemplates {
-    if (_selectedCategory == null) return TemplateRegistry.availableTemplates;
-    return TemplateRegistry.availableTemplates
+    if (_selectedCategory == null) return _templates;
+    return _templates
         .where((t) => t.category == _selectedCategory)
         .toList();
   }
@@ -47,7 +51,47 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadTemplates();
+  }
+
+  Future<void> _loadTemplates() async {
+    try {
+      final db = sl<DatabaseService>();
+      final publicTemplates = await db.fetchPublicTemplates();
+      if (publicTemplates.isNotEmpty) {
+        final mapped = publicTemplates.map((t) => TemplateMetadata(
+          id: t['id'] ?? '',
+          name: t['name'] ?? '',
+          description: t['description'] ?? '',
+          imageUrl: t['image_url'] ?? '',
+          category: t['category'] ?? 'general',
+          recommendedSections: (t['recommended_sections'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ?? [],
+          aiPromptHint: t['ai_prompt_hint'] ?? '',
+        )).toList();
+        if (mounted) setState(() { _templates = mapped; _isLoading = false; });
+        return;
+      }
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _templates = TemplateRegistry.availableTemplates;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(

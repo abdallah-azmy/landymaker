@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
@@ -7,6 +9,7 @@ import '../../../core/widgets/organisms/responsive_data_table.dart';
 import '../../../core/widgets/molecules/status_pill.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
+import '../../builder/registries/template_registry.dart';
 import '../controllers/super_admin_cubit.dart';
 import '../controllers/super_admin_state.dart';
 
@@ -27,7 +30,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 8, vsync: this);
     context.read<SuperAdminCubit>().fetchAdminMetrics();
   }
 
@@ -69,6 +72,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           Tab(text: "Global Stats", icon: Icon(Icons.analytics_rounded)),
           Tab(text: "Payments", icon: Icon(Icons.payments_rounded)),
           Tab(text: "Affiliates", icon: Icon(Icons.group_add_rounded)),
+          Tab(text: "Templates", icon: Icon(Icons.dashboard_customize_rounded)),
         ],
       ),
       body: state is SuperAdminLoaded
@@ -82,6 +86,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 _buildStatsTab(state),
                 _buildPaymentsTab(state),
                 _buildAffiliatesTab(state),
+                _buildTemplatesTab(state),
               ],
             )
           : const Center(child: CircularProgressIndicator()),
@@ -562,6 +567,347 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         onSearch: (val) {},
         onSort: (val) {},
         onPageChanged: (p) {},
+      ),
+    );
+  }
+
+  // ----------------------------------------------------
+  // TEMPLATES TAB
+  // ----------------------------------------------------
+
+  Widget _buildTemplatesTab(SuperAdminLoaded state) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Template Management", style: AppTypography.h3),
+              Row(
+                children: [
+                  PrimaryButton(
+                    text: "Seed from Registry",
+                    width: 180,
+                    isSecondary: true,
+                    onPressed: () => _seedTemplatesFromRegistry(),
+                  ),
+                  const SizedBox(width: 12),
+                  PrimaryButton(
+                    text: "Add Template",
+                    width: 160,
+                    onPressed: () => _showTemplateEditorDialog(null),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          ResponsiveDataTable(
+            title: "All Templates",
+            headers: const [
+              "Name",
+              "Category",
+              "Status",
+              "Homepage",
+              "Actions",
+            ],
+            rows: state.templates.map((t) {
+              final isDraft = t['is_draft'] == true;
+              final isFeatured = t['is_featured'] == true;
+              final isActive = t['is_active'] == true;
+              return [
+                Flexible(
+                  child: Text(
+                    t['name'] ?? '',
+                    style: AppTypography.bodyLarge,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(t['category'] ?? 'general', style: AppTypography.bodyMedium),
+                StatusPill(
+                  label: isDraft ? "Draft" : "Live",
+                  color: isDraft ? AppColors.warningOrange : AppColors.activeGreen,
+                ),
+                StatusPill(
+                  label: isFeatured ? "Featured" : "Standard",
+                  color: isFeatured ? AppColors.secondary : AppColors.textSecondary,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit_rounded, size: 18, color: AppColors.secondary),
+                      tooltip: "Edit",
+                      onPressed: () => _showTemplateEditorDialog(t),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        isDraft ? Icons.publish_rounded : Icons.drafts_rounded,
+                        size: 18,
+                        color: isDraft ? AppColors.activeGreen : AppColors.warningOrange,
+                      ),
+                      tooltip: isDraft ? "Publish" : "Set as Draft",
+                      onPressed: () => context.read<SuperAdminCubit>().toggleTemplateStatus(
+                        t['id'],
+                        isDraft: !isDraft,
+                      ),
+                    ),
+                    if (isActive)
+                      IconButton(
+                        icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.dangerRed),
+                        tooltip: "Delete",
+                        onPressed: () => _confirmDeleteTemplate(t['id']),
+                      ),
+                  ],
+                ),
+              ];
+            }).toList(),
+            emptyMessage: "No templates found. Click 'Add Template' to create one.",
+            onSearch: (v) {},
+            onSort: (v) {},
+            onPageChanged: (p) {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteTemplate(String id) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.background,
+        title: const Text("Confirm Delete"),
+        content: const Text("Are you sure you want to soft-delete this template? It will be hidden from users."),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          PrimaryButton(
+            text: "Delete",
+            width: 120,
+            onPressed: () {
+              context.read<SuperAdminCubit>().deleteTemplate(id);
+              Navigator.pop(ctx);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _seedTemplatesFromRegistry() async {
+    final templates = TemplateRegistry.availableTemplates.map((t) {
+      final design = TemplateRegistry.getTemplateDesign(t.id);
+      return <String, dynamic>{
+        'id': t.id,
+        'name': t.name,
+        'description': t.description,
+        'image_url': t.imageUrl,
+        'category': t.category,
+        'recommended_sections': t.recommendedSections,
+        'ai_prompt_hint': t.aiPromptHint,
+        'design_json': design,
+      };
+    }).toList();
+
+    final cubit = context.read<SuperAdminCubit>();
+    final count = await cubit.seedTemplatesFromRegistry(templates);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Seeded $count templates from registry. Existing templates were skipped."),
+          backgroundColor: AppColors.activeGreen,
+        ),
+      );
+    }
+  }
+
+  void _showTemplateEditorDialog(Map<String, dynamic>? existing) {
+    final isEditing = existing != null;
+    final idController = TextEditingController(text: existing?['id'] ?? '');
+    final nameController = TextEditingController(text: existing?['name'] ?? '');
+    final descriptionController = TextEditingController(text: existing?['description'] ?? '');
+    final imageUrlController = TextEditingController(text: existing?['image_url'] ?? '');
+    final categoryController = TextEditingController(text: existing?['category'] ?? 'general');
+    final aiHintController = TextEditingController(text: existing?['ai_prompt_hint'] ?? '');
+
+    String designJsonText = '';
+    if (existing?['design_json'] != null) {
+      final dj = existing!['design_json'];
+      if (dj is String) {
+        designJsonText = dj;
+      } else {
+        designJsonText = const JsonEncoder.withIndent('  ').convert(dj);
+      }
+    } else {
+      designJsonText = '{"blocks": []}';
+    }
+    final designJsonController = TextEditingController(text: designJsonText);
+
+    bool isDraft = existing?['is_draft'] ?? false;
+    bool isFeatured = existing?['is_featured'] ?? false;
+
+    String? jsonError;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.background,
+          title: Text(isEditing ? "Edit Template: ${existing!['name']}" : "Add New Template"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomTextField(
+                  controller: idController,
+                  hintText: "Template ID (e.g. saas_startup)",
+                  label: "ID",
+                ),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  controller: nameController,
+                  hintText: "Template Name",
+                  label: "Name",
+                ),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  controller: descriptionController,
+                  hintText: "Brief description",
+                  label: "Description",
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  controller: imageUrlController,
+                  hintText: "Cover image URL",
+                  label: "Image URL",
+                ),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  controller: categoryController,
+                  hintText: "e.g. technology, ecommerce",
+                  label: "Category",
+                ),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  controller: aiHintController,
+                  hintText: "AI generation hint",
+                  label: "AI Prompt Hint",
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 16),
+                Text("Design JSON (blocks map)", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: jsonError != null ? AppColors.dangerRed : AppColors.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: designJsonController,
+                    maxLines: 8,
+                    style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                    decoration: InputDecoration(
+                      hintText: '{ "blocks": [...] }',
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(12),
+                      errorText: jsonError,
+                    ),
+                    onChanged: (_) {
+                      setDialogState(() {
+                        jsonError = null;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SwitchListTile(
+                  title: const Text("Is Draft (hidden from users)", style: TextStyle(fontSize: 14)),
+                  value: isDraft,
+                  activeColor: AppColors.secondary,
+                  onChanged: (val) => setDialogState(() => isDraft = val),
+                ),
+                SwitchListTile(
+                  title: const Text("Featured on Homepage", style: TextStyle(fontSize: 14)),
+                  value: isFeatured,
+                  activeColor: AppColors.secondary,
+                  onChanged: (val) => setDialogState(() => isFeatured = val),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("Cancel"),
+            ),
+            PrimaryButton(
+              text: isEditing ? "Save Changes" : "Create Template",
+              width: 160,
+              onPressed: () {
+                if (idController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Template ID is required")),
+                  );
+                  return;
+                }
+                if (nameController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Template name is required")),
+                  );
+                  return;
+                }
+                if (imageUrlController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Image URL is required")),
+                  );
+                  return;
+                }
+                final uri = Uri.tryParse(imageUrlController.text.trim());
+                if (uri == null || !uri.isAbsolute) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Invalid image URL. Must be an absolute URL (e.g. https://...)")),
+                  );
+                  return;
+                }
+
+                dynamic parsedJson;
+                try {
+                  parsedJson = jsonDecode(designJsonController.text);
+                } catch (e) {
+                  setDialogState(() {
+                    jsonError = "Invalid JSON: ${e.toString()}";
+                  });
+                  return;
+                }
+
+                final data = <String, dynamic>{
+                  'id': idController.text.trim(),
+                  'name': nameController.text.trim(),
+                  'description': descriptionController.text.trim(),
+                  'image_url': imageUrlController.text.trim(),
+                  'category': categoryController.text.trim().isEmpty ? 'general' : categoryController.text.trim(),
+                  'ai_prompt_hint': aiHintController.text.trim(),
+                  'design_json': parsedJson,
+                  'is_draft': isDraft,
+                  'is_featured': isFeatured,
+                };
+
+                if (isEditing) {
+                  context.read<SuperAdminCubit>().updateTemplate(existing!['id'], data);
+                } else {
+                  data['is_active'] = true;
+                  context.read<SuperAdminCubit>().createTemplate(data);
+                }
+                Navigator.pop(ctx);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

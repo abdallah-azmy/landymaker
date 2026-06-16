@@ -982,6 +982,33 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  Future<int> seedTemplatesFromRegistry(List<Map<String, dynamic>> templates) async {
+    int inserted = 0;
+    for (final t in templates) {
+      try {
+        // Check if template already exists by ID
+        final existing = await _client!
+            .from(DbConstants.templatesTable)
+            .select('id')
+            .eq('id', t['id'])
+            .maybeSingle();
+        if (existing == null) {
+          await _client!.from(DbConstants.templatesTable).insert({
+            ...t,
+            'is_active': true,
+            'is_draft': false,
+            'is_featured': false,
+            'design_json': t['design_json'] ?? {'blocks': []},
+          });
+          inserted++;
+        }
+      } catch (e) {
+        debugPrint("Error seeding template ${t['id']}: $e");
+      }
+    }
+    return inserted;
+  }
+
   // ----------------------------------------------------
   // NOTIFICATIONS OPERATIONS
   // ----------------------------------------------------

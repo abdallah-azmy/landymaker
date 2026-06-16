@@ -82,6 +82,73 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
     }
   }
 
+  // ----------------------------------------------------
+  // TEMPLATE MANAGEMENT
+  // ----------------------------------------------------
+
+  Future<void> fetchAdminTemplates() async {
+    try {
+      final templates = await _databaseService.fetchAllTemplates();
+      final currentState = state;
+      if (currentState is SuperAdminLoaded) {
+        emit(currentState.copyWith(templates: templates));
+      }
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to fetch templates: $e"));
+    }
+  }
+
+  Future<void> createTemplate(Map<String, dynamic> data) async {
+    try {
+      await _databaseService.createTemplate(data);
+      await fetchAdminMetrics();
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to create template: $e"));
+    }
+  }
+
+  Future<void> updateTemplate(String id, Map<String, dynamic> data) async {
+    try {
+      await _databaseService.updateTemplate(id, data);
+      await fetchAdminMetrics();
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to update template: $e"));
+    }
+  }
+
+  Future<void> deleteTemplate(String id) async {
+    try {
+      await _databaseService.deleteTemplate(id);
+      await fetchAdminMetrics();
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to delete template: $e"));
+    }
+  }
+
+  Future<int> seedTemplatesFromRegistry(List<Map<String, dynamic>> templates) async {
+    try {
+      final count = await _databaseService.seedTemplatesFromRegistry(templates);
+      await fetchAdminMetrics();
+      return count;
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to seed templates: $e"));
+      return 0;
+    }
+  }
+
+  Future<void> toggleTemplateStatus(String id, {bool? isDraft, bool? isFeatured, bool? isActive}) async {
+    try {
+      final Map<String, dynamic> updates = {};
+      if (isDraft != null) updates['is_draft'] = isDraft;
+      if (isFeatured != null) updates['is_featured'] = isFeatured;
+      if (isActive != null) updates['is_active'] = isActive;
+      await _databaseService.updateTemplate(id, updates);
+      await fetchAdminMetrics();
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to toggle template status: $e"));
+    }
+  }
+
   Future<void> updatePlatformSeo(String routePath, Map<String, dynamic> data) async {
     try {
       // Security Check: Block internal/protected routes from SEO configuration

@@ -183,6 +183,10 @@ class DatabaseService {
   Future<void> deleteTemplate(String id) {
     return _supabase.deleteTemplate(id);
   }
+
+  Future<int> seedTemplatesFromRegistry(List<Map<String, dynamic>> templates) {
+    return _supabase.seedTemplatesFromRegistry(templates);
+  }
 }
 
 

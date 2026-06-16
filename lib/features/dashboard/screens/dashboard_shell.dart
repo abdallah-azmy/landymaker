@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
-import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/organisms/sidebar_navigation.dart';
+import '../../../core/widgets/atoms/animated_theme_toggle.dart';
 import '../../auth/controllers/auth_cubit.dart';
 import '../../auth/controllers/auth_state.dart';
 import 'package:go_router/go_router.dart';
@@ -201,6 +201,8 @@ class _MobileDashboardShell extends StatelessWidget {
           onPressed: () => scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
+          const AnimatedThemeToggle(size: 36),
+          const SizedBox(width: 8),
           _NotificationBell(notificationCubit: notificationCubit),
           IconButton(
             icon: Icon(Icons.language_rounded, color: AppColors.secondary),
@@ -245,8 +247,10 @@ class _DashboardTopBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          const AnimatedThemeToggle(size: 40),
+          const SizedBox(width: 16),
           _NotificationBell(notificationCubit: notificationCubit),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           IconButton(
             icon: Icon(Icons.language_rounded, color: AppColors.secondary),
             onPressed: () => loc.toggleLanguage(),

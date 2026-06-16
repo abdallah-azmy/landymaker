@@ -22,6 +22,8 @@ LandyMaker follows a **Clean Feature-Driven Architecture**:
 8.  **Partial Edit Fault Tolerance**: If the AI returns a subset of blocks without specifying `_index` during an edit request, merge the incoming blocks into the existing ones by matching types sequentially instead of replacing the entire page, preventing blank page errors.
 9.  **Responsive Layout Safety**: Never use `LayoutBuilder` inside an `IntrinsicHeight` widget (it crashes). Avoid `GridView` with fixed `childAspectRatio` for content cards; prefer `ResponsiveUtils.getContentColumns(width)` with auto-height layouts (`Row`/`Column`). Use `FittedBox(scaleDown)` for decorative mockups to prevent intermediate screen overflow.
 10. **Edge Function AI Development**: Do not hardcode AI JSON schemas inside the edge function source code. The single source of truth is `supabase/functions/shared/schema_registry.json`. Use `SUPABASE_SERVICE_ROLE_KEY` to bypass RLS when writing usage logs from the server. Use Promise Memoization when caching third-party API calls (e.g. Pixabay) to prevent cache stampedes.
+11. **Dynamic Theme Colors (CRITICAL)**: This project uses a fully dynamic Material 3 theme (Light + Dark mode). ALL UI widgets MUST use `Theme.of(context).colorScheme.*` for surface/text/border colors. NEVER hardcode `AppColors.background`, `AppColors.cardBg`, `AppColors.border`, `AppColors.textPrimary`, `AppColors.textSecondary`, or `AppColors.textMuted` in widget `build` methods. Read [THEME_SYSTEM.md](./THEME_SYSTEM.md) for the complete color mapping table before making any visual changes.
+
 ## 🧭 4. Navigation & Files
 - Read [AI_NAVIGATION.md](./AI_NAVIGATION.md) to locate specific systems.
 - Refer to [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) for folder hierarchy.

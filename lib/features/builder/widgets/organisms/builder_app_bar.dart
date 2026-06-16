@@ -4,6 +4,7 @@ import '../../models/preview_mode.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
+import '../../../../core/widgets/atoms/animated_theme_toggle.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 
@@ -247,6 +248,13 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     endIndent: 12,
                     width: 32,
                   ),
+                  const AnimatedThemeToggle(size: 40),
+                  VerticalDivider(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    indent: 12,
+                    endIndent: 12,
+                    width: 32,
+                  ),
                   IconButton(
                     icon: Icon(
                       Icons.smartphone_rounded,
@@ -301,6 +309,8 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           )
         else ...[
+          const AnimatedThemeToggle(size: 36),
+          const SizedBox(width: 8),
           IconButton(
             icon: Icon(Icons.auto_awesome_rounded, color: AppColors.secondary),
             onPressed: onShowTemplates,
@@ -321,7 +331,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
           tooltip: loc.translate('view_as_guest'),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
       ],
     );
   }

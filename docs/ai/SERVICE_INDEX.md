@@ -14,7 +14,7 @@ A directory of global singleton services and their core responsibilities.
 | **ActionHandler** | Global CTA logic | `executeAction` (handles links, checkout, scrolls) | `url_launcher` |
 | **Turnstile** | Anti-spam Captcha | `registerViewFactory`, `getToken` | `dart:js` |
 | **PixelEvent** | Visitor tracking | `trackPageView`, `trackLead`, `trackPurchase` | `dart:js` |
-| **FcmService** | Push notifications | `initialize`, `requestPermission` | `firebase_messaging` |
+| **FcmService** | Push notifications | `initialize`, `requestPermission`, `saveTokenIfPossible`, `deleteToken`, `playNotificationSound` | `firebase_messaging` |
 
 ## 💉 Service Locator
 

@@ -31,17 +31,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final diff = now.difference(parsed);
 
       if (diff.inMinutes < 1) {
-        return loc.isRtl ? 'الآن' : 'Just now';
+        return loc.translate('just_now');
       } else if (diff.inMinutes < 60) {
         return loc.isRtl
-            ? 'منذ ${diff.inMinutes} دقيقة'
+            ? 'منذ $diff.inMinutes دقيقة'
             : '${diff.inMinutes}m ago';
       } else if (diff.inHours < 24) {
         return loc.isRtl
-            ? 'منذ ${diff.inHours} ساعة'
+            ? 'منذ $diff.inHours ساعة'
             : '${diff.inHours}h ago';
       } else if (diff.inDays < 7) {
-        return loc.isRtl ? 'منذ ${diff.inDays} أيام' : '${diff.inDays}d ago';
+        return loc.isRtl ? 'منذ $diff.inDays أيام' : '${diff.inDays}d ago';
       } else {
         return "${parsed.year}-${parsed.month.toString().padLeft(2, '0')}-${parsed.day.toString().padLeft(2, '0')}";
       }
@@ -73,9 +73,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    loc.isRtl
-                        ? "استعرض إشعارات المنصة وتنبيهات العملاء الجدد."
-                        : "View system notifications and new lead alerts.",
+                    loc.translate('notifications_subtitle'),
                     style: AppTypography.bodyMedium,
                   ),
                 ],
@@ -93,10 +91,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
           const SizedBox(height: 24),
           PageContextBanner(
-            title: loc.isRtl ? "مركز التنبيهات" : "Alerts Center",
-            description: loc.isRtl
-                ? "تصلك هنا إشعارات فورية عند قيام الزوار بالتسجيل في صفحاتك، أو التنبيهات الإدارية المرسلة من قبل إدارة المنصة."
-                : "You will receive real-time notifications here when visitors sign up on your pages, or announcements broadcast by platform administration.",
+            title: loc.translate('notifications_banner_title'),
+            description: loc.translate('notifications_banner_desc'),
             icon: Icons.notifications_active_rounded,
           ),
           const SizedBox(height: 20),
@@ -113,15 +109,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          loc.isRtl ? "تعذر تحميل الإشعارات" : "Failed to load notifications",
+                          loc.translate('failed_load_notifications'),
                           style: AppTypography.h3,
                         ),
                         const SizedBox(height: 8),
-                        Text(state.error, style: AppTypography.caption),
+                        Text(state.message, style: AppTypography.caption),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: () => cubit.fetchNotifications(),
-                          child: Text(loc.isRtl ? "إعادة المحاولة" : "Retry"),
+                          child: Text(loc.translate('retry')),
                         ),
                       ],
                     ),

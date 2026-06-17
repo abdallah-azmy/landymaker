@@ -193,6 +193,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           final filteredList = allUsers.where((u) => u['id'] != singleUser?['id']).toList();
@@ -1243,6 +1244,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
                       showDialog(
                         context: context,
+                        barrierDismissible: false,
                         builder: (dialogContext) => AlertDialog(
                           backgroundColor: Theme.of(context).colorScheme.surface,
                           title: const Text("Confirm Broadcast"),

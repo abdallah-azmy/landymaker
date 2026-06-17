@@ -21,6 +21,7 @@ Find screens based on their business description or path.
 | **Published Site View** | `lib/features/public_viewer/screens/public_landing_page.dart` | `/:pageName` (Catch-all) | Public Viewer |
 | **Super Admin Panel** | `lib/features/super_admin/screens/super_admin_panel_screen.dart` | `/dashboard/super-admin` | Super Admin |
 | **Platform SEO Editor** | `lib/features/super_admin/screens/platform_seo_screen.dart` | `/dashboard/platform-seo` | Super Admin |
+| **Notifications** | `lib/features/dashboard/screens/notifications_screen.dart` | `/dashboard/notifications` | Dashboard |
 | **Blog Management** | `lib/features/blog_admin/screens/blog_management_screen.dart` | `/dashboard/blog-admin` | Blog Admin |
 | **Blog Post Editor** | `lib/features/blog_admin/screens/blog_editor_screen.dart` | N/A (Modal/Push) | Blog Admin |
 

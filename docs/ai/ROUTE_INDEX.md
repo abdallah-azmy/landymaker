@@ -26,6 +26,7 @@ These routes share the `DashboardShell` layout (Sidebar + Header).
 | `/dashboard/gallery` | Media |
 | `/dashboard/domain` | Domains |
 | `/dashboard/feed` | Feeds |
+| `/dashboard/notifications` | Notifications |
 | `/dashboard/super-admin` | Platform Admin |
 | `/dashboard/blog-admin` | Blog Management |
 

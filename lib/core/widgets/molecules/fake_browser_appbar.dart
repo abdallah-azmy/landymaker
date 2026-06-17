@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_colors.dart';
 
 class FakeBrowserAppbar extends StatelessWidget {
   final String pageSlug;
-  
+
   const FakeBrowserAppbar({
     super.key,
     required this.pageSlug,
@@ -13,7 +14,7 @@ class FakeBrowserAppbar extends StatelessWidget {
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: const Color(0xFFE2E8F0),
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         border: Border(
           bottom: BorderSide(
             color: Theme.of(context).colorScheme.outlineVariant,
@@ -21,7 +22,7 @@ class FakeBrowserAppbar extends StatelessWidget {
           ),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 16),
       child: Row(
         children: [
           Row(
@@ -30,14 +31,14 @@ class FakeBrowserAppbar extends StatelessWidget {
               (i) => Container(
                 width: 12,
                 height: 12,
-                margin: const EdgeInsets.only(right: 8),
+                margin: const EdgeInsetsDirectional.only(end: 8),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: i == 0
-                      ? const Color(0xFFFF5F56) // Mac Red
+                      ? const Color(0xFFFF5F56)
                       : (i == 1
-                          ? const Color(0xFFFFBD2E) // Mac Yellow
-                          : const Color(0xFF27C93F)), // Mac Green
+                          ? const Color(0xFFFFBD2E)
+                          : const Color(0xFF27C93F)),
                 ),
               ),
             ),
@@ -47,26 +48,25 @@ class FakeBrowserAppbar extends StatelessWidget {
             child: Container(
               height: 24,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: Colors.black12,
+                  color: Theme.of(context).colorScheme.outlineVariant,
                 ),
               ),
               alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 12),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.lock_rounded, size: 12, color: Colors.green),
+                  Icon(Icons.lock_rounded, size: 12, color: AppColors.activeGreen),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
                       'landymaker.com/${pageSlug.isEmpty ? 'your-brand' : pageSlug}',
-                      style: const TextStyle(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontSize: 11,
-                        color: Colors.black87,
-                        fontFamily: 'Inter',
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -75,7 +75,7 @@ class FakeBrowserAppbar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 50), // Balance the spacing for center alignment
+          const SizedBox(width: 50),
         ],
       ),
     );

@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:landymaker/services/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../../services/supabase_service.dart';
 import '../../../services/supabase_service.dart';
 import 'notification_state.dart';
 

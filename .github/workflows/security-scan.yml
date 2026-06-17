@@ -1,0 +1,35 @@
+name: Security Vulnerability Scan
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    - cron: '0 0 * * 1' # Runs every Monday at midnight
+
+jobs:
+  security-scan:
+    name: Flutter Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Check for outdated packages and vulnerabilities
+        run: flutter pub outdated --no-dev-dependencies --dependency-overrides --up-to-date --transitive
+
+      # Optional: In a real-world scenario, you can integrate osv-scanner here
+      # - name: Install osv-scanner
+      #   run: go install github.com/google/osv-scanner/cmd/osv-scanner@v1
+      # - name: Run osv-scanner
+      #   run: osv-scanner --lockfile=pubspec.lock

@@ -146,6 +146,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logout() async {
     emit(AuthLoading());
     try {
+      await FcmService.deleteToken();
       await _authService.logout();
       // Clear active website selection on logout
       sl<ActiveWebsiteCubit>().clearSelection();

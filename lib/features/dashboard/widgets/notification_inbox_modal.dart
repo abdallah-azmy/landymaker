@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -147,6 +148,24 @@ class _NotificationItem extends StatelessWidget {
       onTap: () {
         if (!isRead) {
           context.read<NotificationCubit>().markAsRead(notification['id']);
+        }
+        // Dismiss the modal
+        Navigator.pop(context);
+
+        final String? redirectTo = notification['redirect_to'];
+        final String type = notification['type'] ?? 'info';
+        if (redirectTo != null && redirectTo.isNotEmpty) {
+          context.go(redirectTo);
+        } else {
+          if (type == 'lead') {
+            context.go('/dashboard/leads');
+          } else if (type == 'product') {
+            context.go('/dashboard/products');
+          } else if (type == 'domain') {
+            context.go('/dashboard/domain');
+          } else {
+            context.go('/dashboard/notifications');
+          }
         }
       },
       child: Container(

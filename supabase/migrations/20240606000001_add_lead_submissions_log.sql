@@ -11,6 +11,7 @@ ALTER TABLE lead_submissions_log ENABLE ROW LEVEL SECURITY;
 
 -- Only Allow Edge Functions to read/write (Service Role or specific policy)
 -- For now, allowing all as the functions run with service role anyway if configured
+DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON lead_submissions_log;
 CREATE POLICY "Enable insert for authenticated users only" ON lead_submissions_log FOR INSERT WITH CHECK (true);
 
 -- Add conversion increment function if missing

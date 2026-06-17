@@ -58,6 +58,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
       }
+    } else {
+      await FcmService.deleteToken();
     }
   }
 

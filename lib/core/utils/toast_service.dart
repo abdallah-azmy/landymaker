@@ -81,6 +81,7 @@ class ToastService {
     required String message,
     String? title,
     Duration duration = const Duration(seconds: 4),
+    VoidCallback? onTap,
   }) {
     toastification.show(
       context: context,
@@ -107,7 +108,10 @@ class ToastService {
       dragToClose: true,
       applyBlurEffect: true,
       callbacks: ToastificationCallbacks(
-        onTap: (item) => toastification.dismiss(item),
+        onTap: (item) {
+          toastification.dismiss(item);
+          if (onTap != null) onTap();
+        },
       ),
     );
   }

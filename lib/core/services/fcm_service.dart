@@ -10,14 +10,44 @@ class FcmService {
 
   static bool _notificationsEnabled = true;
 
-  static bool get notificationsEnabled => _notificationsEnabled;
+  static bool get notificationsEnabled {
+    if (kIsWeb) {
+      try {
+        final permission = html.Notification.permission;
+        if (permission == 'denied') {
+          return false;
+        }
+        final val = html.window.localStorage['fcm_notifications_enabled'];
+        if (val != null) {
+          return val == 'true';
+        }
+        return permission == 'granted';
+      } catch (_) {}
+    }
+    return _notificationsEnabled;
+  }
 
   /// Load preference from localStorage
   static void _loadPreference() {
     if (!kIsWeb) return;
     try {
-      final val = html.window.localStorage['fcm_notifications_enabled'];
-      _notificationsEnabled = val != 'false';
+      final permission = html.Notification.permission;
+      if (permission == 'denied') {
+        _notificationsEnabled = false;
+        html.window.localStorage['fcm_notifications_enabled'] = 'false';
+        html.window.localStorage['fcm_permission_granted'] = 'false';
+      } else {
+        final val = html.window.localStorage['fcm_notifications_enabled'];
+        if (val != null) {
+          _notificationsEnabled = val == 'true';
+        } else {
+          _notificationsEnabled = permission == 'granted';
+          html.window.localStorage['fcm_notifications_enabled'] =
+              _notificationsEnabled.toString();
+        }
+        html.window.localStorage['fcm_permission_granted'] =
+            (permission == 'granted').toString();
+      }
     } catch (_) {
       _notificationsEnabled = true;
     }
@@ -30,12 +60,18 @@ class FcmService {
     try {
       html.window.localStorage['fcm_notifications_enabled'] =
           value.toString();
+      if (!value) {
+        html.window.localStorage['fcm_permission_granted'] = 'false';
+      }
     } catch (_) {}
   }
 
   static bool get isPermissionGranted {
     if (!kIsWeb || !_isInitialized) return false;
     try {
+      if (html.Notification.permission == 'granted') {
+        return true;
+      }
       return html.window.localStorage['fcm_permission_granted'] == 'true';
     } catch (_) {
       return false;
@@ -93,6 +129,27 @@ class FcmService {
   static Future<bool> requestPermission() async {
     if (!kIsWeb || !_isInitialized) return false;
 
+    // Check if we already have permission
+    try {
+      final permission = html.Notification.permission;
+      if (permission == 'granted') {
+        try {
+          html.window.localStorage['fcm_permission_granted'] = 'true';
+          html.window.localStorage['fcm_notifications_enabled'] = 'true';
+        } catch (_) {}
+        _notificationsEnabled = true;
+        await saveTokenIfPossible();
+        return true;
+      } else if (permission == 'denied') {
+        try {
+          html.window.localStorage['fcm_permission_granted'] = 'false';
+          html.window.localStorage['fcm_notifications_enabled'] = 'false';
+        } catch (_) {}
+        _notificationsEnabled = false;
+        return false;
+      }
+    } catch (_) {}
+
     if (!_notificationsEnabled) {
       debugPrint('FCM: Notifications disabled by user preference.');
       return false;
@@ -110,11 +167,13 @@ class FcmService {
       final granted =
           settings.authorizationStatus == AuthorizationStatus.authorized;
 
-      if (granted) {
-        try {
-          html.window.localStorage['fcm_permission_granted'] = 'true';
-        } catch (_) {}
+      try {
+        html.window.localStorage['fcm_permission_granted'] = granted ? 'true' : 'false';
+        html.window.localStorage['fcm_notifications_enabled'] = granted ? 'true' : 'false';
+        _notificationsEnabled = granted;
+      } catch (_) {}
 
+      if (granted) {
         await saveTokenIfPossible();
       }
 
@@ -157,7 +216,7 @@ class FcmService {
           'user_id': supabase.currentUserId,
           'fcm_token': token,
           'updated_at': DateTime.now().toIso8601String(),
-        });
+        }, onConflict: 'fcm_token');
         debugPrint('FCM: Token successfully synced with Supabase.');
       } catch (e) {
         debugPrint('FCM: Error syncing token with Supabase: $e');
@@ -167,5 +226,37 @@ class FcmService {
         'FCM: Token received but user not authenticated. Sync postponed.',
       );
     }
+  }
+
+  /// Delete the current device's token from database upon logout
+  static Future<void> deleteToken() async {
+    if (!kIsWeb || !_isInitialized) return;
+    try {
+      final vapidKey = EnvUtils.firebaseVapidKey;
+      if (vapidKey.isEmpty) return;
+      final token = await FirebaseMessaging.instance.getToken(
+        vapidKey: vapidKey,
+      );
+      if (token != null) {
+        final supabase = SupabaseService.instance;
+        if (supabase.isAuthenticated) {
+          await supabase.client
+              .from('user_fcm_tokens')
+              .delete()
+              .eq('fcm_token', token);
+          debugPrint('FCM: Token successfully deleted from database.');
+        }
+      }
+    } catch (e) {
+      debugPrint('FCM Error deleting token: $e');
+    }
+  }
+
+  static void playNotificationSound() {
+    if (!kIsWeb) return;
+    try {
+      final audio = html.AudioElement('https://assets.mixkit.co/active_storage/sfx/2869/2869-84.wav');
+      audio.play();
+    } catch (_) {}
   }
 }

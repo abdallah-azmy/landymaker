@@ -96,7 +96,7 @@ class BuilderSidebar extends StatelessWidget {
 
   Widget _buildTabs(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 2,
       child: Column(
         children: [
           Container(
@@ -110,14 +110,6 @@ class BuilderSidebar extends StatelessWidget {
                 Tab(
                   icon: Icon(Icons.layers_rounded, size: 20),
                   text: loc.translate('added_sections'),
-                ),
-                Tab(
-                  icon: Icon(Icons.auto_awesome_rounded, size: 20),
-                  text: loc.translate('templates'),
-                ),
-                Tab(
-                  icon: Icon(Icons.color_lens_rounded, size: 20),
-                  text: loc.translate('design'),
                 ),
                 Tab(
                   icon: Icon(Icons.edit_note_rounded, size: 20),
@@ -137,8 +129,6 @@ class BuilderSidebar extends StatelessWidget {
                   onAddBlock: onAddBlock,
                   selectedIndex: state.focusedSectionIndex,
                 ),
-                TemplatesTab(cubit: cubit, state: state),
-                DesignTab(loc: loc, cubit: cubit, state: state),
                 ContentTab(
                   cubit: cubit,
                   loc: loc,

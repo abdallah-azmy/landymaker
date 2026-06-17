@@ -126,7 +126,7 @@ class AIGenerationCubit extends Cubit<AIGenerationState> {
     _loadSession();
   }
 
-  bool get _isGuest => _supabase.client.auth.currentSession?.accessToken == null;
+  bool get _isGuest => !_supabase.isAuthenticated;
 
   static const String _guestPromptCountKey = 'guest_ai_prompt_count';
 

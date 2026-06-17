@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
 
@@ -126,38 +125,14 @@ class _DesktopFooter extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: 40),
-
         // Links
         const Expanded(
           child: _FooterLinks(
-            title: "المنتج",
-            items: [
-              _FooterLinkData(label: "المميزات", path: '/'),
-              _FooterLinkData(label: "القوالب", path: '/templates'),
-              _FooterLinkData(label: "الأسعار", path: '/'),
-              _FooterLinkData(label: "الأمان", path: '/'),
-            ],
-          ),
-        ),
-        Expanded(
-          child: _FooterLinks(
-            title: "الشركة",
+            title: "روابط هامة",
             items: [
               _FooterLinkData(label: "من نحن", path: '/about'),
-              _FooterLinkData(label: "المدونة", path: '/blog'),
-              _FooterLinkData(label: "تواصل معنا", path: '/'),
               _FooterLinkData(label: "سياسة الخصوصية", path: '/privacy-policy'),
-            ],
-          ),
-        ),
-        Expanded(
-          child: _FooterLinks(
-            title: "الدعم",
-            items: [
-              _FooterLinkData(label: "مركز المساعدة", path: '/'),
               _FooterLinkData(label: "شروط الخدمة", path: '/terms'),
-              _FooterLinkData(label: "الإبلاغ عن مشكلة", path: '/'),
             ],
           ),
         ),

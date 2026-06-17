@@ -7,6 +7,7 @@ import '../../../../core/localization/localization_cubit.dart';
 import '../../../public_viewer/widgets/section_renderer.dart';
 import '../../../public_viewer/widgets/global/sticky_cta_bar.dart';
 import '../../controllers/builder_state.dart';
+import '../../../../core/widgets/molecules/fake_browser_appbar.dart';
 
 class BuilderCanvas extends StatelessWidget {
   final bool isMobile;
@@ -82,8 +83,8 @@ class BuilderCanvas extends StatelessWidget {
           content = DefaultTextStyle(
             style: GoogleFonts.getFont(globalFont).copyWith(color: state.theme.textPrimary),
             child: Theme(
-              data: Theme.of(context).copyWith(
-                textTheme: GoogleFonts.getTextTheme(globalFont, Theme.of(context).textTheme),
+              data: ThemeData.light().copyWith(
+                textTheme: GoogleFonts.getTextTheme(globalFont, ThemeData.light().textTheme),
               ),
               child: content,
             ),
@@ -96,9 +97,9 @@ class BuilderCanvas extends StatelessWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                width: isMobile ? constraints.maxWidth : canvasWidth,
-                height: isMobile ? constraints.maxHeight : null,
-                margin: isMobile
+                width: (isMobile || previewMode == PreviewMode.fullscreen) ? constraints.maxWidth : canvasWidth,
+                height: (isMobile || previewMode == PreviewMode.fullscreen) ? constraints.maxHeight : null,
+                margin: (isMobile || previewMode == PreviewMode.fullscreen)
                     ? EdgeInsets.zero
                     : const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
                 decoration: BoxDecoration(
@@ -106,15 +107,14 @@ class BuilderCanvas extends StatelessWidget {
                   image: (globalBgImage != null && globalBgImage.isNotEmpty)
                       ? DecorationImage(image: NetworkImage(globalBgImage), fit: BoxFit.cover)
                       : null,
-                  borderRadius: isMobile ? BorderRadius.zero : BorderRadius.circular(12),
-                  boxShadow: isMobile ? [] : [const BoxShadow(color: Colors.black26, blurRadius: 36)],
+                  borderRadius: (isMobile || previewMode == PreviewMode.fullscreen) ? BorderRadius.zero : BorderRadius.circular(12),
+                  boxShadow: (isMobile || previewMode == PreviewMode.fullscreen) ? [] : [const BoxShadow(color: Colors.black26, blurRadius: 36)],
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
-                    if (!isMobile && previewMode != PreviewMode.fullscreen) _buildBrowserChrome(),
-                    if (isMobile && previewMode != PreviewMode.fullscreen)
-                      _FakeBrowserBar(pageSlug: state.subdomain),
+                    if (previewMode != PreviewMode.fullscreen) 
+                      FakeBrowserAppbar(pageSlug: state.subdomain),
                     Expanded(
                       child: Stack(
                         children: [
@@ -149,82 +149,4 @@ class BuilderCanvas extends StatelessWidget {
     );
   }
 
-  Widget _buildBrowserChrome() {
-    return Container(
-      height: 36,
-      color: const Color(0xFFE2E8F0),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Row(
-            children: List.generate(
-              3,
-              (i) => Container(
-                width: 8,
-                height: 8,
-                margin: const EdgeInsets.only(right: 6),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: i == 0
-                      ? Colors.red
-                      : (i == 1 ? Colors.orange : Colors.green),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Container(
-              height: 20,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                "https://landymaker.com/${state.subdomain.isEmpty ? 'your-brand' : state.subdomain}",
-                style: TextStyle(fontSize: 9, color: Colors.grey),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FakeBrowserBar extends StatelessWidget {
-  final String pageSlug;
-
-  const _FakeBrowserBar({required this.pageSlug});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      padding: const EdgeInsetsDirectional.only(start: 12, end: 12, top: 8, bottom: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        border: Border(
-          bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.lock_rounded, size: 14, color: Colors.green),
-          SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              'landymaker.com/${pageSlug.isEmpty ? 'your-brand' : pageSlug}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

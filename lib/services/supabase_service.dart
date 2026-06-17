@@ -649,8 +649,16 @@ class SupabaseService extends ChangeNotifier {
 
   Future<List<Map<String, dynamic>>> getAdminUsers() async {
     try {
-      final res = await _client!.from(DbConstants.profilesTable).select().order('created_at', ascending: false);
-      return List<Map<String, dynamic>>.from(res);
+      final res = await _client!
+          .from(DbConstants.profilesTable)
+          .select('*, landing_pages(id)')
+          .order('created_at', ascending: false);
+      final list = List<Map<String, dynamic>>.from(res);
+      for (var u in list) {
+        final pages = u['landing_pages'] as List?;
+        u['pages_count'] = pages?.length ?? 0;
+      }
+      return list;
     } catch (e) {
       debugPrint("Error fetching admin users: $e");
       return [];
@@ -1045,7 +1053,49 @@ class SupabaseService extends ChangeNotifier {
           .update({'is_read': true})
           .eq('user_id', userId);
     } catch (e) {
-      debugPrint("Error marking all notifications as read: \$e");
+      debugPrint("Error marking all notifications as read: $e");
+    }
+  }
+
+  Future<void> broadcastNotification(
+    String title,
+    String message,
+    String type, {
+    String? redirectTo,
+  }) async {
+    try {
+      await _client!.rpc('broadcast_notification', params: {
+        'p_title': title,
+        'p_message': message,
+        'p_type': type,
+        if (redirectTo != null && redirectTo.isNotEmpty) 'p_redirect_to': redirectTo,
+      });
+      debugPrint('FCM: Broadcast notification sent successfully.');
+    } catch (e) {
+      debugPrint("Error sending broadcast notification: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> sendTargetedNotification(
+    List<String> userIds,
+    String title,
+    String message,
+    String type, {
+    String? redirectTo,
+  }) async {
+    try {
+      await _client!.rpc('send_targeted_notification', params: {
+        'p_user_ids': userIds,
+        'p_title': title,
+        'p_message': message,
+        'p_type': type,
+        if (redirectTo != null && redirectTo.isNotEmpty) 'p_redirect_to': redirectTo,
+      });
+      debugPrint('FCM: Targeted notification sent successfully to users: $userIds');
+    } catch (e) {
+      debugPrint("Error sending targeted notification: $e");
+      rethrow;
     }
   }
 }

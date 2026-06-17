@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/organisms/responsive_data_table.dart';
@@ -10,6 +9,7 @@ import '../../../core/widgets/molecules/status_pill.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
 import '../../builder/registries/template_registry.dart';
+import '../../../services/supabase_service.dart';
 import '../controllers/super_admin_cubit.dart';
 import '../controllers/super_admin_state.dart';
 
@@ -27,16 +27,27 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
   // ignore: unused_field
   String? _currentSort;
 
+  late final TextEditingController _broadcastTitleController;
+  late final TextEditingController _broadcastMessageController;
+  late final TextEditingController _broadcastRedirectController;
+  String _broadcastType = 'info';
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 8, vsync: this);
+    _tabController = TabController(length: 9, vsync: this);
+    _broadcastTitleController = TextEditingController();
+    _broadcastMessageController = TextEditingController();
+    _broadcastRedirectController = TextEditingController();
     context.read<SuperAdminCubit>().fetchAdminMetrics();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _broadcastTitleController.dispose();
+    _broadcastMessageController.dispose();
+    _broadcastRedirectController.dispose();
     super.dispose();
   }
 
@@ -73,6 +84,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           Tab(text: "Payments", icon: Icon(Icons.payments_rounded)),
           Tab(text: "Affiliates", icon: Icon(Icons.group_add_rounded)),
           Tab(text: "Templates", icon: Icon(Icons.dashboard_customize_rounded)),
+          Tab(text: "Broadcast", icon: Icon(Icons.campaign_rounded)),
         ],
       ),
       body: state is SuperAdminLoaded
@@ -87,6 +99,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 _buildPaymentsTab(state),
                 _buildAffiliatesTab(state),
                 _buildTemplatesTab(state),
+                _buildBroadcastTab(state),
               ],
             )
           : const Center(child: CircularProgressIndicator()),
@@ -105,31 +118,246 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
-      child: ResponsiveDataTable(
-        title: "إدارة المستخدمين",
-        headers: const ["الاسم", "البريد", "المستوى", "الحالة", "إجراء"],
-        rows: filteredUsers
-            .map(
-              (u) => [
-                Flexible(child: Text(u['full_name'], style: AppTypography.bodyLarge, overflow: TextOverflow.ellipsis)),
-                Flexible(child: Text(u['email'], style: AppTypography.bodyMedium, overflow: TextOverflow.ellipsis)),
-                StatusPill(
-                  label: u['tier'].toString().toUpperCase(),
-                  color: Theme.of(context).colorScheme.primary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("إدارة مستخدمي المنصة", style: AppTypography.h2),
+              ElevatedButton.icon(
+                onPressed: () => _showSendNotificationDialog(allUsers: state.users),
+                icon: const Icon(Icons.notifications_active_rounded),
+                label: const Text("إرسال إشعار لمجموعة مستخدمين"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                StatusPill(label: "نشط", color: Colors.green),
-                IconButton(
-                  icon: Icon(Icons.manage_accounts_rounded, color: Theme.of(context).colorScheme.secondary),
-                  onPressed: () => _showEditUserDialog(u, state.plans),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ResponsiveDataTable(
+            title: "قائمة الأعضاء",
+            headers: const ["الاسم", "البريد", "المستوى", "الصفحات", "إجراء"],
+            rows: filteredUsers
+                .map(
+                  (u) => [
+                    Flexible(child: Text(u['full_name'] ?? '', style: AppTypography.bodyLarge, overflow: TextOverflow.ellipsis)),
+                    Flexible(child: Text(u['email'] ?? '', style: AppTypography.bodyMedium, overflow: TextOverflow.ellipsis)),
+                    StatusPill(
+                      label: u['tier'].toString().toUpperCase(),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    Text(u['pages_count']?.toString() ?? '0', style: AppTypography.bodyMedium),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.notifications_active_rounded, color: Theme.of(context).colorScheme.primary),
+                          onPressed: () => _showSendNotificationDialog(singleUser: u, allUsers: state.users),
+                          tooltip: "إرسال إشعار خاص",
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.manage_accounts_rounded, color: Theme.of(context).colorScheme.secondary),
+                          onPressed: () => _showEditUserDialog(u, state.plans),
+                          tooltip: "تعديل الصلاحيات والباقة",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                .toList(),
+            emptyMessage: "لا يوجد مستخدمين بهذا الاسم",
+            onSearch: (val) => setState(() => _searchQuery = val),
+            onSort: (val) => setState(() => _currentSort = val),
+            sortOptions: const ["الاسم", "التاريخ"],
+            onPageChanged: (p) {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSendNotificationDialog({Map<String, dynamic>? singleUser, required List<Map<String, dynamic>> allUsers}) {
+    final titleCtrl = TextEditingController();
+    final msgCtrl = TextEditingController();
+    final redirectCtrl = TextEditingController();
+    String notifType = 'info';
+
+    List<String> selectedUserIds = [];
+    if (singleUser != null) {
+      selectedUserIds.add(singleUser['id'].toString());
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final filteredList = allUsers.where((u) => u['id'] != singleUser?['id']).toList();
+
+          return AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Text(
+              singleUser != null
+                  ? "إرسال إشعار خاص إلى: ${singleUser['full_name']}"
+                  : "إرسال إشعار لمجموعة مستخدمين",
+              style: AppTypography.h3,
+            ),
+            content: Container(
+              width: 500,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (singleUser == null) ...[
+                      Text("اختر المستخدمين (${selectedUserIds.length} محدد):", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListView.builder(
+                          itemCount: filteredList.length,
+                          itemBuilder: (context, index) {
+                            final u = filteredList[index];
+                            final id = u['id'].toString();
+                            final isChecked = selectedUserIds.contains(id);
+                            return CheckboxListTile(
+                              title: Text(u['full_name'] ?? '', style: AppTypography.bodyMedium),
+                              subtitle: Text(u['email'] ?? '', style: AppTypography.caption),
+                              value: isChecked,
+                              onChanged: (val) {
+                                setDialogState(() {
+                                  if (val == true) {
+                                    selectedUserIds.add(id);
+                                  } else {
+                                    selectedUserIds.remove(id);
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                    Text("عنوان الإشعار", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    CustomTextField(
+                      controller: titleCtrl,
+                      hintText: "مثال: عرض خاص ومميز لك 🎁",
+                    ),
+                    const SizedBox(height: 16),
+                    Text("نص الرسالة", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    CustomTextField(
+                      controller: msgCtrl,
+                      hintText: "أدخل محتوى الإشعار هنا...",
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 16),
+                    Text("نوع الإشعار", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: notifType,
+                      dropdownColor: Theme.of(context).colorScheme.surface,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'info', child: Text("Info (عام)")),
+                        DropdownMenuItem(value: 'broadcast', child: Text("Broadcast (إعلان)")),
+                        DropdownMenuItem(value: 'warning', child: Text("Warning (تحذير)")),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          setDialogState(() => notifType = val);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Text("رابط التوجيه عند الضغط (اختياري)", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    CustomTextField(
+                      controller: redirectCtrl,
+                      hintText: "مثال: /dashboard/leads أو /dashboard/settings",
+                    ),
+                  ],
                 ),
-              ],
-            )
-            .toList(),
-        emptyMessage: "لا يوجد مستخدمين بهذا الاسم",
-        onSearch: (val) => setState(() => _searchQuery = val),
-        onSort: (val) => setState(() => _currentSort = val),
-        sortOptions: const ["الاسم", "التاريخ"],
-        onPageChanged: (p) {},
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  titleCtrl.dispose();
+                  msgCtrl.dispose();
+                  redirectCtrl.dispose();
+                  Navigator.pop(context);
+                },
+                child: const Text("إلغاء"),
+              ),
+              PrimaryButton(
+                text: "إرسال الإشعار",
+                width: 150,
+                onPressed: () async {
+                  final title = titleCtrl.text.trim();
+                  final msg = msgCtrl.text.trim();
+                  final redir = redirectCtrl.text.trim();
+                  if (selectedUserIds.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("يرجى اختيار مستخدم واحد على الأقل!")),
+                    );
+                    return;
+                  }
+                  if (title.isEmpty || msg.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("العنوان والرسالة مطلوبان!")),
+                    );
+                    return;
+                  }
+
+                  try {
+                    await SupabaseService.instance.sendTargetedNotification(
+                      selectedUserIds,
+                      title,
+                      msg,
+                      notifType,
+                      redirectTo: redir.isEmpty ? null : redir,
+                    );
+                    titleCtrl.dispose();
+                    msgCtrl.dispose();
+                    redirectCtrl.dispose();
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("تم إرسال الإشعار الخاص بنجاح!"),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("فشل الإرسال: $e"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -240,6 +468,10 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                     Icon(Icons.web_rounded, size: 14, color: Theme.of(context).colorScheme.secondary),
                     SizedBox(width: 8),
                     Text("Limit: ${plan['page_limit']} pages", style: AppTypography.bodyMedium),
+                    SizedBox(width: 16),
+                    Icon(Icons.auto_awesome_rounded, size: 14, color: Theme.of(context).colorScheme.primary),
+                    SizedBox(width: 8),
+                    Text("AI Limit: ${plan['ai_generation_limit'] ?? 0} attempts", style: AppTypography.bodyMedium),
                   ],
                 ),
               ],
@@ -259,6 +491,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     final nameController = TextEditingController(text: plan['display_name']);
     final priceController = TextEditingController(text: plan['monthly_price'].toString());
     final limitController = TextEditingController(text: plan['page_limit'].toString());
+    final aiLimitController = TextEditingController(text: (plan['ai_generation_limit'] ?? 0).toString());
     bool customDomain = plan['custom_domain_access'] ?? false;
     bool seoAccess = plan['advanced_seo_access'] ?? false;
 
@@ -283,6 +516,12 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 CustomTextField(
                   controller: limitController,
                   hintText: "Page Limit (Max $maxAllowed)",
+                  keyboardType: TextInputType.number,
+                ),
+                SizedBox(height: 16),
+                CustomTextField(
+                  controller: aiLimitController,
+                  hintText: "AI Generation Limit",
                   keyboardType: TextInputType.number,
                 ),
                 SizedBox(height: 16),
@@ -311,6 +550,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
               width: 150,
               onPressed: () {
                 final newLimit = int.tryParse(limitController.text) ?? 1;
+                final newAiLimit = int.tryParse(aiLimitController.text) ?? 0;
                 if (newLimit > maxAllowed) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -328,6 +568,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                   'page_limit': newLimit,
                   'custom_domain_access': customDomain,
                   'advanced_seo_access': seoAccess,
+                  'ai_generation_limit': newAiLimit,
                 });
                 Navigator.pop(context);
               },
@@ -905,6 +1146,154 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 }
                 Navigator.pop(ctx);
               },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBroadcastTab(SuperAdminLoaded state) {
+    return StatefulBuilder(
+      builder: (context, setTabState) => SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.campaign_rounded, color: Theme.of(context).colorScheme.primary, size: 28),
+                const SizedBox(width: 12),
+                Text("System Broadcast Notifications", style: AppTypography.h3),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "Create and send custom push/in-app notifications to all registered users simultaneously across all devices.",
+              style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Notification Title", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  CustomTextField(
+                    controller: _broadcastTitleController,
+                    hintText: "Enter title (e.g. تحديث جديد بالمنصة 🚀)",
+                  ),
+                  const SizedBox(height: 20),
+                  Text("Notification Message / Body", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  CustomTextField(
+                    controller: _broadcastMessageController,
+                    hintText: "Enter detailed message text",
+                    maxLines: 4,
+                  ),
+                  const SizedBox(height: 20),
+                  Text("Notification Type", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _broadcastType,
+                    dropdownColor: Theme.of(context).colorScheme.surface,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'info', child: Text("Info (General Info)")),
+                      DropdownMenuItem(value: 'broadcast', child: Text("Broadcast (Announcements)")),
+                      DropdownMenuItem(value: 'warning', child: Text("Warning (Alerts)")),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        setTabState(() => _broadcastType = val);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  Text("Redirect Path / URL (Optional)", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  CustomTextField(
+                    controller: _broadcastRedirectController,
+                    hintText: "e.g. /dashboard/leads or /dashboard/products",
+                  ),
+                  const SizedBox(height: 32),
+                  PrimaryButton(
+                    text: "Send Broadcast to All Users",
+                    icon: Icons.send_rounded,
+                    width: double.infinity,
+                    onPressed: () {
+                      final title = _broadcastTitleController.text.trim();
+                      final message = _broadcastMessageController.text.trim();
+                      final redirectTo = _broadcastRedirectController.text.trim();
+                      if (title.isEmpty || message.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Title and Message cannot be empty!")),
+                        );
+                        return;
+                      }
+
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          title: const Text("Confirm Broadcast"),
+                          content: Text("Are you sure you want to send this notification to all ${state.users.length} registered users? This action cannot be undone."),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(dialogContext),
+                              child: const Text("Cancel"),
+                            ),
+                            PrimaryButton(
+                              text: "Yes, Send",
+                              width: 120,
+                              onPressed: () async {
+                                Navigator.pop(dialogContext);
+                                try {
+                                  await SupabaseService.instance.broadcastNotification(
+                                    title,
+                                    message,
+                                    _broadcastType,
+                                    redirectTo: redirectTo.isEmpty ? null : redirectTo,
+                                  );
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Broadcast sent successfully to all users!"),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                    _broadcastTitleController.clear();
+                                    _broadcastMessageController.clear();
+                                    _broadcastRedirectController.clear();
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("Failed to send: $e"),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),

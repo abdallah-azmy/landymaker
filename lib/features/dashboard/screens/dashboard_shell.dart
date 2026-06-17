@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import '../../../core/services/fcm_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/organisms/sidebar_navigation.dart';
 import '../../../core/widgets/atoms/animated_theme_toggle.dart';
+import '../../../core/utils/toast_service.dart';
 import '../../auth/controllers/auth_cubit.dart';
 import '../../auth/controllers/auth_state.dart';
 import 'package:go_router/go_router.dart';
@@ -40,6 +44,7 @@ class DashboardShell extends StatefulWidget {
 class _DashboardShellState extends State<DashboardShell> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   NotificationCubit? _notificationCubit;
+  StreamSubscription<RemoteMessage>? _fcmSubscription;
 
   @override
   void initState() {
@@ -47,6 +52,7 @@ class _DashboardShellState extends State<DashboardShell> {
     LandyMakerHomeScreen.resetScrollPosition();
     _loadData();
     _initNotificationCubit();
+    _initFCMListener();
   }
 
   void _initNotificationCubit() {
@@ -59,8 +65,50 @@ class _DashboardShellState extends State<DashboardShell> {
     }
   }
 
+  void _initFCMListener() {
+    _fcmSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (!mounted) return;
+      final notification = message.notification;
+      if (notification != null) {
+        final title = notification.title ?? '';
+        final body = notification.body ?? '';
+
+        final String? redirectTo = message.data['redirect_to'] ?? message.data['click_action'];
+        final String type = message.data['type'] ?? 'info';
+
+        String targetRoute = '/dashboard/notifications';
+        if (redirectTo != null && redirectTo.isNotEmpty) {
+          targetRoute = redirectTo;
+        } else {
+          if (type == 'lead') {
+            targetRoute = '/dashboard/leads';
+          } else if (type == 'product') {
+            targetRoute = '/dashboard/products';
+          } else if (type == 'domain') {
+            targetRoute = '/dashboard/domain';
+          }
+        }
+
+        // Play sound alert in foreground
+        FcmService.playNotificationSound();
+
+        ToastService.showInfo(
+          context,
+          title: title,
+          message: body,
+          onTap: () {
+            if (mounted) {
+              context.go(targetRoute);
+            }
+          },
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _fcmSubscription?.cancel();
     _notificationCubit?.close();
     super.dispose();
   }

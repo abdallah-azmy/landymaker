@@ -55,7 +55,6 @@ class BuilderWorkspaceScreen extends StatefulWidget {
 class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   int? _editingBlockIndex;
   PreviewMode _previewMode = PreviewMode.desktop;
-  int _sidebarTabIndex = 0; // 0: Sections, 1: Global Theme, 2: Page Settings
 
   @override
   void initState() {
@@ -122,13 +121,6 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
 
   void _setPreviewMode(PreviewMode mode) {
     setState(() => _previewMode = mode);
-  }
-
-  void _setSidebarTab(int index) {
-    setState(() {
-      _sidebarTabIndex = index;
-      if (index != 0) _editingBlockIndex = null;
-    });
   }
 
   void _setEditingBlock(int? index) {
@@ -351,13 +343,10 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             return _DesktopBuilderWorkspace(
               state: loadedState,
               previewMode: _previewMode,
-              sidebarTabIndex: _sidebarTabIndex,
-              editingBlockIndex: _editingBlockIndex,
               loc: loc,
               cubit: builderCubit,
               onBack: widget.onBackToDashboard,
               onSetPreviewMode: _setPreviewMode,
-              onSetSidebarTab: _setSidebarTab,
               onSetEditingBlock: _setEditingBlock,
               onShowTemplates: () => _showTemplatesMenu(context, builderCubit),
               onShowDesign: () => _showDesignMenu(context, loc, builderCubit),
@@ -365,6 +354,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
               onShowFonts: () => _showBuilderOptionsModal(context, loc, builderCubit, loadedState, initialView: BuilderOptionView.fonts),
               onShowAi: () => _showAiWizard(context),
               onAddBlock: () => _showAddBlockMenu(context),
+              editingBlockIndex: _editingBlockIndex,
             );
           },
         ),
@@ -377,13 +367,11 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
 class _DesktopBuilderWorkspace extends StatelessWidget {
   final BuilderLoaded state;
   final PreviewMode previewMode;
-  final int sidebarTabIndex;
-  final int? editingBlockIndex;
   final LocalizationCubit loc;
   final LandingPageBuilderCubit cubit;
   final VoidCallback onBack;
   final Function(PreviewMode) onSetPreviewMode;
-  final Function(int) onSetSidebarTab;
+  final int? editingBlockIndex;
   final Function(int?) onSetEditingBlock;
   final VoidCallback onShowTemplates;
   final VoidCallback onShowDesign;
@@ -395,13 +383,11 @@ class _DesktopBuilderWorkspace extends StatelessWidget {
   const _DesktopBuilderWorkspace({
     required this.state,
     required this.previewMode,
-    required this.sidebarTabIndex,
-    this.editingBlockIndex,
     required this.loc,
     required this.cubit,
     required this.onBack,
     required this.onSetPreviewMode,
-    required this.onSetSidebarTab,
+    required this.editingBlockIndex,
     required this.onSetEditingBlock,
     required this.onShowTemplates,
     required this.onShowDesign,
@@ -445,38 +431,22 @@ class _DesktopBuilderWorkspace extends StatelessWidget {
                   loc: loc,
                   cubit: cubit,
                   state: state,
-                  sidebarTabIndex: sidebarTabIndex,
                   editingBlockIndex: editingBlockIndex,
                   blocksList: blocksList,
-                  onSetSidebarTab: onSetSidebarTab,
                   onSetEditingBlock: onSetEditingBlock,
                 ),
               Expanded(
-                child: Column(
-                  children: [
-                    if (previewMode != PreviewMode.fullscreen)
-                      _DesktopCanvasToolbar(
-                        previewMode: previewMode,
-                        onSetPreviewMode: onSetPreviewMode,
-                        cubit: cubit,
-                        state: state,
-                      ),
-                    Expanded(
-                      child: Center(
-                        child: _CanvasContainer(
-                          previewMode: previewMode,
-                          isMobile: false,
-                          state: state,
-                          loc: loc,
-                          onBlockTapped: (index) {
-                            onSetSidebarTab(0);
-                            onSetEditingBlock(index);
-                            cubit.selectSection(index);
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+                child: Center(
+                  child: _CanvasContainer(
+                    previewMode: previewMode,
+                    isMobile: false,
+                    state: state,
+                    loc: loc,
+                    onBlockTapped: (index) {
+                      onSetEditingBlock(index);
+                      cubit.selectSection(index);
+                    },
+                  ),
                 ),
               ),
             ],
@@ -607,20 +577,16 @@ class _SidebarWrapper extends StatelessWidget {
   final LocalizationCubit loc;
   final LandingPageBuilderCubit cubit;
   final BuilderLoaded state;
-  final int sidebarTabIndex;
   final int? editingBlockIndex;
   final List<Map<String, dynamic>> blocksList;
-  final Function(int) onSetSidebarTab;
   final Function(int?) onSetEditingBlock;
 
   const _SidebarWrapper({
     required this.loc,
     required this.cubit,
     required this.state,
-    required this.sidebarTabIndex,
     this.editingBlockIndex,
     required this.blocksList,
-    required this.onSetSidebarTab,
     required this.onSetEditingBlock,
   });
 
@@ -635,173 +601,22 @@ class _SidebarWrapper extends StatelessWidget {
           left: loc.isRtl ? BorderSide(color: Theme.of(context).colorScheme.outlineVariant) : BorderSide.none,
         ),
       ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-            child: Row(
-              children: [
-                _SidebarTab(index: 0, icon: Icons.layers_rounded, label: "الأقسام", isSelected: sidebarTabIndex == 0, onTap: () => onSetSidebarTab(0)),
-                _SidebarTab(index: 1, icon: Icons.palette_rounded, label: "التصميم", isSelected: sidebarTabIndex == 1, onTap: () => onSetSidebarTab(1)),
-                _SidebarTab(index: 2, icon: Icons.settings_suggest_rounded, label: "الإعدادات", isSelected: sidebarTabIndex == 2, onTap: () => onSetSidebarTab(2)),
-              ],
-            ),
-          ),
-          Expanded(
-            child: IndexedStack(
-              index: sidebarTabIndex,
-              children: [
-                BuilderSidebar(
-                  editingBlockIndex: editingBlockIndex,
-                  state: state,
-                  loc: loc,
-                  cubit: cubit,
-                  blocksList: blocksList,
-                  onEditBlock: (index) {
-                    onSetSidebarTab(0);
-                    onSetEditingBlock(index);
-                  },
-                  onAddBlock: (context, cubit) => DraggableModalSheet.show(context: context, title: "مكتبة الأقسام", initialChildSize: 0.8, child: const SectionLibraryModal()),
-                  onDoneEditing: () => onSetEditingBlock(null),
-                ),
-                DesignTab(loc: loc, cubit: cubit, state: state),
-                Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: SingleChildScrollView(child: SeoSettingsModal()),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Shared Sidebar Tab.
-class _SidebarTab extends StatelessWidget {
-  final int index;
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _SidebarTab({
-    required this.index,
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: isSelected ? cs.primary : cs.onSurface.withValues(alpha: 0.24), size: 20),
-            SizedBox(height: 4),
-            Text(label, style: TextStyle(color: isSelected ? cs.onSurface : cs.onSurface.withValues(alpha: 0.24), fontSize: 10, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
-          ],
+      child: BuilderSidebar(
+        editingBlockIndex: editingBlockIndex,
+        state: state,
+        loc: loc,
+        cubit: cubit,
+        blocksList: blocksList,
+        onEditBlock: (index) {
+          onSetEditingBlock(index);
+        },
+        onAddBlock: (context, cubit) => DraggableModalSheet.show(
+          context: context,
+          title: "مكتبة الأقسام",
+          initialChildSize: 0.8,
+          child: const SectionLibraryModal(),
         ),
-      ),
-    );
-  }
-}
-
-/// Shared Canvas Toolbar for Desktop.
-class _DesktopCanvasToolbar extends StatelessWidget {
-  final PreviewMode previewMode;
-  final Function(PreviewMode) onSetPreviewMode;
-  final LandingPageBuilderCubit cubit;
-  final BuilderLoaded state;
-
-  const _DesktopCanvasToolbar({
-    required this.previewMode,
-    required this.onSetPreviewMode,
-    required this.cubit,
-    required this.state,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              _DeviceButton(mode: PreviewMode.mobile, icon: Icons.smartphone_rounded, tooltip: "Mobile", currentMode: previewMode, onSet: onSetPreviewMode),
-              SizedBox(width: 8),
-              _DeviceButton(mode: PreviewMode.tablet, icon: Icons.tablet_android_rounded, tooltip: "Tablet", currentMode: previewMode, onSet: onSetPreviewMode),
-              SizedBox(width: 8),
-              _DeviceButton(mode: PreviewMode.desktop, icon: Icons.desktop_windows_rounded, tooltip: "Desktop", currentMode: previewMode, onSet: onSetPreviewMode),
-              SizedBox(width: 8),
-              _DeviceButton(mode: PreviewMode.fullscreen, icon: Icons.visibility_rounded, tooltip: "Full Screen", currentMode: previewMode, onSet: onSetPreviewMode),
-            ],
-          ),
-          Row(
-            children: [
-              IconButton(icon: Icon(Icons.undo_rounded, size: 20), onPressed: state.canUndo ? cubit.undo : null, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
-              IconButton(icon: Icon(Icons.redo_rounded, size: 20), onPressed: state.canRedo ? cubit.redo : null, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
-              SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: () => cubit.saveForCurrentUser(),
-                icon: Icon(Icons.cloud_done_rounded, size: 18),
-                label: const Text("حفظ التغييرات"),
-                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Shared Device Selector Button.
-class _DeviceButton extends StatelessWidget {
-  final PreviewMode mode;
-  final IconData icon;
-  final String tooltip;
-  final PreviewMode currentMode;
-  final Function(PreviewMode) onSet;
-
-  const _DeviceButton({
-    required this.mode,
-    required this.icon,
-    required this.tooltip,
-    required this.currentMode,
-    required this.onSet,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isSelected = currentMode == mode;
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: () => onSet(mode),
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isSelected ? cs.primary.withValues(alpha: 0.1) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: isSelected ? cs.primary : cs.onSurface.withValues(alpha: 0.24), size: 20),
-        ),
+        onDoneEditing: () => onSetEditingBlock(null),
       ),
     );
   }
@@ -834,6 +649,7 @@ class _CanvasContainer extends StatelessWidget {
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOutCubic,
       width: width,
+      height: (previewMode == PreviewMode.fullscreen || isMobile) ? double.infinity : null,
       margin: (previewMode == PreviewMode.fullscreen || isMobile) ? EdgeInsets.zero : const EdgeInsets.symmetric(vertical: 24, horizontal: 40),
       decoration: previewMode == PreviewMode.fullscreen 
         ? null 
@@ -843,7 +659,7 @@ class _CanvasContainer extends StatelessWidget {
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 40, spreadRadius: 10)],
             border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 8),
           ),
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: previewMode == PreviewMode.fullscreen ? Clip.none : Clip.antiAlias,
       child: BuilderCanvas(
         isMobile: isMobile,
         previewMode: previewMode,

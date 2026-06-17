@@ -114,6 +114,11 @@ class SidebarNavigation extends StatelessWidget {
         'icon': Icons.language_rounded,
         'route': '/dashboard/domain',
       });
+      finalItems.add({
+        'title_key': 'notifications',
+        'icon': Icons.notifications_rounded,
+        'route': '/dashboard/notifications',
+      });
       finalItems.add({'is_divider': true});
       finalItems.add({
         'title_key': 'settings',

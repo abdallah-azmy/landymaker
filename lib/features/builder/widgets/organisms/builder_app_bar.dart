@@ -47,7 +47,9 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           title: Text(
             loc.translate('warning'),
-            style: AppTypography.h3.copyWith(color: Theme.of(context).colorScheme.error),
+            style: AppTypography.h3.copyWith(
+              color: Theme.of(context).colorScheme.error,
+            ),
           ),
           content: Text(
             loc.translate('unsaved_changes_warning'),
@@ -94,8 +96,8 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: Icon(Icons.arrow_back_ios_new_rounded),
         onPressed: () => _handleBack(context),
       ),
+      titleSpacing: 16,
       title: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
           if (!isMobile) ...[
             Icon(
@@ -105,48 +107,46 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             SizedBox(width: 12),
           ],
-          Flexible(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  state.subdomain.toUpperCase(),
-                  style: AppTypography.bodyLarge.copyWith(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    color: Theme.of(context).colorScheme.onSurface,
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                state.subdomain.toUpperCase(),
+                style: AppTypography.bodyLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: state.isPublished
+                          ? AppColors.activeGreen
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: state.isPublished
-                            ? AppColors.activeGreen
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                  SizedBox(width: 4),
+                  Text(
+                    state.isPublished ? "LIVE" : "DRAFT",
+                    style: AppTypography.caption.copyWith(
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      color: state.isPublished
+                          ? AppColors.activeGreen
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
-                    SizedBox(width: 4),
-                    Text(
-                      state.isPublished ? "LIVE" : "DRAFT",
-                      style: AppTypography.caption.copyWith(
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        color: state.isPublished
-                            ? AppColors.activeGreen
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
           if (!isMobile) ...[
             SizedBox(width: 16),
@@ -177,163 +177,175 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               tooltip: loc.translate('redo'),
             ),
           ],
-        ],
-      ),
-      actions: [
-        if (!isMobile)
-          Flexible(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildActionButton(
-                    context,
-                    icon: state.isPublished
-                        ? Icons.visibility_off_rounded
-                        : Icons.language_rounded,
-                    label: state.isPublished
-                        ? loc.translate('draft')
-                        : loc.translate('go_live'),
-                    onPressed: () {
-                      cubit.updateSettings(isPublished: !state.isPublished);
-                      cubit.saveForCurrentUser();
-                    },
-                    color: state.isPublished
-                        ? Theme.of(context).colorScheme.onSurface
-                        : Theme.of(context).colorScheme.primary,
-                  ),
-                  if (!state.isPublished)
+          Expanded(child: SizedBox(width: 16)),
+          if (!isMobile)
+            Flexible(
+              flex: 2,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     _buildActionButton(
                       context,
-                      icon: Icons.save_rounded,
-                      label: loc.translate('save_draft'),
-                      onPressed: state.hasUnsavedChanges
-                          ? () => cubit.saveForCurrentUser()
-                          : null,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      icon: state.isPublished
+                          ? Icons.visibility_off_rounded
+                          : Icons.language_rounded,
+                      label: state.isPublished
+                          ? loc.translate('draft')
+                          : loc.translate('go_live'),
+                      onPressed: () {
+                        cubit.updateSettings(isPublished: !state.isPublished);
+                        cubit.saveForCurrentUser();
+                      },
+                      color: state.isPublished
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.primary,
                     ),
-                  VerticalDivider(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    indent: 12,
-                    endIndent: 12,
-                    width: 32,
-                  ),
-                  _buildActionButton(
-                    context,
-                    icon: Icons.auto_awesome_rounded,
-                    label: loc.translate('templates'),
-                    onPressed: onShowTemplates,
-                  ),
-                  _buildActionButton(
-                    context,
-                    icon: Icons.color_lens_rounded,
-                    label: loc.translate('design'),
-                    onPressed: onShowDesign,
-                  ),
-                  _buildActionButton(
-                    context,
-                    icon: Icons.font_download_rounded,
-                    label: loc.translate('fonts'),
-                    onPressed: onShowFonts,
-                  ),
-                  _buildActionButton(
-                    context,
-                    icon: Icons.search_rounded,
-                    label: "SEO",
-                    onPressed: onShowSeo,
-                  ),
-                  VerticalDivider(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    indent: 12,
-                    endIndent: 12,
-                    width: 32,
-                  ),
-                  const AnimatedThemeToggle(size: 40),
-                  VerticalDivider(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    indent: 12,
-                    endIndent: 12,
-                    width: 32,
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.smartphone_rounded,
-                      color: previewMode == PreviewMode.mobile
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    if (!state.isPublished)
+                      _buildActionButton(
+                        context,
+                        icon: Icons.save_rounded,
+                        label: loc.translate('save_draft'),
+                        onPressed: state.hasUnsavedChanges
+                            ? () => cubit.saveForCurrentUser()
+                            : null,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    VerticalDivider(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      indent: 12,
+                      endIndent: 12,
+                      width: 32,
                     ),
-                    onPressed: () => onChangePreview(PreviewMode.mobile),
-                    tooltip: "Mobile Preview",
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.desktop_windows_rounded,
-                      color: previewMode == PreviewMode.desktop
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    _buildActionButton(
+                      context,
+                      icon: Icons.auto_awesome_rounded,
+                      label: loc.translate('templates'),
+                      onPressed: onShowTemplates,
                     ),
-                    onPressed: () => onChangePreview(PreviewMode.desktop),
-                    tooltip: "Desktop Preview",
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.visibility_rounded,
-                      color: previewMode == PreviewMode.fullscreen
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    _buildActionButton(
+                      context,
+                      icon: Icons.color_lens_rounded,
+                      label: loc.translate('design'),
+                      onPressed: onShowDesign,
                     ),
-                    onPressed: () => onChangePreview(PreviewMode.fullscreen),
-                    tooltip: "Full Screen Preview",
-                  ),
-                  SizedBox(width: 8),
-                  IconButton(
-                    icon: Icon(
-                      Icons.open_in_new_rounded,
-                      color: Theme.of(context).colorScheme.primary,
+                    _buildActionButton(
+                      context,
+                      icon: Icons.font_download_rounded,
+                      label: loc.translate('fonts'),
+                      onPressed: onShowFonts,
                     ),
-                    onPressed: () {
-                      html.window.open('/${state.subdomain}', '_blank');
-                    },
-                    tooltip: loc.translate('view_as_guest'),
-                  ),
-                  SizedBox(width: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 8,
+                    _buildActionButton(
+                      context,
+                      icon: Icons.search_rounded,
+                      label: "SEO",
+                      onPressed: onShowSeo,
                     ),
-                    child: _buildPublishButton(context),
-                  ),
-                ],
+                    VerticalDivider(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      indent: 12,
+                      endIndent: 12,
+                      width: 32,
+                    ),
+                    const AnimatedThemeToggle(size: 40),
+                    VerticalDivider(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      indent: 12,
+                      endIndent: 12,
+                      width: 32,
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.smartphone_rounded,
+                        color: previewMode == PreviewMode.mobile
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      onPressed: () => onChangePreview(PreviewMode.mobile),
+                      tooltip: "Mobile Preview",
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.desktop_windows_rounded,
+                        color: previewMode == PreviewMode.desktop
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      onPressed: () => onChangePreview(PreviewMode.desktop),
+                      tooltip: "Desktop Preview",
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.visibility_rounded,
+                        color: previewMode == PreviewMode.fullscreen
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      onPressed: () => onChangePreview(PreviewMode.fullscreen),
+                      tooltip: "Full Screen Preview",
+                    ),
+                    SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(
+                        Icons.open_in_new_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      onPressed: () {
+                        html.window.open('/${state.subdomain}', '_blank');
+                      },
+                      tooltip: loc.translate('view_as_guest'),
+                    ),
+                    SizedBox(width: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 8,
+                      ),
+                      child: _buildPublishButton(context),
+                    ),
+                  ],
+                ),
               ),
+            )
+          else ...[
+            const AnimatedThemeToggle(size: 36),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: Icon(
+                Icons.auto_awesome_rounded,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: onShowTemplates,
             ),
-          )
-        else ...[
-          const AnimatedThemeToggle(size: 36),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary),
-            onPressed: onShowTemplates,
-          ),
-          IconButton(
-            icon: Icon(Icons.color_lens_rounded, color: Theme.of(context).colorScheme.primary),
-            onPressed: onShowDesign,
-          ),
-          IconButton(
-            icon: Icon(Icons.search_rounded, color: Theme.of(context).colorScheme.primary),
-            onPressed: onShowSeo,
-          ),
+            IconButton(
+              icon: Icon(
+                Icons.color_lens_rounded,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: onShowDesign,
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.search_rounded,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: onShowSeo,
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.open_in_new_rounded,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () {
+                html.window.open('/${state.subdomain}', '_blank');
+              },
+              tooltip: loc.translate('view_as_guest'),
+            ),
+            const SizedBox(width: 8),
+          ],
         ],
-        IconButton(
-          icon: Icon(Icons.open_in_new_rounded, color: Theme.of(context).colorScheme.primary),
-          onPressed: () {
-            html.window.open('/${state.subdomain}', '_blank');
-          },
-          tooltip: loc.translate('view_as_guest'),
-        ),
-        const SizedBox(width: 8),
-      ],
+      ),
     );
   }
 
@@ -478,7 +490,10 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: AppColors.activeGreen.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.public_rounded, color: AppColors.activeGreen),
+              child: const Icon(
+                Icons.public_rounded,
+                color: AppColors.activeGreen,
+              ),
             ),
             const SizedBox(width: 12),
             Text(
@@ -510,7 +525,11 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.lock, size: 14, color: AppColors.activeGreen),
+                  const Icon(
+                    Icons.lock,
+                    size: 14,
+                    color: AppColors.activeGreen,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
@@ -34,7 +33,7 @@ class MissionUpgradeModal extends StatelessWidget {
               name: isRtl ? "باقة الأعمال (Business)" : "Business Plan",
               price: "79",
               features: [
-                isRtl ? "ميزات الذكاء الاصطناعي (150 عملية/شهر)" : "AI Features (150/mo)",
+                isRtl ? "ميزات الذكاء الاصطناعي (30 عملية ناجحة/شهر)" : "AI Features (30 attempts/mo)",
                 isRtl ? "Smart WhatsApp Leads (قمع تحويل)" : "Smart WhatsApp Leads",
                 isRtl ? "نطاق مخصص (Custom Domain)" : "Custom Domain",
                 isRtl ? "إحصائيات متقدمة وتحليلات دقيقة" : "Advanced Analytics",
@@ -48,7 +47,7 @@ class MissionUpgradeModal extends StatelessWidget {
               name: isRtl ? "باقة برو (Pro)" : "Pro Plan",
               price: "29",
               features: [
-                isRtl ? "ذكاء اصطناعي (50 عملية/شهر)" : "AI Features (50/mo)",
+                isRtl ? "ذكاء اصطناعي (20 عملية ناجحة/شهر)" : "AI Features (20 attempts/mo)",
                 isRtl ? "نطاق مخصص (Custom Domain)" : "Custom Domain",
                 isRtl ? "بدون شعار لاندي ميكر" : "Remove Branding",
               ],

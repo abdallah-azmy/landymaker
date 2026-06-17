@@ -95,13 +95,10 @@ const AnimatedThemeToggle(size: 36),  // Mobile
 
 ## 5. Files NOT Yet Fully Migrated (Known Remaining)
 
-As of June 2026, these files still contain deprecated color usages and are known technical debt:
-- `lib/features/builder/widgets/tabs/builder_sidebar_tabs.dart`
-- `lib/features/builder/widgets/molecules/builder_mobile_toolbar.dart`
-- `lib/features/builder/widgets/layout_picker/layout_option_card.dart`
-- `lib/features/builder/widgets/molecules/element_property_editor.dart`
+As of June 2026, **all user-facing and builder UI files have been fully migrated** to the dynamic Material 3 theme system. There are no known remaining files with deprecated static color tokens (`AppColors.background`, `AppColors.cardBg`, `AppColors.border`, `AppColors.textPrimary`, `AppColors.textSecondary`, or `AppColors.textMuted`).
 
-These files present challenges due to missing `BuildContext` in helper methods or stateless helper functions with no easy refactor path without signature changes. They are lower priority as they are internal builder UI.
+The dynamic color enforcement (Rule #30) is now fully active across the entire codebase.
+
 
 ---
 

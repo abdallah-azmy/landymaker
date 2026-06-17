@@ -411,3 +411,29 @@ This section documents the massive architectural refactoring executed to elimina
 - **Pattern**: To optimize token context windows for future AI models, all related classes (Factory, Props, Desktop Layout, Mobile Layout, Shared Sub-widgets) are kept in a **single file** as long as the file is under ~800 lines.
 - **Formatting**: Files utilizing this pattern are strictly segmented using large visual comments (`/// ==========================`) to delineate the Factory, Props, Layouts, and Shared sections, preventing AI hallucination during complex reads.
 
+---
+
+## 🏛️ 19. Phase 4: UI/UX Theme Compliance & Global Controls
+
+This section documents the comprehensive modernization of LandyMaker's user-facing screens to achieve full Light/Dark mode compliance and visual polish.
+
+### A. Shared Layout Wrapper for Auth
+- **Widget**: `AuthLayoutWrapper` (`lib/features/auth/widgets/auth_layout_wrapper.dart`)
+- **Usage**: Encapsulates the centered two-column brand-and-form layout on desktop and single-column on mobile. Includes built-in theme and language switcher toggles in the top-right corner. Used across all four auth screens (`LoginScreen`, `RegisterScreen`, `ForgotPasswordScreen`, `ResetPasswordScreen`).
+
+### B. Standardized Language Switcher
+- **Widget**: `LanguageSwitcherButton` (`lib/core/widgets/atoms/language_switcher_button.dart`)
+- **Variants**:
+  - `LanguageSwitcherVariant.iconOnly`: Compact icon button for header zones (e.g. mobile navbar, auth top bar).
+  - `LanguageSwitcherVariant.iconAndText`: TextButton with icon and "العربية" / "English" text label (e.g. desktop navbar).
+
+### C. UX Control Placement Guidelines (Strict Rules)
+1. **Language Switching**: Inside the dashboard, the language toggle resides **strictly in the Settings screen** (Language section). It must **never** be shown in the dashboard top bar or the sidebar footer to avoid cognitive load.
+2. **Theme Toggle**: The `AnimatedThemeToggle` is displayed in:
+   - Marketing homepage navbar (desktop & mobile).
+   - Auth screens (via `AuthLayoutWrapper`).
+   - Dashboard Shell top bar (desktop & mobile).
+   - Settings screen (Appearance section).
+3. **Sidebar Architecture**: Redesigned to support a `260px` desktop width, a 2px top brand accent bar, clean uppercase headers with spacing, and reactive sidebar items highlighting selected states with tinted backgrounds and left borders. Includes a `_PlanBadge` ("Free Plan"/"Pro Plan") and a dynamic usage indicator.
+
+

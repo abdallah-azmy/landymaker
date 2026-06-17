@@ -8,8 +8,6 @@ This document is the fastest onboarding tool for future AI models. It explains w
 |----------|---------|
 | **AI_CONTEXT.md** | Master Entry Point — Project state, architecture, implemented features, decisions. |
 | **docs/ai/AI_DOCUMENTATION_RULES.md** | AI Execution Rules — Rules for keeping docs synchronized, builder standards, UI/UX patterns. |
-| **docs/ai/SUPER_ADMIN_TEMPLATES_PLAN.md** | Super Admin Templates Plan — Plan for migrating templates to database-driven management. |
-| **docs/ai/UI_UX_MODERNIZATION_PLAN.md** | UI/UX Density & Theme Plan — Comprehensive plan for modernizing layout density and Dark/Light themes. |
 | **docs/ai/DEVOPS_AND_ASSETS.md** | Deployment Rules — CI/CD, ImgBB, Vercel edge middleware, image management. |
 | **docs/ai/PROJECT_STRUCTURE.md** | Folder hierarchy and architecture boundaries. |
 | **docs/ai/BUILDER_ARCHITECTURE.md** | Builder system data flow. |
@@ -78,6 +76,8 @@ User identity management.
 - **Auth Service**: `lib/services/auth_service.dart`.
 - **Auth Cubit**: `lib/features/auth/controllers/auth_cubit.dart`.
 - **Screens**: `lib/features/auth/screens/`.
+- **Auth Layout Wrapper**: `lib/features/auth/widgets/auth_layout_wrapper.dart` (unified layout scaffolding for all auth forms).
+- **Language Switcher Button**: `lib/core/widgets/atoms/language_switcher_button.dart` (unified language selector widget).
 
 ## 📊 8. Where is Dashboard Logic?
 

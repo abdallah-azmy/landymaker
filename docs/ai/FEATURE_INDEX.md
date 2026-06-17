@@ -8,7 +8,7 @@ Locate platform functionality by business purpose rather than exact filename.
 | **Public Viewer** | Rendering live landing pages | `PublicLandingPage` | `PublicPageCubit` | `SectionRenderer` |
 | **Analytics** | High-fidelity visitor metrics | `AnalyticsScreen` | `LeadsAnalyticsCubit` | `DataCard`, `PageStatCard` |
 | **Leads** | Lead management and submission | `LeadsTrackerScreen` | N/A (Direct DB fetch) | `ResponsiveDataTable` |
-| **Auth** | User identity and access | `LoginScreen`, `RegisterScreen` | `AuthCubit` | `SocialSignInButton` |
+| **Auth** | User identity and access | `LoginScreen`, `RegisterScreen` | `AuthCubit` | `SocialSignInButton`, `AuthLayoutWrapper` |
 | **Media Gallery** | Asset storage and management | `MediaGalleryScreen` | `MediaGalleryCubit` | `ImagePickerModal` |
 | **SEO Settings** | Site-specific SEO configuration | `SeoSettingsModal` | N/A (Builder context) | `CustomTextField` |
 | **Domains** | Custom domain configuration | `DomainSettingsScreen` | `ActiveWebsiteCubit` | `DomainSetupWidget` |

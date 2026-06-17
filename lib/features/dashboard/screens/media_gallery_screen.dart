@@ -108,9 +108,9 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
     return BlocBuilder<MediaGalleryCubit, MediaGalleryState>(
       builder: (context, state) {
         if (state is MediaGalleryLoading) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(60.0),
+              padding: const EdgeInsets.all(60.0),
               child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
             ),
           );
@@ -309,7 +309,7 @@ class _ImageGalleryCardState extends State<_ImageGalleryCard> {
                                   widget.onDelete();
                                   Navigator.pop(context);
                                 },
-                                child: const Text("حذف", style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                                child: Text("حذف", style: TextStyle(color: Theme.of(context).colorScheme.error)),
                               ),
                             ],
                           ),

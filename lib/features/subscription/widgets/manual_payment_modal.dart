@@ -50,8 +50,8 @@ class ManualPaymentModal extends StatelessWidget {
           const SizedBox(height: 24),
           _buildInfoBox(context, "خطوات التفعيل:", "1. قم بتحويل المبلغ عبر فودافون كاش أو إنستا باي.\n2. اضغط على الزر أدناه لإرسال صورة الإيصال عبر واتساب.\n3. سيتم تفعيل حسابك فور مراجعة التحويل."),
           const SizedBox(height: 24),
-          _buildPaymentDetail("فودافون كاش", "010XXXXXXXX"),
-          _buildPaymentDetail("إنستا باي", "user@instapay"),
+          _buildPaymentDetail(context, "فودافون كاش", "010XXXXXXXX"),
+          _buildPaymentDetail(context, "إنستا باي", "user@instapay"),
           const SizedBox(height: 32),
           PrimaryButton(
             text: "تأكيد الدفع عبر واتساب",
@@ -90,12 +90,12 @@ class ManualPaymentModal extends StatelessWidget {
     );
   }
 
-  Widget _buildPaymentDetail(String method, String value) {
+  Widget _buildPaymentDetail(BuildContext context, String method, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          const Icon(Icons.account_balance_wallet_rounded, color: Theme.of(context).colorScheme.secondary, size: 20),
+          Icon(Icons.account_balance_wallet_rounded, color: Theme.of(context).colorScheme.secondary, size: 20),
           const SizedBox(width: 12),
           Text("$method: ", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
           Text(value, style: AppTypography.bodyMedium),

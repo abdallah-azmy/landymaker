@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/organisms/responsive_data_table.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
@@ -73,7 +72,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                 SizedBox(height: 16),
                 Divider(color: Theme.of(context).colorScheme.outlineVariant),
                 SizedBox(height: 8),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text("Page Content (JSON Format - Optional)", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
@@ -110,7 +109,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                   parsedContent = jsonDecode(contentController.text);
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Invalid JSON in Page Content"), backgroundColor: Theme.of(context).colorScheme.error),
+                    SnackBar(content: const Text("Invalid JSON in Page Content"), backgroundColor: Theme.of(context).colorScheme.error),
                   );
                   return;
                 }

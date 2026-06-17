@@ -203,7 +203,7 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
                           width: 32,
                           height: 180 * ratio,
                           decoration: BoxDecoration(
-                            gradient: Theme.of(context).colorScheme.primaryGradient,
+                            gradient: AppColors.primaryGradient,
                             borderRadius: BorderRadius.circular(6),
                           ),
                         ),

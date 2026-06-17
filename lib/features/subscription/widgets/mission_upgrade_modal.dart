@@ -77,7 +77,7 @@ class MissionUpgradeModal extends StatelessWidget {
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary, size: 40),
+          child: Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary, size: 40),
         ),
         const SizedBox(height: 20),
         Text(

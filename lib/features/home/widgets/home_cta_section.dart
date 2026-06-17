@@ -414,8 +414,8 @@ class _CtaButtonState extends State<_CtaButton> {
           curve: Curves.easeOutCubic,
           child: Container(
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Theme.of(context).colorScheme.secondary, Color(0xFF0C1A3A)],
+              gradient: LinearGradient(
+                colors: [Theme.of(context).colorScheme.secondary, const Color(0xFF0C1A3A)],
                 begin: Alignment.centerRight,
                 end: Alignment.centerLeft,
               ),

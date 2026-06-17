@@ -39,7 +39,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     }
 
     if (state is LeadsAnalyticsLoading || state is LeadsAnalyticsInitial) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
       );
     }
@@ -220,7 +220,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 width: 32,
                 height: 180 * ratio,
                 decoration: BoxDecoration(
-                  gradient: Theme.of(context).colorScheme.primaryGradient,
+                  gradient: AppColors.primaryGradient,
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),

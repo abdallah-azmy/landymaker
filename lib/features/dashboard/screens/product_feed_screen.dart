@@ -168,7 +168,7 @@ class ProductFeedScreen extends StatelessWidget {
               color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.rss_feed_rounded,
               color: Theme.of(context).colorScheme.secondary,
               size: 32,

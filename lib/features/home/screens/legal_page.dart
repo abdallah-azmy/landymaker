@@ -127,7 +127,7 @@ class _LegalPageState extends State<LegalPage> {
                 constraints: const BoxConstraints(maxWidth: 900),
                 padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
                 child: _isLoading 
-                  ? const Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
+                  ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
                   : _buildContent(context),
               ),
               const HomeFooter(),

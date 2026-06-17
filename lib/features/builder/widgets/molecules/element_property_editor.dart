@@ -37,38 +37,38 @@ class ElementPropertyEditor extends StatelessWidget {
             style: AppTypography.h3.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           const SizedBox(height: 20),
-          if (type == 'text') ..._buildTextControls(loc),
-          if (type == 'image') ..._buildImageControls(loc),
+          if (type == 'text') ..._buildTextControls(context, loc),
+          if (type == 'image') ..._buildImageControls(context, loc),
         ],
       ),
     );
   }
 
-  List<Widget> _buildTextControls(LocalizationCubit loc) {
+  List<Widget> _buildTextControls(BuildContext context, LocalizationCubit loc) {
     return [
-      _buildFontSelector(),
+      _buildFontSelector(context),
       const SizedBox(height: 16),
-      _buildSlider("حجم الخط", 'fontSize', 12, 72),
+      _buildSlider(context, "حجم الخط", 'fontSize', 12, 72),
       const SizedBox(height: 16),
-      _buildWeightToggle(),
+      _buildWeightToggle(context),
     ];
   }
 
-  List<Widget> _buildImageControls(LocalizationCubit loc) {
+  List<Widget> _buildImageControls(BuildContext context, LocalizationCubit loc) {
     return [
-      _buildSlider("العرض", 'width', 50, 500),
+      _buildSlider(context, "العرض", 'width', 50, 500),
       const SizedBox(height: 16),
-      _buildSlider("الارتفاع", 'height', 50, 500),
+      _buildSlider(context, "الارتفاع", 'height', 50, 500),
       const SizedBox(height: 16),
-      _buildSlider("انحناء الزوايا", 'borderRadius', 0, 100),
+      _buildSlider(context, "انحناء الزوايا", 'borderRadius', 0, 100),
     ];
   }
 
-  Widget _buildFontSelector() {
+  Widget _buildFontSelector(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           "نوع الخط",
           style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
@@ -95,14 +95,14 @@ class ElementPropertyEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildSlider(String label, String key, double min, double max) {
+  Widget _buildSlider(BuildContext context, String label, String key, double min, double max) {
     final double value = NumericParser.parseDouble(styleOverrides[key], min);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "\$label: \${value.toInt()}",
-          style: const TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          "$label: ${value.toInt()}",
+          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         Slider(
           value: value.clamp(min, max),
@@ -115,12 +115,12 @@ class ElementPropertyEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildWeightToggle() {
+  Widget _buildWeightToggle(BuildContext context) {
     final bool isBold = styleOverrides['fontWeight'] == 'bold';
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
+        Text(
           "خط عريض",
           style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),

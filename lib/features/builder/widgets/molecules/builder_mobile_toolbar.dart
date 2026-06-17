@@ -229,7 +229,7 @@ class BuilderMobileToolbar extends StatelessWidget {
           const SizedBox(width: 4),
 
           // Right: Publish (Rocket)
-          _buildPublishButton(),
+          _buildPublishButton(context),
         ],
       ),
     );
@@ -249,7 +249,7 @@ class BuilderMobileToolbar extends StatelessWidget {
     );
   }
 
-  Widget _buildPublishButton() {
+  Widget _buildPublishButton(BuildContext context) {
     final bool canPublish = state.hasUnsavedChanges && !state.isSaving;
     return InkWell(
       onTap: canPublish ? () => cubit.saveForCurrentUser() : null,
@@ -309,7 +309,7 @@ class BuilderMobileToolbar extends StatelessWidget {
           color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
-        child: const Icon(
+        child: Icon(
           Icons.more_horiz_rounded,
           color: Theme.of(context).colorScheme.onSurface,
           size: 24,

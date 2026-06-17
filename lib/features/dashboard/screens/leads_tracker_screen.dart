@@ -116,7 +116,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
     }
 
     if (state is LeadsAnalyticsLoading || state is LeadsAnalyticsInitial) {
-      return const Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary));
+      return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary));
     }
 
     if (state is LeadsAnalyticsFailure) {

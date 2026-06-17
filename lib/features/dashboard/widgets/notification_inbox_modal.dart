@@ -157,7 +157,7 @@ class _NotificationItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildIcon(type),
+            _buildIcon(context, type),
             SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -202,7 +202,7 @@ class _NotificationItem extends StatelessWidget {
     );
   }
 
-  Widget _buildIcon(String type) {
+  Widget _buildIcon(BuildContext context, String type) {
     IconData iconData = Icons.notifications_active_rounded;
     Color color = Theme.of(context).colorScheme.secondary;
 

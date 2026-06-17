@@ -17,7 +17,7 @@ class GuestPreviewScreen extends StatefulWidget {
 }
 
 class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
-  final PreviewMode _previewMode = PreviewMode.fullscreen;
+  PreviewMode _previewMode = PreviewMode.desktop;
 
   void _showAuthGateModal(BuildContext context) {
     showModalBottomSheet(
@@ -137,6 +137,15 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    final cubit = context.read<LandingPageBuilderCubit>();
+    if (cubit.state is! BuilderLoaded) {
+      cubit.initializeNewPage();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final builderCubit = context.watch<LandingPageBuilderCubit>();
     final state = builderCubit.state;
@@ -151,142 +160,171 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-        title: Row(
-          children: [
-            Icon(Icons.visibility_rounded, color: Theme.of(context).colorScheme.secondary),
-            SizedBox(width: 8),
-            Text(
-              "معاينة الصفحة (زائر)",
-              style: AppTypography.h3.copyWith(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => context.go('/'),
-            icon: Icon(Icons.home_rounded, color: Theme.of(context).colorScheme.onSurface),
-            tooltip: "العودة للرئيسية",
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          // Main Preview Canvas
-          Column(
-            children: [
-              Expanded(
-                child: BuilderCanvas(
-                  isMobile: false,
-                  previewMode: _previewMode,
-                  state: state,
-                  loc: loc,
-                  onBlockTapped: (_) => _showAuthGateModal(context),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktopWidth = constraints.maxWidth >= 768;
+        final isMobile = _previewMode == PreviewMode.mobile || !isDesktopWidth;
+
+        return Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+            title: Row(
+              children: [
+                Icon(Icons.visibility_rounded, color: Theme.of(context).colorScheme.secondary),
+                SizedBox(width: 8),
+                Text(
+                  "معاينة الصفحة (زائر)",
+                  style: AppTypography.h3.copyWith(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
                 ),
+              ],
+            ),
+            actions: [
+              if (isDesktopWidth) ...[
+                IconButton(
+                  icon: Icon(
+                    Icons.phone_android_rounded,
+                    color: _previewMode == PreviewMode.mobile
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurface,
+                  ),
+                  onPressed: () => setState(() => _previewMode = PreviewMode.mobile),
+                  tooltip: "عرض الجوال",
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.desktop_windows_rounded,
+                    color: _previewMode == PreviewMode.desktop
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurface,
+                  ),
+                  onPressed: () => setState(() => _previewMode = PreviewMode.desktop),
+                  tooltip: "عرض سطح المكتب",
+                ),
+              ],
+              IconButton(
+                onPressed: () => context.go('/'),
+                icon: Icon(Icons.home_rounded, color: Theme.of(context).colorScheme.onSurface),
+                tooltip: "العودة للرئيسية",
               ),
             ],
           ),
-          // Auth gate overlay at the bottom of the screen
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                left: 24,
-                right: 24,
-                top: 20,
-                bottom: MediaQuery.of(context).padding.bottom + 24,
-              ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.97),
-                    Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.85),
-                    Colors.transparent,
-                  ],
-                  stops: const [0.0, 0.6, 1.0],
-                ),
-              ),
-              child: Row(
+          body: Stack(
+            children: [
+              // Main Preview Canvas
+              Column(
                 children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.edit_note_rounded,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 22,
-                    ),
-                  ),
-                  SizedBox(width: 14),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "حرر صفحتك واحفظها",
-                          style: AppTypography.bodyMedium.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          "سجل مجاناً لتحصل على رابط دائم وتعديل غير محدود",
-                          style: AppTypography.caption.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: () => _showAuthGateModal(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Colors.black,
-                      elevation: 4,
-                      shadowColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    ),
-                    child: const Text(
-                      "تسجيل",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    child: BuilderCanvas(
+                      isMobile: isMobile,
+                      previewMode: _previewMode,
+                      state: state,
+                      loc: loc,
+                      onBlockTapped: (_) => _showAuthGateModal(context),
                     ),
                   ),
                 ],
               ),
+              // Auth gate overlay at the bottom of the screen
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: EdgeInsetsDirectional.only(
+                    start: 24,
+                    end: 24,
+                    top: 20,
+                    bottom: MediaQuery.of(context).padding.bottom + 24,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.97),
+                        Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.85),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.6, 1.0],
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.edit_note_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 22,
+                        ),
+                      ),
+                      SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "حرر صفحتك واحفظها",
+                              style: AppTypography.bodyMedium.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              "سجل مجاناً لتحصل على رابط دائم وتعديل غير محدود",
+                              style: AppTypography.caption.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: () => _showAuthGateModal(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Colors.black,
+                          elevation: 4,
+                          shadowColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        ),
+                        child: const Text(
+                          "تسجيل",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => _showAuthGateModal(context),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            elevation: 6,
+            icon: Icon(Icons.lock_open_rounded, color: Colors.black87),
+            label: const Text(
+              "فعل التعديل الكامل",
+              style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
             ),
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAuthGateModal(context),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        elevation: 6,
-        icon: Icon(Icons.lock_open_rounded, color: Colors.black87),
-        label: const Text(
-          "فعل التعديل الكامل",
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
-        ),
-      ),
+        );
+      },
     );
   }
 }

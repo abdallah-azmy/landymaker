@@ -620,15 +620,15 @@ class DesignFontsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LandingPageBuilderCubit, BuilderState>(
-      builder: (context, dynamicState) {
-        if (dynamicState is! BuilderLoaded) return const SizedBox.shrink();
+    final themeCubit = context.read<BuilderThemeCubit>();
+    return BlocBuilder<BuilderThemeCubit, LandingPageTheme>(
+      builder: (context, theme) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("إعدادات الخط العامة", style: AppTypography.h3),
             const SizedBox(height: 16),
-            _buildFontPicker(context, context.read<BuilderThemeCubit>(), dynamicState),
+            _buildFontPicker(context, themeCubit, theme),
             const SizedBox(height: 32),
           ],
         );
@@ -887,12 +887,12 @@ void _showColorPicker(
 Widget _buildFontPicker(
   BuildContext context,
   BuilderThemeCubit themeCubit,
-  BuilderLoaded currentState,
+  LandingPageTheme theme,
 ) {
   return Column(
     children: LandingPageTheme.availableFonts.map((font) {
       final family = font['family']!;
-      final isSelected = family == (currentState.theme.defaultFont ?? 'Cairo');
+      final isSelected = family == (theme.defaultFont ?? 'Cairo');
 
       return Container(
         margin: const EdgeInsets.only(bottom: 12),

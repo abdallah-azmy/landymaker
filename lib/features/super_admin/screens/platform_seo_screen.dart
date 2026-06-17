@@ -172,7 +172,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                 SizedBox(height: 24),
                 ResponsiveDataTable(
                   title: "Dynamic Routes",
-                  headers: const ["Route Path", "Title", "Description", "Action"],
+                  headers: const ["Route Path", "Title", "Description", "Note", "Action"],
                   rows: state.platformSeoSettings.map((seo) {
                     return [
                       Text(seo['route_path'], style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
@@ -180,6 +180,10 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                       SizedBox(
                         width: 200,
                         child: Text(seo['meta_description'] ?? '-', maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ),
+                      SizedBox(
+                        width: 150,
+                        child: Text(seo['admin_note'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                       ),
                       IconButton(
                         icon: Icon(Icons.edit_rounded, color: Theme.of(context).colorScheme.secondary),

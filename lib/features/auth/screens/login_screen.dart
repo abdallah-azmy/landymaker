@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -25,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isGoogleLoading = false;
 
   void _handleLogin(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
@@ -32,6 +34,87 @@ class _LoginScreenState extends State<LoginScreen> {
     context.read<AuthCubit>().login(
       _emailController.text.trim(),
       _passwordController.text,
+    );
+  }
+
+  void _showGoogleConsentDialog(BuildContext context, String email) {
+    final loc = context.read<LocalizationCubit>();
+
+    final text = loc.translate('google_new_user_consent_body');
+    final privacyText = loc.translate('privacy_policy');
+    final termsText = loc.translate('terms_of_service');
+
+    final parts = text.split('{privacy}');
+    final part1 = parts[0];
+    final remaining = parts[1].split('{terms}');
+    final part2 = remaining[0];
+    final part3 = remaining[1];
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: Text(loc.translate('google_welcome_title')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RichText(
+              text: TextSpan(
+                style: AppTypography.bodyMedium.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                children: [
+                  TextSpan(text: part1),
+                  TextSpan(
+                    text: privacyText,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => ctx.push('/privacy-policy'),
+                  ),
+                  TextSpan(text: part2),
+                  TextSpan(
+                    text: termsText,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => ctx.push('/terms'),
+                  ),
+                  TextSpan(text: part3),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              email,
+              style: AppTypography.bodyMedium.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.read<AuthCubit>().cancelGoogleSignIn();
+            },
+            child: Text(loc.translate('cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              context.read<AuthCubit>().confirmGoogleNewUser();
+            },
+            child: Text(loc.translate('agree_and_continue')),
+          ),
+        ],
+      ),
     );
   }
 
@@ -48,15 +131,23 @@ class _LoginScreenState extends State<LoginScreen> {
       form: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
+            setState(() => _isGoogleLoading = false);
             if (widget.onLoginSuccess != null) {
               widget.onLoginSuccess!();
             } else {
               context.go('/dashboard');
             }
+          } else if (state is GoogleNewUserRequiresConsent) {
+            setState(() => _isGoogleLoading = false);
+            _showGoogleConsentDialog(context, state.pendingEmail);
+          } else if (state is AuthFailure) {
+            setState(() => _isGoogleLoading = false);
+          } else if (state is AuthInitial) {
+            setState(() => _isGoogleLoading = false);
           }
         },
         builder: (context, state) {
-          final isLoading = state is AuthLoading;
+          final isLoading = state is AuthLoading && !_isGoogleLoading;
           final errorMessage = state is AuthFailure ? state.message : null;
           final loc = context.watch<LocalizationCubit>();
 
@@ -80,6 +171,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
+
+                // Google Sign-In Button (appears FIRST)
+                SocialSignInButton(
+                  label: loc.translate('sign_in_google'),
+                  isLoading: _isGoogleLoading,
+                  onPressed: () {
+                    setState(() => _isGoogleLoading = true);
+                    context.read<AuthCubit>().signInWithGoogle();
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                _buildDivider(context, loc),
+                const SizedBox(height: 24),
 
                 // Email Field
                 FormGroup(
@@ -150,16 +255,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () => _handleLogin(context),
                   isLoading: isLoading,
                   width: double.infinity,
-                ),
-                const SizedBox(height: 24),
-
-                _buildDivider(context, loc),
-                const SizedBox(height: 24),
-
-                SocialSignInButton(
-                  label: loc.translate('sign_in_google'),
-                  isLoading: isLoading,
-                  onPressed: () => context.read<AuthCubit>().signInWithGoogle(),
                 ),
                 const SizedBox(height: 32),
 

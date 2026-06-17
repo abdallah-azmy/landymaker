@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
 import '../../controllers/builder_cubit.dart';
@@ -748,13 +747,7 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Text("إضافة قسم جديد", style: AppTypography.h2),
-              SizedBox(height: 6),
-              Text(
-                "اختر القسم والشكل الأقرب للتصميم المطلوب. يمكنك تعديل البيانات والألوان لاحقاً.",
-                style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                textAlign: TextAlign.center,
-              ),
+              Text("إضافة قسم جديد", style: AppTypography.h3),
               SizedBox(height: 16),
               TextField(
                 onChanged: (v) => setState(() => _searchQuery = v),
@@ -830,7 +823,7 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                               maxCrossAxisExtent: 340,
                               crossAxisSpacing: 14,
                               mainAxisSpacing: 14,
-                              childAspectRatio: isSmall ? 0.72 : 0.82,
+                              childAspectRatio: isSmall ? 0.62 : 0.70,
                             ),
                             itemCount: filteredSections.length,
                             itemBuilder: (context, index) {
@@ -1011,8 +1004,9 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                 ],
               ),
               SizedBox(height: 12),
-              Expanded(
-                child: _SectionMiniPreview(
+              SizedBox(
+                height: 100,
+                child: _DualMiniPreview(
                   variant: _selectedVariant,
                   accent: Theme.of(context).colorScheme.primary,
                 ),
@@ -1093,21 +1087,40 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
   }
 }
 
-class _SectionMiniPreview extends StatelessWidget {
+class _DualMiniPreview extends StatelessWidget {
   final _SectionVariant variant;
   final Color accent;
 
-  const _SectionMiniPreview({required this.variant, required this.accent});
+  const _DualMiniPreview({required this.variant, required this.accent});
 
   @override
   Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 35,
+          child: _buildPreview(context, isMobile: true),
+        ),
+        SizedBox(width: 8),
+        Expanded(
+          flex: 65,
+          child: _buildPreview(context, isMobile: false),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPreview(BuildContext context, {required bool isMobile}) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.66),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.55)),
+        border: Border.all(
+          color: isMobile
+              ? accent.withValues(alpha: 0.3)
+              : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.55),
+        ),
       ),
       child: _buildPattern(),
     );

@@ -41,3 +41,9 @@ class PasswordResetSuccess extends AuthState {
 
   PasswordResetSuccess(this.message);
 }
+
+class GoogleNewUserRequiresConsent extends AuthState {
+  final String pendingEmail;
+
+  GoogleNewUserRequiresConsent(this.pendingEmail);
+}

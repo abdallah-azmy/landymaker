@@ -834,7 +834,7 @@ class _CanvasContainer extends StatelessWidget {
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOutCubic,
       width: width,
-      margin: previewMode == PreviewMode.fullscreen ? EdgeInsets.zero : const EdgeInsets.symmetric(vertical: 24, horizontal: 40),
+      margin: (previewMode == PreviewMode.fullscreen || isMobile) ? EdgeInsets.zero : const EdgeInsets.symmetric(vertical: 24, horizontal: 40),
       decoration: previewMode == PreviewMode.fullscreen 
         ? null 
         : BoxDecoration(

@@ -312,5 +312,8 @@ const Map<String, String> translationsAr = {
   'language': 'اللغة',
   'language_desc': 'تغيير لغة لوحة التحكم',
   'profile': 'الملف الشخصي',
+  'google_welcome_title': 'مرحباً بك في لاندي ميكر!',
+  'google_new_user_consent_body': 'أنشئ حسابك الجديد باستخدام جوجل. باستمرارك، أنت توافق على {privacy} و {terms} الخاصة بنا.',
+  'agree_and_continue': 'موافق وأكمل التسجيل',
 };
 

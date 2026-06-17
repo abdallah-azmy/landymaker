@@ -2,20 +2,39 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../services/auth_service.dart';
 import '../../dashboard/controllers/active_website_cubit.dart';
 import '../../../../injection_container.dart';
+import '../../../../core/constants/db_constants.dart';
+import '../../../../services/supabase_service.dart';
 import '../../../core/services/fcm_service.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthService _authService;
 
+  bool _pendingGoogleConsent = false;
+  String? _pendingGoogleEmail;
+  String? _pendingGoogleUserId;
+
   AuthCubit(this._authService) : super(AuthInitial()) {
     _authService.addListener(checkAuth);
     checkAuth();
   }
 
-  void checkAuth() {
+  Future<void> checkAuth() async {
     if (isClosed) return;
     if (_authService.isAuthenticated) {
+      if (_pendingGoogleConsent) {
+        _pendingGoogleConsent = false;
+        final userId = _authService.currentUserId;
+        final isNew = userId != null ? await _isNewGoogleUser(userId) : false;
+        if (isNew) {
+          _pendingGoogleEmail = _authService.currentUserEmail;
+          _pendingGoogleUserId = userId;
+          emit(GoogleNewUserRequiresConsent(
+            _authService.currentUserEmail ?? '',
+          ));
+          return;
+        }
+      }
       // Trigger token sync if they are already authenticated at startup
       // (permission already granted on first login)
       FcmService.saveTokenIfPossible();
@@ -29,6 +48,19 @@ class AuthCubit extends Cubit<AuthState> {
       if (state is! Unauthenticated) {
         emit(Unauthenticated());
       }
+    }
+  }
+
+  Future<bool> _isNewGoogleUser(String userId) async {
+    try {
+      final response = await sl<SupabaseService>().client
+          .from(DbConstants.profilesTable)
+          .select('id')
+          .eq('id', userId)
+          .maybeSingle();
+      return response == null;
+    } catch (_) {
+      return false;
     }
   }
 
@@ -126,10 +158,31 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signInWithGoogle() async {
     emit(AuthLoading());
     try {
+      _pendingGoogleConsent = true;
       await _authService.signInWithGoogle();
-      // OAuth flow handles the navigation via redirects/listeners
     } catch (e) {
+      _pendingGoogleConsent = false;
       emit(AuthFailure(e.toString()));
     }
+  }
+
+  Future<void> confirmGoogleNewUser() async {
+    if (_pendingGoogleEmail != null && _pendingGoogleUserId != null) {
+      await FcmService.saveTokenIfPossible();
+      emit(Authenticated(
+        userId: _pendingGoogleUserId!,
+        email: _pendingGoogleEmail!,
+        role: _authService.currentUserRole,
+      ));
+      _pendingGoogleEmail = null;
+      _pendingGoogleUserId = null;
+    }
+  }
+
+  Future<void> cancelGoogleSignIn() async {
+    _pendingGoogleEmail = null;
+    _pendingGoogleUserId = null;
+    await _authService.logout();
+    emit(AuthInitial());
   }
 }

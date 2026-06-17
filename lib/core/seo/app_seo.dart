@@ -10,6 +10,8 @@ class AppSEO {
     }
   }
 
+  static const String defaultOgImage = 'https://landymaker.com/logo_social.webp';
+
   static void updateMeta({
     required String title,
     required String description,
@@ -22,9 +24,7 @@ class AppSEO {
       meta.ogTitle(ogTitle: title);
       meta.description(description: description);
       meta.ogDescription(ogDescription: description);
-      if (image != null) {
-        meta.ogImage(ogImage: image);
-      }
+      meta.ogImage(ogImage: image ?? defaultOgImage);
       if (keywords != null && keywords.isNotEmpty) {
         meta.keywords(keywords: keywords);
       }

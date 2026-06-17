@@ -3,6 +3,23 @@ import '../../../services/database_service.dart';
 import 'super_admin_state.dart';
 
 class SuperAdminCubit extends Cubit<SuperAdminState> {
+  /// Default platform routes pre-seeded so admins can configure SEO for every
+  /// public page without having to manually add each one.
+  static const List<Map<String, dynamic>> defaultPlatformRoutes = [
+    {'route_path': '/', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'الصفحة الرئيسية'},
+    {'route_path': '/pricing', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'صفحة الأسعار'},
+    {'route_path': '/templates', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'صفحة القوالب'},
+    {'route_path': '/about', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'صفحة عن المنصة'},
+    {'route_path': '/contact', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'صفحة الاتصال'},
+    {'route_path': '/faq', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'صفحة الأسئلة الشائعة'},
+    {'route_path': '/privacy', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'سياسة الخصوصية'},
+    {'route_path': '/terms', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'شروط الخدمة'},
+    {'route_path': '/cookies', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'سياسة ملفات تعريف الارتباط'},
+    {'route_path': '/refund', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'سياسة الاسترجاع والاستبدال'},
+    {'route_path': '/brand-assets', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'الموارد والعلامات التجارية'},
+    {'route_path': '/affiliates', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'صفحة نظام الأفلييت'},
+    {'route_path': '/blog', 'meta_title': '', 'meta_description': '', 'og_image_url': '', 'page_content': null, 'admin_note': 'المدونة (قائمة المقالات)'},
+  ];
   final DatabaseService _databaseService;
 
   SuperAdminCubit({required DatabaseService databaseService})
@@ -23,8 +40,18 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
       final plans = await _databaseService.getSubscriptionPlans();
       final securityLimits = await _databaseService.getSystemSecurityLimits();
       final auditLogs = await _databaseService.getSystemAuditLogs();
-      final platformSeoSettings = await _databaseService.getPlatformSeoSettings();
+      final dbSeoSettings = await _databaseService.getPlatformSeoSettings();
       final templates = await _databaseService.fetchAllTemplates();
+
+      // Merge DB data with default routes — any route not yet in DB is added
+      // so admins see every route they need to configure.
+      final dbPaths = dbSeoSettings.map((s) => s['route_path'] as String).toSet();
+      final merged = <Map<String, dynamic>>[...dbSeoSettings];
+      for (final def in defaultPlatformRoutes) {
+        if (!dbPaths.contains(def['route_path'])) {
+          merged.add(Map<String, dynamic>.from(def));
+        }
+      }
 
       emit(SuperAdminLoaded(
         totalUsers: metrics['total_users'] ?? 0,
@@ -38,7 +65,7 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
         plans: plans,
         securityLimits: securityLimits,
         auditLogs: auditLogs,
-        platformSeoSettings: platformSeoSettings,
+        platformSeoSettings: merged,
         templates: templates,
       ));
     } catch (e) {

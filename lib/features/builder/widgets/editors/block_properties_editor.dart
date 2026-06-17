@@ -38,7 +38,7 @@ import 'blocks/comparison_table_editor.dart';
 
 import '../../../../core/widgets/block_animation_wrapper.dart';
 import '../../../../core/widgets/draggable_modal_sheet.dart';
-import '../../registries/style_registry.dart';
+
 import '../layout_picker/layout_picker_panel.dart';
 
 class BlockPropertiesEditor extends StatefulWidget {
@@ -849,76 +849,9 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
     Map<String, dynamic> block,
     String type,
   ) {
-    final int selectedVariant = block['variant'] ?? 0;
     final Map<String, dynamic> anim = block['animation'] ?? {'type': 'none'};
 
     final List<Widget> list = [
-      Text(
-        loc.translate('variants'),
-        style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
-      ),
-      SizedBox(height: 12),
-      SizedBox(
-        height: 80,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: StyleRegistry.variants.length,
-          separatorBuilder: (_, __) => SizedBox(width: 12),
-          itemBuilder: (context, i) {
-            final v = StyleRegistry.variants[i];
-            final isSelected = selectedVariant == v.index;
-            return InkWell(
-              onTap: () =>
-                  cubit.updateBlockProperty(widget.index, 'variant', v.index),
-              child: Column(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.outlineVariant,
-                        width: 2,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "${v.index}",
-                        style: TextStyle(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    v.index == 0 ? "Std" : "V${v.index}",
-                    style: AppTypography.caption.copyWith(
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-      SizedBox(height: 24),
-      Divider(color: Theme.of(context).colorScheme.outlineVariant),
-      SizedBox(height: 16),
-
       Text(
         'تخطيط القسم',
         style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
@@ -1259,8 +1192,31 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
               isSecondary: true,
               width: double.infinity,
               onPressed: () {
-                cubit.deleteBlock(widget.index);
-                widget.onDone();
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    title: Text('تأكيد الحذف'),
+                    content: const Text('هل تريد حذف هذا القسم؟'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: Text('إلغاء'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          cubit.deleteBlock(widget.index);
+                          widget.onDone();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                        child: Text('حذف'),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
             SizedBox(height: 24),

@@ -77,7 +77,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     // Calculate Conversion Rate
     final double conversionRate = views > 0 ? (conversions / views) * 100 : 0.0;
 
-    return SingleChildScrollView(
+    return RefreshIndicator(
+      color: Theme.of(context).colorScheme.primary,
+      onRefresh: cubit.fetchStatsForCurrentUser,
+      child: SingleChildScrollView(
       padding: EdgeInsets.all(ResponsiveUtils.getPadding(context)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,6 +198,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') || ''
 const TURNSTILE_SECRET_KEY = Deno.env.get('TURNSTILE_SECRET_KEY') || ''
+const WEBHOOK_SECRET = Deno.env.get('WEBHOOK_SECRET') || ''
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -105,6 +106,22 @@ serve(async (req: Request): Promise<Response> => {
 
     // 5. Trigger Analytics (Conversion)
     await supabase.rpc('increment_page_view', { page_id: landing_page_id, increment_purchase: true })
+
+    // 6. Trigger Page Owner Notification (fire-and-forget)
+    if (WEBHOOK_SECRET) {
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/lead-notify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${WEBHOOK_SECRET}`,
+          },
+          body: JSON.stringify({ record: lead }),
+        })
+      } catch (_) {
+        // Notification failure should not block the lead submission response
+      }
+    }
 
     return new Response(JSON.stringify({ success: true, lead }), {
       status: 200,

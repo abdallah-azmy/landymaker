@@ -328,18 +328,29 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                       } catch (_) {}
                     }
 
-                    Widget content = SingleChildScrollView(
-                      controller: _scrollController,
-                      child: Column(
-                        children: [
-                          SectionRenderer(
-                            blocks: state.blocks,
-                            pageId: pageId,
-                            theme: theme,
-                            productKeys: _productKeys,
-                          ),
-                          _buildFooter(loc),
-                        ],
+                    Widget content = RefreshIndicator(
+                      color: Theme.of(context).colorScheme.primary,
+                      onRefresh: () async {
+                        final identifier = widget.identifier ??
+                            TenantRoutingService.getTenantIdentifier();
+                        if (identifier != null) {
+                          final isCustom = TenantRoutingService.isCustomDomain(identifier);
+                          await context.read<PublicPageCubit>().loadByIdentifier(identifier, isCustom);
+                        }
+                      },
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        child: Column(
+                          children: [
+                            SectionRenderer(
+                              blocks: state.blocks,
+                              pageId: pageId,
+                              theme: theme,
+                              productKeys: _productKeys,
+                            ),
+                            _buildFooter(loc),
+                          ],
+                        ),
                       ),
                     );
 

@@ -195,6 +195,19 @@ LandyMaker is bilingual (Arabic & English) and **Arabic-First** (native RTL):
 
 ---
 
+## 📋 Implementation Knowledge (Post-Plan Learnings)
+
+### ✏️ Lead Form Defaults Location
+The default `fields` arrays for `lead_form` and `lead_magnet` blocks are defined in `builder_cubit.dart:addBlock()`, NOT in `block_registry.dart`. When modifying default form fields, edit the `fields` list inside `addBlock()` for each respective block type. The Edge Function `lead-submit` handles Turnstile verification, rate limiting, fingerprinting, and invokes `lead-notify` fire-and-forget with `WEBHOOK_SECRET` auth — never insert leads directly from the client.
+
+### 🤖 AI Chat Session Scoping
+AI chat sessions are scoped per landing page. `AIGenerationCubit` uses `'ai_session_$pageId'` as the `SharedPreferences` key. Each page has its own independent chat history.
+
+### 🖥️ Guest Preview Screen
+`GuestPreviewScreen` (route `/guest-preview`) uses `PreviewMode.desktop` with a `LayoutBuilder` wrapper. When the window is desktop width (>= 768px), two toggle icons (`Icons.phone_android_rounded` and `Icons.desktop_windows_rounded`) appear in the AppBar to switch between mobile and desktop preview. The `initState` includes a fallback `cubit.initializeNewPage()` if the cubit state is not `BuilderLoaded`.
+
+---
+
 ## 🛡️ 12. PROTECTED CORE SYSTEMS
 
 The following systems are considered mission-critical and must never be broken without explicit validation.
@@ -209,8 +222,9 @@ Includes:
 - Live Preview
 - Auto Save
 - Undo / Redo
-- **Global Design & Animation System (V2)**: 10 Shapes (Variants) per section and performance-optimized `BlockAnimationWrapper`.
+- **Global Design & Animation System**: Performance-optimized `BlockAnimationWrapper`. *(Note: The 10 shape variants from `StyleRegistry` were removed in Phase 11. `lib/features/builder/registries/style_registry.dart` is kept as deprecated reference only — do not restore or import it.)*
 - **Theme Management**: `BuilderThemeCubit` owns `LandingPageTheme` (colors, fonts, backgrounds) separately from `LandingPageBuilderCubit`. The main cubit subscribes to the theme cubit's stream and syncs into `BuilderLoaded.theme` — keeping all existing widgets reading `state.theme` unchanged.
+- **Font Picker Binding**: The global font picker (`DesignFontsTab` in `builder_sidebar_tabs.dart`) MUST listen to `BuilderThemeCubit` directly — NOT `LandingPageBuilderCubit`. See Rule 34.
 
 ## Rendering Pipeline
 

@@ -153,6 +153,7 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
                   return _ImageGalleryCard(
                     imageUrl: img['url'],
                     fileName: img['name'],
+                    isMobile: isMobile,
                     onDelete: () => context.read<MediaGalleryCubit>().deleteImage(
                       img['name'],
                       source: img['source'],
@@ -215,11 +216,13 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
 class _ImageGalleryCard extends StatefulWidget {
   final String imageUrl;
   final String fileName;
+  final bool isMobile;
   final VoidCallback onDelete;
 
   const _ImageGalleryCard({
     required this.imageUrl,
     required this.fileName,
+    required this.isMobile,
     required this.onDelete,
   });
 
@@ -235,94 +238,118 @@ class _ImageGalleryCardState extends State<_ImageGalleryCard> {
     ToastService.showSuccess(context, message: "تم نسخ رابط الصورة!");
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: _isHovered ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.outlineVariant,
-            width: 2,
+  void _confirmDelete() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        title: const Text("حذف الصورة"),
+        content: const Text("هل أنت متأكد من حذف هذه الصورة؟ لا يمكن التراجع عن هذا الإجراء."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("إلغاء"),
           ),
-          boxShadow: _isHovered ? [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
-              blurRadius: 12,
-              spreadRadius: 2,
-            )
-          ] : null,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            CustomNetworkImage(
-              imageUrl: widget.imageUrl,
-              fit: BoxFit.cover,
-            ),
-            if (_isHovered)
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
-                    ],
-                  ),
-                ),
-              ),
-            if (_isHovered)
-              Positioned(
-                bottom: 8,
-                left: 8,
-                right: 8,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _ActionButton(
-                      icon: Icons.copy_rounded,
-                      onPressed: _copyLink,
-                      tooltip: "Copy Link",
-                    ),
-                    _ActionButton(
-                      icon: Icons.delete_outline_rounded,
-                      color: Theme.of(context).colorScheme.error,
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                            title: const Text("حذف الصورة"),
-                            content: const Text("هل أنت متأكد من حذف هذه الصورة؟ لا يمكن التراجع عن هذا الإجراء."),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("إلغاء"),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  widget.onDelete();
-                                  Navigator.pop(context);
-                                },
-                                child: Text("حذف", style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      tooltip: "Delete Image",
-                    ),
-                  ],
-                ),
-              ),
+          TextButton(
+            onPressed: () {
+              widget.onDelete();
+              Navigator.pop(context);
+            },
+            child: Text("حذف", style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionBar() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.transparent,
+            Colors.black.withValues(alpha: 0.8),
           ],
         ),
       ),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8, end: 8, bottom: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _ActionButton(
+                icon: Icons.copy_rounded,
+                onPressed: _copyLink,
+                tooltip: "Copy Link",
+              ),
+              _ActionButton(
+                icon: Icons.delete_outline_rounded,
+                color: Theme.of(context).colorScheme.error,
+                onPressed: _confirmDelete,
+                tooltip: "Delete Image",
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: widget.isMobile
+              ? Theme.of(context).colorScheme.outlineVariant
+              : (_isHovered ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.outlineVariant),
+          width: 2,
+        ),
+        boxShadow: (!widget.isMobile && _isHovered) ? [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
+            blurRadius: 12,
+            spreadRadius: 2,
+          )
+        ] : null,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: widget.isMobile
+          ? Stack(
+              fit: StackFit.expand,
+              children: [
+                CustomNetworkImage(
+                  imageUrl: widget.imageUrl,
+                  fit: BoxFit.cover,
+                ),
+                PositionedDirectional(
+                  bottom: 0,
+                  start: 0,
+                  end: 0,
+                  child: _buildActionBar(),
+                ),
+              ],
+            )
+          : MouseRegion(
+              onEnter: (_) => setState(() => _isHovered = true),
+              onExit: (_) => setState(() => _isHovered = false),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CustomNetworkImage(
+                    imageUrl: widget.imageUrl,
+                    fit: BoxFit.cover,
+                  ),
+                  if (_isHovered)
+                    _buildActionBar(),
+                ],
+              ),
+            ),
     );
   }
 }

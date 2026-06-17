@@ -296,5 +296,8 @@ const Map<String, String> translationsEn = {
   'language': 'Language',
   'language_desc': 'Change dashboard language',
   'profile': 'Profile',
+  'google_welcome_title': 'Welcome to LandyMaker!',
+  'google_new_user_consent_body': 'You are creating a new account using Google. By continuing, you agree to our {privacy} and {terms}.',
+  'agree_and_continue': 'Agree & Continue',
 };
 

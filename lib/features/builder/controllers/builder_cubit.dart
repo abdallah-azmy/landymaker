@@ -1065,6 +1065,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'type': 'lead_form',
         'title': 'تواصل معنا اليوم',
         'button_text': 'إرسال',
+        'fields': [
+          {'field_id': 'name', 'field_type': 'text', 'label': 'الاسم الكامل', 'placeholder': 'أدخل اسمك', 'is_required': true},
+          {'field_id': 'phone', 'field_type': 'text', 'label': 'رقم الجوال', 'placeholder': '05xxxxxxxx', 'is_required': true},
+          {'field_id': 'message', 'field_type': 'textarea', 'label': 'رسالتك', 'placeholder': 'كيف يمكننا مساعدتك؟', 'is_required': false},
+        ],
       };
     } else if (type == 'lead_magnet') {
       blockToAdd = {
@@ -1075,6 +1080,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'button_text': 'أرسل الدليل الآن',
         'image_url':
             'https://cdn.pixabay.com/photo/2016/02/19/11/19/office-1209640_1280.jpg',
+        'fields': [
+          {'field_id': 'name', 'field_type': 'text', 'label': 'الاسم الكامل', 'placeholder': 'أدخل اسمك', 'is_required': true},
+          {'field_id': 'email', 'field_type': 'email', 'label': 'البريد الإلكتروني', 'placeholder': 'example@domain.com', 'is_required': true},
+          {'field_id': 'phone', 'field_type': 'text', 'label': 'رقم الجوال', 'placeholder': '05xxxxxxxx', 'is_required': false},
+        ],
       };
     } else if (type == 'whatsapp') {
       blockToAdd = {

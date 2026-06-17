@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/toast_service.dart';
+import '../../../auth/controllers/auth_cubit.dart';
+import '../../../auth/controllers/auth_state.dart';
 import '../ai_chat_input.dart';
 import 'pixabay_selector_modal.dart';
 import 'image_picker_modal.dart';
@@ -282,19 +284,29 @@ class _AIChatModalState extends State<AIChatModal> {
   }
 
   Widget _buildHeader() {
+    final builderState = context.read<LandingPageBuilderCubit>().state;
+    final pageName = builderState is BuilderLoaded ? builderState.subdomain : '...';
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
+        border: Border(bottom: BorderSide(color: cs.outlineVariant)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary),
+              Icon(Icons.auto_awesome_rounded, color: cs.primary),
               SizedBox(width: 12),
-              Text("مساعد لاندي ميكر الذكي", style: AppTypography.h3),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("مساعد لاندي ميكر الذكي", style: AppTypography.h3),
+                  SizedBox(height: 2),
+                  Text('صفحة: $pageName', style: AppTypography.caption.copyWith(color: cs.onSurfaceVariant)),
+                ],
+              ),
             ],
           ),
           IconButton(
@@ -358,28 +370,59 @@ class _AIChatModalState extends State<AIChatModal> {
               SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context); // Close the bottom sheet
-                    context.go('/guest-preview');
-                  },
-                  icon: Icon(Icons.visibility_rounded, size: 18),
-                  label: const Text(
-                    "معاينة صفحة الهبوط",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
+                child: _buildPreviewAction(context),
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPreviewAction(BuildContext context) {
+    final authState = context.read<AuthCubit>().state;
+    final builderState = context.read<LandingPageBuilderCubit>().state;
+    final isAuthenticated = authState is Authenticated;
+    final pageId = builderState is BuilderLoaded ? builderState.pageId : null;
+
+    if (isAuthenticated && pageId != null) {
+      return ElevatedButton.icon(
+        onPressed: () {
+          Navigator.pop(context);
+          context.go('/builder/$pageId');
+        },
+        icon: const Icon(Icons.edit_rounded, size: 18),
+        label: const Text(
+          "فتح المحرر الكامل",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    }
+
+    return ElevatedButton.icon(
+      onPressed: () {
+        Navigator.pop(context);
+        context.go('/guest-preview');
+      },
+      icon: const Icon(Icons.visibility_rounded, size: 18),
+      label: const Text(
+        "معاينة صفحة الهبوط",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );

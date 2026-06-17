@@ -130,7 +130,10 @@ class _DesktopDashboardHome extends StatelessWidget {
     final totalViews = pages.fold<int>(0, (sum, p) => sum + (p['views_count'] as int? ?? 0));
     final totalLeads = pages.fold<int>(0, (sum, p) => sum + (p['purchases_count'] as int? ?? 0));
 
-    return SingleChildScrollView(
+    return RefreshIndicator(
+      color: Theme.of(context).colorScheme.primary,
+      onRefresh: () => context.read<LandingPagesCubit>().loadPages(),
+      child: SingleChildScrollView(
       padding: EdgeInsets.all(ResponsiveUtils.getPadding(context)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,6 +171,7 @@ class _DesktopDashboardHome extends StatelessWidget {
           pages.isEmpty ? _EmptyState(loc: loc) : _PagesList(pages: pages, onOpenBuilder: onOpenBuilder),
         ],
       ),
+      ),
     );
   }
 }
@@ -193,7 +197,10 @@ class _MobileDashboardHome extends StatelessWidget {
     final totalViews = pages.fold<int>(0, (sum, p) => sum + (p['views_count'] as int? ?? 0));
     final totalLeads = pages.fold<int>(0, (sum, p) => sum + (p['purchases_count'] as int? ?? 0));
 
-    return SingleChildScrollView(
+    return RefreshIndicator(
+      color: Theme.of(context).colorScheme.primary,
+      onRefresh: () => context.read<LandingPagesCubit>().loadPages(),
+      child: SingleChildScrollView(
       padding: EdgeInsets.all(ResponsiveUtils.getPadding(context)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,6 +238,7 @@ class _MobileDashboardHome extends StatelessWidget {
           SizedBox(height: 16),
           pages.isEmpty ? _EmptyState(loc: loc) : _PagesList(pages: pages, onOpenBuilder: onOpenBuilder),
         ],
+      ),
       ),
     );
   }

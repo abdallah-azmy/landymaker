@@ -30,6 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isGoogleLoading = false;
 
   void _handleRegister(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
@@ -63,6 +64,87 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  void _showGoogleConsentDialog(BuildContext context, String email) {
+    final loc = context.read<LocalizationCubit>();
+
+    final text = loc.translate('google_new_user_consent_body');
+    final privacyText = loc.translate('privacy_policy');
+    final termsText = loc.translate('terms_of_service');
+
+    final parts = text.split('{privacy}');
+    final part1 = parts[0];
+    final remaining = parts[1].split('{terms}');
+    final part2 = remaining[0];
+    final part3 = remaining[1];
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: Text(loc.translate('google_welcome_title')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RichText(
+              text: TextSpan(
+                style: AppTypography.bodyMedium.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                children: [
+                  TextSpan(text: part1),
+                  TextSpan(
+                    text: privacyText,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => ctx.push('/privacy-policy'),
+                  ),
+                  TextSpan(text: part2),
+                  TextSpan(
+                    text: termsText,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => ctx.push('/terms'),
+                  ),
+                  TextSpan(text: part3),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              email,
+              style: AppTypography.bodyMedium.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.read<AuthCubit>().cancelGoogleSignIn();
+            },
+            child: Text(loc.translate('cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              context.read<AuthCubit>().confirmGoogleNewUser();
+            },
+            child: Text(loc.translate('agree_and_continue')),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -77,6 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       form: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
+            setState(() => _isGoogleLoading = false);
             _claimGuestPage(context, state.userId);
           } else if (state is RegistrationSuccess) {
             ToastService.showSuccess(
@@ -86,10 +169,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   : "Account created successfully! Please log in with your credentials.",
             );
             context.go('/login');
+          } else if (state is GoogleNewUserRequiresConsent) {
+            setState(() => _isGoogleLoading = false);
+            _showGoogleConsentDialog(context, state.pendingEmail);
+          } else if (state is AuthFailure) {
+            setState(() => _isGoogleLoading = false);
+          } else if (state is AuthInitial) {
+            setState(() => _isGoogleLoading = false);
           }
         },
         builder: (context, state) {
-          final isLoading = state is AuthLoading;
+          final isLoading = state is AuthLoading && !_isGoogleLoading;
           final errorMessage = state is AuthFailure ? state.message : null;
           final loc = context.watch<LocalizationCubit>();
 
@@ -113,6 +203,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
+
+                // Google Sign-In Button (appears FIRST)
+                SocialSignInButton(
+                  label: loc.translate('sign_in_google'),
+                  isLoading: _isGoogleLoading,
+                  onPressed: () {
+                    setState(() => _isGoogleLoading = true);
+                    context.read<AuthCubit>().signInWithGoogle();
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                _buildDivider(context, loc),
+                const SizedBox(height: 24),
 
                 // Name Field
                 FormGroup(
@@ -196,16 +300,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
 
                 _buildLegalNotice(context, loc),
-                const SizedBox(height: 16),
-
-                _buildDivider(context, loc),
-                const SizedBox(height: 24),
-
-                SocialSignInButton(
-                  label: loc.translate('sign_in_google'),
-                  isLoading: isLoading,
-                  onPressed: () => context.read<AuthCubit>().signInWithGoogle(),
-                ),
                 const SizedBox(height: 32),
 
                 Row(

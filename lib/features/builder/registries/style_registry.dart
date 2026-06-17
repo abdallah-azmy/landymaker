@@ -1,3 +1,8 @@
+// 🔴 DEPRECATED — kept as reference only.
+// All variant/style logic was removed in Phase 11 (Remove Shape Variants).
+// This file is dead code and no longer imported anywhere.
+// Scheduled for deletion once downstream references are confirmed clean.
+
 import 'package:flutter/material.dart';
 import '../models/landing_page_theme.dart';
 

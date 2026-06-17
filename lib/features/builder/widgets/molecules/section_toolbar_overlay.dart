@@ -29,6 +29,7 @@ class SectionToolbarOverlay extends StatefulWidget {
 
 class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
   bool _isHovered = false;
+  bool _isToolbarExpanded = true;
   double _topOffset = 0;
   double _horizontalOffset = 0;
 
@@ -46,80 +47,191 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // Content
-          Opacity(
-            opacity: isVisible ? 1.0 : 0.4,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              decoration: BoxDecoration(
-                border: (widget.isSelected || _isHovered)
-                    ? Border.all(color: Theme.of(context).colorScheme.secondary, width: 2)
-                    : Border.all(color: Colors.transparent, width: 2),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 768;
+
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Content
+              Opacity(
+                opacity: isVisible ? 1.0 : 0.4,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  decoration: BoxDecoration(
+                    border: (widget.isSelected || _isHovered || _isToolbarExpanded)
+                        ? Border.all(color: Theme.of(context).colorScheme.secondary, width: 2)
+                        : Border.all(color: Colors.transparent, width: 2),
+                  ),
+                  child: widget.child,
+                ),
               ),
-              child: widget.child,
+
+              // Toolbar
+              if (widget.isSelected || _isHovered || _isToolbarExpanded)
+                isMobile
+                    ? Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: _buildMobileToolbar(cubit, loc, totalBlocks, isVisible),
+                      )
+                    : Positioned(
+                        top: _topOffset,
+                        right: loc.isRtl ? null : _horizontalOffset,
+                        left: loc.isRtl ? _horizontalOffset : null,
+                        child: _buildDesktopToolbar(cubit, loc, totalBlocks, isVisible),
+                      ),
+
+              if (!isVisible)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.visibility_off_rounded,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "مخفي من الصفحة المباشرة",
+                                style: AppTypography.caption.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDesktopToolbar(
+    LandingPageBuilderCubit cubit,
+    LocalizationCubit loc,
+    int totalBlocks,
+    bool isVisible,
+  ) {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
+            BoxShadow(color: Colors.black26, blurRadius: 8),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.75),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onPanUpdate: (details) {
+                      setState(() {
+                        _topOffset += details.delta.dy;
+                        if (loc.isRtl) {
+                          _horizontalOffset += details.delta.dx;
+                        } else {
+                          _horizontalOffset -= details.delta.dx;
+                        }
+                      });
+                    },
+                    child: const MouseRegion(
+                      cursor: SystemMouseCursors.move,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        child: Icon(Icons.drag_indicator_rounded, color: Colors.white54, size: 20),
+                      ),
+                    ),
+                  ),
+                  _buildDivider(),
+                  _buildToolbarButtons(cubit, loc, totalBlocks, isVisible),
+                ],
+              ),
             ),
           ),
+        ),
+      ),
+    );
+  }
 
-          // Toolbar
-          if (widget.isSelected || _isHovered)
-            Positioned(
-              top: _topOffset,
-              right: loc.isRtl ? null : _horizontalOffset,
-              left: loc.isRtl ? _horizontalOffset : null,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black26, blurRadius: 8),
-                    ],
+  Widget _buildMobileToolbar(
+    LandingPageBuilderCubit cubit,
+    LocalizationCubit loc,
+    int totalBlocks,
+    bool isVisible,
+  ) {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
+            BoxShadow(color: Colors.black26, blurRadius: 8),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.85),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      _isToolbarExpanded
+                          ? Icons.chevron_left_rounded
+                          : Icons.chevron_right_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    onPressed: () => setState(() => _isToolbarExpanded = !_isToolbarExpanded),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.75),
-                        ),
+                  if (_isToolbarExpanded) ...[
+                    _buildDivider(),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            GestureDetector(
-                              onPanUpdate: (details) {
-                                setState(() {
-                                  _topOffset += details.delta.dy;
-                                  if (loc.isRtl) {
-                                    _horizontalOffset += details.delta.dx;
-                                  } else {
-                                    _horizontalOffset -= details.delta.dx;
-                                  }
-                                });
-                              },
-                              child: const MouseRegion(
-                                cursor: SystemMouseCursors.move,
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical: 8,
-                                  ),
-                                  child: Icon(
-                                    Icons.drag_indicator_rounded,
-                                    color: Colors.white54,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            _buildDivider(),
                             _buildIconButton(
                               icon: Icons.edit_rounded,
                               tooltip: loc.translate('edit'),
@@ -128,38 +240,20 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
                             _buildIconButton(
                               icon: Icons.auto_awesome_rounded,
                               tooltip: loc.translate('ai_edit_section'),
-                              onPressed: () {
-                                final state = cubit.state;
-                                if (state is! BuilderLoaded) return;
-                                final block = state
-                                    .designMap['blocks'][widget.index]
-                                    as Map<String, dynamic>;
-                                final type = block['type'] ?? '';
-                                final aiCubit = context.read<AIGenerationCubit>();
-                                aiCubit.pendingSectionIndex = widget.index;
-                                aiCubit.pendingSectionType = type;
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (_) => const AIChatModal(),
-                                );
-                              },
+                              onPressed: () => _openAiEdit(loc, cubit),
                             ),
                             _buildIconButton(
                               icon: isVisible
                                   ? Icons.visibility_rounded
                                   : Icons.visibility_off_rounded,
                               tooltip: loc.translate(isVisible ? 'hide' : 'show'),
-                              onPressed: () =>
-                                  cubit.toggleBlockVisibility(widget.index),
+                              onPressed: () => cubit.toggleBlockVisibility(widget.index),
                             ),
                             _buildDivider(),
                             _buildIconButton(
                               icon: Icons.copy_rounded,
                               tooltip: loc.translate('duplicate'),
-                              onPressed: () =>
-                                  cubit.duplicateBlock(widget.index),
+                              onPressed: () => cubit.duplicateBlock(widget.index),
                             ),
                             _buildIconButton(
                               icon: Icons.keyboard_arrow_up_rounded,
@@ -180,57 +274,86 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
                               icon: Icons.delete_rounded,
                               tooltip: loc.translate('delete'),
                               color: Colors.white,
-                              onPressed: () =>
-                                  _showDeleteConfirmation(context, cubit, loc),
+                              onPressed: () => _showDeleteConfirmation(context, cubit, loc),
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  ],
+                ],
               ),
             ),
-
-          if (!isVisible)
-            Positioned.fill(
-              child: IgnorePointer(
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black87,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.visibility_off_rounded,
-                            color: Colors.white,
-                            size: 14,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            "مخفي من الصفحة المباشرة",
-                            style: AppTypography.caption.copyWith(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
+          ),
+        ),
       ),
+    );
+  }
+
+  void _openAiEdit(LocalizationCubit loc, LandingPageBuilderCubit cubit) {
+    final state = cubit.state;
+    if (state is! BuilderLoaded) return;
+    final block = state.designMap['blocks'][widget.index] as Map<String, dynamic>;
+    final type = block['type'] ?? '';
+    final aiCubit = context.read<AIGenerationCubit>();
+    aiCubit.pendingSectionIndex = widget.index;
+    aiCubit.pendingSectionType = type;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const AIChatModal(),
+    );
+  }
+
+  Widget _buildToolbarButtons(
+    LandingPageBuilderCubit cubit,
+    LocalizationCubit loc,
+    int totalBlocks,
+    bool isVisible,
+  ) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildIconButton(
+          icon: Icons.edit_rounded,
+          tooltip: loc.translate('edit'),
+          onPressed: widget.onEdit,
+        ),
+        _buildIconButton(
+          icon: Icons.auto_awesome_rounded,
+          tooltip: loc.translate('ai_edit_section'),
+          onPressed: () => _openAiEdit(loc, cubit),
+        ),
+        _buildIconButton(
+          icon: isVisible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+          tooltip: loc.translate(isVisible ? 'hide' : 'show'),
+          onPressed: () => cubit.toggleBlockVisibility(widget.index),
+        ),
+        _buildDivider(),
+        _buildIconButton(
+          icon: Icons.copy_rounded,
+          tooltip: loc.translate('duplicate'),
+          onPressed: () => cubit.duplicateBlock(widget.index),
+        ),
+        _buildIconButton(
+          icon: Icons.keyboard_arrow_up_rounded,
+          tooltip: loc.translate('move_up'),
+          onPressed: widget.index > 0 ? () => cubit.moveBlock(widget.index, true) : null,
+        ),
+        _buildIconButton(
+          icon: Icons.keyboard_arrow_down_rounded,
+          tooltip: loc.translate('move_down'),
+          onPressed: widget.index < totalBlocks - 1 ? () => cubit.moveBlock(widget.index, false) : null,
+        ),
+        _buildDivider(),
+        _buildIconButton(
+          icon: Icons.delete_rounded,
+          tooltip: loc.translate('delete'),
+          color: Colors.white,
+          onPressed: () => _showDeleteConfirmation(context, cubit, loc),
+        ),
+      ],
     );
   }
 

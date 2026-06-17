@@ -112,14 +112,16 @@ class BuilderCanvas extends StatelessWidget {
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
-                    if (!isMobile) _buildBrowserChrome(),
+                    if (!isMobile && previewMode != PreviewMode.fullscreen) _buildBrowserChrome(),
+                    if (isMobile && previewMode != PreviewMode.fullscreen)
+                      _FakeBrowserBar(pageSlug: state.subdomain),
                     Expanded(
                       child: Stack(
                         children: [
                           SingleChildScrollView(
                             child: ConstrainedBox(
                               constraints: BoxConstraints(
-                                minHeight: isMobile ? constraints.maxHeight : (constraints.maxHeight - 36),
+                                minHeight: constraints.maxHeight - (previewMode != PreviewMode.fullscreen && !isMobile ? 36 : 0),
                               ),
                               child: content,
                             ),
@@ -184,6 +186,41 @@ class BuilderCanvas extends StatelessWidget {
                 "https://landymaker.com/${state.subdomain.isEmpty ? 'your-brand' : state.subdomain}",
                 style: TextStyle(fontSize: 9, color: Colors.grey),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FakeBrowserBar extends StatelessWidget {
+  final String pageSlug;
+
+  const _FakeBrowserBar({required this.pageSlug});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      padding: const EdgeInsetsDirectional.only(start: 12, end: 12, top: 8, bottom: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.lock_rounded, size: 14, color: Colors.green),
+          SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              'landymaker.com/${pageSlug.isEmpty ? 'your-brand' : pageSlug}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

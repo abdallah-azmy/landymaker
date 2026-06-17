@@ -17,6 +17,8 @@ class PageContextBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final switcherLabel = "الصفحة المحددة حالياً:";
+
     return Container(
       margin: const EdgeInsets.only(bottom: 32),
       padding: const EdgeInsets.all(24),
@@ -32,54 +34,116 @@ class PageContextBanner extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
-          ),
-          SizedBox(width: 20),
-          Expanded(
-            child: Column(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 650;
+
+          if (isMobile) {
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 6),
+                          Text(
+                            description,
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 6),
-                Text(
-                  description,
-                  style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                SizedBox(height: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      switcherLabel,
+                      style: AppTypography.caption.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    const WebsiteSwitcher(),
+                  ],
                 ),
               ],
-            ),
-          ),
-          SizedBox(width: 24),
-          Container(
-            width: 250,
-            padding: const EdgeInsets.only(top: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "الصفحة المحددة حالياً:",
-                  style: AppTypography.caption.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                SizedBox(height: 8),
-                const WebsiteSwitcher(),
-              ],
-            ),
-          ),
-        ],
+                child: Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
+              ),
+              SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      description,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 24),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 250),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      switcherLabel,
+                      style: AppTypography.caption.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    const WebsiteSwitcher(),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

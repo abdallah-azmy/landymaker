@@ -22,7 +22,7 @@ class CustomCtaBannerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = theme?.secondary ?? AppColors.secondary;
+    final accentColor = theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final title = block['title'] ?? '';
     final subtitle = block['subtitle'] ?? '';
     final buttonText = block['button_text'] ?? '';

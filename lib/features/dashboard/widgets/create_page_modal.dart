@@ -331,7 +331,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
-                              ? AppColors.primary
+                              ? Theme.of(context).colorScheme.primary
                               : Theme.of(context).colorScheme.outlineVariant,
                           width: isSelected ? 2 : 1,
                         ),
@@ -366,7 +366,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
                               right: 4,
                               child: Icon(
                                 Icons.check_circle,
-                                color: AppColors.activeGreen,
+                                color: Colors.green,
                                 size: 20,
                               ),
                             ),
@@ -404,9 +404,9 @@ class _CreatePageModalState extends State<CreatePageModal> {
                       ),
                     )
                   : _isSlugAvailable
-                  ? Icon(Icons.check_circle, color: AppColors.activeGreen)
+                  ? Icon(Icons.check_circle, color: Colors.green)
                   : _slugError != null
-                  ? Icon(Icons.error_outline, color: AppColors.dangerRed)
+                  ? Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error)
                   : null,
             ),
             if (_slugError != null)
@@ -416,14 +416,14 @@ class _CreatePageModalState extends State<CreatePageModal> {
                   children: [
                     Icon(
                       Icons.error_outline,
-                      color: AppColors.dangerRed,
+                      color: Theme.of(context).colorScheme.error,
                       size: 14,
                     ),
                     SizedBox(width: 4),
                     Text(
                       _slugError!,
                       style: AppTypography.caption.copyWith(
-                        color: AppColors.dangerRed,
+                        color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                   ],
@@ -436,14 +436,14 @@ class _CreatePageModalState extends State<CreatePageModal> {
                   children: [
                     Icon(
                       Icons.check_circle_outline,
-                      color: AppColors.activeGreen,
+                      color: Colors.green,
                       size: 14,
                     ),
                     SizedBox(width: 4),
                     Text(
                       loc.translate('slug_available'),
                       style: AppTypography.caption.copyWith(
-                        color: AppColors.activeGreen,
+                        color: Colors.green,
                       ),
                     ),
                   ],
@@ -523,14 +523,14 @@ class _CreatePageModalState extends State<CreatePageModal> {
                           Icon(
                             Icons.lock,
                             size: 12,
-                            color: AppColors.activeGreen,
+                            color: Colors.green,
                           ),
                           SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               "landymaker.com/${_slugController.text.isEmpty ? '...' : _slugController.text}",
                               style: AppTypography.bodyMedium.copyWith(
-                                color: AppColors.primary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.bold,
                               ),
                               overflow: TextOverflow.ellipsis,

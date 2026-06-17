@@ -98,19 +98,19 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   gradient: LinearGradient(
                     begin: Alignment(-0.8 + 0.4 * val, -0.8),
                     end: Alignment(0.8 - 0.4 * val, 0.8),
-                    colors: const [
-                      Color(0xFF1E1B4B),
-                      Color(0xFF0F172A),
-                      Color(0xFF0C1A3A),
+                    colors: [
+                      Theme.of(context).colorScheme.surface,
+                      Theme.of(context).colorScheme.surfaceContainerHigh,
+                      Theme.of(context).colorScheme.surface,
                     ],
                   ),
                   border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.3 + 0.1 * val),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3 + 0.1 * val),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.1 + 0.05 * val),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1 + 0.05 * val),
                       blurRadius: 60,
                       spreadRadius: 10,
                     ),
@@ -131,10 +131,10 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.3),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -142,14 +142,14 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   children: [
                     Icon(
                       Icons.auto_awesome_rounded,
-                      color: AppColors.secondary,
+                      color: Theme.of(context).colorScheme.secondary,
                       size: 14,
                     ),
                     SizedBox(width: 8),
                     Text(
                       "مجاني تماماً • بدون بطاقة ائتمان",
                       style: AppTypography.caption.copyWith(
-                        color: AppColors.secondary,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -227,10 +227,10 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.15),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(30),
                           border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -238,14 +238,14 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                           children: [
                             Icon(
                               Icons.auto_awesome_rounded,
-                              color: AppColors.secondary,
+                              color: Theme.of(context).colorScheme.secondary,
                               size: 14,
                             ),
                             SizedBox(width: 8),
                             Text(
                               "مجاني تماماً • بدون بطاقة ائتمان",
                               style: AppTypography.caption.copyWith(
-                                color: AppColors.secondary,
+                                color: Theme.of(context).colorScheme.secondary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -320,10 +320,14 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   gradient: LinearGradient(
                     begin: Alignment(-0.8 + 0.4 * val, -0.8),
                     end: Alignment(0.8 - 0.4 * val, 0.8),
-                    colors: const [Color(0xFF1E1B4B), Color(0xFF0F172A), Color(0xFF0C1A3A)],
+                    colors: [
+                      Theme.of(context).colorScheme.surface,
+                      Theme.of(context).colorScheme.surfaceContainerHigh,
+                      Theme.of(context).colorScheme.surface,
+                    ],
                   ),
                   border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.3 + 0.1 * val),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3 + 0.1 * val),
                     width: 1.5,
                   ),
                 ),
@@ -411,14 +415,14 @@ class _CtaButtonState extends State<_CtaButton> {
           child: Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [AppColors.secondary, Color(0xFF0C1A3A)],
+                colors: [Theme.of(context).colorScheme.secondary, Color(0xFF0C1A3A)],
                 begin: Alignment.centerRight,
                 end: Alignment.centerLeft,
               ),
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.4),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
                   blurRadius: 20,
                   offset: const Offset(0, 6),
                 ),
@@ -468,7 +472,7 @@ class _TrustChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: AppColors.activeGreen, size: 16),
+        Icon(icon, color: Colors.green, size: 16),
         SizedBox(width: 6),
         Text(
           text,

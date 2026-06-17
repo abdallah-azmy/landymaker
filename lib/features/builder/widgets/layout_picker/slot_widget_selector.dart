@@ -59,23 +59,23 @@ class SlotWidgetSelector extends StatelessWidget {
                       duration: const Duration(milliseconds: 200),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppColors.secondary.withValues(alpha: 0.15)
+                            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
                             : Theme.of(context).colorScheme.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.outlineVariant,
+                          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
                           width: isSelected ? 2 : 1,
                         ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(wt.icon, color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant, size: 28),
+                          Icon(wt.icon, color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant, size: 28),
                           SizedBox(height: 6),
                           Text(
                             wt.label,
                             style: AppTypography.bodySmall.copyWith(
-                              color: isSelected ? AppColors.secondary : Colors.white,
+                              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                             ),
                           ),

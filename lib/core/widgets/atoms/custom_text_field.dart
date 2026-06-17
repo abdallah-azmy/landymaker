@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final TextEditingController? controller;
   final String? hintText;
   final bool obscureText;
@@ -18,6 +18,9 @@ class CustomTextField extends StatelessWidget {
   final String? label;
   final String? hint;
   final TextDirection? textDirection;
+
+  final Iterable<String>? autofillHints;
+  final TextInputAction? textInputAction;
 
   const CustomTextField({
     super.key,
@@ -38,7 +41,30 @@ class CustomTextField extends StatelessWidget {
     this.label,
     this.hint,
     this.textDirection,
+    this.autofillHints,
+    this.textInputAction,
   });
+
+  @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  late bool _obscureText;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureText = widget.obscureText;
+  }
+
+  @override
+  void didUpdateWidget(CustomTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.obscureText != widget.obscureText) {
+      _obscureText = widget.obscureText;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +74,9 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (label != null) ...[
+        if (widget.label != null) ...[
           Text(
-            label!,
+            widget.label!,
             style: (textTheme.bodySmall ?? TextStyle()).copyWith(
               color: cs.onSurface.withValues(alpha: 0.7),
               fontWeight: FontWeight.bold,
@@ -59,27 +85,43 @@ class CustomTextField extends StatelessWidget {
           SizedBox(height: 8),
         ],
         TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          textDirection: textDirection,
-          onChanged: onChanged,
-          onFieldSubmitted: onSubmitted,
-          validator: validator,
-          readOnly: readOnly,
-          enabled: enabled,
+          controller: widget.controller,
+          focusNode: widget.focusNode,
+          obscureText: _obscureText,
+          keyboardType: widget.keyboardType,
+          maxLines: widget.maxLines,
+          textDirection: widget.textDirection,
+          onChanged: widget.onChanged,
+          onFieldSubmitted: widget.onSubmitted,
+          validator: widget.validator,
+          readOnly: widget.readOnly,
+          enabled: widget.enabled,
+          autofillHints: widget.autofillHints,
+          textInputAction: widget.textInputAction,
           style: (textTheme.bodyLarge ?? TextStyle()).copyWith(
-              color: enabled ? cs.onSurface : cs.onSurface.withValues(alpha: 0.4)),
+              color: widget.enabled ? cs.onSurface : cs.onSurface.withValues(alpha: 0.4)),
           cursorColor: cs.secondary,
           decoration: InputDecoration(
-            hintText: hintText ?? hint,
-            errorText: errorText,
+            hintText: widget.hintText ?? widget.hint,
+            errorText: widget.errorText,
             hintStyle:
                 (textTheme.bodyLarge ?? TextStyle()).copyWith(color: cs.onSurface.withValues(alpha: 0.4)),
-            prefixIcon: prefixIcon,
-            suffixIcon: suffixIcon,
+            prefixIcon: widget.prefixIcon,
+            suffixIcon: widget.suffixIcon ??
+                (widget.obscureText
+                    ? IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility_off_rounded
+                              : Icons.visibility_rounded,
+                          color: cs.onSurfaceVariant,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          setState(() => _obscureText = !_obscureText);
+                        },
+                      )
+                    : null),
             filled: true,
             fillColor: cs.surface,
             contentPadding:

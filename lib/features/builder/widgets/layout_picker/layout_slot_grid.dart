@@ -129,10 +129,10 @@ class _SlotCard extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.secondary.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(_icon, color: AppColors.secondary, size: 20),
+                  child: Icon(_icon, color: Theme.of(context).colorScheme.primary, size: 20),
                 ),
                 SizedBox(width: 12),
                 Expanded(
@@ -143,7 +143,7 @@ class _SlotCard extends StatelessWidget {
                         label,
                         style: AppTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       SizedBox(height: 2),

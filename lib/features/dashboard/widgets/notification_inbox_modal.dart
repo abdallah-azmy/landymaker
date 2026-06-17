@@ -75,7 +75,7 @@ class NotificationInboxModal extends StatelessWidget {
             onPressed: () => context.read<NotificationCubit>().markAllAsRead(),
             child: Text(
               context.translate('mark_all_read'),
-              style: AppTypography.caption.copyWith(color: AppColors.secondary),
+              style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
         ],
@@ -153,7 +153,7 @@ class _NotificationItem extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         color: isRead
             ? Colors.transparent
-            : AppColors.secondary.withValues(alpha: 0.03),
+            : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.03),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -192,7 +192,7 @@ class _NotificationItem extends StatelessWidget {
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: AppColors.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -204,11 +204,11 @@ class _NotificationItem extends StatelessWidget {
 
   Widget _buildIcon(String type) {
     IconData iconData = Icons.notifications_active_rounded;
-    Color color = AppColors.secondary;
+    Color color = Theme.of(context).colorScheme.secondary;
 
     if (type == 'lead') {
       iconData = Icons.person_add_alt_1_rounded;
-      color = AppColors.activeGreen;
+      color = Colors.green;
     }
 
     return Container(

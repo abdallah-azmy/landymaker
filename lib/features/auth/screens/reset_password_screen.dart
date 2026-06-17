@@ -5,12 +5,12 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
-import '../../../core/widgets/atoms/glass_container.dart';
 import '../../../core/widgets/molecules/form_group.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/utils/toast_service.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
+import '../widgets/auth_layout_wrapper.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -41,232 +41,157 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: Theme.of(context).colorScheme.onSurface),
-          onPressed: () => context.safePop(fallbackPath: '/login'),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(gradient: AppColors.darkGradient),
-        child: BlocConsumer<AuthCubit, AuthState>(
-          listener: (context, state) {
-            if (state is PasswordResetSuccess) {
-              ToastService.showSuccess(
-                context,
-                message: context.read<LocalizationCubit>().isRtl
-                    ? "تم تحديث كلمة المرور بنجاح! يرجى تسجيل الدخول بكلمة المرور الجديدة."
-                    : "Password updated successfully! Please login with your new password.",
-              );
-              // Log out the active recovery session to force manual login with new password
-              context.read<AuthCubit>().logout();
-            } else if (state is Unauthenticated) {
-              final uri = Uri.base;
-              final hasRecovery = uri.fragment.contains('access_token=') || 
-                                  uri.queryParameters.containsKey('access_token') ||
-                                  uri.fragment.contains('type=recovery');
-              if (!hasRecovery) {
-                context.go('/login');
-              }
-            }
-          },
-          builder: (context, state) {
-            final loc = context.watch<LocalizationCubit>();
+    return AuthLayoutWrapper(
+      form: BlocConsumer<AuthCubit, AuthState>(
+        listener: (context, state) {
+          if (state is PasswordResetSuccess) {
+            ToastService.showSuccess(
+              context,
+              message: context.read<LocalizationCubit>().isRtl
+                  ? "تم تحديث كلمة المرور بنجاح! يرجى تسجيل الدخول بكلمة المرور الجديدة."
+                  : "Password updated successfully! Please login with your new password.",
+            );
+            // Log out the active recovery session to force manual login with new password
+            context.read<AuthCubit>().logout();
+          } else if (state is Unauthenticated) {
             final uri = Uri.base;
             final hasRecovery = uri.fragment.contains('access_token=') || 
                                 uri.queryParameters.containsKey('access_token') ||
                                 uri.fragment.contains('type=recovery');
-
-            if ((state is Unauthenticated || state is AuthInitial) && hasRecovery) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(color: AppColors.secondary),
-                    SizedBox(height: 24),
-                    Text(
-                      loc.isRtl
-                          ? "جاري التحقق من الرابط وتأكيد الجلسة..."
-                          : "Verifying recovery link and establishing session...",
-                      style: AppTypography.bodyLarge.copyWith(color: Colors.white70),
-                    ),
-                  ],
-                ),
-              );
+            if (!hasRecovery) {
+              context.go('/login');
             }
+          }
+        },
+        builder: (context, state) {
+          final loc = context.watch<LocalizationCubit>();
+          final uri = Uri.base;
+          final hasRecovery = uri.fragment.contains('access_token=') || 
+                              uri.queryParameters.containsKey('access_token') ||
+                              uri.fragment.contains('type=recovery');
 
-            final isLoading = state is AuthLoading;
-            final errorMessage = state is AuthFailure ? state.message : null;
-
+          if ((state is Unauthenticated || state is AuthInitial) && hasRecovery) {
             return Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
-                child: SizedBox(
-                  width: 440,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Language Toggle
-                      Align(
-                        alignment: loc.isRtl
-                            ? Alignment.topLeft
-                            : Alignment.topRight,
-                        child: TextButton.icon(
-                          onPressed: () => loc.toggleLanguage(),
-                          icon: Icon(
-                            Icons.language,
-                            color: AppColors.secondary,
-                            size: 18,
-                          ),
-                          label: Text(
-                            loc.translate('switch_language'),
-                            style: AppTypography.button.copyWith(
-                              color: AppColors.secondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-
-                      // Brand Header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              gradient: AppColors.primaryGradient,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              Icons.vpn_key_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            loc.translate('app_title'),
-                            style: AppTypography.h1.copyWith(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 28),
-
-                      // Form Container Card
-                      GlassContainer(
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                loc.translate('reset_password'),
-                                style: AppTypography.h2.copyWith(fontSize: 20),
-                              ),
-                              SizedBox(height: 20),
-
-                              // New Password Input
-                              FormGroup(
-                                label: loc.translate('new_password'),
-                                child: CustomTextField(
-                                  controller: _passwordController,
-                                  hintText: '••••••••',
-                                  obscureText: true,
-                                  prefixIcon: Icon(
-                                    Icons.lock_outline,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                                  validator: (val) {
-                                    if (val == null || val.isEmpty) {
-                                      return 'Required';
-                                    }
-                                    if (val.length < 6) {
-                                      return 'Password must be at least 6 characters';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              SizedBox(height: 16),
-
-                              // Confirm New Password Input
-                              FormGroup(
-                                label: loc.translate('confirm_new_password'),
-                                child: CustomTextField(
-                                  controller: _confirmPasswordController,
-                                  hintText: '••••••••',
-                                  obscureText: true,
-                                  prefixIcon: Icon(
-                                    Icons.lock_outline,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                                  validator: (val) {
-                                    if (val == null || val.isEmpty) {
-                                      return 'Required';
-                                    }
-                                    if (val != _passwordController.text) {
-                                      return loc.translate('passwords_do_not_match');
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              SizedBox(height: 24),
-
-                              if (errorMessage != null) ...[
-                                Text(
-                                  errorMessage,
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    color: AppColors.dangerRed,
-                                  ),
-                                ),
-                                SizedBox(height: 16),
-                              ],
-
-                              // Submit Button
-                              PrimaryButton(
-                                text: loc.translate('update_password'),
-                                onPressed: () => _handleSubmit(context),
-                                isLoading: isLoading,
-                                width: double.infinity,
-                              ),
-                              SizedBox(height: 20),
-
-                              // Back to Login Link
-                              Center(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    context.go('/login');
-                                  },
-                                  child: Text(
-                                    loc.translate('login'),
-                                    style: AppTypography.bodyMedium.copyWith(
-                                      color: AppColors.secondary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(height: 24),
+                  Text(
+                    loc.isRtl
+                        ? "جاري التحقق من الرابط وتأكيد الجلسة..."
+                        : "Verifying recovery link and establishing session...",
+                    style: AppTypography.bodyLarge,
                   ),
-                ),
+                ],
               ),
             );
-          },
-        ),
+          }
+
+          final isLoading = state is AuthLoading;
+          final errorMessage = state is AuthFailure ? state.message : null;
+
+          return Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  loc.translate('reset_password'),
+                  style: AppTypography.h2.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  loc.translate('auth_brand_tagline'),
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // New Password Input
+                FormGroup(
+                  label: loc.translate('new_password'),
+                  child: CustomTextField(
+                    controller: _passwordController,
+                    hintText: '••••••••',
+                    obscureText: true,
+                    autofillHints: const [AutofillHints.newPassword],
+                    textInputAction: TextInputAction.next,
+                    prefixIcon: Icon(
+                      Icons.lock_outline_rounded,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    validator: (val) {
+                      if (val == null || val.isEmpty) return loc.translate('required_field');
+                      if (val.length < 6) return 'Too short';
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Confirm New Password Input
+                FormGroup(
+                  label: loc.translate('confirm_new_password'),
+                  child: CustomTextField(
+                    controller: _confirmPasswordController,
+                    hintText: '••••••••',
+                    obscureText: true,
+                    autofillHints: const [AutofillHints.newPassword],
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _handleSubmit(context),
+                    prefixIcon: Icon(
+                      Icons.lock_reset_outlined,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    validator: (val) {
+                      if (val == null || val.isEmpty) return loc.translate('required_field');
+                      if (val != _passwordController.text) {
+                        return loc.translate('passwords_do_not_match');
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                if (errorMessage != null) ...[
+                  Text(
+                    errorMessage,
+                    style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                PrimaryButton(
+                  text: loc.translate('update_password'),
+                  onPressed: () => _handleSubmit(context),
+                  isLoading: isLoading,
+                  width: double.infinity,
+                ),
+                const SizedBox(height: 32),
+
+                // Back to Login Link
+                Center(
+                  child: GestureDetector(
+                    onTap: () => context.go('/login'),
+                    child: Text(
+                      loc.translate('login'),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

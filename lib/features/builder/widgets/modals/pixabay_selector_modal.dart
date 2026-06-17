@@ -121,7 +121,7 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
         hintText: "بحث...",
         prefixIcon: Icon(Icons.search_rounded),
         suffixIcon: IconButton(
-          icon: Icon(Icons.send_rounded, color: AppColors.secondary),
+          icon: Icon(Icons.send_rounded, color: Theme.of(context).colorScheme.primary),
           onPressed: () => _search(),
         ),
       ),
@@ -219,8 +219,8 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
     return BlocBuilder<PixabaySelectorCubit, PixabaySelectorState>(
       builder: (context, state) {
         if (state is PixabaySelectorLoading) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.secondary),
+          return Center(
+            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
           );
         }
         if (state is PixabaySelectorFailure) {

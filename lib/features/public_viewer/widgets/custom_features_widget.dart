@@ -42,8 +42,8 @@ class CustomFeaturesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = theme?.background ?? Colors.black;
-    final primaryColor = theme?.primary ?? AppColors.primary;
-    final secondaryColor = theme?.secondary ?? AppColors.secondary;
+    final primaryColor = theme?.primary ?? Theme.of(context).colorScheme.primary;
+    final secondaryColor = theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final textColor = theme?.textPrimary ?? Colors.white;
     final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 

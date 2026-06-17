@@ -76,6 +76,9 @@ void main() async {
     // Initialize PWA Install Service
     PwaInstallService.init();
 
+    // Load saved theme preference
+    await sl<ThemeCubit>().loadSavedTheme();
+
     runApp(const LandyMakerApp());
   } catch (e) {
     runApp(

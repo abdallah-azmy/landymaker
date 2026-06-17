@@ -57,8 +57,8 @@ class _AdvancedSettingsPanelState extends State<AdvancedSettingsPanel> {
         children: [
           Row(
             children: [
-              Icon(Icons.psychology_rounded, color: AppColors.secondary),
-              SizedBox(width: 12),
+              Icon(Icons.psychology_rounded, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 12),
               Text("الإعدادات المتقدمة (SEO)", style: AppTypography.h3),
             ],
           ),
@@ -110,9 +110,9 @@ class _AdvancedSettingsPanelState extends State<AdvancedSettingsPanel> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.secondary.withValues(alpha: 0.05),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.2)),
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +121,7 @@ class _AdvancedSettingsPanelState extends State<AdvancedSettingsPanel> {
             title,
             style: AppTypography.bodyLarge.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.secondary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           SizedBox(height: 4),

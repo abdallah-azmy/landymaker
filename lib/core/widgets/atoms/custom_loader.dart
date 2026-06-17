@@ -8,7 +8,7 @@ class CustomLoader extends StatelessWidget {
   const CustomLoader({
     super.key,
     this.size = 28.0,
-    this.color = AppColors.secondary,
+    this.color = AppColors.primary,
   });
 
   @override

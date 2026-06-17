@@ -158,7 +158,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
               child: Text(
                 _error!,
                 style: AppTypography.caption.copyWith(
-                  color: AppColors.dangerRed,
+                  color: Theme.of(context).colorScheme.error,
                 ),
               ),
             ),
@@ -181,13 +181,13 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.activeGreen.withValues(alpha: 0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       "https://${_domainController.text.trim().toLowerCase()}",
                       style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.activeGreen,
+                        color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -348,7 +348,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.dangerRed.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: IconButton(
@@ -357,7 +357,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
                       : () => _showRemoveConfirmation(context),
                   icon: Icon(
                     Icons.delete_outline_rounded,
-                    color: AppColors.dangerRed,
+                    color: Theme.of(context).colorScheme.error,
                     size: 20,
                   ),
                   tooltip: "إزالة الدومين",
@@ -389,7 +389,7 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.dangerRed,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: () async {
               Navigator.pop(context);
@@ -490,15 +490,15 @@ class _DomainSetupWidgetState extends State<DomainSetupWidget> {
 
     switch (status) {
       case 'connected':
-        color = AppColors.activeGreen;
+        color = Colors.green;
         text = "متصل";
         break;
       case 'failed':
-        color = AppColors.dangerRed;
+        color = Theme.of(context).colorScheme.error;
         text = "فشل التحقق";
         break;
       default:
-        color = AppColors.warningOrange;
+        color = Colors.orange;
         text = "قيد الانتظار";
     }
 

@@ -97,7 +97,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
               child: Text(
                 state.message,
                 style: AppTypography.bodyLarge.copyWith(
-                  color: AppColors.dangerRed,
+                  color: Theme.of(context).colorScheme.error,
                 ),
               ),
             );
@@ -268,14 +268,14 @@ class _DashboardHeader extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.primary),
+                    border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     tier.toUpperCase(),
                     style: AppTypography.caption.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -352,7 +352,7 @@ class _UpgradeCard extends StatelessWidget {
                     onPressed: () => showUpgradeModal("Pro", 299.0, userId),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: AppColors.primary,
+                      foregroundColor: Theme.of(context).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -390,7 +390,7 @@ class _UpgradeCard extends StatelessWidget {
                   onPressed: () => showUpgradeModal("Pro", 299.0, userId),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primary,
+                    foregroundColor: Theme.of(context).colorScheme.primary,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -419,14 +419,14 @@ class _EmptyState extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
       ),
       child: Column(
         children: [
           Icon(
             Icons.auto_awesome_motion_rounded,
             size: 64,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5).withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
           ),
           SizedBox(height: 16),
           Text(loc.translate('no_pages_created'), style: AppTypography.h3),
@@ -531,7 +531,7 @@ class _PageItemCardState extends State<_PageItemCard> {
             LinearProgressIndicator(
               minHeight: 3,
               backgroundColor: Colors.transparent,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
             ),
         ],
       ),
@@ -543,13 +543,13 @@ class _PageItemCardState extends State<_PageItemCard> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: AppColors.dangerRed.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.dangerRed),
+          border: Border.all(color: Theme.of(context).colorScheme.error),
         ),
-        child: const Text(
+        child: Text(
           "معطلة",
-          style: TextStyle(color: AppColors.dangerRed, fontSize: 10, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 10, fontWeight: FontWeight.bold),
         ),
       );
     }
@@ -561,7 +561,7 @@ class _PageItemCardState extends State<_PageItemCard> {
           scale: 0.8,
           child: Switch(
             value: isPublished,
-            activeThumbColor: AppColors.activeGreen,
+            activeThumbColor: Colors.green,
             onChanged: _isLoading
                 ? null
                 : (val) async {
@@ -574,7 +574,7 @@ class _PageItemCardState extends State<_PageItemCard> {
         Text(
           isPublished ? "نشط" : "غير نشط",
           style: TextStyle(
-            color: isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            color: isPublished ? Colors.green : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             fontSize: 10,
             fontWeight: FontWeight.bold,
           ),
@@ -595,8 +595,8 @@ class _PageAvatar extends StatelessWidget {
     return Stack(
       children: [
         CircleAvatar(
-          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-          child: Icon(Icons.language_rounded, color: AppColors.primary),
+          backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+          child: Icon(Icons.language_rounded, color: Theme.of(context).colorScheme.primary),
         ),
         Positioned(
           right: 0,
@@ -606,8 +606,8 @@ class _PageAvatar extends StatelessWidget {
             height: 12,
             decoration: BoxDecoration(
               color: !isActive
-                  ? AppColors.dangerRed
-                  : (isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  ? Theme.of(context).colorScheme.error
+                  : (isPublished ? Colors.green : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
               shape: BoxShape.circle,
               border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh, width: 2),
             ),
@@ -631,10 +631,10 @@ class _EditButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.15),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(Icons.edit_rounded, color: AppColors.primary, size: 24),
+        child: Icon(Icons.edit_rounded, color: Theme.of(context).colorScheme.primary, size: 24),
       ),
     );
   }
@@ -678,9 +678,9 @@ class _CopyableUrlWidgetState extends State<_CopyableUrlWidget> {
               child: Text(
                 widget.url,
                 style: AppTypography.caption.copyWith(
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   decoration: TextDecoration.underline,
-                  decorationColor: AppColors.primary,
+                  decorationColor: Theme.of(context).colorScheme.primary,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -699,7 +699,7 @@ class _CopyableUrlWidgetState extends State<_CopyableUrlWidget> {
                 _isCopied ? Icons.check_circle_rounded : Icons.copy_rounded,
                 key: ValueKey(_isCopied),
                 size: 16,
-                color: _isCopied ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: _isCopied ? Colors.green : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),

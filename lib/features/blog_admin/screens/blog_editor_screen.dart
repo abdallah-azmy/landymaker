@@ -74,7 +74,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
       
       if (text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('الحافظة (Clipboard) فارغة! انسخ المقال من ChatGPT أولاً.'), backgroundColor: AppColors.warningOrange),
+          const SnackBar(content: Text('الحافظة (Clipboard) فارغة! انسخ المقال من ChatGPT أولاً.'), backgroundColor: Colors.orange),
         );
         return;
       }
@@ -92,12 +92,12 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('تم استيراد وتنسيق المقال بنجاح! ✨', style: TextStyle(fontWeight: FontWeight.bold)),
-          backgroundColor: AppColors.activeGreen,
+          backgroundColor: Colors.green,
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ أثناء استيراد النص: $e'), backgroundColor: AppColors.dangerRed),
+        SnackBar(content: Text('حدث خطأ أثناء استيراد النص: $e'), backgroundColor: Theme.of(context).colorScheme.error),
       );
     }
   }
@@ -107,7 +107,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('الرجاء إدخال عنوان المقال ورابط الـ Slug', style: TextStyle(color: Colors.white)),
-          backgroundColor: AppColors.warningOrange,
+          backgroundColor: Colors.orange,
         ),
       );
       return;
@@ -147,7 +147,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('تم الحفظ بنجاح! 🚀', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            backgroundColor: AppColors.activeGreen,
+            backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -157,8 +157,8 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('حدث خطأ أثناء الحفظ: $e', style: TextStyle(color: Colors.white)),
-            backgroundColor: AppColors.dangerRed,
+            content: Text('حدث خطأ أثناء الحفظ: $e', style: const TextStyle(color: Colors.white)),
+            backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -170,14 +170,14 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
 
   void _copyAiPrompt() {
     Clipboard.setData(ClipboardData(text: _aiPrompt));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('تم نسخ رسالة التوجيه (Prompt) بنجاح!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 2),
-      ),
-    );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('تم نسخ رسالة التوجيه (Prompt) بنجاح!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
   }
 
   @override
@@ -227,7 +227,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                                   color: Theme.of(context).colorScheme.onSurface,
                                 ),
                                 iconButtonSelectedData: quill.IconButtonData(
-                                  color: AppColors.primary,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -243,8 +243,8 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                     icon: Icon(Icons.auto_awesome, size: 18),
                     label: const Text("استيراد الذكاء الاصطناعي", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary.withValues(alpha: .1),
-                      foregroundColor: AppColors.primary,
+                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: .1),
+                      foregroundColor: Theme.of(context).colorScheme.primary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -290,7 +290,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                     TextField(
                       controller: _slugController,
                       style: TextStyle(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 14,
                         fontFamily: 'monospace',
                       ),
@@ -303,7 +303,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                         ),
                         hintText: "your-awesome-slug",
                         hintStyle: TextStyle(
-                          color: AppColors.primary.withValues(alpha: .3),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: .3),
                           fontSize: 14,
                           fontFamily: 'monospace',
                         ),
@@ -341,7 +341,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppColors.primary),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                         ),
                         filled: true,
                         fillColor: Theme.of(context).colorScheme.surface,
@@ -379,22 +379,22 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: .05),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: .05),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.primary.withValues(alpha: .3)),
+                        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: .3)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
+                              Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary, size: 20),
                               SizedBox(width: 8),
-                              const Expanded(
+                              Expanded(
                                 child: Text(
                                   "نصيحة الذكاء الاصطناعي (SEO)",
                                   style: TextStyle(
-                                    color: AppColors.primary,
+                                    color: Theme.of(context).colorScheme.primary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -433,10 +433,10 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withValues(alpha: .1),
+                                        color: Theme.of(context).colorScheme.primary.withValues(alpha: .1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: Icon(Icons.copy_rounded, color: AppColors.primary, size: 20),
+                                      child: Icon(Icons.copy_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
                                     ),
                                   ],
                                 ),
@@ -477,10 +477,10 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: _isPublished ? AppColors.activeGreen.withValues(alpha: .1) : Colors.transparent,
+                        color: _isPublished ? Colors.green.withValues(alpha: .1) : Colors.transparent,
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                          color: _isPublished ? AppColors.activeGreen.withValues(alpha: .5) : Theme.of(context).colorScheme.outlineVariant,
+                          color: _isPublished ? Colors.green.withValues(alpha: .5) : Theme.of(context).colorScheme.outlineVariant,
                         ),
                       ),
                       padding: const EdgeInsets.only(right: 4, left: 12, top: 4, bottom: 4),
@@ -492,8 +492,8 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                             onChanged: (val) {
                               setState(() => _isPublished = val);
                             },
-                            activeColor: AppColors.activeGreen,
-                            activeTrackColor: AppColors.activeGreen.withValues(alpha: .3),
+                            activeColor: Colors.green,
+                            activeTrackColor: Colors.green.withValues(alpha: .3),
                             inactiveThumbColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                             inactiveTrackColor: Theme.of(context).colorScheme.surface,
                           ),
@@ -501,7 +501,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                             child: Text(
                               _isPublished ? "منشور" : "مسودة",
                               style: TextStyle(
-                                color: _isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                                color: _isPublished ? Colors.green : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -521,7 +521,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _isLoading ? null : _savePost,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Theme.of(context).colorScheme.surface,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 20),

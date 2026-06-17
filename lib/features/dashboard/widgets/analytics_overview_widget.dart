@@ -77,10 +77,10 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
     String conversionRate,
   ) {
     final stats = [
-      (loc.translate('views'), '$totalViews', Icons.visibility_rounded, AppColors.secondary, null),
+      (loc.translate('views'), '$totalViews', Icons.visibility_rounded, Theme.of(context).colorScheme.secondary, null),
       (loc.translate('total_unique_visitors'), '$uniqueVisitors', Icons.person_search_rounded, Colors.orange, null),
-      (loc.translate('conversions'), '$conversions', Icons.shopping_bag_rounded, AppColors.activeGreen, null),
-      (loc.translate('conversion_rate'), conversionRate, Icons.analytics_rounded, AppColors.primary, null),
+      (loc.translate('conversions'), '$conversions', Icons.shopping_bag_rounded, Colors.green, null),
+      (loc.translate('conversion_rate'), conversionRate, Icons.analytics_rounded, Theme.of(context).colorScheme.primary, null),
     ];
 
     if (isMobile) {
@@ -203,7 +203,7 @@ class _AnalyticsOverviewWidgetState extends State<AnalyticsOverviewWidget> {
                           width: 32,
                           height: 180 * ratio,
                           decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
+                            gradient: Theme.of(context).colorScheme.primaryGradient,
                             borderRadius: BorderRadius.circular(6),
                           ),
                         ),

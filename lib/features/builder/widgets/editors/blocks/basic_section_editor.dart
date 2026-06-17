@@ -49,7 +49,7 @@ class BasicSectionEditor extends StatelessWidget {
               color: Theme.of(context).colorScheme.surfaceContainerHigh,
               icon: Icon(
                 Icons.add_circle_outline_rounded,
-                color: AppColors.secondary,
+                color: Theme.of(context).colorScheme.primary,
               ),
               onSelected: (val) {
                 final elements = List<Map<String, dynamic>>.from(
@@ -101,12 +101,12 @@ class BasicSectionEditor extends StatelessWidget {
                   children: [
                     StatusPill(
                       label: elem['type'] == 'text' ? 'نص' : 'صورة',
-                      color: AppColors.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     IconButton(
                       icon: Icon(
                         Icons.delete_outline_rounded,
-                        color: AppColors.dangerRed,
+                        color: Theme.of(context).colorScheme.error,
                         size: 18,
                       ),
                       onPressed: () {

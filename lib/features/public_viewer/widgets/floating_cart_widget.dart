@@ -35,7 +35,7 @@ class FloatingCartWidget extends StatelessWidget {
               FloatingActionButton(
                 heroTag: 'cart_fab',
                 onPressed: () => _showCartDialog(context, state),
-                backgroundColor: AppColors.secondary,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
                 foregroundColor: Colors.white,
                 elevation: 8,
                 child: Icon(Icons.shopping_cart_rounded),
@@ -47,7 +47,7 @@ class FloatingCartWidget extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppColors.dangerRed,
+                      color: Theme.of(context).colorScheme.error,
                       shape: BoxShape.circle,
                     ),
                     child: Text(
@@ -179,7 +179,7 @@ class FloatingCartWidget extends StatelessWidget {
                                       Text(
                                         priceStr,
                                         style: TextStyle(
-                                            color: AppColors.secondary,
+                                            color: Theme.of(context).colorScheme.secondary,
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold),
                                       ),

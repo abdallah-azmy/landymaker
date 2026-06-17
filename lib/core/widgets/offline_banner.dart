@@ -49,7 +49,7 @@ class _OfflineBannerState extends State<OfflineBanner> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            color: AppColors.dangerRed,
+            color: Theme.of(context).colorScheme.error,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

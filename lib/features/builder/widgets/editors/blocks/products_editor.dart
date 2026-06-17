@@ -80,7 +80,7 @@ class ProductsEditor extends StatelessWidget {
           onChanged: (val) => cubit.updateBlockProperty(index, 'show_category_filter', val),
           title: Text(context.translate('show_filters'), style: AppTypography.bodyMedium),
           contentPadding: EdgeInsets.zero,
-          activeThumbColor: AppColors.secondary,
+          activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
         SizedBox(height: 16),
         FormGroup(
@@ -109,7 +109,7 @@ class ProductsEditor extends StatelessWidget {
                       }
                     },
                     icon: Icon(Icons.add_circle),
-                    color: AppColors.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ],
               ),
@@ -164,14 +164,14 @@ class ProductsEditor extends StatelessWidget {
                     Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.qr_code_2_rounded, color: AppColors.secondary, size: 20),
+                          icon: Icon(Icons.qr_code_2_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
                           onPressed: () {
                             final state = cubit.state;
                             if (state is BuilderLoaded) _showProductQrShare(context, item, state.subdomain);
                           },
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+                          icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 20),
                           onPressed: () => cubit.deleteProductItem(index, pIndex),
                         ),
                       ],

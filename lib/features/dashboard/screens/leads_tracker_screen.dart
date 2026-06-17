@@ -116,7 +116,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
     }
 
     if (state is LeadsAnalyticsLoading || state is LeadsAnalyticsInitial) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.secondary));
+      return const Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary));
     }
 
     if (state is LeadsAnalyticsFailure) {
@@ -126,7 +126,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
           children: [
             Text("Failed to load leads list", style: AppTypography.h2),
             SizedBox(height: 8),
-            Text(state.message, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
+            Text(state.message, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
@@ -232,7 +232,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
                     ElevatedButton.icon(
                       onPressed: () => _exportToCsv(leadsList),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.secondary,
+                        backgroundColor: Theme.of(context).colorScheme.secondary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -248,7 +248,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
                     onPressed: () {
                       cubit.fetchStatsForCurrentUser();
                     },
-                    icon: Icon(Icons.refresh_rounded, color: AppColors.secondary),
+                    icon: Icon(Icons.refresh_rounded, color: Theme.of(context).colorScheme.secondary),
                     tooltip: "Reload Leads List",
                   ),
                 ],
@@ -264,7 +264,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
           SizedBox(height: 16),
 
           if (errorMessage != null) ...[
-            Text(errorMessage, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
+            Text(errorMessage, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
             SizedBox(height: 16),
           ],
 

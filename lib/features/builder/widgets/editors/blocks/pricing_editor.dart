@@ -165,7 +165,7 @@ class PricingEditor extends StatelessWidget {
                   title: Text("خطة مميزة؟", style: AppTypography.caption),
                   value: item['is_popular'] ?? false,
                   onChanged: (val) => _updateItemProp(pIndex, 'is_popular', val),
-                  activeThumbColor: AppColors.secondary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                   contentPadding: EdgeInsets.zero,
                 ),
               ],

@@ -107,7 +107,7 @@ class _CustomVideoEmbedWidgetState extends State<CustomVideoEmbedWidget> {
 
     final textColor = widget.theme?.textPrimary ?? Colors.white;
     final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
-    final primaryColor = widget.theme?.primary ?? AppColors.primary;
+    final primaryColor = widget.theme?.primary ?? Theme.of(context).colorScheme.primary;
 
     double ratio = 16 / 9;
     if (aspectRatioStr == '4:3') ratio = 4 / 3;

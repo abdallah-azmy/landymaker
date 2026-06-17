@@ -102,9 +102,9 @@ class BuilderSidebar extends StatelessWidget {
           Container(
             color: Theme.of(context).colorScheme.surfaceContainerHigh,
             child: TabBar(
-              labelColor: AppColors.secondary,
+              labelColor: Theme.of(context).colorScheme.primary,
               unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-              indicatorColor: AppColors.secondary,
+              indicatorColor: Theme.of(context).colorScheme.primary,
               isScrollable: true,
               tabs: [
                 Tab(

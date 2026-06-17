@@ -123,11 +123,11 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               height: sheetHeight,
               margin: isMobile ? EdgeInsets.zero : const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A), // Slate 900
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: isMobile
                     ? BorderRadius.vertical(top: Radius.circular(20))
                     : BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF1E293B)), // Slate 800
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black54,
@@ -173,21 +173,21 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFF1E293B))),
+        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
+          Text(
             'Select Media',
             style: TextStyle(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           IconButton(
-            icon: Icon(Icons.close, color: Colors.white70),
+            icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],

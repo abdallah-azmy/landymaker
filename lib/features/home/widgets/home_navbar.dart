@@ -5,7 +5,9 @@ import '../../../core/theme/app_typography.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/localization_cubit.dart';
+import '../../../core/widgets/atoms/animated_theme_toggle.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
+import '../../../core/widgets/atoms/language_switcher_button.dart';
 
 /// ======================================================
 /// FEATURE: Home Navigation Bar
@@ -145,22 +147,9 @@ class _DesktopNavbar extends StatelessWidget {
                       _LogoSection(),
                       Row(
                         children: [
-                          TextButton.icon(
-                            onPressed: () =>
-                                context.read<LocalizationCubit>().toggleLanguage(),
-                            icon: Icon(
-                              Icons.language_rounded,
-                              size: 18,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            label: Text(
-                              context.translate('switch_language'),
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                          const AnimatedThemeToggle(size: 32),
+                          const SizedBox(width: 8),
+                          const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconAndText),
                           SizedBox(width: 20),
                           TextButton(
                             onPressed: onLoginPressed,
@@ -176,7 +165,7 @@ class _DesktopNavbar extends StatelessWidget {
                           ElevatedButton(
                             onPressed: onGetStartedPressed,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                               foregroundColor: Colors.black,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
@@ -188,7 +177,7 @@ class _DesktopNavbar extends StatelessWidget {
                               elevation: 0,
                             ).copyWith(
                               shadowColor: WidgetStateProperty.all(
-                                AppColors.primary.withValues(alpha: 0.5),
+                                Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
                               ),
                             ),
                             child: Text(
@@ -269,16 +258,9 @@ class _MobileNavbar extends StatelessWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              IconButton(
-                                tooltip: context.translate('switch_language'),
-                                icon: Icon(
-                                  Icons.language_rounded,
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                  size: 22,
-                                ),
-                                onPressed: () =>
-                                    context.read<LocalizationCubit>().toggleLanguage(),
-                              ),
+                              const AnimatedThemeToggle(size: 32),
+                              const SizedBox(width: 4),
+                              const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconOnly),
                               SizedBox(width: 8),
                               RepaintBoundary(
                                 child: IconButton(
@@ -371,7 +353,7 @@ class _MobileNavbar extends StatelessWidget {
                           onGetStartedPressed();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -405,13 +387,13 @@ class _LogoSection extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const LandyMakerLogo(fontSize: 22),
-        SizedBox(width: 10),
         Image.asset(
           'assets/images/logo_small.webp',
           height: 38,
           width: 38,
         ),
+        const SizedBox(width: 10),
+        const LandyMakerLogo(fontSize: 22),
       ],
     );
   }

@@ -62,21 +62,21 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.secondary.withValues(alpha: 0.15) : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.secondary : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
             width: 1.5,
           ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+            Icon(icon, color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
             SizedBox(width: 8),
             Text(
               label,
               style: AppTypography.bodyMedium.copyWith(
-                color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -127,7 +127,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                 .replaceAll('{current}', _titleController.text.length.toString())
                 .replaceAll('{max}', '60'),
             helperStyle: TextStyle(
-              color: _titleController.text.length > 60 ? AppColors.dangerRed : Theme.of(context).colorScheme.onSurfaceVariant,
+              color: _titleController.text.length > 60 ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: _titleController.text.length > 60 ? FontWeight.bold : FontWeight.normal,
             ),
             child: CustomTextField(
@@ -146,7 +146,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                 .replaceAll('{current}', _descController.text.length.toString())
                 .replaceAll('{max}', '155'),
             helperStyle: TextStyle(
-              color: _descController.text.length > 155 ? AppColors.dangerRed : Theme.of(context).colorScheme.onSurfaceVariant,
+              color: _descController.text.length > 155 ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: _descController.text.length > 155 ? FontWeight.bold : FontWeight.normal,
             ),
             child: CustomTextField(
@@ -218,8 +218,8 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -298,7 +298,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                     ),
                     Switch(
                       value: (context.read<LandingPageBuilderCubit>().state as BuilderLoaded).designMap['show_cookie_banner'] ?? true,
-                      activeColor: AppColors.secondary,
+                      activeColor: Theme.of(context).colorScheme.primary,
                       onChanged: (val) {
                         cubit.updateMetadata('show_cookie_banner', val);
                         setState(() {});

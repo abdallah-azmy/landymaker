@@ -27,10 +27,10 @@ class UpgradeLimitModal extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.warningOrange.withValues(alpha: 0.1),
+              color: Colors.orange.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.lock_rounded, color: AppColors.warningOrange, size: 40),
+            child: const Icon(Icons.lock_rounded, color: Colors.orange, size: 40),
           ),
           SizedBox(height: 24),
           Text(
@@ -82,7 +82,7 @@ class UpgradeLimitModal extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
+          Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
           SizedBox(width: 12),
           Expanded(child: Text(text, style: AppTypography.bodyMedium)),
         ],

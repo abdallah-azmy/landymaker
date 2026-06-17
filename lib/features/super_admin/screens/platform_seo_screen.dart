@@ -75,7 +75,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                 SizedBox(height: 8),
                 const Align(
                   alignment: Alignment.centerLeft,
-                  child: Text("Page Content (JSON Format - Optional)", style: TextStyle(color: AppColors.secondary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: Text("Page Content (JSON Format - Optional)", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
                 SizedBox(height: 8),
                 CustomTextField(
@@ -110,7 +110,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                   parsedContent = jsonDecode(contentController.text);
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Invalid JSON in Page Content"), backgroundColor: AppColors.dangerRed),
+                    const SnackBar(content: Text("Invalid JSON in Page Content"), backgroundColor: Theme.of(context).colorScheme.error),
                   );
                   return;
                 }
@@ -138,7 +138,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(stateListener.message),
-              backgroundColor: AppColors.dangerRed,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -176,14 +176,14 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
                   headers: const ["Route Path", "Title", "Description", "Action"],
                   rows: state.platformSeoSettings.map((seo) {
                     return [
-                      Text(seo['route_path'], style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                      Text(seo['route_path'], style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
                       Text(seo['meta_title'] ?? '-', maxLines: 1, overflow: TextOverflow.ellipsis),
                       SizedBox(
                         width: 200,
                         child: Text(seo['meta_description'] ?? '-', maxLines: 1, overflow: TextOverflow.ellipsis),
                       ),
                       IconButton(
-                        icon: Icon(Icons.edit_rounded, color: AppColors.secondary),
+                        icon: Icon(Icons.edit_rounded, color: Theme.of(context).colorScheme.secondary),
                         onPressed: () => _showEditSeoDialog(seo),
                       ),
                     ];

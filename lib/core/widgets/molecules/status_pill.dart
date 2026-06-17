@@ -17,28 +17,28 @@ class StatusPill extends StatelessWidget {
   factory StatusPill.published({required String label}) {
     return StatusPill(
       label: label,
-      color: AppColors.activeGreen,
+      color: Colors.green,
     );
   }
 
   factory StatusPill.draft({required String label}) {
     return StatusPill(
       label: label,
-      color: AppColors.warningOrange,
+      color: Colors.orange,
     );
   }
 
-  factory StatusPill.admin({required String label}) {
+  factory StatusPill.admin({required String label, required BuildContext context}) {
     return StatusPill(
       label: label,
-      color: AppColors.primary,
+      color: Theme.of(context).colorScheme.primary,
     );
   }
 
-  factory StatusPill.user({required String label}) {
+  factory StatusPill.user({required String label, required BuildContext context}) {
     return StatusPill(
       label: label,
-      color: AppColors.secondary,
+      color: Theme.of(context).colorScheme.secondary,
     );
   }
 

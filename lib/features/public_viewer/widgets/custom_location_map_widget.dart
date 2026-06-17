@@ -35,7 +35,7 @@ class CustomLocationMapWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
-    final secondaryColor = theme?.secondary ?? AppColors.secondary;
+    final secondaryColor = theme?.secondary ?? Theme.of(context).colorScheme.secondary;
 
     final String viewId = 'map-iframe-${mapIframeUrl.hashCode}';
     ui.platformViewRegistry.registerViewFactory(

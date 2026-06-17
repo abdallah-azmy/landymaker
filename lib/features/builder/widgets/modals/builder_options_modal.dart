@@ -93,8 +93,9 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                 children: [
                   IconButton(
                     icon: Icon(
-                      Icons.arrow_back_rounded,
+                      Icons.arrow_back_ios_new_rounded,
                       color: Theme.of(context).colorScheme.onSurface,
+                      size: 20,
                     ),
                     onPressed: () => _changeView(BuilderOptionView.main),
                   ),
@@ -219,7 +220,7 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
                 onChanged: (val) {
@@ -239,19 +240,19 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                     style: AppTypography.caption,
                   ),
                   value: widget.state.isPublished,
-                  activeColor: AppColors.activeGreen,
+                  activeColor: Colors.green,
                   onChanged: (val) {
                     widget.cubit.updateSettings(isPublished: val);
                   },
                   secondary: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: (widget.state.isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurfaceVariant).withValues(alpha: 0.1),
+                      color: (widget.state.isPublished ? Colors.green : Theme.of(context).colorScheme.onSurfaceVariant).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       widget.state.isPublished ? Icons.public_rounded : Icons.public_off_rounded,
-                      color: widget.state.isPublished ? AppColors.activeGreen : Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: widget.state.isPublished ? Colors.green : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -317,11 +318,11 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.activeGreen,
+                  backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 4,
-                  shadowColor: AppColors.activeGreen.withValues(alpha: 0.4),
+                  shadowColor: Colors.green.withValues(alpha: 0.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

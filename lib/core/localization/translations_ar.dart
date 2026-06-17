@@ -304,5 +304,13 @@ const Map<String, String> translationsAr = {
   'slot_type_video': 'فيديو',
   'desktop_preview': 'معاينة ديسكتوب',
   'mobile_preview': 'معاينة موبايل',
+  'auth_brand_tagline': 'أنشئ موقعك المتكامل في دقائق، لا حاجة لخبرة برمجية.',
+  'dont_have_account': 'ليس لديك حساب؟',
+  'already_have_account': 'لديك حساب بالفعل؟',
+  'theme_mode': 'مظهر التطبيق',
+  'theme_mode_desc': 'اختر بين المظهر الفاتح والمظلم',
+  'language': 'اللغة',
+  'language_desc': 'تغيير لغة لوحة التحكم',
+  'profile': 'الملف الشخصي',
 };
 

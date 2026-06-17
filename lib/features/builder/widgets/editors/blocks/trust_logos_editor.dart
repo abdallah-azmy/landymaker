@@ -72,7 +72,7 @@ class TrustLogosEditor extends StatelessWidget {
                   children: [
                     Text("شعار رقم ${tIndex + 1}", style: AppTypography.bodySmall),
                     IconButton(
-                      icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 18),
+                      icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 18),
                       onPressed: onDelete,
                     ),
                   ],

@@ -29,27 +29,27 @@ When you are asked to execute a stage, you must replace static `AppColors` with 
 
 ## 4. Execution Stages (Run One Stage Per Prompt)
 
-### Stage 1: Layout Picker & Global Editors
+### Stage 1: Layout Picker & Global Editors ✅ DONE
 **Target Directories:**
 - `lib/features/builder/widgets/layout_picker/` (e.g., `layout_slot_grid.dart`, `slot_widget_selector.dart`)
 - `lib/features/builder/widgets/editors/global/` (e.g., `sticky_cta_editor.dart`)
 
 **Goal:** Clean these specific directories entirely. Improve padding (reduce from 32 to 16/24 where appropriate) and ensure cards don't look empty.
 
-### Stage 2: Main Block Properties & Sub-Editors
+### Stage 2: Main Block Properties & Sub-Editors ✅ DONE
 **Target Directories:**
 - `lib/features/builder/widgets/editors/block_properties_editor.dart` (This file is huge and has dozens of `AppColors`. Focus heavily here).
 - `lib/features/builder/widgets/editors/` (Any other remaining `*_editor.dart` or tabs).
 
 **Goal:** This is the heaviest UI part of the builder. Be extremely careful not to break the callbacks. Only swap the colors and tighten the layout density.
 
-### Stage 3: Public Viewer & Builder Core
+### Stage 3: Public Viewer & Builder Core ✅ DONE
 **Target Directories:**
 - `lib/features/public_viewer/` (If any `AppColors` exist here)
 - `lib/features/builder/widgets/modals/` (Clean up any remaining modals that were missed)
 - `lib/features/builder/widgets/organisms/` (Clean up anything missed like bottom bars)
 
-### Stage 4: Core, Auth, and Home Polish
+### Stage 4: Core, Auth, and Home Polish ✅ DONE
 **Target Directories:**
 - `lib/core/` (e.g., `app_router.dart`, `atoms`, `molecules`)
 - `lib/features/auth/`

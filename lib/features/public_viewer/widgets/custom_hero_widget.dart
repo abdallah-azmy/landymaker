@@ -63,8 +63,8 @@ class CustomHeroWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final primaryColor = theme?.primary ?? AppColors.primary;
-    final secondaryColor = theme?.secondary ?? AppColors.secondary;
+    final primaryColor = theme?.primary ?? Theme.of(context).colorScheme.primary;
+    final secondaryColor = theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
@@ -407,7 +407,7 @@ class _HeroButton extends StatelessWidget {
             ),
           ),
           SizedBox(width: 8),
-          Icon(props.isRtl ? Icons.arrow_back : Icons.arrow_forward, size: 18),
+          Icon(Icons.arrow_forward_ios_rounded, size: 16),
         ],
       ),
     );

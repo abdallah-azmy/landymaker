@@ -116,7 +116,7 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
               child: ElevatedButton.icon(
                 onPressed: _pickGlobalBackground,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -135,13 +135,13 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
                     context.read<BuilderThemeCubit>().updateThemeProperty('globalBgImageUrl', null);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.dangerRed.withValues(alpha: 0.1),
-                    foregroundColor: AppColors.dangerRed,
+                    backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                    foregroundColor: Theme.of(context).colorScheme.error,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: AppColors.dangerRed),
+                      side: BorderSide(color: Theme.of(context).colorScheme.error),
                     ),
                   ),
                   icon: Icon(Icons.delete_outline_rounded),

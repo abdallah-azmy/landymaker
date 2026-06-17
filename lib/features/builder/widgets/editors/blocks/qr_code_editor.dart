@@ -49,7 +49,7 @@ class QrCodeEditor extends StatelessWidget {
               ),
               SizedBox(width: 8),
               IconButton(
-                icon: Icon(Icons.copy_rounded, color: AppColors.secondary),
+                icon: Icon(Icons.copy_rounded, color: Theme.of(context).colorScheme.primary),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: "https://landymaker.com/$subdomain"));
                   ToastService.showSuccess(context, message: "تم نسخ الرابط بنجاح!");
@@ -86,7 +86,7 @@ class QrCodeEditor extends StatelessWidget {
           min: 100.0,
           max: 350.0,
           divisions: 25,
-          activeColor: AppColors.secondary,
+          activeColor: Theme.of(context).colorScheme.primary,
           onChanged: (val) => cubit.updateBlockProperty(index, 'qr_size', val),
         ),
       ],

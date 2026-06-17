@@ -19,12 +19,16 @@ class AppTheme {
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       surface: AppColors.lightSurface,
+      surfaceContainerHigh: AppColors.lightCardBg,
+      surfaceContainerLow: AppColors.lightBackground,
       error: AppColors.dangerRed,
       onPrimary: Colors.black,
       onSecondary: Colors.white,
       onSurface: AppColors.lightTextPrimary,
+      onSurfaceVariant: AppColors.lightTextSecondary,
       onError: Colors.white,
       outline: AppColors.lightBorder,
+      outlineVariant: AppColors.lightBorder,
     );
 
     return ThemeData(
@@ -221,12 +225,16 @@ class AppTheme {
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       surface: AppColors.darkSurface,
+      surfaceContainerHigh: AppColors.darkCardBg,
+      surfaceContainerLow: AppColors.darkBackground,
       error: AppColors.dangerRed,
       onPrimary: Colors.black,
       onSecondary: Colors.white,
       onSurface: AppColors.darkTextPrimary,
+      onSurfaceVariant: AppColors.darkTextSecondary,
       onError: Colors.white,
       outline: AppColors.darkBorder,
+      outlineVariant: AppColors.darkBorder,
     );
 
     return ThemeData(

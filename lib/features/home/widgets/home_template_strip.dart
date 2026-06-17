@@ -151,9 +151,9 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.darkSurface,
-            AppColors.darkBackground,
-            AppColors.primary.withValues(alpha: 0.05),
+            Theme.of(context).colorScheme.surface,
+            Theme.of(context).scaffoldBackgroundColor,
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
@@ -176,16 +176,16 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary.withValues(alpha: 0.1),
+                          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(30),
                           border: Border.all(
-                            color: AppColors.secondary.withValues(alpha: 0.3),
+                            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Text(
                           "🗂️ القوالب",
                           style: AppTypography.caption.copyWith(
-                            color: AppColors.secondary,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -246,9 +246,9 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
                   icon: Icon(Icons.grid_view_rounded),
                   label: const Text("استعرض جميع القوالب"),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
                     side: BorderSide(
-                        color: AppColors.secondary.withValues(alpha: 0.5)),
+                        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 28, vertical: 16),
                     shape: RoundedRectangleBorder(

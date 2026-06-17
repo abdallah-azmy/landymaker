@@ -195,7 +195,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
+    final secondaryColor = widget.theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     
@@ -376,8 +376,8 @@ class _LeadMagnetForm extends StatelessWidget {
         SizedBox(height: 16),
         Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.5)),
         SizedBox(height: 32),
-        if (props.successMessage != null) _MagnetStatusBanner(message: props.successMessage!, color: AppColors.activeGreen, isMobile: props.isMobile),
-        if (props.errorMessage != null) _MagnetStatusBanner(message: props.errorMessage!, color: AppColors.dangerRed, isMobile: props.isMobile),
+        if (props.successMessage != null) _MagnetStatusBanner(message: props.successMessage!, color: Colors.green, isMobile: props.isMobile),
+        if (props.errorMessage != null) _MagnetStatusBanner(message: props.errorMessage!, color: Theme.of(context).colorScheme.error, isMobile: props.isMobile),
         ...props.fields.map((field) {
           if (field is! Map) return SizedBox.shrink();
           final fieldId = field['field_id'] as String?;
@@ -412,7 +412,7 @@ class _MagnetStatusBanner extends StatelessWidget {
       decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
       child: Row(
         children: [
-          Icon(color == AppColors.activeGreen ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
+          Icon(color == Colors.green ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
           SizedBox(width: 10),
           Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14))),
         ],

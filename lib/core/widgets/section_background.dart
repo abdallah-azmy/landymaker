@@ -36,7 +36,7 @@ class SectionBackground extends StatelessWidget {
                              (theme?.globalBgColorHex?.isNotEmpty ?? false);
                              
     final bgColor = hasGlobalBg ? Colors.transparent : (theme?.background ?? Theme.of(context).colorScheme.surface);
-    final primaryColor = theme?.primary ?? AppColors.primary;
+    final primaryColor = theme?.primary ?? Theme.of(context).colorScheme.primary;
     final double blurValue = bgBlur ?? 0.0;
     
     final hasBgImage = bgImageUrl != null && bgImageUrl!.trim().isNotEmpty;

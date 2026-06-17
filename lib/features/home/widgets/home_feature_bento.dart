@@ -589,12 +589,12 @@ class _BentoCardState extends State<_BentoCard> {
                       Text(
                         "اكتشف أكثر",
                         style: AppTypography.caption.copyWith(
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
+                      Icon(Icons.arrow_forward_rounded, color: Theme.of(context).colorScheme.onSurface, size: 14),
                     ],
                   ),
                 ),

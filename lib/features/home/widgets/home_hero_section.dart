@@ -47,7 +47,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
   final List<Map<String, dynamic>> _previewPages = [
     {
       'name': 'Midnight Ocean',
-      'theme': const LandingPageTheme(
+      'theme': LandingPageTheme(
         primary: Color(0xFF3B82F6),
         secondary: Color(0xFF60A5FA),
         background: Color(0xFF030712),
@@ -84,7 +84,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
     },
     {
       'name': 'Lux-Earth',
-      'theme': const LandingPageTheme(
+      'theme': LandingPageTheme(
         primary: Color(0xFFD97706),
         secondary: Color(0xFFF59E0B),
         background: Color(0xFF0F172A),
@@ -121,7 +121,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
     },
     {
       'name': 'Butter & Sky',
-      'theme': const LandingPageTheme(
+      'theme': LandingPageTheme(
         primary: Color(0xFF0EA5E9),
         secondary: Color(0xFF38BDF8),
         background: Color(0xFF0F172A),
@@ -220,8 +220,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       radius: 1.2,
                       colors: [
-                        AppColors.primary.withValues(alpha: 0.15),
-                        const Color(0xFF030712).withValues(alpha: 0.0),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                        Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.0),
                       ],
                       stops: const [0.0, 1.0],
                     ),
@@ -248,8 +248,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       radius: 1.0,
                       colors: [
-                        AppColors.secondary.withValues(alpha: 0.1),
-                        const Color(0xFF030712).withValues(alpha: 0.0),
+                        Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                        Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.0),
                       ],
                       stops: const [0.0, 1.0],
                     ),
@@ -337,10 +337,10 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       gradient: LinearGradient(
                         begin: Alignment(-0.8 + 0.4 * val, -0.8),
                         end: Alignment(0.8 - 0.4 * val, 0.8),
-                        colors: const [
-                          Color(0xFF1E1B4B),
-                          Color(0xFF030712),
-                          Color(0xFF0C1A3A),
+                        colors: [
+                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).scaffoldBackgroundColor,
+                          Theme.of(context).colorScheme.surfaceContainerHigh,
                         ],
                       ),
                     ),
@@ -422,9 +422,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                 begin: Alignment(-1.0 + 0.6 * val, -1.0),
                 end: Alignment(1.0 - 0.6 * val, 1.0),
                 colors: [
-                  AppColors.primary.withValues(alpha: 0.35),
-                  AppColors.secondary,
-                  const Color(0xFF0C1A3A),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.35),
+                  Theme.of(context).colorScheme.secondary,
+                  AppColors.darkBackground,
                 ],
               ),
             ),
@@ -570,10 +570,10 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         vertical: 8,
       ),
       decoration: BoxDecoration(
-        color: AppColors.secondary.withValues(alpha: 0.15),
+        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
-          color: AppColors.secondary.withValues(alpha: 0.3),
+          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
           width: 1.2,
         ),
       ),
@@ -610,9 +610,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: darkMode
-                ? AppColors.secondary
-                : const Color(0xFF030712),
-            foregroundColor: darkMode ? Colors.white : AppColors.primary,
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.surface,
+            foregroundColor: darkMode ? Colors.black : Theme.of(context).colorScheme.primary,
             padding: const EdgeInsetsDirectional.symmetric(
               horizontal: 36,
               vertical: 20,
@@ -628,21 +628,21 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           onPressed: () => _showAiWizard(context),
           icon: Icon(
             Icons.auto_awesome_rounded,
-            color: darkMode ? Colors.white : const Color(0xFF030712),
+            color: darkMode ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.surface,
             size: 20,
           ),
           label: Text(
             'المنشئ الذكي (AI)',
             style: TextStyle(
-              color: darkMode ? Colors.white : const Color(0xFF030712),
+              color: darkMode ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.surface,
               fontWeight: FontWeight.bold,
             ),
           ),
           style: OutlinedButton.styleFrom(
             side: BorderSide(
               color: darkMode
-                  ? Colors.white38
-                  : const Color(0xFF030712).withValues(alpha: 0.4),
+                  ? Theme.of(context).colorScheme.outline
+                  : Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
               width: 1.5,
             ),
             padding: const EdgeInsetsDirectional.symmetric(
@@ -709,7 +709,7 @@ class _TypewriterText extends StatefulWidget {
   final bool isMobile;
 
   /// Optional color override for use on bright backgrounds.
-  /// Defaults to [AppColors.secondary] when null.
+  /// Defaults to [Theme.of(context).colorScheme.secondary] when null.
   final Color? colorOverride;
 
   const _TypewriterText({
@@ -786,7 +786,7 @@ class _TypewriterTextState extends State<_TypewriterText>
 
   @override
   Widget build(BuildContext context) {
-    final textColor = widget.colorOverride ?? AppColors.secondary;
+    final textColor = widget.colorOverride ?? Theme.of(context).colorScheme.secondary;
     return Row(
       mainAxisAlignment: widget.isMobile
           ? MainAxisAlignment.center
@@ -931,7 +931,7 @@ class _PhonePreviewState extends State<_PhonePreview> {
                 border: Border.all(color: const Color(0xFF475569), width: 8),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.secondary.withValues(alpha: 0.25),
+                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.25),
                     blurRadius: 40,
                     spreadRadius: 2,
                   ),
@@ -940,7 +940,7 @@ class _PhonePreviewState extends State<_PhonePreview> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(innerRadius),
                 child: Container(
-                  color: const Color(0xFF0F172A),
+                  color: Theme.of(context).colorScheme.surface,
                   child: Stack(
                     children: [
                       Column(
@@ -948,7 +948,7 @@ class _PhonePreviewState extends State<_PhonePreview> {
                           // Status bar mock
                           Container(
                             height: 24,
-                            color: const Color(0xFF0F172A),
+                            color: Theme.of(context).colorScheme.surface,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1089,7 +1089,7 @@ class _PhonePreviewState extends State<_PhonePreview> {
                                   height: 8,
                                   decoration: BoxDecoration(
                                     color: isActive
-                                        ? AppColors.secondary
+                                        ? Theme.of(context).colorScheme.secondary
                                         : Colors.white.withValues(alpha: 0.4),
                                     borderRadius: BorderRadius.circular(4),
                                   ),

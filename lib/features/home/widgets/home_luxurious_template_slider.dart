@@ -95,14 +95,14 @@ class _HomeLuxuriousTemplateSliderState
                 },
                 icon: Icon(
                   Icons.auto_awesome_rounded,
-                  color: AppColors.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
                 label: Text(
                   context.read<LocalizationCubit>().isRtl
                       ? "استخدم هذا القالب"
                       : "Use this Template",
                   style: TextStyle(
-                    color: AppColors.secondary,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -190,16 +190,16 @@ class _HomeLuxuriousTemplateSliderState
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                    color: AppColors.secondary.withValues(alpha: 0.3),
+                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
                   loc.isRtl ? "✨ قوالب عالمية" : "✨ World-Class Templates",
                   style: AppTypography.caption.copyWith(
-                    color: AppColors.secondary,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -305,7 +305,7 @@ class _HomeLuxuriousTemplateSliderState
                 width: _currentPage == index ? 24 : 8,
                 decoration: BoxDecoration(
                   color: _currentPage == index
-                      ? AppColors.secondary
+                      ? Theme.of(context).colorScheme.secondary
                       : Theme.of(context).colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(4),
                 ),
@@ -481,7 +481,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: (_isHovered ? AppColors.secondary : Colors.black)
+                color: (_isHovered ? Theme.of(context).colorScheme.secondary : Colors.black)
                     .withValues(alpha: 0.2),
                 blurRadius: _isHovered ? 40 : 20,
                 offset: Offset(0, _isHovered ? 20 : 10),
@@ -539,7 +539,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.secondary,
+                            color: Theme.of(context).colorScheme.secondary,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -710,14 +710,14 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: _hovered
-                  ? AppColors.secondary.withValues(alpha: 0.5)
+                  ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)
                   : Theme.of(context).colorScheme.outlineVariant,
               width: 1.5,
             ),
             boxShadow: _hovered
                 ? [
                     BoxShadow(
-                      color: AppColors.secondary.withValues(alpha: 0.15),
+                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
@@ -767,7 +767,7 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.secondary,
+                            color: Theme.of(context).colorScheme.secondary,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
@@ -830,7 +830,7 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
                           child: ElevatedButton(
                             onPressed: widget.onPressed,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.secondary,
+                              backgroundColor: Theme.of(context).colorScheme.secondary,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               shape: RoundedRectangleBorder(

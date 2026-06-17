@@ -42,9 +42,9 @@ class OutlineTab extends StatelessWidget {
               Text(loc.translate('added_sections'), style: AppTypography.h3),
               IconButton(
                 onPressed: () => onAddBlock(context, cubit),
-                icon: const Icon(
+                icon: Icon(
                   Icons.add_circle_outline_rounded,
-                  color: AppColors.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
                 tooltip: loc.translate('add_block'),
               ),
@@ -53,7 +53,7 @@ class OutlineTab extends StatelessWidget {
         ),
         Expanded(
           child: blocks.isEmpty
-              ? _buildEmptyState()
+              ? _buildEmptyState(context)
               : ReorderableListView.builder(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -76,13 +76,13 @@ class OutlineTab extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppColors.secondary.withValues(alpha: 0.05)
-                            : AppColors.cardBg,
+                            ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.05)
+                            : Theme.of(context).colorScheme.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
-                              ? AppColors.secondary
-                              : AppColors.border,
+                              ? Theme.of(context).colorScheme.secondary
+                              : Theme.of(context).colorScheme.outline,
                           width: isSelected ? 1.5 : 1,
                         ),
                       ),
@@ -93,9 +93,9 @@ class OutlineTab extends StatelessWidget {
                         },
                         leading: ReorderableDragStartListener(
                           index: index,
-                          child: const Icon(
+                          child: Icon(
                             Icons.drag_indicator_rounded,
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             size: 20,
                           ),
                         ),
@@ -106,17 +106,17 @@ class OutlineTab extends StatelessWidget {
                                 ? FontWeight.bold
                                 : FontWeight.normal,
                             color: isVisible
-                                ? AppColors.textPrimary
-                                : AppColors.textSecondary,
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Text(
                           type.toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
-                            color: AppColors.secondary,
+                            color: Theme.of(context).colorScheme.secondary,
                             letterSpacing: 0.5,
                           ),
                         ),
@@ -130,17 +130,17 @@ class OutlineTab extends StatelessWidget {
                                     : Icons.visibility_off_rounded,
                                 size: 18,
                                 color: isVisible
-                                    ? AppColors.textSecondary
-                                    : AppColors.dangerRed,
+                                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                                    : Theme.of(context).colorScheme.error,
                               ),
                               onPressed: () =>
                                   cubit.toggleBlockVisibility(index),
                             ),
                             IconButton(
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.delete_outline_rounded,
                                 size: 18,
-                                color: AppColors.dangerRed,
+                                color: Theme.of(context).colorScheme.error,
                               ),
                               onPressed: () => cubit.deleteBlock(index),
                             ),
@@ -155,7 +155,7 @@ class OutlineTab extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -163,13 +163,13 @@ class OutlineTab extends StatelessWidget {
           Icon(
             Icons.layers_clear_rounded,
             size: 48,
-            color: AppColors.textSecondary.withValues(alpha: 0.3),
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
             "لا توجد أقسام مضافة بعد",
             style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -279,17 +279,17 @@ class TemplatesTab extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: isSelected
-            ? AppColors.secondary.withValues(alpha: 0.1)
-            : AppColors.cardBg,
+            ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
+            : Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected ? AppColors.secondary : AppColors.border,
+          color: isSelected ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.outline,
           width: isSelected ? 2 : 1,
         ),
         boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: AppColors.secondary.withValues(alpha: 0.2),
+                  color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -304,10 +304,10 @@ class TemplatesTab extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.secondary.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: AppColors.secondary),
+          child: Icon(icon, color: Theme.of(context).colorScheme.secondary),
         ),
         title: Text(
           label,
@@ -315,7 +315,7 @@ class TemplatesTab extends StatelessWidget {
         ),
         subtitle: Text(desc, style: AppTypography.caption),
         trailing: isSelected
-            ? const Icon(Icons.check_circle_rounded, color: AppColors.secondary)
+            ? Icon(Icons.check_circle_rounded, color: Theme.of(context).colorScheme.secondary)
             : null,
         onTap: () => _showTemplateConfirmation(context, type, loc),
       ),
@@ -330,7 +330,7 @@ class TemplatesTab extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(loc.translate('confirm_template')),
         content: Text(loc.translate('confirm_template_msg')),
         actions: [
@@ -387,9 +387,9 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
   Widget _buildSegmentedControl() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Row(
         children: [
@@ -403,7 +403,7 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: _tabIndex == 0
-                      ? AppColors.secondary.withValues(alpha: 0.2)
+                      ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2)
                       : Colors.transparent,
                   borderRadius: const BorderRadius.horizontal(
                     left: Radius.circular(12),
@@ -414,8 +414,8 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
                     "لوحات الألوان",
                     style: AppTypography.bodyMedium.copyWith(
                       color: _tabIndex == 0
-                          ? AppColors.secondary
-                          : AppColors.textSecondary,
+                          ? Theme.of(context).colorScheme.secondary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: _tabIndex == 0
                           ? FontWeight.bold
                           : FontWeight.normal,
@@ -435,7 +435,7 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: _tabIndex == 1
-                      ? AppColors.secondary.withValues(alpha: 0.2)
+                      ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2)
                       : Colors.transparent,
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(12),
@@ -446,8 +446,8 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
                     "تخصيص الألوان",
                     style: AppTypography.bodyMedium.copyWith(
                       color: _tabIndex == 1
-                          ? AppColors.secondary
-                          : AppColors.textSecondary,
+                          ? Theme.of(context).colorScheme.secondary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: _tabIndex == 1
                           ? FontWeight.bold
                           : FontWeight.normal,
@@ -475,17 +475,17 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.secondary.withValues(alpha: 0.1)
-                      : AppColors.cardBg,
+                      ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
+                      : Theme.of(context).colorScheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? AppColors.secondary : AppColors.border,
+                    color: isSelected ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.outline,
                     width: isSelected ? 2 : 1,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: AppColors.secondary.withValues(alpha: 0.2),
+                            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -516,23 +516,23 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.secondary.withValues(alpha: 0.1),
+                            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             palette.category!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 9,
-                              color: AppColors.secondary,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                         ),
                     ],
                   ),
                   trailing: isSelected
-                      ? const Icon(
+                      ? Icon(
                           Icons.check_circle_rounded,
-                          color: AppColors.secondary,
+                          color: Theme.of(context).colorScheme.secondary,
                         )
                       : null,
                   subtitle: Column(
@@ -658,11 +658,11 @@ class DesignTab extends StatelessWidget {
         children: [
           const MagicImageSwapper(),
           const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
+          Divider(color: Theme.of(context).colorScheme.outline),
           const SizedBox(height: 24),
           DesignColorsTab(loc: loc, cubit: cubit, state: state),
           const SizedBox(height: 24),
-          const Divider(color: AppColors.border),
+          Divider(color: Theme.of(context).colorScheme.outline),
           const SizedBox(height: 24),
           DesignFontsTab(loc: loc, cubit: cubit, state: state),
         ],
@@ -704,9 +704,9 @@ class _MagicImageSwapperState extends State<MagicImageSwapper> {
       children: [
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.auto_awesome_rounded,
-              color: Color(0xFF00E5FF),
+              color: Theme.of(context).colorScheme.primary,
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -714,7 +714,7 @@ class _MagicImageSwapperState extends State<MagicImageSwapper> {
               "المبدل السحري للصور",
               style: AppTypography.bodyLarge.copyWith(
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF00E5FF),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ],
@@ -729,7 +729,7 @@ class _MagicImageSwapperState extends State<MagicImageSwapper> {
           controller: _categoryController,
           hintText: "مثلاً: مقهى، نادي رياضي، برمجة...",
           suffixIcon: IconButton(
-            icon: const Icon(Icons.send_rounded, color: Color(0xFF00E5FF)),
+            icon: Icon(Icons.send_rounded, color: Theme.of(context).colorScheme.primary),
             onPressed: () => _applyMagic(context),
           ),
           onSubmitted: (_) => _applyMagic(context),
@@ -751,14 +751,14 @@ class _MagicImageSwapperState extends State<MagicImageSwapper> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.cardBg,
+                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: Theme.of(context).colorScheme.outline),
                     ),
                     child: Text(
                       preset,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),
@@ -815,7 +815,7 @@ Widget _buildColorPickerItem(
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
             ),
           ),
         ],
@@ -831,11 +831,11 @@ void _showColorPicker(
   Color currentColor,
 ) {
   final List<Color> colors = [
-    AppColors.primary,
-    AppColors.secondary,
-    AppColors.primary,
-    AppColors.activeGreen,
-    AppColors.dangerRed,
+    Theme.of(context).colorScheme.primary,
+    Theme.of(context).colorScheme.secondary,
+    Theme.of(context).colorScheme.primary,
+    Colors.green,
+    Theme.of(context).colorScheme.error,
     Colors.blue,
     Colors.green,
     Colors.red,
@@ -852,7 +852,7 @@ void _showColorPicker(
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       title: const Text("اختر لون"),
       content: Wrap(
         spacing: 8,
@@ -898,17 +898,17 @@ Widget _buildFontPicker(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.secondary.withValues(alpha: 0.1)
-              : AppColors.cardBg,
+              ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
+              : Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.secondary : AppColors.border,
+            color: isSelected ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.outline,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.secondary.withValues(alpha: 0.2),
+                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -926,21 +926,21 @@ Widget _buildFontPicker(
                 style: GoogleFonts.getFont(family).copyWith(
                   fontSize: AppTypography.bodyMedium.fontSize ?? 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   font['category']!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -959,9 +959,9 @@ Widget _buildFontPicker(
             ),
           ),
           trailing: isSelected
-              ? const Icon(
+              ? Icon(
                   Icons.check_circle_rounded,
-                  color: AppColors.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                 )
               : null,
         ),
@@ -1010,52 +1010,62 @@ class ContentTab extends StatelessWidget {
             runSpacing: 10,
             children: [
               _buildQuickAddButton(
+                context,
                 cubit,
                 'hero',
                 "+ ${loc.translate('hero_short')}",
               ),
               _buildQuickAddButton(
+                context,
                 cubit,
                 'features',
                 "+ ${loc.translate('features_short')}",
               ),
               _buildQuickAddButton(
+                context,
                 cubit,
                 'whatsapp',
                 "+ ${loc.translate('whatsapp')}",
               ),
               _buildQuickAddButton(
+                context,
                 cubit,
                 'products',
                 "+ ${loc.translate('products_short')}",
               ),
-              _buildQuickAddButton(cubit, 'qr_code', "+ QR"),
+              _buildQuickAddButton(context, cubit, 'qr_code', "+ QR"),
               _buildQuickAddButton(
+                context,
                 cubit,
                 'social_qr',
                 "+ ${loc.translate('links_short')}",
               ),
               _buildQuickAddButton(
+                context,
                 cubit,
                 'pricing',
                 "+ ${loc.translate('pricing_short')}",
               ),
               _buildQuickAddButton(
+                context,
                 cubit,
                 'faq',
                 "+ ${loc.translate('faq_short')}",
               ),
               _buildQuickAddButton(
+                context,
                 cubit,
                 'testimonials',
                 "+ ${loc.translate('reviews_short')}",
               ),
               _buildQuickAddButton(
+                context,
                 cubit,
                 'contact_info',
                 "+ ${loc.translate('contact_short')}",
               ),
               _buildQuickAddButton(
+                context,
                 cubit,
                 'gallery',
                 "+ ${loc.translate('gallery_short')}",
@@ -1063,7 +1073,7 @@ class ContentTab extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 32),
-          const Divider(color: AppColors.border),
+          Divider(color: Theme.of(context).colorScheme.outline),
           const SizedBox(height: 32),
           Text(loc.translate('added_sections'), style: AppTypography.h3),
           const SizedBox(height: 16),
@@ -1086,9 +1096,9 @@ class ContentTab extends StatelessWidget {
                 return Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.cardBg,
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline),
                   ),
                   child: Row(
                     children: [
@@ -1098,7 +1108,7 @@ class ContentTab extends StatelessWidget {
                           children: [
                             StatusPill(
                               label: type.toUpperCase(),
-                              color: _getSectionColor(type),
+                              color: _getSectionColor(context, type),
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -1113,32 +1123,32 @@ class ContentTab extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.arrow_upward_rounded, size: 18),
+                        icon: const Icon(Icons.keyboard_arrow_up_rounded, size: 22),
                         onPressed: index > 0
                             ? () => cubit.moveBlock(index, true)
                             : null,
                       ),
                       IconButton(
                         icon: const Icon(
-                          Icons.arrow_downward_rounded,
-                          size: 18,
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 22,
                         ),
                         onPressed: index < blocks.length - 1
                             ? () => cubit.moveBlock(index, false)
                             : null,
                       ),
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.edit_rounded,
-                          color: AppColors.secondary,
+                          color: Theme.of(context).colorScheme.secondary,
                           size: 18,
                         ),
                         onPressed: () => onEditBlock(index),
                       ),
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.delete_rounded,
-                          color: AppColors.dangerRed,
+                          color: Theme.of(context).colorScheme.error,
                           size: 18,
                         ),
                         onPressed: () => cubit.deleteBlock(index),
@@ -1154,6 +1164,7 @@ class ContentTab extends StatelessWidget {
   }
 
   Widget _buildQuickAddButton(
+    BuildContext context,
     LandingPageBuilderCubit cubit,
     String type,
     String label,
@@ -1162,11 +1173,11 @@ class ContentTab extends StatelessWidget {
       width: 100,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.cardBg,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: AppColors.border),
+            side: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           elevation: 0,
         ),
@@ -1174,7 +1185,7 @@ class ContentTab extends StatelessWidget {
         child: Text(
           label,
           style: AppTypography.caption.copyWith(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 11,
           ),
@@ -1184,18 +1195,18 @@ class ContentTab extends StatelessWidget {
     );
   }
 
-  Color _getSectionColor(String type) {
+  Color _getSectionColor(BuildContext context, String type) {
     switch (type) {
       case 'hero':
-        return AppColors.secondary;
+        return Theme.of(context).colorScheme.secondary;
       case 'features':
-        return AppColors.primary;
+        return Theme.of(context).colorScheme.primary;
       case 'products':
-        return AppColors.activeGreen;
+        return Colors.green;
       case 'pricing':
-        return AppColors.warningOrange;
+        return Colors.orange;
       default:
-        return AppColors.primary;
+        return Theme.of(context).colorScheme.primary;
     }
   }
 }

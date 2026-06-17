@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/router/router_extensions.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -302,10 +303,10 @@ class _SidebarItem extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsetsDirectional.only(start: 16, end: 16, top: 12, bottom: 12),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.secondary.withValues(alpha: 0.1) : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1) : Colors.transparent,
             border: Border(
               left: BorderSide(
-                color: isSelected ? AppColors.secondary : Colors.transparent,
+                color: isSelected ? Theme.of(context).colorScheme.secondary : Colors.transparent,
                 width: 3,
               ),
             ),
@@ -313,7 +314,7 @@ class _SidebarItem extends StatelessWidget {
           child: Text(
             label,
             style: AppTypography.bodyMedium.copyWith(
-              color: isSelected ? AppColors.secondary : Colors.white,
+              color: isSelected ? Theme.of(context).colorScheme.secondary : Colors.white,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -351,7 +352,7 @@ class _MobileFilterBar extends StatelessWidget {
             onPressed: () => _showFilterSheet(context),
             icon: Icon(Icons.filter_list_rounded, size: 18),
             label: const Text('تصفية'),
-            style: TextButton.styleFrom(foregroundColor: AppColors.secondary),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.secondary),
           ),
         ],
       ),
@@ -435,16 +436,16 @@ class _SheetItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       selected: isSelected,
-      selectedTileColor: AppColors.secondary.withValues(alpha: 0.1),
+      selectedTileColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
       leading: Icon(
         isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
-        color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
+        color: isSelected ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
         size: 20,
       ),
       title: Text(
         label,
         style: AppTypography.bodyMedium.copyWith(
-          color: isSelected ? AppColors.secondary : Colors.white,
+          color: isSelected ? Theme.of(context).colorScheme.secondary : Colors.white,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
@@ -549,13 +550,13 @@ class _TemplateCardState extends State<_TemplateCard> {
           color: Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: _isHovered ? AppColors.secondary : Theme.of(context).colorScheme.outlineVariant,
+            color: _isHovered ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.outlineVariant,
             width: 2,
           ),
           boxShadow: _isHovered
               ? [
                   BoxShadow(
-                    color: AppColors.secondary.withValues(alpha: 0.2),
+                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -584,7 +585,7 @@ class _TemplateCardState extends State<_TemplateCard> {
                           child: ElevatedButton(
                             onPressed: () => _onTemplateSelected(context),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.secondary,
+                              backgroundColor: Theme.of(context).colorScheme.secondary,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

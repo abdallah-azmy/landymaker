@@ -488,9 +488,9 @@ class BlockRegistry {
         return Container(
           margin: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF0F172A),
+            color: const Color(0xFF0F172A), // Specifically dark for contrast
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white10),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.4),
@@ -499,10 +499,7 @@ class BlockRegistry {
               ),
             ],
           ),
-          child: Theme(
-            data: ThemeData.dark(),
-            child: child,
-          ),
+          child: child,
         );
       default:
         return child;

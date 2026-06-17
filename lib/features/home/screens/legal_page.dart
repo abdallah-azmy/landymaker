@@ -103,7 +103,7 @@ class _LegalPageState extends State<LegalPage> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
                 decoration: BoxDecoration(
-                  gradient: AppColors.darkGradient,
+                  color: Theme.of(context).colorScheme.surface,
                   border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
                 ),
                 child: Column(
@@ -117,7 +117,7 @@ class _LegalPageState extends State<LegalPage> {
                     Text(
                       context.isRtl ? "لاندي ميكر 🚀" : "LandyMaker 🚀",
                       style: AppTypography.bodyLarge.copyWith(
-                        color: AppColors.secondary,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                   ],
@@ -127,7 +127,7 @@ class _LegalPageState extends State<LegalPage> {
                 constraints: const BoxConstraints(maxWidth: 900),
                 padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
                 child: _isLoading 
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.secondary))
+                  ? const Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
                   : _buildContent(context),
               ),
               const HomeFooter(),

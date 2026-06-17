@@ -40,7 +40,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
     if (state is LeadsAnalyticsLoading || state is LeadsAnalyticsInitial) {
       return const Center(
-        child: CircularProgressIndicator(color: AppColors.secondary),
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
       );
     }
 
@@ -54,7 +54,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             Text(
               state.message,
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.dangerRed,
+                color: Theme.of(context).colorScheme.error,
               ),
             ),
             SizedBox(height: 16),
@@ -105,7 +105,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 },
                 icon: Icon(
                   Icons.refresh_rounded,
-                  color: AppColors.secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
                 tooltip: "Reload Analytics Data",
               ),
@@ -123,7 +123,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             Text(
               errorMessage,
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.dangerRed,
+                color: Theme.of(context).colorScheme.error,
               ),
             ),
             SizedBox(height: 16),
@@ -149,7 +149,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 subtitle: '+18% vs last week',
                 trendUp: true,
                 icon: Icons.visibility_rounded,
-                iconColor: AppColors.secondary,
+                iconColor: Theme.of(context).colorScheme.secondary,
               ),
               DataCard(
                 title: loc.translate('conversions'),
@@ -157,14 +157,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 subtitle: '+8% vs last week',
                 trendUp: true,
                 icon: Icons.ads_click_rounded,
-                iconColor: AppColors.primary,
+                iconColor: Theme.of(context).colorScheme.primary,
               ),
               DataCard(
                 title: loc.translate('conversion_rate'),
                 value: "${conversionRate.toStringAsFixed(1)}%",
                 subtitle: 'Optimizing performance',
                 icon: Icons.percent_rounded,
-                iconColor: AppColors.activeGreen,
+                iconColor: Colors.green,
               ),
             ],
           ),
@@ -220,7 +220,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 width: 32,
                 height: 180 * ratio,
                 decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
+                  gradient: Theme.of(context).colorScheme.primaryGradient,
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),

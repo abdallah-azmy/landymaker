@@ -90,7 +90,7 @@ class _DataCardState extends State<DataCard> {
                           Icon(
                             widget.trendUp! ? Icons.arrow_upward : Icons.arrow_downward,
                             size: 14,
-                            color: widget.trendUp! ? AppColors.activeGreen : AppColors.dangerRed,
+                            color: widget.trendUp! ? Colors.green : Theme.of(context).colorScheme.error,
                           ),
                           SizedBox(width: 4),
                         ],
@@ -100,7 +100,7 @@ class _DataCardState extends State<DataCard> {
                             fontSize: 11,
                             color: widget.trendUp == null
                                 ? cs.onSurface.withValues(alpha: 0.5)
-                                : (widget.trendUp! ? AppColors.activeGreen : AppColors.dangerRed),
+                                : (widget.trendUp! ? Colors.green : Theme.of(context).colorScheme.error),
                             fontWeight: widget.trendUp == null ? FontWeight.normal : FontWeight.w600,
                           ),
                         ),

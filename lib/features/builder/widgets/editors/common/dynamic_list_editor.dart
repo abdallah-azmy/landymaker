@@ -74,7 +74,7 @@ class DynamicListEditor extends StatelessWidget {
                         style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold),
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+                        icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 20),
                         onPressed: () => onDelete(index),
                       ),
                     ],

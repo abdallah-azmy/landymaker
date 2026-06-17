@@ -46,7 +46,7 @@ class ManualPaymentModal extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text("قيمة الاشتراك: $price EGP", style: AppTypography.bodyLarge.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold)),
+          Text("قيمة الاشتراك: $price EGP", style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           _buildInfoBox(context, "خطوات التفعيل:", "1. قم بتحويل المبلغ عبر فودافون كاش أو إنستا باي.\n2. اضغط على الزر أدناه لإرسال صورة الإيصال عبر واتساب.\n3. سيتم تفعيل حسابك فور مراجعة التحويل."),
           const SizedBox(height: 24),
@@ -75,14 +75,14 @@ class ManualPaymentModal extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.secondary.withValues(alpha: 0.05),
+        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.2)),
+        border: Border.all(color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: AppColors.secondary)),
+          Text(title, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary)),
           const SizedBox(height: 4),
           Text(content, style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), height: 1.5)),
         ],
@@ -95,7 +95,7 @@ class ManualPaymentModal extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          const Icon(Icons.account_balance_wallet_rounded, color: AppColors.secondary, size: 20),
+          const Icon(Icons.account_balance_wallet_rounded, color: Theme.of(context).colorScheme.secondary, size: 20),
           const SizedBox(width: 12),
           Text("$method: ", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
           Text(value, style: AppTypography.bodyMedium),

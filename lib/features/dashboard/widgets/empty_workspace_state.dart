@@ -23,7 +23,7 @@ class EmptyWorkspaceState extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -32,13 +32,13 @@ class EmptyWorkspaceState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.secondary.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.web_rounded,
                 size: 64,
-                color: AppColors.secondary,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
             SizedBox(height: 24),

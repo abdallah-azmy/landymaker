@@ -50,7 +50,7 @@ class SocialQrEditor extends StatelessWidget {
               ),
               SizedBox(width: 8),
               IconButton(
-                icon: Icon(Icons.copy_rounded, color: AppColors.secondary),
+                icon: Icon(Icons.copy_rounded, color: Theme.of(context).colorScheme.primary),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: "https://landymaker.com/$subdomain"));
                   ToastService.showSuccess(context, message: "تم نسخ الرابط بنجاح!");
@@ -125,7 +125,7 @@ class SocialQrEditor extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+                      icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 20),
                       onPressed: () {
                         final List links = List.from(block['links']);
                         links.removeAt(lIndex);

@@ -99,7 +99,7 @@ class WorkingHoursEditor extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed),
+                  icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error),
                   onPressed: () {
                     final Map<String, dynamic> schedule = Map.from(block['schedule'] ?? {});
                     schedule.remove(sKey);

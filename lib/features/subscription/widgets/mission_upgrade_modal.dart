@@ -74,10 +74,10 @@ class MissionUpgradeModal extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.auto_awesome_rounded, color: AppColors.primary, size: 40),
+          child: const Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary, size: 40),
         ),
         const SizedBox(height: 20),
         Text(
@@ -106,10 +106,10 @@ class MissionUpgradeModal extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isHighlighted ? const Color(0xFF0F172A) : Theme.of(context).colorScheme.surface,
+        color: isHighlighted ? Theme.of(context).colorScheme.surfaceContainerHigh : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isHighlighted ? AppColors.primary : Theme.of(context).colorScheme.outline,
+          color: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline,
           width: isHighlighted ? 2 : 1,
         ),
       ),
@@ -119,15 +119,15 @@ class MissionUpgradeModal extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(name, style: AppTypography.h3.copyWith(color: isHighlighted ? Colors.white : null)),
+              Text(name, style: AppTypography.h3.copyWith(color: isHighlighted ? Theme.of(context).colorScheme.onSurface : null)),
               if (isHighlighted)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text("الأكثر طلباً", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: const Text("الأكثر طلباً", style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
             ],
           ),
@@ -136,9 +136,9 @@ class MissionUpgradeModal extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text("\$$price", style: AppTypography.h1.copyWith(color: isHighlighted ? Colors.white : null)),
+              Text("\$$price", style: AppTypography.h1.copyWith(color: isHighlighted ? Theme.of(context).colorScheme.onSurface : null)),
               const SizedBox(width: 4),
-              Text("/mo", style: AppTypography.bodySmall.copyWith(color: isHighlighted ? Colors.white70 : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
+              Text("/mo", style: AppTypography.bodySmall.copyWith(color: isHighlighted ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
             ],
           ),
           const SizedBox(height: 20),
@@ -146,9 +146,9 @@ class MissionUpgradeModal extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
               children: [
-                const Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 18),
+                const Icon(Icons.check_circle_rounded, color: Colors.green, size: 18),
                 const SizedBox(width: 12),
-                Expanded(child: Text(f, style: AppTypography.bodySmall.copyWith(color: isHighlighted ? Colors.white : null))),
+                Expanded(child: Text(f, style: AppTypography.bodySmall.copyWith(color: isHighlighted ? Theme.of(context).colorScheme.onSurface : null))),
               ],
             ),
           )),

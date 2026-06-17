@@ -31,7 +31,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
             MaterialPageRoute(builder: (_) => const BlogEditorScreen()),
           );
         },
-        backgroundColor: AppColors.primary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         icon: Icon(Icons.edit_document, color: Theme.of(context).colorScheme.surface),
         label: Text(
           "كتابة مقال",
@@ -59,7 +59,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                   ),
                   background: Container(
                     decoration: BoxDecoration(
-                      gradient: AppColors.darkGradient,
+                      color: Theme.of(context).colorScheme.surface,
                     ),
                     child: Stack(
                       children: [
@@ -71,7 +71,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                             height: 200,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColors.primary.withValues(alpha: .1),
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: .1),
                             ),
                           ),
                         ),
@@ -81,15 +81,15 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                 ),
               ),
               if (state is BlogLoading)
-                const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary)),
                 )
               else if (state is BlogError)
                 SliverFillRemaining(
                   child: Center(
                     child: Text(
                       "Error: ${state.message}",
-                      style: TextStyle(color: AppColors.dangerRed),
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
                     ),
                   ),
                 )
@@ -174,19 +174,19 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                           decoration: BoxDecoration(
                                             color: post.isPublished 
-                                              ? AppColors.activeGreen.withValues(alpha: .1) 
-                                              : AppColors.warningOrange.withValues(alpha: .1),
+                                              ? Colors.green.withValues(alpha: .1) 
+                                              : Colors.orange.withValues(alpha: .1),
                                             borderRadius: BorderRadius.circular(20),
                                             border: Border.all(
                                               color: post.isPublished 
-                                                ? AppColors.activeGreen.withValues(alpha: .5) 
-                                                : AppColors.warningOrange.withValues(alpha: .5),
+                                                ? Colors.green.withValues(alpha: .5) 
+                                                : Colors.orange.withValues(alpha: .5),
                                             ),
                                           ),
                                           child: Text(
                                             post.isPublished ? "منشور" : "مسودة",
                                             style: TextStyle(
-                                              color: post.isPublished ? AppColors.activeGreen : AppColors.warningOrange,
+                                              color: post.isPublished ? Colors.green : Colors.orange,
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -198,7 +198,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                                     Text(
                                       "/${post.slug}",
                                       style: TextStyle(
-                                        color: AppColors.primary,
+                                        color: Theme.of(context).colorScheme.primary,
                                         fontSize: 13,
                                         fontFamily: 'monospace',
                                       ),
@@ -220,7 +220,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                                           ],
                                         ),
                                         IconButton(
-                                          icon: Icon(Icons.delete_outline, color: AppColors.dangerRed, size: 20),
+                                          icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error, size: 20),
                                           onPressed: () {
                                             _showDeleteDialog(context, post.id, post.title);
                                           },
@@ -263,7 +263,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
             child: Text("إلغاء", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.dangerRed),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
             onPressed: () {
               Navigator.pop(ctx);
               context.read<BlogCubit>().deletePost(postId);

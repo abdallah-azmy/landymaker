@@ -31,11 +31,11 @@ class LayoutOptionCard extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.secondary.withValues(alpha: 0.1)
-                  : AppColors.cardBg,
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                  : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected ? AppColors.secondary : AppColors.border,
+                color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -54,7 +54,7 @@ class LayoutOptionCard extends StatelessWidget {
                   name,
                   style: AppTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? AppColors.secondary : Colors.white,
+                    color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -63,7 +63,7 @@ class LayoutOptionCard extends StatelessWidget {
                 Text(
                   description,
                   style: AppTypography.caption.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -82,38 +82,38 @@ class _LayoutMiniPreview extends StatelessWidget {
 
   const _LayoutMiniPreview({required this.layoutStyle});
 
-  Color get _imageColor => AppColors.secondary.withValues(alpha: 0.6);
-  Color get _textColor => AppColors.textSecondary.withValues(alpha: 0.5);
-  Color get _buttonColor => const Color(0xFF22C55E).withValues(alpha: 0.6);
-  Color get _headingColor => Colors.white.withValues(alpha: 0.5);
-  Color get _bgColor => AppColors.background;
-
   @override
   Widget build(BuildContext context) {
+    final imageColor = Theme.of(context).colorScheme.secondary.withValues(alpha: 0.6);
+    final textColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
+    final buttonColor = const Color(0xFF22C55E).withValues(alpha: 0.6);
+    final headingColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        color: _bgColor,
-        child: _buildPreview(),
+        color: bgColor,
+        child: _buildPreview(context, imageColor, textColor, buttonColor, headingColor),
       ),
     );
   }
 
-  Widget _buildPreview() {
+  Widget _buildPreview(BuildContext context, Color imageColor, Color textColor, Color buttonColor, Color headingColor) {
     switch (layoutStyle) {
       case 'split':
         return Row(
           children: [
-            Expanded(child: Container(color: _imageColor, margin: const EdgeInsets.all(2))),
+            Expanded(child: Container(color: imageColor, margin: const EdgeInsets.all(2))),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _block(_headingColor, height: 8, width: 0.7),
+                  _block(headingColor, height: 8, width: 0.7),
                   const SizedBox(height: 4),
-                  _block(_textColor, height: 6, width: 0.9),
+                  _block(textColor, height: 6, width: 0.9),
                   const SizedBox(height: 4),
-                  _block(_buttonColor, height: 6, width: 0.5),
+                  _block(buttonColor, height: 6, width: 0.5),
                 ],
               ),
             ),
@@ -125,33 +125,33 @@ class _LayoutMiniPreview extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _block(_headingColor, height: 8, width: 0.6),
+            _block(headingColor, height: 8, width: 0.6),
             const SizedBox(height: 4),
-            _block(_textColor, height: 6, width: 0.8),
+            _block(textColor, height: 6, width: 0.8),
             const SizedBox(height: 4),
-            _block(_buttonColor, height: 6, width: 0.4),
+            _block(buttonColor, height: 6, width: 0.4),
           ],
         );
 
       case 'glass':
         return Stack(
           children: [
-            Container(color: _imageColor.withValues(alpha: 0.3)),
+            Container(color: imageColor.withValues(alpha: 0.3)),
             Center(
               child: Container(
                 height: 50,
                 margin: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.cardBg.withValues(alpha: 0.8),
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: Colors.white12),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _block(_headingColor, height: 6, width: 0.6),
+                    _block(headingColor, height: 6, width: 0.6),
                     const SizedBox(height: 3),
-                    _block(_buttonColor, height: 6, width: 0.4),
+                    _block(buttonColor, height: 6, width: 0.4),
                   ],
                 ),
               ),
@@ -163,18 +163,18 @@ class _LayoutMiniPreview extends StatelessWidget {
       case 'fullWidthImage':
         return Stack(
           children: [
-            Container(color: _imageColor),
+            Container(color: imageColor),
             if (layoutStyle == 'fullWidthImage')
               Container(color: Colors.black.withValues(alpha: 0.35)),
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _block(_headingColor, height: 8, width: 0.6),
+                  _block(headingColor, height: 8, width: 0.6),
                   const SizedBox(height: 4),
-                  _block(_textColor, height: 6, width: 0.8),
+                  _block(textColor, height: 6, width: 0.8),
                   const SizedBox(height: 4),
-                  _block(_buttonColor, height: 6, width: 0.4),
+                  _block(buttonColor, height: 6, width: 0.4),
                 ],
               ),
             ),
@@ -185,9 +185,9 @@ class _LayoutMiniPreview extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _block(_headingColor, height: 8, width: 0.5),
+            _block(headingColor, height: 8, width: 0.5),
             const SizedBox(height: 4),
-            _block(_textColor, height: 6, width: 0.7),
+            _block(textColor, height: 6, width: 0.7),
           ],
         );
 
@@ -199,13 +199,13 @@ class _LayoutMiniPreview extends StatelessWidget {
             (_) => Expanded(
               child: Container(
                 margin: const EdgeInsets.all(2),
-                color: _textColor,
+                color: textColor,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _block(_headingColor, height: 6, width: 0.6),
+                    _block(headingColor, height: 6, width: 0.6),
                     const SizedBox(height: 3),
-                    _block(_textColor, height: 4, width: 0.8),
+                    _block(textColor, height: 4, width: 0.8),
                   ],
                 ),
               ),
@@ -219,16 +219,16 @@ class _LayoutMiniPreview extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(2), color: _imageColor)),
-                  Expanded(flex: 1, child: Container(margin: const EdgeInsets.all(2), color: _textColor)),
+                  Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(2), color: imageColor)),
+                  Expanded(flex: 1, child: Container(margin: const EdgeInsets.all(2), color: textColor)),
                 ],
               ),
             ),
             Expanded(
               child: Row(
                 children: [
-                  Expanded(flex: 1, child: Container(margin: const EdgeInsets.all(2), color: _textColor)),
-                  Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(2), color: _imageColor)),
+                  Expanded(flex: 1, child: Container(margin: const EdgeInsets.all(2), color: textColor)),
+                  Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(2), color: imageColor)),
                 ],
               ),
             ),
@@ -238,14 +238,14 @@ class _LayoutMiniPreview extends StatelessWidget {
       case 'iconLeft':
         return Row(
           children: [
-            Container(width: 24, height: 24, margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: _imageColor, borderRadius: BorderRadius.circular(4))),
+            Container(width: 24, height: 24, margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: imageColor, borderRadius: BorderRadius.circular(4))),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _block(_headingColor, height: 8, width: 0.8),
+                  _block(headingColor, height: 8, width: 0.8),
                   const SizedBox(height: 3),
-                  _block(_textColor, height: 6, width: 0.9),
+                  _block(textColor, height: 6, width: 0.9),
                 ],
               ),
             ),
@@ -256,18 +256,18 @@ class _LayoutMiniPreview extends StatelessWidget {
         return Column(
           children: [
             Row(
-              children: List.generate(3, (i) => Expanded(child: Container(height: 8, margin: const EdgeInsets.all(1), decoration: BoxDecoration(color: i == 0 ? _buttonColor : _textColor, borderRadius: BorderRadius.circular(2))))),
+              children: List.generate(3, (i) => Expanded(child: Container(height: 8, margin: const EdgeInsets.all(1), decoration: BoxDecoration(color: i == 0 ? buttonColor : textColor, borderRadius: BorderRadius.circular(2))))),
             ),
             const SizedBox(height: 4),
             Expanded(
               child: Container(
                 margin: const EdgeInsets.all(2),
-                color: _textColor,
+                color: textColor,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _block(_headingColor, height: 6, width: 0.6),
-                    _block(_textColor, height: 4, width: 0.8),
+                    _block(headingColor, height: 6, width: 0.6),
+                    _block(textColor, height: 4, width: 0.8),
                   ],
                 ),
               ),
@@ -278,8 +278,8 @@ class _LayoutMiniPreview extends StatelessWidget {
       case 'carousel':
         return Row(
           children: [
-            Expanded(flex: 3, child: Container(margin: const EdgeInsets.all(2), color: _imageColor)),
-            Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(2), color: _textColor)),
+            Expanded(flex: 3, child: Container(margin: const EdgeInsets.all(2), color: imageColor)),
+            Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(2), color: textColor)),
           ],
         );
 
@@ -289,16 +289,16 @@ class _LayoutMiniPreview extends StatelessWidget {
             Expanded(
               child: Column(
                 children: [
-                  Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(1), color: _imageColor)),
-                  Expanded(flex: 1, child: Container(margin: const EdgeInsets.all(1), color: _textColor)),
+                  Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(1), color: imageColor)),
+                  Expanded(flex: 1, child: Container(margin: const EdgeInsets.all(1), color: textColor)),
                 ],
               ),
             ),
             Expanded(
               child: Column(
                 children: [
-                  Expanded(flex: 1, child: Container(margin: const EdgeInsets.all(1), color: _textColor)),
-                  Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(1), color: _imageColor)),
+                  Expanded(flex: 1, child: Container(margin: const EdgeInsets.all(1), color: textColor)),
+                  Expanded(flex: 2, child: Container(margin: const EdgeInsets.all(1), color: imageColor)),
                 ],
               ),
             ),
@@ -313,7 +313,7 @@ class _LayoutMiniPreview extends StatelessWidget {
               height: 12,
               margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
               decoration: BoxDecoration(
-                color: _textColor,
+                color: textColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -327,12 +327,12 @@ class _LayoutMiniPreview extends StatelessWidget {
             (_) => Expanded(
               child: Container(
                 margin: const EdgeInsets.all(3),
-                color: _textColor,
+                color: textColor,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _block(_headingColor, height: 6, width: 0.5),
-                    _block(_textColor, height: 4, width: 0.7),
+                    _block(headingColor, height: 6, width: 0.5),
+                    _block(textColor, height: 4, width: 0.7),
                   ],
                 ),
               ),
@@ -347,13 +347,13 @@ class _LayoutMiniPreview extends StatelessWidget {
             (_) => Expanded(
               child: Container(
                 margin: const EdgeInsets.all(2),
-                color: _textColor,
+                color: textColor,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(width: 12, height: 12, decoration: BoxDecoration(color: _imageColor, borderRadius: BorderRadius.circular(6))),
+                    Container(width: 12, height: 12, decoration: BoxDecoration(color: imageColor, borderRadius: BorderRadius.circular(6))),
                     const SizedBox(height: 2),
-                    _block(_headingColor, height: 4, width: 0.6),
+                    _block(headingColor, height: 4, width: 0.6),
                   ],
                 ),
               ),
@@ -371,12 +371,12 @@ class _LayoutMiniPreview extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _block(_headingColor, height: 4, width: 0.3),
+                  _block(headingColor, height: 4, width: 0.3),
                   const SizedBox(height: 2),
                   Container(
                     height: 4,
                     decoration: BoxDecoration(
-                      color: _textColor,
+                      color: textColor,
                       borderRadius: BorderRadius.circular(2),
                     ),
                     child: FractionallySizedBox(
@@ -384,7 +384,7 @@ class _LayoutMiniPreview extends StatelessWidget {
                       widthFactor: 0.4 + (i * 0.2),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: _buttonColor,
+                          color: buttonColor,
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -399,17 +399,17 @@ class _LayoutMiniPreview extends StatelessWidget {
       case 'imageBackground':
         return Stack(
           children: [
-            Container(color: _imageColor),
+            Container(color: imageColor),
             Center(
               child: Container(
                 height: 40,
                 margin: const EdgeInsets.symmetric(horizontal: 8),
-                color: AppColors.cardBg.withValues(alpha: 0.7),
+                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _block(_headingColor, height: 6, width: 0.5),
-                    _block(_buttonColor, height: 6, width: 0.3),
+                    _block(headingColor, height: 6, width: 0.5),
+                    _block(buttonColor, height: 6, width: 0.3),
                   ],
                 ),
               ),
@@ -421,8 +421,8 @@ class _LayoutMiniPreview extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _block(_headingColor, height: 8, width: 0.6),
-            _block(_textColor, height: 6, width: 0.8),
+            _block(headingColor, height: 8, width: 0.6),
+            _block(textColor, height: 6, width: 0.8),
           ],
         );
     }

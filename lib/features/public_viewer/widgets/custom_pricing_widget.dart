@@ -84,8 +84,8 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = widget.theme?.primary ?? AppColors.primary;
-    final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
+    final primaryColor = widget.theme?.primary ?? Theme.of(context).colorScheme.primary;
+    final secondaryColor = widget.theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 

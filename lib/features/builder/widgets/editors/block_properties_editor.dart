@@ -273,7 +273,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: isSelected ? AppColors.secondary : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -299,11 +299,11 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.secondary.withValues(alpha: 0.15)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? AppColors.secondary : Colors.transparent,
+              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
               width: 1.5,
             ),
           ),
@@ -314,7 +314,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 icon,
                 size: 18,
                 color: isSelected
-                    ? AppColors.secondary
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               SizedBox(width: 8),
@@ -322,7 +322,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 label,
                 style: AppTypography.bodyMedium.copyWith(
                   color: isSelected
-                      ? AppColors.secondary
+                      ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
@@ -877,12 +877,12 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                     height: 50,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppColors.secondary
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
-                            ? AppColors.secondary
+                            ? Theme.of(context).colorScheme.primary
                             : Theme.of(context).colorScheme.outlineVariant,
                         width: 2,
                       ),
@@ -892,7 +892,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                         "${v.index}",
                         style: TextStyle(
                           color: isSelected
-                              ? Colors.white
+                              ? Theme.of(context).colorScheme.onPrimary
                               : Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.bold,
                         ),
@@ -904,7 +904,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                     v.index == 0 ? "Std" : "V${v.index}",
                     style: AppTypography.caption.copyWith(
                       color: isSelected
-                          ? AppColors.secondary
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 10,
                     ),
@@ -942,10 +942,10 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.secondary.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.dashboard_customize_rounded, color: AppColors.secondary, size: 20),
+                  child: Icon(Icons.dashboard_customize_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
                 ),
                 SizedBox(width: 12),
                 Expanded(
@@ -954,7 +954,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                     children: [
                       Text(
                         'مُنتقي التخطيط',
-                        style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+                        style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                       ),
                       Text(
                         'اختر تخطيطاً وخصّص العناصر',
@@ -1136,7 +1136,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
               min: 0.0,
               max: 1.0,
               divisions: 10,
-              activeColor: AppColors.secondary,
+              activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (val) {
                 cubit.updateBlockProperty(widget.index, 'overlay_opacity', val);
                 cubit.updateBlockProperty(
@@ -1153,6 +1153,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
       SwitchListTile(
         title: Text(loc.translate('visible')),
         value: block['is_visible'] ?? true,
+        activeColor: Theme.of(context).colorScheme.primary,
         onChanged: (val) =>
             cubit.updateBlockProperty(widget.index, 'is_visible', val),
       ),
@@ -1176,11 +1177,11 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.secondary.withValues(alpha: 0.1)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
                 : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? AppColors.secondary : Theme.of(context).colorScheme.outlineVariant,
+              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -1189,7 +1190,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
               Icon(
                 icon,
                 color: isSelected
-                    ? AppColors.secondary
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 24,
               ),
@@ -1198,7 +1199,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 label,
                 style: AppTypography.caption.copyWith(
                   color: isSelected
-                      ? AppColors.secondary
+                      ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
@@ -1244,7 +1245,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
                 child: Text(
                   loc.translate('close'),
                   style: AppTypography.button.copyWith(
-                    color: AppColors.secondary,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
               ),
@@ -1388,7 +1389,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           value: value.clamp(min, max),
           min: min,
           max: max,
-          activeColor: AppColors.secondary,
+          activeColor: Theme.of(context).colorScheme.primary,
           onChanged: (v) {
             onChanged(v);
             setState(() {});

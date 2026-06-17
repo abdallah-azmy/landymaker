@@ -36,14 +36,4 @@ extension LocalizationExtension on BuildContext {
   bool get isRtl {
     return BlocProvider.of<LocalizationCubit>(this).isRtl;
   }
-
-  /// Safely pops the current screen if possible, otherwise navigates to [fallbackPath]
-  /// to prevent infinite loading screens or navigation loops.
-  void safePop({String fallbackPath = '/'}) {
-    if (this.canPop()) {
-      this.pop();
-    } else {
-      this.go(fallbackPath);
-    }
-  }
 }

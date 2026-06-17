@@ -79,7 +79,7 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
     final String baseUrl = Uri.base.origin;
     final String liveUrl = subdomain != null ? '$baseUrl/$subdomain' : baseUrl;
 
-    final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
+    final secondaryColor = widget.theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
@@ -390,7 +390,7 @@ class _SocialLinkItem extends StatelessWidget {
         break;
       default:
         iconData = Icons.language_rounded;
-        color = AppColors.secondary;
+        color = Theme.of(context).colorScheme.secondary;
     }
 
     return Padding(

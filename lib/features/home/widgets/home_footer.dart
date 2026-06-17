@@ -52,7 +52,7 @@ class HomeFooter extends StatelessWidget {
         return Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Color(0xFF030712),
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             border: Border(
               top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
             ),
@@ -222,9 +222,9 @@ class _BrandSection extends StatelessWidget {
           : MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const LandyMakerLogo(fontSize: 20),
-        SizedBox(width: 8),
         Image.asset('assets/images/logo_small.webp', height: 30, width: 30),
+        const SizedBox(width: 8),
+        const LandyMakerLogo(fontSize: 20),
       ],
     );
   }
@@ -309,19 +309,19 @@ class _SocialBtnState extends State<_SocialBtn> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: _hovered
-                ? AppColors.secondary.withValues(alpha: 0.15)
+                ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15)
                 : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: _hovered
-                  ? AppColors.secondary.withValues(alpha: 0.4)
+                  ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.4)
                   : Theme.of(context).colorScheme.outlineVariant,
             ),
           ),
           child: Icon(
             widget.icon,
             size: 16,
-            color: _hovered ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
+            color: _hovered ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -419,7 +419,7 @@ class _MobileFooterLink extends StatelessWidget {
       child: Text(
         label,
         style: AppTypography.caption.copyWith(
-          color: AppColors.secondary,
+          color: Theme.of(context).colorScheme.secondary,
           fontWeight: FontWeight.bold,
         ),
       ),

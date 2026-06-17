@@ -111,13 +111,13 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(60.0),
-              child: CircularProgressIndicator(color: AppColors.secondary),
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
             ),
           );
         }
 
         if (state is MediaGalleryFailure) {
-          return Center(child: Text(state.message, style: TextStyle(color: AppColors.dangerRed)));
+          return Center(child: Text(state.message, style: TextStyle(color: Theme.of(context).colorScheme.error)));
         }
 
         if (state is MediaGalleryLoaded) {
@@ -244,12 +244,12 @@ class _ImageGalleryCardState extends State<_ImageGalleryCard> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _isHovered ? AppColors.secondary : Theme.of(context).colorScheme.outlineVariant,
+            color: _isHovered ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.outlineVariant,
             width: 2,
           ),
           boxShadow: _isHovered ? [
             BoxShadow(
-              color: AppColors.secondary.withValues(alpha: 0.2),
+              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
               blurRadius: 12,
               spreadRadius: 2,
             )
@@ -291,7 +291,7 @@ class _ImageGalleryCardState extends State<_ImageGalleryCard> {
                     ),
                     _ActionButton(
                       icon: Icons.delete_outline_rounded,
-                      color: AppColors.dangerRed,
+                      color: Theme.of(context).colorScheme.error,
                       onPressed: () {
                         showDialog(
                           context: context,
@@ -309,7 +309,7 @@ class _ImageGalleryCardState extends State<_ImageGalleryCard> {
                                   widget.onDelete();
                                   Navigator.pop(context);
                                 },
-                                child: const Text("حذف", style: TextStyle(color: AppColors.dangerRed)),
+                                child: const Text("حذف", style: TextStyle(color: Theme.of(context).colorScheme.error)),
                               ),
                             ],
                           ),

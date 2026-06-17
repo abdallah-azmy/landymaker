@@ -46,8 +46,8 @@ class CustomHeroSaasWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = theme?.primary ?? AppColors.primary;
-    final secondaryColor = theme?.secondary ?? AppColors.secondary;
+    final primaryColor = theme?.primary ?? Theme.of(context).colorScheme.primary;
+    final secondaryColor = theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final isRtl = Directionality.of(context) == TextDirection.rtl;

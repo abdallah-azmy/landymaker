@@ -75,11 +75,11 @@ final GoRouter appRouter = GoRouter(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.link_off_rounded, size: 72, color: AppColors.primary),
+              Icon(Icons.link_off_rounded, size: 72, color: Theme.of(context).colorScheme.primary),
               SizedBox(height: 24),
               Text(
                 '404',
-                style: AppTypography.h1.copyWith(color: AppColors.primary, fontSize: 72),
+                style: AppTypography.h1.copyWith(color: Theme.of(context).colorScheme.primary, fontSize: 72),
               ),
               SizedBox(height: 8),
               Text(
@@ -103,7 +103,7 @@ final GoRouter appRouter = GoRouter(
                 icon: Icon(Icons.home_rounded),
                 label: Text(loc.translate('back_to_home')),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

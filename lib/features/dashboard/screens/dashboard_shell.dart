@@ -149,7 +149,7 @@ class _DesktopDashboardShell extends StatelessWidget {
           sidebar,
           Expanded(
               child: Container(
-              color: AppColors.darkSurface,
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: SafeArea(
                 child: Column(
                   children: [
@@ -204,10 +204,6 @@ class _MobileDashboardShell extends StatelessWidget {
           const AnimatedThemeToggle(size: 36),
           const SizedBox(width: 8),
           _NotificationBell(notificationCubit: notificationCubit),
-          IconButton(
-            icon: Icon(Icons.language_rounded, color: AppColors.secondary),
-            onPressed: () => loc.toggleLanguage(),
-          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.5),
@@ -216,7 +212,7 @@ class _MobileDashboardShell extends StatelessWidget {
       ),
       drawer: Drawer(child: sidebar),
       body: Container(
-        color: const Color(0xFF0A0E1A),
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: SafeArea(
           child: navigationShell,
         ),
@@ -251,10 +247,7 @@ class _DashboardTopBar extends StatelessWidget {
           const SizedBox(width: 16),
           _NotificationBell(notificationCubit: notificationCubit),
           const SizedBox(width: 16),
-          IconButton(
-            icon: Icon(Icons.language_rounded, color: AppColors.secondary),
-            onPressed: () => loc.toggleLanguage(),
-          ),
+          _UserAvatarChip(userEmail: context.read<AuthCubit>().state is Authenticated ? (context.read<AuthCubit>().state as Authenticated).email : ''),
         ],
       ),
     );
@@ -295,13 +288,13 @@ class _NotificationBell extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
-                    color: AppColors.dangerRed,
+                    color: Theme.of(context).colorScheme.error,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                   child: Text(
                     unreadCount > 9 ? '9+' : unreadCount.toString(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -313,6 +306,110 @@ class _NotificationBell extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _UserAvatarChip extends StatelessWidget {
+  final String userEmail;
+  const _UserAvatarChip({required this.userEmail});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = context.watch<LocalizationCubit>();
+    
+    return PopupMenuButton<String>(
+      offset: const Offset(0, 48),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Theme.of(context).colorScheme.surface,
+      elevation: 4,
+      onSelected: (value) {
+        if (value == 'settings') {
+          context.go('/dashboard/settings');
+        } else if (value == 'logout') {
+          context.read<AuthCubit>().logout();
+        }
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 14,
+                backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                child: Text(
+                  userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                userEmail.split('@').first,
+                style: AppTypography.caption.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 4),
+            ],
+          ),
+        ),
+      ),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'profile',
+          enabled: false,
+          child: Row(
+            children: [
+              const Icon(Icons.person_outline_rounded, size: 18),
+              const SizedBox(width: 12),
+              Text(loc.translate('profile')),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'settings',
+          child: Row(
+            children: [
+              const Icon(Icons.settings_outlined, size: 18),
+              const SizedBox(width: 12),
+              Text(loc.translate('settings')),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
+        PopupMenuItem(
+          value: 'logout',
+          child: Row(
+            children: [
+              const Icon(Icons.power_settings_new_rounded, size: 18, color: AppColors.dangerRed),
+              const SizedBox(width: 12),
+              Text(
+                loc.translate('logout'),
+                style: const TextStyle(color: AppColors.dangerRed),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -69,15 +69,15 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
     switch (type) {
       case 'store':
         icon = Icons.shopping_bag_rounded;
-        color = AppColors.activeGreen;
+        color = Colors.green;
         break;
       case 'cv':
         icon = Icons.person_rounded;
-        color = AppColors.secondary;
+        color = Theme.of(context).colorScheme.secondary;
         break;
       default:
         icon = Icons.language_rounded;
-        color = AppColors.primary;
+        color = Theme.of(context).colorScheme.primary;
     }
 
     return Container(
@@ -175,10 +175,10 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
+          color: isActive ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isActive ? AppColors.primary.withValues(alpha: 0.3) : Colors.transparent,
+            color: isActive ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3) : Colors.transparent,
             width: 1.2,
           ),
         ),
@@ -205,7 +205,7 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
               ),
             ),
             if (isActive)
-              Icon(Icons.check_circle_rounded, color: AppColors.activeGreen, size: 20),
+              Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
           ],
         ),
       ),

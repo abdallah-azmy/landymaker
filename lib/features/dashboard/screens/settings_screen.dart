@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
+import '../../../core/widgets/atoms/animated_theme_toggle.dart';
 import '../../../core/services/fcm_service.dart';
 import '../../../core/services/pwa_install_service.dart';
 
@@ -53,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(loc.translate('notifications_permission_denied')),
-            backgroundColor: AppColors.dangerRed,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -65,7 +66,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final loc = context.watch<LocalizationCubit>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E1A),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         title: Text(
@@ -122,16 +123,24 @@ class _SettingsDesktop extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _SectionHeader(title: loc.translate('theme_mode')),
+              const SizedBox(height: 16),
+              _AppearanceTile(loc: loc),
+              const SizedBox(height: 40),
+              _SectionHeader(title: loc.translate('language')),
+              const SizedBox(height: 16),
+              _LanguageTile(loc: loc),
+              const SizedBox(height: 40),
               _SectionHeader(title: loc.translate('notifications_settings')),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _NotificationToggleTile(
                 notificationsEnabled: notificationsEnabled,
                 toggleNotifications: toggleNotifications,
                 loc: loc,
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               _SectionHeader(title: loc.translate('install_app')),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _InstallAppTile(loc: loc),
             ],
           ),
@@ -160,16 +169,24 @@ class _SettingsMobile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _SectionHeader(title: loc.translate('theme_mode')),
+          const SizedBox(height: 16),
+          _AppearanceTile(loc: loc),
+          const SizedBox(height: 40),
+          _SectionHeader(title: loc.translate('language')),
+          const SizedBox(height: 16),
+          _LanguageTile(loc: loc),
+          const SizedBox(height: 40),
           _SectionHeader(title: loc.translate('notifications_settings')),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _NotificationToggleTile(
             notificationsEnabled: notificationsEnabled,
             toggleNotifications: toggleNotifications,
             loc: loc,
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           _SectionHeader(title: loc.translate('install_app')),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _InstallAppTile(loc: loc),
         ],
       ),
@@ -244,8 +261,8 @@ class _NotificationToggleTile extends StatelessWidget {
           Switch(
             value: notificationsEnabled,
             onChanged: toggleNotifications,
-            activeColor: AppColors.secondary,
-            activeTrackColor: AppColors.secondary.withValues(alpha: 0.3),
+            activeColor: Theme.of(context).colorScheme.secondary,
+            activeTrackColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
           ),
         ],
       ),
@@ -304,7 +321,7 @@ class _InstallAppTile extends StatelessWidget {
               icon: Icon(Icons.download_rounded, size: 18),
               label: Text(loc.translate('install_now')),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondary,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -328,10 +345,106 @@ class _IconWrapper extends StatelessWidget {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.15),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(icon, color: AppColors.secondary, size: 22),
+      child: Icon(icon, color: Theme.of(context).colorScheme.secondary, size: 22),
+    );
+  }
+}
+
+class _AppearanceTile extends StatelessWidget {
+  final LocalizationCubit loc;
+  const _AppearanceTile({required this.loc});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
+      ),
+      child: Row(
+        children: [
+          const _IconWrapper(icon: Icons.palette_rounded),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  loc.translate('theme_mode'),
+                  style: AppTypography.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  loc.translate('theme_mode_desc'),
+                  style: AppTypography.caption.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const AnimatedThemeToggle(size: 40),
+        ],
+      ),
+    );
+  }
+}
+
+class _LanguageTile extends StatelessWidget {
+  final LocalizationCubit loc;
+  const _LanguageTile({required this.loc});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
+      ),
+      child: Row(
+        children: [
+          const _IconWrapper(icon: Icons.language_rounded),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  loc.translate('language'),
+                  style: AppTypography.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  loc.translate('language_desc'),
+                  style: AppTypography.caption.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () => loc.toggleLanguage(),
+            child: Text(
+              loc.isRtl ? "English" : "العربية",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

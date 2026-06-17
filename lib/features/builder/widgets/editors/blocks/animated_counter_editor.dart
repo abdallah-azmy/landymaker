@@ -72,7 +72,7 @@ class AnimatedCounterEditor extends StatelessWidget {
                   children: [
                     Text("عداد #${tIndex + 1}", style: AppTypography.caption),
                     IconButton(
-                      icon: Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+                      icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 20),
                       onPressed: () {
                         final List items = List.from(block['items'] ?? []);
                         items.removeAt(tIndex);

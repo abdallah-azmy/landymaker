@@ -47,7 +47,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           title: Text(
             loc.translate('warning'),
-            style: AppTypography.h3.copyWith(color: AppColors.dangerRed),
+            style: AppTypography.h3.copyWith(color: Theme.of(context).colorScheme.error),
           ),
           content: Text(
             loc.translate('unsaved_changes_warning'),
@@ -71,7 +71,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Text(
                 loc.translate('exit'),
                 style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.dangerRed,
+                  color: Theme.of(context).colorScheme.error,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -91,7 +91,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       centerTitle: !isMobile,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back_rounded),
+        icon: Icon(Icons.arrow_back_ios_new_rounded),
         onPressed: () => _handleBack(context),
       ),
       title: Row(
@@ -100,7 +100,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           if (!isMobile) ...[
             Icon(
               Icons.auto_awesome_motion_rounded,
-              color: AppColors.secondary,
+              color: Theme.of(context).colorScheme.primary,
               size: 20,
             ),
             SizedBox(width: 12),
@@ -115,6 +115,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                   style: AppTypography.bodyLarge.copyWith(
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -156,22 +157,22 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               width: 16,
             ),
             IconButton(
-              icon: Icon(Icons.undo_rounded),
+              icon: const Icon(Icons.undo_rounded),
               color: state.canUndo
                   ? Theme.of(context).colorScheme.onSurface
                   : Theme.of(
                       context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ).colorScheme.onSurface.withValues(alpha: 0.3),
               onPressed: state.canUndo ? cubit.undo : null,
               tooltip: loc.translate('undo'),
             ),
             IconButton(
-              icon: Icon(Icons.redo_rounded),
+              icon: const Icon(Icons.redo_rounded),
               color: state.canRedo
                   ? Theme.of(context).colorScheme.onSurface
                   : Theme.of(
                       context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ).colorScheme.onSurface.withValues(alpha: 0.3),
               onPressed: state.canRedo ? cubit.redo : null,
               tooltip: loc.translate('redo'),
             ),
@@ -200,7 +201,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     },
                     color: state.isPublished
                         ? Theme.of(context).colorScheme.onSurface
-                        : AppColors.secondary,
+                        : Theme.of(context).colorScheme.primary,
                   ),
                   if (!state.isPublished)
                     _buildActionButton(
@@ -259,7 +260,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     icon: Icon(
                       Icons.smartphone_rounded,
                       color: previewMode == PreviewMode.mobile
-                          ? AppColors.secondary
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () => onChangePreview(PreviewMode.mobile),
@@ -269,7 +270,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     icon: Icon(
                       Icons.desktop_windows_rounded,
                       color: previewMode == PreviewMode.desktop
-                          ? AppColors.secondary
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () => onChangePreview(PreviewMode.desktop),
@@ -279,7 +280,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     icon: Icon(
                       Icons.visibility_rounded,
                       color: previewMode == PreviewMode.fullscreen
-                          ? AppColors.secondary
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () => onChangePreview(PreviewMode.fullscreen),
@@ -289,7 +290,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                   IconButton(
                     icon: Icon(
                       Icons.open_in_new_rounded,
-                      color: AppColors.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     onPressed: () {
                       html.window.open('/${state.subdomain}', '_blank');
@@ -312,20 +313,20 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           const AnimatedThemeToggle(size: 36),
           const SizedBox(width: 8),
           IconButton(
-            icon: Icon(Icons.auto_awesome_rounded, color: AppColors.secondary),
+            icon: Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary),
             onPressed: onShowTemplates,
           ),
           IconButton(
-            icon: Icon(Icons.color_lens_rounded, color: AppColors.secondary),
+            icon: Icon(Icons.color_lens_rounded, color: Theme.of(context).colorScheme.primary),
             onPressed: onShowDesign,
           ),
           IconButton(
-            icon: Icon(Icons.search_rounded, color: AppColors.secondary),
+            icon: Icon(Icons.search_rounded, color: Theme.of(context).colorScheme.primary),
             onPressed: onShowSeo,
           ),
         ],
         IconButton(
-          icon: Icon(Icons.open_in_new_rounded, color: AppColors.secondary),
+          icon: Icon(Icons.open_in_new_rounded, color: Theme.of(context).colorScheme.primary),
           onPressed: () {
             html.window.open('/${state.subdomain}', '_blank');
           },
@@ -408,12 +409,12 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: canSave
-              ? AppColors.secondary.withValues(alpha: 0.1)
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: canSave
-                ? AppColors.secondary
+                ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.outlineVariant,
           ),
         ),
@@ -423,7 +424,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               )
             : Row(
@@ -432,7 +433,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                   Icon(
                     Icons.cloud_done_rounded,
                     color: canSave
-                        ? AppColors.secondary
+                        ? Theme.of(context).colorScheme.primary
                         : Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.5),
@@ -445,7 +446,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                         : loc.translate('published'),
                     style: AppTypography.bodyMedium.copyWith(
                       color: canSave
-                          ? AppColors.secondary
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.5),
@@ -477,9 +478,9 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: AppColors.activeGreen.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.public_rounded, color: AppColors.activeGreen),
+              child: const Icon(Icons.public_rounded, color: AppColors.activeGreen),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Text(
               loc.translate('publish_confirm_title'),
               style: AppTypography.h3,
@@ -496,7 +497,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -509,20 +510,20 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lock, size: 14, color: AppColors.activeGreen),
-                  SizedBox(width: 8),
+                  const Icon(Icons.lock, size: 14, color: AppColors.activeGreen),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'landymaker.com/${state.subdomain}',
                       style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.open_in_new_rounded, size: 16),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 16),
                     onPressed: () {
                       html.window.open('/${state.subdomain}', '_blank');
                     },
@@ -561,7 +562,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             },
             child: Text(
               loc.translate('publish_confirm_go'),
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],

@@ -79,9 +79,9 @@ class _FeatureGateWrapperState extends State<FeatureGateWrapper> {
             Positioned.fill(
               child: Center(
                 child: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.lock_rounded,
-                    color: AppColors.warningOrange,
+                    color: Colors.orange,
                   ),
                   onPressed: _showUpgradePrompt,
                 ),
@@ -106,7 +106,7 @@ class _FeatureGateWrapperState extends State<FeatureGateWrapper> {
                   icon: Icon(Icons.star_rounded, size: 16),
                   label: const Text("ترقية"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.warningOrange,
+                    backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),

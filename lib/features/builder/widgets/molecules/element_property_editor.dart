@@ -25,16 +25,16 @@ class ElementPropertyEditor extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             type == 'text' ? "تنسيق النص" : "تنسيق الصورة",
-            style: AppTypography.h3.copyWith(color: AppColors.secondary),
+            style: AppTypography.h3.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           const SizedBox(height: 20),
           if (type == 'text') ..._buildTextControls(loc),
@@ -70,15 +70,15 @@ class ElementPropertyEditor extends StatelessWidget {
       children: [
         const Text(
           "نوع الخط",
-          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: DropdownButton<String>(
             value:
@@ -102,13 +102,13 @@ class ElementPropertyEditor extends StatelessWidget {
       children: [
         Text(
           "\$label: \${value.toInt()}",
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: const TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         Slider(
           value: value.clamp(min, max),
           min: min,
           max: max,
-          activeColor: AppColors.secondary,
+          activeColor: Theme.of(context).colorScheme.secondary,
           onChanged: (val) => onUpdate(key, val),
         ),
       ],
@@ -122,12 +122,12 @@ class ElementPropertyEditor extends StatelessWidget {
       children: [
         const Text(
           "خط عريض",
-          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         Switch(
           value: isBold,
           onChanged: (val) => onUpdate('fontWeight', val ? 'bold' : 'normal'),
-          activeThumbColor: AppColors.secondary,
+          activeThumbColor: Theme.of(context).colorScheme.secondary,
         ),
       ],
     );

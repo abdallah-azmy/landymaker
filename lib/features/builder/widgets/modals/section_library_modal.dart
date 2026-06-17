@@ -780,7 +780,7 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
-                      color: AppColors.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                       width: 1.5,
                     ),
                   ),
@@ -804,7 +804,7 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
                         ),
                         selected: isSelected,
                         onSelected: (_) => setState(() => _selectedCategory = cat.key),
-                        selectedColor: AppColors.secondary,
+                        selectedColor: Theme.of(context).colorScheme.primary,
                         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -951,14 +951,14 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: _isHovered
-                  ? AppColors.secondary.withValues(alpha: 0.65)
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.65)
                   : Theme.of(context).colorScheme.outlineVariant,
               width: _isHovered ? 1.6 : 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: _isHovered
-                    ? AppColors.secondary.withValues(alpha: 0.12)
+                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
                     : Colors.black.withValues(alpha: 0.08),
                 blurRadius: _isHovered ? 18 : 10,
                 offset: const Offset(0, 8),
@@ -974,12 +974,12 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.secondary.withValues(alpha: 0.12),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       widget.section.icon,
-                      color: AppColors.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 20,
                     ),
                   ),
@@ -1014,7 +1014,7 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
               Expanded(
                 child: _SectionMiniPreview(
                   variant: _selectedVariant,
-                  accent: AppColors.secondary,
+                  accent: Theme.of(context).colorScheme.primary,
                 ),
               ),
               SizedBox(height: 10),
@@ -1041,13 +1041,13 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppColors.secondary
-                            : AppColors.secondary.withValues(alpha: 0.08),
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
                           color: isSelected
                               ? Colors.transparent
-                              : AppColors.secondary.withValues(alpha: 0.25),
+                              : Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
                         ),
                       ),
                       child: Text(
@@ -1076,8 +1076,8 @@ class _SectionVariantCardState extends State<_SectionVariantCard>
                   icon: Icon(Icons.add_rounded, size: 18),
                   label: Text("إضافة ${_selectedVariant.name}"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

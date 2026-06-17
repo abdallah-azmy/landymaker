@@ -27,15 +27,15 @@
 
 ## 📋 Table of Contents
 
-| Part | Title | Screens Covered |
-|------|-------|-----------------|
-| **1** | Theme Compliance Audit & Hardcoded Color Purge | All screens — global pass |
-| **2** | Auth Screens Polish (Login, Register, Forgot Password, Reset Password) | `auth/screens/*` |
-| **3** | Home & Marketing Website Polish | `home/screens/*`, `home/widgets/*` |
-| **4** | Dashboard Shell, Sidebar & Top Bar Redesign | `dashboard_shell.dart`, `sidebar_navigation.dart` |
-| **5** | Dashboard Inner Screens Polish | All `dashboard/screens/*` inner screens |
-| **6** | Builder Workspace Shell & AI Agent Experience | `builder/screens/*`, `guest_preview_screen.dart` |
-| **7** | Global Controls: Theme Toggle, Language Switcher & Logo Standardization | `animated_theme_toggle.dart`, all language buttons, logo widgets |
+| Part | Title | Screens Covered | Status |
+|------|-------|-----------------|--------|
+| **1** | Theme Compliance Audit & Hardcoded Color Purge | All screens — global pass | ✅ DONE |
+| **2** | Auth Screens Polish (Login, Register, Forgot Password, Reset Password) | `auth/screens/*` | ✅ DONE |
+| **3** | Home & Marketing Website Polish | `home/screens/*`, `home/widgets/*` | ✅ DONE |
+| **4** | Dashboard Shell, Sidebar & Top Bar Redesign | `dashboard_shell.dart`, `sidebar_navigation.dart` | ✅ DONE |
+| **5** | Dashboard Inner Screens Polish | All `dashboard/screens/*` inner screens | ✅ DONE |
+| **6** | Builder Workspace Shell & AI Agent Experience | `builder/screens/*`, `guest_preview_screen.dart` | ✅ DONE |
+| **7** | Global Controls: Theme Toggle, Language Switcher & Logo Standardization | `animated_theme_toggle.dart`, all language buttons, logo widgets | ✅ DONE |
 
 ---
 

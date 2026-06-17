@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../../features/auth/controllers/auth_cubit.dart';
 import '../../../features/auth/controllers/auth_state.dart';
@@ -24,7 +25,7 @@ class LandyMakerLogo extends StatelessWidget {
             text: 'Landy',
             style: AppTypography.h3.copyWith(
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: fontSize,
               letterSpacing: -0.5,
             ),
@@ -33,7 +34,7 @@ class LandyMakerLogo extends StatelessWidget {
             text: 'Maker',
             style: AppTypography.h3.copyWith(
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF00E5FF),
+              color: AppColors.primary,
               fontSize: fontSize,
               letterSpacing: -0.5,
             ),

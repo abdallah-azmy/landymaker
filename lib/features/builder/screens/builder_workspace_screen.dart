@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:html' as html;
 import 'dart:ui';
+import '../../../core/router/router_extensions.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
@@ -97,7 +98,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, 'exit'),
-            child: const Text("خروج بدون حفظ", style: TextStyle(color: AppColors.dangerRed)),
+            child: Text("خروج بدون حفظ", style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, 'cancel'),
@@ -264,7 +265,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     if (state is BuilderLoading || state is BuilderInitial) {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Center(child: CircularProgressIndicator(color: AppColors.secondary)),
+        body: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary)),
       );
     }
 
@@ -284,7 +285,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             children: [
               Text("Error loading builder canvas", style: AppTypography.h2),
               SizedBox(height: 8),
-              Text(state.message, style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed)),
+              Text(state.message, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
               SizedBox(height: 20),
               ElevatedButton(onPressed: () => builderCubit.loadForCurrentUser(), child: const Text("Retry")),
             ],
@@ -416,7 +417,7 @@ class _DesktopBuilderWorkspace extends StatelessWidget {
         .map((e) => Map<String, dynamic>.from(e as Map)).toList();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: previewMode == PreviewMode.fullscreen 
         ? null 
         : BuilderAppBar(
@@ -527,7 +528,7 @@ class _MobileBuilderWorkspace extends StatelessWidget {
         .map((e) => Map<String, dynamic>.from(e as Map)).toList();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: previewMode != PreviewMode.fullscreen
         ? BuilderMobileToolbar(
             cubit: cubit,
@@ -584,7 +585,7 @@ class _DesktopFab extends StatelessWidget {
         FloatingActionButton.extended(
           onPressed: onShowAi,
           heroTag: 'ai_fab',
-          backgroundColor: AppColors.primary,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           icon: Icon(Icons.auto_awesome_rounded, color: Colors.white),
           label: const Text("مساعد الذكاء الاصطناعي", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         ),
@@ -592,7 +593,7 @@ class _DesktopFab extends StatelessWidget {
         FloatingActionButton.extended(
           onPressed: onAddBlock,
           heroTag: 'add_fab',
-          backgroundColor: AppColors.secondary,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
           icon: Icon(Icons.add_rounded, color: Colors.white),
           label: const Text("إضافة قسم جديد", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         ),
@@ -628,17 +629,17 @@ class _SidebarWrapper extends StatelessWidget {
     return Container(
       width: 350,
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
-          right: loc.isRtl ? BorderSide.none : BorderSide(color: Color(0xFF1E293B)),
-          left: loc.isRtl ? BorderSide(color: Color(0xFF1E293B)) : BorderSide.none,
+          right: loc.isRtl ? BorderSide.none : BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+          left: loc.isRtl ? BorderSide(color: Theme.of(context).colorScheme.outlineVariant) : BorderSide.none,
         ),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            color: const Color(0xFF1E293B),
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             child: Row(
               children: [
                 _SidebarTab(index: 0, icon: Icons.layers_rounded, label: "الأقسام", isSelected: sidebarTabIndex == 0, onTap: () => onSetSidebarTab(0)),
@@ -696,15 +697,16 @@ class _SidebarTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Expanded(
       child: InkWell(
         onTap: onTap,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: isSelected ? const Color(0xFF00E5FF) : Colors.white24, size: 20),
+            Icon(icon, color: isSelected ? cs.primary : cs.onSurface.withValues(alpha: 0.24), size: 20),
             SizedBox(height: 4),
-            Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.white24, fontSize: 10, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+            Text(label, style: TextStyle(color: isSelected ? cs.onSurface : cs.onSurface.withValues(alpha: 0.24), fontSize: 10, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
           ],
         ),
       ),
@@ -732,8 +734,8 @@ class _DesktopCanvasToolbar extends StatelessWidget {
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        color: Color(0xFF0F172A),
-        border: Border(bottom: BorderSide(color: Color(0xFF1E293B))),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -751,14 +753,14 @@ class _DesktopCanvasToolbar extends StatelessWidget {
           ),
           Row(
             children: [
-              IconButton(icon: Icon(Icons.undo_rounded, size: 20), onPressed: state.canUndo ? cubit.undo : null, color: Colors.white70),
-              IconButton(icon: Icon(Icons.redo_rounded, size: 20), onPressed: state.canRedo ? cubit.redo : null, color: Colors.white70),
+              IconButton(icon: Icon(Icons.undo_rounded, size: 20), onPressed: state.canUndo ? cubit.undo : null, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+              IconButton(icon: Icon(Icons.redo_rounded, size: 20), onPressed: state.canRedo ? cubit.redo : null, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
               SizedBox(width: 16),
               ElevatedButton.icon(
                 onPressed: () => cubit.saveForCurrentUser(),
                 icon: Icon(Icons.cloud_done_rounded, size: 18),
                 label: const Text("حفظ التغييرات"),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
               ),
             ],
           ),
@@ -786,6 +788,7 @@ class _DeviceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final isSelected = currentMode == mode;
     return Tooltip(
       message: tooltip,
@@ -794,10 +797,10 @@ class _DeviceButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF00E5FF).withValues(alpha: 0.1) : Colors.transparent,
+            color: isSelected ? cs.primary.withValues(alpha: 0.1) : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: isSelected ? const Color(0xFF00E5FF) : Colors.white24, size: 20),
+          child: Icon(icon, color: isSelected ? cs.primary : cs.onSurface.withValues(alpha: 0.24), size: 20),
         ),
       ),
     );
@@ -835,10 +838,10 @@ class _CanvasContainer extends StatelessWidget {
       decoration: previewMode == PreviewMode.fullscreen 
         ? null 
         : BoxDecoration(
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 40, spreadRadius: 10)],
-            border: Border.all(color: const Color(0xFF1E293B), width: 8),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 8),
           ),
       clipBehavior: Clip.antiAlias,
       child: BuilderCanvas(
@@ -870,7 +873,7 @@ class _FullscreenCloseButton extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
             child: IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: Icon(Icons.arrow_back_ios_new_rounded),
               color: Colors.white,
               iconSize: 22,
               padding: const EdgeInsets.all(6),
@@ -933,9 +936,9 @@ class _AuthGate extends StatelessWidget {
                     SizedBox(height: 12),
                     Text(loc.translate('auth_gate_desc'), style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
                     SizedBox(height: 28),
-                    _AuthButton(label: loc.translate('auth_gate_login'), onPressed: () => context.go('/login'), primary: true),
+                    _AuthButton(label: loc.translate('auth_gate_login'), onPressed: () => context.safePop(fallbackPath: '/login'), primary: true),
                     SizedBox(height: 12),
-                    _AuthButton(label: loc.translate('auth_gate_register'), onPressed: () => context.go('/register'), primary: false),
+                    _AuthButton(label: loc.translate('auth_gate_register'), onPressed: () => context.safePop(fallbackPath: '/register'), primary: false),
                   ],
                 ),
               ),
@@ -952,8 +955,8 @@ class _LockIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-      child: Icon(Icons.lock_outline_rounded, color: AppColors.primary, size: 40),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+      child: Icon(Icons.lock_outline_rounded, color: Theme.of(context).colorScheme.primary, size: 40),
     );
   }
 }
@@ -972,12 +975,12 @@ class _AuthButton extends StatelessWidget {
       child: primary 
         ? ElevatedButton(
             onPressed: onPressed,
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
             child: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
           )
         : OutlinedButton(
             onPressed: onPressed,
-            style: OutlinedButton.styleFrom(foregroundColor: AppColors.primary, side: BorderSide(color: AppColors.primary), padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+            style: OutlinedButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.primary, side: BorderSide(color: Theme.of(context).colorScheme.primary), padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
             child: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
           ),
     );

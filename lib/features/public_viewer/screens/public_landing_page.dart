@@ -181,7 +181,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                             Icon(
                               Icons.search_off_rounded,
                               size: 80,
-                              color: AppColors.dangerRed,
+                              color: Theme.of(context).colorScheme.error,
                             ),
                             SizedBox(height: 24),
                             Text(
@@ -207,8 +207,8 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                               onPressed: () =>
                                   launchUrl(Uri.parse(Uri.base.origin)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                foregroundColor: Theme.of(context).colorScheme.onPrimary,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 24,
                                   vertical: 14,
@@ -242,7 +242,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                             Icon(
                               Icons.error_outline_rounded,
                               size: 80,
-                              color: AppColors.dangerRed,
+                              color: Theme.of(context).colorScheme.error,
                             ),
                             SizedBox(height: 24),
                             Text(
@@ -263,8 +263,8 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                             ElevatedButton(
                               onPressed: _loadTenantPage,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.secondary,
-                                foregroundColor: Colors.white,
+                                backgroundColor: Theme.of(context).colorScheme.secondary,
+                                foregroundColor: Theme.of(context).colorScheme.onSecondary,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 24,
                                   vertical: 14,
@@ -454,8 +454,8 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
             width: 40,
             height: 2,
             child: LinearProgressIndicator(
-              color: AppColors.secondary,
-              backgroundColor: Colors.white10,
+              color: Theme.of(context).colorScheme.primary,
+              backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
             ),
           ),
         ],
@@ -499,7 +499,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
               children: [
                 Icon(
                   Icons.auto_awesome_rounded,
-                  color: AppColors.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 20,
                 ),
                 SizedBox(width: 8),
@@ -538,12 +538,12 @@ Widget _buildSuspendedState(BuildContext context, LocalizationCubit loc) {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.dangerRed.withValues(alpha: 0.3)),
+        border: Border.all(color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.block_rounded, color: AppColors.dangerRed, size: 64),
+          Icon(Icons.block_rounded, color: Theme.of(context).colorScheme.error, size: 64),
           SizedBox(height: 24),
           Text(
             loc.isRtl ? "الصفحة معطلة حالياً" : "Page Currently Suspended",
@@ -563,8 +563,8 @@ Widget _buildSuspendedState(BuildContext context, LocalizationCubit loc) {
           ElevatedButton(
             onPressed: () => launchUrl(Uri.parse(Uri.base.origin)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),

@@ -54,7 +54,7 @@ class DataTableHeader extends StatelessWidget {
                   child: DropdownButton<String>(
                     value: currentSort,
                     underline: SizedBox(),
-                    icon: Icon(Icons.sort_rounded, color: AppColors.secondary),
+                    icon: Icon(Icons.sort_rounded, color: Theme.of(context).colorScheme.secondary),
                     hint: const Text("ترتيب حسب"),
                     items: sortOptions.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
                     onChanged: onSort,

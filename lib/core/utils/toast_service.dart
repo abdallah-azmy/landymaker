@@ -14,7 +14,7 @@ class ToastService {
       context: context,
       type: ToastificationType.success,
       style: ToastificationStyle.fillColored,
-      primaryColor: AppColors.secondary, // Neon Cyan brand color
+      primaryColor: Theme.of(context).colorScheme.secondary, // Neon Cyan brand color
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       title: title != null 
           ? Text(title, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white))
@@ -50,7 +50,7 @@ class ToastService {
       context: context,
       type: ToastificationType.error,
       style: ToastificationStyle.fillColored,
-      primaryColor: AppColors.dangerRed,
+      primaryColor: Theme.of(context).colorScheme.error,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       title: title != null 
           ? Text(title, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white))
@@ -86,7 +86,7 @@ class ToastService {
       context: context,
       type: ToastificationType.info,
       style: ToastificationStyle.fillColored,
-      primaryColor: AppColors.primary,
+      primaryColor: Theme.of(context).colorScheme.primary,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       title: title != null 
           ? Text(title, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Colors.white))

@@ -160,7 +160,7 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
   @override
   Widget build(BuildContext context) {
-    final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
+    final secondaryColor = widget.theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
@@ -212,7 +212,7 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
   }
 
   void _showProductDetail(BuildContext context, Map<String, dynamic> item) {
-    final secondary = widget.theme?.secondary ?? AppColors.secondary;
+    final secondary = widget.theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final bgColor = widget.theme?.background ?? Theme.of(context).colorScheme.surface;
     final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;

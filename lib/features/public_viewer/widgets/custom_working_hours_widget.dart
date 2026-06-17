@@ -245,16 +245,16 @@ class _WorkingHoursStatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: (isOpen ? AppColors.activeGreen : AppColors.dangerRed).withValues(alpha: 0.1),
+        color: (isOpen ? Colors.green : Theme.of(context).colorScheme.error).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isOpen ? AppColors.activeGreen : AppColors.dangerRed),
+        border: Border.all(color: isOpen ? Colors.green : Theme.of(context).colorScheme.error),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(width: 8, height: 8, decoration: BoxDecoration(color: isOpen ? AppColors.activeGreen : AppColors.dangerRed, shape: BoxShape.circle)),
+          Container(width: 8, height: 8, decoration: BoxDecoration(color: isOpen ? Colors.green : Theme.of(context).colorScheme.error, shape: BoxShape.circle)),
           SizedBox(width: 8),
-          Text(isOpen ? "مفتوح الآن" : "مغلق الآن", style: AppTypography.caption.copyWith(color: isOpen ? AppColors.activeGreen : AppColors.dangerRed, fontWeight: FontWeight.bold)),
+          Text(isOpen ? "مفتوح الآن" : "مغلق الآن", style: AppTypography.caption.copyWith(color: isOpen ? Colors.green : Theme.of(context).colorScheme.error, fontWeight: FontWeight.bold)),
         ],
       ),
     );

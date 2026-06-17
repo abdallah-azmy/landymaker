@@ -136,7 +136,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF030712),
+        color: Theme.of(context).scaffoldBackgroundColor,
         border: Border(
           top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
         ),
@@ -252,7 +252,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
       decoration: BoxDecoration(
-        color: AppColors.darkBackground,
+        color: Theme.of(context).scaffoldBackgroundColor,
         border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
       ),
       child: Center(

@@ -37,14 +37,14 @@ class GlobalUploadManagerWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.cloud_upload_rounded, color: AppColors.primary, size: 20),
-                    SizedBox(width: 8),
+                    Icon(Icons.cloud_upload_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
+                    const SizedBox(width: 8),
                     Text(
                       'جاري الرفع...',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -109,19 +109,19 @@ class GlobalUploadManagerWidget extends StatelessWidget {
                         child: CircularProgressIndicator(
                           value: task.progress > 0 ? task.progress : null,
                           strokeWidth: 2.5,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           backgroundColor: Colors.white24,
                         ),
                       ),
                     ),
                   
                   if (task.error != null)
-                    const Center(child: Icon(Icons.error, color: AppColors.dangerRed, size: 20)),
+                    Center(child: Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 20)),
                 ],
               ),
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           
           // Progress text / Status
           Expanded(
@@ -131,7 +131,7 @@ class GlobalUploadManagerWidget extends StatelessWidget {
                 Text(
                   task.error != null ? 'فشل الرفع' : '${(task.progress * 100).toInt()}%',
                   style: TextStyle(
-                    color: task.error != null ? AppColors.dangerRed : Colors.white,
+                    color: task.error != null ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
@@ -139,7 +139,7 @@ class GlobalUploadManagerWidget extends StatelessWidget {
                 if (task.error != null)
                   Text(
                     'حاول مرة أخرى',
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 11),
                   ),
               ],
             ),

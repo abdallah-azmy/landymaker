@@ -100,7 +100,7 @@ class TestimonialsEditor extends StatelessWidget {
                     IconButton(
                       icon: Icon(
                         Icons.delete_outline_rounded,
-                        color: AppColors.dangerRed,
+                        color: Theme.of(context).colorScheme.error,
                         size: 20,
                       ),
                       onPressed: () =>

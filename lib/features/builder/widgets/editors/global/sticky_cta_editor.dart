@@ -93,7 +93,7 @@ class _StickyCtaEditorState extends State<StickyCtaEditor> {
                   Text("شريط الإجراء الثابت (Sticky CTA)", style: AppTypography.h3),
                   Switch(
                     value: config['is_enabled'] == true,
-                    activeThumbColor: AppColors.secondary,
+                    activeThumbColor: Theme.of(context).colorScheme.primary,
                     onChanged: (val) => updateConfig('is_enabled', val),
                   ),
                 ],

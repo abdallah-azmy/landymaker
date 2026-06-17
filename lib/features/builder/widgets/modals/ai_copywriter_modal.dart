@@ -82,7 +82,7 @@ class _AiCopywriterModalState extends State<AiCopywriterModal> {
                         child: ListTile(
                           title: Text(text),
                           trailing: IconButton(
-                            icon: Icon(Icons.check_circle_rounded, color: AppColors.activeGreen),
+                            icon: const Icon(Icons.check_circle_rounded, color: Colors.green),
                             onPressed: () {
                               widget.onApply(text);
                               Navigator.pop(context);

@@ -51,7 +51,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(stateListener.message),
-              backgroundColor: AppColors.dangerRed,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -61,8 +61,8 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
       appBar: TabBar(
         controller: _tabController,
         isScrollable: true,
-        indicatorColor: AppColors.secondary,
-        labelColor: AppColors.secondary,
+        indicatorColor: Theme.of(context).colorScheme.secondary,
+        labelColor: Theme.of(context).colorScheme.secondary,
         unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
         tabs: const [
           Tab(text: "Users", icon: Icon(Icons.people_rounded)),
@@ -115,11 +115,11 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 Flexible(child: Text(u['email'], style: AppTypography.bodyMedium, overflow: TextOverflow.ellipsis)),
                 StatusPill(
                   label: u['tier'].toString().toUpperCase(),
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                StatusPill(label: "نشط", color: AppColors.activeGreen),
+                StatusPill(label: "نشط", color: Colors.green),
                 IconButton(
-                  icon: Icon(Icons.manage_accounts_rounded, color: AppColors.secondary),
+                  icon: Icon(Icons.manage_accounts_rounded, color: Theme.of(context).colorScheme.secondary),
                   onPressed: () => _showEditUserDialog(u, state.plans),
                 ),
               ],
@@ -237,7 +237,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.web_rounded, size: 14, color: AppColors.secondary),
+                    Icon(Icons.web_rounded, size: 14, color: Theme.of(context).colorScheme.secondary),
                     SizedBox(width: 8),
                     Text("Limit: ${plan['page_limit']} pages", style: AppTypography.bodyMedium),
                   ],
@@ -289,13 +289,13 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 SwitchListTile(
                   title: const Text("Custom Domain Access", style: TextStyle(fontSize: 14)),
                   value: customDomain,
-                  activeColor: AppColors.secondary,
+                  activeColor: Theme.of(context).colorScheme.secondary,
                   onChanged: (val) => setDialogState(() => customDomain = val),
                 ),
                 SwitchListTile(
                   title: const Text("Advanced SEO Access", style: TextStyle(fontSize: 14)),
                   value: seoAccess,
-                  activeColor: AppColors.secondary,
+                  activeColor: Theme.of(context).colorScheme.secondary,
                   onChanged: (val) => setDialogState(() => seoAccess = val),
                 ),
               ],
@@ -346,7 +346,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         children: [
           Row(
             children: [
-              Icon(Icons.security_rounded, color: AppColors.dangerRed),
+              Icon(Icons.security_rounded, color: Theme.of(context).colorScheme.error),
               SizedBox(width: 12),
               Text("Infrastructure Security Boundaries", style: AppTypography.h3),
             ],
@@ -369,9 +369,9 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.dangerRed.withValues(alpha: 0.05),
+        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.dangerRed.withValues(alpha: 0.2)),
+        border: Border.all(color: Theme.of(context).colorScheme.error.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,7 +382,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
               Text(title, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(color: AppColors.dangerRed, borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.error, borderRadius: BorderRadius.circular(20)),
                 child: Text(value, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
               ),
             ],
@@ -425,8 +425,8 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
             StatusPill(
               label: action,
               color: action == 'UPDATE'
-                  ? AppColors.secondary
-                  : AppColors.activeGreen,
+                  ? Theme.of(context).colorScheme.secondary
+                  : Colors.green,
             ),
             Tooltip(
               message: changesText,
@@ -469,17 +469,17 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
             Text("${r['price_paid']} EGP"),
             StatusPill(
               label: status.toUpperCase(),
-              color: status == 'approved' ? AppColors.activeGreen : (status == 'rejected' ? AppColors.dangerRed : AppColors.warningOrange),
+              color: status == 'approved' ? Colors.green : (status == 'rejected' ? Theme.of(context).colorScheme.error : Colors.orange),
             ),
             if (status == 'pending')
               Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.check_circle_rounded, color: AppColors.activeGreen),
+                    icon: Icon(Icons.check_circle_rounded, color: Colors.green),
                     onPressed: () => context.read<SuperAdminCubit>().approveRequest(r['id']),
                   ),
                   IconButton(
-                    icon: Icon(Icons.cancel_rounded, color: AppColors.dangerRed),
+                    icon: Icon(Icons.cancel_rounded, color: Theme.of(context).colorScheme.error),
                     onPressed: () => context.read<SuperAdminCubit>().rejectRequest(r['id']),
                   ),
                 ],
@@ -507,9 +507,9 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: _buildMetricMiniCard("إجمالي المشاهدات", stats['total_views'].toString(), Icons.visibility_rounded, AppColors.secondary)),
+              Expanded(child: _buildMetricMiniCard("إجمالي المشاهدات", stats['total_views'].toString(), Icons.visibility_rounded, Theme.of(context).colorScheme.secondary)),
               SizedBox(width: 16),
-              Expanded(child: _buildMetricMiniCard("إجمالي المبيات", stats['total_purchases'].toString(), Icons.shopping_cart_rounded, AppColors.activeGreen)),
+              Expanded(child: _buildMetricMiniCard("إجمالي المبيات", stats['total_purchases'].toString(), Icons.shopping_cart_rounded, Colors.green)),
             ],
           ),
           SizedBox(height: 32),
@@ -519,7 +519,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
             title: "سجل العمليات",
             headers: const ["نوع الحدث", "رقم الصفحة", "الوقت"],
             rows: (stats['recent_logs'] as List).map((l) => [
-              StatusPill(label: l['event_type'].toString().toUpperCase(), color: l['event_type'] == 'view' ? AppColors.secondary : AppColors.activeGreen),
+              StatusPill(label: l['event_type'].toString().toUpperCase(), color: l['event_type'] == 'view' ? Theme.of(context).colorScheme.secondary : Colors.green),
               Text(l['landing_page_id'].toString().substring(0, 8) + "..."),
               Text(l['created_at'].toString().split('T').last.substring(0, 5)),
             ]).toList(),
@@ -558,9 +558,9 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           final user = a['profiles']?['full_name'] ?? 'Unknown';
           return [
             Text(user, style: AppTypography.bodyLarge),
-            Text(a['promo_code'], style: AppTypography.bodyMedium.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold)),
+            Text(a['promo_code'], style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.bold)),
             Text("${a['commission_percent']}%"),
-            Text("${a['balance']} EGP", style: TextStyle(color: AppColors.activeGreen, fontWeight: FontWeight.bold)),
+            Text("${a['balance']} EGP", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
           ];
         }).toList(),
         emptyMessage: "لا يوجد مسوقين مسجلين",
@@ -628,17 +628,17 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 Text(t['category'] ?? 'general', style: AppTypography.bodyMedium),
                 StatusPill(
                   label: isDraft ? "Draft" : "Live",
-                  color: isDraft ? AppColors.warningOrange : AppColors.activeGreen,
+                  color: isDraft ? Colors.orange : Colors.green,
                 ),
                 StatusPill(
                   label: isFeatured ? "Featured" : "Standard",
-                  color: isFeatured ? AppColors.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: isFeatured ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.edit_rounded, size: 18, color: AppColors.secondary),
+                      icon: Icon(Icons.edit_rounded, size: 18, color: Theme.of(context).colorScheme.secondary),
                       tooltip: "Edit",
                       onPressed: () => _showTemplateEditorDialog(t),
                     ),
@@ -646,7 +646,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                       icon: Icon(
                         isDraft ? Icons.publish_rounded : Icons.drafts_rounded,
                         size: 18,
-                        color: isDraft ? AppColors.activeGreen : AppColors.warningOrange,
+                        color: isDraft ? Colors.green : Colors.orange,
                       ),
                       tooltip: isDraft ? "Publish" : "Set as Draft",
                       onPressed: () => context.read<SuperAdminCubit>().toggleTemplateStatus(
@@ -656,7 +656,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                     ),
                     if (isActive)
                       IconButton(
-                        icon: Icon(Icons.delete_rounded, size: 18, color: AppColors.dangerRed),
+                        icon: Icon(Icons.delete_rounded, size: 18, color: Theme.of(context).colorScheme.error),
                         tooltip: "Delete",
                         onPressed: () => _confirmDeleteTemplate(t['id']),
                       ),
@@ -718,7 +718,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Seeded $count templates from registry. Existing templates were skipped."),
-          backgroundColor: AppColors.activeGreen,
+          backgroundColor: Colors.green,
         ),
       );
     }
@@ -804,7 +804,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: jsonError != null ? AppColors.dangerRed : Theme.of(context).colorScheme.outlineVariant),
+                    border: Border.all(color: jsonError != null ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.outlineVariant),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TextField(
@@ -828,13 +828,13 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 SwitchListTile(
                   title: const Text("Is Draft (hidden from users)", style: TextStyle(fontSize: 14)),
                   value: isDraft,
-                  activeColor: AppColors.secondary,
+                  activeColor: Theme.of(context).colorScheme.secondary,
                   onChanged: (val) => setDialogState(() => isDraft = val),
                 ),
                 SwitchListTile(
                   title: const Text("Featured on Homepage", style: TextStyle(fontSize: 14)),
                   value: isFeatured,
-                  activeColor: AppColors.secondary,
+                  activeColor: Theme.of(context).colorScheme.secondary,
                   onChanged: (val) => setDialogState(() => isFeatured = val),
                 ),
               ],

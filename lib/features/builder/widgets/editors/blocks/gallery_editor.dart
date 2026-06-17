@@ -106,7 +106,7 @@ class GalleryEditor extends StatelessWidget {
                       icon: Icon(
                         Icons.delete_outline_rounded,
                         size: 18,
-                        color: AppColors.dangerRed,
+                        color: Theme.of(context).colorScheme.error,
                       ),
                       onPressed: () => cubit.deleteGalleryImage(index, gIndex),
                       padding: EdgeInsets.zero,

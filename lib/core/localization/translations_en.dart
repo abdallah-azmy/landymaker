@@ -288,5 +288,13 @@ const Map<String, String> translationsEn = {
   'slot_type_video': 'Video',
   'desktop_preview': 'Desktop Preview',
   'mobile_preview': 'Mobile Preview',
+  'auth_brand_tagline': 'Create your professional landing page in minutes, no coding required.',
+  'dont_have_account': "Don't have an account?",
+  'already_have_account': 'Already have an account?',
+  'theme_mode': 'Appearance',
+  'theme_mode_desc': 'Choose between Light and Dark mode',
+  'language': 'Language',
+  'language_desc': 'Change dashboard language',
+  'profile': 'Profile',
 };
 

@@ -45,8 +45,7 @@ class SidebarNavigation extends StatelessWidget {
         'route': '/dashboard/super-admin',
       });
       finalItems.add({
-        'title_key':
-            'إعدادات المنصة (SEO)', // We can hardcode Arabic here or add it to localization. 'Platform SEO' is fine.
+        'title_key': 'Platform SEO',
         'icon': Icons.travel_explore_rounded,
         'route': '/dashboard/platform-seo',
       });
@@ -61,7 +60,7 @@ class SidebarNavigation extends StatelessWidget {
     if (menuItemsOverride != null) {
       finalItems.addAll(menuItemsOverride!);
     } else {
-      finalItems.add({'is_header': true, 'title': 'مساحة العمل الخاصة بك'});
+      finalItems.add({'is_header': true, 'title': 'مساحة العمل'});
       finalItems.add({'is_switcher': true});
       finalItems.add({
         'title_key': 'dashboard',
@@ -106,7 +105,7 @@ class SidebarNavigation extends StatelessWidget {
           : '/builder';
       finalItems.add({
         'title_key': 'hero',
-        'icon': Icons.construction_rounded,
+        'icon': Icons.auto_fix_high_rounded,
         'is_builder': true,
         'route': builderRoute,
       });
@@ -124,7 +123,7 @@ class SidebarNavigation extends StatelessWidget {
     }
 
     return Container(
-      width: 270,
+      width: 260,
       height: double.infinity,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -143,85 +142,81 @@ class SidebarNavigation extends StatelessWidget {
               : BorderSide.none,
         ),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Image.asset(
-                'assets/images/logo_small.webp',
-                height: 32,
-                width: 32,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  loc.translate('app_title'),
-                  style: AppTypography.h2.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.5,
+          // Subtle top accent
+          Container(height: 2, width: double.infinity, color: Theme.of(context).colorScheme.primary),
+          
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+            child: Row(
+              children: [
+                Image.asset('assets/images/logo_small.webp', height: 28, width: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    loc.translate('app_title'),
+                    style: AppTypography.h2.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 24),
+          
           Expanded(
             child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               itemCount: finalItems.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 4),
+              separatorBuilder: (context, index) => const SizedBox(height: 2),
               itemBuilder: (context, index) {
                 final item = finalItems[index];
 
                 if (item['is_header'] == true) {
                   return Padding(
-                    padding: const EdgeInsets.only(
-                      top: 16,
-                      bottom: 8,
-                      left: 8,
-                      right: 8,
-                    ),
+                    padding: const EdgeInsets.only(top: 16, bottom: 8, left: 12, right: 12),
                     child: Text(
-                      item['title'] as String,
+                      (item['title'] as String).toUpperCase(),
                       style: AppTypography.caption.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        letterSpacing: 1.2,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 10,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                        letterSpacing: 1.5,
                       ),
                     ),
                   );
                 }
 
                 if (item['is_divider'] == true) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Divider(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                      thickness: 1.2,
-                    ),
+                  return Divider(
+                    color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+                    height: 16,
                   );
                 }
 
                 if (item['is_switcher'] == true) {
                   return const Padding(
-                    padding: EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.symmetric(vertical: 8),
                     child: WebsiteSwitcher(),
                   );
                 }
 
                 final String label =
                     item['title_key'] == 'Platform SEO' ||
-                        item['title_key'] == 'إعدادات المنصة (SEO)' ||
                         item['title_key'] == 'Products' ||
                         item['title_key'] == 'Product Feed'
                     ? item['title_key'] as String
                     : loc.translate(item['title_key'] as String);
 
                 final isPremium = item['title_key'] == 'custom_domain_menu';
+                final isBuilder = item['is_builder'] == true;
                 final isLocked = item['is_locked'] == true;
                 final route = item['route'] as String?;
 
@@ -235,278 +230,242 @@ class SidebarNavigation extends StatelessWidget {
                   }
                 }
 
-                return InkWell(
-                  onTap: isLocked
-                      ? null
-                      : () {
-                          if (Scaffold.maybeOf(context)?.isDrawerOpen ??
-                              false) {
-                            Navigator.pop(context);
-                          }
-                          if (route != null) {
-                            context.go(route);
-                          }
-                        },
-                  borderRadius: BorderRadius.circular(10),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primary.withValues(alpha: 0.15)
-                          : (isPremium
-                                ? AppColors.warningOrange.withValues(
-                                    alpha: 0.05,
-                                  )
-                                : Colors.transparent),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary.withValues(alpha: 0.3)
-                            : (isPremium
-                                  ? AppColors.warningOrange.withValues(
-                                      alpha: 0.15,
-                                    )
-                                  : (isLocked
-                                        ? Theme.of(context)
-                                              .colorScheme
-                                              .onSurface
-                                              .withValues(alpha: 0.5)
-                                              .withValues(alpha: 0.1)
-                                        : Colors.transparent)),
-                        width: 1.2,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          item['icon'] as IconData,
-                          size: 20,
-                          color: isLocked
-                              ? Theme.of(context).colorScheme.onSurface
-                                    .withValues(alpha: 0.5)
-                                    .withValues(alpha: 0.5)
-                              : (isSelected
-                                    ? AppColors.secondary
-                                    : (isPremium
-                                          ? AppColors.warningOrange
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant)),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Text(
-                            label,
-                            style: AppTypography.bodyLarge.copyWith(
-                              color: isLocked
-                                  ? Theme.of(context).colorScheme.onSurface
-                                        .withValues(alpha: 0.5)
-                                        .withValues(alpha: 0.5)
-                                  : (isSelected
-                                        ? Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface
-                                        : (isPremium
-                                              ? AppColors.warningOrange
-                                              : Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurfaceVariant)),
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                        if (isPremium)
-                          const Icon(
-                            Icons.star_rounded,
-                            size: 14,
-                            color: AppColors.warningOrange,
-                          ),
-                        if (isLocked)
-                          Icon(
-                            Icons.lock_outline_rounded,
-                            size: 12,
-                            color: Theme.of(context).colorScheme.onSurface
-                                .withValues(alpha: 0.5)
-                                .withValues(alpha: 0.4),
-                          ),
-                      ],
-                    ),
-                  ),
+                return _SidebarItem(
+                  label: label,
+                  icon: item['icon'] as IconData,
+                  isSelected: isSelected,
+                  isPremium: isPremium,
+                  isBuilder: isBuilder,
+                  isLocked: isLocked,
+                  onTap: () {
+                    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) Navigator.pop(context);
+                    if (route != null) context.go(route);
+                  },
                 );
               },
             ),
           ),
-          Divider(
-            color: Theme.of(context).colorScheme.outlineVariant,
-            height: 24,
-            thickness: 1.2,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          
+          _SidebarFooter(userEmail: userEmail, isAdmin: isAdmin, onLogout: onLogout),
+        ],
+      ),
+    );
+  }
+}
+
+class _SidebarItem extends StatefulWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final bool isPremium;
+  final bool isBuilder;
+  final bool isLocked;
+  final VoidCallback onTap;
+
+  const _SidebarItem({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.isPremium,
+    required this.isBuilder,
+    required this.isLocked,
+    required this.onTap,
+  });
+
+  @override
+  State<_SidebarItem> createState() => _SidebarItemState();
+}
+
+class _SidebarItemState extends State<_SidebarItem> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.isLocked ? null : widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              gradient: widget.isBuilder && !widget.isSelected
+                  ? LinearGradient(
+                      colors: [
+                        AppColors.primary.withValues(alpha: 0.08),
+                        Colors.transparent,
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    )
+                  : null,
+              color: widget.isBuilder && !widget.isSelected
+                  ? null
+                  : (widget.isSelected
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+                      : (_isHovered ? Theme.of(context).colorScheme.surfaceContainerHigh : Colors.transparent)),
+              borderRadius: BorderRadius.circular(8),
+              border: Border(
+                left: (!context.watch<LocalizationCubit>().isRtl && widget.isSelected)
+                    ? BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
+                    : BorderSide.none,
+                right: (context.watch<LocalizationCubit>().isRtl && widget.isSelected)
+                    ? BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
+                    : BorderSide.none,
+              ),
+            ),
+          child: Row(
             children: [
-              TextButton.icon(
-                onPressed: () => loc.toggleLanguage(),
-                icon: const Icon(
-                  Icons.language_rounded,
-                  size: 16,
-                  color: AppColors.secondary,
-                ),
-                label: Flexible(
-                  child: Text(
-                    loc.translate('switch_language'),
-                    style: AppTypography.caption.copyWith(
-                      color: AppColors.secondary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+              Icon(
+                widget.icon,
+                size: 18,
+                color: widget.isLocked
+                    ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)
+                    : (widget.isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  widget.label,
+                  style: TextStyle(
+                    color: widget.isLocked
+                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)
+                        : (widget.isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant),
+                    fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
+                    fontSize: 13,
                   ),
+                ),
+              ),
+              if (widget.isPremium)
+                const Icon(Icons.star_rounded, size: 14, color: AppColors.warningOrange),
+              if (widget.isLocked)
+                Icon(Icons.lock_outline_rounded, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SidebarFooter extends StatelessWidget {
+  final String userEmail;
+  final bool isAdmin;
+  final VoidCallback onLogout;
+
+  const _SidebarFooter({required this.userEmail, required this.isAdmin, required this.onLogout});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _UsageSection(isAdmin: isAdmin),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                child: Text(
+                  userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userEmail.split('@').first,
+                      style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const _PlanBadge(),
+                  ],
                 ),
               ),
               IconButton(
                 onPressed: onLogout,
-                icon: const Icon(
-                  Icons.power_settings_new_rounded,
-                  color: AppColors.dangerRed,
-                  size: 20,
-                ),
+                icon: Icon(Icons.power_settings_new_rounded, color: Theme.of(context).colorScheme.error, size: 18),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                width: 1.2,
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                      child: Text(
-                        userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
-                        style: AppTypography.bodyLarge.copyWith(
-                          color: AppColors.secondary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            userEmail,
-                            style: AppTypography.caption.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          if (isAdmin)
-                            Container(
-                              margin: const EdgeInsets.only(top: 2),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 1,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.activeGreen.withValues(
-                                  alpha: 0.15,
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text(
-                                "SUPER ADMIN",
-                                style: TextStyle(
-                                  fontSize: 8,
-                                  color: AppColors.activeGreen,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Divider(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                  height: 1,
-                ),
-                const SizedBox(height: 12),
-                BlocBuilder<LandingPagesCubit, LandingPagesState>(
-                  builder: (context, state) {
-                    if (state is LandingPagesLoaded) {
-                      final usage = state.pages.length / state.maxPages;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Usage",
-                                style: AppTypography.caption.copyWith(
-                                  fontSize: 10,
-                                ),
-                              ),
-                              Text(
-                                isAdmin
-                                    ? "${state.pages.length} / ${state.maxPages}"
-                                    : "${state.pages.length} / ${state.maxPages}",
-                                style: AppTypography.caption.copyWith(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: usage,
-                              minHeight: 4,
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.outlineVariant,
-                              color: usage >= 1.0
-                                  ? AppColors.dangerRed
-                                  : AppColors.secondary,
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ],
-            ),
-          ),
         ],
       ),
+    );
+  }
+}
+
+class _UsageSection extends StatelessWidget {
+  final bool isAdmin;
+  const _UsageSection({required this.isAdmin});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LandingPagesCubit, LandingPagesState>(
+      builder: (context, state) {
+        if (state is LandingPagesLoaded) {
+          final usage = state.pages.length / state.maxPages;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("الاستخدام", style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  Text("${state.pages.length} / ${state.maxPages}", style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: usage,
+                  minHeight: 4,
+                  backgroundColor: Theme.of(context).colorScheme.outlineVariant,
+                  color: usage >= 1.0 ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+}
+
+class _PlanBadge extends StatelessWidget {
+  const _PlanBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LandingPagesCubit, LandingPagesState>(
+      builder: (context, state) {
+        String plan = "Free Plan";
+        if (state is LandingPagesLoaded) {
+          if (state.maxPages > 1) plan = "Pro Plan";
+          if (state.maxPages > 5) plan = "Business";
+        }
+        return Text(
+          plan,
+          style: TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7),
+          ),
+        );
+      },
     );
   }
 }

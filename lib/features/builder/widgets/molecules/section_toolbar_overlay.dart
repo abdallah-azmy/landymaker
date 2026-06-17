@@ -56,7 +56,7 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
               duration: const Duration(milliseconds: 200),
               decoration: BoxDecoration(
                 border: (widget.isSelected || _isHovered)
-                    ? Border.all(color: AppColors.secondary, width: 2)
+                    ? Border.all(color: Theme.of(context).colorScheme.secondary, width: 2)
                     : Border.all(color: Colors.transparent, width: 2),
               ),
               child: widget.child,
@@ -88,7 +88,7 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary.withValues(alpha: 0.75),
+                          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.75),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -162,14 +162,14 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
                                   cubit.duplicateBlock(widget.index),
                             ),
                             _buildIconButton(
-                              icon: Icons.arrow_upward_rounded,
+                              icon: Icons.keyboard_arrow_up_rounded,
                               tooltip: loc.translate('move_up'),
                               onPressed: widget.index > 0
                                   ? () => cubit.moveBlock(widget.index, true)
                                   : null,
                             ),
                             _buildIconButton(
-                              icon: Icons.arrow_downward_rounded,
+                              icon: Icons.keyboard_arrow_down_rounded,
                               tooltip: loc.translate('move_down'),
                               onPressed: widget.index < totalBlocks - 1
                                   ? () => cubit.moveBlock(widget.index, false)
@@ -287,7 +287,7 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.dangerRed,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: () {
               cubit.deleteBlock(widget.index);

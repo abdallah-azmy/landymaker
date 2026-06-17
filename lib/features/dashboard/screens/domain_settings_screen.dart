@@ -83,7 +83,7 @@ class DomainSettingsScreen extends StatelessWidget {
             Icon(
               Icons.touch_app_rounded,
               size: 64,
-              color: AppColors.secondary,
+              color: Theme.of(context).colorScheme.secondary,
             ),
             SizedBox(height: 24),
             Text(
@@ -112,7 +112,7 @@ class DomainSettingsScreen extends StatelessWidget {
             Icon(
               Icons.lock_rounded,
               size: 64,
-              color: AppColors.warningOrange,
+              color: Colors.orange,
             ),
             SizedBox(height: 24),
             Text(
@@ -164,12 +164,12 @@ class DomainSettingsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.secondary.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.language_rounded,
-                color: AppColors.secondary,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
             SizedBox(width: 16),

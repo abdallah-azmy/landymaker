@@ -24,7 +24,7 @@ class CustomTeamMembersWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
-    final accentColor = theme?.secondary ?? AppColors.secondary;
+    final accentColor = theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final title = block['title'] ?? '';
     final subtitle = block['subtitle'] ?? '';
     final List items = block['items'] ?? [];

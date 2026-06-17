@@ -36,7 +36,7 @@ class CustomTestimonialsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final secondaryColor = theme?.secondary ?? AppColors.secondary;
+    final secondaryColor = theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 

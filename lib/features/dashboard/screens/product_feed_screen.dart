@@ -89,7 +89,7 @@ class ProductFeedScreen extends StatelessWidget {
             const Icon(
               Icons.lock_rounded,
               size: 64,
-              color: AppColors.warningOrange,
+              color: Colors.orange,
             ),
             const SizedBox(height: 24),
             Text(
@@ -165,12 +165,12 @@ class ProductFeedScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.secondary.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.rss_feed_rounded,
-              color: AppColors.secondary,
+              color: Theme.of(context).colorScheme.secondary,
               size: 32,
             ),
           ),

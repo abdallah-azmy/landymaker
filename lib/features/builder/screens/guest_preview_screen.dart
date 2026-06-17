@@ -51,7 +51,7 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                     Icon(
                       Icons.rocket_launch_rounded,
                       size: 64,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     SizedBox(height: 24),
                     Text(
@@ -78,7 +78,7 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                           context.go('/register');
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -103,8 +103,8 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                           context.go('/login');
                         },
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                          side: BorderSide(color: AppColors.primary),
+                          foregroundColor: Theme.of(context).colorScheme.primary,
+                          side: BorderSide(color: Theme.of(context).colorScheme.primary),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -146,29 +146,29 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Center(
-          child: CircularProgressIndicator(color: AppColors.secondary),
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         title: Row(
           children: [
-            Icon(Icons.visibility_rounded, color: AppColors.secondary),
+            Icon(Icons.visibility_rounded, color: Theme.of(context).colorScheme.secondary),
             SizedBox(width: 8),
             Text(
               "معاينة الصفحة (زائر)",
-              style: AppTypography.h3.copyWith(color: Colors.white, fontSize: 16),
+              style: AppTypography.h3.copyWith(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
             ),
           ],
         ),
         actions: [
           IconButton(
             onPressed: () => context.go('/'),
-            icon: Icon(Icons.home_rounded, color: Colors.white70),
+            icon: Icon(Icons.home_rounded, color: Theme.of(context).colorScheme.onSurface),
             tooltip: "العودة للرئيسية",
           ),
         ],
@@ -206,8 +206,8 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
-                    const Color(0xFF030712).withValues(alpha: 0.97),
-                    const Color(0xFF030712).withValues(alpha: 0.85),
+                    Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.97),
+                    Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.85),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.6, 1.0],
@@ -219,12 +219,12 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       Icons.edit_note_rounded,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 22,
                     ),
                   ),
@@ -257,10 +257,10 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
                   ElevatedButton(
                     onPressed: () => _showAuthGateModal(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.black,
                       elevation: 4,
-                      shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                      shadowColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -279,7 +279,7 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAuthGateModal(context),
-        backgroundColor: AppColors.primary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         elevation: 6,
         icon: Icon(Icons.lock_open_rounded, color: Colors.black87),
         label: const Text(

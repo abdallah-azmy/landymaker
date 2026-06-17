@@ -152,7 +152,7 @@ class _AIChatInputState extends State<AIChatInput> {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: widget.isLoading ? Theme.of(context).colorScheme.outlineVariant : AppColors.primary,
+          color: widget.isLoading ? Theme.of(context).colorScheme.outlineVariant : Theme.of(context).colorScheme.primary,
           borderRadius: BorderRadius.circular(12),
         ),
         child: widget.isLoading
@@ -188,18 +188,18 @@ class _UploadChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ActionChip(
-      avatar: Icon(icon, size: 16, color: AppColors.primary),
+      avatar: Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
       label: Text(
         label,
         style: AppTypography.caption.copyWith(
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
           fontWeight: FontWeight.w600,
         ),
       ),
-      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+        side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
       ),
       onPressed: onTap,
     );

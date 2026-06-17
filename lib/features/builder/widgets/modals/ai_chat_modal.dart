@@ -292,7 +292,7 @@ class _AIChatModalState extends State<AIChatModal> {
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome_rounded, color: AppColors.primary),
+              Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary),
               SizedBox(width: 12),
               Text("مساعد لاندي ميكر الذكي", style: AppTypography.h3),
             ],
@@ -321,7 +321,7 @@ class _AIChatModalState extends State<AIChatModal> {
           maxWidth: MediaQuery.of(context).size.width * 0.7,
         ),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.secondary : Theme.of(context).colorScheme.surfaceContainerHigh,
+          color: isUser ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -369,8 +369,8 @@ class _AIChatModalState extends State<AIChatModal> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.black,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -395,13 +395,13 @@ class _AIChatModalState extends State<AIChatModal> {
             height: 16,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           SizedBox(width: 12),
           Text(
             message,
-            style: AppTypography.caption.copyWith(color: AppColors.primary),
+            style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.primary),
           ),
         ],
       ),

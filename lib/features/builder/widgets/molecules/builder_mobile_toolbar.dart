@@ -39,11 +39,11 @@ class BuilderMobileToolbar extends StatelessWidget {
       showDialog(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          backgroundColor: AppColors.cardBg,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             loc.translate('warning'),
-            style: AppTypography.h3.copyWith(color: AppColors.dangerRed),
+            style: AppTypography.h3.copyWith(color: Theme.of(context).colorScheme.error),
           ),
           content: Text(
             loc.translate('unsaved_changes_warning'),
@@ -54,7 +54,7 @@ class BuilderMobileToolbar extends StatelessWidget {
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 loc.translate('cancel'),
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
             TextButton(
@@ -64,7 +64,7 @@ class BuilderMobileToolbar extends StatelessWidget {
               },
               child: Text(
                 loc.translate('exit'),
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.dangerRed, fontWeight: FontWeight.bold),
+                style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -83,9 +83,9 @@ class BuilderMobileToolbar extends StatelessWidget {
       margin: EdgeInsets.fromLTRB(16, 0, 16, 16 + bottomPadding),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border, width: 1.5),
+        border: Border.all(color: Theme.of(context).colorScheme.outline, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.4),
@@ -98,13 +98,14 @@ class BuilderMobileToolbar extends StatelessWidget {
         children: [
           // Left: Navigation
           _buildToolButton(
-            icon: Icons.arrow_back_rounded,
+            context: context,
+            icon: Icons.arrow_back_ios_new_rounded,
             onPressed: () => _handleBack(context),
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
 
           const SizedBox(width: 4),
-          Container(width: 1, height: 24, color: AppColors.border),
+          Container(width: 1, height: 24, color: Theme.of(context).colorScheme.outline),
           const SizedBox(width: 4),
 
           // Center: Tools (Scrollable to fit everything, evenly spaced if space permits)
@@ -128,11 +129,11 @@ class BuilderMobileToolbar extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.primary,
+                              color: Theme.of(context).colorScheme.primary,
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -155,11 +156,11 @@ class BuilderMobileToolbar extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: AppColors.secondary,
+                                color: Theme.of(context).colorScheme.secondary,
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.secondary.withValues(
+                                    color: Theme.of(context).colorScheme.secondary.withValues(
                                       alpha: 0.3,
                                     ),
                                     blurRadius: 12,
@@ -177,38 +178,43 @@ class BuilderMobileToolbar extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         _buildToolButton(
+                          context: context,
                           icon: Icons.undo_rounded,
                           onPressed: state.canUndo ? cubit.undo : null,
                           color: state.canUndo
-                              ? Colors.white
-                              : AppColors.textMuted,
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                         ),
                         const SizedBox(width: 4),
                         _buildToolButton(
+                          context: context,
                           icon: Icons.redo_rounded,
                           onPressed: state.canRedo ? cubit.redo : null,
                           color: state.canRedo
-                              ? Colors.white
-                              : AppColors.textMuted,
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                         ),
                         const SizedBox(width: 4),
                         _buildToolButton(
+                          context: context,
                           icon: Icons.font_download_rounded,
                           onPressed: onShowFonts,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         const SizedBox(width: 4),
                         _buildToolButton(
+                          context: context,
                           icon: Icons.color_lens_rounded,
                           onPressed: onShowColors,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         const SizedBox(width: 4),
                         _buildToolButton(
+                          context: context,
                           icon: Icons.visibility_rounded,
                           onPressed: () =>
                               onChangePreview(PreviewMode.fullscreen),
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ],
                     ),
@@ -219,7 +225,7 @@ class BuilderMobileToolbar extends StatelessWidget {
           ),
 
           const SizedBox(width: 4),
-          Container(width: 1, height: 24, color: AppColors.border),
+          Container(width: 1, height: 24, color: Theme.of(context).colorScheme.outline),
           const SizedBox(width: 4),
 
           // Right: Publish (Rocket)
@@ -230,12 +236,13 @@ class BuilderMobileToolbar extends StatelessWidget {
   }
 
   Widget _buildToolButton({
+    required BuildContext context,
     required IconData icon,
     required VoidCallback? onPressed,
     Color? color,
   }) {
     return IconButton(
-      icon: Icon(icon, color: color ?? Colors.white, size: 22),
+      icon: Icon(icon, color: color ?? Theme.of(context).colorScheme.onSurface, size: 22),
       onPressed: onPressed,
       constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
       padding: EdgeInsets.zero,
@@ -251,11 +258,11 @@ class BuilderMobileToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: canPublish
-              ? AppColors.activeGreen.withValues(alpha: 0.1)
+              ? Colors.green.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: canPublish ? AppColors.activeGreen : AppColors.border,
+            color: canPublish ? Colors.green : Theme.of(context).colorScheme.outline,
           ),
         ),
         child: state.isSaving
@@ -264,7 +271,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                 height: 16,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.activeGreen,
+                  color: Colors.green,
                 ),
               )
             : Row(
@@ -272,8 +279,8 @@ class BuilderMobileToolbar extends StatelessWidget {
                   Icon(
                     Icons.rocket_launch_rounded,
                     color: canPublish
-                        ? AppColors.activeGreen
-                        : AppColors.textMuted,
+                        ? Colors.green
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                     size: 20,
                   ),
                   if (canPublish) ...[
@@ -281,7 +288,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                     Text(
                       loc.translate('publish'),
                       style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.activeGreen,
+                        color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -299,12 +306,12 @@ class BuilderMobileToolbar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppColors.background.withValues(alpha: 0.5),
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
         child: const Icon(
           Icons.more_horiz_rounded,
-          color: AppColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
           size: 24,
         ),
       ),

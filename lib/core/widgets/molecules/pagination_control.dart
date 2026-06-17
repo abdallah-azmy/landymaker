@@ -29,7 +29,7 @@ class PaginationControl extends StatelessWidget {
           SizedBox(width: 16),
           IconButton(
             onPressed: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
-            icon: Icon(Icons.chevron_left_rounded),
+            icon: Icon(Icons.arrow_back_ios_new_rounded),
             style: IconButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
               side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
@@ -38,7 +38,7 @@ class PaginationControl extends StatelessWidget {
           SizedBox(width: 8),
           IconButton(
             onPressed: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
-            icon: Icon(Icons.chevron_right_rounded),
+            icon: Icon(Icons.arrow_forward_ios_rounded),
             style: IconButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
               side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),

@@ -411,7 +411,7 @@ class _LayoutPickerPanelState extends State<LayoutPickerPanel> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   loc.translate('close'),
-                  style: AppTypography.button.copyWith(color: AppColors.secondary),
+                  style: AppTypography.button.copyWith(color: Theme.of(context).colorScheme.secondary),
                 ),
               ),
             ],

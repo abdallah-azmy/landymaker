@@ -303,7 +303,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
       isRtl ? 'ar' : 'en',
     );
 
-    final primaryColor = widget.theme?.primary ?? AppColors.primary;
+    final primaryColor = widget.theme?.primary ?? Theme.of(context).colorScheme.primary;
     final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
@@ -453,7 +453,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
           SizedBox(height: 16),
           Text(
             _errorMessage!,
-            style: TextStyle(color: AppColors.dangerRed, fontSize: 14, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 14, fontWeight: FontWeight.bold),
           ),
         ],
 

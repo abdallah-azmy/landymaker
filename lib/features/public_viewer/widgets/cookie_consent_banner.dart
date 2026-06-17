@@ -66,7 +66,7 @@ class _CookieConsentBannerState extends State<CookieConsentBanner> {
   Widget build(BuildContext context) {
     if (!_isVisible) return SizedBox.shrink();
 
-    final secondaryColor = widget.theme?.secondary ?? AppColors.secondary;
+    final secondaryColor = widget.theme?.secondary ?? Theme.of(context).colorScheme.secondary;
     final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
     final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final bgColor = widget.theme?.background ?? Theme.of(context).colorScheme.surfaceContainerHigh;

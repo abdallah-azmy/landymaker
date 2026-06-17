@@ -1070,7 +1070,10 @@ class SupabaseService extends ChangeNotifier {
         'p_type': type,
         if (redirectTo != null && redirectTo.isNotEmpty) 'p_redirect_to': redirectTo,
       });
-      debugPrint('FCM: Broadcast notification sent successfully.');
+      debugPrint('DB: Broadcast notification inserted successfully.');
+
+      // Send FCM push in background (fire-and-forget)
+      _sendFcmPush(userIds: null, title: title, message: message, type: type, redirectTo: redirectTo);
     } catch (e) {
       debugPrint("Error sending broadcast notification: $e");
       rethrow;
@@ -1092,10 +1095,35 @@ class SupabaseService extends ChangeNotifier {
         'p_type': type,
         if (redirectTo != null && redirectTo.isNotEmpty) 'p_redirect_to': redirectTo,
       });
-      debugPrint('FCM: Targeted notification sent successfully to users: $userIds');
+      debugPrint('DB: Targeted notification inserted successfully to users: $userIds');
+
+      // Send FCM push in background (fire-and-forget)
+      _sendFcmPush(userIds: userIds, title: title, message: message, type: type, redirectTo: redirectTo);
     } catch (e) {
       debugPrint("Error sending targeted notification: $e");
       rethrow;
+    }
+  }
+
+  Future<void> _sendFcmPush({
+    required List<String>? userIds,
+    required String title,
+    required String message,
+    required String type,
+    required String? redirectTo,
+  }) async {
+    try {
+      await _client!.functions.invoke('send-notification', body: {
+        'user_ids': userIds,
+        'title': title,
+        'message': message,
+        'type': type,
+        'redirect_to': redirectTo?.isEmpty == true ? null : redirectTo,
+      });
+      debugPrint('FCM: Push notification sent successfully via edge function.');
+    } catch (e) {
+      debugPrint('FCM: Failed to send push notification (non-critical): $e');
+      // Don't rethrow — FCM push failure shouldn't break the UI flow
     }
   }
 }

@@ -13,10 +13,8 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import '../localization/localization_cubit.dart';
-import '../widgets/organisms/tech_loading_screen.dart';
 import '../../features/auth/controllers/auth_cubit.dart';
 import '../../features/auth/controllers/auth_state.dart';
 import '../../features/auth/screens/login_screen.dart';
@@ -42,11 +40,16 @@ import '../../features/dashboard/screens/notifications_screen.dart';
 import '../../features/super_admin/screens/super_admin_panel_screen.dart';
 import '../../features/super_admin/screens/platform_seo_screen.dart';
 import '../../features/blog_admin/screens/blog_management_screen.dart';
+import '../../services/supabase_service.dart';
+import '../../injection_container.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
+  refreshListenable: sl<SupabaseService>(),
   redirect: (context, state) {
     final path = state.uri.path;
+
+    // 1. Blog redirection
     if (path == '/blog' || path.startsWith('/blog/')) {
       final String url;
       if (kIsWeb) {
@@ -65,6 +68,32 @@ final GoRouter appRouter = GoRouter(
       );
       return '/';
     }
+
+    // 2. Auth Guards (Dashboard & Builder protection)
+    final routeMode = TenantRoutingService.getRouteMode();
+    if (routeMode == RouteMode.publicViewer) {
+      return null;
+    }
+
+    final supabase = sl<SupabaseService>();
+    final isLoggedIn = supabase.isAuthenticated;
+
+    final isGoingToAuth = path == '/login' ||
+        path == '/register' ||
+        path == '/forgot-password' ||
+        path == '/reset-password';
+    final isGoingToDashboard = path.startsWith('/dashboard') || path.startsWith('/builder');
+
+    if (isLoggedIn) {
+      if (isGoingToAuth || path == '/') {
+        return '/dashboard';
+      }
+    } else {
+      if (isGoingToDashboard) {
+        return '/login';
+      }
+    }
+
     return null;
   },
   errorBuilder: (context, state) {
@@ -128,37 +157,15 @@ final GoRouter appRouter = GoRouter(
           return PublicLandingPage(identifier: identifier);
         }
 
-        return BlocBuilder<AuthCubit, AuthState>(
-          builder: (context, state) {
-            if (state is Authenticated) {
-              // Wait for a frame to go to dashboard to avoid build-phase navigation errors
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.go('/dashboard');
-              });
-              return const TechLoadingScreen();
-            }
-            return const LandyMakerHomeScreen();
-          },
-        );
+        return const LandyMakerHomeScreen();
       },
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return BlocBuilder<AuthCubit, AuthState>(
-          builder: (context, authState) {
-            if (authState is Authenticated) {
-              return DashboardShell(
-                navigationShell: navigationShell,
-                onLogout: () {
-                  context.read<AuthCubit>().logout();
-                },
-              );
-            }
-            // If somehow unauthenticated here, redirect to login
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.go('/login');
-            });
-            return const TechLoadingScreen();
+        return DashboardShell(
+          navigationShell: navigationShell,
+          onLogout: () {
+            context.read<AuthCubit>().logout();
           },
         );
       },
@@ -336,17 +343,10 @@ final GoRouter appRouter = GoRouter(
           path: ':pageId',
           builder: (context, state) {
             final pageId = state.pathParameters['pageId'];
-            return BlocBuilder<AuthCubit, AuthState>(
-              builder: (context, authState) {
-                if (authState is Authenticated) {
-                  return BuilderWorkspaceScreen(
-                    pageId: pageId,
-                    onBackToDashboard: () {
-                      context.go('/dashboard');
-                    },
-                  );
-                }
-                return const LoginScreen();
+            return BuilderWorkspaceScreen(
+              pageId: pageId,
+              onBackToDashboard: () {
+                context.go('/dashboard');
               },
             );
           },

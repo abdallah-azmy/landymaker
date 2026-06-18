@@ -13,17 +13,37 @@ class ThemeCubit extends Cubit<ThemeMode> {
   Future<void> toggleTheme() async {
     final newMode = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     emit(newMode);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, newMode.name);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_key, newMode.name);
+    } catch (e) {
+      debugPrint("Failed to save theme preference: $e");
+    }
   }
 
-  void setThemeMode(ThemeMode mode) => emit(mode);
+  void setThemeMode(ThemeMode mode) {
+    emit(mode);
+    try {
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setString(_key, mode.name);
+      });
+    } catch (e) {
+      debugPrint("Failed to save theme preference: $e");
+    }
+  }
 
   Future<void> loadSavedTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString(_key);
-    if (saved != null) {
-      emit(saved == 'light' ? ThemeMode.light : ThemeMode.dark);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString(_key);
+      if (saved != null) {
+        emit(saved == 'light' ? ThemeMode.light : ThemeMode.dark);
+      } else {
+        emit(ThemeMode.dark);
+      }
+    } catch (e) {
+      debugPrint("Failed to load theme preference, defaulting to dark: $e");
+      emit(ThemeMode.dark);
     }
   }
 }

@@ -53,7 +53,10 @@ class HomeFooter extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerHigh,
             border: Border(
-              top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
+              top: BorderSide(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                width: 0.5,
+              ),
             ),
           ),
           padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
@@ -67,7 +70,10 @@ class HomeFooter extends StatelessWidget {
                   else
                     const _DesktopFooter(socialLinks: _socialLinks),
                   SizedBox(height: 48),
-                  Divider(color: Theme.of(context).colorScheme.outlineVariant, height: 1),
+                  Divider(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    height: 1,
+                  ),
                   SizedBox(height: 24),
                   const _BottomRow(),
                 ],
@@ -218,13 +224,15 @@ class _BottomRow extends StatelessWidget {
       children: [
         Text(
           "© 2026 Landymaker. جميع الحقوق محفوظة.",
-          style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: AppTypography.caption.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "V 1.0.5",
+              "V 1.0.6",
               style: AppTypography.caption.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
@@ -284,19 +292,25 @@ class _SocialBtnState extends State<_SocialBtn> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: _hovered
-                ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15)
+                ? Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.15)
                 : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: _hovered
-                  ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.4)
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.4)
                   : Theme.of(context).colorScheme.outlineVariant,
             ),
           ),
           child: Icon(
             widget.icon,
             size: 16,
-            color: _hovered ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
+            color: _hovered
+                ? Theme.of(context).colorScheme.secondary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -338,7 +352,8 @@ class _FooterLinks extends StatelessWidget {
                   final String url;
                   if (kIsWeb) {
                     final origin = Uri.base.origin;
-                    if (origin.contains('localhost') || origin.contains('127.0.0.1')) {
+                    if (origin.contains('localhost') ||
+                        origin.contains('127.0.0.1')) {
                       url = 'https://landymaker.com${item.path}';
                     } else {
                       url = '$origin${item.path}';

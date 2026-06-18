@@ -177,30 +177,17 @@
       }
     }
 
-    .fallback-footer {
+    /* Visually hidden but fully crawlable for search engine bots and Google verification crawlers */
+    .sr-only {
       position: absolute;
-      bottom: 32px;
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      flex-wrap: wrap;
-      padding: 0 16px;
-    }
-
-    .fallback-footer a {
-      color: #94a3b8;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .fallback-footer a:hover {
-      color: #00E5FF;
-    }
-
-    .fallback-footer span {
-      color: #374151;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
   </style>
 </head>
@@ -211,11 +198,11 @@
     <div class="linear-progress-container">
       <div class="linear-progress-bar"></div>
     </div>
-    <footer class="fallback-footer">
+    <!-- Visually hidden links for crawlers and Google OAuth Verification bots only -->
+    <div class="sr-only">
       <a href="/privacy-policy">سياسة الخصوصية / Privacy Policy</a>
-      <span>|</span>
       <a href="/terms">شروط الخدمة / Terms of Service</a>
-    </footer>
+    </div>
   </div>
 
   <script>

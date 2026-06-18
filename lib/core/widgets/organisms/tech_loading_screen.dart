@@ -25,7 +25,7 @@ class TechLoadingScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
                 child: LinearProgressIndicator(
                   color: AppColors.primary,
-                  backgroundColor: AppColors.darkSurface.withValues(alpha: 0.5),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 ),
               ),
             ),

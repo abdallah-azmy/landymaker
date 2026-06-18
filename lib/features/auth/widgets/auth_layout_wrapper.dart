@@ -71,15 +71,20 @@ class AuthLayoutWrapper extends StatelessWidget {
               }
 
               return Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(28),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const LandyMakerLogo(fontSize: 48),
-                      const SizedBox(height: 32),
-                      _AuthFormCard(child: form),
-                    ],
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.sizeOf(context).height,
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(28),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const LandyMakerLogo(fontSize: 48),
+                        const SizedBox(height: 32),
+                        _AuthFormCard(child: form),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -127,6 +132,13 @@ class _AuthFormCard extends StatelessWidget {
           color: Theme.of(context).colorScheme.outlineVariant,
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 32,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       padding: const EdgeInsets.all(40),
       child: child,
@@ -141,31 +153,128 @@ class _DefaultBrandPanel extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(60),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          const LandyMakerLogo(fontSize: 64),
-          const SizedBox(height: 40),
-          Text(
-            loc.translate('app_title'),
-            style: AppTypography.h1.copyWith(
-              fontSize: 48,
-              fontWeight: FontWeight.w900,
-              color: Theme.of(context).colorScheme.onSurface,
+          // Animated radial gradient background
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.08,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 16),
-          Text(
-            loc.translate('auth_brand_tagline'),
-            style: AppTypography.bodyLarge.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 18,
-              height: 1.5,
+          // Decorative circles
+          PositionedDirectional(
+            top: -60,
+            end: -40,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.05),
+              ),
             ),
+          ),
+          PositionedDirectional(
+            bottom: 40,
+            start: -30,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context)
+                    .colorScheme
+                    .secondary
+                    .withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          // Content
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const LandyMakerLogo(fontSize: 64),
+              const SizedBox(height: 40),
+              Text(
+                loc.translate('app_title'),
+                style: AppTypography.h1.copyWith(
+                  fontSize: 48,
+                  fontWeight: FontWeight.w900,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                loc.translate('auth_brand_tagline'),
+                style: AppTypography.bodyLarge.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 18,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+              _buildFeatureBullet(
+                context,
+                Icons.check_circle_rounded,
+                'ابن موقعك في أقل من 5 دقائق',
+                'Build your site in under 5 minutes',
+                loc,
+              ),
+              const SizedBox(height: 16),
+              _buildFeatureBullet(
+                context,
+                Icons.check_circle_rounded,
+                'أكثر من 20 قالب احترافي جاهز',
+                '20+ professional templates ready',
+                loc,
+              ),
+              const SizedBox(height: 16),
+              _buildFeatureBullet(
+                context,
+                Icons.check_circle_rounded,
+                'دعم كامل للعربية و RTL',
+                'Full Arabic & RTL support',
+                loc,
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFeatureBullet(
+    BuildContext context,
+    IconData icon,
+    String arText,
+    String enText,
+    loc,
+  ) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+          size: 22,
+        ),
+        const SizedBox(width: 12),
+        Text(
+          loc.isRtl ? arText : enText,
+          style: AppTypography.bodyMedium.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 15,
+          ),
+        ),
+      ],
     );
   }
 }

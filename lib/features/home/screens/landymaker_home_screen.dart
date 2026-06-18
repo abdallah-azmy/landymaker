@@ -6,6 +6,7 @@ import '../widgets/home_navbar.dart';
 import '../widgets/home_hero_section.dart';
 import '../widgets/home_feature_bento.dart';
 import '../widgets/home_luxurious_template_slider.dart';
+import '../widgets/home_desktop_preview_carousel.dart';
 import '../widgets/home_cta_section.dart';
 import '../widgets/home_footer.dart';
 import '../models/home_layouts.dart';
@@ -28,6 +29,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
 
   bool _bentoVisible = false;
   bool _templatesVisible = false;
+  bool _desktopPreviewVisible = false;
   bool _ctaVisible = false;
 
   HeroLayout _heroLayout = HeroLayout.split;
@@ -67,56 +69,64 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              children: [
-                HomeHeroSection(
-                  layout: _heroLayout,
-                  onGetStartedPressed: () => context.go('/templates'),
-                  parentScrollController: _scrollController,
-                ),
-
-                VisibilityObserver(
-                  onVisible: () {
-                    if (!_bentoVisible) setState(() => _bentoVisible = true);
-                  },
-                  child: HomeFeatureBento(
-                    isVisible: _bentoVisible,
-                    layout: _featureLayout,
-                  ),
-                ),
-
-                VisibilityObserver(
-                  onVisible: () {
-                    if (!_templatesVisible) setState(() => _templatesVisible = true);
-                  },
-                  child: HomeLuxuriousTemplateSlider(
-                    isVisible: _templatesVisible,
-                    layout: _templateSliderLayout,
-                    onGetStartedPressed: (templateId) {
-                      TenantRoutingService.pendingTemplateId = templateId;
-                      context.go('/register');
-                    },
-                  ),
-                ),
-
-                VisibilityObserver(
-                  onVisible: () {
-                    if (!_ctaVisible) setState(() => _ctaVisible = true);
-                  },
-                  child: HomeCtaSection(
-                    isVisible: _ctaVisible,
-                    onGetStartedPressed: () => context.go('/templates'),
-                    layout: _ctaLayout,
-                  ),
-                ),
-
-                const HomeFooter(),
-              ],
+        child: Column(
+          children: [
+            HomeHeroSection(
+              layout: _heroLayout,
+              onGetStartedPressed: () => context.go('/templates'),
+              parentScrollController: _scrollController,
             ),
-          ),
+
+            VisibilityObserver(
+              onVisible: () {
+                if (!_bentoVisible) setState(() => _bentoVisible = true);
+              },
+              child: HomeFeatureBento(
+                isVisible: _bentoVisible,
+                layout: _featureLayout,
+              ),
+            ),
+
+            VisibilityObserver(
+              onVisible: () {
+                if (!_templatesVisible) setState(() => _templatesVisible = true);
+              },
+              child: HomeLuxuriousTemplateSlider(
+                isVisible: _templatesVisible,
+                layout: _templateSliderLayout,
+                onGetStartedPressed: (templateId) {
+                  TenantRoutingService.pendingTemplateId = templateId;
+                  context.go('/register');
+                },
+              ),
+            ),
+
+            VisibilityObserver(
+              onVisible: () {
+                if (!_desktopPreviewVisible) setState(() => _desktopPreviewVisible = true);
+              },
+              child: HomeDesktopPreviewCarousel(
+                isVisible: _desktopPreviewVisible,
+                onGetStartedPressed: (templateId) {
+                  TenantRoutingService.pendingTemplateId = templateId;
+                  context.go('/register');
+                },
+              ),
+            ),
+
+            VisibilityObserver(
+              onVisible: () {
+                if (!_ctaVisible) setState(() => _ctaVisible = true);
+              },
+              child: HomeCtaSection(
+                isVisible: _ctaVisible,
+                onGetStartedPressed: () => context.go('/templates'),
+                layout: _ctaLayout,
+              ),
+            ),
+
+            const HomeFooter(),
+          ],
         ),
       ),
     );

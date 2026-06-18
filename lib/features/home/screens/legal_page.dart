@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/seo/app_seo.dart';
+import '../../../core/router/router_extensions.dart';
 import '../../../services/supabase_service.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_footer.dart';
@@ -99,36 +100,60 @@ class _LegalPageState extends State<LegalPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: AppTypography.h1.copyWith(fontSize: 40),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 700;
+                  return Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      vertical: isMobile ? 60 : 100,
+                      horizontal: 24,
                     ),
-                    SizedBox(height: 16),
-                    Text(
-                      context.isRtl ? "لاندي ميكر 🚀" : "LandyMaker 🚀",
-                      style: AppTypography.bodyLarge.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
                     ),
-                  ],
-                ),
+                    child: Column(
+                      children: [
+                        TextButton.icon(
+                          onPressed: () => context.safePop(fallbackPath: '/'),
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
+                          label: Text(context.isRtl ? 'الرئيسية' : 'Home'),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: AppTypography.h1.copyWith(
+                            fontSize: isMobile ? 28 : 44,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          context.isRtl ? "لاندي ميكر 🚀" : "LandyMaker 🚀",
+                          style: AppTypography.bodyLarge.copyWith(
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
-              Container(
-                constraints: const BoxConstraints(maxWidth: 900),
-                padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
-                child: _isLoading 
-                  ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
-                  : _buildContent(context),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 700;
+                  return Container(
+                    constraints: const BoxConstraints(maxWidth: 900),
+                    padding: EdgeInsets.symmetric(
+                      vertical: isMobile ? 24 : 60,
+                      horizontal: isMobile ? 16 : 32,
+                    ),
+                    child: _isLoading 
+                      ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
+                      : _buildContent(context, isMobile),
+                  );
+                },
               ),
               const HomeFooter(),
             ],
@@ -138,11 +163,11 @@ class _LegalPageState extends State<LegalPage> {
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(BuildContext context, bool isMobile) {
     final isRtl = context.isRtl;
 
     if (_dbContent != null) {
-      return _buildSectionList(_dbContent!);
+      return _buildSectionList(_dbContent!, isMobile);
     }
 
     final Map<String, List<Map<String, String>>> legalData = {
@@ -323,15 +348,23 @@ class _LegalPageState extends State<LegalPage> {
     };
 
     final sections = legalData[widget.contentKey] ?? [];
-    return _buildSectionList(sections);
+    return _buildSectionList(sections, isMobile);
   }
 
-  Widget _buildSectionList(List<Map<String, String>> sections) {
+  Widget _buildSectionList(List<Map<String, String>> sections, bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: sections.map((sec) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 40),
+        return Container(
+          padding: EdgeInsetsDirectional.all(isMobile ? 20 : 28),
+          margin: const EdgeInsetsDirectional.only(bottom: 20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.6),
+            ),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -342,7 +375,7 @@ class _LegalPageState extends State<LegalPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 sec['body']!,
                 style: AppTypography.bodyMedium.copyWith(

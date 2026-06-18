@@ -37,8 +37,8 @@ class SocialSignInButton extends StatelessWidget {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.network(
-                    'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+                  Image.asset(
+                    'assets/images/google.png',
                     height: 22,
                     width: 22,
                     errorBuilder: (_, __, ___) => Icon(Icons.g_mobiledata, color: Colors.white),

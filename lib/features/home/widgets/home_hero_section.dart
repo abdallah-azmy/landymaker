@@ -786,7 +786,7 @@ class _TypewriterTextState extends State<_TypewriterText>
 
   @override
   Widget build(BuildContext context) {
-    final textColor = widget.colorOverride ?? Theme.of(context).colorScheme.secondary;
+    final textColor = widget.colorOverride ?? Theme.of(context).colorScheme.primary;
     return Row(
       mainAxisAlignment: widget.isMobile
           ? MainAxisAlignment.center

@@ -232,7 +232,7 @@ class _BottomRow extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "V 1.0.8",
+              "V 1.0.9",
               style: AppTypography.caption.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,

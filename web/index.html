@@ -193,16 +193,17 @@
   </style>
 </head>
 <body>
-  <!-- Fallback/SEO loader & Google Verification footer -->
+  <!-- Visually hidden links for crawlers and Google OAuth Verification bots only (permanent in DOM) -->
+  <div class="sr-only">
+    <a href="https://landymaker.com/privacy-policy">سياسة الخصوصية / Privacy Policy</a>
+    <a href="https://landymaker.com/terms">شروط الخدمة / Terms of Service</a>
+  </div>
+
+  <!-- Fallback/SEO loader -->
   <div id="loading-indicator">
     <img class="loading-logo" src="assets/assets/images/logo_small.webp" onerror="this.src='logo_social.webp'" alt="LandyMaker">
     <div class="linear-progress-container">
       <div class="linear-progress-bar"></div>
-    </div>
-    <!-- Visually hidden links for crawlers and Google OAuth Verification bots only (using absolute URLs for maximum crawlability) -->
-    <div class="sr-only">
-      <a href="https://landymaker.com/privacy-policy">سياسة الخصوصية / Privacy Policy</a>
-      <a href="https://landymaker.com/terms">شروط الخدمة / Terms of Service</a>
     </div>
   </div>
 

@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
@@ -25,12 +24,18 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen> with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isGoogleLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   void _handleRegister(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
@@ -146,7 +151,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_isGoogleLoading) {
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          if (mounted && _isGoogleLoading) {
+            final authState = context.read<AuthCubit>().state;
+            if (authState is! Authenticated) {
+              setState(() => _isGoogleLoading = false);
+              final authCubit = context.read<AuthCubit>();
+              if (authCubit.state is AuthLoading) {
+                authCubit.checkAuth();
+              }
+            }
+          }
+        });
+      }
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();

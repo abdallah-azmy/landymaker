@@ -26,8 +26,9 @@ import '../widgets/tabs/builder_sidebar_tabs.dart';
 import '../widgets/molecules/builder_mobile_toolbar.dart';
 import '../../dashboard/widgets/empty_workspace_state.dart';
 import '../models/preview_mode.dart';
-import '../widgets/modals/ai_chat_modal.dart';
 import '../../home/screens/landymaker_home_screen.dart';
+import '../../../core/widgets/organisms/tech_loading_screen.dart';
+import '../widgets/modals/ai_chat_modal.dart';
 
 /// ======================================================
 /// FEATURE: Builder Workspace Screen
@@ -255,10 +256,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     final state = builderCubit.state;
 
     if (state is BuilderLoading || state is BuilderInitial) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary)),
-      );
+      return const TechLoadingScreen();
     }
 
     if (state is BuilderEmptyWorkspace) {

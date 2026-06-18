@@ -19,6 +19,7 @@ import '../../../core/seo/app_seo.dart';
 import '../../../core/services/pixel_bootstrap_service.dart';
 import '../../../core/services/pixel_event_service.dart';
 import '../widgets/cookie_consent_banner.dart';
+import '../../../core/widgets/organisms/tech_loading_screen.dart';
 
 class PublicLandingPage extends StatefulWidget {
   final String? identifier;
@@ -451,27 +452,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
   }
 
   Widget _buildPlatformLoader() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/images/logo_small.webp',
-            height: 60,
-            width: 60,
-          ),
-          SizedBox(height: 24),
-          SizedBox(
-            width: 40,
-            height: 2,
-            child: LinearProgressIndicator(
-              color: Theme.of(context).colorScheme.primary,
-              backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
-            ),
-          ),
-        ],
-      ),
-    );
+    return const TechLoadingScreen();
   }
 
   Future<void> _preloadFontsForPage(String fontName) async {

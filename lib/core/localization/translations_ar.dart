@@ -201,7 +201,7 @@ const Map<String, String> translationsAr = {
   'no_notifications': 'لا توجد إشعارات حالياً',
   'just_now': 'الآن',
   'about_us': 'عن لاندي ميكر',
-  'about_content': 'تعرف على لاندي ميكر وكيف نساعدك في بناء حضورك الرقمي.',
+  'about_content': 'معلومات عن منصة لاندي ميكر.',
   'show_cookie_banner': 'إظهار شريط الموافقة على الكوكيز',
   'cookie_banner_help':
       'يُنصح بتفعيله إذا كنت تستخدم أكواد تتبع (مثل فيسبوك بكسل) للالتزام بقوانين الخصوصية.',

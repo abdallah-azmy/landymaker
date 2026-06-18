@@ -16,6 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import '../localization/localization_cubit.dart';
+import '../widgets/organisms/tech_loading_screen.dart';
 import '../../features/auth/controllers/auth_cubit.dart';
 import '../../features/auth/controllers/auth_state.dart';
 import '../../features/auth/screens/login_screen.dart';
@@ -134,9 +135,7 @@ final GoRouter appRouter = GoRouter(
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 context.go('/dashboard');
               });
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
+              return const TechLoadingScreen();
             }
             return const LandyMakerHomeScreen();
           },
@@ -159,9 +158,7 @@ final GoRouter appRouter = GoRouter(
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context.go('/login');
             });
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
+            return const TechLoadingScreen();
           },
         );
       },

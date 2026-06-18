@@ -201,8 +201,7 @@ const Map<String, String> translationsEn = {
   'no_notifications': 'No notifications yet',
   'just_now': 'Just now',
   'about_us': 'About LandyMaker',
-  'about_content':
-      'Learn more about LandyMaker and how we help you build your digital presence.',
+  'about_content': 'About LandyMaker platform information.',
   'show_cookie_banner': 'Show Cookie Consent Banner',
   'cookie_banner_help':
       'Recommended to enable if you use tracking pixels (e.g. Facebook Pixel) for legal compliance.',

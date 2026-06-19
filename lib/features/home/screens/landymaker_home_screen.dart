@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../injection_container.dart';
 import '../../../services/database_service.dart';
-import '../../../services/tenant_routing_service.dart';
 import '../../../core/widgets/visibility_observer.dart';
 import '../../../core/widgets/particles/floating_cube_background.dart';
 import '../../../core/localization/localization_cubit.dart';
@@ -11,8 +10,6 @@ import '../models/home_layouts.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_hero_section.dart';
 import '../widgets/home_feature_bento.dart';
-import '../widgets/home_luxurious_template_slider.dart';
-import '../widgets/home_desktop_preview_carousel.dart';
 import '../widgets/home_cta_section.dart';
 import '../widgets/home_footer.dart';
 import '../widgets/home_section_renderer.dart';
@@ -39,8 +36,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   int _cubeCount = 50;
 
   bool _bentoVisible = false;
-  bool _templatesVisible = false;
-  bool _desktopPreviewVisible = false;
   bool _ctaVisible = false;
 
   List<Map<String, dynamic>> _sections = [];
@@ -111,21 +106,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
     return null;
   }
 
-  Map<String, dynamic>? _localeLinks(
-    Map<String, dynamic> config,
-    String baseKey,
-  ) {
-    final isArabic = context.isRtl;
-    final links = isArabic ? config['${baseKey}_ar'] : config['${baseKey}_en'];
-    if (links is List) {
-      final list = List<Map<String, dynamic>>.from(
-        links.map((e) => Map<String, dynamic>.from(e)),
-      );
-      return {'links': list};
-    }
-    return null;
-  }
-
   HeroLayout _parseHeroLayout(String? name) {
     if (name == null) return HeroLayout.split;
     return HeroLayout.values.firstWhere(
@@ -147,14 +127,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
     return CtaLayout.values.firstWhere(
       (e) => e.name == name,
       orElse: () => CtaLayout.centeredGradient,
-    );
-  }
-
-  TemplateSliderLayout _parseTemplateSliderLayout(String? name) {
-    if (name == null) return TemplateSliderLayout.horizontalSlider;
-    return TemplateSliderLayout.values.firstWhere(
-      (e) => e.name == name,
-      orElse: () => TemplateSliderLayout.horizontalSlider,
     );
   }
 
@@ -193,8 +165,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   Widget build(BuildContext context) {
     final heroConfig = _sectionConfig('hero');
     final featuresConfig = _sectionConfig('features');
-    final templatesConfig = _sectionConfig('templates');
-    final desktopConfig = _sectionConfig('desktop_preview');
     final ctaConfig = _sectionConfig('cta');
     final footerConfig = _sectionConfig('footer');
     final navbarConfig = _sectionConfig('navbar');
@@ -248,51 +218,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
                             featuresConfig['layout'] as String?,
                           ),
                           title: _localeValue(featuresConfig, 'title'),
-                        ),
-                      ),
-                    if (_isSectionVisible('templates'))
-                      VisibilityObserver(
-                        onVisible: () {
-                          if (!_templatesVisible)
-                            setState(() => _templatesVisible = true);
-                        },
-                        child: HomeLuxuriousTemplateSlider(
-                          isVisible: _templatesVisible,
-                          layout: _parseTemplateSliderLayout(
-                            templatesConfig['layout'] as String?,
-                          ),
-                          title: _localeValue(templatesConfig, 'title'),
-                          subtitle: _localeValue(templatesConfig, 'subtitle'),
-                          maxToShow: templatesConfig['max_to_show'] as int?,
-                          templateIds: templatesConfig['template_ids'] != null
-                              ? List<String>.from(
-                                  templatesConfig['template_ids'] as List,
-                                )
-                              : null,
-                          onGetStartedPressed: (templateId) {
-                            TenantRoutingService.pendingTemplateId = templateId;
-                            context.go('/register');
-                          },
-                        ),
-                      ),
-                    if (_isSectionVisible('desktop_preview'))
-                      VisibilityObserver(
-                        onVisible: () {
-                          if (!_desktopPreviewVisible)
-                            setState(() => _desktopPreviewVisible = true);
-                        },
-                        child: HomeDesktopPreviewCarousel(
-                          isVisible: _desktopPreviewVisible,
-                          title: _localeValue(desktopConfig, 'title'),
-                          subtitle: _localeValue(desktopConfig, 'subtitle'),
-                          description: _localeValue(
-                            desktopConfig,
-                            'description',
-                          ),
-                          onGetStartedPressed: (templateId) {
-                            TenantRoutingService.pendingTemplateId = templateId;
-                            context.go('/register');
-                          },
                         ),
                       ),
                     if (_isSectionVisible('cta'))

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
+import '../../../core/widgets/atoms/blur_effect.dart';
 import '../models/home_layouts.dart';
 
 class HomeFeatureBento extends StatefulWidget {
@@ -35,42 +36,48 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
     _FeatureData(
       icon: Icons.dashboard_customize_rounded,
       title: "محرر مرن وسريع",
-      desc: "أضف الأقسام التي تريدها ورتبها بسهولة. تحكم كامل في النصوص والصور والأزرار والروابط.",
+      desc:
+          "أضف الأقسام التي تريدها ورتبها بسهولة. تحكم كامل في النصوص والصور والأزرار والروابط.",
       color: Color(0xFF6366F1),
       emoji: "⚡",
     ),
     _FeatureData(
       icon: Icons.palette_rounded,
       title: "قوالب وتصاميم ممتازة",
-      desc: "اختر من بين لوحات الألوان والخطوط الجاهزة لتناسب هويتك التجارية في ثوانٍ معدودة.",
+      desc:
+          "اختر من بين لوحات الألوان والخطوط الجاهزة لتناسب هويتك التجارية في ثوانٍ معدودة.",
       color: Color(0xFF06B6D4),
       emoji: "🎨",
     ),
     _FeatureData(
       icon: Icons.analytics_rounded,
       title: "إحصائيات فورية وتتبع العملاء",
-      desc: "اعرف عدد الزوار وتفاعلهم وتابع طلبات العملاء والرسائل الواردة مباشرة من لوحة التحكم.",
+      desc:
+          "اعرف عدد الزوار وتفاعلهم وتابع طلبات العملاء والرسائل الواردة مباشرة من لوحة التحكم.",
       color: Color(0xFF10B981),
       emoji: "📊",
     ),
     _FeatureData(
       icon: Icons.qr_code_2_rounded,
       title: "روابط ذكية وكود QR مخصص",
-      desc: "شارك موقعك بروابط مخصصة، نطاق فرعي مميز، وكود QR تفاعلي سهل المسح والمشاركة.",
+      desc:
+          "شارك موقعك بروابط مخصصة، نطاق فرعي مميز، وكود QR تفاعلي سهل المسح والمشاركة.",
       color: Color(0xFFF59E0B),
       emoji: "🔗",
     ),
     _FeatureData(
       icon: Icons.smartphone_rounded,
       title: "تجاوب تام مع الجوال",
-      desc: "صفحاتك تبدو مثالية على جميع الأجهزة تلقائياً. لا حاجة لأي ضبط إضافي.",
+      desc:
+          "صفحاتك تبدو مثالية على جميع الأجهزة تلقائياً. لا حاجة لأي ضبط إضافي.",
       color: Color(0xFFEC4899),
       emoji: "📱",
     ),
     _FeatureData(
       icon: Icons.rocket_launch_rounded,
       title: "نشر فوري بضغطة زر",
-      desc: "انشر موقعك في ثوانٍ واحصل على رابط مباشر يمكنك مشاركته فوراً مع عملائك.",
+      desc:
+          "انشر موقعك في ثوانٍ واحصل على رابط مباشر يمكنك مشاركته فوراً مع عملائك.",
       color: Color(0xFF8B5CF6),
       emoji: "🚀",
     ),
@@ -92,29 +99,39 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       parent: _headerController,
       curve: Curves.easeOut,
     );
-    _headerSlide = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _headerController,
-      curve: Curves.fastOutSlowIn,
-    ));
+    _headerSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _headerController,
+            curve: Curves.fastOutSlowIn,
+          ),
+        );
 
     // Stagger cards: each gets its own interval
     _cardFades = List.generate(_features.length, (i) {
       return CurvedAnimation(
         parent: _cardsController,
-        curve: Interval((i * 0.12).clamp(0.0, 1.0), ((i * 0.12) + 0.5).clamp(0.0, 1.0), curve: Curves.easeOut),
+        curve: Interval(
+          (i * 0.12).clamp(0.0, 1.0),
+          ((i * 0.12) + 0.5).clamp(0.0, 1.0),
+          curve: Curves.easeOut,
+        ),
       );
     });
     _cardSlides = List.generate(_features.length, (i) {
       return Tween<Offset>(
         begin: const Offset(0, 0.4),
         end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _cardsController,
-        curve: Interval((i * 0.12).clamp(0.0, 1.0), ((i * 0.12) + 0.6).clamp(0.0, 1.0), curve: Curves.fastOutSlowIn),
-      ));
+      ).animate(
+        CurvedAnimation(
+          parent: _cardsController,
+          curve: Interval(
+            (i * 0.12).clamp(0.0, 1.0),
+            ((i * 0.12) + 0.6).clamp(0.0, 1.0),
+            curve: Curves.fastOutSlowIn,
+          ),
+        ),
+      );
     });
   }
 
@@ -153,15 +170,31 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
     );
   }
 
-  Widget _buildBentoGridLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+  Widget _buildBentoGridLayout(
+    BuildContext context,
+    bool isMobile,
+    BoxConstraints constraints,
+  ) {
     final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 32 : 60,
+        horizontal: isMobile
+            ? 16
+            : isTablet
+            ? 32
+            : 48,
+      ),
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border(
-          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2), width: 0.5),
+          top: BorderSide(
+            color: Theme.of(
+              context,
+            ).colorScheme.outlineVariant.withValues(alpha: 0.2),
+            width: 0.5,
+          ),
         ),
       ),
       child: Column(
@@ -171,18 +204,21 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
           SizedBox(height: 48),
           if (isMobile)
             Column(
-              children: List.generate(_features.length, (i) => Column(
-                children: [
-                  FadeTransition(
-                    opacity: _cardFades[i],
-                    child: SlideTransition(
-                      position: _cardSlides[i],
-                      child: _BentoCard(feature: _features[i]),
+              children: List.generate(
+                _features.length,
+                (i) => Column(
+                  children: [
+                    FadeTransition(
+                      opacity: _cardFades[i],
+                      child: SlideTransition(
+                        position: _cardSlides[i],
+                        child: _BentoCard(feature: _features[i]),
+                      ),
                     ),
-                  ),
-                  if (i < _features.length - 1) SizedBox(height: 16),
-                ],
-              )),
+                    if (i < _features.length - 1) SizedBox(height: 16),
+                  ],
+                ),
+              ),
             )
           else
             Column(
@@ -197,7 +233,10 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                           opacity: _cardFades[0],
                           child: SlideTransition(
                             position: _cardSlides[0],
-                            child: _BentoCard(feature: _features[0], tall: true),
+                            child: _BentoCard(
+                              feature: _features[0],
+                              tall: true,
+                            ),
                           ),
                         ),
                       ),
@@ -271,7 +310,10 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                           opacity: _cardFades[5],
                           child: SlideTransition(
                             position: _cardSlides[5],
-                            child: _BentoCard(feature: _features[5], tall: true),
+                            child: _BentoCard(
+                              feature: _features[5],
+                              tall: true,
+                            ),
                           ),
                         ),
                       ),
@@ -286,7 +328,9 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
   }
 
   Widget _buildSectionHeader(bool isMobile) {
-    final isTablet = MediaQuery.of(context).size.width >= 700 && MediaQuery.of(context).size.width < 1200;
+    final isTablet =
+        MediaQuery.of(context).size.width >= 700 &&
+        MediaQuery.of(context).size.width < 1200;
     return FadeTransition(
       opacity: _headerFade,
       child: SlideTransition(
@@ -314,7 +358,11 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
             Text(
               widget.title ?? "كل ما تحتاجه للنمو\nفي مكان واحد",
               style: AppTypography.h2.copyWith(
-                fontSize: isMobile ? 28 : isTablet ? 44 : 58,
+                fontSize: isMobile
+                    ? 28
+                    : isTablet
+                    ? 44
+                    : 58,
                 fontWeight: FontWeight.w900,
                 height: 1.2,
               ),
@@ -335,38 +383,64 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
     );
   }
 
-  Widget _buildThreeColsLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+  Widget _buildThreeColsLayout(
+    BuildContext context,
+    bool isMobile,
+    BoxConstraints constraints,
+  ) {
     final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 32 : 60,
+        horizontal: isMobile
+            ? 16
+            : isTablet
+            ? 32
+            : 48,
+      ),
       decoration: BoxDecoration(
         color: Colors.transparent,
-        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2), width: 0.5)),
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(
+              context,
+            ).colorScheme.outlineVariant.withValues(alpha: 0.2),
+            width: 0.5,
+          ),
+        ),
       ),
       child: Column(
         children: [
           _buildSectionHeader(isMobile),
           SizedBox(height: 48),
           isMobile
-            ? Column(
-                children: _features.map((f) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _buildSimpleCard(f),
-                )).toList(),
-              )
-            : isTablet
+              ? Column(
+                  children: _features
+                      .map(
+                        (f) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _buildSimpleCard(f),
+                        ),
+                      )
+                      .toList(),
+                )
+              : isTablet
               ? Column(
                   children: [
                     for (int i = 0; i < _features.length; i += 2)
                       Padding(
-                        padding: EdgeInsets.only(bottom: i + 2 < _features.length ? 16 : 0),
+                        padding: EdgeInsets.only(
+                          bottom: i + 2 < _features.length ? 16 : 0,
+                        ),
                         child: Row(
                           children: [
                             Expanded(child: _buildSimpleCard(_features[i])),
                             SizedBox(width: 16),
                             if (i + 1 < _features.length)
-                              Expanded(child: _buildSimpleCard(_features[i + 1]))
+                              Expanded(
+                                child: _buildSimpleCard(_features[i + 1]),
+                              )
                             else
                               const Expanded(child: SizedBox()),
                           ],
@@ -394,7 +468,10 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+          width: 1.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,49 +485,78 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
             child: Icon(f.icon, color: f.color, size: 26),
           ),
           SizedBox(height: 16),
-          Text(f.title, style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            f.title,
+            style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
+          ),
           SizedBox(height: 8),
-          Text(f.desc, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.65)),
+          Text(
+            f.desc,
+            style: AppTypography.bodyMedium.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.65,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildIconLeftLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+  Widget _buildIconLeftLayout(
+    BuildContext context,
+    bool isMobile,
+    BoxConstraints constraints,
+  ) {
     final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 32 : 60,
+        horizontal: isMobile
+            ? 16
+            : isTablet
+            ? 32
+            : 48,
+      ),
       decoration: BoxDecoration(
         color: Colors.transparent,
-        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2), width: 0.5)),
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(
+              context,
+            ).colorScheme.outlineVariant.withValues(alpha: 0.2),
+            width: 0.5,
+          ),
+        ),
       ),
       child: Column(
         children: [
           _buildSectionHeader(isMobile),
           SizedBox(height: 48),
           isMobile
-            ? Column(
-                children: _features.map((f) => _buildIconLeftRow(f)).toList(),
-              )
-            : Column(
-                children: [
-                  for (int i = 0; i < _features.length; i += 2)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: Row(
-                        children: [
-                          Expanded(child: _buildIconLeftRow(_features[i])),
-                          SizedBox(width: 20),
-                          if (i + 1 < _features.length)
-                            Expanded(child: _buildIconLeftRow(_features[i + 1]))
-                          else
-                            const Expanded(child: SizedBox()),
-                        ],
+              ? Column(
+                  children: _features.map((f) => _buildIconLeftRow(f)).toList(),
+                )
+              : Column(
+                  children: [
+                    for (int i = 0; i < _features.length; i += 2)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Row(
+                          children: [
+                            Expanded(child: _buildIconLeftRow(_features[i])),
+                            SizedBox(width: 20),
+                            if (i + 1 < _features.length)
+                              Expanded(
+                                child: _buildIconLeftRow(_features[i + 1]),
+                              )
+                            else
+                              const Expanded(child: SizedBox()),
+                          ],
+                        ),
                       ),
-                    ),
-                ],
-              ),
+                  ],
+                ),
         ],
       ),
     );
@@ -462,7 +568,10 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+          width: 1,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,9 +589,21 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(f.title, style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(
+                  f.title,
+                  style: AppTypography.h3.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
                 SizedBox(height: 6),
-                Text(f.desc, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6)),
+                Text(
+                  f.desc,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1.6,
+                  ),
+                ),
               ],
             ),
           ),
@@ -519,7 +640,6 @@ class _BentoCard extends StatefulWidget {
 
   const _BentoCard({required this.feature, this.tall = false});
 
-
   @override
   State<_BentoCard> createState() => _BentoCardState();
 }
@@ -539,76 +659,93 @@ class _BentoCardState extends State<_BentoCard> {
           offset: _hovered ? const Offset(0, -0.015) : Offset.zero,
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            padding: EdgeInsets.all(widget.tall ? 36 : 28),
-            constraints: widget.tall ? const BoxConstraints(minHeight: 240) : null,
-            decoration: BoxDecoration(
-              color: _hovered ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) : Theme.of(context).colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: _hovered ? f.color.withValues(alpha: 0.55) : Theme.of(context).colorScheme.outlineVariant,
-                width: 1.5,
+          child: AppBlurEffect(
+            borderRadius: BorderRadius.circular(24),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.all(widget.tall ? 36 : 28),
+              constraints: widget.tall
+                  ? const BoxConstraints(minHeight: 240)
+                  : null,
+              decoration: BoxDecoration(
+                color: _hovered
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: 0.5)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHigh.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: _hovered
+                      ? f.color.withValues(alpha: 0.55)
+                      : Theme.of(context).colorScheme.outlineVariant,
+                  width: 1.5,
+                ),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RepaintBoundary(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: f.color.withValues(alpha: _hovered ? 0.18 : 0.1),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Icon(f.icon, color: f.color, size: 28),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    Text(f.emoji, style: TextStyle(fontSize: 18)),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        f.title,
-                        style: AppTypography.h3.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                        ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RepaintBoundary(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: f.color.withValues(alpha: _hovered ? 0.18 : 0.1),
+                        borderRadius: BorderRadius.circular(18),
                       ),
+                      child: Icon(f.icon, color: f.color, size: 28),
                     ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Text(
-                  f.desc,
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    height: 1.65,
                   ),
-                ),
-                AnimatedOpacity(
-                  opacity: _hovered ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 180),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                  SizedBox(height: 20),
+                  Row(
                     children: [
-                      Text(
-                        "اكتشف أكثر",
-                        style: AppTypography.caption.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.bold,
+                      Text(f.emoji, style: TextStyle(fontSize: 18)),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          f.title,
+                          style: AppTypography.h3.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                          ),
                         ),
                       ),
-                      SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_rounded, color: Theme.of(context).colorScheme.onSurface, size: 14),
                     ],
                   ),
-                ),
-              ],
+                  SizedBox(height: 10),
+                  Text(
+                    f.desc,
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      height: 1.65,
+                    ),
+                  ),
+                  AnimatedOpacity(
+                    opacity: _hovered ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 180),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "اكتشف أكثر",
+                          style: AppTypography.caption.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          size: 14,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

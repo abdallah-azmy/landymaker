@@ -209,6 +209,14 @@ class _Cube {
 
     vy -= scrollDrift * 5.0;
 
+    // Wall repulsion — push cubes away from screen edges
+    const double repZone = 0.08;
+    const double repForce = 0.025;
+    if (y < repZone) vy += (repZone - y) / repZone * repForce;
+    if (y > 1.0 - repZone) vy -= (repZone - (1.0 - y)) / repZone * repForce;
+    if (x < repZone) vx += (repZone - x) / repZone * repForce;
+    if (x > 1.0 - repZone) vx -= (repZone - (1.0 - x)) / repZone * repForce;
+
     final speed = sqrt(vx * vx + vy * vy);
     if (speed > 0.35) {
       vx = (vx / speed) * 0.35;

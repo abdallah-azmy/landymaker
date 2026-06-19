@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../injection_container.dart';
 import '../../../services/database_service.dart';
 import '../../../core/widgets/visibility_observer.dart';
+import '../../../core/widgets/particles/cube_mode_cubit.dart';
 import '../../../core/widgets/particles/floating_cube_background.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../models/home_layouts.dart';
@@ -50,6 +52,16 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
     _lastScrollOffsetForDrift = LandyMakerHomeScreen.lastScrollOffset;
     _scrollController.addListener(_saveScrollPosition);
     _loadSections();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final width = MediaQuery.of(context).size.width;
+    final computed = 50 + ((width - 400) / 10).clamp(0, 80).toInt();
+    if (computed != _cubeCount) {
+      setState(() => _cubeCount = computed);
+    }
   }
 
   Future<void> _loadSections() async {
@@ -185,6 +197,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
                   baseColor: Theme.of(context).colorScheme.primary,
                   isActive: _particlesActive,
                   controller: _cubeController,
+                  cubeMode: context.watch<CubeModeCubit>().state,
                 ),
               ),
               SingleChildScrollView(

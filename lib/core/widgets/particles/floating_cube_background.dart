@@ -31,7 +31,8 @@ class FloatingCubeBackground extends StatefulWidget {
   });
 
   @override
-  State<FloatingCubeBackground> createState() => _FloatingCubeBackgroundState();
+  State<FloatingCubeBackground> createState() =>
+      _FloatingCubeBackgroundState();
 }
 
 class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
@@ -114,7 +115,10 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         builder: (context, _) {
           return CustomPaint(
             size: Size.infinite,
-            painter: _CubePainter(cubes: _cubes, baseColor: widget.baseColor),
+            painter: _CubePainter(
+              cubes: _cubes,
+              baseColor: widget.baseColor,
+            ),
           );
         },
       ),
@@ -132,18 +136,18 @@ class _Cube {
   double _timeSinceLastChange = 0.0;
 
   _Cube()
-    : x = Random().nextDouble(),
-      y = Random().nextDouble(),
-      size = 6.0 + Random().nextDouble() * 18.0,
-      vx = (Random().nextDouble() - 0.5) * 0.05,
-      vy = (Random().nextDouble() - 0.5) * 0.05,
-      rx = Random().nextDouble() * pi * 2,
-      ry = Random().nextDouble() * pi * 2,
-      rz = Random().nextDouble() * pi * 2,
-      vrx = (Random().nextDouble() - 0.5) * 0.6,
-      vry = (Random().nextDouble() - 0.5) * 1.2,
-      vrz = (Random().nextDouble() - 0.5) * 0.4,
-      opacity = 0.15 + Random().nextDouble() * 0.35;
+      : x = Random().nextDouble(),
+        y = Random().nextDouble(),
+        size = 6.0 + Random().nextDouble() * 18.0,
+        vx = (Random().nextDouble() - 0.5) * 0.05,
+        vy = (Random().nextDouble() - 0.5) * 0.05,
+        rx = Random().nextDouble() * pi * 2,
+        ry = Random().nextDouble() * pi * 2,
+        rz = Random().nextDouble() * pi * 2,
+        vrx = (Random().nextDouble() - 0.5) * 1.5,
+        vry = (Random().nextDouble() - 0.5) * 2.5,
+        vrz = (Random().nextDouble() - 0.5) * 0.8,
+        opacity = 0.15 + Random().nextDouble() * 0.35;
 
   void update(double dt, double speedMultiplier, Offset? repelPoint) {
     _timeSinceLastChange += dt;
@@ -274,7 +278,9 @@ class _CubePainter extends CustomPainter {
       ..strokeWidth = 0.8;
     final fillPaint = Paint()..style = PaintingStyle.fill;
 
-    final faces = <_FaceDrawData>[];
+    final sorted = List<_Cube>.from(cubes)
+      ..sort((a, b) => a.size.compareTo(b.size));
+
     final tv = <List<double>>[
       [0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0],
@@ -286,7 +292,7 @@ class _CubePainter extends CustomPainter {
       [0.0, 0.0, 0.0],
     ];
 
-    for (final cube in cubes) {
+    for (final cube in sorted) {
       final h = cube.size * 0.5;
       final px = cube.x * size.width;
       final py = cube.y * size.height;
@@ -321,6 +327,8 @@ class _CubePainter extends CustomPainter {
         tv[i][2] = z;
       }
 
+      final faceBuffer = <_FaceDrawData>[];
+
       for (int f = 0; f < 6; f++) {
         double nx = _normals[f][0];
         double ny = _normals[f][1];
@@ -352,7 +360,7 @@ class _CubePainter extends CustomPainter {
         }
 
         final faceVerts = _faces[f];
-        faces.add(
+        faceBuffer.add(
           _FaceDrawData(
             z: sumZ,
             brightness: brightness,
@@ -368,24 +376,40 @@ class _CubePainter extends CustomPainter {
           ),
         );
       }
+
+      if (faceBuffer.length < 2) {
+        for (final fd in faceBuffer) {
+          _drawFace(canvas, fd, fillPaint, strokePaint);
+        }
+        continue;
+      }
+
+      faceBuffer.sort((a, b) => a.z.compareTo(b.z));
+
+      for (final fd in faceBuffer) {
+        _drawFace(canvas, fd, fillPaint, strokePaint);
+      }
     }
+  }
 
-    faces.sort((a, b) => a.z.compareTo(b.z));
+  void _drawFace(
+    Canvas canvas,
+    _FaceDrawData fd,
+    Paint fillPaint,
+    Paint strokePaint,
+  ) {
+    final alpha = fd.opacity * fd.brightness;
+    final path = Path()
+      ..moveTo(fd.x0, fd.y0)
+      ..lineTo(fd.x1, fd.y1)
+      ..lineTo(fd.x2, fd.y2)
+      ..lineTo(fd.x3, fd.y3)
+      ..close();
 
-    for (final fd in faces) {
-      final alpha = fd.opacity * fd.brightness;
-      final path = Path()
-        ..moveTo(fd.x0, fd.y0)
-        ..lineTo(fd.x1, fd.y1)
-        ..lineTo(fd.x2, fd.y2)
-        ..lineTo(fd.x3, fd.y3)
-        ..close();
-
-      fillPaint.color = baseColor.withValues(alpha: alpha * 0.35);
-      canvas.drawPath(path, fillPaint);
-      strokePaint.color = baseColor.withValues(alpha: alpha * 0.65);
-      canvas.drawPath(path, strokePaint);
-    }
+    fillPaint.color = baseColor.withValues(alpha: alpha * 0.35);
+    canvas.drawPath(path, fillPaint);
+    strokePaint.color = baseColor.withValues(alpha: alpha * 0.65);
+    canvas.drawPath(path, strokePaint);
   }
 
   @override

@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 class AppColors {
   // ── Brand Primaries & Accents ──────────────────────────────────────
   static const Color primary = Color(0xFF00E5FF);
-  static const Color secondaryLightTheme = Color(0xFF1E3A8A); // Navy blue for light theme secondary
-  static const Color secondaryDarkTheme = Color(0xFF6366F1); // Vibrant indigo for dark theme secondary
+  static const Color secondaryLightTheme = Color(
+    0xFFA5B4FC,
+  ); // Much lighter, more vibrant indigo (Indigo 300)
+  static const Color secondaryDarkTheme = Color(0xFF1E3A8A); // Navy blue
   static const Color activeGreen = Color(0xFF10B981);
   static const Color dangerRed = Color(0xFFEF4444);
   static const Color warningOrange = Color(0xFFF59E0B);
@@ -32,10 +34,14 @@ class AppColors {
   // ── Deprecated Aliases (kept for backward compatibility) ───────────
   /// These names are kept so existing widgets compile without changes.
   /// New code should use `Theme.of(context).colorScheme` instead.
-  @Deprecated('Use secondaryLightTheme or Theme.of(context).colorScheme.secondary instead')
+  @Deprecated(
+    'Use secondaryLightTheme or Theme.of(context).colorScheme.secondary instead',
+  )
   static const Color secondary = secondaryLightTheme;
 
-  @Deprecated('Use secondaryDarkTheme or Theme.of(context).colorScheme.secondary instead')
+  @Deprecated(
+    'Use secondaryDarkTheme or Theme.of(context).colorScheme.secondary instead',
+  )
   static const Color darkSecondary = secondaryDarkTheme;
 
   @Deprecated('Use Theme.of(context).colorScheme.surface instead')
@@ -44,7 +50,9 @@ class AppColors {
   @Deprecated('Use Theme.of(context).colorScheme.surface instead')
   static const Color cardBg = darkCardBg;
 
-  @Deprecated('Use Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) instead')
+  @Deprecated(
+    'Use Theme.of(context).colorScheme.surface.withValues(alpha: 0.8) instead',
+  )
   static const Color cardBgHover = Color(0xFF1E293B);
 
   @Deprecated('Use Theme.of(context).colorScheme.outline instead')
@@ -56,10 +64,14 @@ class AppColors {
   @Deprecated('Use Theme.of(context).colorScheme.onSurface instead')
   static const Color textPrimary = darkTextPrimary;
 
-  @Deprecated('Use Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7) instead')
+  @Deprecated(
+    'Use Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7) instead',
+  )
   static const Color textSecondary = darkTextSecondary;
 
-  @Deprecated('Use Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5) instead')
+  @Deprecated(
+    'Use Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5) instead',
+  )
   static const Color textMuted = darkTextMuted;
 
   // ── Gradients ──────────────────────────────────────────────────────
@@ -82,10 +94,7 @@ class AppColors {
   );
 
   static const Gradient glassGradient = LinearGradient(
-    colors: [
-      Color(0x1AFFFFFF),
-      Color(0x05FFFFFF),
-    ],
+    colors: [Color(0x1AFFFFFF), Color(0x05FFFFFF)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

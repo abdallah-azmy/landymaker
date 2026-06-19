@@ -17,7 +17,7 @@ class AppTheme {
   static ThemeData light() {
     final colorScheme = ColorScheme.light(
       primary: AppColors.primary,
-      secondary: AppColors.secondaryLightTheme,
+      secondary: AppColors.secondaryDarkTheme,
       surface: AppColors.lightSurface,
       surfaceContainerHigh: AppColors.lightCardBg,
       surfaceContainerLow: AppColors.lightBackground,
@@ -40,12 +40,24 @@ class AppTheme {
 
       // ── Text Theme ──────────────────────────────────────────────────
       textTheme: TextTheme(
-        displayLarge: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        displayMedium: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        displaySmall: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        headlineLarge: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        headlineMedium: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        headlineSmall: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
+        displayLarge: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        displayMedium: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        displaySmall: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        headlineLarge: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        headlineMedium: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        headlineSmall: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
         titleLarge: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
         titleMedium: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
         titleSmall: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
@@ -131,14 +143,19 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colorScheme.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.6)),
+          borderSide: BorderSide(
+            color: colorScheme.outline.withValues(alpha: 0.6),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -152,8 +169,12 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.error, width: 1.5),
         ),
-        labelStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.8)),
-        hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+        labelStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.8),
+        ),
+        hintStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.5),
+        ),
         errorStyle: TextStyle(color: colorScheme.error),
       ),
 
@@ -161,9 +182,7 @@ class AppTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: colorScheme.surface,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
 
       // ── Switch Theme ────────────────────────────────────────────────
@@ -211,10 +230,7 @@ class AppTheme {
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: 13,
-        ),
+        unselectedLabelStyle: TextStyle(fontFamily: _fontFamily, fontSize: 13),
       ),
     );
   }
@@ -223,7 +239,7 @@ class AppTheme {
   static ThemeData dark() {
     final colorScheme = ColorScheme.dark(
       primary: AppColors.primary,
-      secondary: AppColors.secondaryDarkTheme,
+      secondary: AppColors.secondaryLightTheme,
       surface: AppColors.darkSurface,
       surfaceContainerHigh: AppColors.darkCardBg,
       surfaceContainerLow: AppColors.darkBackground,
@@ -246,12 +262,24 @@ class AppTheme {
 
       // ── Text Theme ──────────────────────────────────────────────────
       textTheme: TextTheme(
-        displayLarge: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        displayMedium: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        displaySmall: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        headlineLarge: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        headlineMedium: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
-        headlineSmall: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
+        displayLarge: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        displayMedium: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        displaySmall: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        headlineLarge: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        headlineMedium: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
+        headlineSmall: TextStyle(
+          fontFamilyFallback: AppTypography.fontFallbacks,
+        ),
         titleLarge: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
         titleMedium: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
         titleSmall: TextStyle(fontFamilyFallback: AppTypography.fontFallbacks),
@@ -337,14 +365,19 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.darkCardBg,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.6)),
+          borderSide: BorderSide(
+            color: colorScheme.outline.withValues(alpha: 0.6),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -358,8 +391,12 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.error, width: 1.5),
         ),
-        labelStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.8)),
-        hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+        labelStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.8),
+        ),
+        hintStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.5),
+        ),
         errorStyle: TextStyle(color: colorScheme.error),
       ),
 
@@ -367,9 +404,7 @@ class AppTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.darkCardBg,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
 
       // ── Switch Theme ────────────────────────────────────────────────
@@ -417,10 +452,7 @@ class AppTheme {
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: 13,
-        ),
+        unselectedLabelStyle: TextStyle(fontFamily: _fontFamily, fontSize: 13),
       ),
     );
   }

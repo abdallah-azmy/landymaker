@@ -120,3 +120,32 @@ The dynamic color enforcement (Rule #30) is now fully active across the entire c
 | `lightSurface` | `#FFFFFF` | Cards, surfaces |
 | `lightBorder` | `#E2E8F0` | Dividers, borders |
 | `lightTextPrimary` | `#0F172A` | Primary text |
+
+---
+
+## 7. Reusable Backdrop Blur Widget (AppBlurEffect)
+
+**Location**: `lib/core/widgets/atoms/blur_effect.dart`
+
+To ensure a consistent and clean backdrop blur/glassmorphism effect, use the `AppBlurEffect` widget instead of manually implementing `BackdropFilter` and `ClipRRect` in each container.
+
+### Usage:
+Wrap any semi-transparent container widget to apply a backdrop blur effect that is perfectly clipped to its border radius:
+
+```dart
+AppBlurEffect(
+  borderRadius: BorderRadius.circular(30),
+  child: Container(
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.2),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: ...
+  ),
+)
+```
+
+**Parameters:**
+- `child` (required): The widget to display on top of the blur effect (usually a container with a transparent/semi-transparent background).
+- `blur` (default: `10.0`): The amount of blur to apply (sigmaX/sigmaY values).
+- `borderRadius` (default: `BorderRadius.zero`): The border radius to clip the blur effect to (must match the container's border radius).

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/atoms/blur_effect.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../../core/animations/entrance_animation_mixin.dart';
 import '../../../core/responsive/responsive_utils.dart';
@@ -45,12 +46,14 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
     with TickerProviderStateMixin, EntranceAnimationMixin {
   late AnimationController _bgAnimationController;
 
-  List<String> get _typewriterTexts => widget.typewriterTexts ?? [
-    "منيو مطعم إلكتروني تفاعلي",
-    "معرض أعمال شخصي للمستقلين",
-    "صفحة هبوط تسويقية لخدماتك",
-    "متجر إلكتروني لمنتجاتك الخاصة",
-  ];
+  List<String> get _typewriterTexts =>
+      widget.typewriterTexts ??
+      [
+        "منيو مطعم إلكتروني تفاعلي",
+        "معرض أعمال شخصي للمستقلين",
+        "صفحة هبوط تسويقية لخدماتك",
+        "متجر إلكتروني لمنتجاتك الخاصة",
+      ];
 
   final List<Map<String, dynamic>> _previewPages = [
     {
@@ -208,7 +211,11 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
     );
   }
 
-  Widget _buildSplitLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+  Widget _buildSplitLayout(
+    BuildContext context,
+    bool isMobile,
+    BoxConstraints constraints,
+  ) {
     final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
     final hp = isMobile ? 16.0 : (isTablet ? 32.0 : 64.0);
     final vp = isMobile ? 32.0 : 60.0;
@@ -229,8 +236,12 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       radius: 1.2,
                       colors: [
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                        Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.0),
+                        Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.15),
+                        Theme.of(
+                          context,
+                        ).scaffoldBackgroundColor.withValues(alpha: 0.0),
                       ],
                       stops: const [0.0, 1.0],
                     ),
@@ -255,8 +266,12 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       radius: 1.0,
                       colors: [
-                        Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
-                        Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.0),
+                        Theme.of(
+                          context,
+                        ).colorScheme.secondary.withValues(alpha: 0.1),
+                        Theme.of(
+                          context,
+                        ).scaffoldBackgroundColor.withValues(alpha: 0.0),
                       ],
                       stops: const [0.0, 1.0],
                     ),
@@ -267,7 +282,10 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           ),
         ),
         Padding(
-          padding: EdgeInsetsDirectional.symmetric(vertical: vp, horizontal: hp),
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical: vp,
+            horizontal: hp,
+          ),
           child: Flex(
             direction: isMobile ? Axis.vertical : Axis.horizontal,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -277,7 +295,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
               else
                 Expanded(
                   flex: 7,
-                  child: buildEntranceAnimation(_buildTextContent(context, isMobile)),
+                  child: buildEntranceAnimation(
+                    _buildTextContent(context, isMobile),
+                  ),
                 ),
               if (isMobile) SizedBox(height: 48) else SizedBox(width: 48),
               if (isMobile)
@@ -326,9 +346,14 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                         begin: Alignment(-0.8 + 0.4 * val, -0.8),
                         end: Alignment(0.8 - 0.4 * val, 0.8),
                         colors: [
-                          Theme.of(context).colorScheme.surface.withValues(alpha: 0.15),
-                          Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.0),
-                          Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.15),
+                          Theme.of(
+                            context,
+                          ).colorScheme.surface.withValues(alpha: 0.15),
+                          Theme.of(
+                            context,
+                          ).scaffoldBackgroundColor.withValues(alpha: 0.0),
+                          Theme.of(context).colorScheme.surfaceContainerHigh
+                              .withValues(alpha: 0.15),
                         ],
                       ),
                     ),
@@ -354,7 +379,11 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                   Text(
                     widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                     style: AppTypography.h1.copyWith(
-                      fontSize: isMobile ? 32 : isTablet ? 44 : 58,
+                      fontSize: isMobile
+                          ? 32
+                          : isTablet
+                          ? 44
+                          : 58,
                       fontWeight: FontWeight.w900,
                       height: 1.15,
                       color: Colors.white,
@@ -408,9 +437,15 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                     begin: Alignment(-1.0 + 0.6 * val, -1.0),
                     end: Alignment(1.0 - 0.6 * val, 1.0),
                     colors: [
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
-                      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15),
-                      Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.0),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.25),
+                      Theme.of(
+                        context,
+                      ).colorScheme.secondary.withValues(alpha: 0.15),
+                      Theme.of(
+                        context,
+                      ).scaffoldBackgroundColor.withValues(alpha: 0.0),
                     ],
                   ),
                 ),
@@ -432,7 +467,11 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                     Text(
                       widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                       style: AppTypography.h1.copyWith(
-                        fontSize: isMobile ? 30 : isTablet ? 44 : 58,
+                        fontSize: isMobile
+                            ? 30
+                            : isTablet
+                            ? 44
+                            : 58,
                         fontWeight: FontWeight.w900,
                         height: 1.15,
                         color: Colors.white,
@@ -460,7 +499,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 32),
-                    _buildCTAButtons(context, darkMode: false),
+                    _buildCTAButtons(context),
                   ],
                 ),
               ),
@@ -506,9 +545,14 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       _buildBadge(),
                       const SizedBox(height: 24),
                       Text(
-                        widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                        widget.title ??
+                            'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                         style: AppTypography.h1.copyWith(
-                          fontSize: isMobile ? 30 : isTablet ? 44 : 58,
+                          fontSize: isMobile
+                              ? 30
+                              : isTablet
+                              ? 44
+                              : 58,
                           fontWeight: FontWeight.w900,
                           height: 1.15,
                           color: Colors.white,
@@ -535,7 +579,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 40),
-                      _buildCTAButtons(context, darkMode: false),
+                      _buildCTAButtons(context),
                     ],
                   ),
                 ),
@@ -550,94 +594,145 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
   // ── Shared sub-widgets ───────────────────────────────────────────────────
 
   Widget _buildBadge({Color? textColor}) {
-    final effectiveColor = textColor ?? Colors.white;
-    return Container(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: 14,
-        vertical: 8,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
-          width: 1.2,
+    final effectiveColor = textColor ?? Theme.of(context).colorScheme.secondary;
+    return AppBlurEffect(
+      borderRadius: BorderRadius.circular(30),
+      child: Container(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 14,
+          vertical: 8,
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.auto_awesome_rounded, color: effectiveColor, size: 16),
-          SizedBox(width: 8),
-          Text(
-            'أطلق موقعك في ٥ دقائق فقط 🚀',
-            style: AppTypography.caption.copyWith(
-              color: effectiveColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
+        decoration: BoxDecoration(
+          color: Theme.of(
+            context,
+          ).colorScheme.secondary.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: Theme.of(
+              context,
+            ).colorScheme.secondary.withValues(alpha: 0.3),
+            width: 1.2,
           ),
-        ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.auto_awesome_rounded, color: effectiveColor, size: 16),
+            SizedBox(width: 8),
+            Text(
+              'أطلق موقعك في ٥ دقائق فقط 🚀',
+              style: AppTypography.caption.copyWith(
+                color: effectiveColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildCTAButtons(BuildContext context, {bool darkMode = true}) {
+  Widget _buildCTAButtons(BuildContext context) {
+    final isDark = (Theme.of(context).brightness == Brightness.dark);
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: 16,
       runSpacing: 16,
       children: [
-        ElevatedButton.icon(
-          onPressed: widget.onGetStartedPressed,
-          icon: Icon(Icons.flash_on_rounded, size: 20),
-          label: Text(
-            widget.ctaText ?? 'ابدأ الآن مجاناً',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: darkMode
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.surface,
-            foregroundColor: darkMode ? Colors.black : Theme.of(context).colorScheme.primary,
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: 36,
-              vertical: 20,
+        AppBlurEffect(
+          borderRadius: BorderRadius.circular(16),
+          child: ElevatedButton.icon(
+            onPressed: widget.onGetStartedPressed,
+            icon: Icon(
+              Icons.flash_on_rounded,
+              color: isDark
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.secondary,
+              size: 20,
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+            label: Text(
+              widget.ctaText ?? 'ابدأ الآن مجاناً',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: isDark
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.secondary,
+              ),
             ),
-            elevation: 8,
-            shadowColor: Colors.black.withValues(alpha: 0.4),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.12)
+                  : Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.12),
+              side: BorderSide(
+                color: isDark
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.4)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.secondary.withValues(alpha: 0.4),
+                width: 1.8,
+              ),
+              minimumSize: const Size(220, 58),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 0,
+              shadowColor: Colors.transparent,
+            ),
           ),
         ),
-        OutlinedButton.icon(
-          onPressed: () => _showAiWizard(context),
-          icon: Icon(
-            Icons.auto_awesome_rounded,
-            color: darkMode ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.surface,
-            size: 20,
-          ),
-          label: Text(
-            'المنشئ الذكي (AI)',
-            style: TextStyle(
-              color: darkMode ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.surface,
-              fontWeight: FontWeight.bold,
+        AppBlurEffect(
+          borderRadius: BorderRadius.circular(16),
+          child: OutlinedButton.icon(
+            onPressed: () => _showAiWizard(context),
+            icon: Icon(
+              Icons.auto_awesome_rounded,
+              color: isDark
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.primary,
+              size: 20,
             ),
-          ),
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(
-              color: darkMode
-                  ? Theme.of(context).colorScheme.outline
-                  : Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
-              width: 1.5,
+            label: Text(
+              'المنشئ الذكي (AI)',
+              style: TextStyle(
+                color: isDark
+                    ? Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: 32,
-              vertical: 20,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+            style: OutlinedButton.styleFrom(
+              backgroundColor: isDark
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.12)
+                  : Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.12),
+              side: BorderSide(
+                color: isDark
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.secondary.withValues(alpha: 0.4)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.4),
+                width: 1.8,
+              ),
+              minimumSize: const Size(220, 58),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
           ),
         ),
@@ -646,45 +741,52 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
   }
 
   Widget _buildTextContent(BuildContext context, bool isMobile) {
-    final isTablet = MediaQuery.of(context).size.width >= 700 && MediaQuery.of(context).size.width < 1200;
+    final isTablet =
+        MediaQuery.of(context).size.width >= 700 &&
+        MediaQuery.of(context).size.width < 1200;
     return FadeTransition(
-        opacity: entranceFade,
-        child: Column(
-          crossAxisAlignment:
-              isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-          children: [
-            _buildBadge(),
-            const SizedBox(height: 24),
-            Text(
-              widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
-              style: AppTypography.h1.copyWith(
-                              fontSize: isMobile ? 30 : isTablet ? 44 : 58,
-                fontWeight: FontWeight.w900,
-                height: 1.15,
-                color: Colors.white,
-              ),
-              textAlign: isMobile ? TextAlign.center : TextAlign.start,
+      opacity: entranceFade,
+      child: Column(
+        crossAxisAlignment: isMobile
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.start,
+        children: [
+          _buildBadge(),
+          const SizedBox(height: 24),
+          Text(
+            widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+            style: AppTypography.h1.copyWith(
+              fontSize: isMobile
+                  ? 30
+                  : isTablet
+                  ? 44
+                  : 58,
+              fontWeight: FontWeight.w900,
+              height: 1.15,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
-            const SizedBox(height: 14),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44),
-              child:
-                  _TypewriterText(texts: _typewriterTexts, isMobile: isMobile),
+            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+          ),
+          const SizedBox(height: 14),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: _TypewriterText(texts: _typewriterTexts, isMobile: isMobile),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            widget.subtitle ??
+                'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.',
+            style: AppTypography.bodyLarge.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.5,
+              fontSize: 15,
             ),
-            const SizedBox(height: 16),
-            Text(
-              widget.subtitle ?? 'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.',
-              style: AppTypography.bodyLarge.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                height: 1.5,
-                fontSize: 15,
-              ),
-              textAlign: isMobile ? TextAlign.center : TextAlign.start,
-            ),
-            const SizedBox(height: 28),
-            _buildCTAButtons(context),
-          ],
-        ),
+            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+          ),
+          const SizedBox(height: 28),
+          _buildCTAButtons(context),
+        ],
+      ),
     );
   }
 }
@@ -774,7 +876,8 @@ class _TypewriterTextState extends State<_TypewriterText>
 
   @override
   Widget build(BuildContext context) {
-    final textColor = widget.colorOverride ?? Theme.of(context).colorScheme.primary;
+    final textColor =
+        widget.colorOverride ?? Theme.of(context).colorScheme.primary;
     return Row(
       mainAxisAlignment: widget.isMobile
           ? MainAxisAlignment.center
@@ -919,7 +1022,9 @@ class _PhonePreviewState extends State<_PhonePreview> {
                 border: Border.all(color: const Color(0xFF475569), width: 8),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.25),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.25),
                     blurRadius: 40,
                     spreadRadius: 2,
                   ),
@@ -1077,7 +1182,9 @@ class _PhonePreviewState extends State<_PhonePreview> {
                                   height: 8,
                                   decoration: BoxDecoration(
                                     color: isActive
-                                        ? Theme.of(context).colorScheme.secondary
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.secondary
                                         : Colors.white.withValues(alpha: 0.4),
                                     borderRadius: BorderRadius.circular(4),
                                   ),

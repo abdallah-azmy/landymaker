@@ -60,7 +60,10 @@ class HomeFooter extends StatelessWidget {
               ),
             ),
           ),
-          padding: EdgeInsets.symmetric(vertical: 60, horizontal: isMobile ? 16 : 64),
+          padding: EdgeInsets.symmetric(
+            vertical: 60,
+            horizontal: isMobile ? 16 : 64,
+          ),
           child: Column(
             children: [
               if (isMobile)
@@ -229,7 +232,7 @@ class _BottomRow extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "V 1.0.9",
+              "V 1.1.0",
               style: AppTypography.caption.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,

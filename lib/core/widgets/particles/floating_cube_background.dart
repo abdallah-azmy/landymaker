@@ -85,6 +85,10 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         scrollDrift,
       );
     }
+
+    if (widget.controller != null) {
+      widget.controller!.scrollDrift = 0.0;
+    }
   }
 
   @override
@@ -236,7 +240,8 @@ class _Cube {
         vy = -vy * bounceFactor;
         vx += (Random().nextDouble() - 0.5) * drift * 4.0;
       } else {
-        vy = -vy * 0.45;
+        vy = 0.03 + Random().nextDouble() * 0.04;
+        vx += (Random().nextDouble() - 0.5) * 0.015;
       }
     }
     if (y > 1) {
@@ -247,7 +252,8 @@ class _Cube {
         vy = -vy * bounceFactor;
         vx += (Random().nextDouble() - 0.5) * drift * 4.0;
       } else {
-        vy = -vy * 0.45;
+        vy = -(0.03 + Random().nextDouble() * 0.04);
+        vx += (Random().nextDouble() - 0.5) * 0.015;
       }
     }
 

@@ -20,6 +20,7 @@ const Map<String, String> translationsAr = {
   'analytics': 'تقارير الأداء',
   'leads': 'العملاء والطلبات',
   'logout': 'تسجيل الخروج',
+  'home_website': 'الموقع الرئيسي',
   'role': 'الدور',
   'title': 'العنوان',
   'subtitle': 'العنوان الفرعي',

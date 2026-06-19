@@ -20,6 +20,7 @@ const Map<String, String> translationsEn = {
   'analytics': 'Analytics',
   'leads': 'Leads',
   'logout': 'Logout',
+  'home_website': 'Home Website',
   'role': 'Role',
   'title': 'Title',
   'subtitle': 'Subtitle',

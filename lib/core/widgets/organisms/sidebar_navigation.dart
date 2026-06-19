@@ -103,6 +103,11 @@ class SidebarNavigation extends StatelessWidget {
         'icon': Icons.dashboard_rounded,
         'route': '/dashboard',
       });
+      finalItems.add({
+        'title_key': 'home_website',
+        'icon': Icons.home_outlined,
+        'route': '/',
+      });
 
       if (activeSiteType == 'store') {
         finalItems.add({
@@ -268,6 +273,8 @@ class SidebarNavigation extends StatelessWidget {
                 if (!isLocked && route != null) {
                   if (route == '/dashboard') {
                     isSelected = currentPath == '/dashboard';
+                  } else if (route == '/') {
+                    isSelected = currentPath == '/';
                   } else if (tab != null) {
                     isSelected = currentPath == route && currentTab == tab;
                   } else {

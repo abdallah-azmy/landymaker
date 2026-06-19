@@ -89,7 +89,7 @@ final GoRouter appRouter = GoRouter(
     final isGoingToDashboard = path.startsWith('/dashboard') || path.startsWith('/builder');
 
     if (isLoggedIn) {
-      if (isGoingToAuth || path == '/') {
+      if (isGoingToAuth) {
         return '/dashboard';
       }
     } else {
@@ -303,25 +303,6 @@ final GoRouter appRouter = GoRouter(
                   return null; // allow
                 }
                 return '/dashboard'; // redirect
-              },
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/dashboard/super-admin/users/:userId',
-              builder: (context, state) {
-                final userId = state.pathParameters['userId'] ?? '';
-                return UserProfileScreen(userId: userId);
-              },
-              redirect: (context, state) {
-                final authState = context.read<AuthCubit>().state;
-                if (authState is Authenticated &&
-                    authState.role == 'super_admin') {
-                  return null;
-                }
-                return '/dashboard';
               },
             ),
           ],

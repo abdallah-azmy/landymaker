@@ -92,10 +92,7 @@ class _LegalPageState extends State<LegalPage> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: HomeNavbar(
-        onLoginPressed: () => context.go('/login'),
-        onGetStartedPressed: () => context.go('/templates'),
-      ),
+      appBar: const HomeNavbar(),
       body: SelectionArea(
         child: SingleChildScrollView(
           child: Column(

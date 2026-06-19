@@ -17,7 +17,7 @@ class AppTheme {
   static ThemeData light() {
     final colorScheme = ColorScheme.light(
       primary: AppColors.primary,
-      secondary: AppColors.secondary,
+      secondary: AppColors.secondaryLightTheme,
       surface: AppColors.lightSurface,
       surfaceContainerHigh: AppColors.lightCardBg,
       surfaceContainerLow: AppColors.lightBackground,
@@ -223,7 +223,7 @@ class AppTheme {
   static ThemeData dark() {
     final colorScheme = ColorScheme.dark(
       primary: AppColors.primary,
-      secondary: AppColors.secondary,
+      secondary: AppColors.secondaryDarkTheme,
       surface: AppColors.darkSurface,
       surfaceContainerHigh: AppColors.darkCardBg,
       surfaceContainerLow: AppColors.darkBackground,

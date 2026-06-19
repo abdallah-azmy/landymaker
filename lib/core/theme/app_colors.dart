@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 class AppColors {
   // ── Brand Primaries & Accents ──────────────────────────────────────
   static const Color primary = Color(0xFF00E5FF);
-  static const Color secondary = Color(0xFF1E3A8A);
+  static const Color secondaryLightTheme = Color(0xFF1E3A8A); // Navy blue for light theme secondary
+  static const Color secondaryDarkTheme = Color(0xFF6366F1); // Vibrant indigo for dark theme secondary
   static const Color activeGreen = Color(0xFF10B981);
   static const Color dangerRed = Color(0xFFEF4444);
   static const Color warningOrange = Color(0xFFF59E0B);
@@ -31,6 +32,12 @@ class AppColors {
   // ── Deprecated Aliases (kept for backward compatibility) ───────────
   /// These names are kept so existing widgets compile without changes.
   /// New code should use `Theme.of(context).colorScheme` instead.
+  @Deprecated('Use secondaryLightTheme or Theme.of(context).colorScheme.secondary instead')
+  static const Color secondary = secondaryLightTheme;
+
+  @Deprecated('Use secondaryDarkTheme or Theme.of(context).colorScheme.secondary instead')
+  static const Color darkSecondary = secondaryDarkTheme;
+
   @Deprecated('Use Theme.of(context).colorScheme.surface instead')
   static const Color background = darkBackground;
 
@@ -57,7 +64,7 @@ class AppColors {
 
   // ── Gradients ──────────────────────────────────────────────────────
   static const Gradient primaryGradient = LinearGradient(
-    colors: [primary, secondary],
+    colors: [primary, secondaryLightTheme],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

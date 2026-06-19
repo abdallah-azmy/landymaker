@@ -63,8 +63,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
       body: BlocBuilder<LandingPagesCubit, LandingPagesState>(
         builder: (context, state) {
           if (state is LandingPagesLoading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.secondary),
+            return Center(
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
             );
           }
           if (state is LandingPagesLoaded) {

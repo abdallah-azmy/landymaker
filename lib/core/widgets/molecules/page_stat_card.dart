@@ -13,7 +13,7 @@ class PageStatCard extends StatelessWidget {
     required this.title,
     required this.value,
     required this.icon,
-    this.color = AppColors.secondary,
+    this.color = AppColors.secondaryLightTheme,
   });
 
   @override
@@ -23,7 +23,10 @@ class PageStatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: 0.05),

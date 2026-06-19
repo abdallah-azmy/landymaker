@@ -102,9 +102,9 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   begin: Alignment(-0.8 + 0.4 * val, -0.8),
                   end: Alignment(0.8 - 0.4 * val, 0.8),
                   colors: [
-                    Theme.of(context).colorScheme.surface,
-                    Theme.of(context).colorScheme.surfaceContainerHigh,
-                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.15),
+                    Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.15),
+                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.15),
                   ],
                 ),
                 border: Border.all(
@@ -320,9 +320,9 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   begin: Alignment(-0.8 + 0.4 * val, -0.8),
                   end: Alignment(0.8 - 0.4 * val, 0.8),
                   colors: [
-                    Theme.of(context).colorScheme.surface,
-                    Theme.of(context).colorScheme.surfaceContainerHigh,
-                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.15),
+                    Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.15),
+                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.15),
                   ],
                 ),
                 border: Border.all(

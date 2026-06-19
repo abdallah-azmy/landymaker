@@ -52,10 +52,10 @@ class HomeFooter extends StatelessWidget {
         return Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.15),
             border: Border(
               top: BorderSide(
-                color: Theme.of(context).colorScheme.outlineVariant,
+                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),

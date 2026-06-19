@@ -377,10 +377,10 @@ class _HomeDesktopPreviewCarouselState
             vertical: isMobile ? 32 : 60,
           ),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
+            color: Colors.transparent,
             border: Border(
               top: BorderSide(
-                color: Theme.of(context).colorScheme.outlineVariant,
+                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),

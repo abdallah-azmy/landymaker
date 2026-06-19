@@ -159,9 +159,9 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Colors.transparent,
         border: Border(
-          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
+          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2), width: 0.5),
         ),
       ),
       child: Column(
@@ -341,8 +341,8 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
+        color: Colors.transparent,
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2), width: 0.5)),
       ),
       child: Column(
         children: [
@@ -422,8 +422,8 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
+        color: Colors.transparent,
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2), width: 0.5)),
       ),
       child: Column(
         children: [

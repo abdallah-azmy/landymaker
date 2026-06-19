@@ -127,24 +127,50 @@ class _Cube {
   double x, y;
   final double size;
   double vx, vy;
+  final double _baseVx, _baseVy;
   double rx, ry, rz;
   double vrx, vry, vrz;
   final double opacity;
   double _timeSinceLastChange = 0.0;
 
-  _Cube()
-    : x = Random().nextDouble(),
-      y = Random().nextDouble(),
-      size = 6.0 + Random().nextDouble() * 18.0,
-      vx = (Random().nextDouble() - 0.5) * 0.05,
-      vy = (Random().nextDouble() - 0.5) * 0.05,
-      rx = Random().nextDouble() * pi * 2,
-      ry = Random().nextDouble() * pi * 2,
-      rz = Random().nextDouble() * pi * 2,
-      vrx = (Random().nextDouble() - 0.5) * 1.5,
-      vry = (Random().nextDouble() - 0.5) * 2.5,
-      vrz = (Random().nextDouble() - 0.5) * 0.8,
-      opacity = 0.15 + Random().nextDouble() * 0.35;
+  factory _Cube() {
+    final randVx = (Random().nextDouble() - 0.5) * 0.05;
+    final randVy = (Random().nextDouble() - 0.5) * 0.05;
+    return _Cube._internal(
+      x: Random().nextDouble(),
+      y: Random().nextDouble(),
+      size: 6.0 + Random().nextDouble() * 18.0,
+      vx: randVx,
+      vy: randVy,
+      baseVx: randVx,
+      baseVy: randVy,
+      rx: Random().nextDouble() * pi * 2,
+      ry: Random().nextDouble() * pi * 2,
+      rz: Random().nextDouble() * pi * 2,
+      vrx: (Random().nextDouble() - 0.5) * 1.5,
+      vry: (Random().nextDouble() - 0.5) * 2.5,
+      vrz: (Random().nextDouble() - 0.5) * 0.8,
+      opacity: 0.15 + Random().nextDouble() * 0.35,
+    );
+  }
+
+  _Cube._internal({
+    required this.x,
+    required this.y,
+    required this.size,
+    required this.vx,
+    required this.vy,
+    required double baseVx,
+    required double baseVy,
+    required this.rx,
+    required this.ry,
+    required this.rz,
+    required this.vrx,
+    required this.vry,
+    required this.vrz,
+    required this.opacity,
+  }) : _baseVx = baseVx,
+       _baseVy = baseVy;
 
   void update(double dt, double speedMultiplier, Offset? repelPoint) {
     _timeSinceLastChange += dt;
@@ -159,7 +185,7 @@ class _Cube {
       final dy = y - repelPoint.dy;
       final dist = sqrt(dx * dx + dy * dy);
       if (dist < 0.25 && dist > 0.001) {
-        final force = (0.25 - dist) / 0.25 * 0.10;
+        final force = (0.25 - dist) / 0.25 * 0.30;
         vx += (dx / dist) * force;
         vy += (dy / dist) * force;
       }
@@ -170,6 +196,12 @@ class _Cube {
       vx = (vx / speed) * 0.35;
       vy = (vy / speed) * 0.35;
     }
+
+    // Gradual decay toward base velocity (1.5x per real second)
+    final realDt = dt * 60;
+    final decay = max(0.0, 1.0 - 1.5 * realDt);
+    vx = _baseVx + (vx - _baseVx) * decay;
+    vy = _baseVy + (vy - _baseVy) * decay;
 
     x += vx * dt * 60 * speedMultiplier;
     y += vy * dt * 60 * speedMultiplier;

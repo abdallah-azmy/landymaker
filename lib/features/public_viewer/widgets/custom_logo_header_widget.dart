@@ -15,6 +15,8 @@ class CustomLogoHeaderWidget extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const CustomLogoHeaderWidget({
@@ -27,6 +29,8 @@ class CustomLogoHeaderWidget extends StatelessWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 
@@ -51,6 +55,7 @@ class CustomLogoHeaderWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
+        final double paddingValue = verticalPadding ?? (isMobile ? 12 : 20);
 
         final props = _LogoHeaderProps(
           title: title,
@@ -64,6 +69,8 @@ class CustomLogoHeaderWidget extends StatelessWidget {
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPadding: verticalPadding,
           bgBlur: bgBlur,
         );
 
@@ -90,6 +97,8 @@ class _LogoHeaderProps {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const _LogoHeaderProps({
@@ -104,6 +113,8 @@ class _LogoHeaderProps {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 }
@@ -124,6 +135,8 @@ class _DesktopLogoHeaderLayout extends StatelessWidget {
       bgImageUrl: props.bgImageUrl,
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 20, horizontal: 24),
       child: Container(
@@ -167,6 +180,8 @@ class _MobileLogoHeaderLayout extends StatelessWidget {
       bgImageUrl: props.bgImageUrl,
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 12, horizontal: 24),
       child: Container(

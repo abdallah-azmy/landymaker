@@ -18,6 +18,8 @@ class CustomQrWidget extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const CustomQrWidget({
@@ -30,6 +32,8 @@ class CustomQrWidget extends StatelessWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 
@@ -47,6 +51,7 @@ class CustomQrWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _QrProps(
           title: title,
@@ -62,6 +67,8 @@ class CustomQrWidget extends StatelessWidget {
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
           bgBlur: bgBlur,
+          backgroundColorHex: backgroundColorHex,
+          verticalPadding: verticalPadding,
         );
 
         return isMobile
@@ -89,6 +96,8 @@ class _QrProps {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
 
   const _QrProps({
     required this.title,
@@ -104,6 +113,8 @@ class _QrProps {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.backgroundColorHex,
+    this.verticalPadding,
   });
 }
 
@@ -123,6 +134,8 @@ class _DesktopQrLayout extends StatelessWidget {
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
       bgBlur: props.bgBlur,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
       child: Center(
@@ -177,6 +190,8 @@ class _MobileQrLayout extends StatelessWidget {
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
       bgBlur: props.bgBlur,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
       child: Center(

@@ -14,6 +14,8 @@ class CustomAnimatedCounterWidget extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const CustomAnimatedCounterWidget({
@@ -24,6 +26,8 @@ class CustomAnimatedCounterWidget extends StatelessWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 
@@ -36,6 +40,7 @@ class CustomAnimatedCounterWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _AnimatedCounterProps(
           title: title,
@@ -49,6 +54,8 @@ class CustomAnimatedCounterWidget extends StatelessWidget {
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPadding: verticalPadding,
           bgBlur: bgBlur,
         );
 
@@ -75,6 +82,8 @@ class _AnimatedCounterProps {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const _AnimatedCounterProps({
@@ -89,6 +98,8 @@ class _AnimatedCounterProps {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 }
@@ -109,6 +120,8 @@ class _DesktopAnimatedCounterLayout extends StatelessWidget {
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
       bgBlur: props.bgBlur,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
       child: Center(
@@ -151,6 +164,8 @@ class _MobileAnimatedCounterLayout extends StatelessWidget {
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
       bgBlur: props.bgBlur,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
       child: Center(

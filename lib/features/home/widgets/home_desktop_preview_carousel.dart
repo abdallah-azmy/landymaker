@@ -7,16 +7,23 @@ import '../../../services/database_service.dart';
 import '../../../injection_container.dart';
 import '../../builder/registries/template_registry.dart';
 import '../../../core/localization/localization_cubit.dart';
+import '../../../core/responsive/responsive_utils.dart';
 
 /// ========================= FACTORY =========================
 class HomeDesktopPreviewCarousel extends StatefulWidget {
   final Function(String templateId) onGetStartedPressed;
   final bool isVisible;
+  final String? title;
+  final String? subtitle;
+  final String? description;
 
   const HomeDesktopPreviewCarousel({
     super.key,
     required this.onGetStartedPressed,
     required this.isVisible,
+    this.title,
+    this.subtitle,
+    this.description,
   });
 
   @override
@@ -150,7 +157,7 @@ class _HomeDesktopPreviewCarouselState
     );
   }
 
-  Widget _buildSectionHeader(bool isMobile, loc) {
+  Widget _buildSectionHeader(bool isMobile, bool isTablet, loc) {
     return RepaintBoundary(
       child: FadeTransition(
         opacity: _headerController,
@@ -197,13 +204,13 @@ class _HomeDesktopPreviewCarouselState
               const SizedBox(height: 20),
               Padding(
                 padding:
-                    const EdgeInsetsDirectional.symmetric(horizontal: 24),
+                    EdgeInsetsDirectional.symmetric(horizontal: isMobile ? 16 : isTablet ? 32 : 48),
                 child: Text(
                   loc.isRtl
-                      ? "شاهد كيف تبدو صفحتك على الشاشة الكبيرة"
-                      : "See How Your Page Looks on Large Screens",
+                      ? widget.subtitle ?? "شاهد كيف تبدو صفحتك على الشاشة الكبيرة"
+                      : widget.subtitle ?? "See How Your Page Looks on Large Screens",
                   style: AppTypography.h1.copyWith(
-                    fontSize: isMobile ? 28 : 44,
+                    fontSize: isMobile ? 28 : (isTablet ? 42 : 58),
                     fontWeight: FontWeight.w900,
                   ),
                   textAlign: TextAlign.center,
@@ -212,11 +219,11 @@ class _HomeDesktopPreviewCarouselState
               const SizedBox(height: 12),
               Padding(
                 padding:
-                    const EdgeInsetsDirectional.symmetric(horizontal: 24),
+                    EdgeInsetsDirectional.symmetric(horizontal: isMobile ? 16 : isTablet ? 32 : 48),
                 child: Text(
                   loc.isRtl
-                      ? "معاينة حية لكل قالب كما سيظهر لزوارك على أجهزة الكمبيوتر."
-                      : "Live preview of each template as it will appear to your visitors on desktop.",
+                      ? widget.description ?? "معاينة حية لكل قالب كما سيظهر لزوارك على أجهزة الكمبيوتر."
+                      : widget.description ?? "Live preview of each template as it will appear to your visitors on desktop.",
                   style: AppTypography.bodyLarge.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -352,7 +359,9 @@ class _HomeDesktopPreviewCarouselState
     return LayoutBuilder(
       builder: (context, constraints) {
         final loc = context.read<LocalizationCubit>();
-        final isMobile = constraints.maxWidth < 700;
+        final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
+        final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
+        final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
 
         if (_isLoading) {
           return const SizedBox(
@@ -379,7 +388,7 @@ class _HomeDesktopPreviewCarouselState
           ),
           child: Column(
             children: [
-              _buildSectionHeader(isMobile, loc),
+              _buildSectionHeader(isMobile, isTablet, loc),
               const SizedBox(height: 48),
               isMobile
                   ? _buildMobileCarousel(isMobile, constraints.maxWidth)

@@ -35,6 +35,8 @@ import 'blocks/team_members_editor.dart';
 import 'blocks/service_steps_editor.dart';
 import 'blocks/cta_banner_editor.dart';
 import 'blocks/comparison_table_editor.dart';
+import 'blocks/featured_product_editor.dart';
+import 'blocks/bento_store_editor.dart';
 
 import '../../../../core/widgets/block_animation_wrapper.dart';
 import '../../../../core/widgets/draggable_modal_sheet.dart';
@@ -702,6 +704,32 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           ),
         );
         break;
+      case 'featured_product':
+        list.add(
+          FeaturedProductEditor(
+            cubit: cubit,
+            block: block,
+            index: widget.index,
+            getController: _getController,
+            getFocusNode: _getFocusNode,
+            pickImage: _pickMedia,
+            persistAsset: _persistAsset,
+          ),
+        );
+        break;
+      case 'bento_store':
+        list.add(
+          BentoStoreEditor(
+            cubit: cubit,
+            block: block,
+            index: widget.index,
+            getController: _getController,
+            getFocusNode: _getFocusNode,
+            pickImage: _pickMedia,
+            persistAsset: _persistAsset,
+          ),
+        );
+        break;
       case 'features':
         list.addAll([
           _buildDropdown(
@@ -1004,44 +1032,57 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           },
           currentValue: (anim['delay'] ?? 0).toDouble(),
         ),
+        _buildSlider(
+          loc.translate('anim_intensity'),
+          'animation.intensity',
+          0.1,
+          2.0,
+          (val) {
+            final newAnim = Map<String, dynamic>.from(anim);
+            newAnim['intensity'] = val;
+            cubit.updateBlockProperty(widget.index, 'animation', newAnim);
+          },
+          currentValue: (anim['intensity'] ?? 1.0).toDouble(),
+        ),
       ],
       SizedBox(height: 24),
       Divider(color: Theme.of(context).colorScheme.outlineVariant),
       SizedBox(height: 16),
-      FormGroup(
-        label: loc.translate('font_family'),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: block['fontFamily'],
-              isExpanded: true,
-              dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-              items: [
-                DropdownMenuItem<String>(
-                  value: null,
-                  child: Text(loc.translate('default_font')),
-                ),
-                ...LandingPageTheme.availableFonts.map(
-                  (font) => DropdownMenuItem<String>(
-                    value: font['family'],
-                    child: Text(
-                      font['family']!,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-              onChanged: (val) =>
-                  cubit.updateBlockProperty(widget.index, 'fontFamily', val),
-            ),
-          ),
+      _buildDropdown(
+        loc.translate('font_family'),
+        'fontFamily',
+        ['Default', ...LandingPageTheme.availableFonts.map((f) => f['family']!)],
+        (val) => cubit.updateBlockProperty(
+          widget.index,
+          'fontFamily',
+          val == 'Default' ? null : val,
         ),
+        translateItem: (item) => item,
+      ),
+      _buildDropdown(
+        'قالب القسم (Theme Override)',
+        'theme_override',
+        ['Default', ...LandingPageTheme.palettes.map((p) => p.name)],
+        (val) => cubit.updateBlockProperty(
+          widget.index,
+          'theme_override',
+          val == 'Default' ? null : val,
+        ),
+      ),
+      SizedBox(height: 16),
+      _buildColorPickerItem(
+        context,
+        "لون خلفية القسم",
+        "bg_color",
+        LandingPageTheme.parseColor(block['bg_color'] ?? block['background_color'], null) ?? Colors.transparent,
+      ),
+      SizedBox(height: 16),
+      _buildSlider(
+        loc.translate('vertical_padding'),
+        'vertical_padding',
+        0,
+        300,
+        (val) => cubit.updateBlockProperty(widget.index, 'vertical_padding', val),
       ),
       SizedBox(height: 16),
       CustomImageField(
@@ -1352,6 +1393,110 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildColorPickerItem(
+    BuildContext context,
+    String label,
+    String key,
+    Color color,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: () => _showBlockColorPicker(context, key, color),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: AppTypography.bodyMedium),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color == Colors.transparent ? null : color,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Theme.of(context).colorScheme.outline),
+              ),
+              child: color == Colors.transparent
+                  ? const Icon(Icons.not_interested_rounded, size: 16, color: Colors.grey)
+                  : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBlockColorPicker(
+    BuildContext context,
+    String key,
+    Color currentColor,
+  ) {
+    final List<Color> colors = [
+      Colors.transparent,
+      Theme.of(context).colorScheme.primary,
+      Theme.of(context).colorScheme.secondary,
+      Colors.green,
+      Theme.of(context).colorScheme.error,
+      Colors.blue,
+      Colors.red,
+      Colors.purple,
+      Colors.orange,
+      Colors.teal,
+      Colors.brown,
+      Colors.black,
+      Colors.white,
+      const Color(0xFF1E293B),
+      const Color(0xFFF8FAFC),
+      const Color(0xFFFEFAE0),
+      const Color(0xFFECFDF5),
+      const Color(0xFFEEF2FF),
+    ];
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text("اختر لون خلفية القسم"),
+        content: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: colors
+              .map(
+                (color) => GestureDetector(
+                  onTap: () {
+                    final hex = color == Colors.transparent
+                        ? null
+                        : '#\${color.toARGB32().toRadixString(16).padLeft(8, \u00270\u0027)}';
+                    context.read<LandingPageBuilderCubit>().updateBlockProperty(
+                          widget.index,
+                          key,
+                          hex,
+                        );
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: color == Colors.transparent ? null : color,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: color == currentColor ? 3 : 1,
+                      ),
+                    ),
+                    child: color == Colors.transparent
+                        ? const Icon(Icons.not_interested_rounded, size: 20, color: Colors.grey)
+                        : null,
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
     );
   }
 }

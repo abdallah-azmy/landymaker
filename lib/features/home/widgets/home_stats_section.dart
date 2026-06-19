@@ -121,77 +121,73 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
+        final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
         switch (widget.layout) {
           case StatsLayout.withIcons:
-            return _buildWithIconsLayout(context, isMobile);
+            return _buildWithIconsLayout(context, isMobile, constraints);
           case StatsLayout.horizontal:
-            return _buildHorizontalLayout(context, isMobile);
+            return _buildHorizontalLayout(context, isMobile, constraints);
         }
       },
     );
   }
 
-  Widget _buildHorizontalLayout(BuildContext context, bool isMobile) {
+  Widget _buildHorizontalLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border(
           top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
         ),
       ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildSectionHeader(isMobile),
-              SizedBox(height: 64),
-              if (isMobile)
-                Column(
-                  children: List.generate(_stats.length, (i) => Column(
-                    children: [
-                      RepaintBoundary(
-                        child: FadeTransition(
-                          opacity: _statFades[i],
-                          child: SlideTransition(
-                            position: _statSlides[i],
-                            child: _StatCard(stat: _stats[i]),
-                          ),
-                        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildSectionHeader(isMobile),
+          SizedBox(height: 64),
+          if (isMobile)
+            Column(
+              children: List.generate(_stats.length, (i) => Column(
+                children: [
+                  RepaintBoundary(
+                    child: FadeTransition(
+                      opacity: _statFades[i],
+                      child: SlideTransition(
+                        position: _statSlides[i],
+                        child: _StatCard(stat: _stats[i]),
                       ),
-                      if (i < _stats.length - 1) SizedBox(height: 16),
-                    ],
-                  )),
-                )
-              else
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: 1.1,
+                    ),
                   ),
-                  itemCount: _stats.length,
-                  itemBuilder: (context, i) {
-                    return RepaintBoundary(
-                      child: FadeTransition(
-                        opacity: _statFades[i],
-                        child: SlideTransition(
-                          position: _statSlides[i],
-                          child: _StatCard(stat: _stats[i]),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-            ],
-          ),
-        ),
+                  if (i < _stats.length - 1) SizedBox(height: 16),
+                ],
+              )),
+            )
+          else
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                childAspectRatio: 1.1,
+              ),
+              itemCount: _stats.length,
+              itemBuilder: (context, i) {
+                return RepaintBoundary(
+                  child: FadeTransition(
+                    opacity: _statFades[i],
+                    child: SlideTransition(
+                      position: _statSlides[i],
+                      child: _StatCard(stat: _stats[i]),
+                    ),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
     );
   }
@@ -225,7 +221,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
               Text(
                 "لاندي ميكر في أرقام",
                 style: AppTypography.h2.copyWith(
-                  fontSize: isMobile ? 28 : 42,
+                  fontSize: isMobile ? 28 : isTablet ? 44 : 58,
                   fontWeight: FontWeight.w900,
                   height: 1.2,
                 ),
@@ -247,40 +243,35 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
     );
   }
 
-  Widget _buildWithIconsLayout(BuildContext context, bool isMobile) {
+  Widget _buildWithIconsLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
       ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              _buildSectionHeader(isMobile),
-              SizedBox(height: 48),
-              isMobile
-                ? Column(
-                    children: List.generate(_stats.length, (i) => Padding(
-                      padding: EdgeInsets.only(bottom: i < _stats.length - 1 ? 16 : 0),
-                      child: _buildIconStatCard(_stats[i], i),
-                    )),
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: List.generate(_stats.length, (i) => Expanded(
-                      child: Padding(
-                        padding: EdgeInsetsDirectional.only(end: i < _stats.length - 1 ? 20 : 0),
-                        child: _buildIconStatCard(_stats[i], i),
-                      ),
-                    )),
+      child: Column(
+        children: [
+          _buildSectionHeader(isMobile),
+          SizedBox(height: 48),
+          isMobile
+            ? Column(
+                children: List.generate(_stats.length, (i) => Padding(
+                  padding: EdgeInsets.only(bottom: i < _stats.length - 1 ? 16 : 0),
+                  child: _buildIconStatCard(_stats[i], i),
+                )),
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: List.generate(_stats.length, (i) => Expanded(
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.only(end: i < _stats.length - 1 ? 20 : 0),
+                    child: _buildIconStatCard(_stats[i], i),
                   ),
-            ],
-          ),
-        ),
+                )),
+              ),
+        ],
       ),
     );
   }

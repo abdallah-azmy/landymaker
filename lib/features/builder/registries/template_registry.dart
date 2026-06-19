@@ -332,6 +332,15 @@ class TemplateRegistry {
       recommendedSections: ['hero', 'products', 'gallery', 'testimonials', 'cta_banner'],
       aiPromptHint: 'Use for clothing brands, fashion boutiques, accessories, and trendy apparel.',
     ),
+    TemplateMetadata(
+      id: 'boutique_store',
+      name: 'Boutique Collection',
+      description: 'Premium storefront with featured product spotlight and modern bento grid.',
+      imageUrl: 'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+      category: 'ecommerce',
+      recommendedSections: ['hero', 'featured_product', 'bento_store', 'testimonials', 'whatsapp'],
+      aiPromptHint: 'Use for high-end boutique brands, single-product focus, and modern grid shopping experiences.',
+    ),
   ];
 
   /// Get initial design JSON for a template type
@@ -377,6 +386,8 @@ class TemplateRegistry {
         return _getArchitectureTemplate();
       case 'fashion_store':
         return _getFashionStoreTemplate();
+      case 'boutique_store':
+        return _getBoutiqueStoreTemplate();
       default:
         return {'blocks': []};
     }
@@ -464,6 +475,10 @@ class TemplateRegistry {
       case 'fashion_store':
         return LandingPageTheme.palettes.firstWhere(
           (e) => e.name == 'Coral Dream',
+        );
+      case 'boutique_store':
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Midnight Ocean',
         );
       default:
         return LandingPageTheme.palettes.last; // Default Dark with Cairo
@@ -686,6 +701,61 @@ class TemplateRegistry {
           'title': 'خصم ١٠٪ على أول طلب لكِ',
           'subtitle': 'اشتركي في قائمتنا البريدية واحصلي على الخصم فوراً.',
           'button_text': 'سجلي الآن',
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> _getBoutiqueStoreTemplate() {
+    return {
+      'blocks': [
+        {
+          'type': 'hero',
+          'title': 'مجموعة الخريف الحصرية',
+          'subtitle': 'قطع مصممة بعناية لتمنحك الأناقة التي تستحقينها في كل لحظة.',
+          'button_text': 'اكتشفي المجموعة',
+          'image_url': 'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+          'animation': {'type': 'fadeIn', 'duration': 1200},
+        },
+        {
+          'type': 'featured_product',
+          'name': 'معطف صوف فاخر',
+          'price': '3,200 EGP',
+          'badge_text': 'الأكثر مبيعاً',
+          'description': 'مصنوع من أجود أنواع الصوف الطبيعي، بتصميم كلاسيكي عصري يناسب كافة المناسبات.',
+          'image_url': 'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
+          'button_text': 'أضيفي للسلة',
+          'animation': {'type': 'slideInRight', 'duration': 1000},
+        },
+        {
+          'type': 'bento_store',
+          'title': 'تسوّقي حسب الفئة',
+          'items': [
+            {
+              'id': const Uuid().v4(),
+              'name': 'فساتين سهرة',
+              'price': 'بدءاً من 1,500 EGP',
+              'image_url': 'https://cdn.pixabay.com/photo/2016/09/21/15/27/clothes-1766891_1280.jpg',
+            },
+            {
+              'id': const Uuid().v4(),
+              'name': 'إكسسوارات ذهبية',
+              'price': 'بدءاً من 450 EGP',
+              'image_url': 'https://cdn.pixabay.com/photo/2017/04/06/12/46/shopping-2153849_1280.jpg',
+            },
+            {
+              'id': const Uuid().v4(),
+              'name': 'أحذية كلاسيك',
+              'price': 'بدءاً من 800 EGP',
+              'image_url': 'https://cdn.pixabay.com/photo/2018/10/15/12/35/designer-3703431_1280.jpg',
+            },
+          ],
+        },
+        {
+          'type': 'whatsapp',
+          'title': 'هل لديكِ استفسار؟',
+          'subtitle': 'فريقنا متاح لمساعدتكِ في اختيار المقاس المناسب.',
+          'button_text': 'تحدثي معنا الآن',
         },
       ],
     };

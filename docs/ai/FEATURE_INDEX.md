@@ -16,12 +16,16 @@ Locate platform functionality by business purpose rather than exact filename.
 | **Blog Admin** | Headless blog management | `BlogManagementScreen` | `BlogCubit` | `BlogEditorScreen` |
 | **Subscription** | Tier limits and payments | `UpgradeLimitModal` | N/A (Service layer) | `ManualPaymentModal` |
 | **Sticky CTA** | High-conversion scroll overlay | N/A (Internal) | N/A (Local state) | `StickyCtaBar` |
+| **Store Expansion** | Advanced commerce blocks & Cart 2.0 | N/A (Builder Sections) | `CartCubit` | `FeaturedProductWidget`, `BentoStoreWidget`, `FloatingCartWidget` |
 | **Product Feed** | Merchant catalog sync | `ProductFeedScreen` | N/A (Future work) | `GlassContainer` |
 | **Builder Theme** | Global design (colors, fonts, backgrounds) | N/A (Internal) | `BuilderThemeCubit` | `BuilderSidebar`, `BackgroundPickerTab` |
 | **Draft / Publish** | Page lifecycle management | `BuilderWorkspaceScreen` | `LandingPageBuilderCubit` | `BuilderAppBar`, `BuilderOptionsModal` |
 | **Analytics Overview** | Dashboard home stats + trend chart | `DashboardHomeScreen` | `LeadsAnalyticsCubit` | `AnalyticsOverviewWidget`, `DataCard` |
 | **Notifications** | In-app and push notification system | `NotificationsScreen` | `NotificationCubit` | `NotificationInboxModal` |
 | **Auth Gate** | Guest access overlay for non-logged-in users | `BuilderWorkspaceScreen` | N/A (UI-only) | Blurred overlay with upgrade CTA |
+| **Homepage Editor** | Super admin homepage sections management (visibility, reorder, config) | `HomepageEditorScreen` | `HomepageEditorCubit` | `HomepageSectionCard`, `HeroConfigSheet`, `FeatureConfigSheet`, `CtaConfigSheet` |
+| **User Profile** | Super admin detailed user view (profile, pages, subscription, analytics, activity) | `UserProfileScreen` | `UserProfileCubit` | `StatusPill` |
+| **Bulk Actions** | Super admin multi-select user operations (block, tier, renew, notify) | `SuperAdminPanelScreen` | `SuperAdminCubit` | `BulkActionBar` |
 
 ## 🔗 System Relationships
 

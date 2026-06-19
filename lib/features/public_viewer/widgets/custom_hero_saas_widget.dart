@@ -22,9 +22,10 @@ class CustomHeroSaasWidget extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
   final String? buttonUrl;
-  final double? verticalPadding;
   final String? layoutStyle;
 
   const CustomHeroSaasWidget({
@@ -38,9 +39,10 @@ class CustomHeroSaasWidget extends StatelessWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
     this.buttonUrl,
-    this.verticalPadding,
     this.layoutStyle,
   });
 
@@ -76,12 +78,13 @@ class CustomHeroSaasWidget extends StatelessWidget {
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
           verticalPaddingOverride: verticalPadding,
           bgBlur: bgBlur,
           theme: theme,
           padding: EdgeInsetsDirectional.only(
-            top: isMobile ? 60 : 100,
-            bottom: isMobile ? 40 : 60,
+            top: verticalPadding ?? (isMobile ? 60 : 100),
+            bottom: verticalPadding ?? (isMobile ? 40 : 60),
             start: 24,
             end: 24,
           ),

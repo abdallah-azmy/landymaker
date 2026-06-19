@@ -785,7 +785,7 @@ Widget _colorBox(Color color) {
   return Container(
     width: 20,
     height: 20,
-    margin: const EdgeInsets.only(left: 4),
+    margin: const EdgeInsetsDirectional.only(start: 4),
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(4),

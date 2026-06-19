@@ -40,19 +40,49 @@ class SidebarNavigation extends StatelessWidget {
     if (isAdmin && menuItemsOverride == null) {
       finalItems.add({'is_header': true, 'title': 'إدارة المنصة'});
       finalItems.add({
-        'title_key': 'super_admin',
-        'icon': Icons.admin_panel_settings_rounded,
+        'title_key': 'المستخدمين',
+        'icon': Icons.people_rounded,
         'route': '/dashboard/super-admin',
+        'tab': 'users',
       });
       finalItems.add({
-        'title_key': 'Platform SEO',
+        'title_key': 'الخطط والاشتراكات',
+        'icon': Icons.settings_suggest_rounded,
+        'route': '/dashboard/super-admin',
+        'tab': 'plans',
+      });
+      finalItems.add({
+        'title_key': 'القوالب',
+        'icon': Icons.dashboard_customize_rounded,
+        'route': '/dashboard/super-admin',
+        'tab': 'templates',
+      });
+      finalItems.add({
+        'title_key': 'إدارة الصفحة الرئيسية',
+        'icon': Icons.web_rounded,
+        'route': '/dashboard/homepage-editor',
+      });
+      finalItems.add({
+        'title_key': 'الإشعارات الجماعية',
+        'icon': Icons.campaign_rounded,
+        'route': '/dashboard/super-admin',
+        'tab': 'broadcast',
+      });
+      finalItems.add({
+        'title_key': 'إعدادات SEO',
         'icon': Icons.travel_explore_rounded,
         'route': '/dashboard/platform-seo',
       });
       finalItems.add({
-        'title_key': 'blog_management',
+        'title_key': 'المدونة',
         'icon': Icons.article_rounded,
         'route': '/dashboard/blog-admin',
+      });
+      finalItems.add({
+        'title_key': 'إحصائيات المنصة',
+        'icon': Icons.analytics_rounded,
+        'route': '/dashboard/super-admin',
+        'tab': 'stats',
       });
       finalItems.add({'is_divider': true});
     }
@@ -213,23 +243,27 @@ class SidebarNavigation extends StatelessWidget {
                   );
                 }
 
-                final String label =
-                    item['title_key'] == 'Platform SEO' ||
-                        item['title_key'] == 'Products' ||
-                        item['title_key'] == 'Product Feed'
-                    ? item['title_key'] as String
-                    : loc.translate(item['title_key'] as String);
+                final String label = ((){
+                  final key = item['title_key'] as String? ?? '';
+                  final tab = item['tab'] as String?;
+                  if (tab != null || key == 'Platform SEO' || key == 'Products' || key == 'Product Feed') return key;
+                  return loc.translate(key);
+                })();
 
                 final isPremium = item['title_key'] == 'custom_domain_menu';
                 final isBuilder = item['is_builder'] == true;
                 final isLocked = item['is_locked'] == true;
                 final route = item['route'] as String?;
+                final tab = item['tab'] as String?;
 
                 final currentPath = GoRouterState.of(context).uri.path;
+                final currentTab = GoRouterState.of(context).uri.queryParameters['tab'];
                 bool isSelected = false;
                 if (!isLocked && route != null) {
                   if (route == '/dashboard') {
                     isSelected = currentPath == '/dashboard';
+                  } else if (tab != null) {
+                    isSelected = currentPath == route && currentTab == tab;
                   } else {
                     isSelected = currentPath.startsWith(route);
                   }
@@ -244,7 +278,13 @@ class SidebarNavigation extends StatelessWidget {
                   isLocked: isLocked,
                   onTap: () {
                     if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) Navigator.pop(context);
-                    if (route != null) context.go(route);
+                    if (route != null) {
+                      if (tab != null) {
+                        context.go('$route?tab=$tab');
+                      } else {
+                        context.go(route);
+                      }
+                    }
                   },
                 );
               },

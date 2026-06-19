@@ -47,10 +47,11 @@ class ResponsiveUtils {
 }
 
 /// Unified breakpoint constants for home section widgets.
-/// Use [HomeBreakpoint.isMobile] instead of repeating `constraints.maxWidth < 900`.
 class HomeBreakpoint {
-  static const double mobile = 900;
+  static const double mobile = 700;
+  static const double tablet = 1200;
 
   static bool isMobile(double width) => width < mobile;
-  static bool isDesktop(double width) => width >= mobile;
+  static bool isTablet(double width) => width >= mobile && width < tablet;
+  static bool isDesktop(double width) => width >= tablet;
 }

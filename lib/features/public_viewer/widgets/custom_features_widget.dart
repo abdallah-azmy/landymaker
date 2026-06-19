@@ -22,6 +22,8 @@ class CustomFeaturesWidget extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
   final int variant;
 
@@ -35,6 +37,8 @@ class CustomFeaturesWidget extends StatelessWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
     this.variant = 0,
   });
@@ -50,7 +54,7 @@ class CustomFeaturesWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
-        final double verticalPadding = isMobile ? 40 : 80;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _FeaturesProps(
           title: title,
@@ -71,9 +75,11 @@ class CustomFeaturesWidget extends StatelessWidget {
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPaddingOverride: verticalPadding,
           bgBlur: bgBlur,
           theme: theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),

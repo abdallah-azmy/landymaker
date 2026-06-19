@@ -27,6 +27,8 @@ import '../../public_viewer/widgets/custom_team_members_widget.dart';
 import '../../public_viewer/widgets/custom_service_steps_widget.dart';
 import '../../public_viewer/widgets/custom_cta_banner_widget.dart';
 import '../../public_viewer/widgets/custom_comparison_table_widget.dart';
+import '../../public_viewer/widgets/featured_product_widget.dart';
+import '../../public_viewer/widgets/bento_store_widget.dart';
 import '../../../core/widgets/block_animation_wrapper.dart';
 import '../../../core/widgets/atoms/glass_container.dart';
 import '../../../core/responsive/card_layout_mode.dart';
@@ -47,23 +49,28 @@ class BlockRegistry {
         CustomMultiStepFormWidget(
           key: key,
           block: data,
-          theme: theme,
+          theme: _getTheme(data, theme),
           pageId: pageId,
         ),
     'video_embed': (data, theme, _, key, __, ___, lang) =>
-        CustomVideoEmbedWidget(key: key, block: data, theme: theme),
+        CustomVideoEmbedWidget(
+          key: key,
+          block: data,
+          theme: _getTheme(data, theme),
+        ),
     'logo_header': (data, theme, _, key, __, ___, lang) => CustomLogoHeaderWidget(
           key: key,
           title: data['title'] ?? '',
           logoUrl: data['logo_url'],
           logoHeight: (data['logo_height'] ?? 40.0).toDouble(),
           alignment: data['alignment'] ?? 'center',
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: data['bg_blur']?.toDouble(),
         ),
     'hero': (data, theme, pageId, key, __, ___, lang) => CustomHeroWidget(
@@ -73,12 +80,13 @@ class BlockRegistry {
           buttonText: data['button_text'] ?? '',
           imageUrl: data['image_url'] ?? '',
           pageId: pageId,
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
           buttonUrl: data['button_url'],
@@ -92,12 +100,13 @@ class BlockRegistry {
           buttonText: data['button_text'] ?? '',
           imageUrl: data['image_url'] ?? '',
           pageId: pageId,
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
           buttonUrl: data['button_url'],
@@ -109,12 +118,13 @@ class BlockRegistry {
           items: List<Map<String, dynamic>>.from(data['items'] ?? []),
           layoutStyle: data['layout_style'] ?? 'grid',
           cardLayoutMode: CardLayoutModeExt.fromString(data['card_layout_mode']),
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
           variant: data['variant'] ?? 0,
         ),
@@ -124,13 +134,15 @@ class BlockRegistry {
           title: data['title'] ?? '',
           buttonText: data['button_text'] ?? '',
           pageId: pageId,
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'lead_magnet': (data, theme, pageId, key, __, ___, lang) =>
         CustomLeadMagnetWidget(
@@ -141,12 +153,13 @@ class BlockRegistry {
           buttonText: data['button_text'] ?? '',
           imageUrl: data['image_url'] ?? '',
           pageId: pageId,
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
         ),
     'whatsapp': (data, theme, pageId, key, __, ___, lang) => CustomWhatsappWidget(
@@ -156,21 +169,42 @@ class BlockRegistry {
           message: data['message'] ?? '',
           buttonText: data['button_text'] ?? '',
           pageId: pageId,
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'working_hours': (data, theme, _, key, __, ___, lang) =>
-        CustomWorkingHoursWidget(key: key, blockData: data),
+        CustomWorkingHoursWidget(
+          key: key,
+          blockData: data,
+          theme: _getTheme(data, theme),
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+        ),
     'location_map': (data, theme, _, key, __, ___, lang) => CustomLocationMapWidget(
           key: key,
           title: data['title'] ?? 'موقعنا',
           address: data['address'] ?? '',
           mapIframeUrl: data['map_iframe_url'] ?? '',
+          theme: _getTheme(data, theme),
+          bgImageUrl: data['bg_image_url'],
+          bgOverlayColor: data['bg_overlay_color'],
+          bgOverlayOpacity:
+              (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
+                  ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
+          bgBlur: (data['bg_blur'] as num?)?.toDouble(),
         ),
     'products': (data, theme, _, key, productKeys, __, lang) => CustomProductsWidget(
           key: key,
@@ -178,7 +212,7 @@ class BlockRegistry {
           items: List<Map<String, dynamic>>.from(data['items'] ?? []),
           layoutStyle: data['layout_style'] ?? 'grid',
           mobileColumns: data['mobile_columns'] ?? 2,
-          theme: theme,
+          theme: _getTheme(data, theme),
           productKeys: productKeys,
           whatsappNumber: data['whatsapp_number'],
           showCategoryFilter: data['show_category_filter'] ?? true,
@@ -190,18 +224,23 @@ class BlockRegistry {
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          cardStyle: data['card_style'] ?? 'classic',
+          staggerAnimations: data['stagger_animations'] ?? true,
+          hoverEffect: data['hover_effect'] ?? 'scale',
         ),
     'pricing': (data, theme, pageId, key, __, ___, lang) => CustomPricingWidget(
           key: key,
           block: data,
-          theme: theme,
+          theme: _getTheme(data, theme),
           pageId: pageId,
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
           lang: lang,
           variant: data['variant'] ?? 0,
@@ -210,26 +249,30 @@ class BlockRegistry {
           key: key,
           title: data['title'] ?? '',
           items: List<Map<String, dynamic>>.from(data['items'] ?? []),
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'testimonials': (data, theme, _, key, __, ___, lang) => CustomTestimonialsWidget(
           key: key,
           title: data['title'] ?? '',
           items: List<Map<String, dynamic>>.from(data['items'] ?? []),
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
           layoutStyle: data['layout_style'],
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'contact_info': (data, theme, _, key, __, ___, lang) => CustomContactInfoWidget(
           key: key,
@@ -240,13 +283,15 @@ class BlockRegistry {
           phoneIcon: data['phone_icon'],
           emailIcon: data['email_icon'],
           locationIcon: data['location_icon'],
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'gallery': (data, theme, _, key, __, ___, lang) => CustomGalleryWidget(
           key: key,
@@ -258,13 +303,15 @@ class BlockRegistry {
           displayMode: data['display_mode'] ?? 'grid',
           gridColumns: data['grid_columns'] ?? 3,
           mobileColumns: data['mobile_columns'] ?? 1,
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'qr_code': (data, theme, _, key, __, ___, lang) => CustomQrWidget(
           key: key,
@@ -272,87 +319,117 @@ class BlockRegistry {
           subtitle: data['subtitle'] ?? '',
           qrPayload: data['qr_payload'],
           qrSize: (data['qr_size'] ?? 200.0).toDouble(),
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'social_qr': (data, theme, _, key, __, ___, lang) => CustomSocialQrWidget(
           key: key,
           title: data['title'] ?? '',
           subtitle: data['subtitle'] ?? '',
           links: List<Map<String, dynamic>>.from(data['links'] ?? []),
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
         ),
     'basic_section': (data, theme, _, key, __, index, lang) => BasicSectionRenderer(
           key: key,
           sectionData: data,
-          theme: theme ?? LandingPageTheme.palettes.last,
+          theme: _getTheme(data, theme) ?? LandingPageTheme.palettes.last,
           sectionIndex: index,
         ),
     'trust_logos': (data, theme, _, key, __, ___, lang) => CustomTrustLogosWidget(
           key: key,
           title: data['title'] ?? 'شركاء النجاح',
           logoUrls: List<String>.from(data['items'] ?? []),
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'animated_counter': (data, theme, _, key, __, ___, lang) =>
         CustomAnimatedCounterWidget(
           key: key,
           title: data['title'] ?? '',
           items: List<Map<String, dynamic>>.from(data['items'] ?? []),
-          theme: theme,
+          theme: _getTheme(data, theme),
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:
               (data['overlay_opacity'] ?? data['bg_overlay_opacity'] as num?)
                   ?.toDouble(),
+          backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'statistics_grid': (data, theme, _, key, __, ___, lang) =>
         CustomStatisticsGridWidget(
           key: key,
           block: data,
-          theme: theme,
+          theme: _getTheme(data, theme),
         ),
     'team_members': (data, theme, _, key, __, ___, lang) => CustomTeamMembersWidget(
           key: key,
           block: data,
-          theme: theme,
+          theme: _getTheme(data, theme),
         ),
     'service_steps': (data, theme, _, key, __, ___, lang) =>
         CustomServiceStepsWidget(
           key: key,
           block: data,
-          theme: theme,
+          theme: _getTheme(data, theme),
         ),
     'cta_banner': (data, theme, _, key, __, ___, lang) => CustomCtaBannerWidget(
           key: key,
           block: data,
-          theme: theme,
+          theme: _getTheme(data, theme),
         ),
     'comparison_table': (data, theme, _, key, __, ___, lang) =>
         CustomComparisonTableWidget(
           key: key,
           block: data,
-          theme: theme,
+          theme: _getTheme(data, theme),
+        ),
+    'featured_product': (data, theme, _, key, __, ___, lang) =>
+        FeaturedProductWidget(
+          key: key,
+          block: data,
+          theme: _getTheme(data, theme),
+          whatsappNumber: data['whatsapp_number'],
+        ),
+    'bento_store': (data, theme, _, key, __, ___, lang) => BentoStoreWidget(
+          key: key,
+          block: data,
+          theme: _getTheme(data, theme),
+          whatsappNumber: data['whatsapp_number'],
         ),
   };
+
+  static LandingPageTheme? _getTheme(Map<String, dynamic> data, LandingPageTheme? globalTheme) {
+    final themeName = data['theme_override'];
+    if (themeName != null && themeName is String) {
+      try {
+        return LandingPageTheme.palettes.firstWhere((p) => p.name == themeName);
+      } catch (_) {}
+    }
+    return globalTheme;
+  }
 
   static Widget render(
     String type,

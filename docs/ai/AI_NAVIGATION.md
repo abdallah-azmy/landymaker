@@ -12,6 +12,8 @@ This document is the fastest onboarding tool for future AI models. It explains w
 | **docs/ai/PROJECT_STRUCTURE.md** | Folder hierarchy and architecture boundaries. |
 | **docs/ai/BUILDER_ARCHITECTURE.md** | Builder system data flow. |
 | **docs/ai/BLOCK_SCHEMA_REGISTRY.md** | JSON schema for AI-agent editing. |
+| **docs/ai/STORE_TEMPLATES_STRATEGY.md** | Roadmap for commerce expansion & store layouts. |
+| **docs/ai/STORE_BUILDER_AI_ALIGNMENT_PLAN.md** | Strategy for granular design controls & AI sync. |
 | **docs/ai/API_LOGGING_GUIDE.md** | Developer guide and cheat sheet for structured logging. |
 | **docs/ai/FEATURE_INDEX.md** | Feature-to-file mapping. |
 | **docs/ai/SCREEN_INDEX.md** | Screen-to-file-and-route mapping. |

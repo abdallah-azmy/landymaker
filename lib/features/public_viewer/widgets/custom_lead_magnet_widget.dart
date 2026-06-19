@@ -34,6 +34,8 @@ class CustomLeadMagnetWidget extends StatefulWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const CustomLeadMagnetWidget({
@@ -48,6 +50,8 @@ class CustomLeadMagnetWidget extends StatefulWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 
@@ -202,6 +206,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
         
         final props = _LeadMagnetProps(
           title: widget.title,
@@ -230,9 +235,11 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
           bgImageUrl: widget.bgImageUrl,
           bgOverlayColor: widget.bgOverlayColor,
           bgOverlayOpacity: widget.bgOverlayOpacity,
+          backgroundColorHex: widget.backgroundColorHex,
+          verticalPaddingOverride: widget.verticalPadding,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1200),

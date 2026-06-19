@@ -19,6 +19,8 @@ class CustomTestimonialsWidget extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
   final String? layoutStyle;
 
@@ -30,6 +32,8 @@ class CustomTestimonialsWidget extends StatelessWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
     this.layoutStyle,
   });
@@ -43,7 +47,7 @@ class CustomTestimonialsWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
-        final double verticalPadding = isMobile ? 40 : 80;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _TestimonialsProps(
           title: title,
@@ -53,15 +57,23 @@ class CustomTestimonialsWidget extends StatelessWidget {
           subTextColor: subTextColor,
           isMobile: isMobile,
           theme: theme,
+          bgImageUrl: bgImageUrl,
+          bgOverlayColor: bgOverlayColor,
+          bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPadding: verticalPadding,
+          bgBlur: bgBlur,
         );
 
         return SectionBackground(
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPaddingOverride: verticalPadding,
           bgBlur: bgBlur,
           theme: theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -85,6 +97,12 @@ class _TestimonialsProps {
   final Color subTextColor;
   final bool isMobile;
   final LandingPageTheme? theme;
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
+  final double? bgBlur;
 
   const _TestimonialsProps({
     required this.title,
@@ -94,6 +112,12 @@ class _TestimonialsProps {
     required this.subTextColor,
     required this.isMobile,
     this.theme,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
+    this.bgBlur,
   });
 }
 

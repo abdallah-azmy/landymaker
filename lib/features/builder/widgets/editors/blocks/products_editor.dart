@@ -75,6 +75,43 @@ class ProductsEditor extends StatelessWidget {
           ),
         ),
         SizedBox(height: 16),
+        FormGroup(
+          label: context.translate('card_style'),
+          child: SegmentedButton<String>(
+            segments: [
+              ButtonSegment(value: 'classic', label: Text(context.translate('classic'))),
+              ButtonSegment(value: 'modern', label: Text(context.translate('modern'))),
+              ButtonSegment(value: 'minimal', label: Text(context.translate('minimal'))),
+            ],
+            selected: {block['card_style'] ?? 'classic'},
+            onSelectionChanged: (val) => cubit.updateBlockProperty(index, 'card_style', val.first),
+            style: ButtonStyle(visualDensity: VisualDensity.compact),
+          ),
+        ),
+        SizedBox(height: 16),
+        FormGroup(
+          label: context.translate('hover_effect'),
+          child: SegmentedButton<String>(
+            segments: [
+              ButtonSegment(value: 'none', label: Text(context.translate('anim_none'))),
+              ButtonSegment(value: 'scale', label: Text(context.translate('scale'))),
+              ButtonSegment(value: 'elevate', label: Text(context.translate('elevate'))),
+              const ButtonSegment(value: 'glow', label: Text('وهج')),
+            ],
+            selected: {block['hover_effect'] ?? 'scale'},
+            onSelectionChanged: (val) => cubit.updateBlockProperty(index, 'hover_effect', val.first),
+            style: ButtonStyle(visualDensity: VisualDensity.compact),
+          ),
+        ),
+        SizedBox(height: 16),
+        SwitchListTile(
+          value: block['stagger_animations'] ?? true,
+          onChanged: (val) => cubit.updateBlockProperty(index, 'stagger_animations', val),
+          title: Text(context.translate('stagger_animations'), style: AppTypography.bodyMedium),
+          contentPadding: EdgeInsets.zero,
+          activeThumbColor: Theme.of(context).colorScheme.primary,
+        ),
+        SizedBox(height: 16),
         SwitchListTile(
           value: block['show_category_filter'] ?? true,
           onChanged: (val) => cubit.updateBlockProperty(index, 'show_category_filter', val),

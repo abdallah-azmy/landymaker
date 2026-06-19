@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/widgets/custom_network_image.dart';
+import '../../../core/widgets/block_animation_wrapper.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../controllers/cart_cubit.dart';
 
@@ -32,6 +32,9 @@ class CustomProductsWidget extends StatefulWidget {
   final String? whatsappNumber;
   final bool showCategoryFilter;
   final List<String>? customCategories;
+  final String cardStyle;
+  final bool staggerAnimations;
+  final String hoverEffect;
 
   const CustomProductsWidget({
     super.key,
@@ -48,6 +51,9 @@ class CustomProductsWidget extends StatefulWidget {
     this.whatsappNumber,
     this.showCategoryFilter = true,
     this.customCategories,
+    this.cardStyle = 'classic',
+    this.staggerAnimations = true,
+    this.hoverEffect = 'scale',
   });
 
   @override
@@ -191,6 +197,9 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
           whatsappNumber: widget.whatsappNumber,
           onShowDetail: (item) => _showProductDetail(context, item),
           parentHashCode: widget.hashCode,
+          cardStyle: widget.cardStyle,
+          staggerAnimations: widget.staggerAnimations,
+          hoverEffect: widget.hoverEffect,
         );
 
         return SectionBackground(
@@ -260,6 +269,9 @@ class _ProductsProps {
   final String? whatsappNumber;
   final Function(Map<String, dynamic>) onShowDetail;
   final int parentHashCode;
+  final String cardStyle;
+  final bool staggerAnimations;
+  final String hoverEffect;
 
   const _ProductsProps({
     required this.title,
@@ -284,6 +296,9 @@ class _ProductsProps {
     this.whatsappNumber,
     required this.onShowDetail,
     required this.parentHashCode,
+    required this.cardStyle,
+    required this.staggerAnimations,
+    required this.hoverEffect,
   });
 }
 
@@ -416,7 +431,47 @@ class _ProductsContent extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: props.paginatedItems.length,
             separatorBuilder: (_, __) => SizedBox(height: isMobileWidth ? 16 : 24),
-            itemBuilder: (context, index) => _ProductListItem(item: props.paginatedItems[index], props: props),
+            itemBuilder: (context, index) {
+              final itemWidget = _ProductListItem(item: props.paginatedItems[index], props: props);
+              if (props.staggerAnimations) {
+                return BlockAnimationWrapper(
+                  settings: BlockAnimationSettings(
+                    type: BlockAnimationType.slideUp,
+                    delay: Duration(milliseconds: 100 * index),
+                    duration: const Duration(milliseconds: 600),
+                  ),
+                  child: itemWidget,
+                );
+              }
+              return itemWidget;
+            },
+          );
+        } else if (props.layoutStyle == 'carousel') {
+          content = SizedBox(
+            height: isMobileWidth ? 240 : 320,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              itemCount: props.paginatedItems.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 16),
+              itemBuilder: (context, index) {
+                final itemWidget = SizedBox(
+                  width: isMobileWidth ? 180 : 240,
+                  child: _ProductCard(item: props.paginatedItems[index], props: props, cardWidth: isMobileWidth ? 180 : 240),
+                );
+                if (props.staggerAnimations) {
+                  return BlockAnimationWrapper(
+                    settings: BlockAnimationSettings(
+                      type: BlockAnimationType.slideRight,
+                      delay: Duration(milliseconds: 100 * index),
+                      duration: const Duration(milliseconds: 600),
+                    ),
+                    child: itemWidget,
+                  );
+                }
+                return itemWidget;
+              },
+            ),
           );
         } else {
           final int crossAxisCount = ResponsiveUtils.getContentColumns(
@@ -435,10 +490,23 @@ class _ProductsContent extends StatelessWidget {
               crossAxisCount: crossAxisCount,
               mainAxisSpacing: spacing,
               crossAxisSpacing: spacing,
-              childAspectRatio: cardWidth / (cardWidth + 100),
+              childAspectRatio: cardWidth / (cardWidth + (props.cardStyle == 'minimal' ? 80 : 100)),
             ),
             itemCount: props.paginatedItems.length,
-            itemBuilder: (context, index) => _ProductCard(item: props.paginatedItems[index], props: props, cardWidth: cardWidth),
+            itemBuilder: (context, index) {
+              final itemWidget = _ProductCard(item: props.paginatedItems[index], props: props, cardWidth: cardWidth);
+              if (props.staggerAnimations) {
+                return BlockAnimationWrapper(
+                  settings: BlockAnimationSettings(
+                    type: BlockAnimationType.slideUp,
+                    delay: Duration(milliseconds: 100 * index),
+                    duration: const Duration(milliseconds: 600),
+                  ),
+                  child: itemWidget,
+                );
+              }
+              return itemWidget;
+            },
           );
         }
 
@@ -498,7 +566,7 @@ class _Pagination extends StatelessWidget {
 }
 
 /// Modular Product Card (Grid).
-class _ProductCard extends StatelessWidget {
+class _ProductCard extends StatefulWidget {
   final Map<String, dynamic> item;
   final _ProductsProps props;
   final double cardWidth;
@@ -506,60 +574,91 @@ class _ProductCard extends StatelessWidget {
   const _ProductCard({required this.item, required this.props, required this.cardWidth});
 
   @override
+  State<_ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<_ProductCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    final String id = item['id']?.toString() ?? '';
-    final String name = item['name']?.toString() ?? 'Product';
-    final String price = item['price']?.toString() ?? '';
-    final String imageUrl = item['image_url']?.toString() ?? 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
+    final String id = widget.item['id']?.toString() ?? '';
+    final String name = widget.item['name']?.toString() ?? 'Product';
+    final String price = widget.item['price']?.toString() ?? '';
+    final String imageUrl = widget.item['image_url']?.toString() ?? 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
     
-    final bool isTiny = cardWidth < 160;
-    final bool isSmall = cardWidth < 220;
+    final bool isTiny = widget.cardWidth < 160;
+    final bool isSmall = widget.cardWidth < 220;
 
-    final GlobalKey? cardKey = props.productKeys != null ? (props.productKeys!["$id-${props.parentHashCode}"] ??= GlobalKey()) : null;
+    final GlobalKey? cardKey = widget.props.productKeys != null ? (widget.props.productKeys!["$id-${widget.props.parentHashCode}"] ??= GlobalKey()) : null;
 
-    return GestureDetector(
-      onTap: () => props.onShowDetail(item),
-      child: Container(
-        key: cardKey,
-        decoration: BoxDecoration(
-          color: props.subTextColor.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(isTiny ? 8 : 16),
-          border: Border.all(color: props.subTextColor.withValues(alpha: 0.1)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: Stack(
-                children: [
-                  Positioned.fill(child: CustomNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)),
-                  Positioned(
-                    top: isTiny ? 4 : 8,
-                    right: isTiny ? 4 : 8,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: isTiny ? 6 : 8, vertical: isTiny ? 2 : 4),
-                      decoration: BoxDecoration(color: props.secondaryColor, borderRadius: BorderRadius.circular(isTiny ? 4 : 8)),
-                      child: Text(price, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: isTiny ? 8 : (isSmall ? 9 : 11))),
+    final bool applyScale = _isHovered && widget.props.hoverEffect == 'scale';
+    final bool applyElevate = _isHovered && widget.props.hoverEffect == 'elevate';
+    final bool applyGlow = _isHovered && widget.props.hoverEffect == 'glow';
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: () => widget.props.onShowDetail(widget.item),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          key: cardKey,
+          transform: applyScale ? (Matrix4.identity()..scale(1.03, 1.03)) : Matrix4.identity(),
+          decoration: BoxDecoration(
+            color: widget.props.subTextColor.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(widget.props.cardStyle == 'modern' ? 24 : (isTiny ? 8 : 16)),
+            border: Border.all(
+              color: applyGlow 
+                ? widget.props.secondaryColor 
+                : widget.props.subTextColor.withValues(alpha: 0.1)
+            ),
+            boxShadow: (applyElevate || applyGlow) ? [
+              BoxShadow(
+                color: widget.props.secondaryColor.withValues(alpha: applyGlow ? 0.4 : 0.2),
+                blurRadius: applyGlow ? 15 : 20,
+                spreadRadius: applyGlow ? 2 : 0,
+                offset: applyGlow ? Offset.zero : const Offset(0, 10),
+              )
+            ] : [],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                aspectRatio: 1,
+                child: Stack(
+                  children: [
+                    Positioned.fill(child: CustomNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)),
+                      PositionedDirectional(
+                      top: isTiny ? 4 : 8,
+                      end: isTiny ? 4 : 8,
+                      child: Container(
+                        padding: const EdgeInsetsDirectional.symmetric(horizontal: isTiny ? 6 : 8, vertical: isTiny ? 2 : 4),
+                        decoration: BoxDecoration(color: widget.props.secondaryColor, borderRadius: BorderRadius.circular(isTiny ? 4 : 8)),
+                        child: Text(price, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: isTiny ? 8 : (isSmall ? 9 : 11))),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(isTiny ? 6 : (isSmall ? 8 : 12)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTiny ? 11 : (isSmall ? 13 : 15), color: props.textColor), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  SizedBox(height: 8),
-                  _ProductActionButton(item: item, props: props, isTiny: isTiny, isSmall: isSmall),
-                ],
+              Padding(
+                padding: EdgeInsets.all(isTiny ? 6 : (isSmall ? 8 : 12)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTiny ? 11 : (isSmall ? 13 : 15), color: widget.props.textColor), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    if (widget.props.cardStyle != 'minimal') ...[
+                      SizedBox(height: 8),
+                      _ProductActionButton(item: widget.item, props: widget.props, isTiny: isTiny, isSmall: isSmall),
+                    ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -611,7 +710,7 @@ class _ProductListItem extends StatelessWidget {
                     ),
                     const Spacer(),
                     Align(
-                      alignment: Alignment.centerRight,
+                      alignment: AlignmentDirectional.centerEnd,
                       child: _ProductActionButton(item: item, props: props, isTiny: false, isSmall: props.isMobile),
                     ),
                   ],
@@ -654,7 +753,7 @@ class _ProductActionButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: props.secondaryColor,
           foregroundColor: props.theme?.buttonTextColor ?? Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isTiny ? 4 : 8)),
           elevation: 0,
         ),

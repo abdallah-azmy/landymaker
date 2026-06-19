@@ -40,6 +40,7 @@ class CustomStatisticsGridWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
+        final double paddingValue = (block['vertical_padding'] as num?)?.toDouble() ?? (isMobile ? 40 : 80);
 
         final props = _StatisticsGridProps(
           title: title,
@@ -56,6 +57,8 @@ class CustomStatisticsGridWidget extends StatelessWidget {
           bgImageUrl: block['bg_image_url'],
           bgOverlayColor: block['bg_overlay_color'],
           bgOverlayOpacity: (block['bg_overlay_opacity'] as num?)?.toDouble(),
+          backgroundColorHex: block['bg_color'] ?? block['background_color'],
+          verticalPadding: (block['vertical_padding'] as num?)?.toDouble(),
           bgBlur: (block['bg_blur'] as num?)?.toDouble(),
         );
 
@@ -64,8 +67,10 @@ class CustomStatisticsGridWidget extends StatelessWidget {
           bgImageUrl: props.bgImageUrl,
           bgOverlayColor: props.bgOverlayColor,
           bgOverlayOpacity: props.bgOverlayOpacity,
+          backgroundColorHex: props.backgroundColorHex,
+          verticalPaddingOverride: props.verticalPadding,
           bgBlur: props.bgBlur,
-          padding: EdgeInsetsDirectional.symmetric(vertical: props.isMobile ? 40 : 80, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -112,6 +117,8 @@ class _StatisticsGridProps {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
 
   const _StatisticsGridProps({
     required this.title,
@@ -129,6 +136,8 @@ class _StatisticsGridProps {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.backgroundColorHex,
+    this.verticalPadding,
   });
 }
 

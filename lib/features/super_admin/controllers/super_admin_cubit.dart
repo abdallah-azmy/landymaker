@@ -208,4 +208,49 @@ class SuperAdminCubit extends Cubit<SuperAdminState> {
       emit(SuperAdminFailure("Failed to update SEO settings: $e"));
     }
   }
+
+  // ----------------------------------------------------
+  // BULK ACTIONS
+  // ----------------------------------------------------
+
+  Future<void> bulkBlockUsers(List<String> userIds, bool isBlocked) async {
+    try {
+      await _databaseService.bulkBlockUsers(userIds, isBlocked);
+      await fetchAdminMetrics();
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to block users: $e"));
+    }
+  }
+
+  Future<void> bulkUpdateUserTier(List<String> userIds, String newTier) async {
+    try {
+      await _databaseService.bulkUpdateUserTier(userIds, newTier);
+      await fetchAdminMetrics();
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to update user tier: $e"));
+    }
+  }
+
+  Future<void> bulkAddSubscriptionMonths(List<String> userIds, int months) async {
+    try {
+      await _databaseService.bulkAddSubscriptionMonths(userIds, months);
+      await fetchAdminMetrics();
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to add subscription months: $e"));
+    }
+  }
+
+  Future<void> bulkSendNotification(
+    List<String> userIds,
+    String title,
+    String message,
+    String type, {
+    String? redirectTo,
+  }) async {
+    try {
+      await _databaseService.sendTargetedNotification(userIds, title, message, type, redirectTo: redirectTo);
+    } catch (e) {
+      emit(SuperAdminFailure("Failed to send bulk notification: $e"));
+    }
+  }
 }

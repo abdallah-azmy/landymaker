@@ -144,6 +144,18 @@ class DatabaseService {
     return _supabase.getSystemAuditLogs();
   }
 
+  Future<List<Map<String, dynamic>>> getUserSubscriptionRequests(String userId) {
+    return _supabase.getUserSubscriptionRequests(userId);
+  }
+
+  Future<List<Map<String, dynamic>>> getUserAuditLogs(String userId) {
+    return _supabase.getUserAuditLogs(userId);
+  }
+
+  Future<Map<String, dynamic>> getUserAggregatedAnalytics(String userId) {
+    return _supabase.getUserAggregatedAnalytics(userId);
+  }
+
   Future<List<Map<String, dynamic>>> getPlatformSeoSettings() {
     return _supabase.getPlatformSeoSettings();
   }
@@ -184,8 +196,54 @@ class DatabaseService {
     return _supabase.deleteTemplate(id);
   }
 
+  Future<List<Map<String, dynamic>>> getHomepageSections() {
+    return _supabase.getHomepageSections();
+  }
+
+  Future<void> upsertHomepageSection(String sectionKey, Map<String, dynamic> data) {
+    return _supabase.upsertHomepageSection(sectionKey, data);
+  }
+
+  Future<void> updateHomepageSection(String id, Map<String, dynamic> data) {
+    return _supabase.updateHomepageSection(id, data);
+  }
+
+  Future<void> reorderHomepageSections(List<Map<String, dynamic>> sections) {
+    return _supabase.reorderHomepageSections(sections);
+  }
+
+  Future<int> seedHomepageSectionsFromRegistry(List<Map<String, dynamic>> sections) {
+    return _supabase.seedHomepageSectionsFromRegistry(sections);
+  }
+
   Future<int> seedTemplatesFromRegistry(List<Map<String, dynamic>> templates) {
     return _supabase.seedTemplatesFromRegistry(templates);
+  }
+
+  // ----------------------------------------------------
+  // BULK OPERATIONS
+  // ----------------------------------------------------
+
+  Future<void> bulkBlockUsers(List<String> userIds, bool isBlocked) {
+    return _supabase.bulkBlockUsers(userIds, isBlocked);
+  }
+
+  Future<void> bulkUpdateUserTier(List<String> userIds, String newTier) {
+    return _supabase.bulkUpdateUserTier(userIds, newTier);
+  }
+
+  Future<void> bulkAddSubscriptionMonths(List<String> userIds, int months) {
+    return _supabase.bulkAddSubscriptionMonths(userIds, months);
+  }
+
+  Future<void> sendTargetedNotification(
+    List<String> userIds,
+    String title,
+    String message,
+    String type, {
+    String? redirectTo,
+  }) {
+    return _supabase.sendTargetedNotification(userIds, title, message, type, redirectTo: redirectTo);
   }
 }
 

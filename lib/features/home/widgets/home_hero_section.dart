@@ -20,6 +20,10 @@ class HomeHeroSection extends StatefulWidget {
   final ScrollController? parentScrollController;
   final HeroLayout layout;
   final double overlayOpacity;
+  final String? title;
+  final String? subtitle;
+  final String? ctaText;
+  final List<String>? typewriterTexts;
 
   const HomeHeroSection({
     super.key,
@@ -27,6 +31,10 @@ class HomeHeroSection extends StatefulWidget {
     this.parentScrollController,
     this.layout = HeroLayout.split,
     this.overlayOpacity = 0.6,
+    this.title,
+    this.subtitle,
+    this.ctaText,
+    this.typewriterTexts,
   });
 
   @override
@@ -37,7 +45,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
     with TickerProviderStateMixin, EntranceAnimationMixin {
   late AnimationController _bgAnimationController;
 
-  final List<String> _typewriterTexts = [
+  List<String> get _typewriterTexts => widget.typewriterTexts ?? [
     "منيو مطعم إلكتروني تفاعلي",
     "معرض أعمال شخصي للمستقلين",
     "صفحة هبوط تسويقية لخدماتك",
@@ -192,7 +200,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           case HeroLayout.gradientOnly:
             return _buildGradientOnlyLayout(context, isMobile);
           case HeroLayout.split:
-            return _buildSplitLayout(context, isMobile);
+            return _buildSplitLayout(context, isMobile, constraints);
           case HeroLayout.fullWidthImage:
             return _buildFullWidthImageLayout(context, isMobile);
         }
@@ -200,11 +208,12 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
     );
   }
 
-  // ── Layout: split (original) ─────────────────────────────────────────────
-  Widget _buildSplitLayout(BuildContext context, bool isMobile) {
+  Widget _buildSplitLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+    final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
+    final hp = isMobile ? 16.0 : (isTablet ? 32.0 : 64.0);
+    final vp = isMobile ? 32.0 : 60.0;
     return Stack(
       children: [
-        // Mesh Gradient background spot effect 1
         Positioned.fill(
           child: RepaintBoundary(
             child: AnimatedBuilder(
@@ -231,8 +240,6 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
             ),
           ),
         ),
-
-        // Mesh Gradient background spot effect 2
         Positioned.fill(
           child: RepaintBoundary(
             child: AnimatedBuilder(
@@ -259,56 +266,36 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
             ),
           ),
         ),
-
-        // Core Hero Layout
-        Container(
-          width: double.infinity,
-          padding: EdgeInsetsDirectional.symmetric(
-            vertical: isMobile ? 32 : 60,
-            horizontal: 24,
-          ),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Flex(
-                direction: isMobile ? Axis.vertical : Axis.horizontal,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Text and CTA
-                  if (isMobile)
-                    buildEntranceAnimation(_buildTextContent(context, isMobile))
-                  else
-                    Expanded(
-                      flex: 6,
-                      child: buildEntranceAnimation(
-                        _buildTextContent(context, isMobile),
-                      ),
-                    ),
-
-                  if (isMobile)
-                    SizedBox(height: 48)
-                  else
-                    SizedBox(width: 48),
-
-                  // Phone Preview container with auto-cycling templates
-                  if (isMobile)
-                    _PhonePreview(
-                      isMobile: isMobile,
-                      previewPages: _previewPages,
-                      parentScrollController: widget.parentScrollController,
-                    )
-                  else
-                    Expanded(
-                      flex: 5,
-                      child: _PhonePreview(
-                        isMobile: isMobile,
-                        previewPages: _previewPages,
-                        parentScrollController: widget.parentScrollController,
-                      ),
-                    ),
-                ],
-              ),
-            ),
+        Padding(
+          padding: EdgeInsetsDirectional.symmetric(vertical: vp, horizontal: hp),
+          child: Flex(
+            direction: isMobile ? Axis.vertical : Axis.horizontal,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (isMobile)
+                buildEntranceAnimation(_buildTextContent(context, isMobile))
+              else
+                Expanded(
+                  flex: 7,
+                  child: buildEntranceAnimation(_buildTextContent(context, isMobile)),
+                ),
+              if (isMobile) SizedBox(height: 48) else SizedBox(width: 48),
+              if (isMobile)
+                _PhonePreview(
+                  isMobile: isMobile,
+                  previewPages: _previewPages,
+                  parentScrollController: widget.parentScrollController,
+                )
+              else
+                Expanded(
+                  flex: 5,
+                  child: _PhonePreview(
+                    isMobile: isMobile,
+                    previewPages: _previewPages,
+                    parentScrollController: widget.parentScrollController,
+                  ),
+                ),
+            ],
           ),
         ),
       ],
@@ -321,6 +308,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
     bool isMobile,
     BoxConstraints constraints,
   ) {
+    final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
     return SizedBox(
       width: double.infinity,
       child: Stack(
@@ -354,12 +342,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           Padding(
             padding: EdgeInsetsDirectional.symmetric(
               vertical: isMobile ? 32 : 60,
-              horizontal: 24,
+              horizontal: isMobile ? 16 : (HomeBreakpoint.isTablet(constraints.maxWidth) ? 32 : 64),
             ),
-            child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 800),
-                child: FadeTransition(
+            child: FadeTransition(
                   opacity: entranceFade,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -368,9 +353,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       _buildBadge(),
                       SizedBox(height: 24),
                       Text(
-                        'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                        widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                         style: AppTypography.h1.copyWith(
-                          fontSize: isMobile ? 32 : 58,
+                          fontSize: isMobile ? 32 : isTablet ? 44 : 58,
                           fontWeight: FontWeight.w900,
                           height: 1.15,
                           color: Colors.white,
@@ -387,7 +372,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       SizedBox(height: 16),
                       Text(
-                        'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
+                        widget.subtitle ?? 'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
                         style: AppTypography.bodyLarge.copyWith(
                           color: Colors.white70,
                           height: 1.5,
@@ -399,7 +384,6 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       _buildCTAButtons(context),
                     ],
                   ),
-                ),
               ),
             ),
           ),
@@ -434,22 +418,19 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         child: Padding(
           padding: EdgeInsetsDirectional.symmetric(
             vertical: isMobile ? 32 : 60,
-            horizontal: 24,
+            horizontal: isMobile ? 16 : 64,
           ),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 780),
-              child: FadeTransition(
-                opacity: entranceFade,
+          child: FadeTransition(
+            opacity: entranceFade,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildBadge(),
                     SizedBox(height: 24),
                     Text(
-                      'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                      widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                       style: AppTypography.h1.copyWith(
-                        fontSize: isMobile ? 30 : 52,
+                        fontSize: isMobile ? 30 : isTablet ? 44 : 58,
                         fontWeight: FontWeight.w900,
                         height: 1.15,
                         color: Colors.white,
@@ -467,7 +448,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
+                      widget.subtitle ?? 'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
                       style: AppTypography.bodyLarge.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
                         height: 1.5,
@@ -489,6 +470,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
 
   // ── Layout: fullWidthImage (edge-to-edge bg image) ───────────────────────
   Widget _buildFullWidthImageLayout(BuildContext context, bool isMobile) {
+    final isTablet = MediaQuery.of(context).size.width >= 700 && MediaQuery.of(context).size.width < 1200;
     return SizedBox(
       width: double.infinity,
       child: Stack(
@@ -506,33 +488,31 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
               color: Colors.black.withValues(alpha: widget.overlayOpacity),
             ),
           ),
-          Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 800),
-              padding: EdgeInsetsDirectional.symmetric(
-                vertical: isMobile ? 32 : 60,
-                horizontal: 24,
-              ),
-              child: FadeTransition(
+          Padding(
+            padding: EdgeInsetsDirectional.symmetric(
+              vertical: isMobile ? 32 : 60,
+              horizontal: isMobile ? 16 : 64,
+            ),
+            child: FadeTransition(
                 opacity: entranceFade,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildBadge(),
                       SizedBox(height: 24),
-                      Text(
-                        'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
-                        style: AppTypography.h1.copyWith(
-                          fontSize: isMobile ? 30 : 52,
-                          fontWeight: FontWeight.w900,
-                          height: 1.15,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 14),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: 50),
+                          Text(
+                            widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                            style: AppTypography.h1.copyWith(
+                fontSize: isMobile ? 30 : isTablet ? 44 : 58,
+                              fontWeight: FontWeight.w900,
+                              height: 1.15,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 14),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: 50),
                       child: _TypewriterText(
                         texts: _typewriterTexts,
                         isMobile: isMobile,
@@ -541,7 +521,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                     ),
                     SizedBox(height: 20),
                     Text(
-                      'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
+                      widget.subtitle ?? 'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
                       style: AppTypography.bodyLarge.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
                         height: 1.6,
@@ -553,7 +533,6 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                   ],
                 ),
               ),
-            ),
           ),
         ],
       ),
@@ -604,9 +583,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         ElevatedButton.icon(
           onPressed: widget.onGetStartedPressed,
           icon: Icon(Icons.flash_on_rounded, size: 20),
-          label: const Text(
-            'ابدأ الآن مجاناً',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          label: Text(
+            widget.ctaText ?? 'ابدأ الآن مجاناً',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: darkMode
@@ -659,44 +638,45 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
   }
 
   Widget _buildTextContent(BuildContext context, bool isMobile) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 800),
-      child: Column(
-        crossAxisAlignment: isMobile
-            ? CrossAxisAlignment.center
-            : CrossAxisAlignment.start,
-        children: [
-          _buildBadge(),
-          SizedBox(height: 20),
-          Text(
-            'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
-            style: AppTypography.h1.copyWith(
-              fontSize: isMobile ? 32 : 52,
-              fontWeight: FontWeight.w900,
-              height: 1.15,
-              letterSpacing: -1,
+    final isTablet = MediaQuery.of(context).size.width >= 700 && MediaQuery.of(context).size.width < 1200;
+    return FadeTransition(
+        opacity: entranceFade,
+        child: Column(
+          crossAxisAlignment:
+              isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+          children: [
+            _buildBadge(),
+            const SizedBox(height: 24),
+            Text(
+              widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+              style: AppTypography.h1.copyWith(
+                              fontSize: isMobile ? 30 : isTablet ? 44 : 58,
+                fontWeight: FontWeight.w900,
+                height: 1.15,
+                color: Colors.white,
+              ),
+              textAlign: isMobile ? TextAlign.center : TextAlign.start,
             ),
-            textAlign: isMobile ? TextAlign.center : TextAlign.start,
-          ),
-          SizedBox(height: 14),
-          ConstrainedBox(
-            constraints: BoxConstraints(minHeight: 44),
-            child: _TypewriterText(texts: _typewriterTexts, isMobile: isMobile),
-          ),
-          SizedBox(height: 16),
-          Text(
-            'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.',
-            style: AppTypography.bodyLarge.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              height: 1.5,
-              fontSize: 15,
+            const SizedBox(height: 14),
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child:
+                  _TypewriterText(texts: _typewriterTexts, isMobile: isMobile),
             ),
-            textAlign: isMobile ? TextAlign.center : TextAlign.start,
-          ),
-          SizedBox(height: 28),
-          _buildCTAButtons(context),
-        ],
-      ),
+            const SizedBox(height: 16),
+            Text(
+              widget.subtitle ?? 'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر واحصل على رابط مباشر وكود QR فوري.',
+              style: AppTypography.bodyLarge.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                height: 1.5,
+                fontSize: 15,
+              ),
+              textAlign: isMobile ? TextAlign.center : TextAlign.start,
+            ),
+            const SizedBox(height: 28),
+            _buildCTAButtons(context),
+          ],
+        ),
     );
   }
 }

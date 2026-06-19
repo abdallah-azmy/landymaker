@@ -27,8 +27,11 @@ These routes share the `DashboardShell` layout (Sidebar + Header).
 | `/dashboard/domain` | Domains |
 | `/dashboard/feed` | Feeds |
 | `/dashboard/notifications` | Notifications |
-| `/dashboard/super-admin` | Platform Admin |
+| `/dashboard/super-admin` | Platform Admin (with tab query: ?tab=users\|plans\|templates\|broadcast\|stats) |
+| `/dashboard/super-admin/users/:userId` | User Profile |
+| `/dashboard/homepage-editor` | Homepage Editor (super admin) |
 | `/dashboard/blog-admin` | Blog Management |
+| `/dashboard/platform-seo` | Platform SEO Editor |
 
 ## 🛡️ Route Guards & Redirects
 

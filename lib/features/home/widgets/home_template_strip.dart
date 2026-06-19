@@ -142,10 +142,11 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
+        final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -160,107 +161,102 @@ class _HomeTemplateStripState extends State<HomeTemplateStrip>
           top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
         ),
       ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1300),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Header
-              FadeTransition(
-                opacity: _headerFade,
-                child: SlideTransition(
-                  position: _headerSlide,
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Text(
-                          "🗂️ القوالب",
-                          style: AppTypography.caption.copyWith(
-                            color: Theme.of(context).colorScheme.secondary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Header
+          FadeTransition(
+            opacity: _headerFade,
+            child: SlideTransition(
+              position: _headerSlide,
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
                       ),
-                      SizedBox(height: 16),
-                      Text(
-                        "ابدأ بقالب مصمم مسبقاً",
-                        style: AppTypography.h2.copyWith(
-                          fontSize: isMobile ? 28 : 42,
-                          fontWeight: FontWeight.w900,
-                        ),
-                        textAlign: TextAlign.center,
+                    ),
+                    child: Text(
+                      "🗂️ القوالب",
+                      style: AppTypography.caption.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontWeight: FontWeight.bold,
                       ),
-                      SizedBox(height: 14),
-                      Text(
-                        "جميع القوالب قابلة للتخصيص بالكامل ومتجاوبة مع جميع الأجهزة.",
-                        style: AppTypography.bodyLarge
-                            .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-
-              SizedBox(height: 64),
-
-              // Scrollable Cards
-              SizedBox(
-                height: isMobile ? 320 : 420,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _templates.length,
-                  padding: EdgeInsets.zero,
-                  itemBuilder: (context, index) {
-                    return FadeTransition(
-                      opacity: _cardFades[index],
-                      child: SlideTransition(
-                        position: _cardSlides[index],
-                        child: _TemplateCard(
-                          template: _templates[index],
-                          onPressed: () =>
-                              widget.onGetStartedPressed(_templates[index].id),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              SizedBox(height: 40),
-
-              // Browse All CTA
-              FadeTransition(
-                opacity: _headerFade,
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: Icon(Icons.grid_view_rounded),
-                  label: const Text("استعرض جميع القوالب"),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.secondary,
-                    side: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 28, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                    textStyle: AppTypography.bodyMedium
-                        .copyWith(fontWeight: FontWeight.bold),
+                  SizedBox(height: 16),
+                  Text(
+                    "ابدأ بقالب مصمم مسبقاً",
+                    style: AppTypography.h2.copyWith(
+                      fontSize: isMobile ? 28 : isTablet ? 44 : 58,
+                      fontWeight: FontWeight.w900,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
+                  SizedBox(height: 14),
+                  Text(
+                    "جميع القوالب قابلة للتخصيص بالكامل ومتجاوبة مع جميع الأجهزة.",
+                    style: AppTypography.bodyLarge
+                        .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+
+          SizedBox(height: 64),
+
+          // Scrollable Cards
+          SizedBox(
+            height: isMobile ? 320 : 420,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _templates.length,
+              padding: EdgeInsets.zero,
+              itemBuilder: (context, index) {
+                return FadeTransition(
+                  opacity: _cardFades[index],
+                  child: SlideTransition(
+                    position: _cardSlides[index],
+                    child: _TemplateCard(
+                      template: _templates[index],
+                      onPressed: () =>
+                          widget.onGetStartedPressed(_templates[index].id),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          SizedBox(height: 40),
+
+          // Browse All CTA
+          FadeTransition(
+            opacity: _headerFade,
+            child: OutlinedButton.icon(
+              onPressed: () {},
+              icon: Icon(Icons.grid_view_rounded),
+              label: const Text("استعرض جميع القوالب"),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.secondary,
+                side: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 28, vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                textStyle: AppTypography.bodyMedium
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
       ),
     );
       },
@@ -315,6 +311,7 @@ class _TemplateCardState extends State<_TemplateCard> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
+        final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
     final cardW = isMobile ? 240.0 : 300.0;
 
     return MouseRegion(

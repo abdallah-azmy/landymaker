@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../services/database_service.dart';
+import '../../../injection_container.dart' as di;
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/organisms/responsive_data_table.dart';
 import '../../../core/widgets/molecules/status_pill.dart';
@@ -12,6 +15,9 @@ import '../../builder/registries/template_registry.dart';
 import '../../../services/supabase_service.dart';
 import '../controllers/super_admin_cubit.dart';
 import '../controllers/super_admin_state.dart';
+import '../controllers/homepage_editor_cubit.dart';
+import 'homepage_editor_screen.dart';
+import '../widgets/bulk_action_bar.dart';
 
 class SuperAdminPanelScreen extends StatefulWidget {
   const SuperAdminPanelScreen({super.key});
@@ -24,8 +30,11 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String _searchQuery = '';
-  // ignore: unused_field
   String? _currentSort;
+  String? _lastTabParam;
+
+  bool _bulkSelectionMode = false;
+  final Set<String> _selectedUserIds = {};
 
   late final TextEditingController _broadcastTitleController;
   late final TextEditingController _broadcastMessageController;
@@ -35,11 +44,55 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 9, vsync: this);
+    _tabController = TabController(length: 10, vsync: this);
     _broadcastTitleController = TextEditingController();
     _broadcastMessageController = TextEditingController();
     _broadcastRedirectController = TextEditingController();
     context.read<SuperAdminCubit>().fetchAdminMetrics();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final tabParam = GoRouterState.of(context).uri.queryParameters['tab'];
+    if (tabParam != _lastTabParam) {
+      _lastTabParam = tabParam;
+      if (tabParam != null) {
+        final tabIndex = _tabIndexForParam(tabParam);
+        if (tabIndex != null && tabIndex != _tabController.index) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _tabController.animateTo(tabIndex);
+          });
+        }
+      }
+    }
+  }
+
+  int? _tabIndexForParam(String tab) {
+    switch (tab) {
+      case 'users':
+        return 0;
+      case 'plans':
+        return 1;
+      case 'security':
+        return 2;
+      case 'audit':
+        return 3;
+      case 'stats':
+        return 4;
+      case 'payments':
+        return 5;
+      case 'affiliates':
+        return 6;
+      case 'templates':
+        return 7;
+      case 'broadcast':
+        return 8;
+      case 'homepage':
+        return 9;
+      default:
+        return 0;
+    }
   }
 
   @override
@@ -85,6 +138,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           Tab(text: "Affiliates", icon: Icon(Icons.group_add_rounded)),
           Tab(text: "Templates", icon: Icon(Icons.dashboard_customize_rounded)),
           Tab(text: "Broadcast", icon: Icon(Icons.campaign_rounded)),
+          Tab(text: "Homepage", icon: Icon(Icons.web_rounded)),
         ],
       ),
       body: state is SuperAdminLoaded
@@ -100,9 +154,254 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 _buildAffiliatesTab(state),
                 _buildTemplatesTab(state),
                 _buildBroadcastTab(state),
+                _buildHomepageTab(),
               ],
             )
           : const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+
+  void _toggleUserSelection(String userId) {
+    setState(() {
+      if (_selectedUserIds.contains(userId)) {
+        _selectedUserIds.remove(userId);
+        if (_selectedUserIds.isEmpty) _bulkSelectionMode = false;
+      } else {
+        _selectedUserIds.add(userId);
+      }
+    });
+  }
+
+  void _toggleSelectAll(List<Map<String, dynamic>> users) {
+    setState(() {
+      if (_selectedUserIds.length == users.length) {
+        _selectedUserIds.clear();
+        _bulkSelectionMode = false;
+      } else {
+        _selectedUserIds.addAll(users.map((u) => u['id'].toString()));
+      }
+    });
+  }
+
+  void _exitBulkMode() {
+    setState(() {
+      _bulkSelectionMode = false;
+      _selectedUserIds.clear();
+    });
+  }
+
+  Future<void> _bulkRenew(List<Map<String, dynamic>> users) async {
+    final months = await _showDurationPicker();
+    if (months == null || months == 0) return;
+    final ids = _selectedUserIds.toList();
+    _exitBulkMode();
+    try {
+      await context.read<SuperAdminCubit>().bulkAddSubscriptionMonths(ids, months);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم تجديد الاشتراك لـ ${ids.length} مستخدم لمدة $months شهر')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('فشل التجديد: $e'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkUpgrade(List<Map<String, dynamic>> users) async {
+    final tier = await _showTierPicker('ترقية الباقة');
+    if (tier == null) return;
+    final ids = _selectedUserIds.toList();
+    _exitBulkMode();
+    try {
+      await context.read<SuperAdminCubit>().bulkUpdateUserTier(ids, tier);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم ترقية ${ids.length} مستخدم إلى $tier')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('فشل الترقية: $e'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkDowngrade(List<Map<String, dynamic>> users) async {
+    final tier = await _showTierPicker('تخفيض الباقة');
+    if (tier == null) return;
+    final ids = _selectedUserIds.toList();
+    _exitBulkMode();
+    try {
+      await context.read<SuperAdminCubit>().bulkUpdateUserTier(ids, tier);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم تخفيض ${ids.length} مستخدم إلى $tier')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('فشل التخفيض: $e'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkBlock(List<Map<String, dynamic>> users) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('تأكيد الحظر'),
+        content: Text('هل أنت متأكد من حظر ${_selectedUserIds.length} مستخدم؟'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('حظر', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final ids = _selectedUserIds.toList();
+    _exitBulkMode();
+    try {
+      await context.read<SuperAdminCubit>().bulkBlockUsers(ids, true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم حظر ${ids.length} مستخدم')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('فشل الحظر: $e'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkUnblock(List<Map<String, dynamic>> users) async {
+    final ids = _selectedUserIds.toList();
+    _exitBulkMode();
+    try {
+      await context.read<SuperAdminCubit>().bulkBlockUsers(ids, false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم إلغاء الحظر عن ${ids.length} مستخدم')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('فشل إلغاء الحظر: $e'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkNotify(List<Map<String, dynamic>> users) async {
+    final ids = _selectedUserIds.toList();
+    final titleCtrl = TextEditingController();
+    final msgCtrl = TextEditingController();
+    final redirectCtrl = TextEditingController();
+    String notifType = 'info';
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('إرسال إشعار للمستخدمين المحددين'),
+        content: SizedBox(
+          width: 400,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('عدد المستخدمين: ${ids.length}', style: AppTypography.bodyMedium),
+                const SizedBox(height: 12),
+                CustomTextField(label: 'العنوان', controller: titleCtrl, hint: 'عنوان الإشعار'),
+                const SizedBox(height: 8),
+                CustomTextField(label: 'الرسالة', controller: msgCtrl, hint: 'محتوى الإشعار', maxLines: 3),
+                const SizedBox(height: 8),
+                CustomTextField(label: 'رابط التوجيه (اختياري)', controller: redirectCtrl, hint: '/dashboard'),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: notifType,
+                  decoration: const InputDecoration(labelText: 'النوع', border: OutlineInputBorder()),
+                  items: const [
+                    DropdownMenuItem(value: 'info', child: Text('معلومات')),
+                    DropdownMenuItem(value: 'warning', child: Text('تحذير')),
+                    DropdownMenuItem(value: 'promo', child: Text('ترويج')),
+                  ],
+                  onChanged: (v) => notifType = v ?? 'info',
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('إرسال')),
+        ],
+      ),
+    );
+
+    if (result != true || titleCtrl.text.isEmpty || msgCtrl.text.isEmpty) return;
+    _exitBulkMode();
+    try {
+      await context.read<SuperAdminCubit>().bulkSendNotification(ids, titleCtrl.text, msgCtrl.text, notifType, redirectTo: redirectCtrl.text);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم إرسال الإشعار لـ ${ids.length} مستخدم')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('فشل إرسال الإشعار: $e'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      }
+    }
+  }
+
+  Future<int?> _showDurationPicker() async {
+    return showDialog<int>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('اختر مدة التجديد'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, 1), child: const Text('شهر واحد')),
+            const SizedBox(height: 8),
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, 3), child: const Text('3 أشهر')),
+            const SizedBox(height: 8),
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, 12), child: const Text('سنة كاملة')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<String?> _showTierPicker(String title) async {
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, 'free'), child: const Text('Free')),
+            const SizedBox(height: 8),
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, 'pro'), child: const Text('Pro')),
+            const SizedBox(height: 8),
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, 'business'), child: const Text('Business')),
+          ],
+        ),
       ),
     );
   }
@@ -116,6 +415,8 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         )
         .toList();
 
+    final isAllSelected = filteredUsers.isNotEmpty && _selectedUserIds.length == filteredUsers.length;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -125,48 +426,99 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("إدارة مستخدمي المنصة", style: AppTypography.h2),
-              ElevatedButton.icon(
-                onPressed: () => _showSendNotificationDialog(allUsers: state.users),
-                icon: const Icon(Icons.notifications_active_rounded),
-                label: const Text("إرسال إشعار لمجموعة مستخدمين"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
+              Row(
+                children: [
+                  TextButton.icon(
+                    onPressed: () => setState(() => _bulkSelectionMode = !_bulkSelectionMode),
+                    icon: Icon(_bulkSelectionMode ? Icons.close_rounded : Icons.checklist_rounded),
+                    label: Text(_bulkSelectionMode ? 'إلغاء التحديد' : 'تحديد متعدد'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () => _showSendNotificationDialog(allUsers: state.users),
+                    icon: const Icon(Icons.notifications_active_rounded),
+                    label: const Text("إرسال إشعار لمجموعة مستخدمين"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
           const SizedBox(height: 20),
           ResponsiveDataTable(
             title: "قائمة الأعضاء",
-            headers: const ["الاسم", "البريد", "المستوى", "الصفحات", "إجراء"],
+            headers: _bulkSelectionMode
+                ? ["☐", "الاسم", "البريد", "المستوى", "الصفحات", "إجراء"]
+                : const ["الاسم", "البريد", "المستوى", "الصفحات", "إجراء"],
             rows: filteredUsers
                 .map(
-                  (u) => [
-                    Flexible(child: Text(u['full_name'] ?? '', style: AppTypography.bodyLarge, overflow: TextOverflow.ellipsis)),
-                    Flexible(child: Text(u['email'] ?? '', style: AppTypography.bodyMedium, overflow: TextOverflow.ellipsis)),
-                    StatusPill(
-                      label: u['tier'].toString().toUpperCase(),
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    Text(u['pages_count']?.toString() ?? '0', style: AppTypography.bodyMedium),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.notifications_active_rounded, color: Theme.of(context).colorScheme.primary),
-                          onPressed: () => _showSendNotificationDialog(singleUser: u, allUsers: state.users),
-                          tooltip: "إرسال إشعار خاص",
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.manage_accounts_rounded, color: Theme.of(context).colorScheme.secondary),
-                          onPressed: () => _showEditUserDialog(u, state.plans),
-                          tooltip: "تعديل الصلاحيات والباقة",
-                        ),
-                      ],
-                    ),
-                  ],
+                  (u) => _bulkSelectionMode
+                      ? [
+                          Checkbox(
+                            value: _selectedUserIds.contains(u['id']),
+                            onChanged: (_) => _toggleUserSelection(u['id']),
+                          ),
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () => context.go('/dashboard/super-admin/users/${u['id']}'),
+                              child: Text(u['full_name'] ?? '', style: AppTypography.bodyLarge, overflow: TextOverflow.ellipsis),
+                            ),
+                          ),
+                          Flexible(child: Text(u['email'] ?? '', style: AppTypography.bodyMedium, overflow: TextOverflow.ellipsis)),
+                          StatusPill(
+                            label: u['tier'].toString().toUpperCase(),
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          Text(u['pages_count']?.toString() ?? '0', style: AppTypography.bodyMedium),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.notifications_active_rounded, color: Theme.of(context).colorScheme.primary),
+                                onPressed: () => _showSendNotificationDialog(singleUser: u, allUsers: state.users),
+                                tooltip: "إرسال إشعار خاص",
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.manage_accounts_rounded, color: Theme.of(context).colorScheme.secondary),
+                                onPressed: () => _showEditUserDialog(u, state.plans),
+                                tooltip: "تعديل الصلاحيات والباقة",
+                              ),
+                            ],
+                          ),
+                        ]
+                      : [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () => context.go('/dashboard/super-admin/users/${u['id']}'),
+                              child: Text(u['full_name'] ?? '', style: AppTypography.bodyLarge, overflow: TextOverflow.ellipsis),
+                            ),
+                          ),
+                          Flexible(child: Text(u['email'] ?? '', style: AppTypography.bodyMedium, overflow: TextOverflow.ellipsis)),
+                          StatusPill(
+                            label: u['tier'].toString().toUpperCase(),
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          Text(u['pages_count']?.toString() ?? '0', style: AppTypography.bodyMedium),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.notifications_active_rounded, color: Theme.of(context).colorScheme.primary),
+                                onPressed: () => _showSendNotificationDialog(singleUser: u, allUsers: state.users),
+                                tooltip: "إرسال إشعار خاص",
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.manage_accounts_rounded, color: Theme.of(context).colorScheme.secondary),
+                                onPressed: () => _showEditUserDialog(u, state.plans),
+                                tooltip: "تعديل الصلاحيات والباقة",
+                              ),
+                            ],
+                          ),
+                        ],
                 )
                 .toList(),
             emptyMessage: "لا يوجد مستخدمين بهذا الاسم",
@@ -174,6 +526,92 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
             onSort: (val) => setState(() => _currentSort = val),
             sortOptions: const ["الاسم", "التاريخ"],
             onPageChanged: (p) {},
+            bulkActionBar: _bulkSelectionMode
+                ? BulkActionBar(
+                    selectedCount: _selectedUserIds.length,
+                    onCancel: _exitBulkMode,
+                    onRenew: () => _bulkRenew(filteredUsers),
+                    onUpgrade: () => _bulkUpgrade(filteredUsers),
+                    onDowngrade: () => _bulkDowngrade(filteredUsers),
+                    onBlock: () => _bulkBlock(filteredUsers),
+                    onUnblock: () => _bulkUnblock(filteredUsers),
+                    onNotify: () => _bulkNotify(filteredUsers),
+                  )
+                : null,
+            mobileCardBuilder: (index, cells) {
+              final u = filteredUsers[index];
+              final name = u['full_name']?.toString() ?? '';
+              final email = u['email']?.toString() ?? '';
+              final tier = u['tier']?.toString() ?? '';
+              final pagesCount = u['pages_count']?.toString() ?? '0';
+              final firstLetter = name.isNotEmpty ? name[0].toUpperCase() : 'U';
+              final avatarColors = [
+                Colors.blueAccent, Colors.teal, Colors.amber, Colors.pinkAccent,
+                Colors.indigo, Colors.cyan, Colors.orangeAccent, Colors.purpleAccent,
+              ];
+              final avatarColor = avatarColors[index % avatarColors.length];
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        if (_bulkSelectionMode)
+                          Checkbox(
+                            value: _selectedUserIds.contains(u['id']),
+                            onChanged: (_) => _toggleUserSelection(u['id']),
+                          ),
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: avatarColor,
+                          child: Text(firstLetter, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => context.go('/dashboard/super-admin/users/${u['id']}'),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                const SizedBox(height: 2),
+                                Text(email, style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              ],
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.notifications_active_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
+                          onPressed: () => _showSendNotificationDialog(singleUser: u, allUsers: state.users),
+                          tooltip: "إرسال إشعار خاص",
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.manage_accounts_rounded, color: Theme.of(context).colorScheme.secondary, size: 20),
+                          onPressed: () => _showEditUserDialog(u, state.plans),
+                          tooltip: "تعديل الصلاحيات والباقة",
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        StatusPill(label: tier.toUpperCase(), color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 12),
+                        Icon(Icons.description_outlined, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text("$pagesCount صفحات", style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -1300,6 +1738,13 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHomepageTab() {
+    return BlocProvider(
+      create: (_) => HomepageEditorCubit(di.sl<DatabaseService>()),
+      child: const HomepageEditorScreen(),
     );
   }
 }

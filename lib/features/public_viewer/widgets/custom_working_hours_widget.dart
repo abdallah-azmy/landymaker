@@ -13,6 +13,8 @@ class CustomWorkingHoursWidget extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const CustomWorkingHoursWidget({
@@ -22,6 +24,8 @@ class CustomWorkingHoursWidget extends StatelessWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 
@@ -39,6 +43,7 @@ class CustomWorkingHoursWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _WorkingHoursProps(
           title: title,
@@ -51,6 +56,8 @@ class CustomWorkingHoursWidget extends StatelessWidget {
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPadding: verticalPadding,
           bgBlur: bgBlur,
         );
 
@@ -76,6 +83,8 @@ class _WorkingHoursProps {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const _WorkingHoursProps({
@@ -89,6 +98,8 @@ class _WorkingHoursProps {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 }
@@ -108,6 +119,8 @@ class _DesktopWorkingHoursLayout extends StatelessWidget {
       bgImageUrl: props.bgImageUrl,
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
@@ -177,6 +190,8 @@ class _MobileWorkingHoursLayout extends StatelessWidget {
       bgImageUrl: props.bgImageUrl,
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),

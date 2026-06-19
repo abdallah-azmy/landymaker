@@ -6,6 +6,7 @@ class DbConstants {
   static const String analyticsTable = 'analytics';
   static const String userAssetsTable = 'user_assets';
   static const String templatesTable = 'templates';
+  static const String homepageSectionsTable = 'homepage_sections';
 
   // Supabase Storage Buckets
   static const String landingAssetsBucket = 'landing-assets';

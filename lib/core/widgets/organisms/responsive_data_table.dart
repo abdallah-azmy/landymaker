@@ -20,6 +20,8 @@ class ResponsiveDataTable extends StatelessWidget {
   final int currentPage;
   final int totalPages;
   final Function(int) onPageChanged;
+  final Widget Function(int index, List<Widget> cells)? mobileCardBuilder;
+  final Widget? bulkActionBar;
 
   const ResponsiveDataTable({
     super.key,
@@ -34,6 +36,8 @@ class ResponsiveDataTable extends StatelessWidget {
     this.currentPage = 1,
     this.totalPages = 1,
     required this.onPageChanged,
+    this.mobileCardBuilder,
+    this.bulkActionBar,
   });
 
   @override
@@ -52,8 +56,9 @@ class ResponsiveDataTable extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (bulkActionBar != null) bulkActionBar!,
               DataTableHeader(
-                title: title,
+                title: bulkActionBar != null ? '' : title,
                 onSearch: onSearch,
                 onSort: onSort,
                 sortOptions: sortOptions,
@@ -62,7 +67,16 @@ class ResponsiveDataTable extends StatelessWidget {
               if (rows.isEmpty)
                 const _EmptyState(message: "") // message handled by _EmptyState internally if needed
               else if (isMobile)
-                _MobileDataTable(headers: headers, rows: rows)
+                mobileCardBuilder != null
+                    ? ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(16),
+                        itemCount: rows.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) => mobileCardBuilder!(index, rows[index]),
+                      )
+                    : _MobileDataTable(headers: headers, rows: rows)
               else
                 _DesktopDataTable(headers: headers, rows: rows),
               PaginationControl(

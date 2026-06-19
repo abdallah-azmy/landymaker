@@ -217,55 +217,61 @@ class _LegalPageState extends State<LegalPage> {
               : 'We collect the following types of information depending on how you use the platform: During Registration: full name, email address, and password (encrypted by Supabase Auth). When signing in with Google: name, email, and profile picture (provided by Google after your consent). Payment Information: when purchasing a paid plan, we collect the plan name, amount paid, payment method (e.g., Vodafone Cash, InstaPay, We Cash), and a payment receipt screenshot. Technical Information: IP address, browser type, operating system, browser fingerprint (SHA-256). Usage Information: pages visited, actions taken within the platform. User Content: designs, images, text, and data you create or upload to the platform. Visitor Data: when visitors land on your published pages, we may collect IP addresses, browser fingerprints, and event types (view, click, conversion) for analytics purposes.',
         },
         {
-          'title': isRtl ? '٣. كيفية استخدام معلوماتك' : '3. How We Use Your Information',
+          'title': isRtl ? '٣. بيانات خدمات جوجل والاستخدام المحدود' : '3. Google API Services & Limited Use',
+          'body': isRtl
+              ? 'إن استخدام منصة لاندي ميكر (LandyMaker) ونقلها للمعلومات المستلمة من واجهات برمجة تطبيقات جوجل (Google APIs) إلى أي تطبيق آخر سيلتزم تماماً بـ "سياسة بيانات مستخدم خدمات Google API" بما في ذلك متطلبات الاستخدام المحدود (Limited Use requirements). نحن لا نقوم ببيع أو مشاركة بيانات مستخدمي جوجل لأي أطراف ثالثة أو استخدامها لأغراض إعلانية.'
+              : 'LandyMaker\'s use and transfer to any other app of information received from Google APIs will adhere to Google API Services User Data Policy, including the Limited Use requirements. We do not sell, share, or use Google user data for advertising or any other third-party purposes.',
+        },
+        {
+          'title': isRtl ? '٤. كيفية استخدام معلوماتك' : '4. How We Use Your Information',
           'body': isRtl
               ? 'نستخدم معلوماتك للأغراض التالية: تقديم خدمات المنصة وإدارة حسابك وصفحاتك. معالجة طلبات الاشتراك في الباقات المدفوعة (يدوياً عبر طرق الدفع المصرية). تحسين وتطوير المنصة وتجربة المستخدم. إرسال الإشعارات الفورية والتنبيهات المتعلقة بحسابك (عند تفعيل الإذن). تحليل الأداء وإحصائيات الاستخدام. منع الاحتيال وسوء الاستخدام وحماية أمن المنصة.'
               : 'We use your information for the following purposes: Providing platform services and managing your account and pages. Processing paid plan subscription requests (manually via Egyptian payment methods). Improving and developing the platform and user experience. Sending push notifications and alerts related to your account (when permission is granted). Analyzing performance and usage statistics. Preventing fraud, abuse, and protecting platform security.',
         },
         {
-          'title': isRtl ? '٤. مشاركة البيانات والإفصاح' : '4. Data Sharing and Disclosure',
+          'title': isRtl ? '٥. مشاركة البيانات والإفصاح' : '5. Data Sharing and Disclosure',
           'body': isRtl
               ? 'لا نقوم ببيع معلوماتك الشخصية لأطراف ثالثة. قد نشارك معلوماتك مع: مزودي الخدمة الذين يساعدوننا في تشغيل المنصة، مثل Supabase (قواعد البيانات والمصادقة)، Cloudflare (شبكة توصيل المحتوى والحماية)، ImgBB (استضافة الصور)، Firebase Cloud Messaging (الإشعارات الفورية). السلطات القانونية إذا تطلب القانون ذلك أو لحماية حقوقنا القانونية. نضمن أن جميع الأطراف الثالثة تلتزم بمعايير أمان مناسبة.'
               : 'We do not sell your personal information to third parties. We may share your information with: Service providers who help us operate the platform, such as Supabase (database and authentication), Cloudflare (CDN and security), ImgBB (image hosting), and Firebase Cloud Messaging (push notifications). Legal authorities if required by law or to protect our legal rights. We ensure all third parties maintain appropriate security standards.',
         },
         {
-          'title': isRtl ? '٥. ملفات تعريف الارتباط (Cookies)' : '5. Cookies',
+          'title': isRtl ? '٦. ملفات تعريف الارتباط (Cookies)' : '6. Cookies',
           'body': isRtl
               ? 'نستخدم ملفات تعريف الارتباط وتقنيات التتبع المماثلة لتحسين تجربتك على المنصة. تشمل استخداماتنا: الكوكيز الأساسية: ضرورية لتشغيل المنصة بشكل صحيح. كوكيز الأداء: تساعدنا في تحسين أداء المنصة (بما في ذلك Google Analytics وMicrosoft Clarity). كوكيز التفضيلات: تذكر إعداداتك مثل اللغة والثيم. كوكيز التتبع: تُستخدم في صفحات الهبوط المنشورة فقط عند تفعيل صاحب الصفحة لأكواد التتبع (مثل Facebook Pixel). يمكنك التحكم في إعدادات الكوكيز من خلال إعدادات المتصفح في أي وقت. نوفر أيضاً خيار قبول أو رفض الكوكيز غير الأساسية عند زيارة صفحات الهبوط المنشورة.'
               : 'We use cookies and similar tracking technologies to enhance your experience on the platform. Our usage includes: Essential Cookies: necessary for the platform to function properly. Performance Cookies: help us improve platform performance (including Google Analytics and Microsoft Clarity). Preference Cookies: remember your settings such as language and theme. Tracking Cookies: used on published landing pages only when the page owner activates tracking codes (e.g., Facebook Pixel). You can control cookie settings through your browser at any time. We also provide an accept/reject option for non-essential cookies on published landing pages.',
         },
         {
-          'title': isRtl ? '٦. تخزين البيانات والاحتفاظ بها' : '6. Data Storage and Retention',
+          'title': isRtl ? '٧. تخزين البيانات والاحتفاظ بها' : '7. Data Storage and Retention',
           'body': isRtl
               ? 'يتم تخزين بياناتك على خوادم Supabase الآمنة في مراكز بيانات داخل الاتحاد الأوروبي. نحتفظ ببياناتك طالما كان حسابك نشطاً. عند إلغاء حسابك، يتم حذف صفحاتك المنشورة وبياناتك الشخصية تدريجياً خلال مدة لا تتجاوز ٩٠ يوماً. يمكنك طلب حذف بياناتك وحسابك بالكامل في أي وقت بالتواصل معنا.'
               : 'Your data is stored on secure Supabase servers hosted in the European Union. We retain your data as long as your account is active. Upon account cancellation, your published pages and personal data are gradually deleted within a period not exceeding 90 days. You may request full deletion of your data and account at any time by contacting us.',
         },
         {
-          'title': isRtl ? '٧. حقوقك فيما يتعلق ببياناتك' : '7. Your Data Rights',
+          'title': isRtl ? '٨. حقوقك فيما يتعلق ببياناتك' : '8. Your Data Rights',
           'body': isRtl
               ? 'لديك الحقوق التالية فيما يتعلق ببياناتك الشخصية: الحق في الوصول: طلب نسخة من بياناتك الشخصية. الحق في التصحيح: تحديث أو تصحيح بياناتك غير الدقيقة. الحق في الحذف: طلب حذف بياناتك. الحق في الاعتراض: الاعتراض على معالجة بياناتك لأغراض التسويق. لممارسة هذه الحقوق، يرجى التواصل معنا عبر معلومات الاتصال في نهاية هذه السياسة.'
               : 'You have the following rights regarding your personal data: Right of Access: request a copy of your personal data. Right to Rectification: update or correct inaccurate data. Right to Deletion: request deletion of your data. Right to Object: object to processing of your data for marketing purposes. To exercise these rights, please contact us using the information at the end of this policy.',
         },
         {
-          'title': isRtl ? '٨. أمان البيانات' : '8. Data Security',
+          'title': isRtl ? '٩. أمان البيانات' : '9. Data Security',
           'body': isRtl
               ? 'نتخذ إجراءات أمنية لحماية بياناتك، تشمل: تشفير البيانات أثناء النقل (TLS/SSL). استخدام Cloudflare Turnstile للحماية من السبام والهجمات الآلية. صلاحيات وصول محدودة بناءً على مبدأ الضرورة. المراجعات الأمنية الدورية.'
               : 'We implement security measures to protect your data, including: Data encryption in transit (TLS/SSL). Cloudflare Turnstile for spam and automated attack protection. Access control based on the principle of least privilege. Regular security reviews.',
         },
         {
-          'title': isRtl ? '٩. خصوصية الأطفال' : '9. Children\'s Privacy',
+          'title': isRtl ? '١٠. خصوصية الأطفال' : '10. Children\'s Privacy',
           'body': isRtl
               ? 'منصتنا غير موجهة للأطفال دون سن ١٨ عاماً. لا نجمع عن قصد معلومات شخصية من الأطفال دون السن القانونية. إذا اكتشفنا أننا جمعنا معلومات من طفل دون ١٨ عاماً، سنقوم بحذف هذه المعلومات فوراً.'
               : 'Our platform is not directed to children under 18 years of age. We do not knowingly collect personal information from children under 18. If we discover that we have collected information from a child under 18, we will delete that information immediately.',
         },
         {
-          'title': isRtl ? '١٠. تحديثات سياسة الخصوصية' : '10. Changes to This Policy',
+          'title': isRtl ? '١١. تحديثات سياسة الخصوصية' : '11. Changes to This Policy',
           'body': isRtl
               ? 'قد نقوم بتحديث سياسة الخصوصية هذه من وقت لآخر. سنقوم بإعلامك بأي تغييرات جوهرية عبر البريد الإلكتروني المسجل لدينا أو من خلال إشعار على المنصة. يُنصح بمراجعة هذه الصفحة بشكل دوري. تاريخ آخر تحديث: يونيو ٢٠٢٦.'
               : 'We may update this Privacy Policy from time to time. We will notify you of any material changes via your registered email or through a notice on the platform. We recommend reviewing this page periodically. Last updated: June 2026.',
         },
         {
-          'title': isRtl ? '١١. الاتصال بنا' : '11. Contact Us',
+          'title': isRtl ? '١٢. الاتصال بنا' : '12. Contact Us',
           'body': isRtl
               ? 'إذا كانت لديك أي أسئلة أو استفسارات حول سياسة الخصوصية، يرجى التواصل معنا عبر صفحة الاتصال في المنصة أو من خلال حسابنا على منصات التواصل الاجتماعي.'
               : 'If you have any questions or concerns about this Privacy Policy, please contact us through the contact page on the platform or via our social media channels.',

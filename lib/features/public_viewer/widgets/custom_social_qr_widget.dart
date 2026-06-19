@@ -26,6 +26,8 @@ class CustomSocialQrWidget extends StatefulWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const CustomSocialQrWidget({
@@ -37,6 +39,8 @@ class CustomSocialQrWidget extends StatefulWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 
@@ -86,11 +90,12 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _SocialQrProps(
-          title: widget.title,
-          subtitle: widget.subtitle,
-          links: widget.links,
+          title: title,
+          subtitle: subtitle,
+          links: links,
           liveUrl: liveUrl,
           qrKey: _qrKey,
           secondaryColor: secondaryColor,
@@ -98,11 +103,13 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
           subTextColor: subTextColor,
           isMobile: isMobile,
           onDownload: _downloadQrCode,
-          theme: widget.theme,
-          bgImageUrl: widget.bgImageUrl,
-          bgOverlayColor: widget.bgOverlayColor,
-          bgOverlayOpacity: widget.bgOverlayOpacity,
-          bgBlur: widget.bgBlur,
+          theme: theme,
+          bgImageUrl: bgImageUrl,
+          bgOverlayColor: bgOverlayColor,
+          bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPadding: verticalPadding,
+          bgBlur: bgBlur,
         );
 
         return isMobile
@@ -132,6 +139,8 @@ class _SocialQrProps {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
 
   const _SocialQrProps({
     required this.title,
@@ -149,6 +158,8 @@ class _SocialQrProps {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.backgroundColorHex,
+    this.verticalPadding,
   });
 }
 
@@ -168,6 +179,8 @@ class _DesktopSocialQrLayout extends StatelessWidget {
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
       bgBlur: props.bgBlur,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
       child: Center(
@@ -213,6 +226,8 @@ class _MobileSocialQrLayout extends StatelessWidget {
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
       bgBlur: props.bgBlur,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
       child: Center(

@@ -821,6 +821,56 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getUserSubscriptionRequests(String userId) async {
+    try {
+      final res = await _client!
+          .from('subscription_requests')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching user subscription requests: $e");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getUserAuditLogs(String userId) async {
+    try {
+      final res = await _client!
+          .from('system_audit_logs')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false)
+          .limit(50);
+      return List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint("Error fetching user audit logs: $e");
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserAggregatedAnalytics(String userId) async {
+    try {
+      final pages = await getLandingPagesByUserId(userId);
+      int totalViews = 0;
+      int totalLeads = 0;
+      for (final page in pages) {
+        totalViews += (page['views_count'] as num?)?.toInt() ?? 0;
+        totalLeads += (page['leads_count'] as num?)?.toInt() ?? 0;
+      }
+      return {
+        'total_views': totalViews,
+        'total_leads': totalLeads,
+        'pages_count': pages.length,
+        'pages': pages,
+      };
+    } catch (e) {
+      debugPrint("Error fetching user analytics: $e");
+      return {'total_views': 0, 'total_leads': 0, 'pages_count': 0, 'pages': <Map<String, dynamic>>[]};
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getPlatformSeoSettings() async {
     try {
       final res = await _client!.from('platform_seo_settings').select().order('route_path', ascending: true);
@@ -990,6 +1040,78 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  // ── Homepage Sections CRUD ──────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> getHomepageSections() async {
+    try {
+      final response = await _client!
+          .from(DbConstants.homepageSectionsTable)
+          .select('*')
+          .order('sort_order', ascending: true);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint("Error fetching homepage sections: $e");
+      return [];
+    }
+  }
+
+  Future<void> upsertHomepageSection(String sectionKey, Map<String, dynamic> data) async {
+    try {
+      await _client!
+          .from(DbConstants.homepageSectionsTable)
+          .upsert({'section_key': sectionKey, ...data});
+    } catch (e) {
+      debugPrint("Error upserting homepage section: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateHomepageSection(String id, Map<String, dynamic> data) async {
+    try {
+      await _client!
+          .from(DbConstants.homepageSectionsTable)
+          .update(data)
+          .eq('id', id);
+    } catch (e) {
+      debugPrint("Error updating homepage section: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> reorderHomepageSections(List<Map<String, dynamic>> sections) async {
+    try {
+      for (final s in sections) {
+        await _client!
+            .from(DbConstants.homepageSectionsTable)
+            .update({'sort_order': s['sort_order']})
+            .eq('id', s['id']);
+      }
+    } catch (e) {
+      debugPrint("Error reordering homepage sections: $e");
+      rethrow;
+    }
+  }
+
+  Future<int> seedHomepageSectionsFromRegistry(List<Map<String, dynamic>> sections) async {
+    int inserted = 0;
+    for (final s in sections) {
+      try {
+        final existing = await _client!
+            .from(DbConstants.homepageSectionsTable)
+            .select('id')
+            .eq('section_key', s['section_key'])
+            .maybeSingle();
+        if (existing == null) {
+          await _client!.from(DbConstants.homepageSectionsTable).insert(s);
+          inserted++;
+        }
+      } catch (e) {
+        debugPrint("Error seeding homepage section ${s['section_key']}: $e");
+      }
+    }
+    return inserted;
+  }
+
   Future<int> seedTemplatesFromRegistry(List<Map<String, dynamic>> templates) async {
     int inserted = 0;
     for (final t in templates) {
@@ -1101,6 +1223,60 @@ class SupabaseService extends ChangeNotifier {
       _sendFcmPush(userIds: userIds, title: title, message: message, type: type, redirectTo: redirectTo);
     } catch (e) {
       debugPrint("Error sending targeted notification: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> bulkBlockUsers(List<String> userIds, bool isBlocked) async {
+    try {
+      await _client!.from(DbConstants.profilesTable)
+          .update({'is_blocked': isBlocked, if (isBlocked) 'blocked_at': DateTime.now().toIso8601String() else 'blocked_at': null})
+          .filter('id', 'in', '(${userIds.map((id) => "'$id'").join(',')})');
+      debugPrint('DB: Bulk ${isBlocked ? "block" : "unblock"} completed for ${userIds.length} users.');
+    } catch (e) {
+      debugPrint('Error in bulk block/unblock: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> bulkUpdateUserTier(List<String> userIds, String newTier) async {
+    try {
+      await _client!.from(DbConstants.profilesTable)
+          .update({'tier': newTier})
+          .filter('id', 'in', '(${userIds.map((id) => "'$id'").join(',')})');
+      debugPrint('DB: Bulk tier update to "$newTier" completed for ${userIds.length} users.');
+    } catch (e) {
+      debugPrint('Error in bulk tier update: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> bulkAddSubscriptionMonths(List<String> userIds, int months) async {
+    try {
+      for (final userId in userIds) {
+        final current = await _client!.from(DbConstants.profilesTable)
+            .select('subscription_end_date')
+            .eq('id', userId)
+            .maybeSingle();
+        final now = DateTime.now();
+        DateTime newEnd;
+        if (current != null && current['subscription_end_date'] != null) {
+          final existingEnd = DateTime.parse(current['subscription_end_date'] as String);
+          if (existingEnd.isAfter(now)) {
+            newEnd = DateTime(existingEnd.year, existingEnd.month + months, existingEnd.day);
+          } else {
+            newEnd = DateTime(now.year, now.month + months, now.day);
+          }
+        } else {
+          newEnd = DateTime(now.year, now.month + months, now.day);
+        }
+        await _client!.from(DbConstants.profilesTable)
+            .update({'subscription_end_date': newEnd.toIso8601String()})
+            .eq('id', userId);
+      }
+      debugPrint('DB: Bulk subscription extension (+$months months) completed for ${userIds.length} users.');
+    } catch (e) {
+      debugPrint('Error in bulk subscription extension: $e');
       rethrow;
     }
   }

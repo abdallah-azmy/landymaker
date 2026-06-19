@@ -33,6 +33,7 @@ class CustomCtaBannerWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
+        final double paddingValue = (block['vertical_padding'] as num?)?.toDouble() ?? (isMobile ? 40 : 80);
 
         final props = _CtaBannerProps(
           title: title,
@@ -47,6 +48,8 @@ class CustomCtaBannerWidget extends StatelessWidget {
           bgImageUrl: block['bg_image_url'],
           bgOverlayColor: block['bg_overlay_color'],
           bgOverlayOpacity: (block['bg_overlay_opacity'] as num?)?.toDouble() ?? 0.0,
+          backgroundColorHex: block['bg_color'] ?? block['background_color'],
+          verticalPadding: (block['vertical_padding'] as num?)?.toDouble(),
           bgBlur: (block['bg_blur'] as num?)?.toDouble(),
         );
 
@@ -57,8 +60,8 @@ class CustomCtaBannerWidget extends StatelessWidget {
         }
 
         return isMobile
-            ? _MobileCtaCenteredGradientLayout(props: props)
-            : _DesktopCtaCenteredGradientLayout(props: props);
+            ? _MobileCtaCenteredGradientLayout(props: props, paddingValue: paddingValue)
+            : _DesktopCtaCenteredGradientLayout(props: props, paddingValue: paddingValue);
       },
     );
   }
@@ -80,6 +83,8 @@ class _CtaBannerProps {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const _CtaBannerProps({
@@ -95,6 +100,8 @@ class _CtaBannerProps {
     this.bgImageUrl,
     this.bgOverlayColor,
     required this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 }
@@ -106,7 +113,8 @@ class _CtaBannerProps {
 /// Desktop version of the Centered Gradient CTA layout.
 class _DesktopCtaCenteredGradientLayout extends StatelessWidget {
   final _CtaBannerProps props;
-  const _DesktopCtaCenteredGradientLayout({required this.props});
+  final double paddingValue;
+  const _DesktopCtaCenteredGradientLayout({required this.props, required this.paddingValue});
 
   @override
   Widget build(BuildContext context) {
@@ -115,8 +123,10 @@ class _DesktopCtaCenteredGradientLayout extends StatelessWidget {
       bgImageUrl: props.bgImageUrl,
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
-      padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
+      padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
       child: Center(
         child: Container(
           width: double.infinity,
@@ -180,7 +190,8 @@ class _DesktopCtaCenteredGradientLayout extends StatelessWidget {
 /// Mobile version of the Centered Gradient CTA layout.
 class _MobileCtaCenteredGradientLayout extends StatelessWidget {
   final _CtaBannerProps props;
-  const _MobileCtaCenteredGradientLayout({required this.props});
+  final double paddingValue;
+  const _MobileCtaCenteredGradientLayout({required this.props, required this.paddingValue});
 
   @override
   Widget build(BuildContext context) {
@@ -189,8 +200,10 @@ class _MobileCtaCenteredGradientLayout extends StatelessWidget {
       bgImageUrl: props.bgImageUrl,
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
-      padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
+      padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
       child: Center(
         child: Container(
           width: double.infinity,
@@ -259,6 +272,8 @@ class _DesktopCtaSplitLayout extends StatelessWidget {
       bgImageUrl: props.bgImageUrl,
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
       child: Center(
@@ -322,6 +337,8 @@ class _MobileCtaSplitLayout extends StatelessWidget {
       bgImageUrl: props.bgImageUrl,
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
       child: Center(

@@ -209,6 +209,73 @@ List<Map<String, dynamic>> _getLayoutsForType(String type) {
             {'slotKey': 'section_desc', 'defaultType': 'paragraph', 'label': 'وصف القسم'},
           ],
         },
+        {
+          'layoutStyle': 'carousel',
+          'name': 'شريط متحرك',
+          'description': 'التمرير أفقي',
+          'slots': [
+            {'slotKey': 'section_heading', 'defaultType': 'heading', 'label': 'عنوان القسم'},
+          ],
+        },
+      ];
+
+    case 'featured_product':
+      return [
+        {
+          'layoutStyle': 'split',
+          'name': 'Split',
+          'description': 'صورة يمين، نص يسار',
+          'slots': [
+            {'slotKey': 'product_name', 'defaultType': 'heading', 'label': 'اسم المنتج'},
+            {'slotKey': 'product_desc', 'defaultType': 'paragraph', 'label': 'وصف المنتج'},
+          ],
+        },
+        {
+          'layoutStyle': 'reversed',
+          'name': 'Reversed',
+          'description': 'نص يمين، صورة يسار',
+          'slots': [
+            {'slotKey': 'product_name', 'defaultType': 'heading', 'label': 'اسم المنتج'},
+            {'slotKey': 'product_desc', 'defaultType': 'paragraph', 'label': 'وصف المنتج'},
+          ],
+        },
+        {
+          'layoutStyle': 'centered',
+          'name': 'مركز',
+          'description': 'صورة فوق، نص تحت',
+          'slots': [
+            {'slotKey': 'product_name', 'defaultType': 'heading', 'label': 'اسم المنتج'},
+            {'slotKey': 'product_desc', 'defaultType': 'paragraph', 'label': 'وصف المنتج'},
+          ],
+        },
+      ];
+
+    case 'bento_store':
+      return [
+        {
+          'layoutStyle': 'modern',
+          'name': 'بينتو عصري',
+          'description': 'تخطيط متباعد',
+          'slots': [
+            {'slotKey': 'section_heading', 'defaultType': 'heading', 'label': 'عنوان القسم'},
+          ],
+        },
+        {
+          'layoutStyle': 'tight',
+          'name': 'بينتو متلاصق',
+          'description': 'تصميم مضغوط',
+          'slots': [
+            {'slotKey': 'section_heading', 'defaultType': 'heading', 'label': 'عنوان القسم'},
+          ],
+        },
+        {
+          'layoutStyle': 'glass',
+          'name': 'بينتو زجاجي',
+          'description': 'تأثير زجاجي شفاف',
+          'slots': [
+            {'slotKey': 'section_heading', 'defaultType': 'heading', 'label': 'عنوان القسم'},
+          ],
+        },
       ];
 
     case 'testimonials':

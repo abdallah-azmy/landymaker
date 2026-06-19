@@ -15,12 +15,18 @@ class HomeLuxuriousTemplateSlider extends StatefulWidget {
   final Function(String templateId) onGetStartedPressed;
   final bool isVisible;
   final TemplateSliderLayout layout;
+  final String? title;
+  final String? subtitle;
+  final int? maxToShow;
 
   const HomeLuxuriousTemplateSlider({
     super.key,
     required this.onGetStartedPressed,
     required this.isVisible,
     this.layout = TemplateSliderLayout.horizontalSlider,
+    this.title,
+    this.subtitle,
+    this.maxToShow,
   });
 
   @override
@@ -62,6 +68,9 @@ class _HomeLuxuriousTemplateSliderState
         _templates = TemplateRegistry.availableTemplates
             .where((t) => t.id != 'empty')
             .toList();
+        if (widget.maxToShow != null && _templates.length > widget.maxToShow!) {
+          _templates = _templates.sublist(0, widget.maxToShow);
+        }
         _isLoadingTemplates = false;
       });
     }
@@ -170,7 +179,7 @@ class _HomeLuxuriousTemplateSliderState
     }
   }
 
-  Widget _buildSectionHeader(bool isMobile, loc) {
+  Widget _buildSectionHeader(bool isMobile, bool isTablet, loc) {
     return RepaintBoundary(
       child: FadeTransition(
         opacity: _headerController,
@@ -197,7 +206,7 @@ class _HomeLuxuriousTemplateSliderState
                   ),
                 ),
                 child: Text(
-                  loc.isRtl ? "✨ قوالب عالمية" : "✨ World-Class Templates",
+                  loc.isRtl ? widget.title ?? "✨ قوالب عالمية" : widget.title ?? "✨ World-Class Templates",
                   style: AppTypography.caption.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.bold,
@@ -210,7 +219,7 @@ class _HomeLuxuriousTemplateSliderState
                     ? "صمم موقعك بلمسة فنية"
                     : "Design Your Site with an Artistic Touch",
                 style: AppTypography.h1.copyWith(
-                  fontSize: isMobile ? 32 : 48,
+                  fontSize: isMobile ? 32 : isTablet ? 44 : 58,
                   fontWeight: FontWeight.w900,
                 ),
                 textAlign: TextAlign.center,
@@ -218,7 +227,7 @@ class _HomeLuxuriousTemplateSliderState
               SizedBox(height: 12),
               Text(
                 loc.isRtl
-                    ? "اختر من بين مجموعة واسعة من القوالب المصممة بعناية لتناسب هويتك."
+                    ? widget.subtitle ?? "اختر من بين مجموعة واسعة من القوالب المصممة بعناية لتناسب هويتك."
                     : "Choose from a wide range of carefully designed templates to match your identity.",
                 style: AppTypography.bodyLarge.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -232,7 +241,7 @@ class _HomeLuxuriousTemplateSliderState
     );
   }
 
-  Widget _buildHorizontalSlider(bool isMobile, loc) {
+  Widget _buildHorizontalSlider(bool isMobile, bool isTablet, loc) {
     return RepaintBoundary(
       child: Column(
         children: [
@@ -317,10 +326,10 @@ class _HomeLuxuriousTemplateSliderState
     );
   }
 
-  Widget _buildMasonryGrid(bool isMobile) {
+  Widget _buildMasonryGrid(bool isMobile, bool isTablet) {
     if (isMobile) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 64),
         child: Column(
           children: List.generate(
             _templates.length,
@@ -340,7 +349,7 @@ class _HomeLuxuriousTemplateSliderState
     }
     final mid = (_templates.length + 1) ~/ 2;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 48),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -384,9 +393,9 @@ class _HomeLuxuriousTemplateSliderState
     );
   }
 
-  Widget _buildTwoColsGrid(bool isMobile) {
+  Widget _buildTwoColsGrid(bool isMobile, bool isTablet) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 24.0 : 40.0),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16.0 : isTablet ? 32.0 : 48.0),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -414,6 +423,7 @@ class _HomeLuxuriousTemplateSliderState
       builder: (context, constraints) {
         final loc = context.read<LocalizationCubit>();
         final isMobile = constraints.maxWidth < 700;
+        final isTablet = !isMobile && constraints.maxWidth < 1200;
 
         if (_isLoadingTemplates) {
           return SizedBox(
@@ -433,15 +443,16 @@ class _HomeLuxuriousTemplateSliderState
           ),
           child: Column(
             children: [
-              _buildSectionHeader(isMobile, loc),
+              _buildSectionHeader(isMobile, isTablet, loc),
               SizedBox(height: 64),
               switch (widget.layout) {
                 TemplateSliderLayout.horizontalSlider => _buildHorizontalSlider(
                   isMobile,
+                  isTablet,
                   loc,
                 ),
-                TemplateSliderLayout.masonryGrid => _buildMasonryGrid(isMobile),
-                TemplateSliderLayout.twoColsGrid => _buildTwoColsGrid(isMobile),
+                TemplateSliderLayout.masonryGrid => _buildMasonryGrid(isMobile, isTablet),
+                TemplateSliderLayout.twoColsGrid => _buildTwoColsGrid(isMobile, isTablet),
               },
             ],
           ),

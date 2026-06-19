@@ -25,6 +25,8 @@ class CustomPricingWidget extends StatefulWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
   final String pageId;
   final String lang;
@@ -38,6 +40,8 @@ class CustomPricingWidget extends StatefulWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
     this.lang = 'ar',
     this.variant = 0,
@@ -92,7 +96,7 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
-        final double verticalPadding = isMobile ? 40 : 80;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _PricingProps(
           model: _model,
@@ -115,9 +119,11 @@ class _CustomPricingWidgetState extends State<CustomPricingWidget> {
           bgImageUrl: widget.bgImageUrl,
           bgOverlayColor: widget.bgOverlayColor,
           bgOverlayOpacity: widget.bgOverlayOpacity,
+          backgroundColorHex: widget.backgroundColorHex,
+          verticalPaddingOverride: widget.verticalPadding,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -146,6 +152,8 @@ class _PricingProps {
   final String pageId;
   final String lang;
   final LandingPageTheme? theme;
+  final double? verticalPadding;
+  final String? backgroundColorHex;
 
   const _PricingProps({
     required this.model,
@@ -162,6 +170,8 @@ class _PricingProps {
     required this.pageId,
     required this.lang,
     this.theme,
+    this.verticalPadding,
+    this.backgroundColorHex,
   });
 }
 
@@ -282,19 +292,22 @@ class _PricingContent extends StatelessWidget {
     if (props.layoutStyle == 'table' || (props.variant == 2 && !props.isMobile)) {
       return _PricingTableStyle(props: props);
     }
-    return _PricingCardsLayout(props: props);
+    return LayoutBuilder(builder: (context, constraints) {
+      return _PricingCardsLayout(props: props, width: constraints.maxWidth);
+    });
   }
 }
 
 /// Grid/Row layout for Pricing Cards.
 class _PricingCardsLayout extends StatelessWidget {
   final _PricingProps props;
-  const _PricingCardsLayout({required this.props});
+  final double width;
+  const _PricingCardsLayout({required this.props, required this.width});
 
   @override
   Widget build(BuildContext context) {
     final int columnCount = props.variant == 1 ? 2 : ResponsiveUtils.getContentColumns(
-      MediaQuery.of(context).size.width,
+      width,
       desktop: props.model.items.length >= 3 ? 3 : props.model.items.length,
       tablet: 2,
       mobile: 1,
@@ -442,11 +455,11 @@ class _PricingCard extends StatelessWidget {
             ],
           ),
           if (discountBadge != null)
-            Positioned(
+            PositionedDirectional(
               top: -10,
-              left: 0,
+              start: 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))]),
                 child: Text(discountBadge, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
               ),

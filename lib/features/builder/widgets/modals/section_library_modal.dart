@@ -316,6 +316,47 @@ class _SectionLibraryModalState extends State<SectionLibraryModal> {
           'layout_style': 'list',
           'show_category_filter': false,
         }),
+        _variant('شريط متحرك', 'تصفح أفقي للمنتجات', 'gallery_carousel', {
+          'variant_style': 'product_carousel',
+          'layout_style': 'carousel',
+        }),
+      ],
+    ),
+    _section(
+      type: 'featured_product',
+      name: 'المنتج المميز',
+      icon: Icons.star_border_rounded,
+      category: 'ecommerce',
+      desc: 'تركيز قوي على منتج واحد بطل.',
+      aiRole: 'featured_offer',
+      aiWhenToUse: 'Use to highlight a best-seller, a specific high-value product, or a primary offer.',
+      variants: [
+        _variant('Split', 'صورة يمين ونص يسار', 'split', {
+          'layout_style': 'split',
+        }),
+        _variant('عكسي', 'نص يمين وصورة يسار', 'split', {
+          'layout_style': 'reversed',
+        }),
+        _variant('مركزي', 'صورة كبيرة وعنوان بالوسط', 'centered', {
+          'layout_style': 'centered',
+        }),
+      ],
+    ),
+    _section(
+      type: 'bento_store',
+      name: 'متجر بينتو',
+      icon: Icons.grid_view_rounded,
+      category: 'ecommerce',
+      desc: 'شبكة منتجات بأسلوب عصري غير منتظم.',
+      aiRole: 'modern_catalog',
+      aiWhenToUse: 'Use for visual brands that want a magazine-style product display.',
+      variants: [
+        _variant('بينتو عصري', 'تخطيط متباعد وأنيق', 'bento', {
+          'layout_style': 'modern',
+        }),
+        _variant('متلاصق', 'تصميم مضغوط وجذاب', 'grid', {
+          'layout_style': 'tight',
+        }),
       ],
     ),
     _section(

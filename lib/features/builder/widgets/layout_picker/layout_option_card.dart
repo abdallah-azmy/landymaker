@@ -102,22 +102,25 @@ class _LayoutMiniPreview extends StatelessWidget {
   Widget _buildPreview(BuildContext context, Color imageColor, Color textColor, Color buttonColor, Color headingColor) {
     switch (layoutStyle) {
       case 'split':
-        return Row(
-          children: [
-            Expanded(child: Container(color: imageColor, margin: const EdgeInsets.all(2))),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _block(headingColor, height: 8, width: 0.7),
-                  const SizedBox(height: 4),
-                  _block(textColor, height: 6, width: 0.9),
-                  const SizedBox(height: 4),
-                  _block(buttonColor, height: 6, width: 0.5),
-                ],
-              ),
+      case 'reversed':
+        final isReversed = layoutStyle == 'reversed';
+        final items = [
+          Expanded(child: Container(color: imageColor, margin: const EdgeInsets.all(2))),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _block(headingColor, height: 8, width: 0.7),
+                const SizedBox(height: 4),
+                _block(textColor, height: 6, width: 0.9),
+                const SizedBox(height: 4),
+                _block(buttonColor, height: 6, width: 0.5),
+              ],
             ),
-          ],
+          ),
+        ];
+        return Row(
+          children: isReversed ? items.reversed.toList() : items,
         );
 
       case 'centered':
@@ -214,7 +217,11 @@ class _LayoutMiniPreview extends StatelessWidget {
         );
 
       case 'bento':
-        return Column(
+      case 'modern':
+      case 'tight':
+      case 'glass':
+        final bool isGlass = layoutStyle == 'glass';
+        Widget bento = Column(
           children: [
             Expanded(
               child: Row(
@@ -234,6 +241,16 @@ class _LayoutMiniPreview extends StatelessWidget {
             ),
           ],
         );
+
+        if (isGlass) {
+          bento = Stack(
+            children: [
+              Container(color: imageColor.withValues(alpha: 0.2)),
+              Padding(padding: const EdgeInsets.all(8), child: bento),
+            ],
+          );
+        }
+        return bento;
 
       case 'iconLeft':
         return Row(

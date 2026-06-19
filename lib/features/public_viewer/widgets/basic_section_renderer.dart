@@ -38,6 +38,7 @@ class BasicSectionRenderer extends StatelessWidget {
       bgImageUrl: sectionData['bg_image_url'],
       bgOverlayColor: sectionData['bg_overlay_color'],
       bgOverlayOpacity: NumericParser.tryParseDouble(sectionData['overlay_opacity'] ?? sectionData['bg_overlay_opacity']),
+      backgroundColorHex: sectionData['bg_color'] ?? sectionData['background_color'],
       verticalPaddingOverride: verticalPadding,
       bgBlur: NumericParser.tryParseDouble(sectionData['bg_blur']),
       theme: theme,

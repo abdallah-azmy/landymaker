@@ -1169,6 +1169,36 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           },
         ],
       };
+    } else if (type == 'featured_product') {
+      blockToAdd = {
+        'type': 'featured_product',
+        'name': 'اسم المنتج المميز',
+        'price': '0.00',
+        'description': 'وصف مختصر للمنتج يبرز أهم مميزاته.',
+        'image_url': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+        'button_text': 'إضافة للسلة',
+        'layout_style': 'split',
+      };
+    } else if (type == 'bento_store') {
+      blockToAdd = {
+        'type': 'bento_store',
+        'title': 'مجموعاتنا المختارة',
+        'items': [
+          {
+            'id': const Uuid().v4(),
+            'name': 'منتج 1',
+            'price': '0 EGP',
+            'image_url': 'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+          },
+          {
+            'id': const Uuid().v4(),
+            'name': 'منتج 2',
+            'price': '0 EGP',
+            'image_url': 'https://cdn.pixabay.com/photo/2017/04/06/12/46/shopping-2153849_1280.jpg',
+          },
+        ],
+        'layout_style': 'modern',
+      };
     } else if (type == 'faq') {
       blockToAdd = {
         'type': 'faq',

@@ -316,7 +316,9 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
           theme: widget.theme,
           bgImageUrl: widget.block['bg_image_url'],
           bgOverlayColor: widget.block['bg_overlay_color'],
-          bgOverlayOpacity: widget.block['bg_overlay_opacity']?.toDouble(),
+          bgOverlayOpacity: (widget.block['bg_overlay_opacity'] ?? widget.block['overlay_opacity'])?.toDouble(),
+          backgroundColorHex: widget.block['bg_color'] ?? widget.block['background_color'],
+          verticalPaddingOverride: (widget.block['vertical_padding'] as num?)?.toDouble(),
           bgBlur: widget.block['bg_blur']?.toDouble(),
           padding: EdgeInsetsDirectional.symmetric(
             vertical: verticalPadding,

@@ -49,14 +49,15 @@ class _HomeTrustLogosState extends State<HomeTrustLogos>
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
+        final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
+        final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
       return FadeTransition(
         opacity: _fade,
         child: Container(
           width: double.infinity,
           padding: EdgeInsetsDirectional.symmetric(
             vertical: isMobile ? 32 : 48,
-            horizontal: 24,
+            horizontal: isMobile ? 16 : isTablet ? 32 : 48,
           ),
           decoration: BoxDecoration(
             border: Border(
@@ -64,30 +65,25 @@ class _HomeTrustLogosState extends State<HomeTrustLogos>
               bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
             ),
           ),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(
-                children: [
-                  Text(
-                    'يثق بنا آلاف الأعمال في المنطقة العربية',
-                    style: AppTypography.caption.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 28),
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: isMobile ? 20 : 40,
-                    runSpacing: 16,
-                    children: _brands.map((b) => _BrandChip(brand: b)).toList(),
-                  ),
-                ],
+          child: Column(
+            children: [
+              Text(
+                'يثق بنا آلاف الأعمال في المنطقة العربية',
+                style: AppTypography.caption.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
+              SizedBox(height: 28),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: isMobile ? 20 : 40,
+                runSpacing: 16,
+                children: _brands.map((b) => _BrandChip(brand: b)).toList(),
+              ),
+            ],
           ),
         ),
       );

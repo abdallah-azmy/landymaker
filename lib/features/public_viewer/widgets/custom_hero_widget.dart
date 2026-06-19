@@ -24,6 +24,7 @@ class CustomHeroWidget extends StatelessWidget {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String? backgroundColorHex;
   final String? buttonUrl;
   final double? verticalPadding;
   final int variant;
@@ -41,6 +42,7 @@ class CustomHeroWidget extends StatelessWidget {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.backgroundColorHex,
     this.buttonUrl,
     this.verticalPadding,
     this.variant = 0,
@@ -77,6 +79,7 @@ class CustomHeroWidget extends StatelessWidget {
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
           verticalPaddingOverride: verticalPadding,
           bgBlur: bgBlur,
           theme: theme,

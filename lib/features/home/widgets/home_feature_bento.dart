@@ -6,11 +6,13 @@ import '../models/home_layouts.dart';
 class HomeFeatureBento extends StatefulWidget {
   final bool isVisible;
   final FeatureLayout layout;
+  final String? title;
 
   const HomeFeatureBento({
     super.key,
     required this.isVisible,
     this.layout = FeatureLayout.bentoGrid,
+    this.title,
   });
 
   @override
@@ -141,153 +143,150 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
         final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
         switch (widget.layout) {
           case FeatureLayout.threeCols:
-            return _buildThreeColsLayout(context, isMobile);
+            return _buildThreeColsLayout(context, isMobile, constraints);
           case FeatureLayout.iconLeft:
-            return _buildIconLeftLayout(context, isMobile);
+            return _buildIconLeftLayout(context, isMobile, constraints);
           case FeatureLayout.bentoGrid:
-            return _buildBentoGridLayout(context, isMobile);
+            return _buildBentoGridLayout(context, isMobile, constraints);
         }
       },
     );
   }
 
-  Widget _buildBentoGridLayout(BuildContext context, bool isMobile) {
+  Widget _buildBentoGridLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+    final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
           top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5),
         ),
       ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildSectionHeader(isMobile),
-              SizedBox(height: 48),
-              if (isMobile)
-                Column(
-                  children: List.generate(_features.length, (i) => Column(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildSectionHeader(isMobile),
+          SizedBox(height: 48),
+          if (isMobile)
+            Column(
+              children: List.generate(_features.length, (i) => Column(
+                children: [
+                  FadeTransition(
+                    opacity: _cardFades[i],
+                    child: SlideTransition(
+                      position: _cardSlides[i],
+                      child: _BentoCard(feature: _features[i]),
+                    ),
+                  ),
+                  if (i < _features.length - 1) SizedBox(height: 16),
+                ],
+              )),
+            )
+          else
+            Column(
+              children: [
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      FadeTransition(
-                        opacity: _cardFades[i],
-                        child: SlideTransition(
-                          position: _cardSlides[i],
-                          child: _BentoCard(feature: _features[i]),
+                      Expanded(
+                        flex: 3,
+                        child: FadeTransition(
+                          opacity: _cardFades[0],
+                          child: SlideTransition(
+                            position: _cardSlides[0],
+                            child: _BentoCard(feature: _features[0], tall: true),
+                          ),
                         ),
                       ),
-                      if (i < _features.length - 1) SizedBox(height: 16),
+                      SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: FadeTransition(
+                                opacity: _cardFades[1],
+                                child: SlideTransition(
+                                  position: _cardSlides[1],
+                                  child: _BentoCard(feature: _features[1]),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Expanded(
+                              child: FadeTransition(
+                                opacity: _cardFades[2],
+                                child: SlideTransition(
+                                  position: _cardSlides[2],
+                                  child: _BentoCard(feature: _features[2]),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
-                  )),
-                )
-              else
-                Column(
-                  children: [
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: FadeTransition(
-                              opacity: _cardFades[0],
-                              child: SlideTransition(
-                                position: _cardSlides[0],
-                                child: _BentoCard(feature: _features[0], tall: true),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: FadeTransition(
-                                    opacity: _cardFades[1],
-                                    child: SlideTransition(
-                                      position: _cardSlides[1],
-                                      child: _BentoCard(feature: _features[1]),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 16),
-                                Expanded(
-                                  child: FadeTransition(
-                                    opacity: _cardFades[2],
-                                    child: SlideTransition(
-                                      position: _cardSlides[2],
-                                      child: _BentoCard(feature: _features[2]),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: FadeTransition(
-                                    opacity: _cardFades[3],
-                                    child: SlideTransition(
-                                      position: _cardSlides[3],
-                                      child: _BentoCard(feature: _features[3]),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 16),
-                                Expanded(
-                                  child: FadeTransition(
-                                    opacity: _cardFades[4],
-                                    child: SlideTransition(
-                                      position: _cardSlides[4],
-                                      child: _BentoCard(feature: _features[4]),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            flex: 3,
-                            child: FadeTransition(
-                              opacity: _cardFades[5],
-                              child: SlideTransition(
-                                position: _cardSlides[5],
-                                child: _BentoCard(feature: _features[5], tall: true),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-            ],
-          ),
-        ),
+                SizedBox(height: 16),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: FadeTransition(
+                                opacity: _cardFades[3],
+                                child: SlideTransition(
+                                  position: _cardSlides[3],
+                                  child: _BentoCard(feature: _features[3]),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Expanded(
+                              child: FadeTransition(
+                                opacity: _cardFades[4],
+                                child: SlideTransition(
+                                  position: _cardSlides[4],
+                                  child: _BentoCard(feature: _features[4]),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        flex: 3,
+                        child: FadeTransition(
+                          opacity: _cardFades[5],
+                          child: SlideTransition(
+                            position: _cardSlides[5],
+                            child: _BentoCard(feature: _features[5], tall: true),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }
 
   Widget _buildSectionHeader(bool isMobile) {
+    final isTablet = MediaQuery.of(context).size.width >= 700 && MediaQuery.of(context).size.width < 1200;
     return FadeTransition(
       opacity: _headerFade,
       child: SlideTransition(
@@ -313,9 +312,9 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
             ),
             SizedBox(height: 16),
             Text(
-              "كل ما تحتاجه للنمو\nفي مكان واحد",
+              widget.title ?? "كل ما تحتاجه للنمو\nفي مكان واحد",
               style: AppTypography.h2.copyWith(
-                fontSize: isMobile ? 28 : 42,
+                fontSize: isMobile ? 28 : isTablet ? 44 : 58,
                 fontWeight: FontWeight.w900,
                 height: 1.2,
               ),
@@ -336,40 +335,55 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
     );
   }
 
-  Widget _buildThreeColsLayout(BuildContext context, bool isMobile) {
+  Widget _buildThreeColsLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+    final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
       ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              _buildSectionHeader(isMobile),
-              SizedBox(height: 48),
-              isMobile
-                ? Column(
-                    children: _features.map((f) => Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _buildSimpleCard(f),
-                    )).toList(),
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (int i = 0; i < _features.length; i++) ...[
-                        Expanded(child: _buildSimpleCard(_features[i])),
-                        if (i < _features.length - 1) SizedBox(width: 20),
-                      ],
+      child: Column(
+        children: [
+          _buildSectionHeader(isMobile),
+          SizedBox(height: 48),
+          isMobile
+            ? Column(
+                children: _features.map((f) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _buildSimpleCard(f),
+                )).toList(),
+              )
+            : isTablet
+              ? Column(
+                  children: [
+                    for (int i = 0; i < _features.length; i += 2)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: i + 2 < _features.length ? 16 : 0),
+                        child: Row(
+                          children: [
+                            Expanded(child: _buildSimpleCard(_features[i])),
+                            SizedBox(width: 16),
+                            if (i + 1 < _features.length)
+                              Expanded(child: _buildSimpleCard(_features[i + 1]))
+                            else
+                              const Expanded(child: SizedBox()),
+                          ],
+                        ),
+                      ),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (int i = 0; i < _features.length; i++) ...[
+                      Expanded(child: _buildSimpleCard(_features[i])),
+                      if (i < _features.length - 1) SizedBox(width: 20),
                     ],
-                  ),
-            ],
-          ),
-        ),
+                  ],
+                ),
+        ],
       ),
     );
   }
@@ -402,46 +416,42 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
     );
   }
 
-  Widget _buildIconLeftLayout(BuildContext context, bool isMobile) {
+  Widget _buildIconLeftLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+    final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
       ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              _buildSectionHeader(isMobile),
-              SizedBox(height: 48),
-              isMobile
-                ? Column(
-                    children: _features.map((f) => _buildIconLeftRow(f)).toList(),
-                  )
-                : Column(
-                    children: [
-                      for (int i = 0; i < _features.length; i += 2)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: Row(
-                            children: [
-                              Expanded(child: _buildIconLeftRow(_features[i])),
-                              SizedBox(width: 20),
-                              if (i + 1 < _features.length)
-                                Expanded(child: _buildIconLeftRow(_features[i + 1]))
-                              else
-                                const Expanded(child: SizedBox()),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-            ],
-          ),
-        ),
+      child: Column(
+        children: [
+          _buildSectionHeader(isMobile),
+          SizedBox(height: 48),
+          isMobile
+            ? Column(
+                children: _features.map((f) => _buildIconLeftRow(f)).toList(),
+              )
+            : Column(
+                children: [
+                  for (int i = 0; i < _features.length; i += 2)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Row(
+                        children: [
+                          Expanded(child: _buildIconLeftRow(_features[i])),
+                          SizedBox(width: 20),
+                          if (i + 1 < _features.length)
+                            Expanded(child: _buildIconLeftRow(_features[i + 1]))
+                          else
+                            const Expanded(child: SizedBox()),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+        ],
       ),
     );
   }

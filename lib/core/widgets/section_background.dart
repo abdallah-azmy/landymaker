@@ -8,13 +8,13 @@ class SectionBackground extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
   final double? bgBlur;
   final LandingPageTheme? theme;
   final EdgeInsetsGeometry? padding;
   final Widget child;
 
   final double? overlayOpacityOverride;
-
   final double? verticalPaddingOverride;
 
   const SectionBackground({
@@ -22,6 +22,7 @@ class SectionBackground extends StatelessWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
     this.overlayOpacityOverride,
     this.verticalPaddingOverride,
     this.bgBlur,
@@ -35,7 +36,16 @@ class SectionBackground extends StatelessWidget {
     final bool hasGlobalBg = (theme?.globalBgImageUrl?.isNotEmpty ?? false) || 
                              (theme?.globalBgColorHex?.isNotEmpty ?? false);
                              
-    final bgColor = hasGlobalBg ? Colors.transparent : (theme?.background ?? Theme.of(context).colorScheme.surface);
+    Color bgColor = hasGlobalBg ? Colors.transparent : (theme?.background ?? Theme.of(context).colorScheme.surface);
+    
+    // Custom Background Color Override
+    if (backgroundColorHex != null && backgroundColorHex!.isNotEmpty) {
+      final customBg = LandingPageTheme.parseColor(backgroundColorHex, null);
+      if (customBg != null) {
+        bgColor = customBg;
+      }
+    }
+
     final primaryColor = theme?.primary ?? Theme.of(context).colorScheme.primary;
     final double blurValue = bgBlur ?? 0.0;
     

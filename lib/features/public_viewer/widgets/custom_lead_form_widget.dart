@@ -31,6 +31,8 @@ class CustomLeadFormWidget extends StatefulWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const CustomLeadFormWidget({
@@ -43,6 +45,8 @@ class CustomLeadFormWidget extends StatefulWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 
@@ -205,7 +209,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
-        final double verticalPadding = isMobile ? 40 : 80;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _LeadFormProps(
           title: widget.title,
@@ -232,9 +236,11 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
           bgImageUrl: widget.bgImageUrl,
           bgOverlayColor: widget.bgOverlayColor,
           bgOverlayOpacity: widget.bgOverlayOpacity,
+          backgroundColorHex: widget.backgroundColorHex,
+          verticalPaddingOverride: widget.verticalPadding,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: verticalPadding, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 600),

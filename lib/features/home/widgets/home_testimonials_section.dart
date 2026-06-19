@@ -88,90 +88,86 @@ class _HomeTestimonialsSectionState extends State<HomeTestimonialsSection>
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
+      final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
       return Container(
         width: double.infinity,
         padding: EdgeInsetsDirectional.symmetric(
           vertical: isMobile ? 32 : 60,
-          horizontal: 24,
+          horizontal: isMobile ? 16 : isTablet ? 32 : 48,
         ),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
         ),
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              children: [
-                FadeTransition(
-                  opacity: _headerFade,
-                  child: SlideTransition(
-                    position: _headerSlide,
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsetsDirectional.symmetric(horizontal: 14, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
-                          ),
-                          child: Text(
-                            '⭐ آراء العملاء',
-                            style: AppTypography.caption.copyWith(
-                              color: const Color(0xFFF59E0B),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+        child: Column(
+          children: [
+            FadeTransition(
+              opacity: _headerFade,
+              child: SlideTransition(
+                position: _headerSlide,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsetsDirectional.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        '⭐ آراء العملاء',
+                        style: AppTypography.caption.copyWith(
+                          color: const Color(0xFFF59E0B),
+                          fontWeight: FontWeight.bold,
                         ),
-                        SizedBox(height: 16),
-                        Text(
-                          'ماذا يقول عملاؤنا؟',
-                          style: AppTypography.h2.copyWith(
-                            fontSize: isMobile ? 28 : 42,
-                            fontWeight: FontWeight.w900,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 12),
-                        Text(
-                          'أكثر من ١٥٬٠٠٠ صاحب عمل يثقون بـ Landymaker.',
-                          style: AppTypography.bodyLarge.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            height: 1.6,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    SizedBox(height: 16),
+                    Text(
+                      'ماذا يقول عملاؤنا؟',
+                      style: AppTypography.h2.copyWith(
+                        fontSize: isMobile ? 28 : isTablet ? 44 : 58,
+                        fontWeight: FontWeight.w900,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'أكثر من ١٥٬٠٠٠ صاحب عمل يثقون بـ Landymaker.',
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        height: 1.6,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-                SizedBox(height: 64),
-                isMobile
-                  ? Column(
-                      children: List.generate(_testimonials.length, (i) => Padding(
-                        padding: EdgeInsetsDirectional.only(bottom: i < _testimonials.length - 1 ? 16 : 0),
-                        child: FadeTransition(
-                          opacity: _cardFades[i],
-                          child: _TestimonialCard(data: _testimonials[i]),
-                        ),
-                      )),
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: List.generate(_testimonials.length, (i) => Expanded(
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.only(end: i < _testimonials.length - 1 ? 20 : 0),
-                          child: FadeTransition(
-                            opacity: _cardFades[i],
-                            child: _TestimonialCard(data: _testimonials[i]),
-                          ),
-                        ),
-                      )),
-                    ),
-              ],
+              ),
             ),
-          ),
+            SizedBox(height: 64),
+            isMobile
+              ? Column(
+                  children: List.generate(_testimonials.length, (i) => Padding(
+                    padding: EdgeInsetsDirectional.only(bottom: i < _testimonials.length - 1 ? 16 : 0),
+                    child: FadeTransition(
+                      opacity: _cardFades[i],
+                      child: _TestimonialCard(data: _testimonials[i]),
+                    ),
+                  )),
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(_testimonials.length, (i) => Expanded(
+                    child: Padding(
+                      padding: EdgeInsetsDirectional.only(end: i < _testimonials.length - 1 ? 20 : 0),
+                      child: FadeTransition(
+                        opacity: _cardFades[i],
+                        child: _TestimonialCard(data: _testimonials[i]),
+                      ),
+                    ),
+                  )),
+                ),
+          ],
         ),
       );
     });

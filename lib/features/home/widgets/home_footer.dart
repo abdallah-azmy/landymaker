@@ -11,7 +11,8 @@ import '../../../core/widgets/atoms/landy_maker_logo.dart';
 /// ARCHITECTURE: Renders [_DesktopFooter] or [_MobileFooter] based on layout width.
 /// ======================================================
 class HomeFooter extends StatelessWidget {
-  const HomeFooter({super.key});
+  final String? copyrightText;
+  const HomeFooter({super.key, this.copyrightText});
 
   static const _socialLinks = [
     _SocialLinkData(
@@ -59,26 +60,21 @@ class HomeFooter extends StatelessWidget {
               ),
             ),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(
-                children: [
-                  if (isMobile)
-                    const _MobileFooter(socialLinks: _socialLinks)
-                  else
-                    const _DesktopFooter(socialLinks: _socialLinks),
-                  SizedBox(height: 48),
-                  Divider(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    height: 1,
-                  ),
-                  SizedBox(height: 24),
-                  const _BottomRow(),
-                ],
+          padding: EdgeInsets.symmetric(vertical: 60, horizontal: isMobile ? 16 : 64),
+          child: Column(
+            children: [
+              if (isMobile)
+                const _MobileFooter(socialLinks: _socialLinks)
+              else
+                const _DesktopFooter(socialLinks: _socialLinks),
+              SizedBox(height: 48),
+              Divider(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                height: 1,
               ),
-            ),
+              SizedBox(height: 24),
+              const _BottomRow(),
+            ],
           ),
         );
       },
@@ -223,7 +219,7 @@ class _BottomRow extends StatelessWidget {
       runSpacing: 8,
       children: [
         Text(
-          "© 2026 Landymaker. جميع الحقوق محفوظة.",
+          copyrightText ?? "© 2026 Landymaker. جميع الحقوق محفوظة.",
           style: AppTypography.caption.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),

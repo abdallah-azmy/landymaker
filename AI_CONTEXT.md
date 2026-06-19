@@ -73,6 +73,11 @@ LandyMaker is divided into clear boundaries: Builder System (Editor), Runtime Sy
 
 ### C. Global UI Systems
 - **Sticky CTA System**: A global, fixed overlay (`StickyCtaBar`) that conditionally appears based on scroll threshold (e.g., `> 30%`). It manages its own loading state, prevents double submissions, and interacts with global components (like `FloatingCartWidget`) to prevent layout overlaps.
+- **Section Design Engine V2**: Every block now supports granular overrides via the "Design" tab:
+    - `bg_color`: Hex override for section background.
+    - `theme_override`: Local palette override (e.g., one section in Dark mode, rest in Light).
+    - `vertical_padding`: Manual spacing control (0-300px).
+    - `animation`: Object-based control (type, duration, delay, intensity).
 
 ---
 
@@ -100,6 +105,8 @@ The platform supports the following blocks, each with a dedicated Editor and Ren
 - `animated_counter`: Animated numbers representing statistics or milestones.
 - `social_qr`: Display of social media links alongside a QR code.
 - `whatsapp`: WhatsApp direct chat CTA block.
+- `featured_product`: High-impact section for single-product focus (Split, Reversed, Centered layouts).
+- `bento_store`: Modern, non-uniform grid for product collections (Modern, Tight, Glass layouts).
 - `basic_section`: Empty rich-text section.
 
 ### Template & AI-Agent Preparation Notes
@@ -205,6 +212,21 @@ AI chat sessions are scoped per landing page. `AIGenerationCubit` uses `'ai_sess
 
 ### 🖥️ Guest Preview Screen
 `GuestPreviewScreen` (route `/guest-preview`) uses `PreviewMode.desktop` with a `LayoutBuilder` wrapper. When the window is desktop width (>= 768px), two toggle icons (`Icons.phone_android_rounded` and `Icons.desktop_windows_rounded`) appear in the AppBar to switch between mobile and desktop preview. The `initState` includes a fallback `cubit.initializeNewPage()` if the cubit state is not `BuilderLoaded`.
+
+### 🏠 Homepage Dynamism & Editor
+Homepage sections (`hero`, `features`, `templates`, `cta`, `footer`) are stored in the `homepage_sections` DB table (see migration `20260619000000`). Each section has `section_key`, `is_visible`, `sort_order`, and a `config` JSONB column. The `landymaker_home_screen.dart` loads sections at startup via `DatabaseService.getHomepageSections()` and dynamically passes config overrides to each widget. The `HomepageEditorScreen` (route `/dashboard/homepage-editor`) lets super admins toggle visibility, reorder via drag, and edit config through dedicated config sheets (`HeroConfigSheet`, `FeatureConfigSheet`, `CtaConfigSheet`).
+
+### 👤 User Profile (Super Admin)
+`UserProfileScreen` (route `/dashboard/super-admin/users/:userId`) shows a full user profile with: header (avatar, name, tier), landing pages list, subscription card (plan, status, end date), stats card (views, leads, conversion), and activity feed (audit logs). Driven by `UserProfileCubit` which fetches data from `DatabaseService.getProfile`, `getLandingPagesByUserId`, `getUserSubscriptionRequests`, `getUserAuditLogs`, and `getUserAggregatedAnalytics`.
+
+### 📱 Responsive Data Table
+`ResponsiveDataTable` supports an optional `mobileCardBuilder` for custom mobile card layouts and an optional `bulkActionBar` that replaces the title row in selection mode. Used in `SuperAdminPanelScreen._buildUsersTab` with an avatar-first mobile card.
+
+### 🔄 Bulk Actions (Super Admin)
+Super admin users tab supports multi-select mode via a "تحديد متعدد" toggle. `BulkActionBar` appears when selection is active with 6 actions: renew (1/3/12 months), upgrade tier, downgrade tier, block, unblock, and send notification. Actions are executed via `SuperAdminCubit` methods: `bulkBlockUsers`, `bulkUpdateUserTier`, `bulkAddSubscriptionMonths`, `bulkSendNotification`. The `?tab=` query parameter on `/dashboard/super-admin` routes to specific tabs (users, plans, templates, broadcast, stats).
+
+### 📌 Expanded Admin Sidebar
+The sidebar now shows 8 admin navigation items: Users, Plans, Templates, Homepage Editor, Broadcast, SEO, Blog, and Stats. Items sharing the `/dashboard/super-admin` route use `?tab=` query parameter for tab-specific routing. Selection highlighting uses both path + tab params for accuracy.
 
 ---
 

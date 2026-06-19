@@ -18,9 +18,13 @@ This registry defines the "Readable Language" used between the Builder and the A
 - `card_layout_mode`: String ("auto" | "equal") - Controls grid height behavior for items.
 - `bg_image_url`: String (Image URL)
 - `bg_overlay_opacity`: Double (0.0 to 1.0)
+- `bg_overlay_color`: Hex Color String
+- `bg_color`: Hex Color String (Base background color for the section)
+- `theme_override`: String (Name of the theme palette to apply to this section)
+- `vertical_padding`: Double (0.0 to 300.0)
 - `bg_blur`: Double (0.0 to 20.0)
 - `is_visible`: Boolean
-- `animation`: Object `{type: "none" | "fadeIn" | "slideUp" | "zoomIn" | "bounceIn", duration: 800, delay: 0}`
+- `animation`: Object `{type: "none" | "fadeIn" | "slideUp" | "zoomIn" | "bounceIn", duration: 800, delay: 0, intensity: 1.0}`
 
 ## 📦 Block-Specific Schemas
 
@@ -29,8 +33,26 @@ This registry defines the "Readable Language" used between the Builder and the A
 - `title`, `subtitle`, `button_text`, `button_url`, `image_url`
 
 ### `features`
+- `layout_style`: "grid" | "bento"
 - `variant`: 0:Grid, 1:Bento, 2:List
 - `items`: List of `{title, description, image_url, link_url}`
+
+### `products`
+- `layout_style`: "grid_2" | "grid_3" | "list" | "carousel"
+- `mobile_columns`: 1 | 2
+- `card_style`: "classic" | "modern" | "minimal"
+- `hover_effect`: "none" | "scale" | "elevate" | "glow"
+- `stagger_animations`: Boolean
+- `items`: List of `{id, name, price, description, image_url, button_text, purchase_url, category}`
+
+### `featured_product`
+- `layout_style`: "split" | "centered" | "reversed"
+- `name`, `price`, `description`, `image_url`, `button_text`, `badge_text`
+
+### `bento_store`
+- `layout_style`: "modern" | "tight" | "glass"
+- `stagger_animations`: Boolean
+- `items`: List of `{name, price, image_url}`
 
 ### `pricing`
 - `variant`: 0:Grid, 1:Row, 2:Table

@@ -39,8 +39,11 @@ import '../../features/dashboard/screens/settings_screen.dart';
 import '../../features/dashboard/screens/notifications_screen.dart';
 import '../../features/super_admin/screens/super_admin_panel_screen.dart';
 import '../../features/super_admin/screens/platform_seo_screen.dart';
+import '../../features/super_admin/screens/homepage_editor_screen.dart';
+import '../../features/super_admin/screens/user_profile_screen.dart';
 import '../../features/blog_admin/screens/blog_management_screen.dart';
 import '../../services/supabase_service.dart';
+import '../../services/database_service.dart';
 import '../../injection_container.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -280,6 +283,44 @@ final GoRouter appRouter = GoRouter(
                   return null; // allow
                 }
                 return '/dashboard'; // redirect
+              },
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/homepage-editor',
+              builder: (context, state) => BlocProvider(
+                create: (_) => HomepageEditorCubit(sl<DatabaseService>()),
+                child: const HomepageEditorScreen(),
+              ),
+              redirect: (context, state) {
+                final authState = context.read<AuthCubit>().state;
+                if (authState is Authenticated &&
+                    authState.role == 'super_admin') {
+                  return null; // allow
+                }
+                return '/dashboard'; // redirect
+              },
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard/super-admin/users/:userId',
+              builder: (context, state) {
+                final userId = state.pathParameters['userId'] ?? '';
+                return UserProfileScreen(userId: userId);
+              },
+              redirect: (context, state) {
+                final authState = context.read<AuthCubit>().state;
+                if (authState is Authenticated &&
+                    authState.role == 'super_admin') {
+                  return null;
+                }
+                return '/dashboard';
               },
             ),
           ],

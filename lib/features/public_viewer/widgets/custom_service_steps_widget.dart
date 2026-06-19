@@ -29,6 +29,7 @@ class CustomServiceStepsWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
+        final double paddingValue = (block['vertical_padding'] as num?)?.toDouble() ?? (isMobile ? 40 : 80);
 
         final props = _ServiceStepsProps(
           title: title,
@@ -42,6 +43,8 @@ class CustomServiceStepsWidget extends StatelessWidget {
           bgImageUrl: block['bg_image_url'],
           bgOverlayColor: block['bg_overlay_color'],
           bgOverlayOpacity: (block['bg_overlay_opacity'] as num?)?.toDouble(),
+          backgroundColorHex: block['bg_color'] ?? block['background_color'],
+          verticalPadding: (block['vertical_padding'] as num?)?.toDouble(),
           bgBlur: (block['bg_blur'] as num?)?.toDouble(),
         );
 
@@ -50,8 +53,10 @@ class CustomServiceStepsWidget extends StatelessWidget {
           bgImageUrl: props.bgImageUrl,
           bgOverlayColor: props.bgOverlayColor,
           bgOverlayOpacity: props.bgOverlayOpacity,
+          backgroundColorHex: props.backgroundColorHex,
+          verticalPaddingOverride: props.verticalPadding,
           bgBlur: props.bgBlur,
-          padding: EdgeInsetsDirectional.symmetric(vertical: props.isMobile ? 40 : 80, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -94,6 +99,8 @@ class _ServiceStepsProps {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const _ServiceStepsProps({
@@ -108,6 +115,8 @@ class _ServiceStepsProps {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 }

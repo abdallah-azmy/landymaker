@@ -14,6 +14,8 @@ class HomeCtaSection extends StatefulWidget {
   final VoidCallback onGetStartedPressed;
   final CtaLayout layout;
   final double overlayOpacity;
+  final String? text;
+  final String? buttonText;
 
   const HomeCtaSection({
     super.key,
@@ -21,6 +23,8 @@ class HomeCtaSection extends StatefulWidget {
     required this.onGetStartedPressed,
     this.layout = CtaLayout.centeredGradient,
     this.overlayOpacity = 0.6,
+    this.text,
+    this.buttonText,
   });
 
   @override
@@ -65,19 +69,20 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 700;
+        final isTablet = !isMobile && constraints.maxWidth < 1200;
         switch (widget.layout) {
           case CtaLayout.split:
-            return _buildSplitLayout(context, isMobile);
+            return _buildSplitLayout(context, isMobile, isTablet, constraints);
           case CtaLayout.centeredGradient:
-            return _buildCenteredGradientLayout(context, isMobile);
+            return _buildCenteredGradientLayout(context, isMobile, isTablet, constraints);
           case CtaLayout.fullWidthImage:
-            return _buildFullWidthImageLayout(context, isMobile);
+            return _buildFullWidthImageLayout(context, isMobile, isTablet, constraints);
         }
       },
     );
   }
 
-  Widget _buildCenteredGradientLayout(BuildContext context, bool isMobile) {
+  Widget _buildCenteredGradientLayout(BuildContext context, bool isMobile, bool isTablet, BoxConstraints constraints) {
     return AnimatedBuilder(
       animation: _bgController,
       builder: (context, child) {
@@ -85,39 +90,36 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         return RepaintBoundary(
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: isMobile ? 32 : 60),
-            child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 1100),
-                padding: EdgeInsets.symmetric(
-                  vertical: isMobile ? 48 : 72,
-                  horizontal: isMobile ? 28 : 64,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(32),
-                  gradient: LinearGradient(
-                    begin: Alignment(-0.8 + 0.4 * val, -0.8),
-                    end: Alignment(0.8 - 0.4 * val, 0.8),
-                    colors: [
-                      Theme.of(context).colorScheme.surface,
-                      Theme.of(context).colorScheme.surfaceContainerHigh,
-                      Theme.of(context).colorScheme.surface,
-                    ],
-                  ),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3 + 0.1 * val),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1 + 0.05 * val),
-                      blurRadius: 60,
-                      spreadRadius: 10,
-                    ),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : isTablet ? 32 : 48, vertical: isMobile ? 32 : 60),
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                vertical: isMobile ? 48 : 72,
+                horizontal: isMobile ? 28 : 64,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                gradient: LinearGradient(
+                  begin: Alignment(-0.8 + 0.4 * val, -0.8),
+                  end: Alignment(0.8 - 0.4 * val, 0.8),
+                  colors: [
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surfaceContainerHigh,
+                    Theme.of(context).colorScheme.surface,
                   ],
                 ),
-                child: child,
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3 + 0.1 * val),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1 + 0.05 * val),
+                    blurRadius: 60,
+                    spreadRadius: 10,
+                  ),
+                ],
               ),
+              child: child,
             ),
           ),
         );
@@ -158,9 +160,9 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
               ),
               SizedBox(height: 24),
               Text(
-                "جاهز تطلق موقعك الآن؟",
+                widget.text ?? 'جاهز تطلق موقعك الآن؟',
                 style: AppTypography.h1.copyWith(
-                  fontSize: isMobile ? 32 : 52,
+                  fontSize: isMobile ? 32 : isTablet ? 44 : 58,
                   fontWeight: FontWeight.w900,
                   height: 1.1,
                 ),
@@ -176,7 +178,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 40),
-              _CtaButton(onPressed: widget.onGetStartedPressed),
+              _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
               SizedBox(height: 32),
               Wrap(
                 spacing: 24,
@@ -195,7 +197,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
     );
   }
 
-  Widget _buildFullWidthImageLayout(BuildContext context, bool isMobile) {
+  Widget _buildFullWidthImageLayout(BuildContext context, bool isMobile, bool isTablet, BoxConstraints constraints) {
     return SizedBox(
       width: double.infinity,
       child: Stack(
@@ -213,10 +215,9 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
           ),
           Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 800),
               padding: EdgeInsetsDirectional.symmetric(
                 vertical: isMobile ? 32 : 60,
-                horizontal: 24,
+                horizontal: isMobile ? 16 : isTablet ? 32 : 48,
               ),
               child: FadeTransition(
                 opacity: entranceFade,
@@ -254,9 +255,9 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                       ),
                       SizedBox(height: 28),
                       Text(
-                        "جاهز تطلق موقعك الآن؟",
+                        widget.text ?? 'جاهز تطلق موقعك الآن؟',
                         style: AppTypography.h1.copyWith(
-                          fontSize: isMobile ? 32 : 52,
+                          fontSize: isMobile ? 32 : isTablet ? 44 : 58,
                           fontWeight: FontWeight.w900,
                           height: 1.1,
                           color: Colors.white,
@@ -273,7 +274,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 40),
-                      _CtaButton(onPressed: widget.onGetStartedPressed),
+                      _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
                       SizedBox(height: 32),
                       Wrap(
                         spacing: 24,
@@ -296,7 +297,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
     );
   }
 
-  Widget _buildSplitLayout(BuildContext context, bool isMobile) {
+  Widget _buildSplitLayout(BuildContext context, bool isMobile, bool isTablet, BoxConstraints constraints) {
     return AnimatedBuilder(
       animation: _bgController,
       builder: (context, child) {
@@ -306,33 +307,30 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
              width: double.infinity,
              padding: EdgeInsets.symmetric(
                vertical: isMobile ? 32 : 60,
-               horizontal: 24,
+                horizontal: isMobile ? 16 : isTablet ? 32 : 48,
              ),
-            child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 1100),
-                padding: EdgeInsetsDirectional.symmetric(
-                  vertical: isMobile ? 48 : 72,
-                  horizontal: isMobile ? 24 : 60,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(32),
-                  gradient: LinearGradient(
-                    begin: Alignment(-0.8 + 0.4 * val, -0.8),
-                    end: Alignment(0.8 - 0.4 * val, 0.8),
-                    colors: [
-                      Theme.of(context).colorScheme.surface,
-                      Theme.of(context).colorScheme.surfaceContainerHigh,
-                      Theme.of(context).colorScheme.surface,
-                    ],
-                  ),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3 + 0.1 * val),
-                    width: 1.5,
-                  ),
-                ),
-                child: child,
+            child: Container(
+              padding: EdgeInsetsDirectional.symmetric(
+                vertical: isMobile ? 48 : 72,
+                horizontal: isMobile ? 24 : 60,
               ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                gradient: LinearGradient(
+                  begin: Alignment(-0.8 + 0.4 * val, -0.8),
+                  end: Alignment(0.8 - 0.4 * val, 0.8),
+                  colors: [
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surfaceContainerHigh,
+                    Theme.of(context).colorScheme.surface,
+                  ],
+                ),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3 + 0.1 * val),
+                  width: 1.5,
+                ),
+              ),
+              child: child,
             ),
           ),
         );
@@ -355,7 +353,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 32),
-                _CtaButton(onPressed: widget.onGetStartedPressed),
+                _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
               ],
             )
           : Row(
@@ -369,7 +367,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                     children: [
                       Text(
                         'جاهز تطلق موقعك الآن؟',
-                        style: AppTypography.h2.copyWith(fontSize: 38, fontWeight: FontWeight.w900),
+                        style: AppTypography.h2.copyWith(fontSize: isMobile ? 28 : isTablet ? 36 : 38, fontWeight: FontWeight.w900),
                       ),
                       SizedBox(height: 12),
                       Text(
@@ -380,7 +378,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                   ),
                 ),
                 SizedBox(width: 48),
-                _CtaButton(onPressed: widget.onGetStartedPressed),
+                _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
               ],
             ),
       ),
@@ -393,7 +391,8 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
 // ─────────────────────────────────────────────────────────────────────────────
 class _CtaButton extends StatefulWidget {
   final VoidCallback onPressed;
-  const _CtaButton({required this.onPressed});
+  final String label;
+  const _CtaButton({required this.onPressed, this.label = "ابدأ مجاناً الآن"});
 
   @override
   State<_CtaButton> createState() => _CtaButtonState();
@@ -431,8 +430,8 @@ class _CtaButtonState extends State<_CtaButton> {
             child: ElevatedButton.icon(
               onPressed: widget.onPressed,
               icon: Icon(Icons.flash_on_rounded, size: 20),
-              label: const Text(
-                "ابدأ مجاناً الآن",
+              label: Text(
+                widget.label,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,

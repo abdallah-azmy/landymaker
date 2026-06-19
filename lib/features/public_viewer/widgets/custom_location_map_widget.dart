@@ -18,6 +18,8 @@ class CustomLocationMapWidget extends StatelessWidget {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
 
   const CustomLocationMapWidget({
     super.key,
@@ -29,6 +31,8 @@ class CustomLocationMapWidget extends StatelessWidget {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.backgroundColorHex,
+    this.verticalPadding,
   });
 
   @override
@@ -64,6 +68,8 @@ class CustomLocationMapWidget extends StatelessWidget {
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
           bgBlur: bgBlur,
+          backgroundColorHex: backgroundColorHex,
+          verticalPadding: verticalPadding,
         );
 
         return isMobile
@@ -90,6 +96,8 @@ class _LocationMapProps {
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
   final double? bgBlur;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
 
   const _LocationMapProps({
     required this.title,
@@ -104,6 +112,8 @@ class _LocationMapProps {
     this.bgOverlayColor,
     this.bgOverlayOpacity,
     this.bgBlur,
+    this.backgroundColorHex,
+    this.verticalPadding,
   });
 }
 
@@ -123,6 +133,8 @@ class _DesktopLocationMapLayout extends StatelessWidget {
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
       bgBlur: props.bgBlur,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
       child: Center(
@@ -175,6 +187,8 @@ class _MobileLocationMapLayout extends StatelessWidget {
       bgOverlayColor: props.bgOverlayColor,
       bgOverlayOpacity: props.bgOverlayOpacity,
       bgBlur: props.bgBlur,
+      backgroundColorHex: props.backgroundColorHex,
+      verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
       padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
       child: Center(

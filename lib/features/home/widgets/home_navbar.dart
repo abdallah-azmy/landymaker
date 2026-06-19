@@ -135,64 +135,59 @@ class _DesktopNavbar extends StatelessWidget {
             height: 70,
             child: Padding(
               padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: 24,
+                horizontal: 64,
                 vertical: 12,
               ),
-              child: Center(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _LogoSection(),
+                  Row(
                     children: [
-                      _LogoSection(),
-                      Row(
-                        children: [
-                          const AnimatedThemeToggle(size: 32),
-                          const SizedBox(width: 8),
-                          const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconAndText),
-                          SizedBox(width: 20),
-                          TextButton(
-                            onPressed: onLoginPressed,
-                            child: Text(
-                              context.translate('login'),
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                      const AnimatedThemeToggle(size: 32),
+                      const SizedBox(width: 8),
+                      const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconAndText),
+                      SizedBox(width: 20),
+                      TextButton(
+                        onPressed: onLoginPressed,
+                        child: Text(
+                          context.translate('login'),
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
                           ),
-                          SizedBox(width: 16),
-                          ElevatedButton(
-                            onPressed: onGetStartedPressed,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              elevation: 0,
-                            ).copyWith(
-                              shadowColor: WidgetStateProperty.all(
-                                Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-                              ),
-                            ),
-                            child: Text(
-                              context.translate('start_free'),
-                              style: AppTypography.bodyMedium.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      ElevatedButton(
+                        onPressed: onGetStartedPressed,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
                           ),
-                        ],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          elevation: 0,
+                        ).copyWith(
+                          shadowColor: WidgetStateProperty.all(
+                            Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        child: Text(
+                          context.translate('start_free'),
+                          style: AppTypography.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
             ),
           ),

@@ -207,7 +207,7 @@ class _Cube {
       }
     }
 
-    vy -= scrollDrift * 2.0;
+    vy -= scrollDrift * 5.0;
 
     final speed = sqrt(vx * vx + vy * vy);
     if (speed > 0.35) {

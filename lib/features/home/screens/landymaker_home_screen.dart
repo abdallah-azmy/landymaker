@@ -163,13 +163,13 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
     }
   }
 
-  void _onTapDown(TapDownDetails details) {
+  void _onPointerDown(PointerDownEvent event) {
     final size = context.size;
     if (size != null && size.width > 0 && size.height > 0) {
       _cubeController.burstAt(
         Offset(
-          details.localPosition.dx / size.width,
-          details.localPosition.dy / size.height,
+          event.localPosition.dx / size.width,
+          event.localPosition.dy / size.height,
         ),
       );
     }
@@ -198,9 +198,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
       body: MouseRegion(
         onHover: _onPointerHover,
         onExit: (_) => _cubeController.repelAt(null),
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTapDown: _onTapDown,
+        child: Listener(
+          onPointerDown: _onPointerDown,
           child: Stack(
             children: [
               Positioned.fill(

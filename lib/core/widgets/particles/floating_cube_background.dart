@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class FloatingCubeBackgroundController {
@@ -31,8 +32,7 @@ class FloatingCubeBackground extends StatefulWidget {
   });
 
   @override
-  State<FloatingCubeBackground> createState() =>
-      _FloatingCubeBackgroundState();
+  State<FloatingCubeBackground> createState() => _FloatingCubeBackgroundState();
 }
 
 class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
@@ -115,10 +115,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         builder: (context, _) {
           return CustomPaint(
             size: Size.infinite,
-            painter: _CubePainter(
-              cubes: _cubes,
-              baseColor: widget.baseColor,
-            ),
+            painter: _CubePainter(cubes: _cubes, baseColor: widget.baseColor),
           );
         },
       ),
@@ -136,18 +133,18 @@ class _Cube {
   double _timeSinceLastChange = 0.0;
 
   _Cube()
-      : x = Random().nextDouble(),
-        y = Random().nextDouble(),
-        size = 6.0 + Random().nextDouble() * 18.0,
-        vx = (Random().nextDouble() - 0.5) * 0.05,
-        vy = (Random().nextDouble() - 0.5) * 0.05,
-        rx = Random().nextDouble() * pi * 2,
-        ry = Random().nextDouble() * pi * 2,
-        rz = Random().nextDouble() * pi * 2,
-        vrx = (Random().nextDouble() - 0.5) * 1.5,
-        vry = (Random().nextDouble() - 0.5) * 2.5,
-        vrz = (Random().nextDouble() - 0.5) * 0.8,
-        opacity = 0.15 + Random().nextDouble() * 0.35;
+    : x = Random().nextDouble(),
+      y = Random().nextDouble(),
+      size = 6.0 + Random().nextDouble() * 18.0,
+      vx = (Random().nextDouble() - 0.5) * 0.05,
+      vy = (Random().nextDouble() - 0.5) * 0.05,
+      rx = Random().nextDouble() * pi * 2,
+      ry = Random().nextDouble() * pi * 2,
+      rz = Random().nextDouble() * pi * 2,
+      vrx = (Random().nextDouble() - 0.5) * 1.5,
+      vry = (Random().nextDouble() - 0.5) * 2.5,
+      vrz = (Random().nextDouble() - 0.5) * 0.8,
+      opacity = 0.15 + Random().nextDouble() * 0.35;
 
   void update(double dt, double speedMultiplier, Offset? repelPoint) {
     _timeSinceLastChange += dt;
@@ -169,9 +166,9 @@ class _Cube {
     }
 
     final speed = sqrt(vx * vx + vy * vy);
-    if (speed > 0.15) {
-      vx = (vx / speed) * 0.15;
-      vy = (vy / speed) * 0.15;
+    if (speed > 0.35) {
+      vx = (vx / speed) * 0.35;
+      vy = (vy / speed) * 0.35;
     }
 
     x += vx * dt * 60 * speedMultiplier;
@@ -203,8 +200,8 @@ class _Cube {
     final dx = x - point.dx;
     final dy = y - point.dy;
     final dist = sqrt(dx * dx + dy * dy);
-    if (dist < 0.4 && dist > 0.001) {
-      final force = (0.4 - dist) / 0.4 * 0.15;
+    if (dist < 0.65 && dist > 0.001) {
+      final force = (0.65 - dist) / 0.65 * 0.6;
       vx += (dx / dist) * force;
       vy += (dy / dist) * force;
     }
@@ -230,6 +227,28 @@ class _FaceDrawData {
     required this.x3,
     required this.y3,
   });
+}
+
+class _CubeDrawData {
+  final double size;
+  final double left, right, top, bottom;
+  final List<_FaceDrawData> faces;
+
+  _CubeDrawData({
+    required this.size,
+    required this.left,
+    required this.right,
+    required this.top,
+    required this.bottom,
+    required this.faces,
+  });
+
+  bool overlapsWith(_CubeDrawData other) {
+    return !(right < other.left ||
+        left > other.right ||
+        bottom < other.top ||
+        top > other.bottom);
+  }
 }
 
 class _CubePainter extends CustomPainter {
@@ -278,9 +297,6 @@ class _CubePainter extends CustomPainter {
       ..strokeWidth = 0.8;
     final fillPaint = Paint()..style = PaintingStyle.fill;
 
-    final sorted = List<_Cube>.from(cubes)
-      ..sort((a, b) => a.size.compareTo(b.size));
-
     final tv = <List<double>>[
       [0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0],
@@ -292,7 +308,10 @@ class _CubePainter extends CustomPainter {
       [0.0, 0.0, 0.0],
     ];
 
-    for (final cube in sorted) {
+    // First pass: compute face + bounding box data for each cube
+    final allData = <_CubeDrawData>[];
+
+    for (final cube in cubes) {
       final h = cube.size * 0.5;
       final px = cube.x * size.width;
       final py = cube.y * size.height;
@@ -328,6 +347,17 @@ class _CubePainter extends CustomPainter {
       }
 
       final faceBuffer = <_FaceDrawData>[];
+      double minX = double.infinity, maxX = double.negativeInfinity;
+      double minY = double.infinity, maxY = double.negativeInfinity;
+
+      for (int i = 0; i < 8; i++) {
+        final sx = px + tv[i][0];
+        final sy = py - tv[i][1];
+        if (sx < minX) minX = sx;
+        if (sx > maxX) maxX = sx;
+        if (sy < minY) minY = sy;
+        if (sy > maxY) maxY = sy;
+      }
 
       for (int f = 0; f < 6; f++) {
         double nx = _normals[f][0];
@@ -377,18 +407,60 @@ class _CubePainter extends CustomPainter {
         );
       }
 
-      if (faceBuffer.length < 2) {
-        for (final fd in faceBuffer) {
+      if (faceBuffer.length > 1) {
+        faceBuffer.sort((a, b) => a.z.compareTo(b.z));
+      }
+
+      allData.add(
+        _CubeDrawData(
+          size: cube.size,
+          left: minX,
+          right: maxX,
+          top: minY,
+          bottom: maxY,
+          faces: faceBuffer,
+        ),
+      );
+    }
+
+    // Sort by size descending (largest first → drawn first → occludes smaller ones)
+    allData.sort((a, b) => b.size.compareTo(a.size));
+
+    // Second pass: draw cubes with partial occlusion
+    final occupiedRects = <Rect>[];
+
+    for (final cubeData in allData) {
+      final cubeRect = Rect.fromLTRB(
+        cubeData.left,
+        cubeData.top,
+        cubeData.right,
+        cubeData.bottom,
+      );
+
+      // Find larger (already drawn) cubes that overlap this one
+      final overlappingRects = <Rect>[];
+      for (final occ in occupiedRects) {
+        if (cubeRect.overlaps(occ)) {
+          overlappingRects.add(occ);
+        }
+      }
+
+      if (overlappingRects.isEmpty) {
+        for (final fd in cubeData.faces) {
           _drawFace(canvas, fd, fillPaint, strokePaint);
         }
-        continue;
+      } else {
+        canvas.save();
+        for (final r in overlappingRects) {
+          canvas.clipRect(r, clipOp: ClipOp.difference);
+        }
+        for (final fd in cubeData.faces) {
+          _drawFace(canvas, fd, fillPaint, strokePaint);
+        }
+        canvas.restore();
       }
 
-      faceBuffer.sort((a, b) => a.z.compareTo(b.z));
-
-      for (final fd in faceBuffer) {
-        _drawFace(canvas, fd, fillPaint, strokePaint);
-      }
+      occupiedRects.add(cubeRect);
     }
   }
 

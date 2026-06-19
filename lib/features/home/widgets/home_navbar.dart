@@ -18,11 +18,13 @@ import '../../../core/widgets/atoms/language_switcher_button.dart';
 class HomeNavbar extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback onLoginPressed;
   final VoidCallback onGetStartedPressed;
+  final Map<String, dynamic>? config;
 
   const HomeNavbar({
     super.key,
     required this.onLoginPressed,
     required this.onGetStartedPressed,
+    this.config,
   });
 
   @override
@@ -86,6 +88,10 @@ class _HomeNavbarState extends State<HomeNavbar>
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
 
+        final ctaText = context.isRtl
+            ? (widget.config?['cta_text_ar'] as String?)
+            : (widget.config?['cta_text_en'] as String?);
+
         if (isMobile) {
           return _MobileNavbar(
             onLoginPressed: widget.onLoginPressed,
@@ -96,12 +102,16 @@ class _HomeNavbarState extends State<HomeNavbar>
             menuController: _menuController,
             menuHeight: _menuHeight,
             menuOpacity: _menuOpacity,
+            ctaText: ctaText,
+            showLogin: widget.config?['show_login'] as bool? ?? true,
           );
         }
 
         return _DesktopNavbar(
           onLoginPressed: widget.onLoginPressed,
           onGetStartedPressed: widget.onGetStartedPressed,
+          ctaText: ctaText,
+          showLogin: widget.config?['show_login'] as bool? ?? true,
         );
       },
     );
@@ -112,10 +122,14 @@ class _HomeNavbarState extends State<HomeNavbar>
 class _DesktopNavbar extends StatelessWidget {
   final VoidCallback onLoginPressed;
   final VoidCallback onGetStartedPressed;
+  final String? ctaText;
+  final bool showLogin;
 
   const _DesktopNavbar({
     required this.onLoginPressed,
     required this.onGetStartedPressed,
+    this.ctaText,
+    this.showLogin = true,
   });
 
   @override
@@ -148,17 +162,18 @@ class _DesktopNavbar extends StatelessWidget {
                       const SizedBox(width: 8),
                       const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconAndText),
                       SizedBox(width: 20),
-                      TextButton(
-                        onPressed: onLoginPressed,
-                        child: Text(
-                          context.translate('login'),
-                          style: AppTypography.bodyMedium.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
+                      if (showLogin)
+                        TextButton(
+                          onPressed: onLoginPressed,
+                          child: Text(
+                            context.translate('login'),
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: 16),
+                      if (showLogin) SizedBox(width: 16),
                       ElevatedButton(
                         onPressed: onGetStartedPressed,
                         style: ElevatedButton.styleFrom(
@@ -178,7 +193,7 @@ class _DesktopNavbar extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          context.translate('start_free'),
+                          ctaText ?? context.translate('start_free'),
                           style: AppTypography.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -207,6 +222,8 @@ class _MobileNavbar extends StatelessWidget {
   final AnimationController menuController;
   final Animation<double> menuHeight;
   final Animation<double> menuOpacity;
+  final String? ctaText;
+  final bool showLogin;
 
   const _MobileNavbar({
     required this.onLoginPressed,
@@ -217,6 +234,8 @@ class _MobileNavbar extends StatelessWidget {
     required this.menuController,
     required this.menuHeight,
     required this.menuOpacity,
+    this.ctaText,
+    this.showLogin = true,
   });
 
   @override
@@ -321,27 +340,28 @@ class _MobileNavbar extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          closeMenu();
-                          onLoginPressed();
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                              color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
-                        ),
-                        child: Text(
-                          context.translate('login'),
-                          style: AppTypography.bodyMedium.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
+                      if (showLogin)
+                        OutlinedButton(
+                          onPressed: () {
+                            closeMenu();
+                            onLoginPressed();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                                color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
+                          ),
+                          child: Text(
+                            context.translate('login'),
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 12),
+                      if (showLogin) SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () {
                           closeMenu();
@@ -356,7 +376,7 @@ class _MobileNavbar extends StatelessWidget {
                           elevation: 0,
                         ),
                         child: Text(
-                          context.translate('start_free'),
+                          ctaText ?? context.translate('start_free'),
                           style: AppTypography.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,

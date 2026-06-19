@@ -69,6 +69,12 @@ class SidebarNavigation extends StatelessWidget {
         'tab': 'broadcast',
       });
       finalItems.add({
+        'title_key': 'صفحات الهبوط',
+        'icon': Icons.web_asset_rounded,
+        'route': '/dashboard/super-admin',
+        'tab': 'landing-pages',
+      });
+      finalItems.add({
         'title_key': 'إعدادات SEO',
         'icon': Icons.travel_explore_rounded,
         'route': '/dashboard/platform-seo',

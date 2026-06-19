@@ -5,6 +5,7 @@ import '../../../services/database_service.dart';
 import '../../../services/tenant_routing_service.dart';
 import '../../../core/widgets/visibility_observer.dart';
 import '../../../core/widgets/particles/floating_cube_background.dart';
+import '../../../core/localization/localization_cubit.dart';
 import '../models/home_layouts.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_hero_section.dart';
@@ -13,6 +14,7 @@ import '../widgets/home_luxurious_template_slider.dart';
 import '../widgets/home_desktop_preview_carousel.dart';
 import '../widgets/home_cta_section.dart';
 import '../widgets/home_footer.dart';
+import '../widgets/home_section_renderer.dart';
 
 class LandyMakerHomeScreen extends StatefulWidget {
   const LandyMakerHomeScreen({super.key});
@@ -85,6 +87,31 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
     return (section['config'] as Map<String, dynamic>?) ?? {};
   }
 
+  String? _localeValue(Map<String, dynamic> config, String baseKey) {
+    final isArabic = context.isRtl;
+    if (isArabic) {
+      return (config['${baseKey}_ar'] ?? config[baseKey]) as String?;
+    }
+    return (config['${baseKey}_en'] ?? config[baseKey]) as String?;
+  }
+
+  List<String>? _localeList(Map<String, dynamic> config, String baseKey) {
+    final isArabic = context.isRtl;
+    final val = isArabic ? config['${baseKey}_ar'] : config['${baseKey}_en'];
+    if (val is List) return List<String>.from(val);
+    return null;
+  }
+
+  Map<String, dynamic>? _localeLinks(Map<String, dynamic> config, String baseKey) {
+    final isArabic = context.isRtl;
+    final links = isArabic ? config['${baseKey}_ar'] : config['${baseKey}_en'];
+    if (links is List) {
+      final list = List<Map<String, dynamic>>.from(links.map((e) => Map<String, dynamic>.from(e)));
+      return {'links': list};
+    }
+    return null;
+  }
+
   HeroLayout _parseHeroLayout(String? name) {
     if (name == null) return HeroLayout.split;
     return HeroLayout.values.firstWhere(
@@ -126,11 +153,20 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final heroConfig = _sectionConfig('hero');
+    final featuresConfig = _sectionConfig('features');
+    final templatesConfig = _sectionConfig('templates');
+    final desktopConfig = _sectionConfig('desktop_preview');
+    final ctaConfig = _sectionConfig('cta');
+    final footerConfig = _sectionConfig('footer');
+    final navbarConfig = _sectionConfig('navbar');
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: HomeNavbar(
         onLoginPressed: () => context.go('/login'),
         onGetStartedPressed: () => context.go('/templates'),
+        config: navbarConfig,
       ),
       body: Stack(
         children: [
@@ -147,13 +183,11 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
               children: [
                 if (_isSectionVisible('hero'))
                   HomeHeroSection(
-                    layout: _parseHeroLayout(_sectionConfig('hero')['layout'] as String?),
-                    title: _sectionConfig('hero')['title'] as String?,
-                    subtitle: _sectionConfig('hero')['subtitle'] as String?,
-                    ctaText: _sectionConfig('hero')['cta_text'] as String?,
-                    typewriterTexts: _sectionConfig('hero')['typewriter_texts'] != null
-                        ? List<String>.from(_sectionConfig('hero')['typewriter_texts'] as List)
-                        : null,
+                    layout: _parseHeroLayout(heroConfig['layout'] as String?),
+                    title: _localeValue(heroConfig, 'title'),
+                    subtitle: _localeValue(heroConfig, 'subtitle'),
+                    ctaText: _localeValue(heroConfig, 'cta_text'),
+                    typewriterTexts: _localeList(heroConfig, 'typewriter_texts'),
                     onGetStartedPressed: () => context.go('/templates'),
                     parentScrollController: _scrollController,
                   ),
@@ -164,8 +198,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
                     },
                     child: HomeFeatureBento(
                       isVisible: _bentoVisible,
-                      layout: _parseFeatureLayout(_sectionConfig('features')['layout'] as String?),
-                      title: _sectionConfig('features')['title'] as String?,
+                      layout: _parseFeatureLayout(featuresConfig['layout'] as String?),
+                      title: _localeValue(featuresConfig, 'title'),
                     ),
                   ),
                 if (_isSectionVisible('templates'))
@@ -175,10 +209,13 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
                     },
                     child: HomeLuxuriousTemplateSlider(
                       isVisible: _templatesVisible,
-                      layout: _parseTemplateSliderLayout(_sectionConfig('templates')['layout'] as String?),
-                      title: _sectionConfig('templates')['title'] as String?,
-                      subtitle: _sectionConfig('templates')['subtitle'] as String?,
-                      maxToShow: _sectionConfig('templates')['max_to_show'] as int?,
+                      layout: _parseTemplateSliderLayout(templatesConfig['layout'] as String?),
+                      title: _localeValue(templatesConfig, 'title'),
+                      subtitle: _localeValue(templatesConfig, 'subtitle'),
+                      maxToShow: templatesConfig['max_to_show'] as int?,
+                      templateIds: templatesConfig['template_ids'] != null
+                          ? List<String>.from(templatesConfig['template_ids'] as List)
+                          : null,
                       onGetStartedPressed: (templateId) {
                         TenantRoutingService.pendingTemplateId = templateId;
                         context.go('/register');
@@ -192,9 +229,9 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
                     },
                     child: HomeDesktopPreviewCarousel(
                       isVisible: _desktopPreviewVisible,
-                      title: _sectionConfig('desktop_preview')['title'] as String?,
-                      subtitle: _sectionConfig('desktop_preview')['subtitle'] as String?,
-                      description: _sectionConfig('desktop_preview')['description'] as String?,
+                      title: _localeValue(desktopConfig, 'title'),
+                      subtitle: _localeValue(desktopConfig, 'subtitle'),
+                      description: _localeValue(desktopConfig, 'description'),
                       onGetStartedPressed: (templateId) {
                         TenantRoutingService.pendingTemplateId = templateId;
                         context.go('/register');
@@ -209,14 +246,19 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
                     child: HomeCtaSection(
                       isVisible: _ctaVisible,
                       onGetStartedPressed: () => context.go('/templates'),
-                      layout: _parseCtaLayout(_sectionConfig('cta')['layout'] as String?),
-                      text: _sectionConfig('cta')['title'] as String?,
-                      buttonText: _sectionConfig('cta')['button_text'] as String?,
+                      layout: _parseCtaLayout(ctaConfig['layout'] as String?),
+                      text: _localeValue(ctaConfig, 'title'),
+                      buttonText: _localeValue(ctaConfig, 'button_text'),
                     ),
                   ),
                 if (_isSectionVisible('footer'))
                   HomeFooter(
-                    copyrightText: _sectionConfig('footer')['copyright_text'] as String?,
+                    copyrightText: _localeValue(footerConfig, 'copyright_text'),
+                  ),
+                if (_isSectionVisible('section_renderer'))
+                  HomeSectionRenderer(
+                    landingPageId: _sectionConfig('section_renderer')['landing_page_id'] as String? ?? '',
+                    displayTitle: _localeValue(_sectionConfig('section_renderer'), 'display'),
                   ),
               ],
             ),

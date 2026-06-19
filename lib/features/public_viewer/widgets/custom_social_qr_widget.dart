@@ -8,7 +8,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/toast_service.dart';
 import '../../../services/tenant_routing_service.dart';
@@ -68,12 +67,12 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
         if (await Permission.photos.request().isGranted) {
           final result = await ImageGallerySaverPlus.saveImage(bytes, name: fileName);
           if (result['isSuccess']) {
-            ToastService.showSuccess(context, message: "تم حفظ الصورة في المعرض");
+            if (mounted) ToastService.showSuccess(context, message: "تم حفظ الصورة في المعرض");
           }
         }
       }
     } catch (e) {
-      ToastService.showError(context, message: "فشل تحميل الصورة");
+      if (mounted) ToastService.showError(context, message: "فشل تحميل الصورة");
     }
   }
 
@@ -90,12 +89,12 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
-        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
+        final double paddingValue = widget.verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _SocialQrProps(
-          title: title,
-          subtitle: subtitle,
-          links: links,
+          title: widget.title,
+          subtitle: widget.subtitle,
+          links: widget.links,
           liveUrl: liveUrl,
           qrKey: _qrKey,
           secondaryColor: secondaryColor,
@@ -103,13 +102,13 @@ class _CustomSocialQrWidgetState extends State<CustomSocialQrWidget> {
           subTextColor: subTextColor,
           isMobile: isMobile,
           onDownload: _downloadQrCode,
-          theme: theme,
-          bgImageUrl: bgImageUrl,
-          bgOverlayColor: bgOverlayColor,
-          bgOverlayOpacity: bgOverlayOpacity,
-          backgroundColorHex: backgroundColorHex,
-          verticalPadding: verticalPadding,
-          bgBlur: bgBlur,
+          theme: widget.theme,
+          bgImageUrl: widget.bgImageUrl,
+          bgOverlayColor: widget.bgOverlayColor,
+          bgOverlayOpacity: widget.bgOverlayOpacity,
+          backgroundColorHex: widget.backgroundColorHex,
+          verticalPadding: widget.verticalPadding,
+          bgBlur: widget.bgBlur,
         );
 
         return isMobile
@@ -189,9 +188,9 @@ class _DesktopSocialQrLayout extends StatelessWidget {
           child: Column(
             children: [
               Text(props.title, style: AppTypography.h2.copyWith(fontSize: 32, color: props.textColor), textAlign: TextAlign.center),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14), textAlign: TextAlign.center),
-              SizedBox(height: 64),
+              const SizedBox(height: 64),
               Wrap(
                 spacing: 40,
                 runSpacing: 40,
@@ -236,9 +235,9 @@ class _MobileSocialQrLayout extends StatelessWidget {
           child: Column(
             children: [
               Text(props.title, style: AppTypography.h2.copyWith(fontSize: 24, color: props.textColor), textAlign: TextAlign.center),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 12), textAlign: TextAlign.center),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
               Wrap(
                 spacing: 24,
                 runSpacing: 24,
@@ -301,7 +300,7 @@ class _SocialQrCodeCard extends StatelessWidget {
               subTextColor: props.subTextColor,
               isMobile: props.isMobile,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _SocialQrActionButton(
               icon: Icons.copy_rounded,
               label: "نسخ الرابط",
@@ -333,9 +332,9 @@ class _SocialLinksList extends StatelessWidget {
         crossAxisAlignment: props.isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         children: [
           Text("روابط سريعة", style: AppTypography.h3.copyWith(color: props.secondaryColor, fontSize: props.isMobile ? 18 : 22)),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ...props.links.map((link) => _SocialLinkItem(link: link, textColor: props.textColor, subTextColor: props.subTextColor, isMobile: props.isMobile)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -346,7 +345,7 @@ class _SocialLinksList extends StatelessWidget {
             child: Row(
               children: [
                 Icon(Icons.link_rounded, color: props.secondaryColor, size: 18),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     props.liveUrl.replaceFirst('https://', ''),
@@ -423,7 +422,7 @@ class _SocialLinkItem extends StatelessWidget {
           child: Row(
             children: [
               Icon(iconData, color: color, size: isMobile ? 18 : 22),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   platform.toUpperCase(),

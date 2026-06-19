@@ -44,7 +44,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 10, vsync: this);
+    _tabController = TabController(length: 11, vsync: this);
     _broadcastTitleController = TextEditingController();
     _broadcastMessageController = TextEditingController();
     _broadcastRedirectController = TextEditingController();
@@ -90,6 +90,8 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         return 8;
       case 'homepage':
         return 9;
+      case 'landing-pages':
+        return 10;
       default:
         return 0;
     }
@@ -139,6 +141,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           Tab(text: "Templates", icon: Icon(Icons.dashboard_customize_rounded)),
           Tab(text: "Broadcast", icon: Icon(Icons.campaign_rounded)),
           Tab(text: "Homepage", icon: Icon(Icons.web_rounded)),
+          Tab(text: "Landing Pages", icon: Icon(Icons.web_asset_rounded)),
         ],
       ),
       body: state is SuperAdminLoaded
@@ -155,6 +158,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 _buildTemplatesTab(state),
                 _buildBroadcastTab(state),
                 _buildHomepageTab(),
+                _buildLandingPagesTab(state),
               ],
             )
           : const Center(child: CircularProgressIndicator()),
@@ -1745,6 +1749,55 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     return BlocProvider(
       create: (_) => HomepageEditorCubit(di.sl<DatabaseService>()),
       child: const HomepageEditorScreen(),
+    );
+  }
+
+  Widget _buildLandingPagesTab(SuperAdminLoaded state) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: di.sl<DatabaseService>().fetchAllLandingPages(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.web_asset_off_rounded, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                const SizedBox(height: 16),
+                Text('لا توجد صفحات هبوط', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ],
+            ),
+          );
+        }
+
+        final pages = snapshot.data!;
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: pages.length,
+          itemBuilder: (context, index) {
+            final page = pages[index];
+            final id = page['id']?.toString() ?? '';
+            final name = page['name'] as String? ?? 'بدون اسم';
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  child: Icon(Icons.web_rounded, color: Theme.of(context).colorScheme.primary),
+                ),
+                title: Text(name),
+                subtitle: Text(id.length > 12 ? '${id.substring(0, 12)}...' : id, style: Theme.of(context).textTheme.bodySmall),
+                trailing: IconButton(
+                  icon: const Icon(Icons.open_in_new_rounded),
+                  onPressed: () => context.go('/builder/$id'),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

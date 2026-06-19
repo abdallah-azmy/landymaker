@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
@@ -62,8 +61,8 @@ class CustomWorkingHoursWidget extends StatelessWidget {
         );
 
         return isMobile
-            ? _MobileWorkingHoursLayout(props: props)
-            : _DesktopWorkingHoursLayout(props: props);
+            ? _MobileWorkingHoursLayout(props: props, paddingValue: paddingValue)
+            : _DesktopWorkingHoursLayout(props: props, paddingValue: paddingValue);
       },
     );
   }
@@ -108,10 +107,10 @@ class _WorkingHoursProps {
 /// 3. DESKTOP LAYOUT
 /// ==========================================
 
-/// Desktop version of the Working Hours layout.
 class _DesktopWorkingHoursLayout extends StatelessWidget {
   final _WorkingHoursProps props;
-  const _DesktopWorkingHoursLayout({required this.props});
+  final double paddingValue;
+  const _DesktopWorkingHoursLayout({required this.props, required this.paddingValue});
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +122,7 @@ class _DesktopWorkingHoursLayout extends StatelessWidget {
       verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
       theme: props.theme,
-      padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
+      padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 800),
@@ -140,11 +139,11 @@ class _DesktopWorkingHoursLayout extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 24))),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _WorkingHoursStatusBadge(isOpen: props.isOpen),
                 ],
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               ...props.schedule.entries.map((entry) {
                 final valStr = entry.value.toString();
                 final bool isNumeric = RegExp(r'[0-9]').hasMatch(valStr);
@@ -154,7 +153,7 @@ class _DesktopWorkingHoursLayout extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 17))),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           valStr,
@@ -179,10 +178,10 @@ class _DesktopWorkingHoursLayout extends StatelessWidget {
 /// 4. MOBILE LAYOUT
 /// ==========================================
 
-/// Mobile version of the Working Hours layout.
 class _MobileWorkingHoursLayout extends StatelessWidget {
   final _WorkingHoursProps props;
-  const _MobileWorkingHoursLayout({required this.props});
+  final double paddingValue;
+  const _MobileWorkingHoursLayout({required this.props, required this.paddingValue});
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +193,7 @@ class _MobileWorkingHoursLayout extends StatelessWidget {
       verticalPaddingOverride: props.verticalPadding,
       bgBlur: props.bgBlur,
       theme: props.theme,
-      padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
+      padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 800),
@@ -211,11 +210,11 @@ class _MobileWorkingHoursLayout extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20))),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _WorkingHoursStatusBadge(isOpen: props.isOpen),
                 ],
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               ...props.schedule.entries.map((entry) {
                 final valStr = entry.value.toString();
                 final bool isNumeric = RegExp(r'[0-9]').hasMatch(valStr);
@@ -225,7 +224,7 @@ class _MobileWorkingHoursLayout extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(child: Text(entry.key, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: 15))),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           valStr,
@@ -246,11 +245,6 @@ class _MobileWorkingHoursLayout extends StatelessWidget {
   }
 }
 
-/// ==========================================
-/// 5. SHARED SUB-WIDGETS
-/// ==========================================
-
-/// Shared Open/Closed status badge.
 class _WorkingHoursStatusBadge extends StatelessWidget {
   final bool isOpen;
   const _WorkingHoursStatusBadge({required this.isOpen});
@@ -268,7 +262,7 @@ class _WorkingHoursStatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(width: 8, height: 8, decoration: BoxDecoration(color: isOpen ? Colors.green : Theme.of(context).colorScheme.error, shape: BoxShape.circle)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(isOpen ? "مفتوح الآن" : "مغلق الآن", style: AppTypography.caption.copyWith(color: isOpen ? Colors.green : Theme.of(context).colorScheme.error, fontWeight: FontWeight.bold)),
         ],
       ),

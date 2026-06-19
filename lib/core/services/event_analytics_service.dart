@@ -72,4 +72,9 @@ class EventAnalyticsService {
       },
     );
   }
+
+  /// Records a generic page event
+  static Future<void> recordPageEvent(String pageId, String eventType, {Map<String, dynamic> metadata = const {}}) async {
+    await _db.recordPageEvent(landingPageId: pageId, eventType: eventType, metadata: metadata);
+  }
 }

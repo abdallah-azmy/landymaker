@@ -5,6 +5,10 @@ class DatabaseService {
 
   DatabaseService(this._supabase);
 
+  Future<List<Map<String, dynamic>>> fetchAllLandingPages() {
+    return _supabase.getAllLandingPages();
+  }
+
   Future<Map<String, dynamic>?> getLandingPageByUserId(String userId) {
     return _supabase.getLandingPageByUserId(userId);
   }

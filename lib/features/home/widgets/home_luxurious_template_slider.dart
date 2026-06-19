@@ -18,6 +18,7 @@ class HomeLuxuriousTemplateSlider extends StatefulWidget {
   final String? title;
   final String? subtitle;
   final int? maxToShow;
+  final List<String>? templateIds;
 
   const HomeLuxuriousTemplateSlider({
     super.key,
@@ -27,6 +28,7 @@ class HomeLuxuriousTemplateSlider extends StatefulWidget {
     this.title,
     this.subtitle,
     this.maxToShow,
+    this.templateIds,
   });
 
   @override
@@ -48,7 +50,7 @@ class _HomeLuxuriousTemplateSliderState
       final db = sl<DatabaseService>();
       final featured = await db.fetchFeaturedTemplates();
       if (featured.isNotEmpty) {
-        final mapped = featured.map((t) => TemplateMetadata(
+        var mapped = featured.map((t) => TemplateMetadata(
           id: t['id'] ?? '',
           name: t['name'] ?? '',
           description: t['description'] ?? '',
@@ -59,6 +61,13 @@ class _HomeLuxuriousTemplateSliderState
               .toList() ?? [],
           aiPromptHint: t['ai_prompt_hint'] ?? '',
         )).toList();
+        if (widget.templateIds != null && widget.templateIds!.isNotEmpty) {
+          final ids = widget.templateIds!.toSet();
+          mapped = mapped.where((t) => ids.contains(t.id)).toList();
+        }
+        if (widget.maxToShow != null && mapped.length > widget.maxToShow!) {
+          mapped = mapped.sublist(0, widget.maxToShow);
+        }
         if (mounted) setState(() { _templates = mapped; _isLoadingTemplates = false; });
         return;
       }
@@ -68,6 +77,10 @@ class _HomeLuxuriousTemplateSliderState
         _templates = TemplateRegistry.availableTemplates
             .where((t) => t.id != 'empty')
             .toList();
+        if (widget.templateIds != null && widget.templateIds!.isNotEmpty) {
+          final ids = widget.templateIds!.toSet();
+          _templates = _templates.where((t) => ids.contains(t.id)).toList();
+        }
         if (widget.maxToShow != null && _templates.length > widget.maxToShow!) {
           _templates = _templates.sublist(0, widget.maxToShow);
         }

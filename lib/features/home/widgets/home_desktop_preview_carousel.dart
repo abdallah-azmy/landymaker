@@ -361,7 +361,6 @@ class _HomeDesktopPreviewCarouselState
         final loc = context.read<LocalizationCubit>();
         final isMobile = HomeBreakpoint.isMobile(constraints.maxWidth);
         final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
-        final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
 
         if (_isLoading) {
           return const SizedBox(

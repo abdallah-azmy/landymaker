@@ -321,8 +321,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             _buildInfoRow(
               'الحالة',
               isBlocked ? 'محظور' : endDate != null ? 'نشط' : 'مجاني',
-              isBlocked ? theme.colorScheme.error : Colors.green,
               theme,
+              color: isBlocked ? theme.colorScheme.error : Colors.green,
             ),
             if (endDate != null) ...[
               const SizedBox(height: 6),
@@ -451,16 +451,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, ThemeData theme) {
-    return _buildInfoRow(label, value, theme.colorScheme.onSurface, theme);
-  }
-
-  Widget _buildInfoRow(String label, String value, Color valueColor, ThemeData theme) {
+  Widget _buildInfoRow(String label, String value, ThemeData theme, {Color? color}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: AppTypography.bodySmall),
-        Text(value, style: TextStyle(fontWeight: FontWeight.bold, color: valueColor)),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: color ?? theme.colorScheme.onSurface,
+          ),
+        ),
       ],
     );
   }

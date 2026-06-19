@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/services/pixel_event_service.dart';
 import '../../../core/services/turnstile_service.dart';
 import '../../../core/utils/fingerprint_utils.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/section_background.dart';
@@ -91,8 +90,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
       return blockFields;
     }
     return [
-      {'field_id': 'name', 'field_type': 'text', 'label': '', 'placeholder': context.translate('full_name'), 'is_required': true},
-      {'field_id': 'email', 'field_type': 'email', 'label': '', 'placeholder': context.translate('email'), 'is_required': true}
+      {'field_id': 'email', 'field_type': 'email', 'label': context.translate('email'), 'placeholder': context.translate('email_hint'), 'is_required': true}
     ];
   }
 
@@ -206,7 +204,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
-        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
+        final double paddingValue = widget.verticalPadding ?? (isMobile ? 40 : 80);
         
         final props = _LeadMagnetProps(
           title: widget.title,
@@ -249,10 +247,7 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
                 border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                 boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 24, offset: const Offset(0, 8))],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: isMobile ? _MobileLeadMagnetLayout(props: props) : _DesktopLeadMagnetLayout(props: props),
-              ),
+              child: isMobile ? _MobileLeadMagnetLayout(props: props) : _DesktopLeadMagnetLayout(props: props),
             ),
           ),
         );
@@ -261,7 +256,6 @@ class _CustomLeadMagnetWidgetState extends State<CustomLeadMagnetWidget> {
   }
 }
 
-/// Data class for Lead Magnet properties.
 class _LeadMagnetProps {
   final String title;
   final String subtitle;
@@ -308,29 +302,24 @@ class _LeadMagnetProps {
   });
 }
 
-/// Desktop version of the Lead Magnet layout.
 class _DesktopLeadMagnetLayout extends StatelessWidget {
   final _LeadMagnetProps props;
   const _DesktopLeadMagnetLayout({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(flex: 1, child: _LeadMagnetImage(props: props, height: 500)),
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.all(48),
-            child: _LeadMagnetForm(props: props),
-          ),
-        ),
-      ],
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: _LeadMagnetContent(props: props)),
+          Expanded(child: _LeadMagnetImage(props: props)),
+        ],
+      ),
     );
   }
 }
 
-/// Mobile version of the Lead Magnet layout.
 class _MobileLeadMagnetLayout extends StatelessWidget {
   final _LeadMagnetProps props;
   const _MobileLeadMagnetLayout({required this.props});
@@ -339,76 +328,72 @@ class _MobileLeadMagnetLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _LeadMagnetImage(props: props, height: 250),
-        Padding(
-          padding: const EdgeInsets.all(24),
-          child: _LeadMagnetForm(props: props),
-        ),
+        _LeadMagnetImage(props: props),
+        _LeadMagnetContent(props: props),
       ],
     );
   }
 }
 
-/// Shared Lead Magnet Image.
 class _LeadMagnetImage extends StatelessWidget {
   final _LeadMagnetProps props;
-  final double height;
-
-  const _LeadMagnetImage({required this.props, required this.height});
+  const _LeadMagnetImage({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      width: double.infinity,
-      color: props.theme?.textPrimary.withValues(alpha: 0.05) ?? Colors.white10,
-      child: CustomNetworkImage(imageUrl: props.imageUrl, fit: BoxFit.cover),
+    return ClipRRect(
+      borderRadius: BorderRadiusDirectional.only(
+        topEnd: const Radius.circular(24),
+        bottomEnd: Radius.circular(props.isMobile ? 0 : 24),
+        topStart: Radius.circular(props.isMobile ? 24 : 0),
+      ),
+      child: CustomNetworkImage(imageUrl: props.imageUrl, fit: BoxFit.cover, width: double.infinity),
     );
   }
 }
 
-/// Shared Lead Magnet Form Content.
-class _LeadMagnetForm extends StatelessWidget {
+class _LeadMagnetContent extends StatelessWidget {
   final _LeadMagnetProps props;
-  const _LeadMagnetForm({required this.props});
+  const _LeadMagnetContent({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Offstage(child: TextField(controller: props.honeypotController, decoration: const InputDecoration(labelText: 'Leave this field empty'))),
-        Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontWeight: FontWeight.bold)),
-        SizedBox(height: 16),
-        Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.5)),
-        SizedBox(height: 32),
-        if (props.successMessage != null) _MagnetStatusBanner(message: props.successMessage!, color: Colors.green, isMobile: props.isMobile),
-        if (props.errorMessage != null) _MagnetStatusBanner(message: props.errorMessage!, color: Theme.of(context).colorScheme.error, isMobile: props.isMobile),
-        ...props.fields.map((field) {
-          if (field is! Map) return SizedBox.shrink();
-          final fieldId = field['field_id'] as String?;
-          if (fieldId == null) return SizedBox.shrink();
-          final controller = props.controllers[fieldId];
-          if (controller == null) return SizedBox.shrink();
-          return _LeadMagnetField(field: field.cast<String, dynamic>(), controller: controller, props: props);
-        }),
-        SizedBox(height: 24),
-        Center(child: SizedBox(width: 300, height: 70, child: HtmlElementView(viewType: props.turnstileViewId))),
-        SizedBox(height: 24),
-        _LeadMagnetSubmitButton(props: props),
-      ],
+    return Padding(
+      padding: EdgeInsetsDirectional.all(props.isMobile ? 24 : 60),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Offstage(child: TextField(controller: props.honeypotController, decoration: const InputDecoration(labelText: 'Spam check'))),
+          Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 22 : 32)),
+          const SizedBox(height: 12),
+          Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.5)),
+          const SizedBox(height: 32),
+          if (props.successMessage != null) _StatusBanner(message: props.successMessage!, color: Colors.green, isMobile: props.isMobile),
+          if (props.errorMessage != null) _StatusBanner(message: props.errorMessage!, color: Theme.of(context).colorScheme.error, isMobile: props.isMobile),
+          ...props.fields.map((field) {
+            if (field is! Map) return const SizedBox.shrink();
+            final fieldId = field['field_id'] as String?;
+            if (fieldId == null) return const SizedBox.shrink();
+            final controller = props.controllers[fieldId];
+            if (controller == null) return const SizedBox.shrink();
+            return _LeadFormField(field: field.cast<String, dynamic>(), controller: controller, props: props);
+          }),
+          const SizedBox(height: 8),
+          Center(child: SizedBox(width: 300, height: 70, child: HtmlElementView(viewType: props.turnstileViewId))),
+          const SizedBox(height: 16),
+          _LeadFormSubmitButton(props: props),
+        ],
+      ),
     );
   }
 }
 
-/// Shared Magnet Status Banner.
-class _MagnetStatusBanner extends StatelessWidget {
+class _StatusBanner extends StatelessWidget {
   final String message;
   final Color color;
   final bool isMobile;
-
-  const _MagnetStatusBanner({required this.message, required this.color, required this.isMobile});
+  const _StatusBanner({required this.message, required this.color, required this.isMobile});
 
   @override
   Widget build(BuildContext context) {
@@ -420,7 +405,7 @@ class _MagnetStatusBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(color == Colors.green ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14))),
         ],
       ),
@@ -428,13 +413,11 @@ class _MagnetStatusBanner extends StatelessWidget {
   }
 }
 
-/// Modular Lead Magnet Field.
-class _LeadMagnetField extends StatelessWidget {
+class _LeadFormField extends StatelessWidget {
   final Map<String, dynamic> field;
   final TextEditingController controller;
   final _LeadMagnetProps props;
-
-  const _LeadMagnetField({required this.field, required this.controller, required this.props});
+  const _LeadFormField({required this.field, required this.controller, required this.props});
 
   @override
   Widget build(BuildContext context) {
@@ -442,7 +425,7 @@ class _LeadMagnetField extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(
         textTheme: Theme.of(context).textTheme.copyWith(
-          titleSmall: TextStyle(color: props.textColor, fontSize: 14, fontWeight: FontWeight.bold),
+          titleSmall: TextStyle(color: props.textColor, fontSize: props.isMobile ? 12 : 14, fontWeight: FontWeight.bold),
         ),
       ),
       child: FieldRenderer.render(
@@ -456,27 +439,27 @@ class _LeadMagnetField extends StatelessWidget {
   }
 }
 
-/// Shared Lead Magnet Submit Button.
-class _LeadMagnetSubmitButton extends StatelessWidget {
+class _LeadFormSubmitButton extends StatelessWidget {
   final _LeadMagnetProps props;
-  const _LeadMagnetSubmitButton({required this.props});
+  const _LeadFormSubmitButton({required this.props});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: props.isMobile ? 48 : 54,
       child: ElevatedButton(
         onPressed: props.isSubmitting ? null : props.onSubmit,
         style: ElevatedButton.styleFrom(
           backgroundColor: props.secondaryColor,
           foregroundColor: props.theme?.buttonTextColor ?? Colors.white,
+          disabledBackgroundColor: props.secondaryColor.withValues(alpha: 0.5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          elevation: 4,
+          elevation: 0,
         ),
         child: props.isSubmitting
-            ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-            : Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
+            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0))
+            : Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16)),
       ),
     );
   }

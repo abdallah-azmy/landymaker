@@ -248,6 +248,19 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getAllLandingPages() async {
+    try {
+      final response = await _client!
+          .from(DbConstants.landingPagesTable)
+          .select('id, name, created_at')
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint("Error fetching all landing pages: $e");
+      return [];
+    }
+  }
+
   Future<Map<String, dynamic>?> getLandingPageByUserId(String userId) async {
     try {
       final pages = await getLandingPagesByUserId(userId);

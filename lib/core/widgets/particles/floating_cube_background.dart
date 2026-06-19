@@ -74,24 +74,22 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 }
 
 class _Cube {
-  double x, y;
-  double size;
-  double driftX, driftY;
-  double rotation;
-  double rotationSpeed;
-  double opacity;
+  final double x, y;
+  final double size;
+  final double driftX, driftY;
+  final double rotation;
+  final double rotationSpeed;
+  final double opacity;
 
-  _Cube(Color baseColor) {
-    final rng = Random();
-    x = rng.nextDouble();
-    y = rng.nextDouble();
-    size = 3.0 + rng.nextDouble() * 14.0;
-    driftX = (rng.nextDouble() - 0.5) * 0.003;
-    driftY = -(0.001 + rng.nextDouble() * 0.004);
-    rotation = rng.nextDouble() * pi * 2;
-    rotationSpeed = (rng.nextDouble() - 0.5) * 0.002;
-    opacity = 0.1 + rng.nextDouble() * 0.25;
-  }
+  _Cube(Color baseColor)
+      : x = Random().nextDouble(),
+        y = Random().nextDouble(),
+        size = 3.0 + Random().nextDouble() * 14.0,
+        driftX = (Random().nextDouble() - 0.5) * 0.003,
+        driftY = -(0.001 + Random().nextDouble() * 0.004),
+        rotation = Random().nextDouble() * pi * 2,
+        rotationSpeed = (Random().nextDouble() - 0.5) * 0.002,
+        opacity = 0.1 + Random().nextDouble() * 0.25;
 }
 
 class _CubePainter extends CustomPainter {

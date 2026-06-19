@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/services/pixel_event_service.dart';
 import '../../../core/services/turnstile_service.dart';
 import '../../../core/utils/fingerprint_utils.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
@@ -209,7 +208,7 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
-        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
+        final double paddingValue = widget.verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _LeadFormProps(
           title: widget.title,
@@ -253,7 +252,6 @@ class _CustomLeadFormWidgetState extends State<CustomLeadFormWidget> {
   }
 }
 
-/// Data class for Lead Form properties.
 class _LeadFormProps {
   final String title;
   final String buttonText;
@@ -296,7 +294,6 @@ class _LeadFormProps {
   });
 }
 
-/// Desktop version of the Lead Form layout.
 class _DesktopLeadFormLayout extends StatelessWidget {
   final _LeadFormProps props;
   const _DesktopLeadFormLayout({required this.props});
@@ -307,7 +304,6 @@ class _DesktopLeadFormLayout extends StatelessWidget {
   }
 }
 
-/// Mobile version of the Lead Form layout.
 class _MobileLeadFormLayout extends StatelessWidget {
   final _LeadFormProps props;
   const _MobileLeadFormLayout({required this.props});
@@ -318,7 +314,6 @@ class _MobileLeadFormLayout extends StatelessWidget {
   }
 }
 
-/// Shared Lead Form Container.
 class _LeadFormContainer extends StatelessWidget {
   final _LeadFormProps props;
   const _LeadFormContainer({required this.props});
@@ -337,22 +332,22 @@ class _LeadFormContainer extends StatelessWidget {
         children: [
           Offstage(child: TextField(controller: props.honeypotController, decoration: const InputDecoration(labelText: 'Leave this field empty'))),
           Text(props.title, style: AppTypography.h2.copyWith(fontSize: props.isMobile ? 22 : 26, fontWeight: FontWeight.bold, color: props.textColor)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(context.translate('form_subtitle'), style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 12 : 14)),
           SizedBox(height: props.isMobile ? 24 : 32),
           if (props.successMessage != null) _StatusBanner(message: props.successMessage!, color: Colors.green, isMobile: props.isMobile),
           if (props.errorMessage != null) _StatusBanner(message: props.errorMessage!, color: Theme.of(context).colorScheme.error, isMobile: props.isMobile),
           ...props.fields.map((field) {
-            if (field is! Map) return SizedBox.shrink();
+            if (field is! Map) return const SizedBox.shrink();
             final fieldId = field['field_id'] as String?;
-            if (fieldId == null) return SizedBox.shrink();
+            if (fieldId == null) return const SizedBox.shrink();
             final controller = props.controllers[fieldId];
-            if (controller == null) return SizedBox.shrink();
+            if (controller == null) return const SizedBox.shrink();
             return _LeadFormField(field: field.cast<String, dynamic>(), controller: controller, props: props);
           }),
           SizedBox(height: props.isMobile ? 8 : 16),
           Center(child: SizedBox(width: 300, height: 70, child: HtmlElementView(viewType: props.turnstileViewId))),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _LeadFormSubmitButton(props: props),
         ],
       ),
@@ -360,7 +355,6 @@ class _LeadFormContainer extends StatelessWidget {
   }
 }
 
-/// Shared Status Banner (Success/Error).
 class _StatusBanner extends StatelessWidget {
   final String message;
   final Color color;
@@ -378,7 +372,7 @@ class _StatusBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(color == Colors.green ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14))),
         ],
       ),
@@ -386,7 +380,6 @@ class _StatusBanner extends StatelessWidget {
   }
 }
 
-/// Modular Lead Form Field.
 class _LeadFormField extends StatelessWidget {
   final Map<String, dynamic> field;
   final TextEditingController controller;
@@ -414,7 +407,6 @@ class _LeadFormField extends StatelessWidget {
   }
 }
 
-/// Shared Lead Form Submit Button.
 class _LeadFormSubmitButton extends StatelessWidget {
   final _LeadFormProps props;
   const _LeadFormSubmitButton({required this.props});
@@ -434,7 +426,7 @@ class _LeadFormSubmitButton extends StatelessWidget {
           elevation: 4,
         ),
         child: props.isSubmitting
-            ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0))
+            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0))
             : Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16)),
       ),
     );

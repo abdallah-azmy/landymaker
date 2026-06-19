@@ -13,30 +13,38 @@ class CtaConfigSheet extends StatefulWidget {
 
 class _CtaConfigSheetState extends State<CtaConfigSheet> {
   late CtaLayout _layout;
-  late TextEditingController _textController;
-  late TextEditingController _buttonTextController;
+  late TextEditingController _titleArController;
+  late TextEditingController _titleEnController;
+  late TextEditingController _buttonArController;
+  late TextEditingController _buttonEnController;
 
   @override
   void initState() {
     super.initState();
     final layoutStr = widget.config['layout'] as String? ?? 'centeredGradient';
     _layout = CtaLayout.values.firstWhere((e) => e.name == layoutStr, orElse: () => CtaLayout.centeredGradient);
-    _textController = TextEditingController(text: widget.config['text'] as String? ?? '');
-    _buttonTextController = TextEditingController(text: widget.config['button_text'] as String? ?? '');
+    _titleArController = TextEditingController(text: widget.config['title_ar'] as String? ?? '');
+    _titleEnController = TextEditingController(text: widget.config['title_en'] as String? ?? '');
+    _buttonArController = TextEditingController(text: widget.config['button_text_ar'] as String? ?? '');
+    _buttonEnController = TextEditingController(text: widget.config['button_text_en'] as String? ?? '');
   }
 
   @override
   void dispose() {
-    _textController.dispose();
-    _buttonTextController.dispose();
+    _titleArController.dispose();
+    _titleEnController.dispose();
+    _buttonArController.dispose();
+    _buttonEnController.dispose();
     super.dispose();
   }
 
   void _save() {
     widget.onSave({
       'layout': _layout.name,
-      'title': _textController.text,
-      'button_text': _buttonTextController.text,
+      'title_ar': _titleArController.text,
+      'title_en': _titleEnController.text,
+      'button_text_ar': _buttonArController.text,
+      'button_text_en': _buttonEnController.text,
     });
     Navigator.pop(context);
   }
@@ -72,19 +80,44 @@ class _CtaConfigSheetState extends State<CtaConfigSheet> {
             },
           ),
           const SizedBox(height: 16),
+          Text('النص (عربي)', style: theme.textTheme.labelMedium),
+          const SizedBox(height: 4),
           TextField(
-            controller: _textController,
+            controller: _titleArController,
             decoration: InputDecoration(
-              labelText: 'النص',
+              hintText: 'جاهز تطلق موقعك الآن؟',
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
             maxLines: 3,
           ),
           const SizedBox(height: 12),
+          Text('النص (إنجليزي)', style: theme.textTheme.labelMedium),
+          const SizedBox(height: 4),
           TextField(
-            controller: _buttonTextController,
+            controller: _titleEnController,
             decoration: InputDecoration(
-              labelText: 'نص الزر',
+              hintText: 'Ready to Launch Your Site Now?',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 12),
+          Text('نص الزر (عربي)', style: theme.textTheme.labelMedium),
+          const SizedBox(height: 4),
+          TextField(
+            controller: _buttonArController,
+            decoration: InputDecoration(
+              hintText: 'ابدأ الآن مجاناً',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text('نص الزر (إنجليزي)', style: theme.textTheme.labelMedium),
+          const SizedBox(height: 4),
+          TextField(
+            controller: _buttonEnController,
+            decoration: InputDecoration(
+              hintText: 'Start Free Now',
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),

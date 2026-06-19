@@ -28,6 +28,8 @@ class CustomProductsWidget extends StatefulWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
   final String? whatsappNumber;
   final bool showCategoryFilter;
@@ -47,6 +49,8 @@ class CustomProductsWidget extends StatefulWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
     this.whatsappNumber,
     this.showCategoryFilter = true,
@@ -99,6 +103,8 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     return double.tryParse(raw.toString().replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0;
   }
 
+  String _toSlug(String input) => input.toLowerCase().trim().replaceAll(' ', '-');
+
   @override
   void initState() {
     super.initState();
@@ -106,56 +112,35 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
   }
 
   @override
-  void didUpdateWidget(CustomProductsWidget old) {
-    super.didUpdateWidget(old);
-    if (old.items != widget.items || old.customCategories != widget.customCategories) {
+  void didUpdateWidget(covariant CustomProductsWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.items != widget.items || oldWidget.customCategories != widget.customCategories) {
       _initCategories();
     }
   }
 
   void _initCategories() {
-    List<String> newCats;
     if (widget.customCategories != null && widget.customCategories!.isNotEmpty) {
-      newCats = ['all', ...widget.customCategories!];
+      _categories = widget.customCategories!;
     } else {
-      final itemsCategories = <String>[];
-      for (final e in widget.items) {
-        final c = e['category']?.toString();
-        if (c != null && c.isNotEmpty && !itemsCategories.contains(c)) {
-          itemsCategories.add(c);
-        }
+      final Set<String> cats = {'all'};
+      for (final item in widget.items) {
+        final c = item['category']?.toString();
+        if (c != null && c.isNotEmpty) cats.add(c);
       }
-      newCats = ['all', ...itemsCategories];
+      _categories = cats.toList();
     }
 
     _tabController?.dispose();
-    TabController? newController;
-    if (newCats.isNotEmpty) {
-      newController = TabController(length: newCats.length, vsync: this);
-      newController.addListener(() {
-        if (!newController!.indexIsChanging) {
-          setState(() {
-            _selectedCategory = newCats[newController!.index];
-            _currentPage = 1; // Reset to page 1 when category changes
-          });
-        }
-      });
-    }
-
-    setState(() {
-      _categories = newCats;
-      _tabController = newController;
-      _selectedCategory = 'all';
-    });
-
-    if (widget.productKeys != null) {
-      for (final p in widget.items) {
-        final id = p['id']?.toString() ?? '';
-        final slug = _toSlug(p['name']?.toString() ?? '');
-        if (id.isNotEmpty) widget.productKeys!["$id-${widget.hashCode}"] ??= GlobalKey();
-        if (slug.isNotEmpty) widget.productKeys!["$slug-${widget.hashCode}"] ??= GlobalKey();
+    _tabController = TabController(length: _categories.length, vsync: this);
+    _tabController!.addListener(() {
+      if (!_tabController!.indexIsChanging) {
+        setState(() {
+          _selectedCategory = _categories[_tabController!.index];
+          _currentPage = 1;
+        });
       }
-    }
+    });
   }
 
   @override
@@ -172,46 +157,53 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 600;
-        
+        final bool isMobile = constraints.maxWidth < 768;
+        final double paddingValue = widget.verticalPadding ?? (isMobile ? 40 : 80);
+
         final props = _ProductsProps(
           title: widget.title,
-          theme: widget.theme,
+          categories: _categories,
+          selectedCategory: _selectedCategory,
+          tabController: _tabController,
+          currentPage: _currentPage,
+          totalPages: _totalPages,
+          items: _paginatedItems,
+          sortMode: _sortMode,
           secondaryColor: secondaryColor,
           textColor: textColor,
           subTextColor: subTextColor,
           isMobile: isMobile,
-          showCategoryFilter: widget.showCategoryFilter,
-          categories: _categories,
-          selectedCategory: _selectedCategory,
-          sortMode: _sortMode,
-          onSortChanged: (mode) => setState(() => _sortMode = mode),
-          tabController: _tabController,
-          paginatedItems: _paginatedItems,
-          currentPage: _currentPage,
-          totalPages: _totalPages,
-          onPageChanged: (page) => setState(() => _currentPage = page),
-          layoutStyle: widget.layoutStyle,
-          mobileColumns: widget.mobileColumns,
+          onPageChanged: (p) => setState(() => _currentPage = p),
+          onSortChanged: (s) => setState(() { _sortMode = s; _currentPage = 1; }),
           productKeys: widget.productKeys,
           whatsappNumber: widget.whatsappNumber,
-          onShowDetail: (item) => _showProductDetail(context, item),
-          parentHashCode: widget.hashCode,
+          showCategoryFilter: widget.showCategoryFilter,
+          layoutStyle: widget.layoutStyle,
+          mobileColumns: widget.mobileColumns,
           cardStyle: widget.cardStyle,
           staggerAnimations: widget.staggerAnimations,
           hoverEffect: widget.hoverEffect,
+          theme: widget.theme,
+          bgImageUrl: widget.bgImageUrl,
+          bgOverlayColor: widget.bgOverlayColor,
+          bgOverlayOpacity: widget.bgOverlayOpacity,
+          backgroundColorHex: widget.backgroundColorHex,
+          verticalPadding: widget.verticalPadding,
+          bgBlur: widget.bgBlur,
         );
 
         return SectionBackground(
           bgImageUrl: widget.bgImageUrl,
           bgOverlayColor: widget.bgOverlayColor,
           bgOverlayOpacity: widget.bgOverlayOpacity,
+          backgroundColorHex: widget.backgroundColorHex,
+          verticalPaddingOverride: widget.verticalPadding,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: isMobile ? 40 : 80, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
           child: Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 1100),
+              constraints: const BoxConstraints(maxWidth: 1200),
               child: isMobile ? _MobileProductsLayout(props: props) : _DesktopProductsLayout(props: props),
             ),
           ),
@@ -219,90 +211,74 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
       },
     );
   }
-
-  void _showProductDetail(BuildContext context, Map<String, dynamic> item) {
-    final secondary = widget.theme?.secondary ?? Theme.of(context).colorScheme.secondary;
-    final bgColor = widget.theme?.background ?? Theme.of(context).colorScheme.surface;
-    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
-    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-        child: _ProductDetailModal(
-          item: item,
-          secondary: secondary,
-          bgColor: bgColor,
-          textColor: textColor,
-          subTextColor: subTextColor,
-          whatsappNumber: widget.whatsappNumber,
-          theme: widget.theme,
-        ),
-      ),
-    );
-  }
 }
 
-/// Data class for Products properties.
+enum _SortMode { defaultOrder, priceLow, priceHigh }
+
 class _ProductsProps {
   final String title;
-  final LandingPageTheme? theme;
+  final List<String> categories;
+  final String selectedCategory;
+  final TabController? tabController;
+  final int currentPage;
+  final int totalPages;
+  final List<Map<String, dynamic>> items;
+  final _SortMode sortMode;
   final Color secondaryColor;
   final Color textColor;
   final Color subTextColor;
   final bool isMobile;
-  final bool showCategoryFilter;
-  final List<String> categories;
-  final String selectedCategory;
-  final _SortMode sortMode;
-  final Function(_SortMode) onSortChanged;
-  final TabController? tabController;
-  final List<Map<String, dynamic>> paginatedItems;
-  final int currentPage;
-  final int totalPages;
   final Function(int) onPageChanged;
-  final String layoutStyle;
-  final int mobileColumns;
+  final Function(_SortMode) onSortChanged;
   final Map<String, GlobalKey>? productKeys;
   final String? whatsappNumber;
-  final Function(Map<String, dynamic>) onShowDetail;
-  final int parentHashCode;
+  final bool showCategoryFilter;
+  final String layoutStyle;
+  final int mobileColumns;
   final String cardStyle;
   final bool staggerAnimations;
   final String hoverEffect;
+  final LandingPageTheme? theme;
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
+  final double? bgBlur;
 
   const _ProductsProps({
     required this.title,
-    this.theme,
+    required this.categories,
+    required this.selectedCategory,
+    this.tabController,
+    required this.currentPage,
+    required this.totalPages,
+    required this.items,
+    required this.sortMode,
     required this.secondaryColor,
     required this.textColor,
     required this.subTextColor,
     required this.isMobile,
-    required this.showCategoryFilter,
-    required this.categories,
-    required this.selectedCategory,
-    required this.sortMode,
-    required this.onSortChanged,
-    this.tabController,
-    required this.paginatedItems,
-    required this.currentPage,
-    required this.totalPages,
     required this.onPageChanged,
-    required this.layoutStyle,
-    required this.mobileColumns,
+    required this.onSortChanged,
     this.productKeys,
     this.whatsappNumber,
-    required this.onShowDetail,
-    required this.parentHashCode,
+    required this.showCategoryFilter,
+    required this.layoutStyle,
+    required this.mobileColumns,
     required this.cardStyle,
     required this.staggerAnimations,
     required this.hoverEffect,
+    this.theme,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
+    this.bgBlur,
   });
 }
 
-/// Desktop version of the Products layout.
 class _DesktopProductsLayout extends StatelessWidget {
   final _ProductsProps props;
   const _DesktopProductsLayout({required this.props});
@@ -310,19 +286,21 @@ class _DesktopProductsLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _ProductsHeader(props: props),
-        SizedBox(height: 32),
-        _ProductsToolbar(props: props),
-        SizedBox(height: 32),
-        _ProductsContent(props: props),
+        const SizedBox(height: 48),
+        if (props.showCategoryFilter) _CategoryFilter(props: props),
+        const SizedBox(height: 32),
+        _ProductsGrid(props: props),
+        if (props.totalPages > 1) ...[
+          const SizedBox(height: 48),
+          _Pagination(props: props),
+        ],
       ],
     );
   }
 }
 
-/// Mobile version of the Products layout.
 class _MobileProductsLayout extends StatelessWidget {
   final _ProductsProps props;
   const _MobileProductsLayout({required this.props});
@@ -330,547 +308,259 @@ class _MobileProductsLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _ProductsHeader(props: props),
-        SizedBox(height: 32),
-        _ProductsToolbar(props: props),
-        SizedBox(height: 32),
-        _ProductsContent(props: props),
+        const SizedBox(height: 24),
+        if (props.showCategoryFilter) _CategoryFilter(props: props),
+        const SizedBox(height: 24),
+        _ProductsGrid(props: props),
+        if (props.totalPages > 1) ...[
+          const SizedBox(height: 32),
+          _Pagination(props: props),
+        ],
       ],
     );
   }
 }
 
-/// Shared Products Header.
 class _ProductsHeader extends StatelessWidget {
   final _ProductsProps props;
   const _ProductsHeader({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          props.title,
-          style: AppTypography.h2.copyWith(fontSize: 32, fontWeight: FontWeight.bold, color: props.textColor),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 16),
-        Container(
-          width: 60,
-          height: 4,
-          decoration: BoxDecoration(color: props.secondaryColor, borderRadius: BorderRadius.circular(2)),
-        ),
+        Expanded(child: Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 22 : 32))),
+        _SortDropdown(props: props),
       ],
     );
   }
 }
 
-/// Shared Products Toolbar (Tabs & Sort).
-class _ProductsToolbar extends StatelessWidget {
+class _CategoryFilter extends StatelessWidget {
   final _ProductsProps props;
-  const _ProductsToolbar({required this.props});
+  const _CategoryFilter({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        if (props.showCategoryFilter && props.categories.length > 1 && props.tabController != null) ...[
-          TabBar(
-            controller: props.tabController,
-            isScrollable: true,
-            labelColor: props.secondaryColor,
-            unselectedLabelColor: props.subTextColor,
-            indicatorColor: props.secondaryColor,
-            dividerColor: Colors.transparent,
-            tabs: props.categories.map((c) => Tab(text: c == 'all' ? 'الكل' : c)).toList(),
-          ),
-          SizedBox(height: 24),
-        ],
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _SortChip(label: 'الافتراضي', mode: _SortMode.defaultOrder, props: props),
-              SizedBox(width: 8),
-              _SortChip(label: 'السعر: الأقل أولاً', mode: _SortMode.priceLow, props: props),
-              SizedBox(width: 8),
-              _SortChip(label: 'السعر: الأعلى أولاً', mode: _SortMode.priceHigh, props: props),
-            ],
-          ),
-        ),
+    if (props.tabController == null) return const SizedBox.shrink();
+    return TabBar(
+      controller: props.tabController,
+      isScrollable: true,
+      tabAlignment: TabAlignment.start,
+      labelColor: props.secondaryColor,
+      unselectedLabelColor: props.subTextColor,
+      indicatorColor: props.secondaryColor,
+      tabs: props.categories.map((c) => Tab(text: c == 'all' ? 'الكل' : c)).toList(),
+    );
+  }
+}
+
+class _SortDropdown extends StatelessWidget {
+  final _ProductsProps props;
+  const _SortDropdown({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<_SortMode>(
+      initialValue: props.sortMode,
+      onSelected: props.onSortChanged,
+      icon: Icon(Icons.sort_rounded, color: props.secondaryColor),
+      itemBuilder: (context) => [
+        const PopupMenuItem(value: _SortMode.defaultOrder, child: Text('الترتيب الافتراضي')),
+        const PopupMenuItem(value: _SortMode.priceLow, child: Text('السعر: من الأقل للأعلى')),
+        const PopupMenuItem(value: _SortMode.priceHigh, child: Text('السعر: من الأعلى للأقل')),
       ],
     );
   }
 }
 
-/// Shared Products Content (Grid/List & Pagination).
-class _ProductsContent extends StatelessWidget {
+class _ProductsGrid extends StatelessWidget {
   final _ProductsProps props;
-  const _ProductsContent({required this.props});
+  const _ProductsGrid({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    if (props.paginatedItems.isEmpty) {
+    if (props.items.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.all(32),
-        child: Text('لا توجد منتجات', style: AppTypography.caption.copyWith(color: props.subTextColor)),
+        padding: const EdgeInsets.symmetric(vertical: 64),
+        child: Text('لا توجد منتجات في هذا القسم', style: TextStyle(color: props.subTextColor)),
       );
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double width = constraints.maxWidth;
-        final bool isMobileWidth = width < 768;
+    if (props.layoutStyle == 'carousel') {
+      return _ProductsCarousel(props: props);
+    }
 
-        Widget content;
-        if (props.layoutStyle == 'list' || props.layoutStyle == 'list_large') {
-          content = ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: props.paginatedItems.length,
-            separatorBuilder: (_, __) => SizedBox(height: isMobileWidth ? 16 : 24),
-            itemBuilder: (context, index) {
-              final itemWidget = _ProductListItem(item: props.paginatedItems[index], props: props);
-              if (props.staggerAnimations) {
-                return BlockAnimationWrapper(
-                  settings: BlockAnimationSettings(
-                    type: BlockAnimationType.slideUp,
-                    delay: Duration(milliseconds: 100 * index),
-                    duration: const Duration(milliseconds: 600),
-                  ),
-                  child: itemWidget,
-                );
-              }
-              return itemWidget;
-            },
-          );
-        } else if (props.layoutStyle == 'carousel') {
-          content = SizedBox(
-            height: isMobileWidth ? 240 : 320,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              itemCount: props.paginatedItems.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 16),
-              itemBuilder: (context, index) {
-                final itemWidget = SizedBox(
-                  width: isMobileWidth ? 180 : 240,
-                  child: _ProductCard(item: props.paginatedItems[index], props: props, cardWidth: isMobileWidth ? 180 : 240),
-                );
-                if (props.staggerAnimations) {
-                  return BlockAnimationWrapper(
-                    settings: BlockAnimationSettings(
-                      type: BlockAnimationType.slideRight,
-                      delay: Duration(milliseconds: 100 * index),
-                      duration: const Duration(milliseconds: 600),
-                    ),
-                    child: itemWidget,
-                  );
-                }
-                return itemWidget;
-              },
-            ),
-          );
-        } else {
-          final int crossAxisCount = ResponsiveUtils.getContentColumns(
-            width,
-            desktop: props.layoutStyle == 'grid_3' ? 3 : 2,
-            tablet: 2,
-            mobile: props.mobileColumns,
-          );
-          final double spacing = isMobileWidth ? 12 : 20;
-          final double cardWidth = (width - spacing * (crossAxisCount - 1)) / crossAxisCount;
+    final int crossAxisCount = props.isMobile ? props.mobileColumns : (props.layoutStyle == 'grid_3' ? 3 : 2);
 
-          content = GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              mainAxisSpacing: spacing,
-              crossAxisSpacing: spacing,
-              childAspectRatio: cardWidth / (cardWidth + (props.cardStyle == 'minimal' ? 80 : 100)),
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: props.isMobile ? 12 : 24,
+        mainAxisSpacing: props.isMobile ? 12 : 24,
+        childAspectRatio: props.cardStyle == 'minimal' ? 0.75 : 0.7,
+      ),
+      itemCount: props.items.length,
+      itemBuilder: (context, index) {
+        final item = props.items[index];
+        final String id = item['id']?.toString() ?? index.toString();
+        
+        Widget card = _ProductCard(item: item, props: props);
+        
+        if (props.staggerAnimations) {
+          card = BlockAnimationWrapper(
+            settings: BlockAnimationSettings(
+              type: BlockAnimationType.fadeIn,
+              delay: Duration(milliseconds: index * 100),
             ),
-            itemCount: props.paginatedItems.length,
-            itemBuilder: (context, index) {
-              final itemWidget = _ProductCard(item: props.paginatedItems[index], props: props, cardWidth: cardWidth);
-              if (props.staggerAnimations) {
-                return BlockAnimationWrapper(
-                  settings: BlockAnimationSettings(
-                    type: BlockAnimationType.slideUp,
-                    delay: Duration(milliseconds: 100 * index),
-                    duration: const Duration(milliseconds: 600),
-                  ),
-                  child: itemWidget,
-                );
-              }
-              return itemWidget;
-            },
+            child: card,
           );
         }
-
-        return Column(
-          children: [
-            content,
-            SizedBox(height: 32),
-            _Pagination(props: props),
-          ],
-        );
+        
+        return card;
       },
     );
   }
 }
 
-/// Shared Sort Chip.
-class _SortChip extends StatelessWidget {
-  final String label;
-  final _SortMode mode;
+class _ProductsCarousel extends StatelessWidget {
   final _ProductsProps props;
-
-  const _SortChip({required this.label, required this.mode, required this.props});
+  const _ProductsCarousel({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    final isActive = props.sortMode == mode;
-    return ChoiceChip(
-      label: Text(label, style: TextStyle(fontSize: 12, color: isActive ? Colors.white : props.subTextColor)),
-      selected: isActive,
-      selectedColor: props.secondaryColor,
-      backgroundColor: props.secondaryColor.withValues(alpha: 0.08),
-      side: BorderSide(color: isActive ? props.secondaryColor : props.subTextColor.withValues(alpha: 0.3)),
-      onSelected: (_) => props.onSortChanged(mode),
+    return SizedBox(
+      height: props.isMobile ? 320 : 450,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: props.items.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 20),
+        itemBuilder: (context, index) => SizedBox(
+          width: props.isMobile ? 220 : 300,
+          child: _ProductCard(item: props.items[index], props: props),
+        ),
+      ),
     );
   }
 }
 
-/// Shared Pagination control.
-class _Pagination extends StatelessWidget {
-  final _ProductsProps props;
-  const _Pagination({required this.props});
-
-  @override
-  Widget build(BuildContext context) {
-    if (props.totalPages <= 1) return SizedBox.shrink();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(onPressed: props.currentPage > 1 ? () => props.onPageChanged(props.currentPage - 1) : null, icon: Icon(Icons.chevron_left_rounded), color: props.secondaryColor),
-        SizedBox(width: 16),
-        Text("${props.currentPage} / ${props.totalPages}", style: AppTypography.bodyMedium.copyWith(color: props.textColor)),
-        SizedBox(width: 16),
-        IconButton(onPressed: props.currentPage < props.totalPages ? () => props.onPageChanged(props.currentPage + 1) : null, icon: Icon(Icons.chevron_right_rounded), color: props.secondaryColor),
-      ],
-    );
-  }
-}
-
-/// Modular Product Card (Grid).
 class _ProductCard extends StatefulWidget {
   final Map<String, dynamic> item;
   final _ProductsProps props;
-  final double cardWidth;
 
-  const _ProductCard({required this.item, required this.props, required this.cardWidth});
+  const _ProductCard({required this.item, required this.props});
 
   @override
   State<_ProductCard> createState() => _ProductCardState();
 }
 
 class _ProductCardState extends State<_ProductCard> {
-  bool _isHovered = false;
+  bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final String id = widget.item['id']?.toString() ?? '';
-    final String name = widget.item['name']?.toString() ?? 'Product';
-    final String price = widget.item['price']?.toString() ?? '';
-    final String imageUrl = widget.item['image_url']?.toString() ?? 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
-    
-    final bool isTiny = widget.cardWidth < 160;
-    final bool isSmall = widget.cardWidth < 220;
+    final String name = widget.item['name'] ?? 'Product';
+    final String price = widget.item['price'] ?? '0 EGP';
+    final String imageUrl = widget.item['image_url'] ?? '';
+    final String? description = widget.item['description'];
 
-    final GlobalKey? cardKey = widget.props.productKeys != null ? (widget.props.productKeys!["$id-${widget.props.parentHashCode}"] ??= GlobalKey()) : null;
+    final bool isSmall = widget.props.isMobile && widget.props.mobileColumns > 1;
+    final bool isTiny = widget.props.isMobile && widget.props.mobileColumns > 2;
 
-    final bool applyScale = _isHovered && widget.props.hoverEffect == 'scale';
-    final bool applyElevate = _isHovered && widget.props.hoverEffect == 'elevate';
-    final bool applyGlow = _isHovered && widget.props.hoverEffect == 'glow';
+    final bool applyScale = widget.props.hoverEffect == 'scale' && _hovered;
+    final bool applyElevate = widget.props.hoverEffect == 'elevate' && _hovered;
+    final bool applyGlow = widget.props.hoverEffect == 'glow' && _hovered;
 
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: () => widget.props.onShowDetail(widget.item),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          key: cardKey,
-          transform: applyScale ? (Matrix4.identity()..scale(1.03, 1.03)) : Matrix4.identity(),
-          decoration: BoxDecoration(
-            color: widget.props.subTextColor.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(widget.props.cardStyle == 'modern' ? 24 : (isTiny ? 8 : 16)),
-            border: Border.all(
-              color: applyGlow 
-                ? widget.props.secondaryColor 
-                : widget.props.subTextColor.withValues(alpha: 0.1)
-            ),
-            boxShadow: (applyElevate || applyGlow) ? [
-              BoxShadow(
-                color: widget.props.secondaryColor.withValues(alpha: applyGlow ? 0.4 : 0.2),
-                blurRadius: applyGlow ? 15 : 20,
-                spreadRadius: applyGlow ? 2 : 0,
-                offset: applyGlow ? Offset.zero : const Offset(0, 10),
-              )
-            ] : [],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AspectRatio(
-                aspectRatio: 1,
-                child: Stack(
-                  children: [
-                    Positioned.fill(child: CustomNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)),
-                      PositionedDirectional(
-                      top: isTiny ? 4 : 8,
-                      end: isTiny ? 4 : 8,
-                      child: Container(
-                        padding: const EdgeInsetsDirectional.symmetric(horizontal: isTiny ? 6 : 8, vertical: isTiny ? 2 : 4),
-                        decoration: BoxDecoration(color: widget.props.secondaryColor, borderRadius: BorderRadius.circular(isTiny ? 4 : 8)),
-                        child: Text(price, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: isTiny ? 8 : (isSmall ? 9 : 11))),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(isTiny ? 6 : (isSmall ? 8 : 12)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTiny ? 11 : (isSmall ? 13 : 15), color: widget.props.textColor), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    if (widget.props.cardStyle != 'minimal') ...[
-                      SizedBox(height: 8),
-                      _ProductActionButton(item: widget.item, props: widget.props, isTiny: isTiny, isSmall: isSmall),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Modular Product List Item.
-class _ProductListItem extends StatelessWidget {
-  final Map<String, dynamic> item;
-  final _ProductsProps props;
-
-  const _ProductListItem({required this.item, required this.props});
-
-  @override
-  Widget build(BuildContext context) {
-    final String id = item['id']?.toString() ?? '';
-    final String name = item['name']?.toString() ?? 'Product';
-    final String price = item['price']?.toString() ?? '';
-    final String imageUrl = item['image_url']?.toString() ?? 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
-
-    final GlobalKey? listKey = props.productKeys != null ? (props.productKeys!["$id-${props.parentHashCode}"] ??= GlobalKey()) : null;
-
-    return GestureDetector(
-      onTap: () => props.onShowDetail(item),
-      child: Container(
-        key: listKey,
-        height: props.isMobile ? 120 : 160,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        transform: applyScale ? (Matrix4.identity()..scale(1.03)) : Matrix4.identity(),
         decoration: BoxDecoration(
-          color: props.subTextColor.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(props.isMobile ? 12 : 20),
-          border: Border.all(color: props.subTextColor.withValues(alpha: 0.1)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Row(
-          children: [
-            SizedBox(width: props.isMobile ? 120 : 160, height: props.isMobile ? 120 : 160, child: CustomNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(props.isMobile ? 12 : 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(child: Text(name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 15 : 18, color: props.textColor), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                        SizedBox(width: 8),
-                        Text(price, style: AppTypography.bodyLarge.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16)),
-                      ],
-                    ),
-                    const Spacer(),
-                    Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: _ProductActionButton(item: item, props: props, isTiny: false, isSmall: props.isMobile),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Shared Product Action Button.
-class _ProductActionButton extends StatelessWidget {
-  final Map<String, dynamic> item;
-  final _ProductsProps props;
-  final bool isTiny;
-  final bool isSmall;
-
-  const _ProductActionButton({required this.item, required this.props, required this.isTiny, required this.isSmall});
-
-  @override
-  Widget build(BuildContext context) {
-    final String buttonText = item['button_text']?.toString() ?? 'Buy Now';
-
-    return SizedBox(
-      width: isTiny ? double.infinity : null,
-      height: isTiny ? 24 : (isSmall ? 28 : 32),
-      child: ElevatedButton(
-        onPressed: () async {
-          final purchaseUrl = item['purchase_url']?.toString();
-          if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
-            final uri = Uri.tryParse(purchaseUrl);
-            if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
-          } else {
-            props.onShowDetail(item);
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: props.secondaryColor,
-          foregroundColor: props.theme?.buttonTextColor ?? Colors.white,
-          padding: const EdgeInsetsDirectional.symmetric(horizontal: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isTiny ? 4 : 8)),
-          elevation: 0,
-        ),
-        child: Text(buttonText, style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTiny ? 8 : (isSmall ? 10 : 12))),
-      ),
-    );
-  }
-}
-
-/// Shared Product Detail Modal Content.
-class _ProductDetailModal extends StatelessWidget {
-  final Map<String, dynamic> item;
-  final Color secondary;
-  final Color bgColor;
-  final Color textColor;
-  final Color subTextColor;
-  final String? whatsappNumber;
-  final LandingPageTheme? theme;
-
-  const _ProductDetailModal({
-    required this.item,
-    required this.secondary,
-    required this.bgColor,
-    required this.textColor,
-    required this.subTextColor,
-    this.whatsappNumber,
-    this.theme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final String name = item['name']?.toString() ?? 'Product';
-    final String price = item['price']?.toString() ?? '';
-    final String description = item['description']?.toString() ?? '';
-    final String imageUrl = item['image_url']?.toString() ?? 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
-    final String buttonText = item['button_text']?.toString() ?? 'إضافة للسلة';
-    final String? category = item['category']?.toString();
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 520),
-      child: Container(
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: secondary.withValues(alpha: 0.2)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 40)],
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(isTiny ? 12 : 24),
+          border: Border.all(color: applyGlow ? widget.props.secondaryColor : Theme.of(context).colorScheme.outlineVariant, width: applyGlow ? 2 : 1),
+          boxShadow: (applyElevate || applyGlow) ? [
+            BoxShadow(
+              color: (applyGlow ? widget.props.secondaryColor : Colors.black).withValues(alpha: 0.1),
+              blurRadius: applyGlow ? 20 : 30,
+              spreadRadius: applyGlow ? 2 : 0,
+              offset: applyGlow ? Offset.zero : const Offset(0, 10),
+            )
+          ] : [],
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AspectRatio(aspectRatio: 16 / 9, child: CustomNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)),
+            AspectRatio(
+              aspectRatio: 1,
+              child: Stack(
+                children: [
+                  Positioned.fill(child: CustomNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)),
+                  PositionedDirectional(
+                    top: isTiny ? 4 : 8,
+                    end: isTiny ? 4 : 8,
+                    child: Container(
+                      padding: EdgeInsetsDirectional.symmetric(horizontal: isTiny ? 6 : 8, vertical: isTiny ? 2 : 4),
+                      decoration: BoxDecoration(color: widget.props.secondaryColor, borderRadius: BorderRadius.circular(isTiny ? 4 : 8)),
+                      child: Text(price, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: isTiny ? 8 : (isSmall ? 9 : 11))),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isTiny ? 6 : (isSmall ? 8 : 12)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (category != null && category.isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: secondary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
-                      child: Text(category, style: TextStyle(color: secondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(
+                    name, 
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.bold, 
+                      color: widget.props.textColor,
+                      fontSize: isTiny ? 10 : (isSmall ? 12 : 14),
                     ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: Text(name, style: AppTypography.h2.copyWith(color: textColor, fontSize: 22))),
-                      SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(color: secondary, borderRadius: BorderRadius.circular(10)),
-                        child: Text(price, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                      ),
-                    ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 12),
-                  Text(description, style: AppTypography.bodyMedium.copyWith(color: subTextColor, height: 1.6)),
-                  SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final purchaseUrl = item['purchase_url']?.toString();
-                            if (purchaseUrl != null && purchaseUrl.isNotEmpty) {
-                              final uri = Uri.tryParse(purchaseUrl);
-                              if (uri != null) {
-                                await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                Navigator.of(context).pop();
-                              }
-                            } else {
-                              final cartCubit = context.read<CartCubit>();
-                              if (whatsappNumber != null && whatsappNumber!.isNotEmpty) {
-                                cartCubit.setWhatsappNumber(whatsappNumber!);
-                              }
-                              cartCubit.addItem(item);
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: secondary,
-                            foregroundColor: theme?.buttonTextColor ?? Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: Text(buttonText == 'Buy Now' ? 'إضافة للسلة' : buttonText, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                        ),
+                  if (!isTiny && description != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      description, 
+                      style: AppTypography.caption.copyWith(
+                        color: widget.props.subTextColor,
+                        fontSize: isSmall ? 9 : 11,
                       ),
-                      SizedBox(width: 12),
-                      OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: OutlinedButton.styleFrom(foregroundColor: subTextColor, side: BorderSide(color: subTextColor.withValues(alpha: 0.4)), padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                        child: const Text('إغلاق'),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: isTiny ? 28 : (isSmall ? 32 : 40),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.read<CartCubit>().addItem(widget.item);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: widget.props.secondaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isTiny ? 6 : 10)),
+                        elevation: 0,
                       ),
-                    ],
+                      child: Text(isTiny ? 'شراء' : 'إضافة للسلة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTiny ? 8 : (isSmall ? 10 : 12))),
+                    ),
                   ),
                 ],
               ),
@@ -882,6 +572,33 @@ class _ProductDetailModal extends StatelessWidget {
   }
 }
 
-enum _SortMode { defaultOrder, priceLow, priceHigh }
+class _Pagination extends StatelessWidget {
+  final _ProductsProps props;
+  const _Pagination({required this.props});
 
-String _toSlug(String name) => name.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u0600-\u06ff]+'), '-');
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(props.totalPages, (index) {
+        final pageNum = index + 1;
+        final isActive = props.currentPage == pageNum;
+        return GestureDetector(
+          onTap: () => props.onPageChanged(pageNum),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: isActive ? props.secondaryColor : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: props.secondaryColor.withValues(alpha: 0.3)),
+            ),
+            child: Center(child: Text(pageNum.toString(), style: TextStyle(color: isActive ? Colors.white : props.textColor, fontWeight: FontWeight.bold))),
+          ),
+        );
+      }),
+    );
+  }
+}

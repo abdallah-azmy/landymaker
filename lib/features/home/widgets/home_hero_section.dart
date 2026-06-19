@@ -313,7 +313,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
       width: double.infinity,
       child: Stack(
         children: [
-          // Animated gradient background (same as split for consistency)
+          // Animated gradient background
           Positioned.fill(
             child: RepaintBoundary(
               child: AnimatedBuilder(
@@ -342,48 +342,47 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
           Padding(
             padding: EdgeInsetsDirectional.symmetric(
               vertical: isMobile ? 32 : 60,
-              horizontal: isMobile ? 16 : (HomeBreakpoint.isTablet(constraints.maxWidth) ? 32 : 64),
+              horizontal: isMobile ? 16 : (isTablet ? 32 : 64),
             ),
             child: FadeTransition(
-                  opacity: entranceFade,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Badge
-                      _buildBadge(),
-                      SizedBox(height: 24),
-                      Text(
-                        widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
-                        style: AppTypography.h1.copyWith(
-                          fontSize: isMobile ? 32 : isTablet ? 44 : 58,
-                          fontWeight: FontWeight.w900,
-                          height: 1.15,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 14),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: 44),
-                        child: _TypewriterText(
-                          texts: _typewriterTexts,
-                          isMobile: isMobile,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        widget.subtitle ?? 'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
-                        style: AppTypography.bodyLarge.copyWith(
-                          color: Colors.white70,
-                          height: 1.5,
-                          fontSize: 15,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 32),
-                      _buildCTAButtons(context),
-                    ],
+              opacity: entranceFade,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildBadge(),
+                  const SizedBox(height: 24),
+                  Text(
+                    widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                    style: AppTypography.h1.copyWith(
+                      fontSize: isMobile ? 32 : isTablet ? 44 : 58,
+                      fontWeight: FontWeight.w900,
+                      height: 1.15,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 14),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 44),
+                    child: _TypewriterText(
+                      texts: _typewriterTexts,
+                      isMobile: isMobile,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.subtitle ??
+                        'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: Colors.white70,
+                      height: 1.5,
+                      fontSize: 15,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  _buildCTAButtons(context),
+                ],
               ),
             ),
           ),
@@ -394,39 +393,42 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
 
   // ── Layout: gradientOnly ─────────────────────────────────────────────────
   Widget _buildGradientOnlyLayout(BuildContext context, bool isMobile) {
-    return RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _bgAnimationController,
-        builder: (context, child) {
-          final val = _bgAnimationController.value;
-          return Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment(-1.0 + 0.6 * val, -1.0),
-                end: Alignment(1.0 - 0.6 * val, 1.0),
-                colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.35),
-                  Theme.of(context).colorScheme.secondary,
-                  AppColors.darkBackground,
-                ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
+        return RepaintBoundary(
+          child: AnimatedBuilder(
+            animation: _bgAnimationController,
+            builder: (context, child) {
+              final val = _bgAnimationController.value;
+              return Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment(-1.0 + 0.6 * val, -1.0),
+                    end: Alignment(1.0 - 0.6 * val, 1.0),
+                    colors: [
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.35),
+                      Theme.of(context).colorScheme.secondary,
+                      AppColors.darkBackground,
+                    ],
+                  ),
+                ),
+                child: child,
+              );
+            },
+            child: Padding(
+              padding: EdgeInsetsDirectional.symmetric(
+                vertical: isMobile ? 32 : 60,
+                horizontal: isMobile ? 16 : 64,
               ),
-            ),
-            child: child,
-          );
-        },
-        child: Padding(
-          padding: EdgeInsetsDirectional.symmetric(
-            vertical: isMobile ? 32 : 60,
-            horizontal: isMobile ? 16 : 64,
-          ),
-          child: FadeTransition(
-            opacity: entranceFade,
+              child: FadeTransition(
+                opacity: entranceFade,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildBadge(),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     Text(
                       widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                       style: AppTypography.h1.copyWith(
@@ -437,18 +439,19 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 14),
+                    const SizedBox(height: 14),
                     ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: 44),
+                      constraints: const BoxConstraints(minHeight: 44),
                       child: _TypewriterText(
                         texts: _typewriterTexts,
                         isMobile: isMobile,
                         colorOverride: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
-                      widget.subtitle ?? 'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
+                      widget.subtitle ??
+                          'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
                       style: AppTypography.bodyLarge.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
                         height: 1.5,
@@ -456,86 +459,91 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 32),
+                    const SizedBox(height: 32),
                     _buildCTAButtons(context, darkMode: false),
                   ],
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   // ── Layout: fullWidthImage (edge-to-edge bg image) ───────────────────────
   Widget _buildFullWidthImageLayout(BuildContext context, bool isMobile) {
-    final isTablet = MediaQuery.of(context).size.width >= 700 && MediaQuery.of(context).size.width < 1200;
-    return SizedBox(
-      width: double.infinity,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: RepaintBoundary(
-              child: CustomNetworkImage(
-                imageUrl: _kHeroBgImage,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withValues(alpha: widget.overlayOpacity),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsetsDirectional.symmetric(
-              vertical: isMobile ? 32 : 60,
-              horizontal: isMobile ? 16 : 64,
-            ),
-            child: FadeTransition(
-                opacity: entranceFade,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildBadge(),
-                      SizedBox(height: 24),
-                          Text(
-                            widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
-                            style: AppTypography.h1.copyWith(
-                fontSize: isMobile ? 30 : isTablet ? 44 : 58,
-                              fontWeight: FontWeight.w900,
-                              height: 1.15,
-                              color: Colors.white,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 14),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: 50),
-                      child: _TypewriterText(
-                        texts: _typewriterTexts,
-                        isMobile: isMobile,
-                        colorOverride: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      widget.subtitle ?? 'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
-                      style: AppTypography.bodyLarge.copyWith(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        height: 1.6,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 40),
-                    _buildCTAButtons(context, darkMode: false),
-                  ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
+        return SizedBox(
+          width: double.infinity,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: RepaintBoundary(
+                  child: CustomNetworkImage(
+                    imageUrl: _kHeroBgImage,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withValues(alpha: widget.overlayOpacity),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.symmetric(
+                  vertical: isMobile ? 32 : 60,
+                  horizontal: isMobile ? 16 : 64,
+                ),
+                child: FadeTransition(
+                  opacity: entranceFade,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildBadge(),
+                      const SizedBox(height: 24),
+                      Text(
+                        widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                        style: AppTypography.h1.copyWith(
+                          fontSize: isMobile ? 30 : isTablet ? 44 : 58,
+                          fontWeight: FontWeight.w900,
+                          height: 1.15,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 14),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 50),
+                        child: _TypewriterText(
+                          texts: _typewriterTexts,
+                          isMobile: isMobile,
+                          colorOverride: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        widget.subtitle ??
+                            'بدون الحاجة لخبرة برمجية. اختر قالباً مناسباً، أضف محتواك، انشر موقعك بضغطة زر.',
+                        style: AppTypography.bodyLarge.copyWith(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          height: 1.6,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 40),
+                      _buildCTAButtons(context, darkMode: false),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -124,15 +124,15 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
         final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
         switch (widget.layout) {
           case StatsLayout.withIcons:
-            return _buildWithIconsLayout(context, isMobile, constraints);
+            return _buildWithIconsLayout(context, isMobile, isTablet, constraints);
           case StatsLayout.horizontal:
-            return _buildHorizontalLayout(context, isMobile, constraints);
+            return _buildHorizontalLayout(context, isMobile, isTablet, constraints);
         }
       },
     );
   }
 
-  Widget _buildHorizontalLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+  Widget _buildHorizontalLayout(BuildContext context, bool isMobile, bool isTablet, BoxConstraints constraints) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
@@ -145,7 +145,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _buildSectionHeader(isMobile),
+          _buildSectionHeader(isMobile, isTablet),
           SizedBox(height: 64),
           if (isMobile)
             Column(
@@ -192,7 +192,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
     );
   }
 
-  Widget _buildSectionHeader(bool isMobile) {
+  Widget _buildSectionHeader(bool isMobile, bool isTablet) {
     return RepaintBoundary(
       child: FadeTransition(
         opacity: _headerFade,
@@ -217,7 +217,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 "لاندي ميكر في أرقام",
                 style: AppTypography.h2.copyWith(
@@ -227,7 +227,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 "ثقة متزايدة وأرقام قياسية تعكس التزامنا بنجاح مشروعك الرقمي وتسهيل وصولك لجمهورك.",
                 style: AppTypography.bodyLarge.copyWith(
@@ -243,7 +243,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
     );
   }
 
-  Widget _buildWithIconsLayout(BuildContext context, bool isMobile, BoxConstraints constraints) {
+  Widget _buildWithIconsLayout(BuildContext context, bool isMobile, bool isTablet, BoxConstraints constraints) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60, horizontal: isMobile ? 16 : isTablet ? 32 : 48),
@@ -253,7 +253,7 @@ class _HomeStatsSectionState extends State<HomeStatsSection>
       ),
       child: Column(
         children: [
-          _buildSectionHeader(isMobile),
+          _buildSectionHeader(isMobile, isTablet),
           SizedBox(height: 48),
           isMobile
             ? Column(

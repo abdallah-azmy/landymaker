@@ -13,26 +13,30 @@ class FeatureConfigSheet extends StatefulWidget {
 
 class _FeatureConfigSheetState extends State<FeatureConfigSheet> {
   late FeatureLayout _layout;
-  late TextEditingController _titleController;
+  late TextEditingController _titleArController;
+  late TextEditingController _titleEnController;
 
   @override
   void initState() {
     super.initState();
     final layoutStr = widget.config['layout'] as String? ?? 'bentoGrid';
     _layout = FeatureLayout.values.firstWhere((e) => e.name == layoutStr, orElse: () => FeatureLayout.bentoGrid);
-    _titleController = TextEditingController(text: widget.config['title'] as String? ?? '');
+    _titleArController = TextEditingController(text: widget.config['title_ar'] as String? ?? '');
+    _titleEnController = TextEditingController(text: widget.config['title_en'] as String? ?? '');
   }
 
   @override
   void dispose() {
-    _titleController.dispose();
+    _titleArController.dispose();
+    _titleEnController.dispose();
     super.dispose();
   }
 
   void _save() {
     widget.onSave({
       'layout': _layout.name,
-      'title': _titleController.text,
+      'title_ar': _titleArController.text,
+      'title_en': _titleEnController.text,
     });
     Navigator.pop(context);
   }
@@ -68,10 +72,22 @@ class _FeatureConfigSheetState extends State<FeatureConfigSheet> {
             },
           ),
           const SizedBox(height: 16),
+          Text('العنوان (عربي)', style: theme.textTheme.labelMedium),
+          const SizedBox(height: 4),
           TextField(
-            controller: _titleController,
+            controller: _titleArController,
             decoration: InputDecoration(
-              labelText: 'عنوان القسم',
+              hintText: 'مميزات لا حصر لها',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text('العنوان (إنجليزي)', style: theme.textTheme.labelMedium),
+          const SizedBox(height: 4),
+          TextField(
+            controller: _titleEnController,
+            decoration: InputDecoration(
+              hintText: 'Endless Features',
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),

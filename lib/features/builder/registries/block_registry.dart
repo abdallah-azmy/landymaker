@@ -126,6 +126,7 @@ class BlockRegistry {
                   ?.toDouble(),
           backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
           variant: data['variant'] ?? 0,
         ),
     'lead_form': (data, theme, pageId, key, __, ___, lang) => CustomLeadFormWidget(
@@ -161,6 +162,7 @@ class BlockRegistry {
                   ?.toDouble(),
           backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'whatsapp': (data, theme, pageId, key, __, ___, lang) => CustomWhatsappWidget(
           key: key,
@@ -191,6 +193,7 @@ class BlockRegistry {
                   ?.toDouble(),
           backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'location_map': (data, theme, _, key, __, ___, lang) => CustomLocationMapWidget(
           key: key,
@@ -226,9 +229,6 @@ class BlockRegistry {
                   ?.toDouble(),
           backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
-          cardStyle: data['card_style'] ?? 'classic',
-          staggerAnimations: data['stagger_animations'] ?? true,
-          hoverEffect: data['hover_effect'] ?? 'scale',
         ),
     'pricing': (data, theme, pageId, key, __, ___, lang) => CustomPricingWidget(
           key: key,
@@ -242,6 +242,7 @@ class BlockRegistry {
                   ?.toDouble(),
           backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
           lang: lang,
           variant: data['variant'] ?? 0,
         ),
@@ -342,6 +343,7 @@ class BlockRegistry {
                   ?.toDouble(),
           backgroundColorHex: data['bg_color'] ?? data['background_color'],
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
+          verticalPadding: (data['vertical_padding'] as num?)?.toDouble(),
         ),
     'basic_section': (data, theme, _, key, __, index, lang) => BasicSectionRenderer(
           key: key,

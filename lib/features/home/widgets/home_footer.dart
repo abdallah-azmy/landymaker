@@ -73,7 +73,7 @@ class HomeFooter extends StatelessWidget {
                 height: 1,
               ),
               SizedBox(height: 24),
-              const _BottomRow(),
+              _BottomRow(copyrightText: copyrightText),
             ],
           ),
         );
@@ -209,7 +209,8 @@ class _BrandSection extends StatelessWidget {
 
 /// Footer copyright and version row.
 class _BottomRow extends StatelessWidget {
-  const _BottomRow();
+  final String? copyrightText;
+  const _BottomRow({this.copyrightText});
 
   @override
   Widget build(BuildContext context) {

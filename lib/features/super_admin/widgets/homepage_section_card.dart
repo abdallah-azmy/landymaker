@@ -30,6 +30,8 @@ class HomepageSectionCard extends StatelessWidget {
       'desktop_preview': Icons.desktop_windows_rounded,
       'cta': Icons.call_to_action_rounded,
       'footer': Icons.layers_rounded,
+      'navbar': Icons.navigation_rounded,
+      'section_renderer': Icons.web_asset_rounded,
     };
 
     return Card(
@@ -98,8 +100,7 @@ class HomepageSectionCard extends StatelessWidget {
                 ],
               ),
             ),
-            if (key != 'hero' && key != 'footer')
-              IconButton(
+            IconButton(
                 icon: Icon(Icons.settings_rounded, size: 20),
                 onPressed: onEditConfig,
                 tooltip: 'الإعدادات',

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
 
 // Use conditional imports to avoid dart:html on non-web platforms

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/services/action_handler_service.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';
@@ -18,6 +17,8 @@ class CustomWhatsappWidget extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const CustomWhatsappWidget({
@@ -31,6 +32,8 @@ class CustomWhatsappWidget extends StatelessWidget {
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 
@@ -45,28 +48,45 @@ class CustomWhatsappWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 600;
+        final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _WhatsappProps(
           title: title,
+          phoneNumber: phoneNumber,
           message: message,
           buttonText: buttonText,
-          cleanNumber: cleanNumber,
-          hasPhone: hasPhone,
           pageId: pageId,
           secondaryColor: secondaryColor,
           textColor: textColor,
           subTextColor: subTextColor,
           isMobile: isMobile,
+          hasPhone: hasPhone,
+          cleanNumber: cleanNumber,
           theme: theme,
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
           bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPadding: verticalPadding,
           bgBlur: bgBlur,
         );
 
-        return isMobile
-            ? _MobileWhatsappLayout(props: props)
-            : _DesktopWhatsappLayout(props: props);
+        return SectionBackground(
+          bgImageUrl: bgImageUrl,
+          bgOverlayColor: bgOverlayColor,
+          bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPaddingOverride: verticalPadding,
+          bgBlur: bgBlur,
+          theme: theme,
+          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: isMobile ? _MobileWhatsappLayout(props: props) : _DesktopWhatsappLayout(props: props),
+            ),
+          ),
+        );
       },
     );
   }
@@ -77,36 +97,42 @@ class CustomWhatsappWidget extends StatelessWidget {
 /// ==========================================
 class _WhatsappProps {
   final String title;
+  final String phoneNumber;
   final String message;
   final String buttonText;
-  final String cleanNumber;
-  final bool hasPhone;
   final String pageId;
   final Color secondaryColor;
   final Color textColor;
   final Color subTextColor;
   final bool isMobile;
+  final bool hasPhone;
+  final String cleanNumber;
   final LandingPageTheme? theme;
   final String? bgImageUrl;
   final String? bgOverlayColor;
   final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
   final double? bgBlur;
 
   const _WhatsappProps({
     required this.title,
+    required this.phoneNumber,
     required this.message,
     required this.buttonText,
-    required this.cleanNumber,
-    required this.hasPhone,
     required this.pageId,
     required this.secondaryColor,
     required this.textColor,
     required this.subTextColor,
     required this.isMobile,
+    required this.hasPhone,
+    required this.cleanNumber,
     this.theme,
     this.bgImageUrl,
     this.bgOverlayColor,
     this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
     this.bgBlur,
   });
 }
@@ -115,39 +141,14 @@ class _WhatsappProps {
 /// 3. DESKTOP LAYOUT
 /// ==========================================
 
-/// Desktop version of the WhatsApp layout.
+/// Desktop version of the Whatsapp layout.
 class _DesktopWhatsappLayout extends StatelessWidget {
   final _WhatsappProps props;
   const _DesktopWhatsappLayout({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    return SectionBackground(
-      bgImageUrl: props.bgImageUrl,
-      bgOverlayColor: props.bgOverlayColor,
-      bgOverlayOpacity: props.bgOverlayOpacity,
-      bgBlur: props.bgBlur,
-      theme: props.theme,
-      padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 820),
-          child: Column(
-            children: [
-              Icon(Icons.chat_bubble_outline_rounded, color: props.secondaryColor, size: 44),
-              SizedBox(height: 16),
-              Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 32), textAlign: TextAlign.center),
-              if (props.message.isNotEmpty) ...[
-                SizedBox(height: 10),
-                Text(props.message, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.6), textAlign: TextAlign.center),
-              ],
-              SizedBox(height: 24),
-              _WhatsappButton(props: props),
-            ],
-          ),
-        ),
-      ),
-    );
+    return _WhatsappContent(props: props);
   }
 }
 
@@ -155,39 +156,14 @@ class _DesktopWhatsappLayout extends StatelessWidget {
 /// 4. MOBILE LAYOUT
 /// ==========================================
 
-/// Mobile version of the WhatsApp layout.
+/// Mobile version of the Whatsapp layout.
 class _MobileWhatsappLayout extends StatelessWidget {
   final _WhatsappProps props;
   const _MobileWhatsappLayout({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    return SectionBackground(
-      bgImageUrl: props.bgImageUrl,
-      bgOverlayColor: props.bgOverlayColor,
-      bgOverlayOpacity: props.bgOverlayOpacity,
-      bgBlur: props.bgBlur,
-      theme: props.theme,
-      padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 820),
-          child: Column(
-            children: [
-              Icon(Icons.chat_bubble_outline_rounded, color: props.secondaryColor, size: 36),
-              SizedBox(height: 16),
-              Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 24), textAlign: TextAlign.center),
-              if (props.message.isNotEmpty) ...[
-                SizedBox(height: 10),
-                Text(props.message, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.6), textAlign: TextAlign.center),
-              ],
-              SizedBox(height: 24),
-              _WhatsappButton(props: props),
-            ],
-          ),
-        ),
-      ),
-    );
+    return _WhatsappContent(props: props);
   }
 }
 
@@ -195,7 +171,24 @@ class _MobileWhatsappLayout extends StatelessWidget {
 /// 5. SHARED SUB-WIDGETS
 /// ==========================================
 
-/// Shared WhatsApp Action Button.
+/// Shared Whatsapp Content.
+class _WhatsappContent extends StatelessWidget {
+  final _WhatsappProps props;
+  const _WhatsappContent({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(props.title, style: AppTypography.h2.copyWith(fontSize: props.isMobile ? 24 : 32, color: props.textColor), textAlign: TextAlign.center),
+        const SizedBox(height: 24),
+        _WhatsappButton(props: props),
+      ],
+    );
+  }
+}
+
+/// Modular Whatsapp Button.
 class _WhatsappButton extends StatelessWidget {
   final _WhatsappProps props;
   const _WhatsappButton({required this.props});
@@ -203,29 +196,15 @@ class _WhatsappButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: props.hasPhone
-          ? () async {
-              final encodedMessage = Uri.encodeComponent(props.message);
-              final actionValue = 'https://wa.me/${props.cleanNumber}?text=$encodedMessage';
-              await ActionHandlerService.executeAction(
-                context,
-                actionType: 'link',
-                actionValue: actionValue,
-                pageId: props.pageId,
-                buttonText: props.buttonText,
-                blockType: 'whatsapp',
-              );
-            }
-          : null,
-      icon: Icon(Icons.send_rounded, size: 18),
-      label: Text(props.buttonText, overflow: TextOverflow.ellipsis),
+      onPressed: props.hasPhone ? () => ActionHandlerService.openWhatsApp(phoneNumber: props.cleanNumber, message: props.message, pageId: props.pageId, blockType: 'whatsapp') : null,
+      icon: const Icon(Icons.chat_bubble_outline_rounded, size: 24),
+      label: Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
       style: ElevatedButton.styleFrom(
-        backgroundColor: props.secondaryColor,
-        foregroundColor: props.theme?.buttonTextColor ?? Colors.white,
-        disabledBackgroundColor: props.subTextColor.withValues(alpha: 0.24),
-        disabledForegroundColor: Colors.white70,
-        padding: EdgeInsets.symmetric(horizontal: props.isMobile ? 22 : 30, vertical: props.isMobile ? 14 : 18),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: const Color(0xFF25D366),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 4,
       ),
     );
   }

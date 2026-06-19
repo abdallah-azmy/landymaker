@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
@@ -50,6 +49,27 @@ class CustomContactInfoWidget extends StatelessWidget {
         final bool isMobile = constraints.maxWidth < 768;
         final double paddingValue = verticalPadding ?? (isMobile ? 40 : 80);
 
+        final props = _ContactProps(
+          title: title,
+          email: email,
+          phone: phone,
+          location: location,
+          phoneIcon: phoneIcon,
+          emailIcon: emailIcon,
+          locationIcon: locationIcon,
+          secondaryColor: secondaryColor,
+          textColor: textColor,
+          subTextColor: subTextColor,
+          isMobile: isMobile,
+          theme: theme,
+          bgImageUrl: bgImageUrl,
+          bgOverlayColor: bgOverlayColor,
+          bgOverlayOpacity: bgOverlayOpacity,
+          backgroundColorHex: backgroundColorHex,
+          verticalPadding: verticalPadding,
+          bgBlur: bgBlur,
+        );
+
         return SectionBackground(
           bgImageUrl: bgImageUrl,
           bgOverlayColor: bgOverlayColor,
@@ -61,135 +81,143 @@ class CustomContactInfoWidget extends StatelessWidget {
           padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
           child: Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 1100),
-              child: Column(
-                children: [
-                  Text(
-                    title,
-                    style: AppTypography.h2.copyWith(color: textColor, fontSize: isMobile ? 24 : 32),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: isMobile ? 32 : 64),
-                  Builder(
-                    builder: (context) {
-                      final activeItems = [
-                        if (phone != null && phone!.isNotEmpty)
-                          {'icon': _resolveIcon(phoneIcon, Icons.phone_rounded), 'label': "Phone", 'value': phone!},
-                        if (email != null && email!.isNotEmpty)
-                          {'icon': _resolveIcon(emailIcon, Icons.email_rounded), 'label': "Email", 'value': email!},
-                        if (location != null && location!.isNotEmpty)
-                          {'icon': _resolveIcon(locationIcon, Icons.location_on_rounded), 'label': "Address", 'value': location!},
-                      ];
-
-                      if (activeItems.isEmpty) return SizedBox.shrink();
-
-                      final int columnCount = ResponsiveUtils.getContentColumns(
-                        constraints.maxWidth,
-                        desktop: 3,
-                        tablet: 2,
-                        mobile: 1,
-                      );
-
-                      final List<Widget> rows = [];
-                      for (int i = 0; i < activeItems.length; i += columnCount) {
-                        final rowItems = activeItems.sublist(i, (i + columnCount > activeItems.length) ? activeItems.length : i + columnCount);
-                        rows.add(
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: List.generate(columnCount, (colIndex) {
-                              if (colIndex < rowItems.length) {
-                                final item = rowItems[colIndex];
-                                final isLastInRow = colIndex == columnCount - 1;
-                                return Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsetsDirectional.only(end: isLastInRow ? 0 : (isMobile ? 16.0 : 24.0)),
-                                    child: _buildContactCard(
-                                      item['icon'] as IconData,
-                                      item['label'] as String,
-                                      item['value'] as String,
-                                      secondaryColor,
-                                      textColor,
-                                      subTextColor,
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                return const Expanded(child: SizedBox.shrink());
-                              }
-                            }),
-                          ),
-                        );
-                        if (i + columnCount < activeItems.length) {
-                          rows.add(SizedBox(height: isMobile ? 16 : 24));
-                        }
-                      }
-                      return Column(children: rows);
-                    },
-                  ),
-                ],
-              ),
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: isMobile ? _MobileContactLayout(props: props) : _DesktopContactLayout(props: props),
             ),
           ),
         );
       },
     );
   }
+}
 
-  Widget _buildContactCard(IconData icon, String label, String value, Color secondary, Color textColor, Color subTextColor) {
-    final cleanValue = value.trim();
-    final bool isLtr = cleanValue.contains('@') ||
-                      RegExp(r'^\+?[0-9\-\s()]+$').hasMatch(cleanValue) ||
-                      cleanValue.startsWith('http') ||
-                      cleanValue.contains('www.');
+class _ContactProps {
+  final String title;
+  final String? email;
+  final String? phone;
+  final String? location;
+  final String? phoneIcon;
+  final String? emailIcon;
+  final String? locationIcon;
+  final Color secondaryColor;
+  final Color textColor;
+  final Color subTextColor;
+  final bool isMobile;
+  final LandingPageTheme? theme;
+  final String? bgImageUrl;
+  final String? bgOverlayColor;
+  final double? bgOverlayOpacity;
+  final String? backgroundColorHex;
+  final double? verticalPadding;
+  final double? bgBlur;
 
+  const _ContactProps({
+    required this.title,
+    this.email,
+    this.phone,
+    this.location,
+    this.phoneIcon,
+    this.emailIcon,
+    this.locationIcon,
+    required this.secondaryColor,
+    required this.textColor,
+    required this.subTextColor,
+    required this.isMobile,
+    this.theme,
+    this.bgImageUrl,
+    this.bgOverlayColor,
+    this.bgOverlayOpacity,
+    this.backgroundColorHex,
+    this.verticalPadding,
+    this.bgBlur,
+  });
+}
+
+class _DesktopContactLayout extends StatelessWidget {
+  final _ContactProps props;
+  const _DesktopContactLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _ContactHeader(props: props),
+        const SizedBox(height: 64),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (props.email != null) Expanded(child: _ContactCard(icon: Icons.email_outlined, label: 'البريد الإلكتروني', value: props.email!, props: props)),
+            const SizedBox(width: 20),
+            if (props.phone != null) Expanded(child: _ContactCard(icon: Icons.phone_outlined, label: 'رقم الهاتف', value: props.phone!, props: props)),
+            const SizedBox(width: 20),
+            if (props.location != null) Expanded(child: _ContactCard(icon: Icons.location_on_outlined, label: 'الموقع', value: props.location!, props: props)),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _MobileContactLayout extends StatelessWidget {
+  final _ContactProps props;
+  const _MobileContactLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _ContactHeader(props: props),
+        const SizedBox(height: 32),
+        if (props.email != null) _ContactCard(icon: Icons.email_outlined, label: 'البريد الإلكتروني', value: props.email!, props: props),
+        const SizedBox(height: 16),
+        if (props.phone != null) _ContactCard(icon: Icons.phone_outlined, label: 'رقم الهاتف', value: props.phone!, props: props),
+        const SizedBox(height: 16),
+        if (props.location != null) _ContactCard(icon: Icons.location_on_outlined, label: 'الموقع', value: props.location!, props: props),
+      ],
+    );
+  }
+}
+
+class _ContactHeader extends StatelessWidget {
+  final _ContactProps props;
+  const _ContactHeader({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center);
+  }
+}
+
+class _ContactCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final _ContactProps props;
+
+  const _ContactCard({required this.icon, required this.label, required this.value, required this.props});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: subTextColor.withValues(alpha: 0.05),
+        color: props.subTextColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: subTextColor.withValues(alpha: 0.1)),
+        border: Border.all(color: props.subTextColor.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: secondary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: secondary, size: 28),
+            decoration: BoxDecoration(color: props.secondaryColor.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: Icon(icon, color: props.secondaryColor, size: 24),
           ),
-          SizedBox(height: 16),
-          Text(label, style: AppTypography.caption.copyWith(color: subTextColor, fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              style: AppTypography.bodyLarge.copyWith(color: textColor, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-              textDirection: isLtr ? TextDirection.ltr : null,
-            ),
-          ),
+          const SizedBox(height: 16),
+          Text(label, style: AppTypography.bodySmall.copyWith(color: props.subTextColor)),
+          const SizedBox(height: 8),
+          Text(value, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor), textAlign: TextAlign.center),
         ],
       ),
     );
-  }
-
-  IconData _resolveIcon(String? iconName, IconData defaultIcon) {
-    if (iconName != null && iconName.isNotEmpty) {
-      switch (iconName.toLowerCase()) {
-        case 'phone': return Icons.phone_rounded;
-        case 'mobile': return Icons.phone_iphone_rounded;
-        case 'email': return Icons.email_rounded;
-        case 'envelope': return Icons.mail_outline_rounded;
-        case 'location': return Icons.location_on_rounded;
-        case 'map': return Icons.map_rounded;
-        case 'whatsapp': return Icons.chat_rounded; // Assuming chat for WhatsApp if font_awesome isn't used
-        case 'chat': return Icons.chat_rounded;
-      }
-    }
-    return defaultIcon;
   }
 }

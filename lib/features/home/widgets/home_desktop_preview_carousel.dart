@@ -31,8 +31,7 @@ class HomeDesktopPreviewCarousel extends StatefulWidget {
       _HomeDesktopPreviewCarouselState();
 }
 
-class _HomeDesktopPreviewCarouselState
-    extends State<HomeDesktopPreviewCarousel>
+class _HomeDesktopPreviewCarouselState extends State<HomeDesktopPreviewCarousel>
     with TickerProviderStateMixin {
   late PageController _pageController;
   late AnimationController _headerController;
@@ -82,11 +81,10 @@ class _HomeDesktopPreviewCarouselState
   }
 
   void _onMobileScroll() {
-    if (_mobileScrollController == null ||
-        !_mobileScrollController!.hasClients) return;
+    if (_mobileScrollController == null || !_mobileScrollController!.hasClients)
+      return;
     const itemWidth = 360.0;
-    final page =
-        (_mobileScrollController!.offset / itemWidth).round();
+    final page = (_mobileScrollController!.offset / itemWidth).round();
     final newPage = page.clamp(0, _templates.length - 1);
     if (newPage != _mobilePage) {
       setState(() => _mobilePage = newPage);
@@ -98,19 +96,23 @@ class _HomeDesktopPreviewCarouselState
       final db = sl<DatabaseService>();
       final featured = await db.fetchFeaturedTemplates();
       if (featured.isNotEmpty) {
-        final mapped = featured.map((t) => TemplateMetadata(
-          id: t['id'] ?? '',
-          name: t['name'] ?? '',
-          description: t['description'] ?? '',
-          imageUrl: t['image_url'] ?? '',
-          category: t['category'] ?? 'general',
-          recommendedSections:
-              (t['recommended_sections'] as List<dynamic>?)
-                      ?.map((e) => e.toString())
-                      .toList() ??
-                  [],
-          aiPromptHint: t['ai_prompt_hint'] ?? '',
-        )).toList();
+        final mapped = featured
+            .map(
+              (t) => TemplateMetadata(
+                id: t['id'] ?? '',
+                name: t['name'] ?? '',
+                description: t['description'] ?? '',
+                imageUrl: t['image_url'] ?? '',
+                category: t['category'] ?? 'general',
+                recommendedSections:
+                    (t['recommended_sections'] as List<dynamic>?)
+                        ?.map((e) => e.toString())
+                        .toList() ??
+                    [],
+                aiPromptHint: t['ai_prompt_hint'] ?? '',
+              ),
+            )
+            .toList();
         if (mounted) {
           setState(() {
             _templates = mapped;
@@ -162,15 +164,13 @@ class _HomeDesktopPreviewCarouselState
       child: FadeTransition(
         opacity: _headerController,
         child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 0.2),
-            end: Offset.zero,
-          ).animate(
-            CurvedAnimation(
-              parent: _headerController,
-              curve: Curves.easeOut,
-            ),
-          ),
+          position: Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
+              .animate(
+                CurvedAnimation(
+                  parent: _headerController,
+                  curve: Curves.easeOut,
+                ),
+              ),
           child: Column(
             children: [
               Container(
@@ -179,16 +179,14 @@ class _HomeDesktopPreviewCarouselState
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .secondary
-                      .withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withValues(alpha: 0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -203,12 +201,19 @@ class _HomeDesktopPreviewCarouselState
               ),
               const SizedBox(height: 20),
               Padding(
-                padding:
-                    EdgeInsetsDirectional.symmetric(horizontal: isMobile ? 16 : isTablet ? 32 : 48),
+                padding: EdgeInsetsDirectional.symmetric(
+                  horizontal: isMobile
+                      ? 16
+                      : isTablet
+                      ? 32
+                      : 48,
+                ),
                 child: Text(
                   loc.isRtl
-                      ? widget.subtitle ?? "شاهد كيف تبدو صفحتك على الشاشة الكبيرة"
-                      : widget.subtitle ?? "See How Your Page Looks on Large Screens",
+                      ? widget.subtitle ??
+                            "شاهد كيف تبدو صفحتك على الشاشة الكبيرة"
+                      : widget.subtitle ??
+                            "See How Your Page Looks on Large Screens",
                   style: AppTypography.h1.copyWith(
                     fontSize: isMobile ? 28 : (isTablet ? 42 : 58),
                     fontWeight: FontWeight.w900,
@@ -218,12 +223,19 @@ class _HomeDesktopPreviewCarouselState
               ),
               const SizedBox(height: 12),
               Padding(
-                padding:
-                    EdgeInsetsDirectional.symmetric(horizontal: isMobile ? 16 : isTablet ? 32 : 48),
+                padding: EdgeInsetsDirectional.symmetric(
+                  horizontal: isMobile
+                      ? 16
+                      : isTablet
+                      ? 32
+                      : 48,
+                ),
                 child: Text(
                   loc.isRtl
-                      ? widget.description ?? "معاينة حية لكل قالب كما سيظهر لزوارك على أجهزة الكمبيوتر."
-                      : widget.description ?? "Live preview of each template as it will appear to your visitors on desktop.",
+                      ? widget.description ??
+                            "معاينة حية لكل قالب كما سيظهر لزوارك على أجهزة الكمبيوتر."
+                      : widget.description ??
+                            "Live preview of each template as it will appear to your visitors on desktop.",
                   style: AppTypography.bodyLarge.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -373,25 +385,25 @@ class _HomeDesktopPreviewCarouselState
 
         return Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            vertical: isMobile ? 32 : 60,
-          ),
+          padding: EdgeInsets.symmetric(vertical: isMobile ? 32 : 60),
           decoration: BoxDecoration(
             color: Colors.transparent,
             border: Border(
               top: BorderSide(
-                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outlineVariant.withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),
           ),
           child: Column(
             children: [
-              _buildSectionHeader(isMobile, isTablet, loc),
-              const SizedBox(height: 48),
-              isMobile
-                  ? _buildMobileCarousel(isMobile, constraints.maxWidth)
-                  : _buildDesktopCarousel(isMobile),
+              // _buildSectionHeader(isMobile, isTablet, loc),
+              // const SizedBox(height: 48),
+              // isMobile
+              //     ? _buildMobileCarousel(isMobile, constraints.maxWidth)
+              //     : _buildDesktopCarousel(isMobile),
             ],
           ),
         );
@@ -442,10 +454,9 @@ class _BrowserMockupCardState extends State<_BrowserMockupCard> {
             boxShadow: _isHovered
                 ? [
                     BoxShadow(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.15),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.15),
                       blurRadius: 24,
                       offset: const Offset(0, 12),
                     ),
@@ -482,10 +493,7 @@ class _BrowserMockupCardState extends State<_BrowserMockupCard> {
         border: Border(
           bottom: BorderSide(
             color: _isHovered
-                ? Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.3)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
                 : Theme.of(context).colorScheme.outlineVariant,
             width: 0.5,
           ),
@@ -533,10 +541,7 @@ class _BrowserMockupCardState extends State<_BrowserMockupCard> {
     return SizedBox(
       height: imageHeight,
       width: double.infinity,
-      child: Image.network(
-        widget.template.imageUrl,
-        fit: BoxFit.cover,
-      ),
+      child: Image.network(widget.template.imageUrl, fit: BoxFit.cover),
     );
   }
 
@@ -558,10 +563,9 @@ class _BrowserMockupCardState extends State<_BrowserMockupCard> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -588,17 +592,13 @@ class _BrowserMockupCardState extends State<_BrowserMockupCard> {
           ),
           const SizedBox(width: 16),
           ElevatedButton(
-            onPressed: () =>
-                widget.onGetStartedPressed(widget.template.id),
+            onPressed: () => widget.onGetStartedPressed(widget.template.id),
             style: ElevatedButton.styleFrom(
               backgroundColor: _isHovered
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.secondary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -606,10 +606,7 @@ class _BrowserMockupCardState extends State<_BrowserMockupCard> {
             ),
             child: Text(
               loc.isRtl ? "استخدم القالب" : "Use Template",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
             ),
           ),
         ],
@@ -628,10 +625,7 @@ class _TrafficDot extends StatelessWidget {
     return Container(
       width: 10,
       height: 10,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }
@@ -664,9 +658,7 @@ class _NavigationButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
             ),
             child: Icon(icon, color: Colors.white, size: iconSize),
           ),

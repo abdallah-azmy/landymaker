@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class FloatingCubeBackgroundController {
   void Function(Offset?)? onRepelUpdate;
   void Function(Offset)? onBurst;
+  double scrollDrift = 0.0;
 
   void repelAt(Offset? normalizedPosition) {
     onRepelUpdate?.call(normalizedPosition);
@@ -74,9 +75,15 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     double dt = current - _lastValue;
     if (dt < 0) dt += 1.0;
     _lastValue = current;
+    final scrollDrift = widget.controller?.scrollDrift ?? 0.0;
 
     for (final cube in _cubes) {
-      cube.update(dt, widget.speed, _hasRepelPoint ? _repelPoint : null);
+      cube.update(
+        dt,
+        widget.speed,
+        _hasRepelPoint ? _repelPoint : null,
+        scrollDrift,
+      );
     }
   }
 
@@ -172,7 +179,12 @@ class _Cube {
   }) : _baseVx = baseVx,
        _baseVy = baseVy;
 
-  void update(double dt, double speedMultiplier, Offset? repelPoint) {
+  void update(
+    double dt,
+    double speedMultiplier,
+    Offset? repelPoint,
+    double scrollDrift,
+  ) {
     _timeSinceLastChange += dt;
     if (_timeSinceLastChange > 0.033) {
       _timeSinceLastChange = 0.0;
@@ -190,6 +202,8 @@ class _Cube {
         vy += (dy / dist) * force;
       }
     }
+
+    vy -= scrollDrift * 2.0;
 
     final speed = sqrt(vx * vx + vy * vy);
     if (speed > 0.35) {
@@ -216,11 +230,25 @@ class _Cube {
     }
     if (y < 0) {
       y = 0;
-      vy = -vy * 0.92;
+      final drift = scrollDrift.abs();
+      if (drift > 0.001) {
+        final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
+        vy = -vy * bounceFactor;
+        vx += (Random().nextDouble() - 0.5) * drift * 4.0;
+      } else {
+        vy = -vy * 0.45;
+      }
     }
     if (y > 1) {
       y = 1;
-      vy = -vy * 0.92;
+      final drift = scrollDrift.abs();
+      if (drift > 0.001) {
+        final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
+        vy = -vy * bounceFactor;
+        vx += (Random().nextDouble() - 0.5) * drift * 4.0;
+      } else {
+        vy = -vy * 0.45;
+      }
     }
 
     rx += vrx * dt * 60 * speedMultiplier;

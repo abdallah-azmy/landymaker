@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../../core/widgets/block_animation_wrapper.dart';
@@ -12,8 +10,8 @@ import '../controllers/cart_cubit.dart';
 /// ======================================================
 /// FEATURE: Custom Products Widget
 /// PURPOSE: Displays a searchable and filterable grid or list of products.
-/// ARCHITECTURE: 
-/// - State Hoisting: Pagination, Sorting, and Category state is managed 
+/// ARCHITECTURE:
+/// - State Hoisting: Pagination, Sorting, and Category state is managed
 ///   in the [CustomProductsWidget] state object.
 /// - Layout Delegation: Renders [_DesktopProductsLayout] or [_MobileProductsLayout]
 ///   based on screen width.
@@ -77,13 +75,21 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
     final filtered = _selectedCategory == 'all'
         ? List<Map<String, dynamic>>.from(widget.items)
         : widget.items
-              .where((p) => _toSlug(p['category']?.toString() ?? '') == _toSlug(_selectedCategory))
+              .where(
+                (p) =>
+                    _toSlug(p['category']?.toString() ?? '') ==
+                    _toSlug(_selectedCategory),
+              )
               .toList();
 
     if (_sortMode == _SortMode.priceLow) {
-      filtered.sort((a, b) => _parsePrice(a['price']).compareTo(_parsePrice(b['price'])));
+      filtered.sort(
+        (a, b) => _parsePrice(a['price']).compareTo(_parsePrice(b['price'])),
+      );
     } else if (_sortMode == _SortMode.priceHigh) {
-      filtered.sort((a, b) => _parsePrice(b['price']).compareTo(_parsePrice(a['price'])));
+      filtered.sort(
+        (a, b) => _parsePrice(b['price']).compareTo(_parsePrice(a['price'])),
+      );
     }
     return filtered;
   }
@@ -100,10 +106,12 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
   double _parsePrice(dynamic raw) {
     if (raw == null) return 0;
-    return double.tryParse(raw.toString().replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0;
+    return double.tryParse(raw.toString().replaceAll(RegExp(r'[^0-9.]'), '')) ??
+        0;
   }
 
-  String _toSlug(String input) => input.toLowerCase().trim().replaceAll(' ', '-');
+  String _toSlug(String input) =>
+      input.toLowerCase().trim().replaceAll(' ', '-');
 
   @override
   void initState() {
@@ -114,13 +122,15 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
   @override
   void didUpdateWidget(covariant CustomProductsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.items != widget.items || oldWidget.customCategories != widget.customCategories) {
+    if (oldWidget.items != widget.items ||
+        oldWidget.customCategories != widget.customCategories) {
       _initCategories();
     }
   }
 
   void _initCategories() {
-    if (widget.customCategories != null && widget.customCategories!.isNotEmpty) {
+    if (widget.customCategories != null &&
+        widget.customCategories!.isNotEmpty) {
       _categories = widget.customCategories!;
     } else {
       final Set<String> cats = {'all'};
@@ -151,14 +161,19 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
 
   @override
   Widget build(BuildContext context) {
-    final secondaryColor = widget.theme?.secondary ?? Theme.of(context).colorScheme.secondary;
-    final textColor = widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
-    final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    final secondaryColor =
+        widget.theme?.secondary ?? Theme.of(context).colorScheme.secondary;
+    final textColor =
+        widget.theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor =
+        widget.theme?.textSecondary ??
+        Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
-        final double paddingValue = widget.verticalPadding ?? (isMobile ? 40 : 80);
+        final double paddingValue =
+            widget.verticalPadding ?? (isMobile ? 40 : 80);
 
         final props = _ProductsProps(
           title: widget.title,
@@ -174,7 +189,10 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
           subTextColor: subTextColor,
           isMobile: isMobile,
           onPageChanged: (p) => setState(() => _currentPage = p),
-          onSortChanged: (s) => setState(() { _sortMode = s; _currentPage = 1; }),
+          onSortChanged: (s) => setState(() {
+            _sortMode = s;
+            _currentPage = 1;
+          }),
           productKeys: widget.productKeys,
           whatsappNumber: widget.whatsappNumber,
           showCategoryFilter: widget.showCategoryFilter,
@@ -200,11 +218,16 @@ class _CustomProductsWidgetState extends State<CustomProductsWidget>
           verticalPaddingOverride: widget.verticalPadding,
           bgBlur: widget.bgBlur,
           theme: widget.theme,
-          padding: EdgeInsetsDirectional.symmetric(vertical: paddingValue, horizontal: 24),
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical: paddingValue,
+            horizontal: 24,
+          ),
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1200),
-              child: isMobile ? _MobileProductsLayout(props: props) : _DesktopProductsLayout(props: props),
+              child: isMobile
+                  ? _MobileProductsLayout(props: props)
+                  : _DesktopProductsLayout(props: props),
             ),
           ),
         );
@@ -332,7 +355,15 @@ class _ProductsHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(child: Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 22 : 32))),
+        Expanded(
+          child: Text(
+            props.title,
+            style: AppTypography.h2.copyWith(
+              color: props.textColor,
+              fontSize: props.isMobile ? 22 : 32,
+            ),
+          ),
+        ),
         _SortDropdown(props: props),
       ],
     );
@@ -353,7 +384,9 @@ class _CategoryFilter extends StatelessWidget {
       labelColor: props.secondaryColor,
       unselectedLabelColor: props.subTextColor,
       indicatorColor: props.secondaryColor,
-      tabs: props.categories.map((c) => Tab(text: c == 'all' ? 'الكل' : c)).toList(),
+      tabs: props.categories
+          .map((c) => Tab(text: c == 'all' ? 'الكل' : c))
+          .toList(),
     );
   }
 }
@@ -369,9 +402,18 @@ class _SortDropdown extends StatelessWidget {
       onSelected: props.onSortChanged,
       icon: Icon(Icons.sort_rounded, color: props.secondaryColor),
       itemBuilder: (context) => [
-        const PopupMenuItem(value: _SortMode.defaultOrder, child: Text('الترتيب الافتراضي')),
-        const PopupMenuItem(value: _SortMode.priceLow, child: Text('السعر: من الأقل للأعلى')),
-        const PopupMenuItem(value: _SortMode.priceHigh, child: Text('السعر: من الأعلى للأقل')),
+        const PopupMenuItem(
+          value: _SortMode.defaultOrder,
+          child: Text('الترتيب الافتراضي'),
+        ),
+        const PopupMenuItem(
+          value: _SortMode.priceLow,
+          child: Text('السعر: من الأقل للأعلى'),
+        ),
+        const PopupMenuItem(
+          value: _SortMode.priceHigh,
+          child: Text('السعر: من الأعلى للأقل'),
+        ),
       ],
     );
   }
@@ -386,7 +428,10 @@ class _ProductsGrid extends StatelessWidget {
     if (props.items.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 64),
-        child: Text('لا توجد منتجات في هذا القسم', style: TextStyle(color: props.subTextColor)),
+        child: Text(
+          'لا توجد منتجات في هذا القسم',
+          style: TextStyle(color: props.subTextColor),
+        ),
       );
     }
 
@@ -394,36 +439,60 @@ class _ProductsGrid extends StatelessWidget {
       return _ProductsCarousel(props: props);
     }
 
-    final int crossAxisCount = props.isMobile ? props.mobileColumns : (props.layoutStyle == 'grid_3' ? 3 : 2);
+    final int columnCount = props.isMobile
+        ? props.mobileColumns
+        : (props.layoutStyle == 'grid_3' ? 3 : 2);
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: props.isMobile ? 12 : 24,
-        mainAxisSpacing: props.isMobile ? 12 : 24,
-        childAspectRatio: props.cardStyle == 'minimal' ? 0.75 : 0.7,
-      ),
-      itemCount: props.items.length,
-      itemBuilder: (context, index) {
-        final item = props.items[index];
-        final String id = item['id']?.toString() ?? index.toString();
-        
-        Widget card = _ProductCard(item: item, props: props);
-        
-        if (props.staggerAnimations) {
-          card = BlockAnimationWrapper(
-            settings: BlockAnimationSettings(
-              type: BlockAnimationType.fadeIn,
-              delay: Duration(milliseconds: index * 100),
-            ),
-            child: card,
-          );
-        }
-        
-        return card;
-      },
+    final List<List<Map<String, dynamic>>> rows = [];
+    for (var i = 0; i < props.items.length; i += columnCount) {
+      rows.add(
+        props.items.sublist(i, (i + columnCount).clamp(0, props.items.length)),
+      );
+    }
+
+    final double spacing = props.isMobile ? 12 : 24;
+
+    return Column(
+      children: rows.asMap().entries.map((rowEntry) {
+        final isLastRow = rowEntry.key == rows.length - 1;
+        return Padding(
+          padding: EdgeInsets.only(bottom: isLastRow ? 0 : spacing),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children:
+                rowEntry.value.asMap().entries.map((itemEntry) {
+                  final index = rowEntry.key * columnCount + itemEntry.key;
+                  final item = itemEntry.value;
+                  final isLastItem = itemEntry.key == rowEntry.value.length - 1;
+
+                  Widget card = _ProductCard(item: item, props: props);
+
+                  if (props.staggerAnimations) {
+                    card = BlockAnimationWrapper(
+                      settings: BlockAnimationSettings(
+                        type: BlockAnimationType.fadeIn,
+                        delay: Duration(milliseconds: index * 100),
+                      ),
+                      child: card,
+                    );
+                  }
+
+                  return Expanded(
+                    child: Padding(
+                      padding: EdgeInsetsDirectional.only(
+                        end: isLastItem ? 0 : spacing,
+                      ),
+                      child: card,
+                    ),
+                  );
+                }).toList() +
+                List.generate(
+                  columnCount - rowEntry.value.length,
+                  (_) => const Expanded(child: SizedBox.shrink()),
+                ),
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -469,7 +538,8 @@ class _ProductCardState extends State<_ProductCard> {
     final String imageUrl = widget.item['image_url'] ?? '';
     final String? description = widget.item['description'];
 
-    final bool isSmall = widget.props.isMobile && widget.props.mobileColumns > 1;
+    final bool isSmall =
+        widget.props.isMobile && widget.props.mobileColumns > 1;
     final bool isTiny = widget.props.isMobile && widget.props.mobileColumns > 2;
 
     final bool applyScale = widget.props.hoverEffect == 'scale' && _hovered;
@@ -481,36 +551,66 @@ class _ProductCardState extends State<_ProductCard> {
       onExit: (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        transform: applyScale ? (Matrix4.identity()..scale(1.03)) : Matrix4.identity(),
+        transform: applyScale
+            ? (Matrix4.identity()..scale(1.03))
+            : Matrix4.identity(),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(isTiny ? 12 : 24),
-          border: Border.all(color: applyGlow ? widget.props.secondaryColor : Theme.of(context).colorScheme.outlineVariant, width: applyGlow ? 2 : 1),
-          boxShadow: (applyElevate || applyGlow) ? [
-            BoxShadow(
-              color: (applyGlow ? widget.props.secondaryColor : Colors.black).withValues(alpha: 0.1),
-              blurRadius: applyGlow ? 20 : 30,
-              spreadRadius: applyGlow ? 2 : 0,
-              offset: applyGlow ? Offset.zero : const Offset(0, 10),
-            )
-          ] : [],
+          border: Border.all(
+            color: applyGlow
+                ? widget.props.secondaryColor
+                : Theme.of(context).colorScheme.outlineVariant,
+            width: applyGlow ? 2 : 1,
+          ),
+          boxShadow: (applyElevate || applyGlow)
+              ? [
+                  BoxShadow(
+                    color:
+                        (applyGlow ? widget.props.secondaryColor : Colors.black)
+                            .withValues(alpha: 0.1),
+                    blurRadius: applyGlow ? 20 : 30,
+                    spreadRadius: applyGlow ? 2 : 0,
+                    offset: applyGlow ? Offset.zero : const Offset(0, 10),
+                  ),
+                ]
+              : [],
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             AspectRatio(
-              aspectRatio: 1,
+              aspectRatio: 1.0,
               child: Stack(
                 children: [
-                  Positioned.fill(child: CustomNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)),
+                  Positioned.fill(
+                    child: CustomNetworkImage(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                   PositionedDirectional(
                     top: isTiny ? 4 : 8,
                     end: isTiny ? 4 : 8,
                     child: Container(
-                      padding: EdgeInsetsDirectional.symmetric(horizontal: isTiny ? 6 : 8, vertical: isTiny ? 2 : 4),
-                      decoration: BoxDecoration(color: widget.props.secondaryColor, borderRadius: BorderRadius.circular(isTiny ? 4 : 8)),
-                      child: Text(price, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: isTiny ? 8 : (isSmall ? 9 : 11))),
+                      padding: EdgeInsetsDirectional.symmetric(
+                        horizontal: isTiny ? 6 : 8,
+                        vertical: isTiny ? 2 : 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: widget.props.secondaryColor,
+                        borderRadius: BorderRadius.circular(isTiny ? 4 : 8),
+                      ),
+                      child: Text(
+                        price,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: isTiny ? 8 : (isSmall ? 9 : 11),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -523,9 +623,9 @@ class _ProductCardState extends State<_ProductCard> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    name, 
+                    name,
                     style: AppTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.bold, 
+                      fontWeight: FontWeight.bold,
                       color: widget.props.textColor,
                       fontSize: isTiny ? 10 : (isSmall ? 12 : 14),
                     ),
@@ -535,7 +635,7 @@ class _ProductCardState extends State<_ProductCard> {
                   if (!isTiny && description != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      description, 
+                      description,
                       style: AppTypography.caption.copyWith(
                         color: widget.props.subTextColor,
                         fontSize: isSmall ? 9 : 11,
@@ -544,7 +644,7 @@ class _ProductCardState extends State<_ProductCard> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                  const SizedBox(height: 12),
+                  SizedBox(height: isTiny ? 8 : (isSmall ? 12 : 16)),
                   SizedBox(
                     width: double.infinity,
                     height: isTiny ? 28 : (isSmall ? 32 : 40),
@@ -556,10 +656,18 @@ class _ProductCardState extends State<_ProductCard> {
                         backgroundColor: widget.props.secondaryColor,
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isTiny ? 6 : 10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(isTiny ? 6 : 10),
+                        ),
                         elevation: 0,
                       ),
-                      child: Text(isTiny ? 'شراء' : 'إضافة للسلة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTiny ? 8 : (isSmall ? 10 : 12))),
+                      child: Text(
+                        isTiny ? 'شراء' : 'إضافة للسلة',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: isTiny ? 8 : (isSmall ? 10 : 12),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -593,9 +701,19 @@ class _Pagination extends StatelessWidget {
             decoration: BoxDecoration(
               color: isActive ? props.secondaryColor : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: props.secondaryColor.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: props.secondaryColor.withValues(alpha: 0.3),
+              ),
             ),
-            child: Center(child: Text(pageNum.toString(), style: TextStyle(color: isActive ? Colors.white : props.textColor, fontWeight: FontWeight.bold))),
+            child: Center(
+              child: Text(
+                pageNum.toString(),
+                style: TextStyle(
+                  color: isActive ? Colors.white : props.textColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
         );
       }),

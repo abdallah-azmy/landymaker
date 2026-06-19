@@ -50,17 +50,23 @@ class _HomeLuxuriousTemplateSliderState
       final db = sl<DatabaseService>();
       final featured = await db.fetchFeaturedTemplates();
       if (featured.isNotEmpty) {
-        var mapped = featured.map((t) => TemplateMetadata(
-          id: t['id'] ?? '',
-          name: t['name'] ?? '',
-          description: t['description'] ?? '',
-          imageUrl: t['image_url'] ?? '',
-          category: t['category'] ?? 'general',
-          recommendedSections: (t['recommended_sections'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ?? [],
-          aiPromptHint: t['ai_prompt_hint'] ?? '',
-        )).toList();
+        var mapped = featured
+            .map(
+              (t) => TemplateMetadata(
+                id: t['id'] ?? '',
+                name: t['name'] ?? '',
+                description: t['description'] ?? '',
+                imageUrl: t['image_url'] ?? '',
+                category: t['category'] ?? 'general',
+                recommendedSections:
+                    (t['recommended_sections'] as List<dynamic>?)
+                        ?.map((e) => e.toString())
+                        .toList() ??
+                    [],
+                aiPromptHint: t['ai_prompt_hint'] ?? '',
+              ),
+            )
+            .toList();
         if (widget.templateIds != null && widget.templateIds!.isNotEmpty) {
           final ids = widget.templateIds!.toSet();
           mapped = mapped.where((t) => ids.contains(t.id)).toList();
@@ -68,7 +74,11 @@ class _HomeLuxuriousTemplateSliderState
         if (widget.maxToShow != null && mapped.length > widget.maxToShow!) {
           mapped = mapped.sublist(0, widget.maxToShow);
         }
-        if (mounted) setState(() { _templates = mapped; _isLoadingTemplates = false; });
+        if (mounted)
+          setState(() {
+            _templates = mapped;
+            _isLoadingTemplates = false;
+          });
         return;
       }
     } catch (_) {}
@@ -212,14 +222,20 @@ class _HomeLuxuriousTemplateSliderState
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
-                  loc.isRtl ? widget.title ?? "✨ قوالب عالمية" : widget.title ?? "✨ World-Class Templates",
+                  loc.isRtl
+                      ? widget.title ?? "✨ قوالب عالمية"
+                      : widget.title ?? "✨ World-Class Templates",
                   style: AppTypography.caption.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.bold,
@@ -232,7 +248,11 @@ class _HomeLuxuriousTemplateSliderState
                     ? "صمم موقعك بلمسة فنية"
                     : "Design Your Site with an Artistic Touch",
                 style: AppTypography.h1.copyWith(
-                  fontSize: isMobile ? 32 : isTablet ? 44 : 58,
+                  fontSize: isMobile
+                      ? 32
+                      : isTablet
+                      ? 44
+                      : 58,
                   fontWeight: FontWeight.w900,
                 ),
                 textAlign: TextAlign.center,
@@ -240,7 +260,8 @@ class _HomeLuxuriousTemplateSliderState
               SizedBox(height: 12),
               Text(
                 loc.isRtl
-                    ? widget.subtitle ?? "اختر من بين مجموعة واسعة من القوالب المصممة بعناية لتناسب هويتك."
+                    ? widget.subtitle ??
+                          "اختر من بين مجموعة واسعة من القوالب المصممة بعناية لتناسب هويتك."
                     : "Choose from a wide range of carefully designed templates to match your identity.",
                 style: AppTypography.bodyLarge.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -408,7 +429,13 @@ class _HomeLuxuriousTemplateSliderState
 
   Widget _buildTwoColsGrid(bool isMobile, bool isTablet) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16.0 : isTablet ? 32.0 : 48.0),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile
+            ? 16.0
+            : isTablet
+            ? 32.0
+            : 48.0,
+      ),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -451,22 +478,27 @@ class _HomeLuxuriousTemplateSliderState
           decoration: BoxDecoration(
             color: Colors.transparent,
             border: Border(
-              top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2), width: 0.5),
+              top: BorderSide(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outlineVariant.withValues(alpha: 0.2),
+                width: 0.5,
+              ),
             ),
           ),
           child: Column(
             children: [
-              _buildSectionHeader(isMobile, isTablet, loc),
-              SizedBox(height: 64),
-              switch (widget.layout) {
-                TemplateSliderLayout.horizontalSlider => _buildHorizontalSlider(
-                  isMobile,
-                  isTablet,
-                  loc,
-                ),
-                TemplateSliderLayout.masonryGrid => _buildMasonryGrid(isMobile, isTablet),
-                TemplateSliderLayout.twoColsGrid => _buildTwoColsGrid(isMobile, isTablet),
-              },
+              // _buildSectionHeader(isMobile, isTablet, loc),
+              // SizedBox(height: 64),
+              // switch (widget.layout) {
+              //   TemplateSliderLayout.horizontalSlider => _buildHorizontalSlider(
+              //     isMobile,
+              //     isTablet,
+              //     loc,
+              //   ),
+              //   TemplateSliderLayout.masonryGrid => _buildMasonryGrid(isMobile, isTablet),
+              //   TemplateSliderLayout.twoColsGrid => _buildTwoColsGrid(isMobile, isTablet),
+              // },
             ],
           ),
         );
@@ -505,8 +537,11 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: (_isHovered ? Theme.of(context).colorScheme.secondary : Colors.black)
-                    .withValues(alpha: 0.2),
+                color:
+                    (_isHovered
+                            ? Theme.of(context).colorScheme.secondary
+                            : Colors.black)
+                        .withValues(alpha: 0.2),
                 blurRadius: _isHovered ? 40 : 20,
                 offset: Offset(0, _isHovered ? 20 : 10),
               ),
@@ -626,10 +661,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                                       ),
                                     ),
                                     SizedBox(width: 6),
-                                    Icon(
-                                      Icons.arrow_forward_rounded,
-                                      size: 14,
-                                    ),
+                                    Icon(Icons.arrow_forward_rounded, size: 14),
                                   ],
                                 ),
                               ),
@@ -657,10 +689,7 @@ class _LuxuriousTemplateCardState extends State<_LuxuriousTemplateCard> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
-                                    Icons.visibility_outlined,
-                                    size: 16,
-                                  ),
+                                  Icon(Icons.visibility_outlined, size: 16),
                                   SizedBox(width: 6),
                                   Text(
                                     context.read<LocalizationCubit>().isRtl
@@ -734,14 +763,18 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: _hovered
-                  ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.5)
                   : Theme.of(context).colorScheme.outlineVariant,
               width: 1.5,
             ),
             boxShadow: _hovered
                 ? [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondary.withValues(alpha: 0.15),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
@@ -843,7 +876,9 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
                         Text(
                           widget.template.description,
                           style: AppTypography.caption.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -854,7 +889,9 @@ class _GridTemplateCardState extends State<_GridTemplateCard> {
                           child: ElevatedButton(
                             onPressed: widget.onPressed,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.secondary,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.secondary,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               shape: RoundedRectangleBorder(

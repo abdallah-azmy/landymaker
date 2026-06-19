@@ -33,6 +33,7 @@ class LandyMakerHomeScreen extends StatefulWidget {
 class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   late final ScrollController _scrollController;
   final _cubeController = FloatingCubeBackgroundController();
+  double _lastScrollOffsetForDrift = 0.0;
 
   bool _particlesActive = true;
   int _cubeCount = 50;
@@ -51,6 +52,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
     _scrollController = ScrollController(
       initialScrollOffset: LandyMakerHomeScreen.lastScrollOffset,
     );
+    _lastScrollOffsetForDrift = LandyMakerHomeScreen.lastScrollOffset;
     _scrollController.addListener(_saveScrollPosition);
     _loadSections();
   }
@@ -73,7 +75,12 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
 
   void _saveScrollPosition() {
     if (_scrollController.hasClients) {
-      LandyMakerHomeScreen.lastScrollOffset = _scrollController.offset;
+      final current = _scrollController.offset;
+      final delta = current - _lastScrollOffsetForDrift;
+      _lastScrollOffsetForDrift = current;
+      LandyMakerHomeScreen.lastScrollOffset = current;
+      final height = context.size?.height ?? 1.0;
+      _cubeController.scrollDrift = delta / height;
     }
   }
 

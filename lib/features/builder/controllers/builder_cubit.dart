@@ -228,10 +228,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
 
       if (savedPageId != null) {
         _emitDirty(
-          currentState.copyWith(
-            pageId: savedPageId,
-            subdomain: subdomain,
-          ),
+          currentState.copyWith(pageId: savedPageId, subdomain: subdomain),
           isClean: true,
         );
       }
@@ -290,22 +287,29 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
 
     // 2. Blocks Update
-    Map<String, dynamic> newDesignMap = Map<String, dynamic>.from(currentState.designMap);
+    Map<String, dynamic> newDesignMap = Map<String, dynamic>.from(
+      currentState.designMap,
+    );
     if (newTheme != null) {
       newDesignMap['theme'] = newTheme.toJson();
       newDesignMap['global_theme'] = newTheme.toJson();
     }
 
     final List incomingBlocks = designJson['blocks'] as List? ?? [];
-    
+
     // Check if it's a partial update (contains _index)
-    bool isPartial = incomingBlocks.any((b) => b is Map && b.containsKey('_index'));
+    bool isPartial = incomingBlocks.any(
+      (b) => b is Map && b.containsKey('_index'),
+    );
     final bool isFullRebuild = designJson['full_rebuild'] == true;
 
     if (isFullRebuild) {
       newDesignMap['blocks'] = incomingBlocks;
       designJson.forEach((key, value) {
-        if (key != 'blocks' && key != 'theme' && key != 'global_theme' && key != 'full_rebuild') {
+        if (key != 'blocks' &&
+            key != 'theme' &&
+            key != 'global_theme' &&
+            key != 'full_rebuild') {
           newDesignMap[key] = value;
         }
       });
@@ -316,7 +320,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
           final int index = block['_index'];
           if (index >= 0 && index < currentBlocks.length) {
             // Merge or replace specific block
-            final existing = Map<String, dynamic>.from(currentBlocks[index] as Map);
+            final existing = Map<String, dynamic>.from(
+              currentBlocks[index] as Map,
+            );
             final updated = Map<String, dynamic>.from(block)..remove('_index');
             final cleanedUpdated = _cleanIncomingMap(updated);
             existing.addAll(cleanedUpdated);
@@ -329,20 +335,29 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         }
       }
       newDesignMap['blocks'] = currentBlocks;
-      
+
       // Also update business info if provided
-      if (designJson.containsKey('business_name')) newDesignMap['business_name'] = designJson['business_name'];
-      if (designJson.containsKey('business_type')) newDesignMap['business_type'] = designJson['business_type'];
+      if (designJson.containsKey('business_name'))
+        newDesignMap['business_name'] = designJson['business_name'];
+      if (designJson.containsKey('business_type'))
+        newDesignMap['business_type'] = designJson['business_type'];
     } else {
       final List currentBlocks = List.from(newDesignMap['blocks'] ?? []);
-      
+
       // Smart Heuristic: Check if the incoming blocks list is a subset edit
       bool isSubsetEdit = false;
-      if (currentBlocks.isNotEmpty && incomingBlocks.isNotEmpty && incomingBlocks.length < currentBlocks.length) {
-        final bool currentHasHero = currentBlocks.any((b) => b is Map && (b['type'] == 'hero' || b['type'] == 'hero_saas'));
-        final bool incomingHasHero = incomingBlocks.any((b) => b is Map && (b['type'] == 'hero' || b['type'] == 'hero_saas'));
-        
-        if ((currentHasHero && !incomingHasHero) || incomingBlocks.length <= 2) {
+      if (currentBlocks.isNotEmpty &&
+          incomingBlocks.isNotEmpty &&
+          incomingBlocks.length < currentBlocks.length) {
+        final bool currentHasHero = currentBlocks.any(
+          (b) => b is Map && (b['type'] == 'hero' || b['type'] == 'hero_saas'),
+        );
+        final bool incomingHasHero = incomingBlocks.any(
+          (b) => b is Map && (b['type'] == 'hero' || b['type'] == 'hero_saas'),
+        );
+
+        if ((currentHasHero && !incomingHasHero) ||
+            incomingBlocks.length <= 2) {
           isSubsetEdit = true;
         }
       }
@@ -368,14 +383,18 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
 
             if (matchIdx != -1) {
               matched[matchIdx] = true;
-              final existing = Map<String, dynamic>.from(currentBlocks[matchIdx] as Map);
+              final existing = Map<String, dynamic>.from(
+                currentBlocks[matchIdx] as Map,
+              );
               final updated = Map<String, dynamic>.from(inBlock);
               final cleanedUpdated = _cleanIncomingMap(updated);
               existing.addAll(cleanedUpdated);
               currentBlocks[matchIdx] = existing;
             } else {
               // No matching type found, append it as a new block
-              currentBlocks.add(_cleanIncomingMap(Map<String, dynamic>.from(inBlock)));
+              currentBlocks.add(
+                _cleanIncomingMap(Map<String, dynamic>.from(inBlock)),
+              );
             }
           }
         }
@@ -384,14 +403,17 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         // Full update edit: merge block-by-block with current blocks.
         // We want to preserve all current blocks, and merge incoming blocks where they match.
         final List mergedBlocks = List.from(currentBlocks);
-        final List<bool> mergedIndices = List.filled(currentBlocks.length, false);
-        
+        final List<bool> mergedIndices = List.filled(
+          currentBlocks.length,
+          false,
+        );
+
         for (int blockIdx = 0; blockIdx < incomingBlocks.length; blockIdx++) {
           final inBlock = incomingBlocks[blockIdx];
           if (inBlock is Map) {
             final String inType = (inBlock['type'] ?? '').toString();
             int matchIdx = -1;
-            
+
             // First, try matching at the same index if the type matches and it's not already merged
             final int index = blockIdx;
             if (index < currentBlocks.length && !mergedIndices[index]) {
@@ -400,7 +422,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
                 matchIdx = index;
               }
             }
-            
+
             // If no index match, search for the first unmerged block of the same type
             if (matchIdx == -1) {
               for (int j = 0; j < currentBlocks.length; j++) {
@@ -413,16 +435,22 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
                 }
               }
             }
-            
+
             if (matchIdx != -1) {
               mergedIndices[matchIdx] = true;
-              final existing = Map<String, dynamic>.from(mergedBlocks[matchIdx] as Map);
-              final cleanedInBlock = _cleanIncomingMap(Map<String, dynamic>.from(inBlock));
+              final existing = Map<String, dynamic>.from(
+                mergedBlocks[matchIdx] as Map,
+              );
+              final cleanedInBlock = _cleanIncomingMap(
+                Map<String, dynamic>.from(inBlock),
+              );
               existing.addAll(cleanedInBlock);
               mergedBlocks[matchIdx] = existing;
             } else {
               // No matching block found, append it as a new block
-              mergedBlocks.add(_cleanIncomingMap(Map<String, dynamic>.from(inBlock)));
+              mergedBlocks.add(
+                _cleanIncomingMap(Map<String, dynamic>.from(inBlock)),
+              );
             }
           }
         }
@@ -751,10 +779,15 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       // 2. Handle Primary Image based on block type
       if (block.containsKey('image_url')) {
         if (type == 'hero_saas' && illustrations.isNotEmpty) {
-          block['image_url'] = triggerUpload(illustrations[illustrationIdx % illustrations.length]);
+          block['image_url'] = triggerUpload(
+            illustrations[illustrationIdx % illustrations.length],
+          );
           illustrationIdx++;
-        } else if ((type == 'testimonials' || type == 'team_members') && portraits.isNotEmpty) {
-          block['image_url'] = triggerUpload(portraits[portraitIdx % portraits.length]);
+        } else if ((type == 'testimonials' || type == 'team_members') &&
+            portraits.isNotEmpty) {
+          block['image_url'] = triggerUpload(
+            portraits[portraitIdx % portraits.length],
+          );
           portraitIdx++;
         } else if (photos.isNotEmpty) {
           block['image_url'] = triggerUpload(photos[photoIdx % photos.length]);
@@ -899,26 +932,29 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     final uploadManager = sl<UploadManagerCubit>();
     final uniqueUrls = pixabayUrls.toSet();
 
-    await Future.wait(uniqueUrls.map((url) async {
-      final completer = Completer<String>();
-      final uploadId = 'prepublish_${DateTime.now().millisecondsSinceEpoch}_${url.hashCode}';
-      uploadManager.persistExternalImage(
-        uploadId: uploadId,
-        externalUrl: url,
-        onSuccess: (finalUrl) {
-          if (!completer.isCompleted) completer.complete(finalUrl);
-        },
-      );
-      try {
-        final imgbbUrl = await completer.future.timeout(
-          const Duration(seconds: 30),
-          onTimeout: () => url, // fallback to original Pixabay URL
+    await Future.wait(
+      uniqueUrls.map((url) async {
+        final completer = Completer<String>();
+        final uploadId =
+            'prepublish_${DateTime.now().millisecondsSinceEpoch}_${url.hashCode}';
+        uploadManager.persistExternalImage(
+          uploadId: uploadId,
+          externalUrl: url,
+          onSuccess: (finalUrl) {
+            if (!completer.isCompleted) completer.complete(finalUrl);
+          },
         );
-        replacements[url] = imgbbUrl;
-      } catch (_) {
-        replacements[url] = url; // keep original on failure
-      }
-    }));
+        try {
+          final imgbbUrl = await completer.future.timeout(
+            const Duration(seconds: 30),
+            onTimeout: () => url, // fallback to original Pixabay URL
+          );
+          replacements[url] = imgbbUrl;
+        } catch (_) {
+          replacements[url] = url; // keep original on failure
+        }
+      }),
+    );
 
     if (replacements.isEmpty) return;
 
@@ -943,6 +979,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         }
       }
     }
+
     replace(design);
   }
 
@@ -1066,9 +1103,27 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'title': 'تواصل معنا اليوم',
         'button_text': 'إرسال',
         'fields': [
-          {'field_id': 'name', 'field_type': 'text', 'label': 'الاسم الكامل', 'placeholder': 'أدخل اسمك', 'is_required': true},
-          {'field_id': 'phone', 'field_type': 'text', 'label': 'رقم الجوال', 'placeholder': '05xxxxxxxx', 'is_required': true},
-          {'field_id': 'message', 'field_type': 'textarea', 'label': 'رسالتك', 'placeholder': 'كيف يمكننا مساعدتك؟', 'is_required': false},
+          {
+            'field_id': 'name',
+            'field_type': 'text',
+            'label': 'الاسم الكامل',
+            'placeholder': 'أدخل اسمك',
+            'is_required': true,
+          },
+          {
+            'field_id': 'phone',
+            'field_type': 'text',
+            'label': 'رقم الجوال',
+            'placeholder': '05xxxxxxxx',
+            'is_required': true,
+          },
+          {
+            'field_id': 'message',
+            'field_type': 'textarea',
+            'label': 'رسالتك',
+            'placeholder': 'كيف يمكننا مساعدتك؟',
+            'is_required': false,
+          },
         ],
       };
     } else if (type == 'lead_magnet') {
@@ -1081,9 +1136,27 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'image_url':
             'https://cdn.pixabay.com/photo/2016/02/19/11/19/office-1209640_1280.jpg',
         'fields': [
-          {'field_id': 'name', 'field_type': 'text', 'label': 'الاسم الكامل', 'placeholder': 'أدخل اسمك', 'is_required': true},
-          {'field_id': 'email', 'field_type': 'email', 'label': 'البريد الإلكتروني', 'placeholder': 'example@domain.com', 'is_required': true},
-          {'field_id': 'phone', 'field_type': 'text', 'label': 'رقم الجوال', 'placeholder': '05xxxxxxxx', 'is_required': false},
+          {
+            'field_id': 'name',
+            'field_type': 'text',
+            'label': 'الاسم الكامل',
+            'placeholder': 'أدخل اسمك',
+            'is_required': true,
+          },
+          {
+            'field_id': 'email',
+            'field_type': 'email',
+            'label': 'البريد الإلكتروني',
+            'placeholder': 'example@domain.com',
+            'is_required': true,
+          },
+          {
+            'field_id': 'phone',
+            'field_type': 'text',
+            'label': 'رقم الجوال',
+            'placeholder': '05xxxxxxxx',
+            'is_required': false,
+          },
         ],
       };
     } else if (type == 'whatsapp') {
@@ -1175,7 +1248,8 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
         'name': 'اسم المنتج المميز',
         'price': '0.00',
         'description': 'وصف مختصر للمنتج يبرز أهم مميزاته.',
-        'image_url': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+        'image_url':
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
         'button_text': 'إضافة للسلة',
         'layout_style': 'split',
       };
@@ -1188,13 +1262,15 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
             'id': const Uuid().v4(),
             'name': 'منتج 1',
             'price': '0 EGP',
-            'image_url': 'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+            'image_url':
+                'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
           },
           {
             'id': const Uuid().v4(),
             'name': 'منتج 2',
             'price': '0 EGP',
-            'image_url': 'https://cdn.pixabay.com/photo/2017/04/06/12/46/shopping-2153849_1280.jpg',
+            'image_url':
+                'https://cdn.pixabay.com/photo/2017/04/06/12/46/shopping-2153849_1280.jpg',
           },
         ],
         'layout_style': 'modern',
@@ -1387,58 +1463,6 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     stickyCta[key] = value;
     newDesign['sticky_cta'] = stickyCta;
 
-    _emitDirty(currentState.copyWith(designMap: newDesign));
-  }
-
-  void addPricingPlan(int blockIndex) {
-    final currentState = state;
-    if (currentState is! BuilderLoaded) return;
-
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
-      currentState.designMap,
-    );
-    final List blocks = List.from(newDesign['blocks'] ?? []);
-    if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
-        blocks[blockIndex],
-      );
-      final List items = List.from(updatedBlock['items'] ?? []);
-      items.add({
-        'name': 'خطة جديدة',
-        'price': '0.00 EGP',
-        'features': ['ميزة 1', 'ميزة 2'],
-        'button_text': 'ابدأ الآن',
-        'is_popular': false,
-      });
-      updatedBlock['items'] = items;
-      blocks[blockIndex] = updatedBlock;
-    }
-
-    newDesign['blocks'] = blocks;
-    _emitDirty(currentState.copyWith(designMap: newDesign));
-  }
-
-  void deletePricingPlan(int blockIndex, int itemIndex) {
-    final currentState = state;
-    if (currentState is! BuilderLoaded) return;
-
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
-      currentState.designMap,
-    );
-    final List blocks = List.from(newDesign['blocks'] ?? []);
-    if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
-        blocks[blockIndex],
-      );
-      final List items = List.from(updatedBlock['items'] ?? []);
-      if (itemIndex >= 0 && itemIndex < items.length) {
-        items.removeAt(itemIndex);
-      }
-      updatedBlock['items'] = items;
-      blocks[blockIndex] = updatedBlock;
-    }
-
-    newDesign['blocks'] = blocks;
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
@@ -1687,30 +1711,6 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
       }
       updatedBlock['gallery_links'] = galleryLinks;
 
-      blocks[blockIndex] = updatedBlock;
-    }
-
-    newDesign['blocks'] = blocks;
-    _emitDirty(currentState.copyWith(designMap: newDesign));
-  }
-
-  void updateGalleryImage(int blockIndex, int itemIndex, String value) {
-    final currentState = state;
-    if (currentState is! BuilderLoaded) return;
-
-    final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
-      currentState.designMap,
-    );
-    final List blocks = List.from(newDesign['blocks'] ?? []);
-    if (blockIndex >= 0 && blockIndex < blocks.length) {
-      final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
-        blocks[blockIndex],
-      );
-      final List items = List.from(updatedBlock['items'] ?? []);
-      if (itemIndex >= 0 && itemIndex < items.length) {
-        items[itemIndex] = value;
-      }
-      updatedBlock['items'] = items;
       blocks[blockIndex] = updatedBlock;
     }
 
@@ -2044,92 +2044,6 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     if (currentState is BuilderLoaded) {
       _emitDirty(
         currentState.copyWith(errorMessage: null, successMessage: null),
-      );
-    }
-  }
-
-  Future<void> uploadBlockImage(int index, PlatformFile file) async {
-    final currentState = state;
-    if (currentState is! BuilderLoaded) return;
-
-    _emitDirty(currentState.copyWith(isSaving: true, errorMessage: null));
-    try {
-      final publicUrl = await _storageService.uploadImage(file);
-      if (publicUrl != null) {
-        final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
-          currentState.designMap,
-        );
-        final List blocks = List.from(newDesign['blocks'] ?? []);
-        if (index >= 0 && index < blocks.length) {
-          final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
-            blocks[index],
-          );
-          updatedBlock['image_url'] = publicUrl;
-          blocks[index] = updatedBlock;
-        }
-        newDesign['blocks'] = blocks;
-        _emitDirty(
-          currentState.copyWith(
-            designMap: newDesign,
-            isSaving: false,
-            successMessage: "تم رفع الصورة بنجاح!",
-          ),
-        );
-      } else {
-        _emitDirty(
-          currentState.copyWith(
-            isSaving: false,
-            errorMessage: "فشل رفع الصورة.",
-          ),
-        );
-      }
-    } catch (e) {
-      final humanError = ErrorHandler.getHumanReadableError(e);
-      _emitDirty(
-        currentState.copyWith(isSaving: false, errorMessage: humanError),
-      );
-    }
-  }
-
-  Future<void> uploadBlockBackgroundImage(int index, PlatformFile file) async {
-    final currentState = state;
-    if (currentState is! BuilderLoaded) return;
-
-    _emitDirty(currentState.copyWith(isSaving: true, errorMessage: null));
-    try {
-      final publicUrl = await _storageService.uploadImage(file);
-      if (publicUrl != null) {
-        final Map<String, dynamic> newDesign = Map<String, dynamic>.from(
-          currentState.designMap,
-        );
-        final List blocks = List.from(newDesign['blocks'] ?? []);
-        if (index >= 0 && index < blocks.length) {
-          final Map<String, dynamic> updatedBlock = Map<String, dynamic>.from(
-            blocks[index],
-          );
-          updatedBlock['bg_image_url'] = publicUrl;
-          blocks[index] = updatedBlock;
-        }
-        newDesign['blocks'] = blocks;
-        _emitDirty(
-          currentState.copyWith(
-            designMap: newDesign,
-            isSaving: false,
-            successMessage: "تم رفع صورة الخلفية بنجاح!",
-          ),
-        );
-      } else {
-        _emitDirty(
-          currentState.copyWith(
-            isSaving: false,
-            errorMessage: "فشل رفع صورة الخلفية.",
-          ),
-        );
-      }
-    } catch (e) {
-      final humanError = ErrorHandler.getHumanReadableError(e);
-      _emitDirty(
-        currentState.copyWith(isSaving: false, errorMessage: humanError),
       );
     }
   }

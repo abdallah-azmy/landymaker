@@ -39,9 +39,4 @@ class NumericParser {
     }
     return null;
   }
-
-  /// Safely parses a dynamic value into an int, with a default fallback.
-  static int parseInt(dynamic value, int fallback) {
-    return tryParseInt(value) ?? fallback;
-  }
 }

@@ -54,36 +54,6 @@ class SubscriptionService {
     return plan?['page_limit'] ?? 1;
   }
 
-  /// Gets the AI generation limit for the user.
-  Future<int> getAiGenerationLimit(String userId) async {
-    final plan = await _getUserPlan(userId);
-    return plan?['ai_generation_limit'] ?? 0;
-  }
-
-  /// Checks if the user can use Smart WhatsApp features.
-  Future<bool> canAccessSmartWhatsApp(String userId) async {
-    final plan = await _getUserPlan(userId);
-    return plan?['has_smart_whatsapp'] == true;
-  }
-
-  /// Checks if the user can use White Label features.
-  Future<bool> canAccessWhiteLabel(String userId) async {
-    final plan = await _getUserPlan(userId);
-    return plan?['has_white_label'] == true;
-  }
-
-  /// Gets the monthly lead limit for the user.
-  Future<int> getMonthlyLeadLimit(String userId) async {
-    final plan = await _getUserPlan(userId);
-    return plan?['lead_limit_monthly'] ?? 100;
-  }
-
-  /// Gets the team member limit for the user.
-  Future<int> getTeamMemberLimit(String userId) async {
-    final plan = await _getUserPlan(userId);
-    return plan?['team_member_limit'] ?? 1;
-  }
-
   /// Checks if a user is a super admin.
   Future<bool> isSuperAdmin(String userId) async {
     final profile = await _databaseService.getProfile(userId);

@@ -13,10 +13,10 @@ class LandingPagesCubit extends Cubit<LandingPagesState> {
     required DatabaseService databaseService,
     required AuthService authService,
     required SubscriptionService subscriptionService,
-  })  : _databaseService = databaseService,
-        _authService = authService,
-        _subscriptionService = subscriptionService,
-        super(LandingPagesInitial());
+  }) : _databaseService = databaseService,
+       _authService = authService,
+       _subscriptionService = subscriptionService,
+       super(LandingPagesInitial());
 
   Future<void> loadPages({bool showLoading = true}) async {
     final userId = _authService.currentUserId;
@@ -31,30 +31,17 @@ class LandingPagesCubit extends Cubit<LandingPagesState> {
     try {
       // Warm up the subscription cache first
       await _subscriptionService.refreshCache();
-      
+
       final pages = await _databaseService.getLandingPagesByUserId(userId);
-      
+
       // Centralized Tier & Role Enforcement from DB
       final profile = await _databaseService.getProfile(userId);
       final String tier = profile?['tier'] ?? 'free';
       final int maxPages = await _subscriptionService.getMaxPages(userId);
 
-      emit(LandingPagesLoaded(
-        pages: pages,
-        maxPages: maxPages,
-        currentTier: tier,
-      ));
-    } catch (e) {
-      emit(LandingPagesFailure(e.toString()));
-    }
-  }
-
-  Future<void> deletePage(String pageId) async {
-    // Basic deletion logic
-    try {
-      // Assuming DatabaseService has deleteLandingPage (need to add or check)
-      // For now, reload after delete
-      await loadPages();
+      emit(
+        LandingPagesLoaded(pages: pages, maxPages: maxPages, currentTier: tier),
+      );
     } catch (e) {
       emit(LandingPagesFailure(e.toString()));
     }
@@ -63,7 +50,9 @@ class LandingPagesCubit extends Cubit<LandingPagesState> {
   Future<void> togglePublishStatus(String pageId, bool newStatus) async {
     try {
       await _databaseService.updatePagePublishStatus(pageId, newStatus);
-      await loadPages(showLoading: false); // Refresh UI without full page loader
+      await loadPages(
+        showLoading: false,
+      ); // Refresh UI without full page loader
     } catch (e) {
       emit(LandingPagesFailure(e.toString()));
     }

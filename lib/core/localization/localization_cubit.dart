@@ -12,12 +12,6 @@ class LocalizationCubit extends Cubit<Locale> {
     emit(state.languageCode == 'ar' ? const Locale('en') : const Locale('ar'));
   }
 
-  void setLocale(String langCode) {
-    if (langCode == 'ar' || langCode == 'en') {
-      emit(Locale(langCode));
-    }
-  }
-
   String translate(String key) {
     if (state.languageCode == 'ar') {
       return translationsAr[key] ?? key;

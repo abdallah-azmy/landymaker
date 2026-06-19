@@ -36,19 +36,7 @@ class ActiveWebsiteCubit extends Cubit<ActiveWebsiteState> {
     emit(state.copyWith(website: website, isLoading: false));
   }
 
-  void updateActiveWebsiteType(String type) {
-    if (state.website != null) {
-      final updated = Map<String, dynamic>.from(state.website!);
-      updated['website_type'] = type;
-      emit(state.copyWith(website: updated));
-    }
-  }
-
   void clearSelection() {
     emit(const ActiveWebsiteState());
-  }
-
-  void setLoading(bool loading) {
-    emit(state.copyWith(isLoading: loading));
   }
 }

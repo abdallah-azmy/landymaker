@@ -15,14 +15,18 @@ class ResponsiveUtils {
     }
   }
 
-  // Max width of content containers for neat presentation on huge monitors
-  static double getMaxContentWidth(BuildContext context) {
-    return 1200.0;
-  }
-
   // Cross axis count for grids (e.g., dashboard stats cards or features blocks)
-  static int getGridCrossAxisCount(BuildContext context, {int desktop = 3, int tablet = 2, int mobile = 1, double? width}) {
-    ScreenType screenType = ResponsiveLayout.getScreenType(context, width: width);
+  static int getGridCrossAxisCount(
+    BuildContext context, {
+    int desktop = 3,
+    int tablet = 2,
+    int mobile = 1,
+    double? width,
+  }) {
+    ScreenType screenType = ResponsiveLayout.getScreenType(
+      context,
+      width: width,
+    );
     switch (screenType) {
       case ScreenType.mobile:
         return mobile;
@@ -34,7 +38,12 @@ class ResponsiveUtils {
   }
 
   // Cross axis count for grids directly from width (LayoutBuilder preferred)
-  static int getContentColumns(double width, {int desktop = 3, int tablet = 2, int mobile = 1}) {
+  static int getContentColumns(
+    double width, {
+    int desktop = 3,
+    int tablet = 2,
+    int mobile = 1,
+  }) {
     if (width < 768) {
       return mobile;
     } else if (width < 1024) {
@@ -43,7 +52,6 @@ class ResponsiveUtils {
       return desktop;
     }
   }
-
 }
 
 /// Unified breakpoint constants for home section widgets.

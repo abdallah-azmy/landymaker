@@ -21,17 +21,6 @@ class ThemeCubit extends Cubit<ThemeMode> {
     }
   }
 
-  void setThemeMode(ThemeMode mode) {
-    emit(mode);
-    try {
-      SharedPreferences.getInstance().then((prefs) {
-        prefs.setString(_key, mode.name);
-      });
-    } catch (e) {
-      debugPrint("Failed to save theme preference: $e");
-    }
-  }
-
   Future<void> loadSavedTheme() async {
     try {
       final prefs = await SharedPreferences.getInstance();

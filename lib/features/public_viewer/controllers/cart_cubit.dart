@@ -38,28 +38,18 @@ class CartState {
 
 class CartCubit extends Cubit<CartState> {
   CartCubit()
-      : super(CartState(
+    : super(
+        CartState(
           items: [],
           totalPrice: 0.0,
           whatsappNumber: '',
           isVisible: true,
           isFolded: true,
-        ));
+        ),
+      );
 
   void setWhatsappNumber(String number) {
     emit(state.copyWith(whatsappNumber: number));
-  }
-
-  void setVisibility(bool visible) {
-    emit(state.copyWith(isVisible: visible));
-  }
-
-  void setFolded(bool folded) {
-    emit(state.copyWith(isFolded: folded));
-  }
-
-  void toggleFolded() {
-    emit(state.copyWith(isFolded: !state.isFolded));
   }
 
   void addItem(Map<String, dynamic> product) {
@@ -68,14 +58,17 @@ class CartCubit extends Cubit<CartState> {
         product['id']?.toString() ?? product['name']?.toString() ?? 'unknown';
 
     // Check if item already exists
-    final int existingIndex = currentItems.indexWhere((item) =>
-        (item['id']?.toString() ?? item['name']?.toString() ?? 'unknown') ==
-        productId);
+    final int existingIndex = currentItems.indexWhere(
+      (item) =>
+          (item['id']?.toString() ?? item['name']?.toString() ?? 'unknown') ==
+          productId,
+    );
 
     if (existingIndex >= 0) {
       // Increment quantity
-      final existingItem =
-          Map<String, dynamic>.from(currentItems[existingIndex]);
+      final existingItem = Map<String, dynamic>.from(
+        currentItems[existingIndex],
+      );
       existingItem['cart_quantity'] =
           (existingItem['cart_quantity'] as int? ?? 1) + 1;
       currentItems[existingIndex] = existingItem;
@@ -91,9 +84,11 @@ class CartCubit extends Cubit<CartState> {
 
   void removeItem(String productId) {
     final List<Map<String, dynamic>> currentItems = List.from(state.items);
-    currentItems.removeWhere((item) =>
-        (item['id']?.toString() ?? item['name']?.toString() ?? 'unknown') ==
-        productId);
+    currentItems.removeWhere(
+      (item) =>
+          (item['id']?.toString() ?? item['name']?.toString() ?? 'unknown') ==
+          productId,
+    );
     _updateState(currentItems);
   }
 
@@ -104,36 +99,41 @@ class CartCubit extends Cubit<CartState> {
     }
 
     final List<Map<String, dynamic>> currentItems = List.from(state.items);
-    final int existingIndex = currentItems.indexWhere((item) =>
-        (item['id']?.toString() ?? item['name']?.toString() ?? 'unknown') ==
-        productId);
+    final int existingIndex = currentItems.indexWhere(
+      (item) =>
+          (item['id']?.toString() ?? item['name']?.toString() ?? 'unknown') ==
+          productId,
+    );
 
     if (existingIndex >= 0) {
-      final existingItem =
-          Map<String, dynamic>.from(currentItems[existingIndex]);
+      final existingItem = Map<String, dynamic>.from(
+        currentItems[existingIndex],
+      );
       existingItem['cart_quantity'] = newQuantity;
       currentItems[existingIndex] = existingItem;
       _updateState(currentItems);
     }
   }
 
-  void clearCart() {
-    emit(state.copyWith(items: [], totalPrice: 0.0));
-  }
-
-  void _updateState(List<Map<String, dynamic>> currentItems,
-      {bool updateTimestamp = false}) {
+  void _updateState(
+    List<Map<String, dynamic>> currentItems, {
+    bool updateTimestamp = false,
+  }) {
     double total = 0.0;
     for (var item in currentItems) {
       final double price = _parsePrice(item['price']);
       final int qty = item['cart_quantity'] as int? ?? 1;
       total += price * qty;
     }
-    emit(state.copyWith(
-      items: currentItems,
-      totalPrice: total,
-      lastAddedTimestamp: updateTimestamp ? DateTime.now() : state.lastAddedTimestamp,
-    ));
+    emit(
+      state.copyWith(
+        items: currentItems,
+        totalPrice: total,
+        lastAddedTimestamp: updateTimestamp
+            ? DateTime.now()
+            : state.lastAddedTimestamp,
+      ),
+    );
   }
 
   double _parsePrice(dynamic raw) {

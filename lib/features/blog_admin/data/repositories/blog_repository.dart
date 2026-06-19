@@ -36,15 +36,6 @@ class BlogRepository {
     return (response as List).map((e) => BlogPostModel.fromJson(e)).toList();
   }
 
-  Future<BlogPostModel> getPostById(String id) async {
-    final response = await _supabase
-        .from('blog_posts')
-        .select('*, blog_categories(*)')
-        .eq('id', id)
-        .single();
-    return BlogPostModel.fromJson(response);
-  }
-
   Future<BlogPostModel> savePost(BlogPostModel post) async {
     // 1. Check if slug already exists
     final duplicateCheck = await _supabase
@@ -55,7 +46,9 @@ class BlogRepository {
         .maybeSingle();
 
     if (duplicateCheck != null && duplicateCheck['id'] != post.id) {
-      throw Exception('هذا الرابط (Slug) مستخدم بالفعل! الرجاء تغييره لتجنب تداخل الصفحات.');
+      throw Exception(
+        'هذا الرابط (Slug) مستخدم بالفعل! الرجاء تغييره لتجنب تداخل الصفحات.',
+      );
     }
 
     final data = post.toJson();

@@ -26,10 +26,4 @@ class Logger {
       print('🐛 DEBUG: $message');
     }
   }
-
-  static void verbose(String message) {
-    if (kDebugMode) {
-      print('📝 VERBOSE: $message');
-    }
-  }
 }

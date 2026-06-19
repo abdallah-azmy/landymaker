@@ -120,13 +120,18 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return RepaintBoundary(
       child: AnimatedBuilder(
         animation: _animController,
         builder: (context, _) {
           return CustomPaint(
             size: Size.infinite,
-            painter: _CubePainter(cubes: _cubes, baseColor: widget.baseColor),
+            painter: _CubePainter(
+              cubes: _cubes,
+              baseColor: widget.baseColor,
+              isLightMode: isLight,
+            ),
           );
         },
       ),
@@ -328,8 +333,13 @@ class _CubeDrawData {
 class _CubePainter extends CustomPainter {
   final List<_Cube> cubes;
   final Color baseColor;
+  final bool isLightMode;
 
-  _CubePainter({required this.cubes, required this.baseColor});
+  _CubePainter({
+    required this.cubes,
+    required this.baseColor,
+    this.isLightMode = false,
+  });
 
   static const double _lx = 0.577;
   static const double _ly = 0.577;
@@ -552,9 +562,11 @@ class _CubePainter extends CustomPainter {
       ..lineTo(fd.x3, fd.y3)
       ..close();
 
-    fillPaint.color = baseColor.withValues(alpha: alpha * 0.35);
+    final fillMultiplier = isLightMode ? 0.65 : 0.35;
+    final strokeMultiplier = isLightMode ? 0.90 : 0.65;
+    fillPaint.color = baseColor.withValues(alpha: alpha * fillMultiplier);
     canvas.drawPath(path, fillPaint);
-    strokePaint.color = baseColor.withValues(alpha: alpha * 0.65);
+    strokePaint.color = baseColor.withValues(alpha: alpha * strokeMultiplier);
     canvas.drawPath(path, strokePaint);
   }
 

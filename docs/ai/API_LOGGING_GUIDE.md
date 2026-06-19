@@ -78,8 +78,8 @@ logStorageOperation(
 ## 🛠️ 2. Architectural Overview
 
 The logging framework resides under two main directories:
-- **[logger.dart](./lib/core/logger.dart)**: Core logger wrapper using `PrettyPrinter` configuration.
-- **[supabase_logging_mixin.dart](./lib/core/supabase_logging_mixin.dart)**: Utility mixin providing specialized database hooks.
+- **[logger.dart](../../lib/core/logger.dart)**: Core logger wrapper using `PrettyPrinter` configuration.
+- **[supabase_logging_mixin.dart](../../lib/core/supabase_logging_mixin.dart)**: Utility mixin providing specialized database hooks.
 
 ### Performance Control (Debug vs Release Mode)
 To ensure production performance is unaffected and sensitive logs are never printed to production app consoles, the logger evaluates the build mode automatically:

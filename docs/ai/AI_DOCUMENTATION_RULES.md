@@ -4,12 +4,8 @@ Keep AI-facing docs synchronized with implementation changes. Documentation is p
 
 ## 1. Documentation Update Rules
 **Update Required When Changing:**
-- Screens: update `SCREEN_INDEX.md`.
-- Routes: update `ROUTE_INDEX.md`.
-- Services or infrastructure flows: update `SERVICE_INDEX.md`.
-- Business features: update `FEATURE_INDEX.md`.
-- Builder sections, templates, registries, schema assumptions, or renderer/editor mappings: update `AI_CONTEXT.md`, `AI_NAVIGATION.md`, and `BUILDER_ARCHITECTURE.md`.
-- Folder structure or ownership boundaries: update `PROJECT_STRUCTURE.md`.
+- Screens, routes, services, folder structure, business features, or dependency mappings: update `AI_CONTEXT.md` and `docs/ai/SYSTEM_MAP.md`.
+- Builder sections, templates, registries, schema assumptions, or renderer/editor mappings: update `AI_CONTEXT.md`, `docs/ai/SYSTEM_MAP.md`, and `BUILDER_ARCHITECTURE.md`.
 - Theme system, color tokens, or the `AnimatedThemeToggle` widget: update `THEME_SYSTEM.md`.
 
 **Builder Documentation Rules:**
@@ -29,7 +25,7 @@ Keep AI-facing docs synchronized with implementation changes. Documentation is p
 
 ## 2. Project Discovery & Execution Protocol
 **Before implementation:**
-1. Read `AI_CONTEXT.md`, `AI_ONBOARDING.md`, `AI_NAVIGATION.md`, `TASK_ROUTING_GUIDE.md`, and `AI_DOCUMENTATION_RULES.md`.
+1. Read `AI_CONTEXT.md`, `docs/ai/SYSTEM_MAP.md`, and `docs/ai/AI_DOCUMENTATION_RULES.md`.
 2. Understand the affected architecture and identify affected systems, files, and dependencies.
 3. Identify risks (regressions, security, SEO, deployment).
 4. Verify existing implementations and reuse existing code whenever possible.

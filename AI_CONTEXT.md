@@ -12,7 +12,7 @@ For deep-dives into specific systems, refer to the dedicated documentation files
 
 - **[AI Development Rules](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/AI_DOCUMENTATION_RULES.md)**: CRITICAL. Contains all strict execution protocols, UI/UX patterns, state management rules, and development guidelines.
 - **[DevOps & Assets](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/DEVOPS_AND_ASSETS.md)**: CRITICAL. Read before any deployment, CI/CD, image handling, or secrets modification.
-- **[AI Navigation](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/AI_NAVIGATION.md)**: The map of all files, including feature indexes, screen indexes, and architecture boundaries.
+- **[Unified System Map](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/SYSTEM_MAP.md)**: The map of all files, including directory structures, features index, screens index, routes, services, and dependency flowcharts.
 
 ---
 
@@ -315,15 +315,13 @@ Includes:
 Includes:
 
 ### Active Documentation (`/docs/ai/`)
-- AI Navigation System: `AI_NAVIGATION.md`
-- Feature and Screen Indexes: `FEATURE_INDEX.md`, `SCREEN_INDEX.md`, `ROUTE_INDEX.md`
-- Service Index: `SERVICE_INDEX.md`
-- Builder Architecture Guides: `BUILDER_ARCHITECTURE.md`, `BLOCK_SCHEMA_REGISTRY.md`
-- Dependency Maps: `DEPENDENCY_MAPS.md`
-- Project Structure: `PROJECT_STRUCTURE.md`
-- Task Routing Guide: `TASK_ROUTING_GUIDE.md`
-- AI Onboarding: `AI_ONBOARDING.md`
-- Documentation Rules: `AI_DOCUMENTATION_RULES.md`
+- Unified System Map & Index: `SYSTEM_MAP.md` (Combines project structures, features list, routes, screens, services, and diagrams)
+- Strict AI Coding Rules: `AI_DOCUMENTATION_RULES.md`
+- Builder Architecture Guide: `BUILDER_ARCHITECTURE.md`
+- Block Schema Registry: `BLOCK_SCHEMA_REGISTRY.md`
+- Theme System: `THEME_SYSTEM.md`
+- DevOps & Assets Guide: `DEVOPS_AND_ASSETS.md`
+- API Logging Guide: `API_LOGGING_GUIDE.md`
 
 ### Historical Reports (`/docs/archive/`)
 - **Mission Execution Plan**: `MISSION_EXECUTION.md` (Tracks implemented Growth & AI features)

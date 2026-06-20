@@ -28,6 +28,7 @@ import 'features/dashboard/controllers/media_gallery_cubit.dart';
 import 'features/super_admin/controllers/super_admin_cubit.dart';
 import 'features/public_viewer/controllers/public_page_cubit.dart';
 import 'features/blog_admin/controllers/blog_cubit.dart';
+import 'core/widgets/particles/cube_mode_cubit.dart';
 
 import 'features/builder/controllers/ai_generation_cubit.dart';
 import 'features/builder/controllers/pixabay_selector_cubit.dart';
@@ -130,6 +131,7 @@ class LandyMakerApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ThemeCubit>(create: (_) => sl<ThemeCubit>()),
+        BlocProvider<CubeModeCubit>(create: (_) => sl<CubeModeCubit>()),
         BlocProvider<LocalizationCubit>(create: (_) => sl<LocalizationCubit>()),
         BlocProvider<ActiveWebsiteCubit>(
           create: (_) => sl<ActiveWebsiteCubit>(),

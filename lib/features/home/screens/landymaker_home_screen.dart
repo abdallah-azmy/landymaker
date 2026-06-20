@@ -194,7 +194,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
               Positioned.fill(
                 child: FloatingCubeBackground(
                   cubeCount: _cubeCount,
-                  baseColor: Theme.of(context).colorScheme.primary,
                   isActive: _particlesActive,
                   controller: _cubeController,
                   cubeMode: context.watch<CubeModeCubit>().state,

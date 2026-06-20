@@ -70,23 +70,69 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     });
   }
 
-  void _resetFromBase() {
-    _entities = _baseData.map((d) => _MergeEntity(
-      x: d.x + (Random().nextDouble() - 0.5) * 0.05,
-      y: d.y + (Random().nextDouble() - 0.5) * 0.05,
-      size: d.size,
-      targetSize: d.size,
-      rx: d.rx,
-      ry: d.ry,
-      rz: d.rz,
-    )).toList();
+  void _initFromBase() {
+    _entities = List.generate(_baseData.length, (i) {
+      final d = _baseData[i];
+      return _MergeEntity(
+        x: d.x + (Random().nextDouble() - 0.5) * 0.05,
+        y: d.y + (Random().nextDouble() - 0.5) * 0.05,
+        size: d.size,
+        targetSize: d.size,
+        rx: d.rx,
+        ry: d.ry,
+        rz: d.rz,
+        baseIndices: [i],
+      );
+    });
+  }
+
+  void _splitMergedEntities() {
+    final newEntities = <_MergeEntity>[];
+    for (final e in _entities) {
+      if (e.count > 1) {
+        for (final idx in e.baseIndices) {
+          final base = _baseData[idx];
+          newEntities.add(_MergeEntity(
+            x: (e.x + (Random().nextDouble() - 0.5) * 0.05).clamp(0.0, 1.0),
+            y: (e.y + (Random().nextDouble() - 0.5) * 0.05).clamp(0.0, 1.0),
+            vx: e.vx + (Random().nextDouble() - 0.5) * 0.02,
+            vy: e.vy + (Random().nextDouble() - 0.5) * 0.02,
+            size: base.size,
+            targetSize: base.size,
+            rx: base.rx,
+            ry: base.ry,
+            rz: base.rz,
+            baseIndices: [idx],
+          ));
+        }
+      } else {
+        newEntities.add(e);
+      }
+    }
+    _entities = newEntities;
+  }
+
+  void _freeOrbiters() {
+    for (final e in _entities) {
+      if (e.parentCore != null) {
+        e.parentCore!.orbiterCount--;
+        e.parentCore = null;
+      }
+    }
+  }
+
+  void _resetMergeState() {
+    for (final e in _entities) {
+      e.mergeTimer = 0.0;
+      e.mergeCooldown = 0.0;
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _generateBaseData();
-    _resetFromBase();
+    _initFromBase();
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 60),
@@ -209,6 +255,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
                   count: newCount,
                   size: max(a.renderSize, b.renderSize),
                   targetSize: newSize,
+                  baseIndices: [...a.baseIndices, ...b.baseIndices],
                 ));
                 _entities.last.mergeCooldown = 1.0;
                 _entities.removeAt(i);
@@ -236,6 +283,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         final sinA = sin(e.orbitAngle);
         e.x = e.parentCore!.x + e.orbitRadius * cosA;
         e.y = e.parentCore!.y + e.orbitRadius * sinA * cos(e.orbitTilt);
+        e.x = e.x.clamp(0.0, 1.0);
+        e.y = e.y.clamp(0.0, 1.0);
       }
 
       final cores = <_MergeEntity>[];
@@ -339,9 +388,21 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         }
       }
 
-      for (final core in cores) {
-        core.vx *= 0.99;
-        core.vy *= 0.99;
+      for (int i = 0; i < cores.length; i++) {
+        for (int j = i + 1; j < cores.length; j++) {
+          final a = cores[i], b = cores[j];
+          final dx = b.x - a.x;
+          final dy = b.y - a.y;
+          if (dx.abs() > 0.2 || dy.abs() > 0.2) continue;
+          final distSq = dx * dx + dy * dy;
+          if (distSq > 0.04 || distSq < 1e-10) continue;
+          final dist = sqrt(distSq);
+          final force = (0.2 - dist) / 0.2 * 0.02;
+          a.vx -= (dx / dist) * force;
+          a.vy -= (dy / dist) * force;
+          b.vx += (dx / dist) * force;
+          b.vy += (dy / dist) * force;
+        }
       }
 
       for (final core in cores) {
@@ -358,6 +419,12 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           e.vx += (dx / dist) * force;
           e.vy += (dy / dist) * force;
         }
+      }
+
+      for (final e in _entities) {
+        if (e.x.isNaN || e.x.isInfinite) e.x = 0.5;
+        if (e.y.isNaN || e.y.isInfinite) e.y = 0.5;
+        if (e.renderSize.isNaN || e.renderSize.isInfinite) e.renderSize = 10.0;
       }
     } else {
       for (int i = 0; i < _entities.length; i++) {
@@ -400,12 +467,22 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             rz: Random().nextDouble() * pi * 2,
             size: size,
           ));
+          _entities.add(_MergeEntity(
+            baseIndices: [i],
+          ));
         }
       }
-      _resetFromBase();
     }
     if (oldWidget.cubeMode != widget.cubeMode) {
-      _resetFromBase();
+      if (oldWidget.cubeMode == CubeMode.merge) {
+        _splitMergedEntities();
+      }
+      if (oldWidget.cubeMode == CubeMode.orbit) {
+        _freeOrbiters();
+      }
+      if (widget.cubeMode == CubeMode.merge) {
+        _resetMergeState();
+      }
     }
   }
 
@@ -426,7 +503,6 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         animation: _animController,
         builder: (context, _) {
           return CustomPaint(
-            size: Size.infinite,
             painter: _CubePainter(
               entities: _entities,
               brightness: brightness,
@@ -472,6 +548,7 @@ class _MergeEntity {
   double orbitSpeed = 0.0;
   double orbitTilt = 0.0;
   int orbiterCount = 0;
+  final List<int> baseIndices;
 
   _MergeEntity({
     double? x,
@@ -484,7 +561,9 @@ class _MergeEntity {
     double? rz,
     double? size,
     double? targetSize,
+    List<int>? baseIndices,
   }) : x = x ?? Random().nextDouble(),
+       baseIndices = baseIndices ?? List.generate(count, (i) => i),
        y = y ?? Random().nextDouble(),
        count = count,
        vx = vx ?? (Random().nextDouble() - 0.5) * 0.05,

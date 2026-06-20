@@ -877,33 +877,35 @@ class _TypewriterTextState extends State<_TypewriterText>
   Widget build(BuildContext context) {
     final textColor =
         widget.colorOverride ?? Theme.of(context).colorScheme.primary;
-    return Row(
-      mainAxisAlignment: widget.isMobile
-          ? MainAxisAlignment.center
-          : MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          _currentText,
-          style: AppTypography.h2.copyWith(
-            color: textColor,
-            fontSize: widget.isMobile ? 22 : 30,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(width: 6),
-        FadeTransition(
-          opacity: _cursorController,
-          child: Container(
-            width: 3,
-            height: widget.isMobile ? 24 : 32,
-            decoration: BoxDecoration(
-              color: textColor,
-              borderRadius: BorderRadius.circular(2),
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: _currentText),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(start: 6),
+              child: FadeTransition(
+                opacity: _cursorController,
+                child: Container(
+                  width: 3,
+                  height: widget.isMobile ? 24 : 32,
+                  decoration: BoxDecoration(
+                    color: textColor,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
+      style: AppTypography.h2.copyWith(
+        color: textColor,
+        fontSize: widget.isMobile ? 22 : 30,
+        fontWeight: FontWeight.bold,
+      ),
+      textAlign: widget.isMobile ? TextAlign.center : TextAlign.start,
     );
   }
 }

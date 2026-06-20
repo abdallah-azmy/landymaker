@@ -224,7 +224,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
             Column(
               children: [
                 SizedBox(
-                  height: (constraints.maxWidth * 0.3).clamp(280.0, 420.0),
+                  height: (constraints.maxWidth * 0.35).clamp(320.0, 480.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -274,7 +274,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                 ),
                 SizedBox(height: 16),
                 SizedBox(
-                  height: (constraints.maxWidth * 0.3).clamp(280.0, 420.0),
+                  height: (constraints.maxWidth * 0.35).clamp(320.0, 480.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -450,13 +450,34 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                       ),
                   ],
                 )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              : Column(
                   children: [
-                    for (int i = 0; i < _features.length; i++) ...[
-                      Expanded(child: _buildSimpleCard(_features[i])),
-                      if (i < _features.length - 1) SizedBox(width: 20),
-                    ],
+                    for (int i = 0; i < _features.length; i += 3)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          bottom: i + 3 < _features.length ? 20 : 0,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _buildSimpleCard(_features[i])),
+                            const SizedBox(width: 20),
+                            if (i + 1 < _features.length)
+                              Expanded(
+                                child: _buildSimpleCard(_features[i + 1]),
+                              )
+                            else
+                              const Expanded(child: SizedBox()),
+                            const SizedBox(width: 20),
+                            if (i + 2 < _features.length)
+                              Expanded(
+                                child: _buildSimpleCard(_features[i + 2]),
+                              )
+                            else
+                              const Expanded(child: SizedBox()),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
         ],
@@ -661,74 +682,79 @@ class _BentoCardState extends State<_BentoCard> {
           offset: _hovered ? const Offset(0, -0.015) : Offset.zero,
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          child: AppBlurEffect(
-            borderRadius: BorderRadius.circular(24),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOutCubic,
-              padding: EdgeInsets.all(widget.tall ? 36 : 28),
-              constraints: widget.tall
-                  ? const BoxConstraints(minHeight: 360)
-                  : null,
-              decoration: BoxDecoration(
-                color: _hovered
-                    ? Theme.of(
-                        context,
-                      ).colorScheme.surface.withValues(alpha: 0.5)
-                    : Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHigh.withValues(alpha: 0.2),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final hasBoundedHeight = constraints.hasBoundedHeight;
+              final cardHeight = hasBoundedHeight ? constraints.maxHeight : double.infinity;
+              final isCompact = hasBoundedHeight && cardHeight < 240.0;
+
+              final padding = isCompact
+                  ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+                  : EdgeInsets.all(widget.tall ? 36 : 28);
+
+              return AppBlurEffect(
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: _hovered
-                      ? f.color.withValues(alpha: 0.55)
-                      : Theme.of(context).colorScheme.outlineVariant,
-                  width: 1.5,
-                ),
-              ),
-              child: LayoutBuilder(
-                builder: (context, cardConstraints) {
-                  final hasBoundedHeight = cardConstraints.hasBoundedHeight;
-                  return Column(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutCubic,
+                  padding: padding,
+                  constraints: widget.tall
+                      ? const BoxConstraints(minHeight: 360)
+                      : null,
+                  decoration: BoxDecoration(
+                    color: _hovered
+                        ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
+                        : Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: _hovered
+                          ? f.color.withValues(alpha: 0.55)
+                          : Theme.of(context).colorScheme.outlineVariant,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       RepaintBoundary(
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 250),
-                          padding: const EdgeInsets.all(14),
+                          padding: EdgeInsets.all(isCompact ? 8 : 14),
                           decoration: BoxDecoration(
                             color: f.color.withValues(alpha: _hovered ? 0.18 : 0.1),
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(isCompact ? 12 : 18),
                           ),
-                          child: Icon(f.icon, color: f.color, size: 28),
+                          child: Icon(f.icon, color: f.color, size: isCompact ? 20 : 28),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: isCompact ? 10 : 20),
                       Row(
                         children: [
-                          Text(f.emoji, style: TextStyle(fontSize: 18)),
-                          SizedBox(width: 8),
+                          Text(f.emoji, style: TextStyle(fontSize: isCompact ? 14 : 18)),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               f.title,
                               style: AppTypography.h3.copyWith(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 17,
+                                fontSize: isCompact ? 14 : 17,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: isCompact ? 6 : 10),
                       if (hasBoundedHeight)
                         Expanded(
                           child: Text(
                             f.desc,
                             style: AppTypography.bodyMedium.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              height: 1.65,
+                              height: 1.5,
+                              fontSize: isCompact ? 13 : 14,
                             ),
                             overflow: TextOverflow.ellipsis,
+                            maxLines: isCompact ? 2 : 4,
                           ),
                         )
                       else
@@ -750,22 +776,23 @@ class _BentoCardState extends State<_BentoCard> {
                               style: AppTypography.caption.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
+                                fontSize: isCompact ? 11 : 12,
                               ),
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Icon(
                               Icons.arrow_forward_rounded,
                               color: Theme.of(context).colorScheme.onSurface,
-                              size: 14,
+                              size: isCompact ? 12 : 14,
                             ),
                           ],
                         ),
                       ),
                     ],
-                  );
-                },
-              ),
-            ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),

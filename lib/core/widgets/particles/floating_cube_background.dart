@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:landymaker/core/widgets/particles/cube_mode_cubit.dart';
 
@@ -41,6 +40,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late List<_MergeEntity> _entities;
+  late List<_BaseCubeData> _baseData;
   double _lastValue = 0.0;
   Offset? _repelPoint;
   bool _hasRepelPoint = false;
@@ -56,10 +56,37 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     }
   }
 
+  void _generateBaseData() {
+    _baseData = List.generate(widget.cubeCount, (_) {
+      final size = 6.0 + Random().nextDouble() * 18.0;
+      return _BaseCubeData(
+        x: Random().nextDouble(),
+        y: Random().nextDouble(),
+        rx: Random().nextDouble() * pi * 2,
+        ry: Random().nextDouble() * pi * 2,
+        rz: Random().nextDouble() * pi * 2,
+        size: size,
+      );
+    });
+  }
+
+  void _resetFromBase() {
+    _entities = _baseData.map((d) => _MergeEntity(
+      x: d.x + (Random().nextDouble() - 0.5) * 0.05,
+      y: d.y + (Random().nextDouble() - 0.5) * 0.05,
+      size: d.size,
+      targetSize: d.size,
+      rx: d.rx,
+      ry: d.ry,
+      rz: d.rz,
+    )).toList();
+  }
+
   @override
   void initState() {
     super.initState();
-    _entities = List.generate(widget.cubeCount, (_) => _MergeEntity());
+    _generateBaseData();
+    _resetFromBase();
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 60),
@@ -201,6 +228,137 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           e.mergeTimer = max(0.0, e.mergeTimer - dt * 3);
         }
       }
+    } else if (widget.cubeMode == CubeMode.orbit) {
+      for (final e in _entities) {
+        if (e.parentCore == null) continue;
+        e.orbitAngle += e.orbitSpeed * dt * 60 * widget.speed;
+        final cosA = cos(e.orbitAngle);
+        final sinA = sin(e.orbitAngle);
+        e.x = e.parentCore!.x + e.orbitRadius * cosA;
+        e.y = e.parentCore!.y + e.orbitRadius * sinA * cos(e.orbitTilt);
+      }
+
+      final cores = <_MergeEntity>[];
+      for (final e in _entities) {
+        if (e.parentCore == null && e.renderSize > 12.0) {
+          cores.add(e);
+        }
+      }
+
+      for (final core in cores) {
+        for (final e in _entities) {
+          if (identical(e, core)) continue;
+          if (e.parentCore != null) continue;
+          final dx = core.x - e.x;
+          final dy = core.y - e.y;
+          if (dx.abs() > 0.25 || dy.abs() > 0.25) continue;
+          final distSq = dx * dx + dy * dy;
+          if (distSq > 0.0625 || distSq < 1e-10) continue;
+          final dist = sqrt(distSq);
+          final force = 0.0005 / (dist + 0.01);
+          e.vx += (dx / dist) * force;
+          e.vy += (dy / dist) * force;
+        }
+      }
+
+      for (final core in cores) {
+        if (core.orbiterCount >= 12) continue;
+        final captureRadius = 0.06 + core.renderSize * 0.006;
+        for (final e in _entities) {
+          if (identical(e, core)) continue;
+          if (e.parentCore != null) continue;
+          if (e.renderSize >= core.renderSize * 0.7) continue;
+          final dx = e.x - core.x;
+          final dy = e.y - core.y;
+          if (dx.abs() > captureRadius || dy.abs() > captureRadius) continue;
+          if (dx * dx + dy * dy > captureRadius * captureRadius) continue;
+          final dist = sqrt(dx * dx + dy * dy);
+          if (dist < 1e-10) continue;
+          e.parentCore = core;
+          core.orbiterCount++;
+          e.orbitRadius = max(dist, 0.04);
+          e.orbitAngle = atan2(dy, dx);
+          e.orbitSpeed =
+              (0.5 + Random().nextDouble() * 2.5) / (0.3 + e.orbitRadius * 4);
+          e.orbitTilt = (Random().nextDouble() - 0.5) * 0.6;
+          core.count += e.count;
+        }
+      }
+
+      for (int i = 0; i < cores.length; i++) {
+        for (int j = i + 1; j < cores.length; j++) {
+          final a = cores[i], b = cores[j];
+          final sizeRatio = a.renderSize < b.renderSize
+              ? a.renderSize / b.renderSize
+              : b.renderSize / a.renderSize;
+          final dx = b.x - a.x;
+          final dy = b.y - a.y;
+          if (dx.abs() > 0.15 || dy.abs() > 0.15) continue;
+          final distSq = dx * dx + dy * dy;
+          if (distSq > 0.0225) continue;
+
+          if (sizeRatio < 0.4) {
+            final smaller = a.renderSize < b.renderSize ? a : b;
+            final larger = a.renderSize < b.renderSize ? b : a;
+            if (smaller.parentCore != null) continue;
+            if (larger.orbiterCount >= 12) continue;
+            final dist = sqrt(distSq);
+            smaller.parentCore = larger;
+            larger.orbiterCount++;
+            smaller.orbitRadius = max(dist, 0.04);
+            smaller.orbitAngle = atan2(dy, dx);
+            smaller.orbitSpeed =
+                (0.5 + Random().nextDouble() * 2.5) / (0.3 + smaller.orbitRadius * 4);
+            smaller.orbitTilt = (Random().nextDouble() - 0.5) * 0.6;
+            larger.count += smaller.count;
+          } else {
+            final dist = sqrt(distSq);
+            if (dist < 1e-8) continue;
+            final force = (0.15 - dist) / 0.15 * 0.03;
+            a.vx -= (dx / dist) * force;
+            a.vy -= (dy / dist) * force;
+            b.vx += (dx / dist) * force;
+            b.vy += (dy / dist) * force;
+          }
+        }
+      }
+
+      for (final e in _entities) {
+        if (e.parentCore == null) continue;
+        final core = e.parentCore!;
+        if (core.orbiterCount == 0) {
+          e.parentCore = null;
+          continue;
+        }
+        final speed = sqrt(core.vx * core.vx + core.vy * core.vy);
+        if (speed > 0.3 && e.orbitRadius > 0.12) {
+          e.parentCore = null;
+          core.orbiterCount--;
+          e.vx = (Random().nextDouble() - 0.5) * 0.08;
+          e.vy = (Random().nextDouble() - 0.5) * 0.08;
+        }
+      }
+
+      for (final core in cores) {
+        core.vx *= 0.99;
+        core.vy *= 0.99;
+      }
+
+      for (final core in cores) {
+        for (final e in _entities) {
+          if (identical(e, core)) continue;
+          if (e.parentCore != null) continue;
+          final dx = e.x - core.x;
+          final dy = e.y - core.y;
+          if (dx.abs() > 0.03 || dy.abs() > 0.03) continue;
+          final distSq = dx * dx + dy * dy;
+          if (distSq > 0.0009 || distSq < 1e-8) continue;
+          final dist = sqrt(distSq);
+          final force = (0.03 - dist) / 0.03 * 0.015;
+          e.vx += (dx / dist) * force;
+          e.vy += (dy / dist) * force;
+        }
+      }
     } else {
       for (int i = 0; i < _entities.length; i++) {
         for (int j = i + 1; j < _entities.length; j++) {
@@ -230,31 +388,24 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       widget.controller?.onRepelUpdate = setRepelPoint;
       widget.controller?.onBurst = triggerBurst;
     }
-    if (widget.cubeCount != oldWidget.cubeCount &&
-        widget.cubeCount > _entities.length) {
-      _entities.addAll(
-        List.generate(
-            widget.cubeCount - _entities.length, (_) => _MergeEntity()),
-      );
-    }
-    if (widget.cubeMode == CubeMode.standard &&
-        oldWidget.cubeMode == CubeMode.merge) {
-      final broken = <_MergeEntity>[];
-      for (final e in _entities) {
-        if (e.count > 1) {
-          for (int k = 0; k < e.count; k++) {
-            broken.add(_MergeEntity(
-              x: (e.x + (Random().nextDouble() - 0.5) * 0.1).clamp(0.0, 1.0),
-              y: (e.y + (Random().nextDouble() - 0.5) * 0.1).clamp(0.0, 1.0),
-              vx: (Random().nextDouble() - 0.5) * 0.05,
-              vy: (Random().nextDouble() - 0.5) * 0.05,
-            ));
-          }
-        } else {
-          broken.add(e);
+    if (widget.cubeCount != oldWidget.cubeCount) {
+      if (widget.cubeCount > _baseData.length) {
+        for (int i = _baseData.length; i < widget.cubeCount; i++) {
+          final size = 6.0 + Random().nextDouble() * 18.0;
+          _baseData.add(_BaseCubeData(
+            x: Random().nextDouble(),
+            y: Random().nextDouble(),
+            rx: Random().nextDouble() * pi * 2,
+            ry: Random().nextDouble() * pi * 2,
+            rz: Random().nextDouble() * pi * 2,
+            size: size,
+          ));
         }
       }
-      _entities = broken;
+      _resetFromBase();
+    }
+    if (oldWidget.cubeMode != widget.cubeMode) {
+      _resetFromBase();
     }
   }
 
@@ -287,6 +438,21 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 }
 
+class _BaseCubeData {
+  final double x, y;
+  final double rx, ry, rz;
+  final double size;
+
+  _BaseCubeData({
+    required this.x,
+    required this.y,
+    required this.rx,
+    required this.ry,
+    required this.rz,
+    required this.size,
+  });
+}
+
 class _MergeEntity {
   double x, y;
   int count;
@@ -299,6 +465,13 @@ class _MergeEntity {
   double mergeTimer = 0.0;
   double mergeCooldown = 0.0;
   double _timeSinceLastChange = 0.0;
+
+  _MergeEntity? parentCore;
+  double orbitRadius = 0.0;
+  double orbitAngle = 0.0;
+  double orbitSpeed = 0.0;
+  double orbitTilt = 0.0;
+  int orbiterCount = 0;
 
   _MergeEntity({
     double? x,

@@ -89,6 +89,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   void _splitMergedEntities() {
     final newEntities = <_MergeEntity>[];
     for (final e in _entities) {
+      e.spiralPartner = null;
       if (e.count > 1) {
         for (final idx in e.baseIndices) {
           final base = _baseData[idx];
@@ -125,6 +126,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     for (final e in _entities) {
       e.mergeTimer = 0.0;
       e.mergeCooldown = 0.0;
+      e.spiralPartner = null;
     }
   }
 
@@ -160,12 +162,20 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       );
     }
 
+    for (final e in _entities) {
+      if (e.x.isNaN || e.x.isInfinite) e.x = 0.5;
+      if (e.y.isNaN || e.y.isInfinite) e.y = 0.5;
+      if (e.renderSize.isNaN || e.renderSize.isInfinite) e.renderSize = 10.0;
+      if (e.targetSize.isNaN || e.targetSize.isInfinite) e.targetSize = 10.0;
+    }
+
     if (widget.cubeMode == CubeMode.merge) {
       for (final e in _entities) {
-        if (e.mergeCooldown > 0) e.mergeCooldown -= dt;
+        if (e.mergeCooldown > 0 && !e.isSpiraling) e.mergeCooldown -= dt;
       }
 
       for (final e in _entities) {
+        if (e.isSpiraling) continue;
         e.vx += (Random().nextDouble() - 0.5) * 0.01;
         e.vy += (Random().nextDouble() - 0.5) * 0.01;
       }
@@ -174,32 +184,132 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         e.renderSize += (e.targetSize - e.renderSize) * dt * 6.0;
       }
 
+      // --- Death spiral updates ---
+      {
+        bool spiralMergeHappened = true;
+        int spiralPasses = 0;
+        while (spiralMergeHappened) {
+          spiralMergeHappened = false;
+          if (++spiralPasses > _entities.length) break;
+          final processed = <_MergeEntity>{};
+          for (final a in _entities) {
+            if (a.spiralPartner == null) continue;
+            if (processed.contains(a)) continue;
+            final b = a.spiralPartner!;
+            if (b.spiralPartner != a) {
+              a.spiralPartner = null;
+              continue;
+            }
+            processed.add(a);
+            processed.add(b);
+
+            a.spiralSpeed += dt * 60 * 0.5;
+            b.spiralSpeed += dt * 60 * 0.5;
+            if (a.spiralSpeed > 6.0) a.spiralSpeed = 6.0;
+            if (b.spiralSpeed > 6.0) b.spiralSpeed = 6.0;
+
+            final speedRatio = a.spiralSpeed / 6.0;
+            a.spiralRadius = max(0.001, a.spiralInitialRadius * (1.0 - speedRatio));
+            b.spiralRadius = max(0.001, b.spiralInitialRadius * (1.0 - speedRatio));
+
+            a.spiralAngle += a.spiralSpeed * dt * 60 * widget.speed;
+            b.spiralAngle += b.spiralSpeed * dt * 60 * widget.speed;
+
+            final totalCount = a.count + b.count;
+            final cx = (a.x * a.count + b.x * b.count) / totalCount;
+            final cy = (a.y * a.count + b.y * b.count) / totalCount;
+
+            a.x = (cx + a.spiralRadius * cos(a.spiralAngle)).clamp(0.0, 1.0);
+            a.y = (cy + a.spiralRadius * sin(a.spiralAngle)).clamp(0.0, 1.0);
+            b.x = (cx + b.spiralRadius * cos(b.spiralAngle)).clamp(0.0, 1.0);
+            b.y = (cy + b.spiralRadius * sin(b.spiralAngle)).clamp(0.0, 1.0);
+
+            if (a.spiralRadius < 0.003) {
+              final newCount = a.count + b.count;
+              final newSize = a.renderSize + b.renderSize;
+              _entities.add(_MergeEntity(
+                x: (a.x * a.count + b.x * b.count) / totalCount,
+                y: (a.y * a.count + b.y * b.count) / totalCount,
+                vx: (a.vx * a.count + b.vx * b.count) / totalCount,
+                vy: (a.vy * a.count + b.vy * b.count) / totalCount,
+                rx: (a.rx + b.rx) / 2,
+                ry: (a.ry + b.ry) / 2,
+                rz: (a.rz + b.rz) / 2,
+                count: newCount,
+                size: max(a.renderSize, b.renderSize),
+                targetSize: newSize,
+                baseIndices: [...a.baseIndices, ...b.baseIndices],
+              ));
+              _entities.last.mergeCooldown = 0.5;
+
+              a.spiralPartner = null;
+              b.spiralPartner = null;
+              _entities.remove(a);
+              _entities.remove(b);
+              spiralMergeHappened = true;
+              break;
+            }
+          }
+        }
+      }
+
+      // --- Attraction/repulsion ---
       for (int i = 0; i < _entities.length; i++) {
         for (int j = i + 1; j < _entities.length; j++) {
           final a = _entities[i], b = _entities[j];
-          if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
+          if (a.isSpiraling && b.isSpiraling) continue;
 
           final dx = b.x - a.x;
           final dy = b.y - a.y;
           final distSq = dx * dx + dy * dy;
-          if (distSq < 1e-10) continue;
+          if (distSq < 1e-10 || distSq > 0.0036) continue;
 
           final sizeRatio = a.renderSize < b.renderSize
               ? a.renderSize / b.renderSize
               : b.renderSize / a.renderSize;
-          const attractRange = 0.06;
+          if (sizeRatio < 0.5) continue;
 
+          // Third-cube repulsion: push outsider away, drift the spiral pair as unit
+          if (a.isSpiraling != b.isSpiraling) {
+            final outsider = a.isSpiraling ? b : a;
+            final spiraling = a.isSpiraling ? a : b;
+            final dx2 = outsider.x - spiraling.x;
+            final dy2 = outsider.y - spiraling.y;
+            final d2 = sqrt(dx2 * dx2 + dy2 * dy2);
+            if (d2 < 1e-10) continue;
+            const repelRange = 0.06;
+            if (d2 > repelRange) continue;
+            final strength = (repelRange - d2) / repelRange * 0.015;
+
+            // Push outsider away
+            outsider.vx += (dx2 / d2) * strength;
+            outsider.vy += (dy2 / d2) * strength;
+
+            // Drift the spiral pair together (lighter force, same direction)
+            final driftStrength = strength * 0.3;
+            spiraling.vx -= (dx2 / d2) * driftStrength;
+            spiraling.vy -= (dy2 / d2) * driftStrength;
+            if (spiraling.spiralPartner != null) {
+              spiraling.spiralPartner!.vx -= (dx2 / d2) * driftStrength;
+              spiraling.spiralPartner!.vy -= (dy2 / d2) * driftStrength;
+            }
+            continue;
+          }
+
+          if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
+
+          const attractRange = 0.06;
           if (distSq < attractRange * attractRange) {
             final dist = sqrt(distSq);
 
             if (sizeRatio > 0.6) {
-              final strength = (attractRange - dist) / attractRange * 0.005;
+              final strength = (attractRange - dist) / attractRange * 0.008;
               a.vx += (dx / dist) * strength;
               a.vy += (dy / dist) * strength;
               b.vx -= (dx / dist) * strength;
               b.vy -= (dy / dist) * strength;
             } else {
-              final strength = (attractRange - dist) / attractRange * 0.002;
+              final strength = (attractRange - dist) / attractRange * 0.003;
               a.vx -= (dx / dist) * strength;
               a.vy -= (dy / dist) * strength;
               b.vx += (dx / dist) * strength;
@@ -221,6 +331,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         }
       }
 
+      // --- Proximity tracking and merge (non-spiral merges) ---
       final inProximity = <_MergeEntity>{};
       bool anyMerge = true;
       int passes = 0;
@@ -231,16 +342,17 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         for (int i = _entities.length - 1; i >= 0; i--) {
           for (int j = i - 1; j >= 0; j--) {
             final a = _entities[i], b = _entities[j];
+            if (a.isSpiraling || b.isSpiraling) continue;
             if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
 
             final dx = b.x - a.x;
             final dy = b.y - a.y;
-            const mergeDist = 0.018;
-            if (dx * dx + dy * dy < mergeDist * mergeDist) {
+            const proximityDist = 0.04;
+            if (dx * dx + dy * dy < proximityDist * proximityDist) {
               inProximity.add(a);
               inProximity.add(b);
 
-              if (a.mergeTimer >= 0.5 && b.mergeTimer >= 0.5) {
+              if (a.mergeTimer >= 0.3 && b.mergeTimer >= 0.3) {
                 final newCount = a.count + b.count;
                 final totalMass = newCount;
                 final newSize = a.renderSize + b.renderSize;
@@ -257,7 +369,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
                   targetSize: newSize,
                   baseIndices: [...a.baseIndices, ...b.baseIndices],
                 ));
-                _entities.last.mergeCooldown = 1.0;
+                _entities.last.mergeCooldown = 0.5;
                 _entities.removeAt(i);
                 _entities.removeAt(j);
                 anyMerge = true;
@@ -265,6 +377,44 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               }
             }
           }
+        }
+      }
+
+      // --- Spiral initiation (after all merges, indices are stable) ---
+      for (int i = 0; i < _entities.length; i++) {
+        for (int j = i + 1; j < _entities.length; j++) {
+          final a = _entities[i], b = _entities[j];
+          if (a.isSpiraling || b.isSpiraling) continue;
+          if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
+
+          final dx = b.x - a.x;
+          final dy = b.y - a.y;
+          const spiralDist = 0.04;
+          if (dx * dx + dy * dy > spiralDist * spiralDist) continue;
+
+          final sizeRatio = a.renderSize < b.renderSize
+              ? a.renderSize / b.renderSize
+              : b.renderSize / a.renderSize;
+          if (sizeRatio <= 0.6) continue;
+          if (a.mergeTimer < 0.15 || b.mergeTimer < 0.15) continue;
+
+          inProximity.add(a);
+          inProximity.add(b);
+
+          const screenScale = 400.0;
+          final minSafeRadius = (a.renderSize + b.renderSize) * 0.25 / screenScale;
+          final dist = max(sqrt(dx * dx + dy * dy), minSafeRadius + 0.002);
+          final initRadius = max(dist / 2, minSafeRadius);
+          a.spiralPartner = b;
+          b.spiralPartner = a;
+          a.spiralInitialRadius = initRadius;
+          b.spiralInitialRadius = initRadius;
+          a.spiralAngle = atan2(dy, dx);
+          b.spiralAngle = a.spiralAngle + pi;
+          a.spiralRadius = initRadius;
+          b.spiralRadius = initRadius;
+          a.spiralSpeed = 1.5;
+          b.spiralSpeed = 1.5;
         }
       }
 
@@ -328,7 +478,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           e.orbitRadius = max(dist, 0.04);
           e.orbitAngle = atan2(dy, dx);
           e.orbitSpeed =
-              (0.5 + Random().nextDouble() * 2.5) / (0.3 + e.orbitRadius * 4);
+              (0.5 + Random().nextDouble() * 2.5) / (0.3 + e.orbitRadius * 4) * 0.75;
           e.orbitTilt = (Random().nextDouble() - 0.5) * 0.6;
           core.count += e.count;
         }
@@ -357,7 +507,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             smaller.orbitRadius = max(dist, 0.04);
             smaller.orbitAngle = atan2(dy, dx);
             smaller.orbitSpeed =
-                (0.5 + Random().nextDouble() * 2.5) / (0.3 + smaller.orbitRadius * 4);
+                (0.5 + Random().nextDouble() * 2.5) / (0.3 + smaller.orbitRadius * 4) * 0.75;
             smaller.orbitTilt = (Random().nextDouble() - 0.5) * 0.6;
             larger.count += smaller.count;
           } else {
@@ -548,6 +698,14 @@ class _MergeEntity {
   double orbitSpeed = 0.0;
   double orbitTilt = 0.0;
   int orbiterCount = 0;
+
+  _MergeEntity? spiralPartner;
+  double spiralInitialRadius = 0.0;
+  double spiralAngle = 0.0;
+  double spiralRadius = 0.0;
+  double spiralSpeed = 0.0;
+  bool get isSpiraling => spiralPartner != null;
+
   final List<int> baseIndices;
 
   _MergeEntity({
@@ -799,6 +957,10 @@ class _CubePainter extends CustomPainter {
     final allData = <_CubeDrawData>[];
 
     for (final entity in entities) {
+      if (entity.x.isNaN || entity.x.isInfinite) continue;
+      if (entity.y.isNaN || entity.y.isInfinite) continue;
+      if (entity.renderSize.isNaN || entity.renderSize.isInfinite) continue;
+
       final h = entity.renderSize * 0.5;
       final px = entity.x * size.width;
       final py = entity.y * size.height;
@@ -927,6 +1089,11 @@ class _CubePainter extends CustomPainter {
     Paint strokePaint,
     Color cubeColor,
   ) {
+    if (!fd.x0.isFinite || !fd.y0.isFinite ||
+        !fd.x1.isFinite || !fd.y1.isFinite ||
+        !fd.x2.isFinite || !fd.y2.isFinite ||
+        !fd.x3.isFinite || !fd.y3.isFinite) return;
+
     final path = Path()
       ..moveTo(fd.x0, fd.y0)
       ..lineTo(fd.x1, fd.y1)

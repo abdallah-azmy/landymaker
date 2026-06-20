@@ -36,70 +36,37 @@ A real-time 3D cube particle system with three interactive modes (Standard, Merg
 
 ### Merge Mode
 
-**Key constants:**
+**Key Rules & Mechanics:**
 
-| Constant | Value | Description |
-|---|---|---|
-| `attractRange` | 0.06 | Max distance for attraction/repulsion |
-| `attractForce` | 0.008 | Strength of attraction between similar-size cubes |
-| `repelForce` | 0.003 | Strength of repulsion between different-size cubes |
-| `orbitStrength` | 0.001 | Perpendicular force for orbital motion |
-| `mergeDist` | 0.018 | Distance threshold for direct merge |
-| `proximityDist` | 0.04 | Distance threshold for proximity tracking |
-| `proximityTimerMerge` | 0.3 | Seconds in proximity before direct merge |
-| `proximityTimerSpiral` | 0.15 | Seconds in proximity before spiral initiation |
-| `spiralAccel` | 0.5 | Acceleration per dt*60 (spiralSpeed += dt*60*0.5) |
-| `spiralMaxSpeed` | 6.0 | Max spiral speed before collapse |
-| `spiralDist` | 0.04 | Max distance for spiral initiation |
-| `spiralSizeRatio` | 0.6 | Min size ratio for attraction/spiral |
-| `mergeCooldown` | 0.5 | Seconds after merge before entity can interact again |
+**1. Match Conditions:**
+- Merging ONLY happens between almost identical cubes (`sizeRatio >= 0.95`).
+- Distance logic relies on `baseDistPixel = a.renderSize + b.renderSize`.
 
-**Similar-size cubes (ratio > 0.6):**
-- Attract each other with force `0.008` when distance < `0.06`.
-- Orbital perpendicular force `0.001` at intermediate distances.
-- When proximity timer ≥ `0.15` and distance < `0.04`, they enter death-spiral.
+**2. Pre-Spiral Phase (Attraction/Repulsion):**
+- **Attraction Range**: `baseDistPixel * 8.0`
+- **Safe Distance**: `baseDistPixel * 3.0`
+- Cubes gently pull each other until they reach `safeDistancePixel`. If they get closer than `0.9 * safeDistancePixel` prematurely, they gently repel back to the safe distance.
+- *CRITICAL RULE*: NO orbital/perpendicular forces are applied in this phase. Centrifugal forces would cause them to separate and prevent the death-spiral from ever initiating.
 
-**Death-spiral mechanics:**
-- Both entities get `spiralPartner` reference to each other.
-- `totalInitRadius` = `max(distPixel, touchRadiusPixel)` where `touchRadiusPixel = (a.renderSize + b.renderSize) * 0.866025` (i.e. `sqrt(3)/2`). This true pixel value accounts for the body diagonal of a 3D rotated cube, guaranteeing no visual overlap at any rotation.
-- Radii are mass-weighted to ensure proper barycentric orbit: `a.spiralInitialRadius = totalInitRadius * (b.count / totalCount)`.
-- `spiralAngle` initialized perfectly pointing from `cx` to the entity.
-- `spiralSpeed` starts at `1.5`, accelerates by `dt * 60 * 0.5` per frame, capped at `6.0`.
-- **Radius behavior (two-phase)**:
-  1. **Stable orbit phase** (spiralSpeed < 6.0): `spiralRadius = spiralInitialRadius` — constant safe distance. The cubes orbit each other without any visual overlap.
-  2. **Collapse phase** (spiralSpeed = 6.0): `spiralCollapseTimer` accumulates real seconds. `spiralRadius` linearly interpolates from `spiralInitialRadius` to the mass-weighted `targetRadius` over 1.5 seconds.
-- Positions computed relative to mass-weighted centroid: `cx = (a.x*a.count + b.x*b.count) / totalCount`. The position incorporates true aspect ratio division `(spiralRadius / _screenSize.width)` to ensure perfect circular orbits on any screen size.
-- When `collapseProgress >= 1.0` → merge into single entity exactly at centroid `cx, cy` with combined mass and summed renderSize, `targetSize` = sum of both sizes. New entity gets `mergeCooldown = 0.5`.
+**3. Third-Cube Repulsion ("The Shield"):**
+- If a pair is actively in a death-spiral, they must not be interrupted.
+- ANY non-spiraling cube entering a massive `repelRange = max(0.1, (baseDistPixel * 5.0) / width)` is pushed away with extreme force. The spiraling pair also gently drifts away from the intruder.
 
-**Third-cube repulsion during spiral:**
-- When a spiraling pair and a non-spiraling cube are within `0.06`:
-  - Outsider pushed away with full force `(repelRange - d2) / repelRange * 0.015`.
-  - Spiraling pair drifted together with `0.3x` force (same direction as outsider's push).
-- Works for any cube size, not just similar sizes.
+**4. Mismatched Cubes (`sizeRatio < 0.95`):**
+- Repel each other if within `baseDistPixel * 3.5`.
 
-**Different-size cubes (ratio ≤ 0.6):**
-- Repel each other with force `0.003` when distance < `0.06`.
+**5. Spiral Initiation:**
+- Triggers **instantly** (no proximity timers) when identical cubes get within `safeDistancePixel * 1.5`.
+- `totalInitRadius` starts at `max(distPixel, safeDistancePixel)`.
+- Initial radii are mass-weighted based on cube `count` so the pair rotates around a perfect barycenter.
 
-**Direct merge (no spiral):**
-- When proximity timer ≥ `0.3` **and** distance < `0.018`.
-- Produces combined entity with summed renderSize and merged `baseIndices`.
-
-**Proximity tracking:**
-- Uses `inProximity` set to accumulate all entity pairs within `0.04`.
-- Timer increments by `+dt` per frame while in proximity.
-- Timer decays by `-dt * 3` when not in proximity.
-
-**Attraction/repulsion scan:**
-- For each pair where `distSq < 0.0036` (i.e., `0.06` range):
-  - Skip if size ratio < 0.5 (too different to interact).
-  - Skip if one is spiraling and the other is not (handled by third-cube repulsion above).
-  - Skip if both are spiraling (they only interact with each other).
-  - Skip if either is on `mergeCooldown`.
-
-**Index shifting bug fix:**
-- Uses direct object references (`spiralPartner` fields) instead of fragile index pairs.
-- Merge loop uses `processed` set to handle each pair exactly once.
-- Spiral initiation runs AFTER all merges complete, so entity list is stable.
+**6. Death-Spiral Collapse ("The Smash"):**
+- **Timer Scaling**: The background is driven by a 60-second `AnimationController`. Thus, `dt` represents a fraction of 60 seconds, not real-time seconds. Timers MUST accumulate `dt * 60` to count in real seconds.
+- **Duration**: Exactly `4.0` real seconds.
+- **Speed**: `spiralSpeed` linearly accelerates from `1.5` to `12.0` over the duration.
+- **The "Smash" Radius**: The final target distance between centers is `collisionRadiusPixel = baseDistPixel * 0.2`. Because the cube's physical boundaries extend roughly `0.5 * baseDist`, a target distance of `0.2` guarantees deep visual overlap (a "smash") in the final frames before merging.
+- **Shrink Curve**: `spiralRadius` interpolates from `spiralInitialRadius` to `targetRadius` using a squared curve (`collapseProgress * collapseProgress`), causing a sudden snap at the end.
+- **Merge Execution**: Triggers precisely at `collapseProgress >= 0.999`. The loop MUST iterate over `_entities.toList()` to avoid `ConcurrentModificationError` when removing the original cubes and inserting the merged cube.
 
 ### Orbit Mode
 
@@ -193,19 +160,24 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 
 ---
 
-## 5. WASM Aborted() Issue
+## 5. WASM Aborted() & Physics Freeze Issues
 
-**Root cause**: NaN or Infinity values in face coordinates reaching CanvasKit's `Canvas.drawPath`.
+**1. The CanvasKit Rendering Crash (NaN coordinates):**
+- **Cause**: NaN or Infinity values in face coordinates reaching CanvasKit's `Canvas.drawPath`.
+- **Three-layer safety net**:
+  1. **Global NaN check**: After every entity update, sanitize x, y, renderSize, targetSize.
+  2. **Painter entity skip**: Skip entity entirely if x, y, or renderSize is not finite.
+  3. **Face coordinate guard**: Skip face if any of its 8 coordinates is non-finite.
 
-**Three-layer safety net**:
-1. **Global NaN check** (`_updateEntities`, line 165-169): After every entity update, sanitize x, y, renderSize, targetSize. Applied to ALL entities regardless of mode.
-2. **Painter entity skip** (`_CubePainter.paint`, line 959-962): Skip entity entirely if x, y, or renderSize is not finite.
-3. **Face coordinate guard** (`_drawFace`, line 1092-1095): Skip face if any of its 8 coordinates is non-finite.
+**2. The `ConcurrentModificationError` Physics Freeze:**
+- **Symptom**: Cubes get "stuck" at the end of an animation (like the 4-second merge) and never complete the action, rotating infinitely. The browser console logs a Dart `ConcurrentModificationError`, sometimes followed by a CanvasKit crash due to corrupted state.
+- **Cause**: Calling `_entities.add` or `_entities.remove` while iterating directly over `for (final e in _entities)`. This aborts the physics frame halfway through.
+- **Fix**: ALWAYS iterate over a copy of the list when modifying it: `for (final e in _entities.toList())`.
 
-**Known triggers**:
-- `cos(infinity)` or `sin(infinity)` during rotation angle computation (if rotation velocities push angles to extreme).
-- Non-finite positions from velocity accumulation at low framerates.
-- Edge cases in spiral computations with very small entities.
+**3. The `dt` Time-Scaling Bug:**
+- **Symptom**: Timers seem to take minutes instead of seconds to complete.
+- **Cause**: The `AnimationController` runs from 0.0 to 1.0 over a 60-second duration. Thus, the computed `dt` is a *fraction of 60 seconds*, not actual seconds. `0.016` dt is actually 1/60th of 60 seconds (1 second).
+- **Fix**: When accumulating real-time seconds, always use `timer += dt * 60;`. When applying velocity per-frame, use `vx * dt * 60 * speedMultiplier`.
 
 ---
 

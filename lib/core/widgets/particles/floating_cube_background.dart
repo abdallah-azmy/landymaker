@@ -210,7 +210,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           spiralMergeHappened = false;
           if (++spiralPasses > _entities.length) break;
           final processed = <_MergeEntity>{};
-          for (final a in _entities) {
+          for (final a in _entities.toList()) {
             if (a.spiralPartner == null) continue;
             if (processed.contains(a)) continue;
             final b = a.spiralPartner!;
@@ -221,47 +221,81 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             processed.add(a);
             processed.add(b);
 
-            a.spiralSpeed += dt * 60 * 0.5;
-            b.spiralSpeed += dt * 60 * 0.5;
-            if (a.spiralSpeed > 6.0) a.spiralSpeed = 6.0;
-            if (b.spiralSpeed > 6.0) b.spiralSpeed = 6.0;
+            // dt is normalized over 60 seconds, so dt * 60 gives actual real-time seconds.
+            a.spiralCollapseTimer += dt * 60;
+            b.spiralCollapseTimer += dt * 60;
+            
+            const double totalDuration = 4.0;
+            final collapseProgress = (a.spiralCollapseTimer / totalDuration).clamp(0.0, 1.0);
 
-            final touchRadiusPixel = (a.renderSize + b.renderSize) * 0.8660254037844386;
+            a.spiralSpeed = 1.5 + (12.0 - 1.5) * collapseProgress;
+            b.spiralSpeed = a.spiralSpeed;
+
+            final collisionRadiusPixel = (a.renderSize + b.renderSize) * 0.2; // 0.2 creates a strong visual overlap before popping
             final totalCount = a.count + b.count;
-            final effectiveTouchRadiusA = touchRadiusPixel * (b.count / totalCount);
-            final effectiveTouchRadiusB = touchRadiusPixel * (a.count / totalCount);
+            final effectiveTouchRadiusA = collisionRadiusPixel * (b.count / totalCount);
+            final effectiveTouchRadiusB = collisionRadiusPixel * (a.count / totalCount);
 
             final targetRadiusA = min(effectiveTouchRadiusA, a.spiralInitialRadius);
             final targetRadiusB = min(effectiveTouchRadiusB, b.spiralInitialRadius);
-
-            if (a.spiralSpeed >= 6.0) {
-              a.spiralCollapseTimer += dt;
-              b.spiralCollapseTimer += dt;
-            }
-            const collapseDuration = 1.5;
-            final collapseProgress = (a.spiralCollapseTimer / collapseDuration).clamp(0.0, 1.0);
             
-            a.spiralRadius = a.spiralInitialRadius + (targetRadiusA - a.spiralInitialRadius) * collapseProgress;
-            b.spiralRadius = b.spiralInitialRadius + (targetRadiusB - b.spiralInitialRadius) * collapseProgress;
+            final shrinkCurve = collapseProgress * collapseProgress;
+            
+            a.spiralRadius = a.spiralInitialRadius + (targetRadiusA - a.spiralInitialRadius) * shrinkCurve;
+            b.spiralRadius = b.spiralInitialRadius + (targetRadiusB - b.spiralInitialRadius) * shrinkCurve;
 
             a.spiralAngle += a.spiralSpeed * dt * 60 * widget.speed;
             b.spiralAngle = a.spiralAngle + pi;
 
-            final cx = (a.x * a.count + b.x * b.count) / totalCount;
-            final cy = (a.y * a.count + b.y * b.count) / totalCount;
+            double cx = (a.x * a.count + b.x * b.count) / totalCount;
+            double cy = (a.y * a.count + b.y * b.count) / totalCount;
+            double cvx = (a.vx * a.count + b.vx * b.count) / totalCount;
+            double cvy = (a.vy * a.count + b.vy * b.count) / totalCount;
+
+            const double repZone = 0.1;
+            const double repForce = 0.04;
+            if (cy < repZone) cvy += (repZone - cy) / repZone * repForce;
+            if (cy > 1.0 - repZone) cvy -= (repZone - (1.0 - cy)) / repZone * repForce;
+            if (cx < repZone) cvx += (repZone - cx) / repZone * repForce;
+            if (cx > 1.0 - repZone) cvx -= (repZone - (1.0 - cx)) / repZone * repForce;
+
+            if (_hasRepelPoint && _repelPoint != null) {
+              final dx = cx - _repelPoint!.dx;
+              final dy = cy - _repelPoint!.dy;
+              final dist = sqrt(dx * dx + dy * dy);
+              if (dist < 0.25 && dist > 0.001) {
+                final force = (0.25 - dist) / 0.25 * 0.30;
+                cvx += (dx / dist) * force;
+                cvy += (dy / dist) * force;
+              }
+            }
+
+            double newCx = cx;
+            double newCy = cy;
+            if (cx < 0) { newCx = 0; cvx = -cvx * 0.92; }
+            if (cx > 1) { newCx = 1; cvx = -cvx * 0.92; }
+            if (cy < 0) { newCy = 0; cvy = -cvy * 0.92; }
+            if (cy > 1) { newCy = 1; cvy = -cvy * 0.92; }
+
+            a.vx = cvx; b.vx = cvx;
+            a.vy = cvy; b.vy = cvy;
+            cx = newCx; cy = newCy;
 
             a.x = cx + (a.spiralRadius / _screenSize.width) * cos(a.spiralAngle);
             a.y = cy + (a.spiralRadius / _screenSize.height) * sin(a.spiralAngle);
             b.x = cx + (b.spiralRadius / _screenSize.width) * cos(b.spiralAngle);
             b.y = cy + (b.spiralRadius / _screenSize.height) * sin(b.spiralAngle);
 
-            if (collapseProgress >= 1.0) {
+            if (collapseProgress >= 0.999) {
               final newSize = a.renderSize + b.renderSize;
+              cvx += (Random().nextDouble() - 0.5) * 0.05;
+              cvy += (Random().nextDouble() - 0.5) * 0.05;
+
               _entities.add(_MergeEntity(
                 x: cx,
                 y: cy,
-                vx: (a.vx * a.count + b.vx * b.count) / totalCount,
-                vy: (a.vy * a.count + b.vy * b.count) / totalCount,
+                vx: cvx,
+                vy: cvy,
                 rx: (a.rx + b.rx) / 2,
                 ry: (a.ry + b.ry) / 2,
                 rz: (a.rz + b.rz) / 2,
@@ -292,31 +326,34 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           final dx = b.x - a.x;
           final dy = b.y - a.y;
           final distSq = dx * dx + dy * dy;
-          if (distSq < 1e-10 || distSq > 0.0036) continue;
+          if (distSq < 1e-10) continue;
+          final dist = sqrt(distSq);
 
-          final sizeRatio = a.renderSize < b.renderSize
-              ? a.renderSize / b.renderSize
-              : b.renderSize / a.renderSize;
-          if (sizeRatio < 0.5) continue;
+          final dxPixel = dx * _screenSize.width;
+          final dyPixel = dy * _screenSize.height;
+          final distPixel = sqrt(dxPixel * dxPixel + dyPixel * dyPixel);
 
-          // Third-cube repulsion: push outsider away, drift the spiral pair as unit
+          final baseDistPixel = a.renderSize + b.renderSize;
+
+          // Third-cube repulsion: strong push outsider away
           if (a.isSpiraling != b.isSpiraling) {
             final outsider = a.isSpiraling ? b : a;
             final spiraling = a.isSpiraling ? a : b;
+            
             final dx2 = outsider.x - spiraling.x;
             final dy2 = outsider.y - spiraling.y;
             final d2 = sqrt(dx2 * dx2 + dy2 * dy2);
             if (d2 < 1e-10) continue;
-            const repelRange = 0.06;
+            
+            final repelRange = max(0.1, (baseDistPixel * 5.0) / _screenSize.width); 
             if (d2 > repelRange) continue;
-            final strength = (repelRange - d2) / repelRange * 0.015;
+            
+            final strength = (repelRange - d2) / repelRange * 0.15; // Very strong force
 
-            // Push outsider away
             outsider.vx += (dx2 / d2) * strength;
             outsider.vy += (dy2 / d2) * strength;
 
-            // Drift the spiral pair together (lighter force, same direction)
-            final driftStrength = strength * 0.3;
+            final driftStrength = strength * 0.1;
             spiraling.vx -= (dx2 / d2) * driftStrength;
             spiraling.vy -= (dy2 / d2) * driftStrength;
             if (spiraling.spiralPartner != null) {
@@ -328,115 +365,65 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
           if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
 
-          const attractRange = 0.06;
-          if (distSq < attractRange * attractRange) {
-            final dist = sqrt(distSq);
+          final sizeRatio = a.renderSize < b.renderSize
+              ? a.renderSize / b.renderSize
+              : b.renderSize / a.renderSize;
 
-            if (sizeRatio > 0.6) {
-              final strength = (attractRange - dist) / attractRange * 0.008;
-              a.vx += (dx / dist) * strength;
-              a.vy += (dy / dist) * strength;
-              b.vx -= (dx / dist) * strength;
-              b.vy -= (dy / dist) * strength;
-            } else {
-              final strength = (attractRange - dist) / attractRange * 0.003;
-              a.vx -= (dx / dist) * strength;
-              a.vy -= (dy / dist) * strength;
-              b.vx += (dx / dist) * strength;
-              b.vy += (dy / dist) * strength;
-            }
+          if (sizeRatio >= 0.95) {
+             final safeDistancePixel = baseDistPixel * 3.0; 
+             final attractRangePixel = baseDistPixel * 8.0;
+             
+             if (distPixel < attractRangePixel) {
+               if (distPixel > safeDistancePixel) {
+                 final strength = (attractRangePixel - distPixel) / attractRangePixel * 0.008;
+                 a.vx += (dx / dist) * strength;
+                 a.vy += (dy / dist) * strength;
+                 b.vx -= (dx / dist) * strength;
+                 b.vy -= (dy / dist) * strength;
+               } else if (distPixel < safeDistancePixel * 0.9) {
+                 final strength = (safeDistancePixel * 0.9 - distPixel) / (safeDistancePixel * 0.9) * 0.03;
+                 a.vx -= (dx / dist) * strength;
+                 a.vy -= (dy / dist) * strength;
+                 b.vx += (dx / dist) * strength;
+                 b.vy += (dy / dist) * strength;
+               }
 
-            const mergeDist = 0.018;
-            if (dist > mergeDist && dist < attractRange) {
-              final perpX = -dy / dist;
-              final perpY = dx / dist;
-              final orbitStrength =
-                  (attractRange - dist) / attractRange * 0.001;
-              a.vx += perpX * orbitStrength;
-              a.vy += perpY * orbitStrength;
-              b.vx -= perpX * orbitStrength;
-              b.vy -= perpY * orbitStrength;
-            }
+             }
+          } else {
+             final repelRangePixel = baseDistPixel * 3.5;
+             if (distPixel < repelRangePixel) {
+                final strength = (repelRangePixel - distPixel) / repelRangePixel * 0.005;
+                a.vx -= (dx / dist) * strength;
+                a.vy -= (dy / dist) * strength;
+                b.vx += (dx / dist) * strength;
+                b.vy += (dy / dist) * strength;
+             }
           }
         }
       }
 
-      // --- Proximity tracking and merge (non-spiral merges) ---
-      final inProximity = <_MergeEntity>{};
-      bool anyMerge = true;
-      int passes = 0;
-      while (anyMerge) {
-        anyMerge = false;
-        if (++passes > _entities.length) break;
-        outer:
-        for (int i = _entities.length - 1; i >= 0; i--) {
-          for (int j = i - 1; j >= 0; j--) {
-            final a = _entities[i], b = _entities[j];
-            if (a.isSpiraling || b.isSpiraling) continue;
-            if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
-
-            final dx = b.x - a.x;
-            final dy = b.y - a.y;
-            const proximityDist = 0.04;
-            if (dx * dx + dy * dy < proximityDist * proximityDist) {
-              inProximity.add(a);
-              inProximity.add(b);
-
-              if (a.mergeTimer >= 0.3 && b.mergeTimer >= 0.3) {
-                final newCount = a.count + b.count;
-                final totalMass = newCount;
-                final newSize = a.renderSize + b.renderSize;
-                _entities.add(_MergeEntity(
-                  x: (a.x * a.count + b.x * b.count) / totalMass,
-                  y: (a.y * a.count + b.y * b.count) / totalMass,
-                  vx: (a.vx * a.count + b.vx * b.count) / totalMass,
-                  vy: (a.vy * a.count + b.vy * b.count) / totalMass,
-                  rx: (a.rx + b.rx) / 2,
-                  ry: (a.ry + b.ry) / 2,
-                  rz: (a.rz + b.rz) / 2,
-                  count: newCount,
-                  size: max(a.renderSize, b.renderSize),
-                  targetSize: newSize,
-                  baseIndices: [...a.baseIndices, ...b.baseIndices],
-                ));
-                _entities.last.mergeCooldown = 0.5;
-                _entities.removeAt(i);
-                _entities.removeAt(j);
-                anyMerge = true;
-                break outer;
-              }
-            }
-          }
-        }
-      }
-
-      // --- Spiral initiation (after all merges, indices are stable) ---
+      // --- Spiral initiation ---
       for (int i = 0; i < _entities.length; i++) {
         for (int j = i + 1; j < _entities.length; j++) {
           final a = _entities[i], b = _entities[j];
           if (a.isSpiraling || b.isSpiraling) continue;
           if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
 
-          final dx = b.x - a.x;
-          final dy = b.y - a.y;
-          const spiralDist = 0.04;
-          if (dx * dx + dy * dy > spiralDist * spiralDist) continue;
-
           final sizeRatio = a.renderSize < b.renderSize
               ? a.renderSize / b.renderSize
               : b.renderSize / a.renderSize;
-          if (sizeRatio <= 0.6) continue;
-          if (a.mergeTimer < 0.15 || b.mergeTimer < 0.15) continue;
+          if (sizeRatio < 0.95) continue;
 
-          inProximity.add(a);
-          inProximity.add(b);
-
-          final dxPixel = dx * _screenSize.width;
-          final dyPixel = dy * _screenSize.height;
+          final dxPixel = (b.x - a.x) * _screenSize.width;
+          final dyPixel = (b.y - a.y) * _screenSize.height;
           final distPixel = max(sqrt(dxPixel * dxPixel + dyPixel * dyPixel), 0.001);
 
-          final touchRadiusPixel = (a.renderSize + b.renderSize) * 0.8660254037844386;
-          final totalInitRadius = max(distPixel, touchRadiusPixel);
+          final baseDistPixel = a.renderSize + b.renderSize;
+          final safeDistancePixel = baseDistPixel * 3.0;
+
+          if (distPixel > safeDistancePixel * 1.5) continue;
+
+          final totalInitRadius = max(distPixel, safeDistancePixel);
           
           final totalCount = a.count + b.count;
           a.spiralInitialRadius = totalInitRadius * (b.count / totalCount);
@@ -448,6 +435,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           b.spiralAngle = a.spiralAngle + pi;
           a.spiralRadius = a.spiralInitialRadius;
           b.spiralRadius = b.spiralInitialRadius;
+          
           a.spiralSpeed = 1.5;
           b.spiralSpeed = 1.5;
           a.spiralCollapseTimer = 0.0;
@@ -455,13 +443,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         }
       }
 
-      for (final e in _entities) {
-        if (inProximity.contains(e)) {
-          e.mergeTimer += dt;
-        } else {
-          e.mergeTimer = max(0.0, e.mergeTimer - dt * 3);
-        }
-      }
+
     } else if (widget.cubeMode == CubeMode.orbit) {
       for (final e in _entities) {
         if (e.parentCore == null) continue;

@@ -1,3 +1,20 @@
+// ══════════════════════════════════════════════════════════════════════════════
+// AI DOCUMENTATION DIRECTIVE
+//
+// This file implements a 3-mode 3D cube particle system (Standard, Merge, Orbit).
+//
+// BEFORE EDITING this file, an AI model MUST read and understand the complete
+// rules, constants, and behavioral contracts in:
+//
+//   docs/ai/FLOATING_CUBE_BACKGROUND.md
+//
+// RULE UPDATE PROTOCOL:
+// If the edit introduces or changes any behavioral rule, constant value, mode
+// transition logic, entity lifecycle, or physics parameter, the AI MUST first
+// update docs/ai/FLOATING_CUBE_BACKGROUND.md to reflect the new behavior, then
+// proceed with the code change. Both files must remain in sync.
+// ══════════════════════════════════════════════════════════════════════════════
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:landymaker/core/widgets/particles/cube_mode_cubit.dart';
@@ -44,6 +61,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   double _lastValue = 0.0;
   Offset? _repelPoint;
   bool _hasRepelPoint = false;
+  Size _screenSize = const Size(800, 800);
 
   void setRepelPoint(Offset? point) {
     _repelPoint = point;
@@ -208,34 +226,46 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             if (a.spiralSpeed > 6.0) a.spiralSpeed = 6.0;
             if (b.spiralSpeed > 6.0) b.spiralSpeed = 6.0;
 
-            final speedRatio = a.spiralSpeed / 6.0;
-            a.spiralRadius = max(0.001, a.spiralInitialRadius * (1.0 - speedRatio));
-            b.spiralRadius = max(0.001, b.spiralInitialRadius * (1.0 - speedRatio));
+            final touchRadiusPixel = (a.renderSize + b.renderSize) * 0.8660254037844386;
+            final totalCount = a.count + b.count;
+            final effectiveTouchRadiusA = touchRadiusPixel * (b.count / totalCount);
+            final effectiveTouchRadiusB = touchRadiusPixel * (a.count / totalCount);
+
+            final targetRadiusA = min(effectiveTouchRadiusA, a.spiralInitialRadius);
+            final targetRadiusB = min(effectiveTouchRadiusB, b.spiralInitialRadius);
+
+            if (a.spiralSpeed >= 6.0) {
+              a.spiralCollapseTimer += dt;
+              b.spiralCollapseTimer += dt;
+            }
+            const collapseDuration = 1.5;
+            final collapseProgress = (a.spiralCollapseTimer / collapseDuration).clamp(0.0, 1.0);
+            
+            a.spiralRadius = a.spiralInitialRadius + (targetRadiusA - a.spiralInitialRadius) * collapseProgress;
+            b.spiralRadius = b.spiralInitialRadius + (targetRadiusB - b.spiralInitialRadius) * collapseProgress;
 
             a.spiralAngle += a.spiralSpeed * dt * 60 * widget.speed;
-            b.spiralAngle += b.spiralSpeed * dt * 60 * widget.speed;
+            b.spiralAngle = a.spiralAngle + pi;
 
-            final totalCount = a.count + b.count;
             final cx = (a.x * a.count + b.x * b.count) / totalCount;
             final cy = (a.y * a.count + b.y * b.count) / totalCount;
 
-            a.x = (cx + a.spiralRadius * cos(a.spiralAngle)).clamp(0.0, 1.0);
-            a.y = (cy + a.spiralRadius * sin(a.spiralAngle)).clamp(0.0, 1.0);
-            b.x = (cx + b.spiralRadius * cos(b.spiralAngle)).clamp(0.0, 1.0);
-            b.y = (cy + b.spiralRadius * sin(b.spiralAngle)).clamp(0.0, 1.0);
+            a.x = cx + (a.spiralRadius / _screenSize.width) * cos(a.spiralAngle);
+            a.y = cy + (a.spiralRadius / _screenSize.height) * sin(a.spiralAngle);
+            b.x = cx + (b.spiralRadius / _screenSize.width) * cos(b.spiralAngle);
+            b.y = cy + (b.spiralRadius / _screenSize.height) * sin(b.spiralAngle);
 
-            if (a.spiralRadius < 0.003) {
-              final newCount = a.count + b.count;
+            if (collapseProgress >= 1.0) {
               final newSize = a.renderSize + b.renderSize;
               _entities.add(_MergeEntity(
-                x: (a.x * a.count + b.x * b.count) / totalCount,
-                y: (a.y * a.count + b.y * b.count) / totalCount,
+                x: cx,
+                y: cy,
                 vx: (a.vx * a.count + b.vx * b.count) / totalCount,
                 vy: (a.vy * a.count + b.vy * b.count) / totalCount,
                 rx: (a.rx + b.rx) / 2,
                 ry: (a.ry + b.ry) / 2,
                 rz: (a.rz + b.rz) / 2,
-                count: newCount,
+                count: totalCount,
                 size: max(a.renderSize, b.renderSize),
                 targetSize: newSize,
                 baseIndices: [...a.baseIndices, ...b.baseIndices],
@@ -401,20 +431,27 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           inProximity.add(a);
           inProximity.add(b);
 
-          const screenScale = 400.0;
-          final minSafeRadius = (a.renderSize + b.renderSize) * 0.25 / screenScale;
-          final dist = max(sqrt(dx * dx + dy * dy), minSafeRadius + 0.002);
-          final initRadius = max(dist / 2, minSafeRadius);
+          final dxPixel = dx * _screenSize.width;
+          final dyPixel = dy * _screenSize.height;
+          final distPixel = max(sqrt(dxPixel * dxPixel + dyPixel * dyPixel), 0.001);
+
+          final touchRadiusPixel = (a.renderSize + b.renderSize) * 0.8660254037844386;
+          final totalInitRadius = max(distPixel, touchRadiusPixel);
+          
+          final totalCount = a.count + b.count;
+          a.spiralInitialRadius = totalInitRadius * (b.count / totalCount);
+          b.spiralInitialRadius = totalInitRadius * (a.count / totalCount);
+
           a.spiralPartner = b;
           b.spiralPartner = a;
-          a.spiralInitialRadius = initRadius;
-          b.spiralInitialRadius = initRadius;
-          a.spiralAngle = atan2(dy, dx);
+          a.spiralAngle = atan2(-dyPixel, -dxPixel);
           b.spiralAngle = a.spiralAngle + pi;
-          a.spiralRadius = initRadius;
-          b.spiralRadius = initRadius;
+          a.spiralRadius = a.spiralInitialRadius;
+          b.spiralRadius = b.spiralInitialRadius;
           a.spiralSpeed = 1.5;
           b.spiralSpeed = 1.5;
+          a.spiralCollapseTimer = 0.0;
+          b.spiralCollapseTimer = 0.0;
         }
       }
 
@@ -648,18 +685,26 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    return RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _animController,
-        builder: (context, _) {
-          return CustomPaint(
-            painter: _CubePainter(
-              entities: _entities,
-              brightness: brightness,
-            ),
-          );
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _screenSize = Size(
+          constraints.maxWidth.isFinite ? constraints.maxWidth : (MediaQuery.maybeSizeOf(context)?.width ?? 800.0),
+          constraints.maxHeight.isFinite ? constraints.maxHeight : (MediaQuery.maybeSizeOf(context)?.height ?? 800.0),
+        );
+        return RepaintBoundary(
+          child: AnimatedBuilder(
+            animation: _animController,
+            builder: (context, _) {
+              return CustomPaint(
+                painter: _CubePainter(
+                  entities: _entities,
+                  brightness: brightness,
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -704,6 +749,7 @@ class _MergeEntity {
   double spiralAngle = 0.0;
   double spiralRadius = 0.0;
   double spiralSpeed = 0.0;
+  double spiralCollapseTimer = 0.0;
   bool get isSpiraling => spiralPartner != null;
 
   final List<int> baseIndices;
@@ -746,11 +792,13 @@ class _MergeEntity {
     _timeSinceLastChange += dt;
     if (_timeSinceLastChange > 0.033) {
       _timeSinceLastChange = 0.0;
-      vx += (Random().nextDouble() - 0.5) * 0.02;
-      vy += (Random().nextDouble() - 0.5) * 0.02;
+      if (!isSpiraling) {
+        vx += (Random().nextDouble() - 0.5) * 0.02;
+        vy += (Random().nextDouble() - 0.5) * 0.02;
+      }
     }
 
-    if (repelPoint != null) {
+    if (repelPoint != null && !isSpiraling) {
       final dx = x - repelPoint.dx;
       final dy = y - repelPoint.dy;
       final dist = sqrt(dx * dx + dy * dy);
@@ -765,10 +813,12 @@ class _MergeEntity {
 
     const double repZone = 0.1;
     const double repForce = 0.04;
-    if (y < repZone) vy += (repZone - y) / repZone * repForce;
-    if (y > 1.0 - repZone) vy -= (repZone - (1.0 - y)) / repZone * repForce;
-    if (x < repZone) vx += (repZone - x) / repZone * repForce;
-    if (x > 1.0 - repZone) vx -= (repZone - (1.0 - x)) / repZone * repForce;
+    if (!isSpiraling) {
+      if (y < repZone) vy += (repZone - y) / repZone * repForce;
+      if (y > 1.0 - repZone) vy -= (repZone - (1.0 - y)) / repZone * repForce;
+      if (x < repZone) vx += (repZone - x) / repZone * repForce;
+      if (x > 1.0 - repZone) vx -= (repZone - (1.0 - x)) / repZone * repForce;
+    }
 
     final speed = sqrt(vx * vx + vy * vy);
     if (speed > 0.35) {
@@ -784,36 +834,38 @@ class _MergeEntity {
     x += vx * dt * 60 * speedMultiplier;
     y += vy * dt * 60 * speedMultiplier;
 
-    if (x < 0) {
-      x = 0;
-      vx = -vx * 0.92;
-    }
-    if (x > 1) {
-      x = 1;
-      vx = -vx * 0.92;
-    }
-    if (y < 0) {
-      y = 0;
-      final drift = scrollDrift.abs();
-      if (drift > 0.001) {
-        final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
-        vy = -vy * bounceFactor;
-        vx += (Random().nextDouble() - 0.5) * drift * 4.0;
-      } else {
-        vy = 0.03 + Random().nextDouble() * 0.04;
-        vx += (Random().nextDouble() - 0.5) * 0.015;
+    if (!isSpiraling) {
+      if (x < 0) {
+        x = 0;
+        vx = -vx * 0.92;
       }
-    }
-    if (y > 1) {
-      y = 1;
-      final drift = scrollDrift.abs();
-      if (drift > 0.001) {
-        final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
-        vy = -vy * bounceFactor;
-        vx += (Random().nextDouble() - 0.5) * drift * 4.0;
-      } else {
-        vy = -(0.03 + Random().nextDouble() * 0.04);
-        vx += (Random().nextDouble() - 0.5) * 0.015;
+      if (x > 1) {
+        x = 1;
+        vx = -vx * 0.92;
+      }
+      if (y < 0) {
+        y = 0;
+        final drift = scrollDrift.abs();
+        if (drift > 0.001) {
+          final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
+          vy = -vy * bounceFactor;
+          vx += (Random().nextDouble() - 0.5) * drift * 4.0;
+        } else {
+          vy = 0.03 + Random().nextDouble() * 0.04;
+          vx += (Random().nextDouble() - 0.5) * 0.015;
+        }
+      }
+      if (y > 1) {
+        y = 1;
+        final drift = scrollDrift.abs();
+        if (drift > 0.001) {
+          final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
+          vy = -vy * bounceFactor;
+          vx += (Random().nextDouble() - 0.5) * drift * 4.0;
+        } else {
+          vy = -(0.03 + Random().nextDouble() * 0.04);
+          vx += (Random().nextDouble() - 0.5) * 0.015;
+        }
       }
     }
 

@@ -36,6 +36,7 @@ import 'features/dashboard/controllers/active_website_cubit.dart';
 import 'package:toastification/toastification.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/seo/app_seo.dart';
+import 'core/services/font_load_notifier.dart';
 import 'core/widgets/offline_banner.dart';
 import 'core/services/fcm_service.dart';
 import 'core/services/pwa_install_service.dart';
@@ -53,15 +54,10 @@ void main() async {
     // Preload primary fonts to prevent FOUT/FOIT (Tofu effect) on web globally
     GoogleFonts.config.allowRuntimeFetching = true;
     
-    // Preload Cairo (Primary Arabic)
-    await GoogleFonts.pendingFonts([
-      GoogleFonts.cairo(fontWeight: FontWeight.normal),
-      GoogleFonts.cairo(fontWeight: FontWeight.bold),
-      GoogleFonts.cairo(fontWeight: FontWeight.w900),
-      // Preload Tajawal as secondary fallback
-      GoogleFonts.tajawal(fontWeight: FontWeight.normal),
-      GoogleFonts.tajawal(fontWeight: FontWeight.bold),
-    ]);
+    // Font preloading runs independently — failure must NOT block app startup
+    // because WASM RuntimeError from CanvasKit's MakeFreeTypeFaceFromData can
+    // bypass Dart try-catch, crashing the entire app and producing a white screen.
+    _preloadFonts();
 
     // Initialize all dependencies via GetIt Service Locator
     await initDependencies();
@@ -121,6 +117,28 @@ void main() async {
       ),
     );
   }
+}
+
+/// Fires font preloading in an isolated microtask so that a WASM
+/// RuntimeError from CanvasKit font loading cannot crash app startup.
+/// 
+/// CanvasKit's MakeFreeTypeFaceFromData can throw a non-Dart WASM error
+/// ("memory access out of bounds") that bypasses Dart try-catch. By not
+/// awaiting this call, the app renders its UI immediately; if font loading
+/// fails, the browser's HTML-preloaded fonts act as the fallback.
+void _preloadFonts() {
+  Future(() async {
+    try {
+      await GoogleFonts.pendingFonts([
+        GoogleFonts.cairo(fontWeight: FontWeight.normal),
+        GoogleFonts.cairo(fontWeight: FontWeight.bold),
+        GoogleFonts.cairo(fontWeight: FontWeight.w900),
+        GoogleFonts.tajawal(fontWeight: FontWeight.normal),
+        GoogleFonts.tajawal(fontWeight: FontWeight.bold),
+      ]);
+    } catch (_) {}
+    fontLoadNotifier.markReady();
+  });
 }
 
 class LandyMakerApp extends StatelessWidget {

@@ -223,7 +223,8 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
           else
             Column(
               children: [
-                IntrinsicHeight(
+                SizedBox(
+                  height: (constraints.maxWidth * 0.3).clamp(280.0, 420.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -272,7 +273,8 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
                   ),
                 ),
                 SizedBox(height: 16),
-                IntrinsicHeight(
+                SizedBox(
+                  height: (constraints.maxWidth * 0.3).clamp(280.0, 420.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -666,7 +668,7 @@ class _BentoCardState extends State<_BentoCard> {
               curve: Curves.easeOutCubic,
               padding: EdgeInsets.all(widget.tall ? 36 : 28),
               constraints: widget.tall
-                  ? const BoxConstraints(minHeight: 240)
+                  ? const BoxConstraints(minHeight: 360)
                   : null,
               decoration: BoxDecoration(
                 color: _hovered
@@ -684,67 +686,84 @@ class _BentoCardState extends State<_BentoCard> {
                   width: 1.5,
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RepaintBoundary(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: f.color.withValues(alpha: _hovered ? 0.18 : 0.1),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Icon(f.icon, color: f.color, size: 28),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
+              child: LayoutBuilder(
+                builder: (context, cardConstraints) {
+                  final hasBoundedHeight = cardConstraints.hasBoundedHeight;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(f.emoji, style: TextStyle(fontSize: 18)),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          f.title,
-                          style: AppTypography.h3.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
+                      RepaintBoundary(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: f.color.withValues(alpha: _hovered ? 0.18 : 0.1),
+                            borderRadius: BorderRadius.circular(18),
                           ),
+                          child: Icon(f.icon, color: f.color, size: 28),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text(f.emoji, style: TextStyle(fontSize: 18)),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              f.title,
+                              style: AppTypography.h3.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      if (hasBoundedHeight)
+                        Expanded(
+                          child: Text(
+                            f.desc,
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              height: 1.65,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      else
+                        Text(
+                          f.desc,
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            height: 1.65,
+                          ),
+                        ),
+                      AnimatedOpacity(
+                        opacity: _hovered ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 180),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "اكتشف أكثر",
+                              style: AppTypography.caption.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              size: 14,
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    f.desc,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      height: 1.65,
-                    ),
-                  ),
-                  AnimatedOpacity(
-                    opacity: _hovered ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 180),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "اكتشف أكثر",
-                          style: AppTypography.caption.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          size: 14,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
           ),

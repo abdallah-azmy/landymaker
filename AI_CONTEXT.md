@@ -322,6 +322,8 @@ Includes:
 - Theme System: `THEME_SYSTEM.md`
 - DevOps & Assets Guide: `DEVOPS_AND_ASSETS.md`
 - API Logging Guide: `API_LOGGING_GUIDE.md`
+- Floating Cube Background: `FLOATING_CUBE_BACKGROUND.md`
+
 
 ### Historical Reports (`/docs/archive/`)
 - **Mission Execution Plan**: `MISSION_EXECUTION.md` (Tracks implemented Growth & AI features)

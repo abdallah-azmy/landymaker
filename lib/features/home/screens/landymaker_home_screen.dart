@@ -7,6 +7,7 @@ import '../../../services/database_service.dart';
 import '../../../core/widgets/visibility_observer.dart';
 import '../../../core/widgets/particles/cube_mode_cubit.dart';
 import '../../../core/widgets/particles/floating_cube_background.dart';
+import '../../../core/services/font_load_notifier.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../models/home_layouts.dart';
 import '../widgets/home_navbar.dart';
@@ -40,6 +41,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   bool _bentoVisible = false;
   bool _ctaVisible = false;
 
+  bool _fontsReady = false;
+
   List<Map<String, dynamic>> _sections = [];
   bool _sectionsLoaded = false;
 
@@ -52,6 +55,19 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
     _lastScrollOffsetForDrift = LandyMakerHomeScreen.lastScrollOffset;
     _scrollController.addListener(_saveScrollPosition);
     _loadSections();
+
+    if (fontLoadNotifier.ready) {
+      _fontsReady = true;
+    } else {
+      fontLoadNotifier.addListener(_onFontsReady);
+    }
+  }
+
+  void _onFontsReady() {
+    if (mounted) {
+      setState(() => _fontsReady = true);
+    }
+    fontLoadNotifier.removeListener(_onFontsReady);
   }
 
   @override
@@ -170,6 +186,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
   void dispose() {
     _scrollController.removeListener(_saveScrollPosition);
     _scrollController.dispose();
+    fontLoadNotifier.removeListener(_onFontsReady);
     super.dispose();
   }
 
@@ -183,7 +200,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: HomeNavbar(config: navbarConfig),
+      appBar: _fontsReady ? HomeNavbar(config: navbarConfig) : null,
       body: MouseRegion(
         onHover: _onPointerHover,
         onExit: (_) => _cubeController.repelAt(null),
@@ -199,77 +216,81 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen> {
                   cubeMode: context.watch<CubeModeCubit>().state,
                 ),
               ),
-              SingleChildScrollView(
-                controller: _scrollController,
-                child: Column(
-                  children: [
-                    if (_isSectionVisible('hero'))
-                      HomeHeroSection(
-                        layout: _parseHeroLayout(
-                          heroConfig['layout'] as String?,
-                        ),
-                        title: _localeValue(heroConfig, 'title'),
-                        subtitle: _localeValue(heroConfig, 'subtitle'),
-                        ctaText: _localeValue(heroConfig, 'cta_text'),
-                        typewriterTexts: _localeList(
-                          heroConfig,
-                          'typewriter_texts',
-                        ),
-                        onGetStartedPressed: () => context.go('/templates'),
-                        parentScrollController: _scrollController,
-                      ),
-                    if (_isSectionVisible('features'))
-                      VisibilityObserver(
-                        onVisible: () {
-                          if (!_bentoVisible)
-                            setState(() => _bentoVisible = true);
-                        },
-                        child: HomeFeatureBento(
-                          isVisible: _bentoVisible,
-                          layout: _parseFeatureLayout(
-                            featuresConfig['layout'] as String?,
+              if (_fontsReady)
+                SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    children: [
+                      if (_isSectionVisible('hero'))
+                        HomeHeroSection(
+                          layout: _parseHeroLayout(
+                            heroConfig['layout'] as String?,
                           ),
-                          title: _localeValue(featuresConfig, 'title'),
-                        ),
-                      ),
-                    if (_isSectionVisible('cta'))
-                      VisibilityObserver(
-                        onVisible: () {
-                          if (!_ctaVisible) setState(() => _ctaVisible = true);
-                        },
-                        child: HomeCtaSection(
-                          isVisible: _ctaVisible,
+                          title: _localeValue(heroConfig, 'title'),
+                          subtitle: _localeValue(heroConfig, 'subtitle'),
+                          ctaText: _localeValue(heroConfig, 'cta_text'),
+                          typewriterTexts: _localeList(
+                            heroConfig,
+                            'typewriter_texts',
+                          ),
                           onGetStartedPressed: () => context.go('/templates'),
-                          layout: _parseCtaLayout(
-                            ctaConfig['layout'] as String?,
+                          parentScrollController: _scrollController,
+                        ),
+                      if (_isSectionVisible('features'))
+                        VisibilityObserver(
+                          onVisible: () {
+                            if (!_bentoVisible)
+                              setState(() => _bentoVisible = true);
+                          },
+                          child: HomeFeatureBento(
+                            isVisible: _bentoVisible,
+                            layout: _parseFeatureLayout(
+                              featuresConfig['layout'] as String?,
+                            ),
+                            title: _localeValue(featuresConfig, 'title'),
                           ),
-                          text: _localeValue(ctaConfig, 'title'),
-                          buttonText: _localeValue(ctaConfig, 'button_text'),
                         ),
-                      ),
-                    if (_isSectionVisible('footer'))
-                      HomeFooter(
-                        copyrightText: _localeValue(
-                          footerConfig,
-                          'copyright_text',
+                      if (_isSectionVisible('cta'))
+                        VisibilityObserver(
+                          onVisible: () {
+                            if (!_ctaVisible)
+                              setState(() => _ctaVisible = true);
+                          },
+                          child: HomeCtaSection(
+                            isVisible: _ctaVisible,
+                            onGetStartedPressed:
+                                () => context.go('/templates'),
+                            layout: _parseCtaLayout(
+                              ctaConfig['layout'] as String?,
+                            ),
+                            text: _localeValue(ctaConfig, 'title'),
+                            buttonText:
+                                _localeValue(ctaConfig, 'button_text'),
+                          ),
                         ),
-                      ),
-                    if (_isSectionVisible('section_renderer'))
-                      HomeSectionRenderer(
-                        landingPageId:
-                            _sectionConfig(
-                                  'section_renderer',
-                                )['landing_page_id']
-                                as String? ??
-                            '',
-                        displayTitle: _localeValue(
-                          _sectionConfig('section_renderer'),
-                          'display',
+                      if (_isSectionVisible('footer'))
+                        HomeFooter(
+                          copyrightText: _localeValue(
+                            footerConfig,
+                            'copyright_text',
+                          ),
                         ),
-                      ),
-                  ],
+                      if (_isSectionVisible('section_renderer'))
+                        HomeSectionRenderer(
+                          landingPageId:
+                              _sectionConfig(
+                                    'section_renderer',
+                                  )['landing_page_id']
+                                  as String? ??
+                              '',
+                          displayTitle: _localeValue(
+                            _sectionConfig('section_renderer'),
+                            'display',
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),

@@ -65,7 +65,7 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
     - **Strict `EdgeInsetsDirectional` rule**: Never use `EdgeInsets.only(left/right)`.
     - **Strict `PositionedDirectional` rule**: For any UI elements (especially navigation arrows, icons, and buttons) placed inside a Stack, NEVER use `Positioned` with `left`/`right`. Always use `PositionedDirectional` with `start`/`end` to ensure correct and automatic layout flipping in RTL/LTR language switches.
     - Never use `GridView` with fixed `childAspectRatio` for text-heavy content cards. Use `Row`/`Column` loops with `ResponsiveUtils.getContentColumns`.
-    - Protect text from overflow in nested columns by using `Expanded`/`Flexible` and `maxLines`.
+    - Protect text from overflow in nested columns by using `Expanded`/`Flexible` and `maxLines`. For components in structured layout grids (like Bento grids or `IntrinsicHeight` rows), utilize `LayoutBuilder` to check `constraints.hasBoundedHeight`. If bounded height is present (e.g., inside `Expanded`/`IntrinsicHeight` children), wrap text/content in `Expanded` or `Flexible` with `TextOverflow.ellipsis` to gracefully handle content compression, and enforce a generous `minHeight` on primary tall containers.
     - Never use scrollable physics inside block components (`public_viewer`). Always use `shrinkWrap: true` and `physics: const NeverScrollableScrollPhysics()`.
 13. **Widget State & Animation Rules**:
     - Use `TickerProviderStateMixin` instead of `SingleTickerProviderStateMixin` for multiple animation controllers.
@@ -115,3 +115,46 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
     - Show two toggle `IconButton`s in the AppBar when `isDesktopWidth` is true: `Icons.phone_android_rounded` (mobile preview) and `Icons.desktop_windows_rounded` (desktop preview), with the active mode highlighted via `Theme.of(context).colorScheme.primary`.
     - Compute `isMobile` for `BuilderCanvas` as `_previewMode == PreviewMode.mobile || !isDesktopWidth`.
 36. **Lead Form Defaults Location**: The default `fields` arrays for `lead_form` and `lead_magnet` blocks are defined in `builder_cubit.dart:addBlock()`, NOT in `block_registry.dart`. When modifying default form fields, edit the `fields` list inside `addBlock()` for each respective block type. The Edge Function `lead-submit` handles Turnstile verification, rate limiting, fingerprinting, and invokes `lead-notify` fire-and-forget with `WEBHOOK_SECRET` auth — never insert leads directly from the client.
+
+37. **`IntrinsicHeight`/`IntrinsicWidth` + `LayoutBuilder` Incompatibility (CRITICAL — Rendering Crash)**: 
+    - **Symptom**: `LayoutBuilder does not support returning intrinsic dimensions.` at runtime. The crash points to an `IntrinsicHeight` or `IntrinsicWidth` widget.
+    - **Root cause**: `IntrinsicHeight`/`IntrinsicWidth` calculate intrinsic dimensions by running a speculative layout pass. `LayoutBuilder` cannot participate in this because it would require mutating the live render tree speculatively, which Flutter forbids. Any `LayoutBuilder` nested anywhere inside an `Intrinsic` widget triggers this crash.
+    - **Fix**: Remove the wrapping `IntrinsicHeight`/`IntrinsicWidth`. If the goal is equal-height children in a `Row`, use `CrossAxisAlignment.stretch` instead. If the goal is intrinsic sizing, restructure using `Row`/`Column` with `MainAxisSize.min` and explicit constraints.
+    - **Rule**: NEVER wrap a subtree containing `LayoutBuilder` (directly or indirectly) with `IntrinsicHeight` or `IntrinsicWidth`. The two widgets are fundamentally incompatible.
+
+38. **`Expanded`/`Flexible` in Unbounded ScrollView Columns (CRITICAL — Infinite Height Crash)**: 
+    - **Symptom**: `BoxConstraints forces an infinite height.` Debug console shows `BoxConstraints(0.0<=w<=Infinity, h=Infinity)` on a `Row` or `Column`. The crash happens only on desktop layouts inside a `SingleChildScrollView > Column`.
+    - **Root cause**: Widgets inside `SingleChildScrollView > Column` receive infinite height constraints because the scroll view provides unbounded space. `Expanded` and `Flexible` children cannot function in unbounded main-axis space and crash. `CrossAxisAlignment.stretch` on a `Row` also crashes because it tries to give children infinite cross-axis extent.
+    - **Why removing `IntrinsicHeight` triggers it**: `IntrinsicHeight` previously clamped the infinite height to the content's intrinsic size. Removing it exposes the raw infinite constraint, causing `Row` with `CrossAxisAlignment.stretch` to crash.
+    - **Fix for bento grids and similar layouts**: Replace `Expanded`/`Flexible` with `SizedBox` having an explicit computed height (e.g., `height: (constraints.maxWidth * 0.3).clamp(280.0, 420.0)`). The `SizedBox` provides a definitive finite height regardless of parent constraints. Inside each `SizedBox`, `CrossAxisAlignment.stretch` and nested `Expanded` children work correctly because they now have finite bounds.
+    - **Alternative fixes**: 
+      - Give the entire section a fixed height using `SizedBox` or `ConstrainedBox`.
+      - Remove `CrossAxisAlignment.stretch` and all vertical `Expanded` children, letting intrinsic content sizing take over (works when `_BentoCard`-style widgets handle both bounded/unbounded cases via `LayoutBuilder` + `hasBoundedHeight`).
+      - Use `MediaQuery` to calculate viewport-based heights.
+    - **Rule**: Inside any widget tree that receives infinite height (inside `SingleChildScrollView > Column`, `ListView`, `CustomScrollView`), NEVER use `Expanded`/`Flexible` or `CrossAxisAlignment.stretch` without wrapping the subtree in a `SizedBox`/`ConstrainedBox` with an explicit height. Always verify the parent constraint chain when adding or removing `IntrinsicHeight` wrappers.
+
+39. **CanvasKit WASM Font Loading Safety (CRITICAL — White Screen Crash)**: 
+    - **Symptom**: App renders a white page with no error UI. Debug console shows:
+      ```
+      Error: RuntimeError: memory access out of bounds
+      ...canvaskit.wasm...
+      MakeFreeTypeFaceFromData
+      canvaskit_api.dart:2285
+      fonts.dart:133
+      ```
+    - **Root cause**: `GoogleFonts.pendingFonts()` downloads font bytes and passes them to CanvasKit's `MakeFreeTypeFaceFromData`. On some environments, the WASM binary raises a `RuntimeError` that is **not a Dart exception** and **bypasses `try/catch` entirely**, crashing the app before `runApp()` completes.
+    - **Why it appears after unrelated changes**: Any hot restart can trigger this pre-existing flake. It is never caused by the code being edited.
+    - **Fix** (see `lib/main.dart`): Fire font preloading as a **fire-and-forget microtask** (`Future(() async { ... })`) — NEVER `await` it inside the initialization `try` block. The `<link>` preload tags in `web/index.html` guarantee fonts are available even if the Dart API fails.
+    - **Golden rule**: NEVER `await` a `google_fonts` call (`pendingFonts`, `getFont`, `getTextTheme`, etc.) in the startup sequence that blocks `runApp()`.
+
+40. **Google Fonts Loading Screen Protocol**:
+    - **Why**: After implementing Rule 39 (fire-and-forget font preloading), the home screen may render before Google Fonts are fully loaded. If text widgets render with system fonts, they will swap (FOUT) when Google Fonts arrive, or show tofu if fonts fail.
+    - **Fix** (`lib/core/services/font_load_notifier.dart`): A top-level `FontLoadNotifier` (global singleton `fontLoadNotifier`) signals when font loading completes. The notifier is defined as a simple top-level variable (not registered in DI) so it can be accessed from both `_preloadFonts()` microtask (which runs before `sl` is initialized) and `landymaker_home_screen.dart`.
+    - **Screen behavior**: When fonts are not yet ready, the home screen renders ONLY the cube background (`FloatingCubeBackground` inside `Positioned.fill`) — no `AppBar`, no scroll content, no widgets. When `fontLoadNotifier.markReady()` fires, `_fontsReady` transitions to `true`, causing a full rebuild that shows all content with their natural entrance animations.
+    - **Implementation** (see `lib/features/home/screens/landymaker_home_screen.dart`):
+      1. Import `fontLoadNotifier` from `font_load_notifier.dart`.
+      2. In `initState`: check `fontLoadNotifier.ready` immediately; if false, `addListener(_onFontsReady)`.
+      3. `_onFontsReady`: `if (mounted) setState(() => _fontsReady = true)` then `removeListener`.
+      4. In build: `Scaffold(appBar: _fontsReady ? HomeNavbar(...) : null)` and `if (_fontsReady) SingleChildScrollView(...)`.
+    - **main.dart** (`_preloadFonts`): After `await GoogleFonts.pendingFonts([...])` completes (or fails), call `fontLoadNotifier.markReady()` — regardless of success/failure, so the UI is never stuck.
+    - **Notifier lifecycle**: Since `fontLoadNotifier` is never disposed, `removeListener` in both `_onFontsReady` and `dispose` prevents memory leaks. Once `ready` is true, the listener is removed and subsequent home screen visits use `fontLoadNotifier.ready` directly.

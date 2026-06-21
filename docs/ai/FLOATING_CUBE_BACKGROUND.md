@@ -24,6 +24,32 @@ A real-time 3D cube particle system with three interactive modes (Standard, Merg
 ### AnimationController
 - 60-second loop, drives `_updateEntities` every frame via `addListener`.
 
+### FloatingCubeBackgroundController & UI Integration
+- Exposes `ValueNotifier<int> cubeCount` which tracks the exact number of entities. Used by `HomeNavbar` to display a live counter in Merge mode.
+
+### `FloatingCubeBackground` parameters
+- `topExclusion` (double, default `0.0`): Normalized fraction of the top area to exclude from cube spawning and movement. The home screen passes `70 / screenHeight` to reserve space for the app bar. Cubes spawn below this line, soft-repel at `topExclusion + 0.1`, and hard-clamp to `topExclusion`.
+
+### Logo Burst Animation (Initial Load)
+- A unified 1500ms `AnimationController` (`_logoAnimController`) orchestrates the entire transition in phases:
+  - **0.0–0.15** (0–225ms): Logo at full size (scale=1.0), full opacity — allows HTML loader fade-out (300ms) to complete without visual gap.
+  - **0.15–0.35** (225–525ms): Logo scales up from 1.0→1.15 (anticipation phase).
+  - **0.35** (525ms): `triggerLogoBurst` fires at the peak of the scale, teleporting all cubes to the screen center with strong outward radial velocities and randomized rotations.
+  - **0.35–0.40** (525–600ms): Logo holds at peak scale briefly as cubes begin to spread.
+  - **0.40–1.0** (600–1500ms): Logo scales down (1.15→0.95) and fades out (1.0→0.0) simultaneously, revealing cubes already spread across the screen.
+- The HTML loading view uses a shimmer animation on the logo (pulsing glow + subtle scale) instead of an indeterminate progress bar, providing a premium feel without implying a specific loading duration.
+- On `flutter-first-frame`, the HTML loader fades out over 100ms (reduced from 300ms) for an instant, seamless transition into the Flutter scene.
+- The `triggerLogoBurst` function spawns cubes tightly behind the logo (radius ~ 0.0) with a strong outward velocity, creating a perfect "logo explodes into cubes" effect as the logo fades.
+
+### Split-on-Tap (Merge Mode)
+- In merge mode, tapping a merged cube (one with `count > 1`) splits it back into its two constituent cubes.
+- Hit detection: largest cubes (drawn on top) are checked first; a hit occurs if the normalized tap point falls within the cube's bounding box (`renderSize × renderSize` centered on the entity's position).
+- **Single-level undo**: Each merge stores the left and right `baseIndices` lists in `splitLeft` and `splitRight`. Split reconstructs two entities from these index lists, preserving the `_baseData`-sourced sizes accurately.
+- **Two-level split history**: Deeper split fields (`splitLeftLeft`, `splitLeftRight`, `splitRightLeft`, `splitRightRight`) are propagated from the merging entities, allowing a split-once-merged entity to be split again — up to 2 recursive levels.
+- **Escape Corner Trap (`ignoreRepelTimer`)**: Splitting gives the two new entities a 1.0 second `ignoreRepelTimer`. During this second, they completely ignore the mouse repulsion (`_hasRepelPoint`), allowing them to physically escape the cursor and screen corners without getting trapped.
+- **Splitting during a spiral**: If a tapped cube is actively in a death spiral, the link to its `spiralPartner` is broken gracefully. The partner receives a short cooldown and a light repulsion velocity to safely interrupt the merge without causing a physics crash or `ConcurrentModificationError` side-effects.
+- Tap dispatch logic in home screen: `trySplit(normalized)` is tried first. If it returns false (no merged cube hit), the fallback `burstAt` explosion fires.
+
 ---
 
 ## 2. Mode Rules
@@ -38,9 +64,13 @@ A real-time 3D cube particle system with three interactive modes (Standard, Merg
 
 **Key Rules & Mechanics:**
 
+> **Attraction/Safe/Repel Ranges**: All normalized distance thresholds are capped to prevent cascade merges across the screen: `attractRangePixel` ≤ 300px, `safeDistancePixel` ≤ 150px, `repelRangePixel` ≤ 150px.
+
 **1. Match Conditions:**
-- Merging ONLY happens between almost identical cubes (`sizeRatio >= 0.95`).
+- Merging happens between sufficiently identical cubes (`sizeRatio >= 0.80`).
 - Distance logic relies on `baseDistPixel = a.renderSize + b.renderSize`.
+
+> **Note:** The similarity threshold was reduced from `0.95` to `0.80` to allow more cubes to merge together.
 
 **2. Pre-Spiral Phase (Attraction/Repulsion):**
 - **Attraction Range**: `baseDistPixel * 8.0`
@@ -52,12 +82,12 @@ A real-time 3D cube particle system with three interactive modes (Standard, Merg
 - If a pair is actively in a death-spiral, they must not be interrupted.
 - ANY non-spiraling cube entering a massive `repelRange = max(0.1, (baseDistPixel * 5.0) / width)` is pushed away with extreme force. The spiraling pair also gently drifts away from the intruder.
 
-**4. Mismatched Cubes (`sizeRatio < 0.95`):**
+**4. Mismatched Cubes (`sizeRatio < 0.80`):**
 - Repel each other if within `baseDistPixel * 3.5`.
 
 **5. Spiral Initiation:**
 - Triggers **instantly** (no proximity timers) when identical cubes get within `safeDistancePixel * 1.5`.
-- `totalInitRadius` starts at `max(distPixel, safeDistancePixel)`.
+- `totalInitRadius` starts exactly at `distPixel`. This mathematically ensures the spiral orbit begins seamlessly from the cubes' current positions without any instantaneous teleportation jumps.
 - Initial radii are mass-weighted based on cube `count` so the pair rotates around a perfect barycenter.
 
 **6. Death-Spiral Collapse ("The Smash"):**
@@ -66,7 +96,7 @@ A real-time 3D cube particle system with three interactive modes (Standard, Merg
 - **Speed**: `spiralSpeed` linearly accelerates from `1.5` to `12.0` over the duration.
 - **The "Smash" Radius**: The final target distance between centers is `collisionRadiusPixel = baseDistPixel * 0.2`. Because the cube's physical boundaries extend roughly `0.5 * baseDist`, a target distance of `0.2` guarantees deep visual overlap (a "smash") in the final frames before merging.
 - **Shrink Curve**: `spiralRadius` interpolates from `spiralInitialRadius` to `targetRadius` using a squared curve (`collapseProgress * collapseProgress`), causing a sudden snap at the end.
-- **Merge Execution**: Triggers precisely at `collapseProgress >= 0.999`. The loop MUST iterate over `_entities.toList()` to avoid `ConcurrentModificationError` when removing the original cubes and inserting the merged cube.
+- **Merge Execution**: Triggers precisely at `collapseProgress >= 0.999`. The merge size uses `a.targetSize + b.targetSize` (rather than `renderSize`) to guarantee the cumulative sum is exact regardless of size lerp convergence. The loop MUST iterate over `_entities.toList()` to avoid `ConcurrentModificationError` when removing the original cubes and inserting the merged cube. The newly formed merged cube receives a `mergeCooldown` of 2.0 real seconds to prevent immediate cascading merges.
 
 ### Orbit Mode
 
@@ -106,6 +136,12 @@ A real-time 3D cube particle system with three interactive modes (Standard, Merg
 
 ## 3. Entity Management
 
+### `FloatingCubeBackgroundController` methods
+- `repelAt(Offset?)`: Pushes cubes away from a normalized cursor position (range 0.25, force 0.30).
+- `burstAt(Offset)`: Explosive force from a point (range 0.65, force 0.60).
+- `triggerLogoBurst(Offset)`: Teleports all cubes to near the given center point with strong outward radial velocities. Used for the initial page-load logo explosion animation.
+- `trySplit(Offset) -> bool`: Attempts to split a merged cube at the given normalized position. Returns true if a split occurred, false otherwise. The caller should fall back to `burstAt` on false.
+
 ### `_MergeEntity` class
 All state fields live on the entity:
 
@@ -121,20 +157,28 @@ All state fields live on the entity:
 | `vrx`, `vry`, `vrz` | double | Rotation velocities |
 | `mergeTimer` | double | Seconds spent near another cube |
 | `mergeCooldown` | double | Seconds before can merge again |
+| `ignoreRepelTimer` | double | Seconds to ignore mouse repulsion |
 | `parentCore` | _MergeEntity? | Orbit core reference |
 | `orbitRadius/angle/speed/tilt` | double | Orbital parameters |
 | `orbiterCount` | int | Count of orbiters (core only) |
 | `spiralPartner` | _MergeEntity? | Death-spiral partner |
 | `spiralInitialRadius/angle/radius/speed` | double | Spiral parameters |
 | `baseIndices` | List\<int\> | Indices into `_baseData` for split |
+| `splitLeft` | List\<int\>? | Left half index list from last merge (null if never merged) |
+| `splitRight` | List\<int\>? | Right half index list from last merge (null if never merged) |
+| `splitLeftLeft` | List\<int\>? | Deeper left-left indices (for 2-level recursive split) |
+| `splitLeftRight` | List\<int\>? | Deeper left-right indices (for 2-level recursive split) |
+| `splitRightLeft` | List\<int\>? | Deeper right-left indices (for 2-level recursive split) |
+| `splitRightRight` | List\<int\>? | Deeper right-right indices (for 2-level recursive split) |
 
 ### `_BaseCubeData`
 Read-only initial state for each base cube (size, position seed, rotation seed). Used when splitting merged entities back to individual cubes.
 
 ### Entity lifecycle
 - **Init**: `_generateBaseData()` creates `_baseData` list. `_initFromBase()` creates `_entities` with unique offsets.
-- **Merge**: Two entities collapse into one with combined `baseIndices`, summed `renderSize` → `targetSize`, mass-weighted position.
-- **Split**: On mode change away from merge, `_splitMergedEntities()` reconstructs each base cube from `baseIndices`.
+- **Merge**: Two entities collapse into one with combined `baseIndices`, summed `renderSize` → `targetSize`, mass-weighted position. Split history fields (`splitLeft`, `splitRight`, etc.) are populated from the merging entities' own split history.
+- **Split (mode change)**: On mode change away from merge, `_splitMergedEntities()` reconstructs each base cube from `baseIndices`.
+- **Split (tap)**: In merge mode, `_trySplitAt(normalizedPoint)` finds the topmost merged cube under the tap point and calls `_splitEntity(source)`, which removes the merged entity and inserts two new entities reconstructed from the stored split index lists. Both split entities receive `mergeCooldown = 2.0` real seconds plus a strong repulsion velocity (pushForce=0.15) away from each other to prevent immediate re-merge.
 - **Free Orbiters**: On mode change away from orbit, `_freeOrbiters()` nulls all `parentCore` references.
 
 ### Mode transitions
@@ -150,13 +194,13 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 - Entities with NaN/Infinite x, y, or renderSize are skipped (safety guard against WASM Aborted).
 - Each entity is projected into screen space via 3D rotation (Euler angles rx, ry, rz) then perspective projection to 2D.
 - 8 vertices transformed, then 6 faces sorted by depth (painter's algorithm).
-- Face brightness computed from Lambertian dot product with fixed light direction `(0.577, 0.577, 0.577)`, clamped to `0.25-1.0` range.
+- **Dynamic Lighting**: Face brightness computed from Lambertian dot product. The light source is dynamically positioned based on the logo's location (RTL vs LTR layout, near the top corner). This provides responsive, realistic shading as cubes move across the screen.
 - Cubes sorted by renderSize (smallest first) for correct layering.
 - `_drawFace` guards against non-finite coordinates as final safety layer.
 
 ### Color scheme
-- Light mode: cube base `#D8D8D8`, stroke `0.7x brightness`.
-- Dark mode: cube base `#505050`, stroke `0.7x brightness`.
+- **Cube Base**: Light mode `#D8D8D8`, Dark mode `#505050`. Modulated by dynamic brightness.
+- **Cube Stroke (Edges)**: Solid `Theme.colorScheme.primary` (No opacity/transparency) for a striking, modern aesthetic that contrasts with the glassmorphic background.
 
 ---
 
@@ -194,12 +238,13 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 ### Boundary handling
 - Soft repulsion zone `0.1` from edges with force `0.04`.
 - Hard clamp to `[0, 1]` with bounce factor (`* 0.92`). Applied in `_MergeEntity.update()` for all entities.
-- **Exception (spiral orbit)**: Death-spiral entities explicitly bypass bounds clamping, soft-edge repulsion, and random velocity perturbations in `_MergeEntity.update()` to preserve the clean circular orbit trajectory and prevent centroid wobble. Cubes may briefly go off-screen; the global NaN/Infinity sanitizer handles extreme values as final safety.
+- **Top exclusion zone (`topExclusion`)**: A normalized parameter that shifts the effective top boundary downward. Cubes spawn at or below `topExclusion`, soft-repel at `topExclusion + 0.1`, and hard-clamp to `topExclusion`. Used to reserve space for UI elements like the app bar without visual displacement when they appear.
+- **Exception (spiral orbit)**: Death-spiral entities explicitly bypass bounds clamping, soft-edge repulsion, and random velocity perturbations in `_MergeEntity.update()` to preserve the clean circular orbit trajectory and prevent centroid wobble. However, the spiral position is explicitly clamped to `[topExclusion, 1]` so no cube center ever exits the visible area during the death-spiral.
 - Scroll drift pushes cubes upward when user scrolls down; drift-aware bounce at top/bottom edges amplifies bounce.
 
 ### Size lerp
-- `renderSize += (targetSize - renderSize) * dt * 6.0` — smooth size transition.
-- `dt * 6.0` ensures frequency-independent convergence.
+- `renderSize += (targetSize - renderSize) * dt * 180.0` — smooth size transition, reaches ~95% convergence in 1 real second.
+- The high factor (180) guarantees the merged cube visually reaches its target sum-size within the 4-second death-spiral window, well before the next merge can occur.
 
 ### Random perturbation
 - `vx += (random - 0.5) * 0.02` every `0.033` seconds in `update()`.

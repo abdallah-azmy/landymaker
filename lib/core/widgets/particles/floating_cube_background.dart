@@ -22,7 +22,10 @@ import 'package:landymaker/core/widgets/particles/cube_mode_cubit.dart';
 class FloatingCubeBackgroundController {
   void Function(Offset?)? onRepelUpdate;
   void Function(Offset)? onBurst;
+  void Function(Offset)? onLogoBurst;
+  bool Function(Offset)? onTrySplit;
   double scrollDrift = 0.0;
+  final ValueNotifier<int> cubeCount = ValueNotifier<int>(0);
 
   void repelAt(Offset? normalizedPosition) {
     onRepelUpdate?.call(normalizedPosition);
@@ -30,6 +33,14 @@ class FloatingCubeBackgroundController {
 
   void burstAt(Offset normalizedPosition) {
     onBurst?.call(normalizedPosition);
+  }
+
+  void triggerLogoBurst(Offset normalizedPosition) {
+    onLogoBurst?.call(normalizedPosition);
+  }
+
+  bool trySplit(Offset normalizedPosition) {
+    return onTrySplit?.call(normalizedPosition) ?? false;
   }
 }
 
@@ -39,6 +50,7 @@ class FloatingCubeBackground extends StatefulWidget {
   final bool isActive;
   final FloatingCubeBackgroundController? controller;
   final CubeMode cubeMode;
+  final double topExclusion;
 
   const FloatingCubeBackground({
     super.key,
@@ -47,6 +59,7 @@ class FloatingCubeBackground extends StatefulWidget {
     this.isActive = true,
     this.controller,
     this.cubeMode = CubeMode.standard,
+    this.topExclusion = 0.0,
   });
 
   @override
@@ -74,6 +87,113 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     }
   }
 
+  void _triggerLogoBurst(Offset center) {
+    for (final e in _entities) {
+      final angle = Random().nextDouble() * 2 * pi;
+      final radius = Random().nextDouble() * 0.005;
+      e.x = (center.dx + cos(angle) * radius).clamp(0.0, 1.0);
+      e.y = (center.dy + sin(angle) * radius).clamp(0.0, 1.0);
+      final dx = e.x - center.dx;
+      final dy = e.y - center.dy;
+      final dist = max(sqrt(dx * dx + dy * dy), 0.001);
+      final force = 0.5 + Random().nextDouble() * 0.6;
+      e.vx = (dx / dist) * force + (Random().nextDouble() - 0.5) * 0.01;
+      e.vy = (dy / dist) * force + (Random().nextDouble() - 0.5) * 0.01;
+      e.rx = Random().nextDouble() * pi * 2;
+      e.ry = Random().nextDouble() * pi * 2;
+      e.rz = Random().nextDouble() * pi * 2;
+    }
+  }
+
+  bool _trySplitAt(Offset normalizedPoint) {
+    final sorted = List<_MergeEntity>.from(_entities)
+      ..sort((a, b) => b.renderSize.compareTo(a.renderSize));
+    for (final e in sorted) {
+      if (e.splitLeft == null || e.splitRight == null) continue;
+      final halfSize = e.renderSize * 0.5;
+      final cx = e.x * _screenSize.width;
+      final cy = e.y * _screenSize.height;
+      final nx = normalizedPoint.dx * _screenSize.width;
+      final ny = normalizedPoint.dy * _screenSize.height;
+      if ((nx - cx).abs() <= halfSize && (ny - cy).abs() <= halfSize) {
+        _splitEntity(e);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void _splitEntity(_MergeEntity source) {
+    final leftIndices = source.splitLeft!;
+    final rightIndices = source.splitRight!;
+    final leftSize = leftIndices.fold(0.0, (sum, idx) => sum + _baseData[idx].size);
+    final rightSize = rightIndices.fold(0.0, (sum, idx) => sum + _baseData[idx].size);
+    final topExclusion = widget.topExclusion;
+
+    if (source.spiralPartner != null) {
+      final partner = source.spiralPartner!;
+      partner.spiralPartner = null;
+      partner.mergeCooldown = 2.0;
+      partner.vx += (Random().nextDouble() - 0.5) * 0.1;
+      partner.vy += (Random().nextDouble() - 0.5) * 0.1;
+      source.spiralPartner = null;
+    }
+
+    final leftEntity = _MergeEntity(
+      x: (source.x + (Random().nextDouble() - 0.5) * 0.03).clamp(0.0, 1.0),
+      y: (source.y + (Random().nextDouble() - 0.5) * 0.03).clamp(topExclusion, 1.0),
+      vx: source.vx + (Random().nextDouble() - 0.5) * 0.02,
+      vy: source.vy + (Random().nextDouble() - 0.5) * 0.02,
+      count: leftIndices.length,
+      size: leftSize,
+      targetSize: leftSize,
+      rx: source.rx + (Random().nextDouble() - 0.5) * 0.5,
+      ry: source.ry + (Random().nextDouble() - 0.5) * 0.5,
+      rz: source.rz + (Random().nextDouble() - 0.5) * 0.5,
+      baseIndices: leftIndices,
+    );
+    leftEntity.splitLeft = source.splitLeftLeft;
+    leftEntity.splitRight = source.splitLeftRight;
+
+    final rightEntity = _MergeEntity(
+      x: (source.x + (Random().nextDouble() - 0.5) * 0.03).clamp(0.0, 1.0),
+      y: (source.y + (Random().nextDouble() - 0.5) * 0.03).clamp(topExclusion, 1.0),
+      vx: source.vx + (Random().nextDouble() - 0.5) * 0.02,
+      vy: source.vy + (Random().nextDouble() - 0.5) * 0.02,
+      count: rightIndices.length,
+      size: rightSize,
+      targetSize: rightSize,
+      rx: source.rx + (Random().nextDouble() - 0.5) * 0.5,
+      ry: source.ry + (Random().nextDouble() - 0.5) * 0.5,
+      rz: source.rz + (Random().nextDouble() - 0.5) * 0.5,
+      baseIndices: rightIndices,
+    );
+    rightEntity.splitLeft = source.splitRightLeft;
+    rightEntity.splitRight = source.splitRightRight;
+
+    leftEntity.mergeCooldown = 2.0;
+    rightEntity.mergeCooldown = 2.0;
+    
+    leftEntity.ignoreRepelTimer = 1.0;
+    rightEntity.ignoreRepelTimer = 1.0;
+
+    final dx = rightEntity.x - leftEntity.x;
+    final dy = rightEntity.y - leftEntity.y;
+    final dist = max(sqrt(dx * dx + dy * dy), 0.001);
+    final pushForce = 0.15;
+    leftEntity.vx -= (dx / dist) * pushForce;
+    leftEntity.vy -= (dy / dist) * pushForce;
+    rightEntity.vx += (dx / dist) * pushForce;
+    rightEntity.vy += (dy / dist) * pushForce;
+
+    final idx = _entities.indexOf(source);
+    if (idx >= 0) {
+      _entities.removeAt(idx);
+      _entities.add(leftEntity);
+      _entities.add(rightEntity);
+    }
+  }
+
   void _generateBaseData() {
     _baseData = List.generate(widget.cubeCount, (_) {
       final size = 6.0 + Random().nextDouble() * 18.0;
@@ -89,11 +209,12 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 
   void _initFromBase() {
+    final topExclusion = widget.topExclusion;
     _entities = List.generate(_baseData.length, (i) {
       final d = _baseData[i];
       return _MergeEntity(
         x: d.x + (Random().nextDouble() - 0.5) * 0.05,
-        y: d.y + (Random().nextDouble() - 0.5) * 0.05,
+        y: d.y * (1.0 - topExclusion) + topExclusion + (Random().nextDouble() - 0.5) * 0.05,
         size: d.size,
         targetSize: d.size,
         rx: d.rx,
@@ -105,6 +226,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 
   void _splitMergedEntities() {
+    final topExclusion = widget.topExclusion;
     final newEntities = <_MergeEntity>[];
     for (final e in _entities) {
       e.spiralPartner = null;
@@ -113,7 +235,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           final base = _baseData[idx];
           newEntities.add(_MergeEntity(
             x: (e.x + (Random().nextDouble() - 0.5) * 0.05).clamp(0.0, 1.0),
-            y: (e.y + (Random().nextDouble() - 0.5) * 0.05).clamp(0.0, 1.0),
+            y: (e.y + (Random().nextDouble() - 0.5) * 0.05).clamp(topExclusion, 1.0),
             vx: e.vx + (Random().nextDouble() - 0.5) * 0.02,
             vy: e.vy + (Random().nextDouble() - 0.5) * 0.02,
             size: base.size,
@@ -161,6 +283,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     if (widget.isActive) _animController.repeat();
     widget.controller?.onRepelUpdate = setRepelPoint;
     widget.controller?.onBurst = triggerBurst;
+    widget.controller?.onLogoBurst = _triggerLogoBurst;
+    widget.controller?.onTrySplit = _trySplitAt;
   }
 
   void _updateEntities() {
@@ -170,26 +294,32 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     if (dt < 0) dt += 1.0;
     _lastValue = current;
     final scrollDrift = widget.controller?.scrollDrift ?? 0.0;
+    
+    if (widget.controller != null && widget.controller!.cubeCount.value != _entities.length) {
+      widget.controller!.cubeCount.value = _entities.length;
+    }
 
+    final topExclusion = widget.topExclusion;
     for (final e in _entities) {
       e.update(
         dt,
         widget.speed,
         _hasRepelPoint ? _repelPoint : null,
         scrollDrift,
+        topExclusion,
       );
     }
 
     for (final e in _entities) {
       if (e.x.isNaN || e.x.isInfinite) e.x = 0.5;
-      if (e.y.isNaN || e.y.isInfinite) e.y = 0.5;
+      if (e.y.isNaN || e.y.isInfinite) e.y = (topExclusion + 1.0) * 0.5;
       if (e.renderSize.isNaN || e.renderSize.isInfinite) e.renderSize = 10.0;
       if (e.targetSize.isNaN || e.targetSize.isInfinite) e.targetSize = 10.0;
     }
 
     if (widget.cubeMode == CubeMode.merge) {
       for (final e in _entities) {
-        if (e.mergeCooldown > 0 && !e.isSpiraling) e.mergeCooldown -= dt;
+        if (e.mergeCooldown > 0 && !e.isSpiraling) e.mergeCooldown -= dt * 60;
       }
 
       for (final e in _entities) {
@@ -199,7 +329,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       }
 
       for (final e in _entities) {
-        e.renderSize += (e.targetSize - e.renderSize) * dt * 6.0;
+        e.renderSize += (e.targetSize - e.renderSize) * dt * 180.0;
       }
 
       // --- Death spiral updates ---
@@ -254,7 +384,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
             const double repZone = 0.1;
             const double repForce = 0.04;
-            if (cy < repZone) cvy += (repZone - cy) / repZone * repForce;
+            if (cy < topExclusion + repZone) cvy += (topExclusion + repZone - cy) / repZone * repForce;
             if (cy > 1.0 - repZone) cvy -= (repZone - (1.0 - cy)) / repZone * repForce;
             if (cx < repZone) cvx += (repZone - cx) / repZone * repForce;
             if (cx > 1.0 - repZone) cvx -= (repZone - (1.0 - cx)) / repZone * repForce;
@@ -274,24 +404,24 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             double newCy = cy;
             if (cx < 0) { newCx = 0; cvx = -cvx * 0.92; }
             if (cx > 1) { newCx = 1; cvx = -cvx * 0.92; }
-            if (cy < 0) { newCy = 0; cvy = -cvy * 0.92; }
+            if (cy < topExclusion) { newCy = topExclusion; cvy = -cvy * 0.92; }
             if (cy > 1) { newCy = 1; cvy = -cvy * 0.92; }
 
             a.vx = cvx; b.vx = cvx;
             a.vy = cvy; b.vy = cvy;
             cx = newCx; cy = newCy;
 
-            a.x = cx + (a.spiralRadius / _screenSize.width) * cos(a.spiralAngle);
-            a.y = cy + (a.spiralRadius / _screenSize.height) * sin(a.spiralAngle);
-            b.x = cx + (b.spiralRadius / _screenSize.width) * cos(b.spiralAngle);
-            b.y = cy + (b.spiralRadius / _screenSize.height) * sin(b.spiralAngle);
+            a.x = (cx + (a.spiralRadius / _screenSize.width) * cos(a.spiralAngle)).clamp(0.0, 1.0);
+            a.y = (cy + (a.spiralRadius / _screenSize.height) * sin(a.spiralAngle)).clamp(topExclusion, 1.0);
+            b.x = (cx + (b.spiralRadius / _screenSize.width) * cos(b.spiralAngle)).clamp(0.0, 1.0);
+            b.y = (cy + (b.spiralRadius / _screenSize.height) * sin(b.spiralAngle)).clamp(topExclusion, 1.0);
 
             if (collapseProgress >= 0.999) {
-              final newSize = a.renderSize + b.renderSize;
+              final newSize = a.targetSize + b.targetSize;
               cvx += (Random().nextDouble() - 0.5) * 0.05;
               cvy += (Random().nextDouble() - 0.5) * 0.05;
 
-              _entities.add(_MergeEntity(
+              final merged = _MergeEntity(
                 x: cx,
                 y: cy,
                 vx: cvx,
@@ -303,8 +433,15 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
                 size: max(a.renderSize, b.renderSize),
                 targetSize: newSize,
                 baseIndices: [...a.baseIndices, ...b.baseIndices],
-              ));
-              _entities.last.mergeCooldown = 0.5;
+              );
+              merged.splitLeft = a.baseIndices;
+              merged.splitRight = b.baseIndices;
+              merged.splitLeftLeft = a.splitLeft;
+              merged.splitLeftRight = a.splitRight;
+              merged.splitRightLeft = b.splitLeft;
+              merged.splitRightRight = b.splitRight;
+              _entities.add(merged);
+              _entities.last.mergeCooldown = 2.0;
 
               a.spiralPartner = null;
               b.spiralPartner = null;
@@ -369,9 +506,9 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               ? a.renderSize / b.renderSize
               : b.renderSize / a.renderSize;
 
-          if (sizeRatio >= 0.95) {
-             final safeDistancePixel = baseDistPixel * 3.0; 
-             final attractRangePixel = baseDistPixel * 8.0;
+           if (sizeRatio >= 0.80) {
+             final safeDistancePixel = (baseDistPixel * 3.0).clamp(0.0, 150.0); 
+             final attractRangePixel = (baseDistPixel * 8.0).clamp(0.0, 300.0);
              
              if (distPixel < attractRangePixel) {
                if (distPixel > safeDistancePixel) {
@@ -389,8 +526,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
                }
 
              }
-          } else {
-             final repelRangePixel = baseDistPixel * 3.5;
+           } else {
+             final repelRangePixel = (baseDistPixel * 3.5).clamp(0.0, 150.0);
              if (distPixel < repelRangePixel) {
                 final strength = (repelRangePixel - distPixel) / repelRangePixel * 0.005;
                 a.vx -= (dx / dist) * strength;
@@ -412,18 +549,18 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           final sizeRatio = a.renderSize < b.renderSize
               ? a.renderSize / b.renderSize
               : b.renderSize / a.renderSize;
-          if (sizeRatio < 0.95) continue;
+          if (sizeRatio < 0.80) continue;
 
           final dxPixel = (b.x - a.x) * _screenSize.width;
           final dyPixel = (b.y - a.y) * _screenSize.height;
           final distPixel = max(sqrt(dxPixel * dxPixel + dyPixel * dyPixel), 0.001);
 
           final baseDistPixel = a.renderSize + b.renderSize;
-          final safeDistancePixel = baseDistPixel * 3.0;
+          final safeDistancePixel = (baseDistPixel * 3.0).clamp(0.0, 150.0);
 
           if (distPixel > safeDistancePixel * 1.5) continue;
 
-          final totalInitRadius = max(distPixel, safeDistancePixel);
+          final totalInitRadius = distPixel;
           
           final totalCount = a.count + b.count;
           a.spiralInitialRadius = totalInitRadius * (b.count / totalCount);
@@ -590,9 +727,10 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         }
       }
 
+      final topExclusion3 = widget.topExclusion;
       for (final e in _entities) {
         if (e.x.isNaN || e.x.isInfinite) e.x = 0.5;
-        if (e.y.isNaN || e.y.isInfinite) e.y = 0.5;
+        if (e.y.isNaN || e.y.isInfinite) e.y = (topExclusion3 + 1.0) * 0.5;
         if (e.renderSize.isNaN || e.renderSize.isInfinite) e.renderSize = 10.0;
       }
     } else {
@@ -621,8 +759,12 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller?.onRepelUpdate = null;
       oldWidget.controller?.onBurst = null;
+      oldWidget.controller?.onLogoBurst = null;
+      oldWidget.controller?.onTrySplit = null;
       widget.controller?.onRepelUpdate = setRepelPoint;
       widget.controller?.onBurst = triggerBurst;
+      widget.controller?.onLogoBurst = _triggerLogoBurst;
+      widget.controller?.onTrySplit = _trySplitAt;
     }
     if (widget.cubeCount != oldWidget.cubeCount) {
       if (widget.cubeCount > _baseData.length) {
@@ -661,6 +803,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     _animController.dispose();
     widget.controller?.onRepelUpdate = null;
     widget.controller?.onBurst = null;
+    widget.controller?.onLogoBurst = null;
+    widget.controller?.onTrySplit = null;
     super.dispose();
   }
 
@@ -673,6 +817,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           constraints.maxWidth.isFinite ? constraints.maxWidth : (MediaQuery.maybeSizeOf(context)?.width ?? 800.0),
           constraints.maxHeight.isFinite ? constraints.maxHeight : (MediaQuery.maybeSizeOf(context)?.height ?? 800.0),
         );
+        final primaryColor = Theme.of(context).colorScheme.primary;
+        final isRtl = Directionality.of(context) == TextDirection.rtl;
         return RepaintBoundary(
           child: AnimatedBuilder(
             animation: _animController,
@@ -681,6 +827,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
                 painter: _CubePainter(
                   entities: _entities,
                   brightness: brightness,
+                  primaryColor: primaryColor,
+                  isRtl: isRtl,
                 ),
               );
             },
@@ -717,6 +865,7 @@ class _MergeEntity {
   double targetSize;
   double mergeTimer = 0.0;
   double mergeCooldown = 0.0;
+  double ignoreRepelTimer = 0.0;
   double _timeSinceLastChange = 0.0;
 
   _MergeEntity? parentCore;
@@ -735,6 +884,12 @@ class _MergeEntity {
   bool get isSpiraling => spiralPartner != null;
 
   final List<int> baseIndices;
+  List<int>? splitLeft;
+  List<int>? splitRight;
+  List<int>? splitLeftLeft;
+  List<int>? splitLeftRight;
+  List<int>? splitRightLeft;
+  List<int>? splitRightRight;
 
   _MergeEntity({
     double? x,
@@ -770,6 +925,7 @@ class _MergeEntity {
     double speedMultiplier,
     Offset? repelPoint,
     double scrollDrift,
+    double topExclusion,
   ) {
     _timeSinceLastChange += dt;
     if (_timeSinceLastChange > 0.033) {
@@ -780,7 +936,9 @@ class _MergeEntity {
       }
     }
 
-    if (repelPoint != null && !isSpiraling) {
+    if (ignoreRepelTimer > 0) ignoreRepelTimer -= dt * 60;
+
+    if (repelPoint != null && !isSpiraling && ignoreRepelTimer <= 0) {
       final dx = x - repelPoint.dx;
       final dy = y - repelPoint.dy;
       final dist = sqrt(dx * dx + dy * dy);
@@ -796,7 +954,7 @@ class _MergeEntity {
     const double repZone = 0.1;
     const double repForce = 0.04;
     if (!isSpiraling) {
-      if (y < repZone) vy += (repZone - y) / repZone * repForce;
+      if (y < topExclusion + repZone) vy += (topExclusion + repZone - y) / repZone * repForce;
       if (y > 1.0 - repZone) vy -= (repZone - (1.0 - y)) / repZone * repForce;
       if (x < repZone) vx += (repZone - x) / repZone * repForce;
       if (x > 1.0 - repZone) vx -= (repZone - (1.0 - x)) / repZone * repForce;
@@ -825,8 +983,8 @@ class _MergeEntity {
         x = 1;
         vx = -vx * 0.92;
       }
-      if (y < 0) {
-        y = 0;
+      if (y < topExclusion) {
+        y = topExclusion;
         final drift = scrollDrift.abs();
         if (drift > 0.001) {
           final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
@@ -925,15 +1083,15 @@ class _CubeDrawData {
 class _CubePainter extends CustomPainter {
   final List<_MergeEntity> entities;
   final Brightness brightness;
+  final Color primaryColor;
+  final bool isRtl;
 
   _CubePainter({
     required this.entities,
     required this.brightness,
+    required this.primaryColor,
+    required this.isRtl,
   });
-
-  static const double _lx = 0.577;
-  static const double _ly = 0.577;
-  static const double _lz = 0.577;
 
   static const List<List<double>> _verts = [
     [-1.0, -1.0, 1.0],
@@ -999,6 +1157,16 @@ class _CubePainter extends CustomPainter {
       final px = entity.x * size.width;
       final py = entity.y * size.height;
 
+      final double lightX = isRtl ? 0.9 : 0.1;
+      final double lightY = 0.05;
+      final double ldx = lightX - entity.x;
+      final double ldy = entity.y - lightY; 
+      final double ldz = 0.5;
+      final double lDist = sqrt(ldx * ldx + ldy * ldy + ldz * ldz);
+      final double lx = ldx / lDist;
+      final double ly = ldy / lDist;
+      final double lz = ldz / lDist;
+
       final cx = cos(entity.rx), sx = sin(entity.rx);
       final cy = cos(entity.ry), sy = sin(entity.ry);
       final cz = cos(entity.rz), sz = sin(entity.rz);
@@ -1063,7 +1231,7 @@ class _CubePainter extends CustomPainter {
 
         if (nz <= 0) continue;
 
-        final dot = nx * _lx + ny * _ly + nz * _lz;
+        final dot = nx * lx + ny * ly + nz * lz;
         final brightness = 0.25 + max(0.0, dot) * 0.75;
 
         double sumZ = 0.0;
@@ -1145,12 +1313,7 @@ class _CubePainter extends CustomPainter {
     );
     canvas.drawPath(path, fillPaint);
 
-    strokePaint.color = Color.from(
-      alpha: 1.0,
-      red: (cubeColor.r * b * 0.7).clamp(0.0, 1.0),
-      green: (cubeColor.g * b * 0.7).clamp(0.0, 1.0),
-      blue: (cubeColor.b * b * 0.7).clamp(0.0, 1.0),
-    );
+    strokePaint.color = primaryColor;
     canvas.drawPath(path, strokePaint);
   }
 

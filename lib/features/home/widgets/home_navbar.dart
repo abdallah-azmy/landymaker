@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:landymaker/core/widgets/particles/cube_mode_cubit.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -21,8 +22,9 @@ import '../../auth/controllers/auth_state.dart';
 /// ======================================================
 class HomeNavbar extends StatefulWidget implements PreferredSizeWidget {
   final Map<String, dynamic>? config;
+  final ValueNotifier<int>? cubeCount;
 
-  const HomeNavbar({super.key, this.config});
+  const HomeNavbar({super.key, this.config, this.cubeCount});
 
   @override
   // Extra 200px allows the animated mobile menu to expand below the bar
@@ -107,6 +109,7 @@ class _HomeNavbarState extends State<HomeNavbar>
             menuOpacity: _menuOpacity,
             ctaText: ctaText,
             showLogin: widget.config?['show_login'] as bool? ?? true,
+            cubeCount: widget.cubeCount,
           );
         }
 
@@ -116,6 +119,7 @@ class _HomeNavbarState extends State<HomeNavbar>
           userId: userId,
           ctaText: ctaText,
           showLogin: widget.config?['show_login'] as bool? ?? true,
+          cubeCount: widget.cubeCount,
         );
       },
     );
@@ -129,6 +133,7 @@ class _DesktopNavbar extends StatelessWidget {
   final String userId;
   final String? ctaText;
   final bool showLogin;
+  final ValueNotifier<int>? cubeCount;
 
   const _DesktopNavbar({
     required this.isLoggedIn,
@@ -136,6 +141,7 @@ class _DesktopNavbar extends StatelessWidget {
     required this.userId,
     this.ctaText,
     this.showLogin = true,
+    this.cubeCount,
   });
 
   @override
@@ -168,6 +174,33 @@ class _DesktopNavbar extends StatelessWidget {
                   Row(
                     children: [
                       const AnimatedCubeModeToggle(size: 32),
+                      if (cubeCount != null)
+                        BlocBuilder<CubeModeCubit, CubeMode>(
+                          builder: (context, mode) {
+                            if (mode == CubeMode.merge) {
+                              return Padding(
+                                padding: const EdgeInsetsDirectional.only(
+                                  start: 6,
+                                ),
+                                child: ValueListenableBuilder<int>(
+                                  valueListenable: cubeCount!,
+                                  builder: (context, count, _) {
+                                    return Text(
+                                      '$count',
+                                      style: AppTypography.bodyMedium.copyWith(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
                       const SizedBox(width: 6),
                       const AnimatedThemeToggle(size: 32),
                       const SizedBox(width: 8),
@@ -248,6 +281,7 @@ class _MobileNavbar extends StatelessWidget {
   final Animation<double> menuOpacity;
   final String? ctaText;
   final bool showLogin;
+  final ValueNotifier<int>? cubeCount;
 
   const _MobileNavbar({
     required this.isLoggedIn,
@@ -261,6 +295,7 @@ class _MobileNavbar extends StatelessWidget {
     required this.menuOpacity,
     this.ctaText,
     this.showLogin = true,
+    this.cubeCount,
   });
 
   @override
@@ -301,6 +336,35 @@ class _MobileNavbar extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const AnimatedCubeModeToggle(size: 32),
+                              if (cubeCount != null)
+                                BlocBuilder<CubeModeCubit, CubeMode>(
+                                  builder: (context, mode) {
+                                    if (mode == CubeMode.merge) {
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsetsDirectional.only(
+                                              start: 6,
+                                            ),
+                                        child: ValueListenableBuilder<int>(
+                                          valueListenable: cubeCount!,
+                                          builder: (context, count, _) {
+                                            return Text(
+                                              '$count',
+                                              style: AppTypography.bodyMedium
+                                                  .copyWith(
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    }
+                                    return const SizedBox.shrink();
+                                  },
+                                ),
                               const SizedBox(width: 6),
                               const AnimatedThemeToggle(size: 32),
                               const SizedBox(width: 4),

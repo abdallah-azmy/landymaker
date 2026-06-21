@@ -2,18 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum CubeMode { standard, merge, orbit }
+enum CubeMode { standard, merge, orbit, gravity }
 
 class CubeModeCubit extends Cubit<CubeMode> {
   static const _key = 'cube_mode';
 
-  CubeModeCubit() : super(CubeMode.standard);
+  CubeModeCubit() : super(CubeMode.standard) {
+    loadSavedMode();
+  }
 
   Future<void> toggleMode() async {
     final nextMode = switch (state) {
       CubeMode.standard => CubeMode.merge,
       CubeMode.merge => CubeMode.orbit,
-      CubeMode.orbit => CubeMode.standard,
+      CubeMode.orbit => CubeMode.gravity,
+      CubeMode.gravity => CubeMode.standard,
     };
     emit(nextMode);
     try {

@@ -337,49 +337,60 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       opacity: _headerFade,
       child: SlideTransition(
         position: _headerSlide,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+        child: AppBlurEffect(
+          blur: 6,
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    "✨ المميزات",
+                    style: AppTypography.caption.copyWith(
+                      color: const Color(0xFF818CF8),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-              child: Text(
-                "✨ المميزات",
-                style: AppTypography.caption.copyWith(
-                  color: const Color(0xFF818CF8),
-                  fontWeight: FontWeight.bold,
+                SizedBox(height: 16),
+                Text(
+                  widget.title ?? "كل ما تحتاجه للنمو\nفي مكان واحد",
+                  style: AppTypography.h2.copyWith(
+                    fontSize: isMobile
+                        ? 28
+                        : isTablet
+                        ? 44
+                        : 58,
+                    fontWeight: FontWeight.w900,
+                    height: 1.2,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
+                SizedBox(height: 16),
+                Text(
+                  "أدوات ذكية متكاملة مصممة خصيصاً لمساعدتك على بناء حضورك الرقمي بسرعة واحترافية.",
+                  style: AppTypography.bodyLarge.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1.6,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            SizedBox(height: 16),
-            Text(
-              widget.title ?? "كل ما تحتاجه للنمو\nفي مكان واحد",
-              style: AppTypography.h2.copyWith(
-                fontSize: isMobile
-                    ? 28
-                    : isTablet
-                    ? 44
-                    : 58,
-                fontWeight: FontWeight.w900,
-                height: 1.2,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16),
-            Text(
-              "أدوات ذكية متكاملة مصممة خصيصاً لمساعدتك على بناء حضورك الرقمي بسرعة واحترافية.",
-              style: AppTypography.bodyLarge.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                height: 1.6,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+          ),
         ),
       ),
     );

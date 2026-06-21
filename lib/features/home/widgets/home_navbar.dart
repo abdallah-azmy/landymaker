@@ -173,34 +173,35 @@ class _DesktopNavbar extends StatelessWidget {
                   _LogoSection(),
                   Row(
                     children: [
+                      // if (cubeCount != null)
+                      //   BlocBuilder<CubeModeCubit, CubeMode>(
+                      //     builder: (context, mode) {
+                      //       if (mode == CubeMode.merge) {
+                      //         return Padding(
+                      //           padding: const EdgeInsetsDirectional.only(
+                      //             end: 6,
+                      //           ),
+                      //           child: ValueListenableBuilder<int>(
+                      //             valueListenable: cubeCount!,
+                      //             builder: (context, count, _) {
+                      //               return Text(
+                      //                 '$count',
+                      //                 style: AppTypography.bodyMedium.copyWith(
+                      //                   color: Theme.of(
+                      //                     context,
+                      //                   ).colorScheme.primary,
+                      //                   fontWeight: FontWeight.bold,
+                      //                 ),
+                      //               );
+                      //             },
+                      //           ),
+                      //         );
+                      //       }
+                      //       return const SizedBox.shrink();
+                      //     },
+                      //   ),
                       const AnimatedCubeModeToggle(size: 32),
-                      if (cubeCount != null)
-                        BlocBuilder<CubeModeCubit, CubeMode>(
-                          builder: (context, mode) {
-                            if (mode == CubeMode.merge) {
-                              return Padding(
-                                padding: const EdgeInsetsDirectional.only(
-                                  start: 6,
-                                ),
-                                child: ValueListenableBuilder<int>(
-                                  valueListenable: cubeCount!,
-                                  builder: (context, count, _) {
-                                    return Text(
-                                      '$count',
-                                      style: AppTypography.bodyMedium.copyWith(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
+
                       const SizedBox(width: 6),
                       const AnimatedThemeToggle(size: 32),
                       const SizedBox(width: 8),

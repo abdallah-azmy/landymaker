@@ -42,6 +42,7 @@ class _AnimatedCubeModeToggleState extends State<AnimatedCubeModeToggle>
       CubeMode.standard => Icons.grain_rounded,
       CubeMode.merge => Icons.grid_view_rounded,
       CubeMode.orbit => Icons.language_rounded,
+      CubeMode.gravity => Icons.arrow_downward_rounded,
     };
   }
 

@@ -1,7 +1,9 @@
 // ══════════════════════════════════════════════════════════════════════════════
 // AI DOCUMENTATION DIRECTIVE
 //
-// This file implements a 3-mode 3D cube particle system (Standard, Merge, Orbit).
+// This file implements a V2 3-mode 3D cube particle system (Standard, Merge, Orbit)
+// with Spatial Hashing, Isolate offloading, Adaptive Rendering, Trail Particles,
+// Burst Dust, and mouse hover repulsion.
 //
 // BEFORE EDITING this file, an AI model MUST read and understand the complete
 // rules, constants, and behavioral contracts in:
@@ -16,8 +18,243 @@
 // ══════════════════════════════════════════════════════════════════════════════
 
 import 'dart:math';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:landymaker/core/widgets/particles/cube_mode_cubit.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PERFORMANCE & QUALITY
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum _QualityMode { high, low }
+
+class _AdaptiveQuality {
+  _QualityMode mode = _QualityMode.high;
+  int _slowFrameCount = 0;
+
+  void update(double dt) {
+    if (dt > 0.033) {
+      _slowFrameCount++;
+      if (_slowFrameCount >= 15) mode = _QualityMode.low;
+    } else {
+      _slowFrameCount = 0;
+      mode = _QualityMode.high;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SPATIAL HASH GRID  (O(n) collision detection via 11×11 cell grid)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _SpatialHashGrid {
+  static const int _gridSize = 11;
+  static const int _totalCells = _gridSize * _gridSize;
+  static const double _cellSize = 0.1;
+
+  final List<List<int>> _cells;
+  final List<bool> _occupied;
+
+  _SpatialHashGrid()
+      : _cells = List.generate(_totalCells, (_) => <int>[]),
+        _occupied = List.filled(_totalCells, false);
+
+  void clear() {
+    for (int i = 0; i < _totalCells; i++) {
+      if (_occupied[i]) {
+        _cells[i].clear();
+        _occupied[i] = false;
+      }
+    }
+  }
+
+  void insert(int index, double x, double y) {
+    final cx = (x / _cellSize).floor().clamp(0, _gridSize - 1);
+    final cy = (y / _cellSize).floor().clamp(0, _gridSize - 1);
+    final key = cy * _gridSize + cx;
+    _cells[key].add(index);
+    _occupied[key] = true;
+  }
+
+  void queryNeighbors(double x, double y, List<int> out) {
+    final cx = (x / _cellSize).floor().clamp(0, _gridSize - 1);
+    final cy = (y / _cellSize).floor().clamp(0, _gridSize - 1);
+    out.clear();
+
+    final int startX = cx > 0 ? cx - 1 : 0;
+    final int endX = cx < _gridSize - 1 ? cx + 1 : _gridSize - 1;
+    final int startY = cy > 0 ? cy - 1 : 0;
+    final int endY = cy < _gridSize - 1 ? cy + 1 : _gridSize - 1;
+
+    for (int row = startY; row <= endY; row++) {
+      for (int col = startX; col <= endX; col++) {
+        final key = row * _gridSize + col;
+        if (_occupied[key]) {
+          out.addAll(_cells[key]);
+        }
+      }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TRAIL PARTICLES (Ring Buffer — no GC allocations per frame)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _TrailParticle {
+  double x, y, size, opacity;
+  double vx = 0, vy = 0;
+
+  _TrailParticle({this.x = 0, this.y = 0, this.size = 0, this.opacity = 0});
+}
+
+const int _kTrailPoolSize = 500;
+
+class _TrailPool {
+  final List<_TrailParticle> particles;
+  int _writeIndex = 0;
+
+  _TrailPool()
+      : particles = List.generate(
+          _kTrailPoolSize,
+          (_) => _TrailParticle(),
+        );
+
+  void spawn(double x, double y, double size) {
+    final p = particles[_writeIndex % _kTrailPoolSize];
+    p.x = x;
+    p.y = y;
+    final s = (size / 12.0).clamp(0.3, 2.5);
+    p.size = (0.5 + Random().nextDouble() * 0.7) * s;
+    p.opacity = 0.5 + Random().nextDouble() * 0.3;
+    p.vx = 0;
+    p.vy = 0;
+    _writeIndex = (_writeIndex + 1) % _kTrailPoolSize;
+  }
+
+  void spawnBurst(double x, double y, int count,
+      {double spread = 0.05, double entitySize = 12.0}) {
+    for (int i = 0; i < count; i++) {
+      final theta = Random().nextDouble() * 2 * pi;
+      final phi = acos(2 * Random().nextDouble() - 1);
+      final r = spread * (pow(Random().nextDouble(), 1.0 / 3.0) as double);
+      final dx = r * sin(phi) * cos(theta);
+      final dy = r * sin(phi) * sin(theta);
+      final dz = r * cos(phi);
+
+      final p = particles[_writeIndex % _kTrailPoolSize];
+      p.x = x + dx;
+      p.y = y + dy;
+
+      final dist = max(sqrt(dx * dx + dy * dy + dz * dz), 0.001);
+      final speed = (0.8 + Random().nextDouble() * 1.5) * (dist / spread);
+      p.vx = (dx / dist) * speed + (Random().nextDouble() - 0.5) * 0.002;
+      p.vy = (dy / dist) * speed + (Random().nextDouble() - 0.5) * 0.002;
+
+      final zFactor = dz / spread;
+      final scale = (entitySize / 12.0).clamp(0.3, 2.5);
+      p.size = ((2.5 + Random().nextDouble() * 3.5) + zFactor * 1.5) * scale;
+      p.opacity = (0.5 + Random().nextDouble() * 0.3) + zFactor * 0.25;
+      _writeIndex = (_writeIndex + 1) % _kTrailPoolSize;
+    }
+  }
+
+  void update(double dt) {
+    final realDt = dt * 60;
+    for (int i = 0; i < _kTrailPoolSize; i++) {
+      final p = particles[i];
+      if (p.opacity <= 0) continue;
+
+      p.x += p.vx * realDt;
+      p.y += p.vy * realDt;
+
+      p.vx *= pow(0.96, realDt) as double;
+      p.vy *= pow(0.96, realDt) as double;
+
+      if (p.vx != 0 || p.vy != 0) {
+        p.size -= realDt * 0.12;
+        if (p.size < 0) p.size = 0;
+      }
+
+      p.opacity -= realDt * 0.02;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ISOLATE / WEBWORKER OFFLOADING
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PhysicsPayload {
+  final Float64List positions;
+  final Float64List sizes;
+  final int entityCount;
+  final int mode;
+
+  _PhysicsPayload({
+    required this.positions,
+    required this.sizes,
+    required this.entityCount,
+    required this.mode,
+  });
+}
+
+class _PhysicsResult {
+  final Float64List forceDeltas;
+
+  _PhysicsResult({required this.forceDeltas});
+}
+
+@pragma('vm:isolate-untagged')
+_PhysicsResult _physicsWorker(_PhysicsPayload p) {
+  final forces = Float64List(p.entityCount * 2);
+  final n = p.entityCount;
+
+  if (p.mode == 0 || p.mode == 1) {
+    for (int i = 0; i < n; i++) {
+      final ix = p.positions[i * 2];
+      final iy = p.positions[i * 2 + 1];
+      final isz = p.sizes[i];
+
+      for (int j = i + 1; j < n; j++) {
+        final jx = p.positions[j * 2];
+        final jy = p.positions[j * 2 + 1];
+        final jsz = p.sizes[j];
+
+        final sizeRatio = isz < jsz ? isz / jsz : jsz / isz;
+        if (sizeRatio < 0.5) continue;
+
+        final dx = ix - jx;
+        final dy = iy - jy;
+        if (dx.abs() > 0.06 || dy.abs() > 0.06) continue;
+
+        final distSq = dx * dx + dy * dy;
+        if (distSq > 0.0036 || distSq < 1e-8) continue;
+
+        final dist = sqrt(distSq);
+        final force = (0.06 - dist) / 0.06 * 0.04;
+        final fx = (dx / dist) * force;
+        double fy = (dy / dist) * force;
+
+        if (p.mode == 1 && iy > 0.8 && jy > 0.8) {
+          fy *= 0.02; // Severely damp vertical repulsion near floor to prevent popcorn effect
+        }
+
+        forces[i * 2] += fx;
+        forces[i * 2 + 1] += fy;
+        forces[j * 2] -= fx;
+        forces[j * 2 + 1] -= fy;
+      }
+    }
+  }
+
+  return _PhysicsResult(forceDeltas: forces);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONTROLLER
+// ─────────────────────────────────────────────────────────────────────────────
 
 class FloatingCubeBackgroundController {
   void Function(Offset?)? onRepelUpdate;
@@ -44,6 +281,10 @@ class FloatingCubeBackgroundController {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// WIDGET
+// ─────────────────────────────────────────────────────────────────────────────
+
 class FloatingCubeBackground extends StatefulWidget {
   final int cubeCount;
   final double speed;
@@ -51,6 +292,7 @@ class FloatingCubeBackground extends StatefulWidget {
   final FloatingCubeBackgroundController? controller;
   final CubeMode cubeMode;
   final double topExclusion;
+  final bool initialPreBurst;
 
   const FloatingCubeBackground({
     super.key,
@@ -60,6 +302,7 @@ class FloatingCubeBackground extends StatefulWidget {
     this.controller,
     this.cubeMode = CubeMode.standard,
     this.topExclusion = 0.0,
+    this.initialPreBurst = true,
   });
 
   @override
@@ -75,6 +318,16 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   Offset? _repelPoint;
   bool _hasRepelPoint = false;
   Size _screenSize = const Size(800, 800);
+  late bool _isPreBurst;
+
+  // V2 features
+  final _spatialHash = _SpatialHashGrid();
+  final _trailPool = _TrailPool();
+  final _adaptiveQuality = _AdaptiveQuality();
+  final _neighborScratch = <int>[];
+  Future<void>? _isolateFuture;
+
+  // ── Controller wiring ─────────────────────────────────────────────────
 
   void setRepelPoint(Offset? point) {
     _repelPoint = point;
@@ -82,27 +335,71 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 
   void triggerBurst(Offset point) {
+    final bool isGravity = widget.cubeMode == CubeMode.gravity;
     for (final e in _entities) {
-      e.applyBurst(point);
+      e.applyBurst(point, isGravity: isGravity);
+      final dx = e.x - point.dx;
+      final dy = e.y - point.dy;
+      final d = sqrt(dx * dx + dy * dy);
+      if (d < 0.001) continue;
+      if (isGravity) {
+        final sizeFactor = (e.renderSize / 12.0).clamp(0.3, 3.0);
+        if (d < 0.8) {
+          // Massive upward shockwave impulse based on size and distance
+          final force = (0.8 - d) / 0.8 * 2.5 * (1.0 / sizeFactor);
+          e.vx += (dx / d) * force;
+          e.vy -= force * 1.5; // Always push strongly upwards against gravity
+        }
+      } else if (d < 0.35) {
+        final extraForce = (0.35 - d) / 0.35 * 0.4;
+        e.vx += (dx / d) * extraForce;
+        e.vy += (dy / d) * extraForce;
+      }
     }
   }
 
   void _triggerLogoBurst(Offset center) {
-    for (final e in _entities) {
-      final angle = Random().nextDouble() * 2 * pi;
-      final radius = Random().nextDouble() * 0.005;
-      e.x = (center.dx + cos(angle) * radius).clamp(0.0, 1.0);
-      e.y = (center.dy + sin(angle) * radius).clamp(0.0, 1.0);
-      final dx = e.x - center.dx;
-      final dy = e.y - center.dy;
-      final dist = max(sqrt(dx * dx + dy * dy), 0.001);
-      final force = 0.5 + Random().nextDouble() * 0.6;
-      e.vx = (dx / dist) * force + (Random().nextDouble() - 0.5) * 0.01;
-      e.vy = (dy / dist) * force + (Random().nextDouble() - 0.5) * 0.01;
-      e.rx = Random().nextDouble() * pi * 2;
-      e.ry = Random().nextDouble() * pi * 2;
-      e.rz = Random().nextDouble() * pi * 2;
+    _isPreBurst = false;
+    for (int i = 0; i < _entities.length; i++) {
+      final e = _entities[i];
+      final d = _baseData[e.baseIndices.first];
+
+      // Restore original base sizes
+      e.targetSize = d.size;
+
+      // Unhide the core cubes by restoring their size and giving them a tiny random offset
+      if (i >= 27) {
+        final angle = Random().nextDouble() * 2 * pi;
+        final radius = Random().nextDouble() * 0.005;
+        e.x = center.dx + cos(angle) * radius;
+        e.y = center.dy + sin(angle) * radius;
+        e.renderSize = d.size;
+      }
+
+      // Calculate vector from center to their CURRENT position
+      double dx = e.x - center.dx;
+      double dy = e.y - center.dy;
+      double dist = sqrt(dx * dx + dy * dy);
+
+      // Failsafe for perfectly centered elements
+      if (dist < 0.001) {
+        final angle = Random().nextDouble() * 2 * pi;
+        dx = cos(angle) * 0.01;
+        dy = sin(angle) * 0.01;
+        dist = 0.01;
+      }
+
+      // Massive explosive physical force outward
+      final force = 0.8 + Random().nextDouble() * 0.8;
+      e.vx = (dx / dist) * force + (Random().nextDouble() - 0.5) * 0.05;
+      e.vy = (dy / dist) * force + (Random().nextDouble() - 0.5) * 0.05;
+
+      // Note: We DO NOT randomize e.rx, e.ry, e.rz here.
+      // The massive vx/vy velocities will naturally spin them out of their
+      // isometric Rubik's cube alignment in the physics loop.
     }
+    // Spawn a massive flash particle effect
+    _trailPool.spawnBurst(center.dx, center.dy, 150, spread: 0.15, entitySize: 40.0);
   }
 
   bool _trySplitAt(Offset normalizedPoint) {
@@ -126,8 +423,10 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   void _splitEntity(_MergeEntity source) {
     final leftIndices = source.splitLeft!;
     final rightIndices = source.splitRight!;
-    final leftSize = leftIndices.fold(0.0, (sum, idx) => sum + _baseData[idx].size);
-    final rightSize = rightIndices.fold(0.0, (sum, idx) => sum + _baseData[idx].size);
+    final leftSize =
+        leftIndices.fold(0.0, (sum, idx) => sum + _baseData[idx].size);
+    final rightSize =
+        rightIndices.fold(0.0, (sum, idx) => sum + _baseData[idx].size);
     final topExclusion = widget.topExclusion;
 
     if (source.spiralPartner != null) {
@@ -141,7 +440,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     final leftEntity = _MergeEntity(
       x: (source.x + (Random().nextDouble() - 0.5) * 0.03).clamp(0.0, 1.0),
-      y: (source.y + (Random().nextDouble() - 0.5) * 0.03).clamp(topExclusion, 1.0),
+      y: (source.y + (Random().nextDouble() - 0.5) * 0.03)
+          .clamp(topExclusion, 1.0),
       vx: source.vx + (Random().nextDouble() - 0.5) * 0.02,
       vy: source.vy + (Random().nextDouble() - 0.5) * 0.02,
       count: leftIndices.length,
@@ -157,7 +457,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     final rightEntity = _MergeEntity(
       x: (source.x + (Random().nextDouble() - 0.5) * 0.03).clamp(0.0, 1.0),
-      y: (source.y + (Random().nextDouble() - 0.5) * 0.03).clamp(topExclusion, 1.0),
+      y: (source.y + (Random().nextDouble() - 0.5) * 0.03)
+          .clamp(topExclusion, 1.0),
       vx: source.vx + (Random().nextDouble() - 0.5) * 0.02,
       vy: source.vy + (Random().nextDouble() - 0.5) * 0.02,
       count: rightIndices.length,
@@ -173,18 +474,20 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     leftEntity.mergeCooldown = 2.0;
     rightEntity.mergeCooldown = 2.0;
-    
+
     leftEntity.ignoreRepelTimer = 1.0;
     rightEntity.ignoreRepelTimer = 1.0;
 
     final dx = rightEntity.x - leftEntity.x;
     final dy = rightEntity.y - leftEntity.y;
     final dist = max(sqrt(dx * dx + dy * dy), 0.001);
-    final pushForce = 0.15;
+    final pushForce = 0.3;
     leftEntity.vx -= (dx / dist) * pushForce;
     leftEntity.vy -= (dy / dist) * pushForce;
     rightEntity.vx += (dx / dist) * pushForce;
     rightEntity.vy += (dy / dist) * pushForce;
+
+    _trailPool.spawnBurst(source.x, source.y, 40, spread: 0.06, entitySize: source.renderSize);
 
     final idx = _entities.indexOf(source);
     if (idx >= 0) {
@@ -193,6 +496,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       _entities.add(rightEntity);
     }
   }
+
+  // ── Lifecycle helpers ─────────────────────────────────────────────────
 
   void _generateBaseData() {
     _baseData = List.generate(widget.cubeCount, (_) {
@@ -213,13 +518,17 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     _entities = List.generate(_baseData.length, (i) {
       final d = _baseData[i];
       return _MergeEntity(
-        x: d.x + (Random().nextDouble() - 0.5) * 0.05,
-        y: d.y * (1.0 - topExclusion) + topExclusion + (Random().nextDouble() - 0.5) * 0.05,
+        x: _isPreBurst ? 0.5 : d.x + (Random().nextDouble() - 0.5) * 0.05,
+        y: _isPreBurst ? 0.5 : d.y * (1.0 - topExclusion) +
+            topExclusion +
+            (Random().nextDouble() - 0.5) * 0.05,
         size: d.size,
         targetSize: d.size,
-        rx: d.rx,
-        ry: d.ry,
-        rz: d.rz,
+        rx: _isPreBurst ? pi / 4 : d.rx,
+        ry: _isPreBurst ? pi / 4 : d.ry,
+        rz: _isPreBurst ? 0.0 : d.rz,
+        vx: _isPreBurst ? 0.0 : null,
+        vy: _isPreBurst ? 0.0 : null,
         baseIndices: [i],
       );
     });
@@ -235,7 +544,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           final base = _baseData[idx];
           newEntities.add(_MergeEntity(
             x: (e.x + (Random().nextDouble() - 0.5) * 0.05).clamp(0.0, 1.0),
-            y: (e.y + (Random().nextDouble() - 0.5) * 0.05).clamp(topExclusion, 1.0),
+            y: (e.y + (Random().nextDouble() - 0.5) * 0.05)
+                .clamp(topExclusion, 1.0),
             vx: e.vx + (Random().nextDouble() - 0.5) * 0.02,
             vy: e.vy + (Random().nextDouble() - 0.5) * 0.02,
             size: base.size,
@@ -270,9 +580,48 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     }
   }
 
+  // ── Isolate offloading ────────────────────────────────────────────────
+
+  void _tryRunIsolate() {
+    if (_isolateFuture != null) return;
+    final n = _entities.length;
+    if (n < 50) return;
+
+    final positions = Float64List(n * 2);
+    final sizes = Float64List(n);
+    for (int i = 0; i < n; i++) {
+      final e = _entities[i];
+      positions[i * 2] = e.x;
+      positions[i * 2 + 1] = e.y;
+      sizes[i] = e.renderSize;
+    }
+
+    final payload = _PhysicsPayload(
+      positions: positions,
+      sizes: sizes,
+      entityCount: n,
+      mode: widget.cubeMode == CubeMode.gravity ? 1 : 0,
+    );
+
+    _isolateFuture = compute(_physicsWorker, payload).then((result) {
+      if (!mounted) return;
+      final clampedN = min(result.forceDeltas.length ~/ 2, _entities.length);
+      for (int i = 0; i < clampedN; i++) {
+        _entities[i].vx += result.forceDeltas[i * 2];
+        _entities[i].vy += result.forceDeltas[i * 2 + 1];
+      }
+      _isolateFuture = null;
+    });
+  }
+
+  // ── Isolate offloading ────────────────────────────────────────────────
+
+  // ── Init / Update ─────────────────────────────────────────────────────
+
   @override
   void initState() {
     super.initState();
+    _isPreBurst = widget.initialPreBurst;
     _generateBaseData();
     _initFromBase();
     _animController = AnimationController(
@@ -294,12 +643,85 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     if (dt < 0) dt += 1.0;
     _lastValue = current;
     final scrollDrift = widget.controller?.scrollDrift ?? 0.0;
-    
-    if (widget.controller != null && widget.controller!.cubeCount.value != _entities.length) {
+
+    // ── Adaptive quality tracking ──
+    _adaptiveQuality.update(dt);
+    final bool lowQuality = _adaptiveQuality.mode == _QualityMode.low;
+
+    // ── Cube count notifier ──
+    if (widget.controller != null &&
+        widget.controller!.cubeCount.value != _entities.length) {
       widget.controller!.cubeCount.value = _entities.length;
     }
 
     final topExclusion = widget.topExclusion;
+
+    // ── Entity update (repulsion + physics) ──
+    if (_isPreBurst) {
+      final double gap = 22.0; // Spacing between cubes
+      final double rx = 0.615; // Isometric tilt down
+      final double ry = pi / 4; // Isometric 45 deg turn
+      final double rz = 0.0;
+
+      final double cx = cos(rx), sx = sin(rx);
+      final double cy = cos(ry), sy = sin(ry);
+      final double cz = cos(rz), sz = sin(rz);
+
+      for (int i = 0; i < _entities.length; i++) {
+        final e = _entities[i];
+        if (i < 27) {
+          // Construct a 3x3x3 grid
+          int ix = (i % 3) - 1;
+          int iy = ((i ~/ 3) % 3) - 1;
+          int iz = (i ~/ 9) - 1;
+
+          double X = ix * gap;
+          double Y = iy * gap;
+          double Z = iz * gap;
+
+          // Rotate around X
+          double y1 = Y * cx - Z * sx;
+          double z1 = Y * sx + Z * cx;
+          Y = y1;
+          Z = z1;
+
+          // Rotate around Y
+          double x1 = X * cy + Z * sy;
+          double z2 = -X * sy + Z * cy;
+          X = x1;
+          Z = z2;
+
+          // Rotate around Z
+          double x2 = X * cz - Y * sz;
+          double y2 = X * sz + Y * cz;
+          X = x2;
+          Y = y2;
+
+          // Map to 2D screen delta
+          double dx = X;
+          double dy = -Y;
+
+          e.x = 0.5 + dx / _screenSize.width;
+          e.y = 0.5 + dy / _screenSize.height;
+          e.rx = rx;
+          e.ry = ry;
+          e.rz = rz;
+          e.renderSize = 18.0;
+          e.targetSize = 18.0;
+        } else {
+          // Hide surplus cubes at the core
+          e.x = 0.5;
+          e.y = 0.5;
+          e.renderSize = 0.0;
+          e.targetSize = 0.0;
+        }
+        e.vx = 0;
+        e.vy = 0;
+      }
+      return; // Skip all other physics while in pre-burst state
+    }
+
+    final bool gravity = widget.cubeMode == CubeMode.gravity;
     for (final e in _entities) {
       e.update(
         dt,
@@ -307,9 +729,11 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         _hasRepelPoint ? _repelPoint : null,
         scrollDrift,
         topExclusion,
+        gravity: gravity,
       );
     }
 
+    // ── NaN safety guard ──
     for (final e in _entities) {
       if (e.x.isNaN || e.x.isInfinite) e.x = 0.5;
       if (e.y.isNaN || e.y.isInfinite) e.y = (topExclusion + 1.0) * 0.5;
@@ -317,434 +741,559 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       if (e.targetSize.isNaN || e.targetSize.isInfinite) e.targetSize = 10.0;
     }
 
-    if (widget.cubeMode == CubeMode.merge) {
+    // ── Trail particles ──
+    if (!lowQuality) {
       for (final e in _entities) {
-        if (e.mergeCooldown > 0 && !e.isSpiraling) e.mergeCooldown -= dt * 60;
-      }
-
-      for (final e in _entities) {
-        if (e.isSpiraling) continue;
-        e.vx += (Random().nextDouble() - 0.5) * 0.01;
-        e.vy += (Random().nextDouble() - 0.5) * 0.01;
-      }
-
-      for (final e in _entities) {
-        e.renderSize += (e.targetSize - e.renderSize) * dt * 180.0;
-      }
-
-      // --- Death spiral updates ---
-      {
-        bool spiralMergeHappened = true;
-        int spiralPasses = 0;
-        while (spiralMergeHappened) {
-          spiralMergeHappened = false;
-          if (++spiralPasses > _entities.length) break;
-          final processed = <_MergeEntity>{};
-          for (final a in _entities.toList()) {
-            if (a.spiralPartner == null) continue;
-            if (processed.contains(a)) continue;
-            final b = a.spiralPartner!;
-            if (b.spiralPartner != a) {
-              a.spiralPartner = null;
-              continue;
-            }
-            processed.add(a);
-            processed.add(b);
-
-            // dt is normalized over 60 seconds, so dt * 60 gives actual real-time seconds.
-            a.spiralCollapseTimer += dt * 60;
-            b.spiralCollapseTimer += dt * 60;
-            
-            const double totalDuration = 4.0;
-            final collapseProgress = (a.spiralCollapseTimer / totalDuration).clamp(0.0, 1.0);
-
-            a.spiralSpeed = 1.5 + (12.0 - 1.5) * collapseProgress;
-            b.spiralSpeed = a.spiralSpeed;
-
-            final collisionRadiusPixel = (a.renderSize + b.renderSize) * 0.2; // 0.2 creates a strong visual overlap before popping
-            final totalCount = a.count + b.count;
-            final effectiveTouchRadiusA = collisionRadiusPixel * (b.count / totalCount);
-            final effectiveTouchRadiusB = collisionRadiusPixel * (a.count / totalCount);
-
-            final targetRadiusA = min(effectiveTouchRadiusA, a.spiralInitialRadius);
-            final targetRadiusB = min(effectiveTouchRadiusB, b.spiralInitialRadius);
-            
-            final shrinkCurve = collapseProgress * collapseProgress;
-            
-            a.spiralRadius = a.spiralInitialRadius + (targetRadiusA - a.spiralInitialRadius) * shrinkCurve;
-            b.spiralRadius = b.spiralInitialRadius + (targetRadiusB - b.spiralInitialRadius) * shrinkCurve;
-
-            a.spiralAngle += a.spiralSpeed * dt * 60 * widget.speed;
-            b.spiralAngle = a.spiralAngle + pi;
-
-            double cx = (a.x * a.count + b.x * b.count) / totalCount;
-            double cy = (a.y * a.count + b.y * b.count) / totalCount;
-            double cvx = (a.vx * a.count + b.vx * b.count) / totalCount;
-            double cvy = (a.vy * a.count + b.vy * b.count) / totalCount;
-
-            const double repZone = 0.1;
-            const double repForce = 0.04;
-            if (cy < topExclusion + repZone) cvy += (topExclusion + repZone - cy) / repZone * repForce;
-            if (cy > 1.0 - repZone) cvy -= (repZone - (1.0 - cy)) / repZone * repForce;
-            if (cx < repZone) cvx += (repZone - cx) / repZone * repForce;
-            if (cx > 1.0 - repZone) cvx -= (repZone - (1.0 - cx)) / repZone * repForce;
-
-            if (_hasRepelPoint && _repelPoint != null) {
-              final dx = cx - _repelPoint!.dx;
-              final dy = cy - _repelPoint!.dy;
-              final dist = sqrt(dx * dx + dy * dy);
-              if (dist < 0.25 && dist > 0.001) {
-                final force = (0.25 - dist) / 0.25 * 0.30;
-                cvx += (dx / dist) * force;
-                cvy += (dy / dist) * force;
-              }
-            }
-
-            double newCx = cx;
-            double newCy = cy;
-            if (cx < 0) { newCx = 0; cvx = -cvx * 0.92; }
-            if (cx > 1) { newCx = 1; cvx = -cvx * 0.92; }
-            if (cy < topExclusion) { newCy = topExclusion; cvy = -cvy * 0.92; }
-            if (cy > 1) { newCy = 1; cvy = -cvy * 0.92; }
-
-            a.vx = cvx; b.vx = cvx;
-            a.vy = cvy; b.vy = cvy;
-            cx = newCx; cy = newCy;
-
-            a.x = (cx + (a.spiralRadius / _screenSize.width) * cos(a.spiralAngle)).clamp(0.0, 1.0);
-            a.y = (cy + (a.spiralRadius / _screenSize.height) * sin(a.spiralAngle)).clamp(topExclusion, 1.0);
-            b.x = (cx + (b.spiralRadius / _screenSize.width) * cos(b.spiralAngle)).clamp(0.0, 1.0);
-            b.y = (cy + (b.spiralRadius / _screenSize.height) * sin(b.spiralAngle)).clamp(topExclusion, 1.0);
-
-            if (collapseProgress >= 0.999) {
-              final newSize = a.targetSize + b.targetSize;
-              cvx += (Random().nextDouble() - 0.5) * 0.05;
-              cvy += (Random().nextDouble() - 0.5) * 0.05;
-
-              final merged = _MergeEntity(
-                x: cx,
-                y: cy,
-                vx: cvx,
-                vy: cvy,
-                rx: (a.rx + b.rx) / 2,
-                ry: (a.ry + b.ry) / 2,
-                rz: (a.rz + b.rz) / 2,
-                count: totalCount,
-                size: max(a.renderSize, b.renderSize),
-                targetSize: newSize,
-                baseIndices: [...a.baseIndices, ...b.baseIndices],
-              );
-              merged.splitLeft = a.baseIndices;
-              merged.splitRight = b.baseIndices;
-              merged.splitLeftLeft = a.splitLeft;
-              merged.splitLeftRight = a.splitRight;
-              merged.splitRightLeft = b.splitLeft;
-              merged.splitRightRight = b.splitRight;
-              _entities.add(merged);
-              _entities.last.mergeCooldown = 2.0;
-
-              a.spiralPartner = null;
-              b.spiralPartner = null;
-              _entities.remove(a);
-              _entities.remove(b);
-              spiralMergeHappened = true;
-              break;
-            }
-          }
+        final speed = sqrt(e.vx * e.vx + e.vy * e.vy);
+        if (speed > 0.15) {
+          _trailPool.spawn(
+            e.x + (Random().nextDouble() - 0.5) * 0.01,
+            e.y + (Random().nextDouble() - 0.5) * 0.01,
+            e.renderSize,
+          );
         }
       }
+      _trailPool.update(dt);
+    }
 
-      // --- Attraction/repulsion ---
+    // ── MODE-SPECIFIC PHYSICS ───────────────────────────────────────────
+
+    if (widget.cubeMode == CubeMode.merge) {
+      _updateMergeMode(dt, topExclusion);
+    } else if (widget.cubeMode == CubeMode.orbit) {
+      _updateOrbitMode(dt, topExclusion);
+    } else if (widget.cubeMode == CubeMode.gravity) {
+      // No additional physics — gravity is applied per-entity in update()
+    } else {
+      // Standard mode: spatial hash + isolate offloading
+      _spatialHash.clear();
       for (int i = 0; i < _entities.length; i++) {
-        for (int j = i + 1; j < _entities.length; j++) {
-          final a = _entities[i], b = _entities[j];
-          if (a.isSpiraling && b.isSpiraling) continue;
+        _spatialHash.insert(i, _entities[i].x, _entities[i].y);
+      }
+      for (int i = 0; i < _entities.length; i++) {
+        final e = _entities[i];
+        _spatialHash.queryNeighbors(e.x, e.y, _neighborScratch);
+        for (final j in _neighborScratch) {
+          if (j <= i) continue;
+          e.applyRepulsionFrom(_entities[j]);
+        }
+      }
+      // Fire-and-forget isolate for additional O(n²) check on large pools
+      _tryRunIsolate();
+    }
 
-          final dx = b.x - a.x;
-          final dy = b.y - a.y;
-          final distSq = dx * dx + dy * dy;
-          if (distSq < 1e-10) continue;
-          final dist = sqrt(distSq);
+    // ── Scroll drift reset ──
+    if (widget.controller != null) {
+      widget.controller!.scrollDrift = 0.0;
+    }
+  }
 
-          final dxPixel = dx * _screenSize.width;
-          final dyPixel = dy * _screenSize.height;
-          final distPixel = sqrt(dxPixel * dxPixel + dyPixel * dyPixel);
+  // ── Merge Mode ────────────────────────────────────────────────────────
 
-          final baseDistPixel = a.renderSize + b.renderSize;
+  void _updateMergeMode(double dt, double topExclusion) {
+    // Cooldown & random perturbation
+    for (final e in _entities) {
+      if (e.mergeCooldown > 0 && !e.isSpiraling) e.mergeCooldown -= dt * 60;
+    }
+    for (final e in _entities) {
+      if (e.isSpiraling) continue;
+      e.vx += (Random().nextDouble() - 0.5) * 0.01;
+      e.vy += (Random().nextDouble() - 0.5) * 0.01;
+    }
 
-          // Third-cube repulsion: strong push outsider away
-          if (a.isSpiraling != b.isSpiraling) {
-            final outsider = a.isSpiraling ? b : a;
-            final spiraling = a.isSpiraling ? a : b;
-            
-            final dx2 = outsider.x - spiraling.x;
-            final dy2 = outsider.y - spiraling.y;
-            final d2 = sqrt(dx2 * dx2 + dy2 * dy2);
-            if (d2 < 1e-10) continue;
-            
-            final repelRange = max(0.1, (baseDistPixel * 5.0) / _screenSize.width); 
-            if (d2 > repelRange) continue;
-            
-            final strength = (repelRange - d2) / repelRange * 0.15; // Very strong force
+    // Size lerp
+    for (final e in _entities) {
+      e.renderSize += (e.targetSize - e.renderSize) * dt * 180.0;
+    }
 
-            outsider.vx += (dx2 / d2) * strength;
-            outsider.vy += (dy2 / d2) * strength;
-
-            final driftStrength = strength * 0.1;
-            spiraling.vx -= (dx2 / d2) * driftStrength;
-            spiraling.vy -= (dy2 / d2) * driftStrength;
-            if (spiraling.spiralPartner != null) {
-              spiraling.spiralPartner!.vx -= (dx2 / d2) * driftStrength;
-              spiraling.spiralPartner!.vy -= (dy2 / d2) * driftStrength;
-            }
+    // ── Death spiral updates ──
+    {
+      bool spiralMergeHappened = true;
+      int spiralPasses = 0;
+      while (spiralMergeHappened) {
+        spiralMergeHappened = false;
+        if (++spiralPasses > _entities.length) break;
+        final processed = <_MergeEntity>{};
+        for (final a in _entities.toList()) {
+          if (a.spiralPartner == null) continue;
+          if (processed.contains(a)) continue;
+          final b = a.spiralPartner!;
+          if (b.spiralPartner != a) {
+            a.spiralPartner = null;
             continue;
           }
+          processed.add(a);
+          processed.add(b);
 
-          if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
+          a.spiralCollapseTimer += dt * 60;
+          b.spiralCollapseTimer += dt * 60;
 
-          final sizeRatio = a.renderSize < b.renderSize
-              ? a.renderSize / b.renderSize
-              : b.renderSize / a.renderSize;
+          const double totalDuration = 4.0;
+          final collapseProgress =
+              (a.spiralCollapseTimer / totalDuration).clamp(0.0, 1.0);
 
-           if (sizeRatio >= 0.80) {
-             final safeDistancePixel = (baseDistPixel * 3.0).clamp(0.0, 150.0); 
-             final attractRangePixel = (baseDistPixel * 8.0).clamp(0.0, 300.0);
-             
-             if (distPixel < attractRangePixel) {
-               if (distPixel > safeDistancePixel) {
-                 final strength = (attractRangePixel - distPixel) / attractRangePixel * 0.008;
-                 a.vx += (dx / dist) * strength;
-                 a.vy += (dy / dist) * strength;
-                 b.vx -= (dx / dist) * strength;
-                 b.vy -= (dy / dist) * strength;
-               } else if (distPixel < safeDistancePixel * 0.9) {
-                 final strength = (safeDistancePixel * 0.9 - distPixel) / (safeDistancePixel * 0.9) * 0.03;
-                 a.vx -= (dx / dist) * strength;
-                 a.vy -= (dy / dist) * strength;
-                 b.vx += (dx / dist) * strength;
-                 b.vy += (dy / dist) * strength;
-               }
+          a.spiralSpeed = 1.5 + (12.0 - 1.5) * collapseProgress;
+          b.spiralSpeed = a.spiralSpeed;
 
-             }
-           } else {
-             final repelRangePixel = (baseDistPixel * 3.5).clamp(0.0, 150.0);
-             if (distPixel < repelRangePixel) {
-                final strength = (repelRangePixel - distPixel) / repelRangePixel * 0.005;
-                a.vx -= (dx / dist) * strength;
-                a.vy -= (dy / dist) * strength;
-                b.vx += (dx / dist) * strength;
-                b.vy += (dy / dist) * strength;
-             }
-          }
-        }
-      }
-
-      // --- Spiral initiation ---
-      for (int i = 0; i < _entities.length; i++) {
-        for (int j = i + 1; j < _entities.length; j++) {
-          final a = _entities[i], b = _entities[j];
-          if (a.isSpiraling || b.isSpiraling) continue;
-          if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
-
-          final sizeRatio = a.renderSize < b.renderSize
-              ? a.renderSize / b.renderSize
-              : b.renderSize / a.renderSize;
-          if (sizeRatio < 0.80) continue;
-
-          final dxPixel = (b.x - a.x) * _screenSize.width;
-          final dyPixel = (b.y - a.y) * _screenSize.height;
-          final distPixel = max(sqrt(dxPixel * dxPixel + dyPixel * dyPixel), 0.001);
-
-          final baseDistPixel = a.renderSize + b.renderSize;
-          final safeDistancePixel = (baseDistPixel * 3.0).clamp(0.0, 150.0);
-
-          if (distPixel > safeDistancePixel * 1.5) continue;
-
-          final totalInitRadius = distPixel;
-          
+          final collisionRadiusPixel = (a.renderSize + b.renderSize) * 0.2;
           final totalCount = a.count + b.count;
-          a.spiralInitialRadius = totalInitRadius * (b.count / totalCount);
-          b.spiralInitialRadius = totalInitRadius * (a.count / totalCount);
+          final effectiveTouchRadiusA =
+              collisionRadiusPixel * (b.count / totalCount);
+          final effectiveTouchRadiusB =
+              collisionRadiusPixel * (a.count / totalCount);
 
-          a.spiralPartner = b;
-          b.spiralPartner = a;
-          a.spiralAngle = atan2(-dyPixel, -dxPixel);
+          final targetRadiusA =
+              min(effectiveTouchRadiusA, a.spiralInitialRadius);
+          final targetRadiusB =
+              min(effectiveTouchRadiusB, b.spiralInitialRadius);
+
+          final shrinkCurve = collapseProgress * collapseProgress;
+
+          a.spiralRadius = a.spiralInitialRadius +
+              (targetRadiusA - a.spiralInitialRadius) * shrinkCurve;
+          b.spiralRadius = b.spiralInitialRadius +
+              (targetRadiusB - b.spiralInitialRadius) * shrinkCurve;
+
+          a.spiralAngle += a.spiralSpeed * dt * 60 * widget.speed;
           b.spiralAngle = a.spiralAngle + pi;
-          a.spiralRadius = a.spiralInitialRadius;
-          b.spiralRadius = b.spiralInitialRadius;
-          
-          a.spiralSpeed = 1.5;
-          b.spiralSpeed = 1.5;
-          a.spiralCollapseTimer = 0.0;
-          b.spiralCollapseTimer = 0.0;
-        }
-      }
 
+          double cx = (a.x * a.count + b.x * b.count) / totalCount;
+          double cy = (a.y * a.count + b.y * b.count) / totalCount;
+          double cvx = (a.vx * a.count + b.vx * b.count) / totalCount;
+          double cvy = (a.vy * a.count + b.vy * b.count) / totalCount;
 
-    } else if (widget.cubeMode == CubeMode.orbit) {
-      for (final e in _entities) {
-        if (e.parentCore == null) continue;
-        e.orbitAngle += e.orbitSpeed * dt * 60 * widget.speed;
-        final cosA = cos(e.orbitAngle);
-        final sinA = sin(e.orbitAngle);
-        e.x = e.parentCore!.x + e.orbitRadius * cosA;
-        e.y = e.parentCore!.y + e.orbitRadius * sinA * cos(e.orbitTilt);
-        e.x = e.x.clamp(0.0, 1.0);
-        e.y = e.y.clamp(0.0, 1.0);
-      }
+          const double repZone = 0.1;
+          const double repForce = 0.04;
+          if (cy < topExclusion + repZone) {
+            cvy += (topExclusion + repZone - cy) / repZone * repForce;
+          }
+          if (cy > 1.0 - repZone) {
+            cvy -= (repZone - (1.0 - cy)) / repZone * repForce;
+          }
+          if (cx < repZone) {
+            cvx += (repZone - cx) / repZone * repForce;
+          }
+          if (cx > 1.0 - repZone) {
+            cvx -= (repZone - (1.0 - cx)) / repZone * repForce;
+          }
 
-      final cores = <_MergeEntity>[];
-      for (final e in _entities) {
-        if (e.parentCore == null && e.renderSize > 12.0) {
-          cores.add(e);
-        }
-      }
+          if (_hasRepelPoint && _repelPoint != null) {
+            final dx = cx - _repelPoint!.dx;
+            final dy = cy - _repelPoint!.dy;
+            final dist = sqrt(dx * dx + dy * dy);
+            if (dist < 0.25 && dist > 0.001) {
+              final force = (0.25 - dist) / 0.25 * 0.30;
+              cvx += (dx / dist) * force;
+              cvy += (dy / dist) * force;
+            }
+          }
 
-      for (final core in cores) {
-        for (final e in _entities) {
-          if (identical(e, core)) continue;
-          if (e.parentCore != null) continue;
-          final dx = core.x - e.x;
-          final dy = core.y - e.y;
-          if (dx.abs() > 0.25 || dy.abs() > 0.25) continue;
-          final distSq = dx * dx + dy * dy;
-          if (distSq > 0.0625 || distSq < 1e-10) continue;
-          final dist = sqrt(distSq);
-          final force = 0.0005 / (dist + 0.01);
-          e.vx += (dx / dist) * force;
-          e.vy += (dy / dist) * force;
-        }
-      }
+          double newCx = cx;
+          double newCy = cy;
+          if (cx < 0) {
+            newCx = 0;
+            cvx = -cvx * 0.92;
+          }
+          if (cx > 1) {
+            newCx = 1;
+            cvx = -cvx * 0.92;
+          }
+          if (cy < topExclusion) {
+            newCy = topExclusion;
+            cvy = -cvy * 0.92;
+          }
+          if (cy > 1) {
+            newCy = 1;
+            cvy = -cvy * 0.92;
+          }
 
-      for (final core in cores) {
-        if (core.orbiterCount >= 12) continue;
-        final captureRadius = 0.06 + core.renderSize * 0.006;
-        for (final e in _entities) {
-          if (identical(e, core)) continue;
-          if (e.parentCore != null) continue;
-          if (e.renderSize >= core.renderSize * 0.7) continue;
-          final dx = e.x - core.x;
-          final dy = e.y - core.y;
-          if (dx.abs() > captureRadius || dy.abs() > captureRadius) continue;
-          if (dx * dx + dy * dy > captureRadius * captureRadius) continue;
-          final dist = sqrt(dx * dx + dy * dy);
-          if (dist < 1e-10) continue;
-          e.parentCore = core;
-          core.orbiterCount++;
-          e.orbitRadius = max(dist, 0.04);
-          e.orbitAngle = atan2(dy, dx);
-          e.orbitSpeed =
-              (0.5 + Random().nextDouble() * 2.5) / (0.3 + e.orbitRadius * 4) * 0.75;
-          e.orbitTilt = (Random().nextDouble() - 0.5) * 0.6;
-          core.count += e.count;
-        }
-      }
+          a.vx = cvx;
+          b.vx = cvx;
+          a.vy = cvy;
+          b.vy = cvy;
+          cx = newCx;
+          cy = newCy;
 
-      for (int i = 0; i < cores.length; i++) {
-        for (int j = i + 1; j < cores.length; j++) {
-          final a = cores[i], b = cores[j];
-          final sizeRatio = a.renderSize < b.renderSize
-              ? a.renderSize / b.renderSize
-              : b.renderSize / a.renderSize;
-          final dx = b.x - a.x;
-          final dy = b.y - a.y;
-          if (dx.abs() > 0.15 || dy.abs() > 0.15) continue;
-          final distSq = dx * dx + dy * dy;
-          if (distSq > 0.0225) continue;
+          a.x = (cx +
+                  (a.spiralRadius / _screenSize.width) * cos(a.spiralAngle))
+              .clamp(0.0, 1.0);
+          a.y = (cy +
+                  (a.spiralRadius / _screenSize.height) * sin(a.spiralAngle))
+              .clamp(topExclusion, 1.0);
+          b.x = (cx +
+                  (b.spiralRadius / _screenSize.width) * cos(b.spiralAngle))
+              .clamp(0.0, 1.0);
+          b.y = (cy +
+                  (b.spiralRadius / _screenSize.height) * sin(b.spiralAngle))
+              .clamp(topExclusion, 1.0);
 
-          if (sizeRatio < 0.4) {
-            final smaller = a.renderSize < b.renderSize ? a : b;
-            final larger = a.renderSize < b.renderSize ? b : a;
-            if (smaller.parentCore != null) continue;
-            if (larger.orbiterCount >= 12) continue;
-            final dist = sqrt(distSq);
-            smaller.parentCore = larger;
-            larger.orbiterCount++;
-            smaller.orbitRadius = max(dist, 0.04);
-            smaller.orbitAngle = atan2(dy, dx);
-            smaller.orbitSpeed =
-                (0.5 + Random().nextDouble() * 2.5) / (0.3 + smaller.orbitRadius * 4) * 0.75;
-            smaller.orbitTilt = (Random().nextDouble() - 0.5) * 0.6;
-            larger.count += smaller.count;
-          } else {
-            final dist = sqrt(distSq);
-            if (dist < 1e-8) continue;
-            final force = (0.15 - dist) / 0.15 * 0.03;
-            a.vx -= (dx / dist) * force;
-            a.vy -= (dy / dist) * force;
-            b.vx += (dx / dist) * force;
-            b.vy += (dy / dist) * force;
+          if (collapseProgress >= 0.999) {
+            final newSize = a.targetSize + b.targetSize;
+            cvx += (Random().nextDouble() - 0.5) * 0.05;
+            cvy += (Random().nextDouble() - 0.5) * 0.05;
+
+            final merged = _MergeEntity(
+              x: cx,
+              y: cy,
+              vx: cvx,
+              vy: cvy,
+              rx: (a.rx + b.rx) / 2,
+              ry: (a.ry + b.ry) / 2,
+              rz: (a.rz + b.rz) / 2,
+              count: totalCount,
+              size: max(a.renderSize, b.renderSize),
+              targetSize: newSize,
+              baseIndices: [...a.baseIndices, ...b.baseIndices],
+            );
+            merged.splitLeft = a.baseIndices;
+            merged.splitRight = b.baseIndices;
+            merged.splitLeftLeft = a.splitLeft;
+            merged.splitLeftRight = a.splitRight;
+            merged.splitRightLeft = b.splitLeft;
+            merged.splitRightRight = b.splitRight;
+            _entities.add(merged);
+            _entities.last.mergeCooldown = 2.0;
+
+            a.spiralPartner = null;
+            b.spiralPartner = null;
+            _entities.remove(a);
+            _entities.remove(b);
+            spiralMergeHappened = true;
+            break;
           }
         }
       }
+    }
 
-      for (final e in _entities) {
-        if (e.parentCore == null) continue;
-        final core = e.parentCore!;
-        if (core.orbiterCount == 0) {
-          e.parentCore = null;
+    // ── Spatial hash: attract / repel / third-cube repulsion ──
+    _spatialHash.clear();
+    for (int i = 0; i < _entities.length; i++) {
+      _spatialHash.insert(i, _entities[i].x, _entities[i].y);
+    }
+
+    for (int i = 0; i < _entities.length; i++) {
+      final a = _entities[i];
+      _spatialHash.queryNeighbors(a.x, a.y, _neighborScratch);
+      for (final j in _neighborScratch) {
+        if (j <= i) continue;
+        final b = _entities[j];
+        if (a.isSpiraling && b.isSpiraling) continue;
+
+        final dx = b.x - a.x;
+        final dy = b.y - a.y;
+        final distSq = dx * dx + dy * dy;
+        if (distSq < 1e-10) continue;
+        final dist = sqrt(distSq);
+
+        final dxPixel = dx * _screenSize.width;
+        final dyPixel = dy * _screenSize.height;
+        final distPixel = sqrt(dxPixel * dxPixel + dyPixel * dyPixel);
+
+        final baseDistPixel = a.renderSize + b.renderSize;
+
+        // Third-cube repulsion
+        if (a.isSpiraling != b.isSpiraling) {
+          final outsider = a.isSpiraling ? b : a;
+          final spiraling = a.isSpiraling ? a : b;
+
+          final dx2 = outsider.x - spiraling.x;
+          final dy2 = outsider.y - spiraling.y;
+          final d2 = sqrt(dx2 * dx2 + dy2 * dy2);
+          if (d2 < 1e-10) continue;
+
+          final repelRange =
+              max(0.1, (baseDistPixel * 5.0) / _screenSize.width);
+          if (d2 > repelRange) continue;
+
+          final strength = (repelRange - d2) / repelRange * 0.15;
+
+          outsider.vx += (dx2 / d2) * strength;
+          outsider.vy += (dy2 / d2) * strength;
+
+          final driftStrength = strength * 0.1;
+          spiraling.vx -= (dx2 / d2) * driftStrength;
+          spiraling.vy -= (dy2 / d2) * driftStrength;
+          if (spiraling.spiralPartner != null) {
+            spiraling.spiralPartner!.vx -= (dx2 / d2) * driftStrength;
+            spiraling.spiralPartner!.vy -= (dy2 / d2) * driftStrength;
+          }
           continue;
         }
-        final speed = sqrt(core.vx * core.vx + core.vy * core.vy);
-        if (speed > 0.3 && e.orbitRadius > 0.12) {
-          e.parentCore = null;
-          core.orbiterCount--;
-          e.vx = (Random().nextDouble() - 0.5) * 0.08;
-          e.vy = (Random().nextDouble() - 0.5) * 0.08;
+
+        if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
+
+        final sizeRatio = a.renderSize < b.renderSize
+            ? a.renderSize / b.renderSize
+            : b.renderSize / a.renderSize;
+
+        if (sizeRatio >= 0.80) {
+          final safeDistancePixel =
+              (baseDistPixel * 3.0).clamp(0.0, 150.0);
+          final attractRangePixel =
+              (baseDistPixel * 8.0).clamp(0.0, 300.0);
+
+          if (distPixel < attractRangePixel) {
+            if (distPixel > safeDistancePixel) {
+              final strength =
+                  (attractRangePixel - distPixel) / attractRangePixel * 0.008;
+              a.vx += (dx / dist) * strength;
+              a.vy += (dy / dist) * strength;
+              b.vx -= (dx / dist) * strength;
+              b.vy -= (dy / dist) * strength;
+            } else if (distPixel < safeDistancePixel * 0.9) {
+              final strength = (safeDistancePixel * 0.9 - distPixel) /
+                  (safeDistancePixel * 0.9) *
+                  0.03;
+              a.vx -= (dx / dist) * strength;
+              a.vy -= (dy / dist) * strength;
+              b.vx += (dx / dist) * strength;
+              b.vy += (dy / dist) * strength;
+            }
+          }
+        } else {
+          final repelRangePixel =
+              (baseDistPixel * 3.5).clamp(0.0, 150.0);
+          if (distPixel < repelRangePixel) {
+            final strength =
+                (repelRangePixel - distPixel) / repelRangePixel * 0.005;
+            a.vx -= (dx / dist) * strength;
+            a.vy -= (dy / dist) * strength;
+            b.vx += (dx / dist) * strength;
+            b.vy += (dy / dist) * strength;
+          }
         }
       }
+    }
 
-      for (int i = 0; i < cores.length; i++) {
-        for (int j = i + 1; j < cores.length; j++) {
-          final a = cores[i], b = cores[j];
-          final dx = b.x - a.x;
-          final dy = b.y - a.y;
-          if (dx.abs() > 0.2 || dy.abs() > 0.2) continue;
-          final distSq = dx * dx + dy * dy;
-          if (distSq > 0.04 || distSq < 1e-10) continue;
+    // ── Spiral initiation (also spatial-hash accelerated) ──
+    _spatialHash.clear();
+    for (int i = 0; i < _entities.length; i++) {
+      _spatialHash.insert(i, _entities[i].x, _entities[i].y);
+    }
+
+    for (int i = 0; i < _entities.length; i++) {
+      final a = _entities[i];
+      _spatialHash.queryNeighbors(a.x, a.y, _neighborScratch);
+      for (final j in _neighborScratch) {
+        if (j <= i) continue;
+        final b = _entities[j];
+        if (a.isSpiraling || b.isSpiraling) continue;
+        if (a.mergeCooldown > 0 || b.mergeCooldown > 0) continue;
+
+        final sizeRatio = a.renderSize < b.renderSize
+            ? a.renderSize / b.renderSize
+            : b.renderSize / a.renderSize;
+        if (sizeRatio < 0.80) continue;
+
+        final dxPixel = (b.x - a.x) * _screenSize.width;
+        final dyPixel = (b.y - a.y) * _screenSize.height;
+        final distPixel =
+            max(sqrt(dxPixel * dxPixel + dyPixel * dyPixel), 0.001);
+
+        final baseDistPixel = a.renderSize + b.renderSize;
+        final safeDistancePixel = (baseDistPixel * 3.0).clamp(0.0, 150.0);
+
+        if (distPixel > safeDistancePixel * 1.5) continue;
+
+        final totalInitRadius = distPixel;
+
+        final totalCount = a.count + b.count;
+        a.spiralInitialRadius = totalInitRadius * (b.count / totalCount);
+        b.spiralInitialRadius = totalInitRadius * (a.count / totalCount);
+
+        a.spiralPartner = b;
+        b.spiralPartner = a;
+        a.spiralAngle = atan2(-dyPixel, -dxPixel);
+        b.spiralAngle = a.spiralAngle + pi;
+        a.spiralRadius = a.spiralInitialRadius;
+        b.spiralRadius = b.spiralInitialRadius;
+
+        a.spiralSpeed = 1.5;
+        b.spiralSpeed = 1.5;
+        a.spiralCollapseTimer = 0.0;
+        b.spiralCollapseTimer = 0.0;
+      }
+    }
+  }
+
+  // ── Orbit Mode ────────────────────────────────────────────────────────
+
+  void _updateOrbitMode(double dt, double topExclusion) {
+    // Orbiter position updates
+    for (final e in _entities) {
+      if (e.parentCore == null) continue;
+      e.orbitAngle += e.orbitSpeed * dt * 60 * widget.speed;
+      final cosA = cos(e.orbitAngle);
+      final sinA = sin(e.orbitAngle);
+      e.x = e.parentCore!.x + e.orbitRadius * cosA;
+      e.y = e.parentCore!.y + e.orbitRadius * sinA * cos(e.orbitTilt);
+      e.x = e.x.clamp(0.0, 1.0);
+      e.y = e.y.clamp(0.0, 1.0);
+    }
+
+    // Collect cores
+    final cores = <_MergeEntity>[];
+    for (final e in _entities) {
+      if (e.parentCore == null && e.renderSize > 12.0) {
+        cores.add(e);
+      }
+    }
+
+    // ── Core gravitational pull (spatial-hash accelerated) ──
+    _spatialHash.clear();
+    for (int i = 0; i < _entities.length; i++) {
+      _spatialHash.insert(i, _entities[i].x, _entities[i].y);
+    }
+
+    for (final core in cores) {
+      _spatialHash.queryNeighbors(core.x, core.y, _neighborScratch);
+      for (final j in _neighborScratch) {
+        final e = _entities[j];
+        if (identical(e, core)) continue;
+        if (e.parentCore != null) continue;
+        final dx = core.x - e.x;
+        final dy = core.y - e.y;
+        if (dx.abs() > 0.25 || dy.abs() > 0.25) continue;
+        final distSq = dx * dx + dy * dy;
+        if (distSq > 0.0625 || distSq < 1e-10) continue;
+        final dist = sqrt(distSq);
+        final force = 0.0005 / (dist + 0.01);
+        e.vx += (dx / dist) * force;
+        e.vy += (dy / dist) * force;
+      }
+    }
+
+    // ── Core capture (spatial-hash accelerated) ──
+    for (final core in cores) {
+      if (core.orbiterCount >= 12) continue;
+      final captureRadius = 0.06 + core.renderSize * 0.006;
+      _spatialHash.queryNeighbors(core.x, core.y, _neighborScratch);
+      for (final j in _neighborScratch) {
+        final e = _entities[j];
+        if (identical(e, core)) continue;
+        if (e.parentCore != null) continue;
+        if (e.renderSize >= core.renderSize * 0.7) continue;
+        final dx = e.x - core.x;
+        final dy = e.y - core.y;
+        if (dx.abs() > captureRadius || dy.abs() > captureRadius) continue;
+        if (dx * dx + dy * dy > captureRadius * captureRadius) continue;
+        final dist = sqrt(dx * dx + dy * dy);
+        if (dist < 1e-10) continue;
+        e.parentCore = core;
+        core.orbiterCount++;
+        e.orbitRadius = max(dist, 0.04);
+        e.orbitAngle = atan2(dy, dx);
+        e.orbitSpeed =
+            (0.5 + Random().nextDouble() * 2.5) / (0.3 + e.orbitRadius * 4) * 0.75;
+        e.orbitTilt = (Random().nextDouble() - 0.5) * 0.6;
+        core.count += e.count;
+      }
+    }
+
+    // ── Core-core repulsion & absorption (direct loops: cores are few) ──
+    for (int i = 0; i < cores.length; i++) {
+      for (int j = i + 1; j < cores.length; j++) {
+        final a = cores[i], b = cores[j];
+        final sizeRatio = a.renderSize < b.renderSize
+            ? a.renderSize / b.renderSize
+            : b.renderSize / a.renderSize;
+        final dx = b.x - a.x;
+        final dy = b.y - a.y;
+        if (dx.abs() > 0.15 || dy.abs() > 0.15) continue;
+        final distSq = dx * dx + dy * dy;
+        if (distSq > 0.0225) continue;
+
+        if (sizeRatio < 0.4) {
+          final smaller = a.renderSize < b.renderSize ? a : b;
+          final larger = a.renderSize < b.renderSize ? b : a;
+          if (smaller.parentCore != null) continue;
+          if (larger.orbiterCount >= 12) continue;
           final dist = sqrt(distSq);
-          final force = (0.2 - dist) / 0.2 * 0.02;
+          smaller.parentCore = larger;
+          larger.orbiterCount++;
+          smaller.orbitRadius = max(dist, 0.04);
+          smaller.orbitAngle = atan2(dy, dx);
+          smaller.orbitSpeed = (0.5 + Random().nextDouble() * 2.5) /
+              (0.3 + smaller.orbitRadius * 4) *
+              0.75;
+          smaller.orbitTilt = (Random().nextDouble() - 0.5) * 0.6;
+          larger.count += smaller.count;
+        } else {
+          final dist = sqrt(distSq);
+          if (dist < 1e-8) continue;
+          final force = (0.15 - dist) / 0.15 * 0.03;
           a.vx -= (dx / dist) * force;
           a.vy -= (dy / dist) * force;
           b.vx += (dx / dist) * force;
           b.vy += (dy / dist) * force;
         }
       }
+    }
 
-      for (final core in cores) {
-        for (final e in _entities) {
-          if (identical(e, core)) continue;
-          if (e.parentCore != null) continue;
-          final dx = e.x - core.x;
-          final dy = e.y - core.y;
-          if (dx.abs() > 0.03 || dy.abs() > 0.03) continue;
-          final distSq = dx * dx + dy * dy;
-          if (distSq > 0.0009 || distSq < 1e-8) continue;
-          final dist = sqrt(distSq);
-          final force = (0.03 - dist) / 0.03 * 0.015;
-          e.vx += (dx / dist) * force;
-          e.vy += (dy / dist) * force;
-        }
+    // ── Escape checks ──
+    for (final e in _entities) {
+      if (e.parentCore == null) continue;
+      final core = e.parentCore!;
+      if (core.orbiterCount == 0) {
+        e.parentCore = null;
+        continue;
       }
-
-      final topExclusion3 = widget.topExclusion;
-      for (final e in _entities) {
-        if (e.x.isNaN || e.x.isInfinite) e.x = 0.5;
-        if (e.y.isNaN || e.y.isInfinite) e.y = (topExclusion3 + 1.0) * 0.5;
-        if (e.renderSize.isNaN || e.renderSize.isInfinite) e.renderSize = 10.0;
-      }
-    } else {
-      for (int i = 0; i < _entities.length; i++) {
-        for (int j = i + 1; j < _entities.length; j++) {
-          _entities[i].applyRepulsionFrom(_entities[j]);
-        }
+      final speed = sqrt(core.vx * core.vx + core.vy * core.vy);
+      if (speed > 0.3 && e.orbitRadius > 0.12) {
+        e.parentCore = null;
+        core.orbiterCount--;
+        e.vx = (Random().nextDouble() - 0.5) * 0.08;
+        e.vy = (Random().nextDouble() - 0.5) * 0.08;
       }
     }
 
-    if (widget.controller != null) {
-      widget.controller!.scrollDrift = 0.0;
+    // ── Core-core second pass (tight repulsion) ──
+    for (int i = 0; i < cores.length; i++) {
+      for (int j = i + 1; j < cores.length; j++) {
+        final a = cores[i], b = cores[j];
+        final dx = b.x - a.x;
+        final dy = b.y - a.y;
+        if (dx.abs() > 0.2 || dy.abs() > 0.2) continue;
+        final distSq = dx * dx + dy * dy;
+        if (distSq > 0.04 || distSq < 1e-10) continue;
+        final dist = sqrt(distSq);
+        final force = (0.2 - dist) / 0.2 * 0.02;
+        a.vx -= (dx / dist) * force;
+        a.vy -= (dy / dist) * force;
+        b.vx += (dx / dist) * force;
+        b.vy += (dy / dist) * force;
+      }
+    }
+
+    // ── Core close-range repulsion (spatial-hash accelerated) ──
+    for (final core in cores) {
+      _spatialHash.queryNeighbors(core.x, core.y, _neighborScratch);
+      for (final j in _neighborScratch) {
+        final e = _entities[j];
+        if (identical(e, core)) continue;
+        if (e.parentCore != null) continue;
+        final dx = e.x - core.x;
+        final dy = e.y - core.y;
+        if (dx.abs() > 0.03 || dy.abs() > 0.03) continue;
+        final distSq = dx * dx + dy * dy;
+        if (distSq > 0.0009 || distSq < 1e-8) continue;
+        final dist = sqrt(distSq);
+        final force = (0.03 - dist) / 0.03 * 0.015;
+        e.vx += (dx / dist) * force;
+        e.vy += (dy / dist) * force;
+      }
+    }
+
+    // ── NaN safety ──
+    final topExclusion3 = widget.topExclusion;
+    for (final e in _entities) {
+      if (e.x.isNaN || e.x.isInfinite) e.x = 0.5;
+      if (e.y.isNaN || e.y.isInfinite) e.y = (topExclusion3 + 1.0) * 0.5;
+      if (e.renderSize.isNaN || e.renderSize.isInfinite) e.renderSize = 10.0;
     }
   }
+
+  // ── didUpdateWidget / dispose / build ──────────────────────────────────
 
   @override
   void didUpdateWidget(FloatingCubeBackground oldWidget) {
@@ -811,33 +1360,41 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        _screenSize = Size(
-          constraints.maxWidth.isFinite ? constraints.maxWidth : (MediaQuery.maybeSizeOf(context)?.width ?? 800.0),
-          constraints.maxHeight.isFinite ? constraints.maxHeight : (MediaQuery.maybeSizeOf(context)?.height ?? 800.0),
-        );
-        final primaryColor = Theme.of(context).colorScheme.primary;
-        final isRtl = Directionality.of(context) == TextDirection.rtl;
-        return RepaintBoundary(
-          child: AnimatedBuilder(
-            animation: _animController,
-            builder: (context, _) {
-              return CustomPaint(
-                painter: _CubePainter(
-                  entities: _entities,
-                  brightness: brightness,
-                  primaryColor: primaryColor,
-                  isRtl: isRtl,
-                ),
-              );
-            },
-          ),
-        );
-      },
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
+    // Guaranteed to be exactly the viewport size, fixing the "top of screen" bug.
+    final mSize = MediaQuery.sizeOf(context);
+    _screenSize = Size(
+      mSize.width <= 0 ? 800 : mSize.width,
+      mSize.height <= 0 ? 800 : mSize.height,
+    );
+
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _animController,
+        builder: (context, _) {
+          return CustomPaint(
+            size: Size.infinite,
+            painter: _CubePainter(
+              entities: _entities,
+              trailPool: _trailPool,
+              qualityMode: _adaptiveQuality.mode,
+              brightness: brightness,
+              primaryColor: primaryColor,
+              isRtl: isRtl,
+              repelPoint: _hasRepelPoint ? _repelPoint : null,
+            ),
+          );
+        },
+      ),
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BASE DATA
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _BaseCubeData {
   final double x, y;
@@ -853,6 +1410,10 @@ class _BaseCubeData {
     required this.size,
   });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENTITY  (V2: mouse repulsion)
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _MergeEntity {
   double x, y;
@@ -903,34 +1464,36 @@ class _MergeEntity {
     double? size,
     double? targetSize,
     List<int>? baseIndices,
-  }) : x = x ?? Random().nextDouble(),
-       baseIndices = baseIndices ?? List.generate(count, (i) => i),
-       y = y ?? Random().nextDouble(),
-       count = count,
-       vx = vx ?? (Random().nextDouble() - 0.5) * 0.05,
-       vy = vy ?? (Random().nextDouble() - 0.5) * 0.05,
-       _baseVx = vx ?? (Random().nextDouble() - 0.5) * 0.05,
-       _baseVy = vy ?? (Random().nextDouble() - 0.5) * 0.05,
-       rx = rx ?? Random().nextDouble() * pi * 2,
-       ry = ry ?? Random().nextDouble() * pi * 2,
-       rz = rz ?? Random().nextDouble() * pi * 2,
-       vrx = (Random().nextDouble() - 0.5) * 1.5,
-       vry = (Random().nextDouble() - 0.5) * 2.5,
-       vrz = (Random().nextDouble() - 0.5) * 0.8,
-       renderSize = size ?? (6.0 + Random().nextDouble() * 18.0),
-       targetSize = targetSize ?? size ?? (6.0 + Random().nextDouble() * 18.0);
+  })  : x = x ?? Random().nextDouble(),
+        baseIndices = baseIndices ?? List.generate(count, (i) => i),
+        y = y ?? Random().nextDouble(),
+        count = count,
+        vx = vx ?? (Random().nextDouble() - 0.5) * 0.05,
+        vy = vy ?? (Random().nextDouble() - 0.5) * 0.05,
+        _baseVx = vx ?? (Random().nextDouble() - 0.5) * 0.05,
+        _baseVy = vy ?? (Random().nextDouble() - 0.5) * 0.05,
+        rx = rx ?? Random().nextDouble() * pi * 2,
+        ry = ry ?? Random().nextDouble() * pi * 2,
+        rz = rz ?? Random().nextDouble() * pi * 2,
+        vrx = (Random().nextDouble() - 0.5) * 1.5,
+        vry = (Random().nextDouble() - 0.5) * 2.5,
+        vrz = (Random().nextDouble() - 0.5) * 0.8,
+        renderSize = size ?? (6.0 + Random().nextDouble() * 18.0),
+        targetSize =
+            targetSize ?? size ?? (6.0 + Random().nextDouble() * 18.0);
 
   void update(
     double dt,
     double speedMultiplier,
     Offset? repelPoint,
     double scrollDrift,
-    double topExclusion,
-  ) {
+    double topExclusion, {
+    bool gravity = false,
+  }) {
     _timeSinceLastChange += dt;
     if (_timeSinceLastChange > 0.033) {
       _timeSinceLastChange = 0.0;
-      if (!isSpiraling) {
+      if (!isSpiraling && !gravity) {
         vx += (Random().nextDouble() - 0.5) * 0.02;
         vy += (Random().nextDouble() - 0.5) * 0.02;
       }
@@ -954,34 +1517,62 @@ class _MergeEntity {
     const double repZone = 0.1;
     const double repForce = 0.04;
     if (!isSpiraling) {
-      if (y < topExclusion + repZone) vy += (topExclusion + repZone - y) / repZone * repForce;
-      if (y > 1.0 - repZone) vy -= (repZone - (1.0 - y)) / repZone * repForce;
-      if (x < repZone) vx += (repZone - x) / repZone * repForce;
-      if (x > 1.0 - repZone) vx -= (repZone - (1.0 - x)) / repZone * repForce;
+      if (y < topExclusion + repZone) {
+        vy += (topExclusion + repZone - y) / repZone * repForce;
+      }
+      if (!gravity) {
+        if (y > 1.0 - repZone) {
+          vy -= (repZone - (1.0 - y)) / repZone * repForce;
+        }
+        if (x < repZone) vx += (repZone - x) / repZone * repForce;
+        if (x > 1.0 - repZone) vx -= (repZone - (1.0 - x)) / repZone * repForce;
+      }
     }
 
-    final speed = sqrt(vx * vx + vy * vy);
-    if (speed > 0.35) {
-      vx = (vx / speed) * 0.35;
-      vy = (vy / speed) * 0.35;
+    final double realDt = dt * 60;
+
+    if (gravity) {
+      // ── GRAVITY MODE PHYSICS ──
+      // 1. Uniform downward acceleration
+      vy += 0.005 * realDt * speedMultiplier;
+
+      // 2. Air resistance
+      //    Horizontal: light drag so cubes cross the screen with visible arcs
+      vx = vx * max(0.0, 1.0 - 0.005 * realDt);
+      //    Vertical: minimal drag — gravity dominates, terminal velocity emerges naturally
+      vy = vy * max(0.0, 1.0 - 0.001 * realDt);
+
+      // 3. Rotational air resistance (same for all gravity cubes)
+      vrx *= max(0.0, 1.0 - 0.005 * realDt);
+      vry *= max(0.0, 1.0 - 0.005 * realDt);
+      vrz *= max(0.0, 1.0 - 0.005 * realDt);
+
+      // 4. Maximum speed caps (4x faster as requested)
+      if (vx > 0.6) vx = 0.6;
+      if (vx < -0.6) vx = -0.6;
+      if (vy < -1.0) vy = -1.0; // 4x upward speed
+      if (vy > 1.2) vy = 1.2;   // 4x downward speed
+    } else {
+      // ── STANDARD/MERGE/ORBIT MODE PHYSICS ──
+      final double decay = max(0.0, 1.0 - 1.5 * realDt);
+      vx = _baseVx + (vx - _baseVx) * decay;
+      vy = _baseVy + (vy - _baseVy) * decay;
     }
 
-    final realDt = dt * 60;
-    final decay = max(0.0, 1.0 - 1.5 * realDt);
-    vx = _baseVx + (vx - _baseVx) * decay;
-    vy = _baseVy + (vy - _baseVy) * decay;
-
-    x += vx * dt * 60 * speedMultiplier;
-    y += vy * dt * 60 * speedMultiplier;
+    // ── Position update (always — resting only clamps y after the fact) ──
+    x += vx * realDt * speedMultiplier;
+    y += vy * realDt * speedMultiplier;
 
     if (!isSpiraling) {
       if (x < 0) {
         x = 0;
-        vx = -vx * 0.92;
+        vx = -vx * (gravity ? 0.6 : 0.92); // Heavy speed loss on wall bounce in gravity
+        if (gravity) vy *= 0.8; // Wall friction slows downward/upward speed
       }
       if (x > 1) {
         x = 1;
-        vx = -vx * 0.92;
+        vx = -vx * (gravity ? 0.6 : 0.92);
+        if (gravity) vy *= 0.8;
       }
       if (y < topExclusion) {
         y = topExclusion;
@@ -995,16 +1586,38 @@ class _MergeEntity {
           vx += (Random().nextDouble() - 0.5) * 0.015;
         }
       }
-      if (y > 1) {
-        y = 1;
-        final drift = scrollDrift.abs();
-        if (drift > 0.001) {
-          final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
-          vy = -vy * bounceFactor;
-          vx += (Random().nextDouble() - 0.5) * drift * 4.0;
+      if (y >= 1.0) {
+        y = 1.0;
+        if (gravity) {
+          if (vy.abs() < 0.008) {
+            // ── Settle: tiny bounce becomes rest ──
+            vy = 0.0;
+            // Strong floor friction kills horizontal slide
+            vx *= max(0.0, 1.0 - 0.25 * realDt);
+            vrx *= max(0.0, 1.0 - 0.25 * realDt);
+            vry *= max(0.0, 1.0 - 0.25 * realDt);
+            vrz *= max(0.0, 1.0 - 0.25 * realDt);
+          } else {
+            // ── Rubber bounce ──
+            final elasticity = 0.45 + (Random().nextDouble() * 0.10); // Slower, heavier bounce
+            vy = -vy * elasticity;
+            // Heavy impact friction on horizontal slide to stop them sliding across the floor
+            vx *= 0.5;
+            vx += (Random().nextDouble() - 0.5) * 0.003;
+            vrx *= 0.8;
+            vry *= 0.8;
+            vrz *= 0.8;
+          }
         } else {
-          vy = -(0.03 + Random().nextDouble() * 0.04);
-          vx += (Random().nextDouble() - 0.5) * 0.015;
+          final drift = scrollDrift.abs();
+          if (drift > 0.001) {
+            final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
+            vy = -vy * bounceFactor;
+            vx += (Random().nextDouble() - 0.5) * drift * 4.0;
+          } else {
+            vy = -(0.03 + Random().nextDouble() * 0.04);
+            vx += (Random().nextDouble() - 0.5) * 0.015;
+          }
         }
       }
     }
@@ -1014,14 +1627,25 @@ class _MergeEntity {
     rz += vrz * dt * 60 * speedMultiplier;
   }
 
-  void applyBurst(Offset point) {
+  void applyBurst(Offset point, {bool isGravity = false}) {
     final dx = x - point.dx;
     final dy = y - point.dy;
     final dist = sqrt(dx * dx + dy * dy);
-    if (dist < 0.65 && dist > 0.001) {
-      final force = (0.65 - dist) / 0.65 * 0.6;
-      vx += (dx / dist) * force;
-      vy += (dy / dist) * force;
+    
+    if (isGravity) {
+      if (dist < 0.8 && dist > 0.001) {
+        // Shockwave from the floor in gravity mode
+        final force = (0.8 - dist) / 0.8 * 1.5; // Massive force
+        vx += (dx / dist) * force;
+        // Force them upwards strongly
+        vy -= force * 1.2;
+      }
+    } else {
+      if (dist < 0.65 && dist > 0.001) {
+        final force = (0.65 - dist) / 0.65 * 0.6;
+        vx += (dx / dist) * force;
+        vy += (dy / dist) * force;
+      }
     }
   }
 
@@ -1032,19 +1656,48 @@ class _MergeEntity {
         : other.renderSize / renderSize;
     if (sizeRatio < 0.5) return;
 
-    final dx = x - other.x;
-    final dy = y - other.y;
+    double dx = x - other.x;
+    double dy = y - other.y;
+    
+    // Prevent perfect overlap (which bypasses repulsion and causes infinite stacking)
+    if (dx.abs() < 1e-5 && dy.abs() < 1e-5) {
+      dx = (Random().nextBool() ? 1 : -1) * 0.001;
+    }
+
     if (dx.abs() > 0.06 || dy.abs() > 0.06) return;
 
     final distSq = dx * dx + dy * dy;
-    if (distSq > 0.0036 || distSq < 1e-8) return;
+    if (distSq > 0.0036) return;
 
     final dist = sqrt(distSq);
-    final force = (0.06 - dist) / 0.06 * 0.04;
-    vx += (dx / dist) * force;
-    vy += (dy / dist) * force;
+    // Doubled repulsion force
+    final force = (0.06 - dist) / 0.06 * 0.08;
+    
+    final fdx = dx / dist;
+    final fdy = dy / dist;
+
+    // Gently slide resting cubes apart horizontally so they don't pile up (Doubled)
+    if (y >= 0.99 && other.y >= 0.99) {
+      x += fdx * ((0.06 - dist) * 0.03);
+      if (x < 0) x = 0;
+      if (x > 1) x = 1;
+      return;
+    }
+
+    double fy = fdy * force;
+    if (y > 0.8 && other.y > 0.8) {
+       // Damp vertical repulsion near bottom to avoid "popcorn" bouncing
+       fy *= 0.02;
+    }
+    
+    vx += fdx * force;
+    vy += fy;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDERING DATA CLASSES
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _FaceDrawData {
   final double z;
@@ -1080,17 +1733,27 @@ class _CubeDrawData {
   });
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// CUSTOM PAINTER (V2: trails in front, adaptive quality)
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _CubePainter extends CustomPainter {
   final List<_MergeEntity> entities;
+  final _TrailPool trailPool;
+  final _QualityMode qualityMode;
   final Brightness brightness;
   final Color primaryColor;
   final bool isRtl;
+  final Offset? repelPoint;
 
   _CubePainter({
     required this.entities,
+    required this.trailPool,
+    required this.qualityMode,
     required this.brightness,
     required this.primaryColor,
     required this.isRtl,
+    this.repelPoint,
   });
 
   static const List<List<double>> _verts = [
@@ -1133,6 +1796,7 @@ class _CubePainter extends CustomPainter {
         ? const Color(0xFFD8D8D8)
         : const Color(0xFF505050);
 
+    // ── Transform vertices ──
     final tv = <List<double>>[
       [0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0],
@@ -1145,8 +1809,12 @@ class _CubePainter extends CustomPainter {
     ];
 
     if (entities.isEmpty) return;
+    if (size.width <= 0 || size.height <= 0) return; // Prevent drawing at top-left when constraints aren't ready
 
     final allData = <_CubeDrawData>[];
+
+    // Only draw stroke in high quality (adaptive rendering)
+    final bool drawStroke = qualityMode == _QualityMode.high;
 
     for (final entity in entities) {
       if (entity.x.isNaN || entity.x.isInfinite) continue;
@@ -1157,10 +1825,17 @@ class _CubePainter extends CustomPainter {
       final px = entity.x * size.width;
       final py = entity.y * size.height;
 
-      final double lightX = isRtl ? 0.9 : 0.1;
-      final double lightY = 0.05;
+      final double lightX, lightY;
+      final rp = repelPoint;
+      if (rp != null) {
+        lightX = rp.dx;
+        lightY = rp.dy;
+      } else {
+        lightX = isRtl ? 0.9 : 0.1;
+        lightY = 0.05;
+      }
       final double ldx = lightX - entity.x;
-      final double ldy = entity.y - lightY; 
+      final double ldy = entity.y - lightY;
       final double ldz = 0.5;
       final double lDist = sqrt(ldx * ldx + ldy * ldy + ldz * ldz);
       final double lx = ldx / lDist;
@@ -1279,7 +1954,27 @@ class _CubePainter extends CustomPainter {
     for (final cubeData in allData) {
       if (cubeData.faces.isEmpty) continue;
       for (final fd in cubeData.faces) {
-        _drawFace(canvas, fd, fillPaint, strokePaint, cubeColor);
+        _drawFace(canvas, fd, fillPaint, strokePaint, cubeColor, drawStroke);
+      }
+    }
+
+    // ── Trail / Dust Particles (in front of cubes) ──
+    if (qualityMode == _QualityMode.high) {
+      final trailPaint = Paint()..style = PaintingStyle.fill;
+      for (int i = 0; i < _kTrailPoolSize; i++) {
+        final tp = trailPool.particles[i];
+        if (tp.opacity <= 0) continue;
+        trailPaint.color = Color.from(
+          alpha: (tp.opacity * 0.35).clamp(0.0, 1.0),
+          red: primaryColor.r,
+          green: primaryColor.g,
+          blue: primaryColor.b,
+        );
+        canvas.drawCircle(
+          Offset(tp.x * size.width, tp.y * size.height),
+          tp.size,
+          trailPaint,
+        );
       }
     }
   }
@@ -1290,11 +1985,16 @@ class _CubePainter extends CustomPainter {
     Paint fillPaint,
     Paint strokePaint,
     Color cubeColor,
+    bool drawStroke,
   ) {
-    if (!fd.x0.isFinite || !fd.y0.isFinite ||
-        !fd.x1.isFinite || !fd.y1.isFinite ||
-        !fd.x2.isFinite || !fd.y2.isFinite ||
-        !fd.x3.isFinite || !fd.y3.isFinite) return;
+    if (!fd.x0.isFinite ||
+        !fd.y0.isFinite ||
+        !fd.x1.isFinite ||
+        !fd.y1.isFinite ||
+        !fd.x2.isFinite ||
+        !fd.y2.isFinite ||
+        !fd.x3.isFinite ||
+        !fd.y3.isFinite) return;
 
     final path = Path()
       ..moveTo(fd.x0, fd.y0)
@@ -1313,8 +2013,10 @@ class _CubePainter extends CustomPainter {
     );
     canvas.drawPath(path, fillPaint);
 
-    strokePaint.color = primaryColor;
-    canvas.drawPath(path, strokePaint);
+    if (drawStroke) {
+      strokePaint.color = primaryColor;
+      canvas.drawPath(path, strokePaint);
+    }
   }
 
   @override

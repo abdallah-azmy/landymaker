@@ -20,6 +20,7 @@ import '../widgets/home_section_renderer.dart';
 class LandyMakerHomeScreen extends StatefulWidget {
   const LandyMakerHomeScreen({super.key});
 
+  static bool _isFirstAppLoad = true;
   static double lastScrollOffset = 0.0;
 
   static void resetScrollPosition() {
@@ -49,6 +50,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
 
   List<Map<String, dynamic>> _sections = [];
   bool _sectionsLoaded = false;
+  late final bool _isThisTheFirstLoad;
 
   @override
   void initState() {
@@ -66,20 +68,29 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
       fontLoadNotifier.addListener(_onFontsReady);
     }
 
+    _isThisTheFirstLoad = LandyMakerHomeScreen._isFirstAppLoad;
+    LandyMakerHomeScreen._isFirstAppLoad = false;
+
     _logoAnimController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     );
-    _logoAnimController.addListener(_onLogoAnimTick);
-    _logoAnimController.addStatusListener(_onLogoAnimStatus);
+    
+    if (_isThisTheFirstLoad) {
+      _logoAnimController.addListener(_onLogoAnimTick);
+      _logoAnimController.addStatusListener(_onLogoAnimStatus);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _logoAnimController.forward();
-    });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _logoAnimController.forward();
+      });
+    } else {
+      _burstTriggered = true;
+    }
   }
 
   void _onLogoAnimTick() {
-    if (!_burstTriggered && _logoAnimController.value >= 0.35) {
+    // Trigger burst 200ms after Flutter first frame (200 / 1500 = 0.133)
+    if (!_burstTriggered && _logoAnimController.value >= 0.133) {
       _burstTriggered = true;
       _cubeController.triggerLogoBurst(const Offset(0.5, 0.5));
     }
@@ -253,119 +264,102 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                   isActive: _particlesActive,
                   controller: _cubeController,
                   cubeMode: context.watch<CubeModeCubit>().state,
+                  initialPreBurst: _isThisTheFirstLoad,
                 ),
               ),
-              AnimatedSlide(
-                offset: _fontsReady ? Offset.zero : const Offset(0, -1),
-                duration: const Duration(milliseconds: 600),
-                child: HomeNavbar(
-                  config: navbarConfig,
-                  cubeCount: _cubeController.cubeCount,
+              AnimatedOpacity(
+                opacity: _burstTriggered ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 800),
+                child: AnimatedSlide(
+                  offset: _fontsReady ? Offset.zero : const Offset(0, -1),
+                  duration: const Duration(milliseconds: 600),
+                  child: HomeNavbar(
+                    config: navbarConfig,
+                    cubeCount: _cubeController.cubeCount,
+                  ),
                 ),
               ),
               if (_fontsReady)
-                Padding(
-                  padding: EdgeInsets.only(top: navbarHeight),
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
-                      children: [
-                        if (_isSectionVisible('hero'))
-                          HomeHeroSection(
-                            layout: _parseHeroLayout(
-                              heroConfig['layout'] as String?,
-                            ),
-                            title: _localeValue(heroConfig, 'title'),
-                            subtitle: _localeValue(heroConfig, 'subtitle'),
-                            ctaText: _localeValue(heroConfig, 'cta_text'),
-                            typewriterTexts: _localeList(
-                              heroConfig,
-                              'typewriter_texts',
-                            ),
-                            onGetStartedPressed: () => context.go('/templates'),
-                            parentScrollController: _scrollController,
-                          ),
-                        if (_isSectionVisible('features'))
-                          VisibilityObserver(
-                            onVisible: () {
-                              if (!_bentoVisible)
-                                setState(() => _bentoVisible = true);
-                            },
-                            child: HomeFeatureBento(
-                              isVisible: _bentoVisible,
-                              layout: _parseFeatureLayout(
-                                featuresConfig['layout'] as String?,
+                AnimatedOpacity(
+                  opacity: _burstTriggered ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 800),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: navbarHeight),
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [
+                          if (_isSectionVisible('hero'))
+                            HomeHeroSection(
+                              layout: _parseHeroLayout(
+                                heroConfig['layout'] as String?,
                               ),
-                              title: _localeValue(featuresConfig, 'title'),
-                            ),
-                          ),
-                        if (_isSectionVisible('cta'))
-                          VisibilityObserver(
-                            onVisible: () {
-                              if (!_ctaVisible)
-                                setState(() => _ctaVisible = true);
-                            },
-                            child: HomeCtaSection(
-                              isVisible: _ctaVisible,
+                              title: _localeValue(heroConfig, 'title'),
+                              subtitle: _localeValue(heroConfig, 'subtitle'),
+                              ctaText: _localeValue(heroConfig, 'cta_text'),
+                              typewriterTexts: _localeList(
+                                heroConfig,
+                                'typewriter_texts',
+                              ),
                               onGetStartedPressed: () =>
                                   context.go('/templates'),
-                              layout: _parseCtaLayout(
-                                ctaConfig['layout'] as String?,
+                              parentScrollController: _scrollController,
+                            ),
+                          if (_isSectionVisible('features'))
+                            VisibilityObserver(
+                              onVisible: () {
+                                if (!_bentoVisible)
+                                  setState(() => _bentoVisible = true);
+                              },
+                              child: HomeFeatureBento(
+                                isVisible: _bentoVisible,
+                                layout: _parseFeatureLayout(
+                                  featuresConfig['layout'] as String?,
+                                ),
+                                title: _localeValue(featuresConfig, 'title'),
                               ),
-                              text: _localeValue(ctaConfig, 'title'),
-                              buttonText: _localeValue(
-                                ctaConfig,
-                                'button_text',
+                            ),
+                          if (_isSectionVisible('cta'))
+                            VisibilityObserver(
+                              onVisible: () {
+                                if (!_ctaVisible)
+                                  setState(() => _ctaVisible = true);
+                              },
+                              child: HomeCtaSection(
+                                isVisible: _ctaVisible,
+                                onGetStartedPressed: () =>
+                                    context.go('/templates'),
+                                layout: _parseCtaLayout(
+                                  ctaConfig['layout'] as String?,
+                                ),
+                                text: _localeValue(ctaConfig, 'title'),
+                                buttonText: _localeValue(
+                                  ctaConfig,
+                                  'button_text',
+                                ),
                               ),
                             ),
-                          ),
-                        if (_isSectionVisible('footer'))
-                          HomeFooter(
-                            copyrightText: _localeValue(
-                              footerConfig,
-                              'copyright_text',
+                          if (_isSectionVisible('footer'))
+                            HomeFooter(
+                              copyrightText: _localeValue(
+                                footerConfig,
+                                'copyright_text',
+                              ),
                             ),
-                          ),
-                        if (_isSectionVisible('section_renderer'))
-                          HomeSectionRenderer(
-                            landingPageId:
-                                _sectionConfig(
-                                      'section_renderer',
-                                    )['landing_page_id']
-                                    as String? ??
-                                '',
-                            displayTitle: _localeValue(
-                              _sectionConfig('section_renderer'),
-                              'display',
+                          if (_isSectionVisible('section_renderer'))
+                            HomeSectionRenderer(
+                              landingPageId:
+                                  _sectionConfig(
+                                        'section_renderer',
+                                      )['landing_page_id']
+                                      as String? ??
+                                  '',
+                              displayTitle: _localeValue(
+                                _sectionConfig('section_renderer'),
+                                'display',
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              if (_logoAnimController.value < 1.0)
-                Opacity(
-                  opacity: _logoAnimController.value < 0.40
-                      ? 1.0
-                      : 1.0 - ((_logoAnimController.value - 0.40) / 0.6),
-                  child: IgnorePointer(
-                    child: Container(
-                      color: const Color(0xFF030712),
-                      child: Center(
-                        child: Transform.scale(
-                          scale: _logoAnimController.value < 0.15
-                              ? 1.0
-                              : _logoAnimController.value < 0.35
-                                  ? 1.0 + ((_logoAnimController.value - 0.15) / 0.2) * 0.15
-                                  : _logoAnimController.value < 0.40
-                                      ? 1.15
-                                      : 1.15 - ((_logoAnimController.value - 0.40) / 0.6) * 0.20,
-                          child: Image.asset(
-                            'assets/images/logo_small.webp',
-                            width: 80,
-                            height: 80,
-                          ),
-                        ),
+                        ],
                       ),
                     ),
                   ),

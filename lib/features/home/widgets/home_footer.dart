@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/atoms/blur_effect.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
 
 /// ======================================================
@@ -60,11 +61,15 @@ class HomeFooter extends StatelessWidget {
               ),
             ),
           ),
-          padding: EdgeInsets.symmetric(
-            vertical: 60,
-            horizontal: isMobile ? 16 : 64,
-          ),
-          child: Column(
+          child: AppBlurEffect(
+            blur: 4,
+            borderRadius: BorderRadius.zero,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 60,
+                horizontal: isMobile ? 16 : 64,
+              ),
+              child: Column(
             children: [
               if (isMobile)
                 const _MobileFooter(socialLinks: _socialLinks)
@@ -79,7 +84,9 @@ class HomeFooter extends StatelessWidget {
               _BottomRow(copyrightText: copyrightText),
             ],
           ),
-        );
+        ),
+      ),
+    );
       },
     );
   }

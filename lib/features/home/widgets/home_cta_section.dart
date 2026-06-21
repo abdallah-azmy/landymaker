@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/atoms/blur_effect.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../../core/animations/entrance_animation_mixin.dart';
 import '../models/home_layouts.dart';
@@ -128,69 +129,80 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         opacity: entranceFade,
         child: SlideTransition(
           position: entranceSlide,
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.auto_awesome_rounded,
-                      color: Theme.of(context).colorScheme.secondary,
-                      size: 14,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      "مجاني تماماً • بدون بطاقة ائتمان",
-                      style: AppTypography.caption.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontWeight: FontWeight.bold,
+          child: AppBlurEffect(
+            blur: 6,
+            borderRadius: BorderRadius.circular(24),
+            child: Container(
+              padding: const EdgeInsetsDirectional.all(4),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 24),
-              Text(
-                widget.text ?? 'جاهز تطلق موقعك الآن؟',
-                style: AppTypography.h1.copyWith(
-                  fontSize: isMobile ? 32 : isTablet ? 44 : 58,
-                  fontWeight: FontWeight.w900,
-                  height: 1.1,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 16),
-              Text(
-                "انضم لآلاف الأعمال التي تستخدم Landymaker.\nابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.",
-                style: AppTypography.bodyLarge.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  height: 1.65,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 40),
-              _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
-              SizedBox(height: 32),
-              Wrap(
-                spacing: 24,
-                runSpacing: 8,
-                alignment: WrapAlignment.center,
-                children: [
-                  _TrustChip(icon: Icons.check_circle_rounded, text: "لا يحتاج بطاقة"),
-                  _TrustChip(icon: Icons.check_circle_rounded, text: "لا حاجة لخبرة تقنية"),
-                  _TrustChip(icon: Icons.check_circle_rounded, text: "نشر فوري"),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Theme.of(context).colorScheme.secondary,
+                          size: 14,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          "مجاني تماماً • بدون بطاقة ائتمان",
+                          style: AppTypography.caption.copyWith(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Text(
+                    widget.text ?? 'جاهز تطلق موقعك الآن؟',
+                    style: AppTypography.h1.copyWith(
+                      fontSize: isMobile ? 32 : isTablet ? 44 : 58,
+                      fontWeight: FontWeight.w900,
+                      height: 1.1,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    "انضم لآلاف الأعمال التي تستخدم Landymaker.\nابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.",
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      height: 1.65,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 40),
+                  _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
+                  SizedBox(height: 32),
+                  Wrap(
+                    spacing: 24,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _TrustChip(icon: Icons.check_circle_rounded, text: "لا يحتاج بطاقة"),
+                      _TrustChip(icon: Icons.check_circle_rounded, text: "لا حاجة لخبرة تقنية"),
+                      _TrustChip(icon: Icons.check_circle_rounded, text: "نشر فوري"),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -223,70 +235,81 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                 opacity: entranceFade,
                 child: SlideTransition(
                   position: entranceSlide,
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.auto_awesome_rounded,
-                              color: Theme.of(context).colorScheme.secondary,
-                              size: 14,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              "مجاني تماماً • بدون بطاقة ائتمان",
-                              style: AppTypography.caption.copyWith(
-                                color: Theme.of(context).colorScheme.secondary,
-                                fontWeight: FontWeight.bold,
+                  child: AppBlurEffect(
+                    blur: 4,
+                    borderRadius: BorderRadius.circular(24),
+                    child: Container(
+                      padding: const EdgeInsetsDirectional.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 28),
-                      Text(
-                        widget.text ?? 'جاهز تطلق موقعك الآن؟',
-                        style: AppTypography.h1.copyWith(
-                          fontSize: isMobile ? 32 : isTablet ? 44 : 58,
-                          fontWeight: FontWeight.w900,
-                          height: 1.1,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        "انضم لآلاف الأعمال التي تستخدم Landymaker.\nابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.",
-                        style: AppTypography.bodyLarge.copyWith(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          height: 1.65,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 40),
-                      _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
-                      SizedBox(height: 32),
-                      Wrap(
-                        spacing: 24,
-                        runSpacing: 8,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          _TrustChip(icon: Icons.check_circle_rounded, text: "لا يحتاج بطاقة"),
-                          _TrustChip(icon: Icons.check_circle_rounded, text: "لا حاجة لخبرة تقنية"),
-                          _TrustChip(icon: Icons.check_circle_rounded, text: "نشر فوري"),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.auto_awesome_rounded,
+                                  color: Theme.of(context).colorScheme.secondary,
+                                  size: 14,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  "مجاني تماماً • بدون بطاقة ائتمان",
+                                  style: AppTypography.caption.copyWith(
+                                    color: Theme.of(context).colorScheme.secondary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 28),
+                          Text(
+                            widget.text ?? 'جاهز تطلق موقعك الآن؟',
+                            style: AppTypography.h1.copyWith(
+                              fontSize: isMobile ? 32 : isTablet ? 44 : 58,
+                              fontWeight: FontWeight.w900,
+                              height: 1.1,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            "انضم لآلاف الأعمال التي تستخدم Landymaker.\nابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.",
+                            style: AppTypography.bodyLarge.copyWith(
+                              color: Colors.white.withValues(alpha: 0.85),
+                              height: 1.65,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 40),
+                          _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
+                          SizedBox(height: 32),
+                          Wrap(
+                            spacing: 24,
+                            runSpacing: 8,
+                            alignment: WrapAlignment.center,
+                            children: [
+                              _TrustChip(icon: Icons.check_circle_rounded, text: "لا يحتاج بطاقة"),
+                              _TrustChip(icon: Icons.check_circle_rounded, text: "لا حاجة لخبرة تقنية"),
+                              _TrustChip(icon: Icons.check_circle_rounded, text: "نشر فوري"),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -338,23 +361,34 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
       child: FadeTransition(
         opacity: entranceFade,
         child: isMobile
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'جاهز تطلق موقعك الآن؟',
-                  style: AppTypography.h2.copyWith(fontSize: 28, fontWeight: FontWeight.w900),
-                  textAlign: TextAlign.center,
+          ? AppBlurEffect(
+              blur: 6,
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsetsDirectional.all(4),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                SizedBox(height: 12),
-                Text(
-                  'ابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.',
-                  style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
-                  textAlign: TextAlign.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'جاهز تطلق موقعك الآن؟',
+                      style: AppTypography.h2.copyWith(fontSize: 28, fontWeight: FontWeight.w900),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'ابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.',
+                      style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 32),
+                    _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
+                  ],
                 ),
-                SizedBox(height: 32),
-                _CtaButton(onPressed: widget.onGetStartedPressed, label: widget.buttonText ?? "ابدأ مجاناً الآن"),
-              ],
+              ),
             )
           : Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -362,19 +396,30 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
               children: [
                 Expanded(
                   flex: 6,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'جاهز تطلق موقعك الآن؟',
-                        style: AppTypography.h2.copyWith(fontSize: isMobile ? 28 : isTablet ? 36 : 38, fontWeight: FontWeight.w900),
+                  child: AppBlurEffect(
+                    blur: 6,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsetsDirectional.all(4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      SizedBox(height: 12),
-                      Text(
-                        'ابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.',
-                        style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'جاهز تطلق موقعك الآن؟',
+                            style: AppTypography.h2.copyWith(fontSize: isMobile ? 28 : isTablet ? 36 : 38, fontWeight: FontWeight.w900),
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'ابنِ صفحتك في دقائق وابدأ تستقبل عملاء اليوم.',
+                            style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
                 SizedBox(width: 48),

@@ -63,6 +63,7 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+  <meta name="google" content="notranslate">
 
   <!-- SEO & Social Media Meta Tags -->
   <title>LandyMaker | منصتك المتكاملة لإنشاء المتاجر وصفحات الهبوط</title>
@@ -174,7 +175,7 @@
     }
   </style>
 </head>
-<body>
+<body class="notranslate">
   <!-- Visually hidden links for crawlers and Google OAuth Verification bots only (permanent in DOM) -->
   <div class="sr-only">
     <a href="https://landymaker.com/privacy-policy">سياسة الخصوصية / Privacy Policy</a>
@@ -187,7 +188,88 @@
   </div>
 
   <script>
-    // Remove the loading screen once Flutter renders the first frame
+    // Define reserved paths matching TenantRoutingService.reservedPaths
+    var reservedPaths = new Set([
+      '',
+      'blog',
+      '_next',
+      'login',
+      'register',
+      'signup',
+      'signin',
+      'forgot-password',
+      'reset-password',
+      'dashboard',
+      'admin',
+      'settings',
+      'profile',
+      'pricing',
+      'plans',
+      'billing',
+      'checkout',
+      'success',
+      'cancel',
+      'api',
+      'auth',
+      'app',
+      'editor',
+      'builder',
+      'pages',
+      'page',
+      'store',
+      'products',
+      'orders',
+      'analytics',
+      'support',
+      'help',
+      'about',
+      'contact',
+      'privacy',
+      'privacy-policy',
+      'terms',
+      'templates',
+      'guest-preview',
+      'sitemap',
+      'robots.txt',
+      'favicon.ico',
+      'home',
+      'public_viewer',
+      'assets',
+      'images',
+      'icons',
+      'web'
+    ]);
+
+    function isPublicLandingPage() {
+      var host = window.location.hostname.toLowerCase();
+      var path = window.location.pathname;
+      var pathSegments = path.split('/').filter(Boolean);
+      
+      var isCoreDomain = host === 'localhost' ||
+                         host === '127.0.0.1' ||
+                         host === 'landymaker.com' ||
+                         host === 'landymaker.vercel.app' ||
+                         host.indexOf('dashboard.') === 0 ||
+                         host.indexOf('app.') === 0;
+                         
+      if (isCoreDomain) {
+        if (pathSegments.length > 0) {
+          var firstSegment = pathSegments[0].trim();
+          if (firstSegment && !reservedPaths.has(firstSegment)) {
+            return true;
+          }
+        }
+        if (host === 'localhost' || host === '127.0.0.1') {
+          var urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('tenant') || urlParams.get('subdomain')) {
+            return true;
+          }
+        }
+        return false;
+      }
+      return true;
+    }
+
     function removeLoader() {
       var loading = document.getElementById('loading-indicator');
       if (loading) {
@@ -199,7 +281,15 @@
         }, 100);
       }
     }
-    window.addEventListener('flutter-first-frame', removeLoader);
+
+    // Register first frame listener only if it is NOT a public page.
+    // For public pages, Dart will call window.removeLandyMakerLoader() directly when ready.
+    if (!isPublicLandingPage()) {
+      window.addEventListener('flutter-first-frame', removeLoader);
+    }
+
+    // Expose globally so Dart can call it
+    window.removeLandyMakerLoader = removeLoader;
     
     // Safety fallback: auto-remove loader after 12 seconds if Flutter takes too long or fails to load
     setTimeout(removeLoader, 12000);

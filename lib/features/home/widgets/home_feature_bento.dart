@@ -330,6 +330,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
   }
 
   Widget _buildSectionHeader(bool isMobile) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final isTablet =
         MediaQuery.of(context).size.width >= 700 &&
         MediaQuery.of(context).size.width < 1200;
@@ -338,15 +339,16 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
       child: SlideTransition(
         position: _headerSlide,
         child: AppBlurEffect(
-          blur: 6,
-          borderRadius: BorderRadius.circular(24),
+          blur: isLight ? 25.0 : 12.0,
+          borderRadius: BorderRadius.circular(32),
           child: Container(
-            padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(24),
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(32),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -497,16 +499,20 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
   }
 
   Widget _buildSimpleCard(_FeatureData f) {
-    return Container(
-      padding: const EdgeInsetsDirectional.all(28),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 1.5,
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    return AppBlurEffect(
+      borderRadius: BorderRadius.circular(24),
+      blur: isLight ? 25.0 : 8.0,
+      child: Container(
+        padding: const EdgeInsetsDirectional.all(28),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+            width: 1.5,
+          ),
         ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -533,7 +539,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildIconLeftLayout(
@@ -597,16 +603,20 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
   }
 
   Widget _buildIconLeftRow(_FeatureData f) {
-    return Container(
-      padding: const EdgeInsetsDirectional.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 1,
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    return AppBlurEffect(
+      borderRadius: BorderRadius.circular(20),
+      blur: isLight ? 25.0 : 8.0,
+      child: Container(
+        padding: const EdgeInsetsDirectional.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+            width: 1,
+          ),
         ),
-      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -643,7 +653,7 @@ class _HomeFeatureBentoState extends State<HomeFeatureBento>
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -703,7 +713,9 @@ class _BentoCardState extends State<_BentoCard> {
                   ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
                   : EdgeInsets.all(widget.tall ? 36 : 28);
 
+              final isLight = Theme.of(context).brightness == Brightness.light;
               return AppBlurEffect(
+                blur: isLight ? 25.0 : 12.0,
                 borderRadius: BorderRadius.circular(24),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/router/router_extensions.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
@@ -105,11 +106,25 @@ class _AuthTopBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const AnimatedThemeToggle(size: 36),
-            const SizedBox(width: 4),
-            const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconOnly),
+            IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Theme.of(context).colorScheme.onSurface,
+                size: 20,
+              ),
+              onPressed: () => context.safePop(fallbackPath: '/'),
+              tooltip: loc.isRtl ? 'العودة للرئيسية' : 'Back to Home',
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const AnimatedThemeToggle(size: 36),
+                const SizedBox(width: 4),
+                const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconOnly),
+              ],
+            ),
           ],
         ),
       ),

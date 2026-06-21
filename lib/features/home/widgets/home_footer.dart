@@ -49,6 +49,7 @@ class HomeFooter extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 700;
+        final bool isLight = Theme.of(context).brightness == Brightness.light;
 
         return Container(
           width: double.infinity,
@@ -62,7 +63,7 @@ class HomeFooter extends StatelessWidget {
             ),
           ),
           child: AppBlurEffect(
-            blur: 4,
+            blur: isLight ? 25.0 : 4.0,
             borderRadius: BorderRadius.zero,
             child: Padding(
               padding: EdgeInsets.symmetric(

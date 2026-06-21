@@ -328,6 +328,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
     BoxConstraints constraints,
   ) {
     final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return SizedBox(
       width: double.infinity,
       child: Stack(
@@ -371,15 +372,16 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
             child: FadeTransition(
               opacity: entranceFade,
               child: AppBlurEffect(
-                blur: 6,
-                borderRadius: BorderRadius.circular(24),
+                blur: isLight ? 25.0 : 12.0,
+                borderRadius: BorderRadius.circular(32),
                 child: Container(
-                  padding: const EdgeInsetsDirectional.all(4),
+                  padding: const EdgeInsetsDirectional.all(32),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(24),
+                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(32),
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       _buildBadge(),
@@ -432,6 +434,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
 
   // ── Layout: gradientOnly ─────────────────────────────────────────────────
   Widget _buildGradientOnlyLayout(BuildContext context, bool isMobile) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return LayoutBuilder(
       builder: (context, constraints) {
         final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
@@ -470,15 +473,16 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
               child: FadeTransition(
                 opacity: entranceFade,
                 child: AppBlurEffect(
-                  blur: 6,
-                  borderRadius: BorderRadius.circular(24),
+                  blur: isLight ? 25.0 : 12.0,
+                  borderRadius: BorderRadius.circular(32),
                   child: Container(
-                    padding: const EdgeInsetsDirectional.all(4),
+                    padding: const EdgeInsetsDirectional.all(32),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(24),
+                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(32),
                     ),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         _buildBadge(),
@@ -533,6 +537,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
 
   // ── Layout: fullWidthImage (edge-to-edge bg image) ───────────────────────
   Widget _buildFullWidthImageLayout(BuildContext context, bool isMobile) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return LayoutBuilder(
       builder: (context, constraints) {
         final isTablet = HomeBreakpoint.isTablet(constraints.maxWidth);
@@ -561,15 +566,16 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                 child: FadeTransition(
                   opacity: entranceFade,
                   child: AppBlurEffect(
-                    blur: 4,
-                    borderRadius: BorderRadius.circular(24),
+                    blur: isLight ? 25.0 : 12.0,
+                    borderRadius: BorderRadius.circular(32),
                     child: Container(
-                      padding: const EdgeInsetsDirectional.all(4),
+                      padding: const EdgeInsetsDirectional.all(32),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(24),
+                        color: Colors.black.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(32),
                       ),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           _buildBadge(),
@@ -773,21 +779,23 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
   }
 
   Widget _buildTextContent(BuildContext context, bool isMobile) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final isTablet =
         MediaQuery.of(context).size.width >= 700 &&
         MediaQuery.of(context).size.width < 1200;
     return FadeTransition(
       opacity: entranceFade,
       child: AppBlurEffect(
-        blur: 6,
-        borderRadius: BorderRadius.circular(24),
+        blur: isLight ? 25.0 : 12.0,
+        borderRadius: BorderRadius.circular(32),
         child: Container(
-          padding: const EdgeInsetsDirectional.all(4),
+          padding: const EdgeInsetsDirectional.all(32),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(24),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(32),
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: isMobile
                 ? CrossAxisAlignment.center
                 : CrossAxisAlignment.start,

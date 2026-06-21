@@ -84,6 +84,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
   }
 
   Widget _buildCenteredGradientLayout(BuildContext context, bool isMobile, bool isTablet, BoxConstraints constraints) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return AnimatedBuilder(
       animation: _bgController,
       builder: (context, child) {
@@ -130,15 +131,16 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         child: SlideTransition(
           position: entranceSlide,
           child: AppBlurEffect(
-            blur: 6,
-            borderRadius: BorderRadius.circular(24),
+            blur: isLight ? 25.0 : 12.0,
+            borderRadius: BorderRadius.circular(32),
             child: Container(
-              padding: const EdgeInsetsDirectional.all(4),
+              padding: const EdgeInsetsDirectional.all(32),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(24),
+                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(32),
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -210,6 +212,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
   }
 
   Widget _buildFullWidthImageLayout(BuildContext context, bool isMobile, bool isTablet, BoxConstraints constraints) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return SizedBox(
       width: double.infinity,
       child: Stack(
@@ -236,15 +239,16 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                 child: SlideTransition(
                   position: entranceSlide,
                   child: AppBlurEffect(
-                    blur: 4,
-                    borderRadius: BorderRadius.circular(24),
+                    blur: isLight ? 25.0 : 12.0,
+                    borderRadius: BorderRadius.circular(32),
                     child: Container(
-                      padding: const EdgeInsetsDirectional.all(4),
+                      padding: const EdgeInsetsDirectional.all(32),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(24),
+                        color: Colors.black.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(32),
                       ),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -321,6 +325,7 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
   }
 
   Widget _buildSplitLayout(BuildContext context, bool isMobile, bool isTablet, BoxConstraints constraints) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return AnimatedBuilder(
       animation: _bgController,
       builder: (context, child) {
@@ -362,15 +367,16 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
         opacity: entranceFade,
         child: isMobile
           ? AppBlurEffect(
-              blur: 6,
-              borderRadius: BorderRadius.circular(20),
+              blur: isLight ? 25.0 : 12.0,
+              borderRadius: BorderRadius.circular(24),
               child: Container(
-                padding: const EdgeInsetsDirectional.all(4),
+                padding: const EdgeInsetsDirectional.all(24),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
@@ -397,15 +403,16 @@ class _HomeCtaSectionState extends State<HomeCtaSection>
                 Expanded(
                   flex: 6,
                   child: AppBlurEffect(
-                    blur: 6,
-                    borderRadius: BorderRadius.circular(20),
+                    blur: isLight ? 25.0 : 12.0,
+                    borderRadius: BorderRadius.circular(24),
                     child: Container(
-                      padding: const EdgeInsetsDirectional.all(4),
+                      padding: const EdgeInsetsDirectional.all(24),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(20),
+                        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(24),
                       ),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(

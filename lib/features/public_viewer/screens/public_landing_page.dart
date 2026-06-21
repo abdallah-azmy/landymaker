@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:js' as js;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../../core/localization/localization_cubit.dart';
@@ -19,7 +20,6 @@ import '../../../core/seo/app_seo.dart';
 import '../../../core/services/pixel_bootstrap_service.dart';
 import '../../../core/services/pixel_event_service.dart';
 import '../widgets/cookie_consent_banner.dart';
-import '../../../core/widgets/organisms/tech_loading_screen.dart';
 
 class PublicLandingPage extends StatefulWidget {
   final String? identifier;
@@ -163,12 +163,20 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     WidgetsBinding.instance.addPostFrameCallback(
                       (_) => _handleDeepLinking(),
                     );
+                  } else if (state is PublicPageNotFound || state is PublicPageFailure) {
+                    if (mounted) {
+                      setState(() => _isLoadingFonts = false);
+                    }
+                    _removeHtmlLoader();
                   }
                 },
                 builder: (context, state) {
                   if (state is PublicPageLoading ||
-                      state is PublicPageInitial ||
-                      _isLoadingFonts) {
+                      state is PublicPageInitial) {
+                    return _buildPlatformLoader();
+                  }
+
+                  if (state is PublicPageLoaded && _isLoadingFonts) {
                     return _buildPlatformLoader();
                   }
 
@@ -452,7 +460,20 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
   }
 
   Widget _buildPlatformLoader() {
-    return const TechLoadingScreen();
+    return const Scaffold(
+      backgroundColor: Color(0xFF030712), // Match index.html background color
+      body: SizedBox.shrink(),
+    );
+  }
+
+  void _removeHtmlLoader() {
+    if (kIsWeb) {
+      try {
+        js.context.callMethod('removeLandyMakerLoader');
+      } catch (e) {
+        debugPrint("Error removing HTML loader: $e");
+      }
+    }
   }
 
   Future<void> _preloadFontsForPage(String fontName) async {
@@ -460,12 +481,13 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
       await GoogleFonts.pendingFonts([
         GoogleFonts.getFont(fontName, fontWeight: FontWeight.normal),
         GoogleFonts.getFont(fontName, fontWeight: FontWeight.bold),
-      ]);
+      ]).timeout(const Duration(seconds: 3));
     } catch (e) {
       debugPrint("Font preloading error: $e");
     } finally {
       if (mounted) {
         setState(() => _isLoadingFonts = false);
+        _removeHtmlLoader();
       }
     }
   }

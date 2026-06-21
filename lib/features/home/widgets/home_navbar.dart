@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +10,7 @@ import '../../../core/widgets/atoms/animated_cube_mode_toggle.dart';
 import '../../../core/widgets/atoms/animated_theme_toggle.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
 import '../../../core/widgets/atoms/language_switcher_button.dart';
+import '../../../core/widgets/atoms/blur_effect.dart';
 import '../../auth/controllers/auth_cubit.dart';
 import '../../auth/controllers/auth_state.dart';
 
@@ -23,8 +23,9 @@ import '../../auth/controllers/auth_state.dart';
 class HomeNavbar extends StatefulWidget implements PreferredSizeWidget {
   final Map<String, dynamic>? config;
   final ValueNotifier<int>? cubeCount;
+  final VoidCallback? onPreviewTapped;
 
-  const HomeNavbar({super.key, this.config, this.cubeCount});
+  const HomeNavbar({super.key, this.config, this.cubeCount, this.onPreviewTapped});
 
   @override
   // Extra 200px allows the animated mobile menu to expand below the bar
@@ -88,6 +89,10 @@ class _HomeNavbarState extends State<HomeNavbar>
     final String userEmail = isLoggedIn ? authState.email : '';
     final String userId = isLoggedIn ? authState.userId : '';
 
+    _menuHeight = Tween<double>(begin: 0, end: isLoggedIn ? 192 : 156).animate(
+      CurvedAnimation(parent: _menuController, curve: Curves.easeInOut),
+    );
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
@@ -97,19 +102,23 @@ class _HomeNavbarState extends State<HomeNavbar>
             : (widget.config?['cta_text_en'] as String?);
 
         if (isMobile) {
-          return _MobileNavbar(
-            isLoggedIn: isLoggedIn,
-            userEmail: userEmail,
-            userId: userId,
-            menuOpen: _menuOpen,
-            toggleMenu: _toggleMenu,
-            closeMenu: _closeMenu,
-            menuController: _menuController,
-            menuHeight: _menuHeight,
-            menuOpacity: _menuOpacity,
-            ctaText: ctaText,
-            showLogin: widget.config?['show_login'] as bool? ?? true,
-            cubeCount: widget.cubeCount,
+          return TapRegion(
+            onTapOutside: (event) => _closeMenu(),
+            child: _MobileNavbar(
+              isLoggedIn: isLoggedIn,
+              userEmail: userEmail,
+              userId: userId,
+              menuOpen: _menuOpen,
+              toggleMenu: _toggleMenu,
+              closeMenu: _closeMenu,
+              menuController: _menuController,
+              menuHeight: _menuHeight,
+              menuOpacity: _menuOpacity,
+              ctaText: ctaText,
+              showLogin: widget.config?['show_login'] as bool? ?? true,
+              cubeCount: widget.cubeCount,
+              onPreviewTapped: widget.onPreviewTapped,
+            ),
           );
         }
 
@@ -120,6 +129,7 @@ class _HomeNavbarState extends State<HomeNavbar>
           ctaText: ctaText,
           showLogin: widget.config?['show_login'] as bool? ?? true,
           cubeCount: widget.cubeCount,
+          onPreviewTapped: widget.onPreviewTapped,
         );
       },
     );
@@ -134,6 +144,7 @@ class _DesktopNavbar extends StatelessWidget {
   final String? ctaText;
   final bool showLogin;
   final ValueNotifier<int>? cubeCount;
+  final VoidCallback? onPreviewTapped;
 
   const _DesktopNavbar({
     required this.isLoggedIn,
@@ -142,125 +153,131 @@ class _DesktopNavbar extends StatelessWidget {
     this.ctaText,
     this.showLogin = true,
     this.cubeCount,
+    this.onPreviewTapped,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                width: 1,
-              ),
+    return AppBlurEffect(
+      blur: 12.0,
+      borderRadius: BorderRadius.zero,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+          border: Border(
+            bottom: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              width: 1,
             ),
           ),
-          child: SizedBox(
-            height: 70,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: 64,
-                vertical: 12,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _LogoSection(),
-                  Row(
-                    children: [
-                      // if (cubeCount != null)
-                      //   BlocBuilder<CubeModeCubit, CubeMode>(
-                      //     builder: (context, mode) {
-                      //       if (mode == CubeMode.merge) {
-                      //         return Padding(
-                      //           padding: const EdgeInsetsDirectional.only(
-                      //             end: 6,
-                      //           ),
-                      //           child: ValueListenableBuilder<int>(
-                      //             valueListenable: cubeCount!,
-                      //             builder: (context, count, _) {
-                      //               return Text(
-                      //                 '$count',
-                      //                 style: AppTypography.bodyMedium.copyWith(
-                      //                   color: Theme.of(
-                      //                     context,
-                      //                   ).colorScheme.primary,
-                      //                   fontWeight: FontWeight.bold,
-                      //                 ),
-                      //               );
-                      //             },
-                      //           ),
-                      //         );
-                      //       }
-                      //       return const SizedBox.shrink();
-                      //     },
-                      //   ),
-                      const AnimatedCubeModeToggle(size: 32),
-
-                      const SizedBox(width: 6),
-                      const AnimatedThemeToggle(size: 32),
-                      const SizedBox(width: 8),
-                      const LanguageSwitcherButton(
-                        variant: LanguageSwitcherVariant.iconAndText,
+        ),
+        child: SizedBox(
+          height: 70,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 64,
+              vertical: 12,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _LogoSection(),
+                Row(
+                  children: [
+                    // if (cubeCount != null)
+                    //   BlocBuilder<CubeModeCubit, CubeMode>(
+                    //     builder: (context, mode) {
+                    //       if (mode == CubeMode.merge) {
+                    //         return Padding(
+                    //           padding: const EdgeInsetsDirectional.only(
+                    //             end: 6,
+                    //           ),
+                    //           child: ValueListenableBuilder<int>(
+                    //             valueListenable: cubeCount!,
+                    //             builder: (context, count, _) {
+                    //               return Text(
+                    //                 '$count',
+                    //                 style: AppTypography.bodyMedium.copyWith(
+                    //                   color: Theme.of(
+                    //                     context,
+                    //                   ).colorScheme.primary,
+                    //                   fontWeight: FontWeight.bold,
+                    //                 ),
+                    //               );
+                    //             },
+                    //           ),
+                    //         );
+                    //       }
+                    //       return const SizedBox.shrink();
+                    //     },
+                    //   ),
+                    if (onPreviewTapped != null)
+                      IconButton(
+                        tooltip: 'وضع استعراض المكعبات',
+                        icon: const Icon(Icons.view_in_ar_outlined),
+                        onPressed: onPreviewTapped,
                       ),
-                      const SizedBox(width: 20),
-                      if (isLoggedIn) ...[
-                        if (showLogin)
-                          _UserAvatarMenu(email: userEmail, userId: userId),
-                      ] else ...[
-                        if (showLogin)
-                          TextButton(
-                            onPressed: () => context.go('/login'),
-                            child: Text(
-                              context.translate('login'),
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        if (showLogin) const SizedBox(width: 16),
-                        ElevatedButton(
-                          onPressed: () => context.go('/register'),
-                          style:
-                              ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.primary,
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                                elevation: 0,
-                              ).copyWith(
-                                shadowColor: WidgetStateProperty.all(
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.5),
-                                ),
-                              ),
+                    const AnimatedCubeModeToggle(size: 32),
+
+                    const SizedBox(width: 6),
+                    const AnimatedThemeToggle(size: 32),
+                    const SizedBox(width: 8),
+                    const LanguageSwitcherButton(
+                      variant: LanguageSwitcherVariant.iconAndText,
+                    ),
+                    const SizedBox(width: 20),
+                    if (isLoggedIn) ...[
+                      if (showLogin)
+                        _UserAvatarMenu(email: userEmail, userId: userId),
+                    ] else ...[
+                      if (showLogin)
+                        TextButton(
+                          onPressed: () => context.go('/login'),
                           child: Text(
-                            ctaText ?? context.translate('start_free'),
+                            context.translate('login'),
                             style: AppTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                      ],
+                      if (showLogin) const SizedBox(width: 16),
+                      ElevatedButton(
+                        onPressed: () => context.go('/register'),
+                        style:
+                            ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              elevation: 0,
+                            ).copyWith(
+                              shadowColor: WidgetStateProperty.all(
+                                Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.5),
+                              ),
+                            ),
+                        child: Text(
+                          ctaText ?? context.translate('start_free'),
+                          style: AppTypography.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
                     ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
@@ -283,6 +300,7 @@ class _MobileNavbar extends StatelessWidget {
   final String? ctaText;
   final bool showLogin;
   final ValueNotifier<int>? cubeCount;
+  final VoidCallback? onPreviewTapped;
 
   const _MobileNavbar({
     required this.isLoggedIn,
@@ -297,22 +315,54 @@ class _MobileNavbar extends StatelessWidget {
     this.ctaText,
     this.showLogin = true,
     this.cubeCount,
+    this.onPreviewTapped,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+    final BorderRadius radius = BorderRadius.only(
+      bottomLeft: Radius.circular(menuOpen ? 24 : 0),
+      bottomRight: Radius.circular(menuOpen ? 24 : 0),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: menuOpen
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ]
+            : null,
+      ),
+      child: AppBlurEffect(
+        blur: 12.0,
+        borderRadius: radius,
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+            borderRadius: radius,
             border: Border(
               bottom: BorderSide(
                 color: Theme.of(context).colorScheme.outlineVariant,
                 width: 1,
               ),
+              left: menuOpen
+                  ? BorderSide(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      width: 1,
+                    )
+                  : BorderSide.none,
+              right: menuOpen
+                  ? BorderSide(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      width: 1,
+                    )
+                  : BorderSide.none,
             ),
           ),
           child: Column(
@@ -336,6 +386,12 @@ class _MobileNavbar extends StatelessWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              if (onPreviewTapped != null)
+                                IconButton(
+                                  tooltip: 'وضع استعراض المكعبات',
+                                  icon: const Icon(Icons.view_in_ar_outlined),
+                                  onPressed: onPreviewTapped,
+                                ),
                               const AnimatedCubeModeToggle(size: 32),
                               if (cubeCount != null)
                                 BlocBuilder<CubeModeCubit, CubeMode>(
@@ -418,13 +474,24 @@ class _MobileNavbar extends StatelessWidget {
                   return ClipRect(
                     child: SizedBox(
                       height: menuHeight.value,
-                      child: Opacity(opacity: menuOpacity.value, child: child),
+                      child: Opacity(
+                        opacity: menuOpacity.value,
+                        child: SingleChildScrollView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          child: child,
+                        ),
+                      ),
                     ),
                   );
                 },
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
+                    ),
                     border: Border(
                       top: BorderSide(
                         color: Theme.of(context).colorScheme.outlineVariant,
@@ -434,7 +501,7 @@ class _MobileNavbar extends StatelessWidget {
                   ),
                   padding: const EdgeInsetsDirectional.symmetric(
                     horizontal: 24,
-                    vertical: 16,
+                    vertical: 24,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

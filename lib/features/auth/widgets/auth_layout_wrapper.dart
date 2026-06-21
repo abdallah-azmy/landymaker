@@ -36,14 +36,6 @@ class AuthLayoutWrapper extends StatelessWidget {
             ),
           ),
 
-          // Top Bar for Theme and Language
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: _AuthTopBar(),
-          ),
-
           // Main Content
           LayoutBuilder(
             builder: (context, constraints) {
@@ -90,6 +82,14 @@ class AuthLayoutWrapper extends StatelessWidget {
                 ),
               );
             },
+          ),
+
+          // Top Bar for Theme and Language (rendered last so it's on top and clickable)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _AuthTopBar(),
           ),
         ],
       ),

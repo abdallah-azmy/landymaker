@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
+import '../../../../core/widgets/particles/loading_logo_modified.dart';
 import '../controllers/builder_cubit.dart';
 import '../controllers/builder_state.dart';
 import '../models/preview_mode.dart';
@@ -154,8 +155,8 @@ class _GuestPreviewScreenState extends State<GuestPreviewScreen> {
     if (state is! BuilderLoaded) {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Center(
-          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
+        body: const Center(
+          child: LoadingLogo(),
         ),
       );
     }

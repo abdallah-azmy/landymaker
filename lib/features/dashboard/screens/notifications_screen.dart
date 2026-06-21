@@ -6,6 +6,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/molecules/page_context_banner.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 import '../controllers/notification_cubit.dart';
 import '../controllers/notification_state.dart';
 
@@ -100,7 +101,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: BlocBuilder<NotificationCubit, NotificationState>(
               builder: (context, state) {
                 if (state is NotificationLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: LoadingLogo());
                 }
 
                 if (state is NotificationFailure) {

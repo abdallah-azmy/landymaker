@@ -6,6 +6,7 @@ import '../../theme/app_typography.dart';
 import '../../../features/dashboard/controllers/landing_pages_cubit.dart';
 import '../../../features/dashboard/controllers/landing_pages_state.dart';
 import '../../../features/dashboard/controllers/active_website_cubit.dart';
+import '../particles/loading_logo_modified.dart';
 
 class WebsiteSwitcher extends StatefulWidget {
   const WebsiteSwitcher({super.key});
@@ -147,7 +148,7 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
                               },
                             );
                           }
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(child: LoadingLogo(size: 80));
                         },
                       ),
                     ),

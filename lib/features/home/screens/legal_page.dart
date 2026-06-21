@@ -6,6 +6,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/seo/app_seo.dart';
 import '../../../core/router/router_extensions.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 import '../../../services/supabase_service.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_footer.dart';
@@ -147,7 +148,7 @@ class _LegalPageState extends State<LegalPage> {
                       horizontal: isMobile ? 16 : 32,
                     ),
                     child: _isLoading 
-                      ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
+                      ? const Center(child: LoadingLogo())
                       : _buildContent(context, isMobile),
                   );
                 },

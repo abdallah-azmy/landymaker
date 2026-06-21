@@ -1,26 +1,26 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-enum LoadingLogoMode {
+enum LoadingLogoOriginalMode {
   breathing,
   rotatingLayers,
 }
 
-class LoadingLogo extends StatefulWidget {
-  final LoadingLogoMode mode;
+class LoadingLogoOriginal extends StatefulWidget {
+  final LoadingLogoOriginalMode mode;
   final double size;
 
-  const LoadingLogo({
+  const LoadingLogoOriginal({
     Key? key,
-    this.mode = LoadingLogoMode.breathing,
+    this.mode = LoadingLogoOriginalMode.breathing,
     this.size = 120.0,
   }) : super(key: key);
 
   @override
-  State<LoadingLogo> createState() => _LoadingLogoState();
+  State<LoadingLogoOriginal> createState() => _LoadingLogoOriginalState();
 }
 
-class _LoadingLogoState extends State<LoadingLogo> with SingleTickerProviderStateMixin {
+class _LoadingLogoOriginalState extends State<LoadingLogoOriginal> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -48,7 +48,7 @@ class _LoadingLogoState extends State<LoadingLogo> with SingleTickerProviderStat
         builder: (context, _) {
           return CustomPaint(
             size: Size(widget.size, widget.size),
-            painter: _LoadingLogoPainter(
+            painter: _LoadingLogoOriginalPainter(
               animationValue: _controller.value,
               mode: widget.mode,
               primaryColor: Theme.of(context).colorScheme.primary,
@@ -75,32 +75,13 @@ class _CubeEntity {
   });
 }
 
-class _FaceDrawData {
-  final double z;
-  final double brightness;
-  final double x0, y0, x1, y1, x2, y2, x3, y3;
-
-  _FaceDrawData({
-    required this.z,
-    required this.brightness,
-    required this.x0,
-    required this.y0,
-    required this.x1,
-    required this.y1,
-    required this.x2,
-    required this.y2,
-    required this.x3,
-    required this.y3,
-  });
-}
-
-class _LoadingLogoPainter extends CustomPainter {
+class _LoadingLogoOriginalPainter extends CustomPainter {
   final double animationValue;
-  final LoadingLogoMode mode;
+  final LoadingLogoOriginalMode mode;
   final Color primaryColor;
   final Brightness brightness;
 
-  _LoadingLogoPainter({
+  _LoadingLogoOriginalPainter({
     required this.animationValue,
     required this.mode,
     required this.primaryColor,
@@ -138,7 +119,7 @@ class _LoadingLogoPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double rx = 0.70;
+    final double rx = 0.615;
     final double ry = pi / 4;
     final double rz = 0.0;
 
@@ -146,13 +127,13 @@ class _LoadingLogoPainter extends CustomPainter {
     final double cy = cos(ry), sy = sin(ry);
     final double cz = cos(rz), sz = sin(rz);
 
-    final double cubeSize = size.width * 0.26;
-    final double gapBase = cubeSize * 1.15;
+    final double gapBase = size.width * 0.28;
+    final double cubeSize = size.width * 0.22;
     final double h = cubeSize * 0.5;
 
     final strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6;
+      ..strokeWidth = 1.0;
     final fillPaint = Paint()..style = PaintingStyle.fill;
     final cubeColor = brightness == Brightness.light
         ? const Color(0xFFD8D8D8)
@@ -167,7 +148,7 @@ class _LoadingLogoPainter extends CustomPainter {
       double gap = gapBase;
       
       // Animations
-      if (mode == LoadingLogoMode.breathing) {
+      if (mode == LoadingLogoOriginalMode.breathing) {
         // Pulse outward based on sine wave
         final breath = sin(animationValue * pi * 2);
         gap = gapBase + breath * (size.width * 0.05);
@@ -175,7 +156,7 @@ class _LoadingLogoPainter extends CustomPainter {
         // Add a primary color glow when breathing out
         if (breath > 0) {
            strokePaint.color = primaryColor.withOpacity(0.5 + breath * 0.5);
-           strokePaint.maskFilter = MaskFilter.blur(BlurStyle.normal, 4 + breath * 4);
+           strokePaint.maskFilter = MaskFilter.blur(BlurStyle.outer, breath * 10);
         } else {
            strokePaint.color = primaryColor.withOpacity(0.5);
            strokePaint.maskFilter = null;
@@ -188,7 +169,7 @@ class _LoadingLogoPainter extends CustomPainter {
       double Y = iy * gap;
       double Z = iz * gap;
 
-      if (mode == LoadingLogoMode.rotatingLayers) {
+      if (mode == LoadingLogoOriginalMode.rotatingLayers) {
         double layerRot = 0.0;
         final t = animationValue * pi * 2;
         if (iy == -1) layerRot = t;
@@ -330,7 +311,7 @@ class _LoadingLogoPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _LoadingLogoPainter oldDelegate) {
+  bool shouldRepaint(covariant _LoadingLogoOriginalPainter oldDelegate) {
     return animationValue != oldDelegate.animationValue || mode != oldDelegate.mode;
   }
 }

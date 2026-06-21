@@ -11,6 +11,7 @@ import '../../../core/utils/toast_service.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
 import '../widgets/auth_layout_wrapper.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -75,7 +76,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+                  const LoadingLogo(),
                   const SizedBox(height: 24),
                   Text(
                     loc.isRtl

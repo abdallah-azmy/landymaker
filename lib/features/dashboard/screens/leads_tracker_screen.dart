@@ -6,6 +6,7 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/organisms/responsive_data_table.dart';
 import '../../../core/widgets/molecules/page_context_banner.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 // Removed sl/AuthService imports to maintain architectural boundary
 import '../controllers/leads_analytics_cubit.dart';
 import '../controllers/leads_analytics_state.dart';
@@ -116,7 +117,7 @@ class _LeadsTrackerScreenState extends State<LeadsTrackerScreen> {
     }
 
     if (state is LeadsAnalyticsLoading || state is LeadsAnalyticsInitial) {
-      return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary));
+      return const Center(child: LoadingLogo());
     }
 
     if (state is LeadsAnalyticsFailure) {

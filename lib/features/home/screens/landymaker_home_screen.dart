@@ -17,6 +17,9 @@ import '../widgets/home_feature_bento.dart';
 import '../widgets/home_cta_section.dart';
 import '../widgets/home_footer.dart';
 import '../widgets/home_section_renderer.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/particles/loading_logo_original.dart';
 
 class LandyMakerHomeScreen extends StatefulWidget {
   const LandyMakerHomeScreen({super.key});
@@ -249,6 +252,134 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     setState(() => _isPreviewMode = false);
   }
 
+  void _showLogoTestDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Theme.of(dialogContext).colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            width: 500,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.isRtl ? "مقارنة لودينج اللوجو" : "Logo Loader Comparison",
+                      style: AppTypography.h3.copyWith(
+                        color: Theme.of(dialogContext).colorScheme.onSurface,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Breathing Mode Row
+                Text(
+                  context.isRtl ? "وضع النبض (Breathing Mode)" : "Breathing Mode",
+                  style: AppTypography.bodyLarge.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(dialogContext).colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          context.isRtl ? "الأصلي" : "Original",
+                          style: AppTypography.bodySmall.copyWith(
+                            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const LoadingLogoOriginal(
+                          mode: LoadingLogoOriginalMode.breathing,
+                          size: 100,
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          context.isRtl ? "المعدل" : "Modified",
+                          style: AppTypography.bodySmall.copyWith(
+                            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const LoadingLogo(
+                          mode: LoadingLogoMode.breathing,
+                          size: 100,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 16),
+                // Rotating Layers Mode Row
+                Text(
+                  context.isRtl ? "وضع دوران الطبقات (Rotating Layers)" : "Rotating Layers Mode",
+                  style: AppTypography.bodyLarge.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(dialogContext).colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          context.isRtl ? "الأصلي" : "Original",
+                          style: AppTypography.bodySmall.copyWith(
+                            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const LoadingLogoOriginal(
+                          mode: LoadingLogoOriginalMode.rotatingLayers,
+                          size: 100,
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          context.isRtl ? "المعدل" : "Modified",
+                          style: AppTypography.bodySmall.copyWith(
+                            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const LoadingLogo(
+                          mode: LoadingLogoMode.rotatingLayers,
+                          size: 100,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _scrollController.removeListener(_saveScrollPosition);
@@ -450,6 +581,17 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
           ),
         ),
       ),
+      floatingActionButton: _isPreviewMode
+          ? null
+          : FloatingActionButton(
+              onPressed: () => _showLogoTestDialog(context),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              tooltip: context.isRtl ? "مقارنة لودينج اللوجو" : "Compare Loading Logos",
+              child: Icon(
+                Icons.bug_report_rounded,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
     );
   }
 }

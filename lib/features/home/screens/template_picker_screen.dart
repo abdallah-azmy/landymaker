@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/widgets/custom_network_image.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 import '../../../services/database_service.dart';
 import '../../../services/tenant_routing_service.dart';
 import '../../../injection_container.dart';
@@ -89,7 +90,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: LoadingLogo()),
       );
     }
 

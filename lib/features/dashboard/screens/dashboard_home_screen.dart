@@ -10,6 +10,7 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 import '../widgets/analytics_overview_widget.dart';
 import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
@@ -63,8 +64,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
       body: BlocBuilder<LandingPagesCubit, LandingPagesState>(
         builder: (context, state) {
           if (state is LandingPagesLoading) {
-            return Center(
-              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
+            return const Center(
+              child: LoadingLogo(),
             );
           }
           if (state is LandingPagesLoaded) {

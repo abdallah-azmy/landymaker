@@ -17,6 +17,7 @@ import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
 import '../widgets/domain_setup_widget.dart';
 import '../widgets/empty_workspace_state.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 
 class DomainSettingsScreen extends StatelessWidget {
   const DomainSettingsScreen({super.key});
@@ -55,7 +56,7 @@ class DomainSettingsScreen extends StatelessWidget {
                 SizedBox(height: 24),
 
                 if (isLoadingAccess)
-                  const Center(child: CircularProgressIndicator())
+                  const Center(child: LoadingLogo())
                 else if (activeState.website == null)
                   _buildNoSelectionState(context, loc)
                 else if (!hasPremiumAccess)

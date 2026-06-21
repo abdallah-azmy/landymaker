@@ -6,6 +6,7 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/molecules/data_card.dart';
 import '../../../core/widgets/molecules/page_context_banner.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 // Removed sl/AuthService imports to maintain architectural boundary
 import '../controllers/leads_analytics_cubit.dart';
 import '../controllers/leads_analytics_state.dart';
@@ -39,8 +40,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     }
 
     if (state is LeadsAnalyticsLoading || state is LeadsAnalyticsInitial) {
-      return Center(
-        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
+      return const Center(
+        child: LoadingLogo(),
       );
     }
 

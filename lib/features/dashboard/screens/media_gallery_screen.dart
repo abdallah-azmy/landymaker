@@ -8,6 +8,7 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 import '../../../core/utils/file_utils.dart';
 import '../../../core/utils/toast_service.dart';
 import '../controllers/media_gallery_cubit.dart';
@@ -108,10 +109,10 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
     return BlocBuilder<MediaGalleryCubit, MediaGalleryState>(
       builder: (context, state) {
         if (state is MediaGalleryLoading) {
-          return Center(
+          return const Center(
             child: Padding(
-              padding: const EdgeInsets.all(60.0),
-              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
+              padding: EdgeInsets.all(60.0),
+              child: LoadingLogo(),
             ),
           );
         }

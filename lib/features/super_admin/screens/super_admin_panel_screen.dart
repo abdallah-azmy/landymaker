@@ -18,6 +18,7 @@ import '../controllers/super_admin_state.dart';
 import '../controllers/homepage_editor_cubit.dart';
 import 'homepage_editor_screen.dart';
 import '../widgets/bulk_action_bar.dart';
+import '../../../core/widgets/particles/loading_logo_modified.dart';
 
 class SuperAdminPanelScreen extends StatefulWidget {
   const SuperAdminPanelScreen({super.key});
@@ -161,7 +162,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 _buildLandingPagesTab(state),
               ],
             )
-          : const Center(child: CircularProgressIndicator()),
+          : const Center(child: LoadingLogo()),
       ),
     );
   }
@@ -1757,7 +1758,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
       future: di.sl<DatabaseService>().fetchAllLandingPages(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: LoadingLogo());
         }
         if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(

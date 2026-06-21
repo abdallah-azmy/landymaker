@@ -89,8 +89,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
   }
 
   void _onLogoAnimTick() {
-    // Trigger burst 200ms after Flutter first frame (200 / 1500 = 0.133)
-    if (!_burstTriggered && _logoAnimController.value >= 0.133) {
+    // Trigger burst 900ms after Flutter first frame (900 / 1500 = 0.6)
+    // This gives the HTML loader time to fade out, and lets the user
+    // actually see the fully formed logo cube for a moment before it explodes.
+    if (!_burstTriggered && _logoAnimController.value >= 0.6) {
       _burstTriggered = true;
       _cubeController.triggerLogoBurst(const Offset(0.5, 0.5));
     }

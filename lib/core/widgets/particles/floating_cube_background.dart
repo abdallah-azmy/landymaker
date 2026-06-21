@@ -518,10 +518,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     _entities = List.generate(_baseData.length, (i) {
       final d = _baseData[i];
       return _MergeEntity(
-        x: _isPreBurst ? 0.5 : d.x + (Random().nextDouble() - 0.5) * 0.05,
-        y: _isPreBurst ? 0.5 : d.y * (1.0 - topExclusion) +
-            topExclusion +
-            (Random().nextDouble() - 0.5) * 0.05,
+        x: _isPreBurst ? 0.5 : Random().nextDouble(),
+        y: _isPreBurst ? 0.5 : Random().nextDouble(),
         size: d.size,
         targetSize: d.size,
         rx: _isPreBurst ? pi / 4 : d.rx,
@@ -1511,8 +1509,12 @@ class _MergeEntity {
         vy += (dy / dist) * force;
       }
     }
-
-    vy -= scrollDrift * 5.0;
+    // Positional parallax to prevent velocity-sloshing during fast scroll
+    // Cubes that are resting on the floor (y >= 0.99) stay glued to the bottom edge
+    if (y < 0.99) {
+      y -= scrollDrift * 1.5; 
+      vy -= scrollDrift * 0.1; // Tiny momentum inheritance
+    }
 
     const double repZone = 0.1;
     const double repForce = 0.04;

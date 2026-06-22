@@ -180,9 +180,12 @@ class _TemplateConfigSheetState extends State<TemplateConfigSheet> {
             Text('اختيار القوالب', style: theme.textTheme.labelLarge),
             const SizedBox(height: 8),
             if (_loadingTemplates)
-              const Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CubeSpinner(size: 16),
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: CubeSpinner(
+                  size: 16,
+                  color: theme.colorScheme.primary,
+                ),
               ))
             else if (_allTemplates.isEmpty)
               Text('لا توجد قوالب متاحة', style: TextStyle(color: theme.colorScheme.onSurfaceVariant))

@@ -84,9 +84,12 @@ class _SectionRendererConfigSheetState extends State<SectionRendererConfigSheet>
             Text('اختر صفحة الهبوط', style: theme.textTheme.labelLarge),
             const SizedBox(height: 8),
             if (_loadingPages)
-              const Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CubeSpinner(size: 16),
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: CubeSpinner(
+                  size: 16,
+                  color: theme.colorScheme.primary,
+                ),
               ))
             else if (_allPages.isEmpty)
               Text('لا توجد صفحات هبوط متاحة', style: TextStyle(color: theme.colorScheme.onSurfaceVariant))

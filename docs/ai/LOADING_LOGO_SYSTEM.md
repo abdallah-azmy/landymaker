@@ -105,8 +105,6 @@ const LoadingLogo(size: 96, initialState: LoadingLogoState.loading, showGlow: tr
 
 - **Cube faces**: `surface`-derived (dark: `#1E293B`, light: `#E2E8F0`), modulated by face brightness (Lambertian dot product).
 - **Edges**: `colorScheme.primary` at 0.6 alpha (increased to 0.9 on hover).
-- **Success tint**: Green (`#22C55E`) mixed into face color at 30%.
-- **Error tint**: Red (`#EF4444`) mixed into face color at 30%.
 - **Glow**: `primaryColor` with alpha controlled by state.
 
 ---
@@ -115,6 +113,6 @@ const LoadingLogo(size: 96, initialState: LoadingLogoState.loading, showGlow: tr
 
 - **Legacy replacement**: `loading_logo_modified.dart` → `loading_logo.dart`
 - **API change**: `mode: LoadingLogoMode.breathing` → `initialState: LoadingLogoState.breathing`
-- **API change**: `mode: LoadingLogoMode.rotatingLayers` → `initialState: LoadingLogoState.loading`
+- **API change**: `mode: LoadingLogoMode.rotatingLayers` → `initialState: LoadingLogoState.rotatingLayers`
 - **Default size changed** from `120` to `48`. Update explicit sizes for page-level loaders.
 - `TechLoadingScreen` now uses `LoadingLogo(size: 80, initialState: LoadingLogoState.loading)`.

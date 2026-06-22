@@ -20,7 +20,7 @@ This document explains the **entire cube rendering ecosystem** in LandyMaker. Th
 | **States** | `idle`, `breathing`, `loading`, `rotatingLayers` |
 | **Variants** | `logo` (27, 3×3×3), `single` (1), `cluster` (3 orbiting), `linear` (5 wave), `circular` (6 orbit), `physics` (3 bounce) |
 | **Animation** | 4-second `AnimationController.repeat()` with **accumulated rotation angles** (no loop-reset visual jumps) |
-| **Corner rounding** | Unified cubic bezier: `(h × 0.22).clamp(0.3, h × 0.4)` for all variants |
+| **Corner rounding** | Unified cubic bezier: `(h × 0.22).clamp(0.3, max(0.3, h × 0.4))` for all variants (upper bound clamped to avoid `ArgumentError` when `h < 0.75`) |
 | **Ambient occlusion** | Inner cubes darker, faces occluded by neighbor skipped entirely |
 | **Legacy wrappers** | `LoadingLogo` → `CubeLoader(variant: logo)`, `CubeSpinner` → `CubeLoader(variant: single)`, `CubeProgress` → `CubeLoader(variant: cluster)` |
 
@@ -57,7 +57,7 @@ ALL cube renderers import this file. No cube-rendering code should duplicate the
 
 | File | Role | Lines |
 |------|------|-------|
-| `particles/cube_loader.dart` | **Primary widget**. StatefulWidget + _CubeLoaderPainter (CustomPaint). 6 variants, 4 states, accumulated rotation angles, zero-allocation scratch buffers, interactive tap-to-explode. | ~963 |
+| `particles/cube_loader.dart` | **Primary widget**. StatefulWidget + _CubeLoaderPainter (CustomPaint). 6 variants, 4 states, accumulated rotation angles, smooth speed lerp, hover layer highlighting, zero-allocation scratch buffers, interactive tap-to-explode. | ~897 |
 | `particles/loading_logo.dart` | Legacy wrapper. Maps `LoadingLogoState` → `CubeLoaderState`, delegates to `CubeLoader(variant: logo)`. | ~67 |
 | `atoms/cube_spinner.dart` | Legacy wrapper. Delegates to `CubeLoader(variant: single)`. | ~29 |
 | `atoms/cube_progress.dart` | Legacy wrapper. Delegates to `CubeLoader(variant: cluster)` with `value` for determinate progress. | ~33 |
@@ -68,7 +68,7 @@ ALL cube renderers import this file. No cube-rendering code should duplicate the
 
 | File | Role | Lines |
 |------|------|-------|
-| `particles/floating_cube_background.dart` | **Full particle system**. StatefulWidget with 60s AnimationController, spatial hash grid, isolate offloading, adaptive quality, trail/burst particles, 4 modes, preview mode (gatherIntoLogo / triggerLogoBurst). | ~2104 |
+| `particles/floating_cube_background.dart` | **Full particle system**. StatefulWidget with 60s AnimationController, spatial hash grid, isolate offloading, adaptive quality, trail/burst particles, 4 modes, preview mode (gatherIntoLogo / triggerLogoBurst). | ~2131 |
 | `particles/cube_mode_cubit.dart` | BLoC/Cubit managing `CubeMode` enum (standard/merge/orbit/gravity). Persists to SharedPreferences. | ~ |
 | `atoms/animated_cube_mode_toggle.dart` | Circular toggle button cycling cube modes with bounce animation. Uses icons, NOT cube rendering. | ~108 |
 
@@ -330,14 +330,16 @@ Total Y rotation at any frame: `ry = π/4 + accumulatedRotationAngle` (continuou
 Each individual cube face has rounded corners implemented with cubic bezier curves using a **unified formula across all variants**:
 
 ```
-cornerRadius = (h × 0.22).clamp(0.3, h × 0.4)
+cornerRadius = (h × 0.22).clamp(0.3, max(0.3, h × 0.4))
 ```
 
 This gives approximately **22% of the face half-width** as the corner radius—a slightly tighter, more premium rounded look. The `buildRoundedQuad` function additionally clamps to `minEdge × 0.5`. For very small faces (cr < 0.5px), it falls back to sharp polygon (`addPolygon`).
 
 The control point distance for the cubic bezier is `cr × 0.55` (standard approximation of a quarter-circle arc, ≈ 4/3 × tan(π/8)).
 
-If `buildRoundedQuad` receives rounded corners from `FloatingCubeBackground` (in logo state), the same unified formula `(h * 0.22).clamp(0.3, h * 0.4)` is used.
+If `buildRoundedQuad` receives rounded corners from `FloatingCubeBackground` (in logo state), the same unified formula is used.
+
+**⚠️ Safety — upper bound must not be less than lower bound**: When `h < 0.75`, `h * 0.4 < 0.3`, causing `clamp(0.3, 0.2)` to throw `ArgumentError: Invalid argument: 0.3`. The `max(0.3, h * 0.4)` guard ensures the upper bound is never less than the lower bound.
 
 ### 10d. Colors
 
@@ -425,6 +427,8 @@ The breath is: `breath = sin(controllerValue × 2π)` — modulates the gap betw
 
 Rotation angles accumulate continuously via `_accumulateAngles()` — they do NOT reset when the animation controller loops. This ensures visually seamless rotation.
 
+**Smooth Speed Transitions**: When the state changes via `didUpdateWidget`, the rotation speed does NOT snap instantly. Instead, `_currentSpeed` lerps toward `_targetSpeed` each frame (`current += (target - current) × 0.1`), reaching ~95% convergence in ~500ms. The `_targetSpeed` is recomputed each frame from `_currentState` via `_speedForState()`.
+
 ### 10j. Visual Guarantees (DO NOT BREAK)
 
 1. The logo MUST always render as a 3×3×3 grid of 27 cubes — no more, no less
@@ -442,18 +446,18 @@ Rotation angles accumulate continuously via `_accumulateAngles()` — they do NO
 | File | System | Lines | Primary Function |
 |------|--------|-------|-----------------|
 | `core/cube_geometry.dart` | Shared | ~150 | Cube math constants and functions |
-| `particles/cube_loader.dart` | A | ~963 | Unified loading indicator widget |
+| `particles/cube_loader.dart` | A | ~897 | Unified loading indicator widget |
 | `particles/loading_logo.dart` | A | ~65 | Legacy wrapper → CubeLoader |
 | `atoms/cube_spinner.dart` | A | ~29 | Legacy wrapper → CubeLoader |
 | `atoms/cube_progress.dart` | A | ~33 | Legacy wrapper → CubeLoader |
 | `atoms/cube_shimmer.dart` | A | ~177 | Cube-based skeleton shimmer |
 | `atoms/cube_refresh_indicator.dart` | A | ~346 | Pull-to-refresh orbit animation |
-| `particles/floating_cube_background.dart` | B | ~2126 | Full particle system with 4 modes |
+| `particles/floating_cube_background.dart` | B | ~2131 | Full particle system with 4 modes |
 | `particles/cube_mode_cubit.dart` | B | ~ | Mode state management |
 | `atoms/animated_cube_mode_toggle.dart` | B | ~108 | Mode toggle UI button |
 | `features/home/screens/landymaker_home_screen.dart` | C | ~844 | Preview mode overlay |
 | `docs/ai/CUBE_ECOSYSTEM.md` | Doc | — | This file — master reference |
-| `docs/ai/CUBE_LOADER.md` | Doc | ~112 | CubeLoader detailed docs |
+| `docs/ai/CUBE_LOADER.md` | Doc | ~130 | CubeLoader detailed docs |
 | `docs/ai/LOADING_LOGO_SYSTEM.md` | Doc | ~121 | Legacy LoadingLogo (DEPRECATED) |
 | `docs/ai/FLOATING_CUBE_BACKGROUND.md` | Doc | ~496 | Floating cube physics & rules |
 | `docs/ai/AI_DOCUMENTATION_RULES.md` | Doc | ~173 | Rule 40 for CubeLoader |

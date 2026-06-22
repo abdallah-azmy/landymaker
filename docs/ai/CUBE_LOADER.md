@@ -20,7 +20,7 @@ cube_progress.dart ──→  delegates to CubeLoader(variant: cluster)
 
 | File | Purpose | Lines |
 |------|---------|-------|
-| `lib/core/widgets/particles/cube_loader.dart` | Unified CubeLoader widget | ~960 |
+| `lib/core/widgets/particles/cube_loader.dart` | Unified CubeLoader widget | ~897 |
 | `lib/core/widgets/particles/core/cube_geometry.dart` | Shared cube math (verts, faces, normals, rotation, lighting) | ~150 |
 | `lib/core/widgets/particles/loading_logo.dart` | Legacy wrapper (delegates to CubeLoader) | ~63 |
 | `lib/core/widgets/atoms/cube_spinner.dart` | Legacy wrapper (delegates to CubeLoader) | ~30 |
@@ -78,6 +78,22 @@ const CubeLoader({
 - No `List.generate` or `new Path()` in the paint loop
 - Single `RotationMatrix` computed once per frame, reused for all cubes and all faces
 
+### Smooth Rotation Speed Transitions
+- `_currentSpeed` lerps toward `_targetSpeed` each frame at 10% velocity (`_currentSpeed += (_targetSpeed - _currentSpeed) * 0.1`)
+- `_targetSpeed` is recomputed from `_currentState` every frame via `_speedForState()`
+- When state changes, speed transitions smoothly over ~500ms — no visual stutter
+
+### Hover Layer Highlighting
+- In `rotatingLayers` state with `interactive: true`, `MouseRegion.onHover` tracks cursor Y position
+- Cursor divided into 3 vertical bands → maps to layer index (j = -1, 0, 1)
+- `_hoveredLayer` (int?) passed to `_CubeLoaderPainter`
+- When `hoveredLayer == j`, that layer's rotation speed is multiplied by 1.8×
+- `_hoveredLayer` cleared on `onExit`
+
+### Percentage Overlay
+- When `showPercentage: true`, the percentage text is wrapped in a `Container` with `Colors.black.withValues(alpha: 0.45)` background rounded at 6px
+- Guarantees readability on light and dark backgrounds
+
 ### Improved Rounding
 - Cubic bezier corner interpolation (vs quadratic bezier in v2)
 - Smoother, more premium look at all sizes
@@ -100,8 +116,10 @@ const CubeLoader({
 | `Path` objects per frame | 162 | 0 (reuses static `_path`) |
 | Rotation computations per frame | 27×6 = 162 | 1 (cached `_lightRot`) |
 | `sqrt` calls in `buildRoundedQuad` | 4 per face | 1 per face (squared-distance) |
+| Rotation speed transitions | Instant snap | Smooth lerp (`_currentSpeed` → `_targetSpeed` over ~500ms) |
+| Animation driver | `Timer.periodic` | `AnimationController` (synchronized with Flutter frame) |
 | Variants | 1 (logo) | 6 (logo, single, cluster, linear, circular, physics) |
-| File size | 653 lines | ~963 lines |
+| File size | 653 lines | ~897 lines |
 
 ## Migration Notes
 
@@ -121,3 +139,7 @@ const CubeLoader({
 4. **Squared-distance optimization**: `buildRoundedQuad` now computes squared distances (`dx*dx + dy*dy`) to find the minimum edge, calling `sqrt()` only once. This eliminates 75% of frame-level square root operations.
 
 5. **Rotating Layers**: The `rotatingLayers` state applies per-horizontal-layer Y-axis rotation before the global isometric transform. Layer speeds: bottom (j=-1) = +1.0×, middle (j=0) = -0.5×, top (j=1) = +1.5× of `rotationAngle`.
+
+6. **Smooth speed lerp**: `_currentSpeed` lerps toward `_targetSpeed` exponentially per frame. `_targetSpeed` is derived from `_currentState` via `_speedForState()` each frame. When `didUpdateWidget` changes the state, the transition is seamless.
+
+7. **`clamp` safety**: The `cornerRadius = (h * 0.22).clamp(0.3, h * 0.4)` formula can crash when `h < 0.75` because `clamp` requires `lower ≤ upper`. Fixed with `(h * 0.22).clamp(0.3, max(0.3, h * 0.4))` — the upper bound is never below the lower bound.

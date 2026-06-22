@@ -157,8 +157,10 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
     - **Image loading**: `CustomNetworkImage` uses `CubeShimmer` (still independent, uses shared geometry).
     - **Image upload progress**: `CubeLoader(variant: cluster, value: progress, showPercentage: true)`.
     - **Pull to refresh**: `CubeRefreshIndicator` (remains independent).
-    - **Interactive mode**: Set `interactive: true` for hero/standalone logos to enable hover glow and tap explode.
-    - See `docs/ai/CUBE_LOADER.md` for comprehensive documentation.
+     - **Interactive mode**: Set `interactive: true` for hero/standalone logos to enable hover glow, tap explode, AND hover layer highlighting in `rotatingLayers` state (hovered layer rotates 1.8× faster).
+     - **Smooth speed transitions**: Speed changes between states lerp automatically (~500ms) — no visual snap.
+     - **Percentage overlay**: When `showPercentage: true`, the percentage text has a `Colors.black.withValues(alpha: 0.45)` rounded background for readability on any background.
+     - See `docs/ai/CUBE_LOADER.md` for comprehensive documentation.
 
 41. **Google Fonts Loading Screen Protocol**:
     - **Why**: After implementing Rule 39 (fire-and-forget font preloading), the home screen may render before Google Fonts are fully loaded. If text widgets render with system fonts, they will swap (FOUT) when Google Fonts arrive, or show tofu if fonts fail.

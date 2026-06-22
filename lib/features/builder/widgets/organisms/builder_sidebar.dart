@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../editors/block_properties_editor.dart';
 import '../tabs/builder_sidebar_tabs.dart';

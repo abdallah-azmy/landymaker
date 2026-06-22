@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'cube_spinner.dart';
-import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
-import '../../localization/app_localizations.dart';
 
 class SocialSignInButton extends StatelessWidget {
   final VoidCallback? onPressed;

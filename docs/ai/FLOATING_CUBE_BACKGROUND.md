@@ -381,12 +381,19 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 ## 6. Rendering Pipeline
 
 ### `_CubePainter` (CustomPainter)
-- **V2**: Accepts new parameters: `trailPool`, `qualityMode`, `repelPoint` (Offset? for dynamic mouse light source).
+- **V2**: Accepts new parameters: `trailPool`, `qualityMode`, `repelPoint` (Offset? for dynamic mouse light source), `isLogoState` (bool).
 - **V2 Trails**: In high quality mode, trail/burst dust particles are drawn as small filled **circles** (`canvas.drawCircle`) **in front of** all cubes. Color uses `primaryColor` with opacity × 0.35, creating a subtle branded sparkle effect.
 - **V2 Dynamic Lighting**: Face brightness is computed from Lambertian dot product `dot = nx·lx + ny·ly + nz·lz`. The light source (lx, ly, lz) is calculated per entity from `repelPoint` (mouse cursor) when available, falling back to a fixed top-corner position based on layout direction. This provides responsive, real-time shading feedback as the user moves their mouse.
 - **V2 Adaptive**: In low quality mode, `strokePaint` is not drawn and trail particles are skipped entirely.
+- **V2.1 Rounded Corners (Logo State)**: When `isLogoState` is true (during pre-burst/gathering phases), each cube face is drawn using `cg.buildRoundedQuad` with the unified corner radius `(h * 0.22).clamp(0.3, h * 0.4)`. When not in logo state (cubes are floating freely), sharp polygon paths are used for maximum performance.
 - Entities with NaN/Infinite x, y, or renderSize are skipped (safety guard against WASM Aborted).
 - `_drawFace` guards against non-finite coordinates as final safety layer.
+
+### Logo State Angles & Spacing
+During `_isPreBurst` and `_isGathering` states, the isometric projection uses:
+- `rx = 0.70` (not the previous 0.615) — matches the brand logo's viewing angle
+- `gap = 20.0` (reduced from 22.0) — makes the logo look more compact and proportional
+- `e.renderSize = 18.0` — consistent cube face size for the 3×3×3 grid
 
 ### Color scheme
 - **Cube Base**: Light mode `#D8D8D8`, Dark mode `#505050`. Modulated by dynamic brightness.

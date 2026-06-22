@@ -21,7 +21,6 @@ import '../widgets/home_footer.dart';
 import '../widgets/home_section_renderer.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
-import '../../../core/widgets/particles/loading_logo_original.dart';
 import '../../../core/widgets/particles/cube_loader.dart';
 
 class LandyMakerHomeScreen extends StatefulWidget {
@@ -342,43 +341,28 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           
-                          // SECTION 1: Brand Logo Comparison
+                          // SECTION 1: Brand Logo Showcase
                           _buildSectionHeader(
                             dialogContext,
-                            isRtl ? "1. مقارنة الشعار وتأثير الإضاءة ثلاثية الأبعاد" : "1. Logo Comparison & 3D Shading Light",
+                            isRtl ? "1. شعار العلامة التجارية ثلاثي الأبعاد" : "1. Brand 3D Logo Showcase",
                             isRtl 
-                                ? "مقارنة محاذاة الشعار القديم والجديد مع تعديل انحناء الحواف الفائقة والمسافات وضبط تباين الظلال" 
-                                : "Comparing legacy isometric logo vs the brand-aligned loader with high-contrast ambient shading",
+                                ? "الشعار المعدل مع حواف دائرية سلسة وتباين إضاءة متطور" 
+                                : "Brand-aligned isometric loader with smooth rounded corners and ambient shading",
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildShowcaseCard(
-                                  dialogContext,
-                                  title: isRtl ? "الشعار الأصلي القديم" : "Original Logo (Legacy)",
-                                  desc: isRtl ? "زاوية مائلة، حواف أقل التفافاً، فراغات متباعدة" : "Flat shading, low contrast, wider gaps",
-                                  child: const LoadingLogoOriginal(
-                                    size: 100,
-                                    mode: LoadingLogoOriginalMode.breathing,
-                                  ),
-                                ),
+                          Tooltip(
+                            message: isRtl ? "شعار العلامة التجارية • 27 مكعباً • تنفس" : "Brand Logo • 27 cubes • Breathing",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "الشعار المعدل (المطابق للهوية)" : "Brand Logo",
+                              desc: isRtl ? "27 مكعباً في شبكة 3×3×3 بإسقاط متساوي القياس وزوايا دائرية موحدة 0.22" : "27 cubes in 3×3×3 isometric grid with unified 0.22 rounding factor",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logo,
+                                initialState: CubeLoaderState.breathing,
+                                showGlow: true,
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: _buildShowcaseCard(
-                                  dialogContext,
-                                  title: isRtl ? "الشعار المعدل (المطابق للهوية)" : "Modified Brand Logo",
-                                  desc: isRtl ? "حواف انسيابية مستديرة بالكامل، تباين ظلال قوي وتراص متناسق" : "Squircle capsules, compact gap, deep shadows",
-                                  child: const CubeLoader(
-                                    size: 100,
-                                    variant: CubeLoaderVariant.logo,
-                                    initialState: CubeLoaderState.breathing,
-                                    showGlow: true,
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                           const SizedBox(height: 24),
 
@@ -394,28 +378,34 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                           Row(
                             children: [
                               Expanded(
-                                child: _buildShowcaseCard(
-                                  dialogContext,
-                                  title: isRtl ? "مؤشر الزر الدوار المفرد" : "Single Cube Spinner",
-                                  desc: isRtl ? "مخصص للأزرار والنصوص المدمجة" : "Used for button actions and inline loading",
-                                  child: const CubeLoader(
-                                    size: 36,
-                                    variant: CubeLoaderVariant.single,
-                                    initialState: CubeLoaderState.loading,
+                                child: Tooltip(
+                                  message: isRtl ? "مكعب دوار مفرد • 1 مكعب • تحميل" : "Single Cube Spinner • 1 cube • Loading",
+                                  child: _buildShowcaseCard(
+                                    dialogContext,
+                                    title: isRtl ? "مؤشر الزر الدوار المفرد" : "Single Cube Spinner",
+                                    desc: isRtl ? "مخصص للأزرار والنصوص المدمجة" : "Used for button actions and inline loading",
+                                    child: const CubeLoader(
+                                      size: 36,
+                                      variant: CubeLoaderVariant.single,
+                                      initialState: CubeLoaderState.loading,
+                                    ),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildShowcaseCard(
-                                  dialogContext,
-                                  title: isRtl ? "التحميل المداري المتراكم" : "Orbital Progress Ring",
-                                  desc: isRtl ? "محدد بنسبة التحميل المئوية التفاعلية" : "Determinate loading with percentage overlay",
-                                  child: const CubeLoader(
-                                    size: 72,
-                                    variant: CubeLoaderVariant.cluster,
-                                    value: 0.72,
-                                    showPercentage: true,
+                                child: Tooltip(
+                                  message: isRtl ? "الحلقة المدارية • 3 مكعبات • 72%" : "Orbital Progress Ring • 3 cubes • 72%",
+                                  child: _buildShowcaseCard(
+                                    dialogContext,
+                                    title: isRtl ? "التحميل المداري المتراكم" : "Orbital Progress Ring",
+                                    desc: isRtl ? "محدد بنسبة التحميل المئوية التفاعلية" : "Determinate loading with percentage overlay",
+                                    child: const CubeLoader(
+                                      size: 72,
+                                      variant: CubeLoaderVariant.cluster,
+                                      value: 0.72,
+                                      showPercentage: true,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -428,45 +418,68 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                             dialogContext,
                             isRtl ? "3. التأثيرات الجديدة المستوحاة" : "3. New Progressive Indicators",
                             isRtl 
-                                ? "تموجات خطية متتالية، حلقات مدارية متموجة بالعمق، ومحاكاة القفز الفيزيائي للمكعبات" 
-                                : "Custom Linear, Circular, and Physics-bouncing indicators built with 3D cubes",
+                                ? "تموجات خطية متتالية، حلقات مدارية متموجة بالعمق، طبقات دوارة، ومحاكاة القفز الفيزيائي للمكعبات" 
+                                : "Custom Linear, Circular, Rotating Layers, and Physics-bouncing indicators built with 3D cubes",
                           ),
                           const SizedBox(height: 12),
-                          _buildShowcaseCard(
-                            dialogContext,
-                            title: isRtl ? "تموج المكعبات الخطي (Linear Cube Wave)" : "Linear Cube Wave Progress",
-                            desc: isRtl ? "تموج نبضي ثلاثي الأبعاد مستوحى من مؤشر التقدم الخطي" : "3D staggered wave pulse inspired by LinearProgressIndicator",
-                            child: const CubeLoader(
-                              size: 110,
-                              variant: CubeLoaderVariant.linear,
-                              initialState: CubeLoaderState.loading,
+                          Tooltip(
+                            message: isRtl ? "التموج الخطي • 5 مكعبات • تحميل" : "Linear Cube Wave • 5 cubes • Loading",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "تموج المكعبات الخطي (Linear Cube Wave)" : "Linear Cube Wave Progress",
+                              desc: isRtl ? "تموج نبضي ثلاثي الأبعاد مستوحى من مؤشر التقدم الخطي" : "3D staggered wave pulse inspired by LinearProgressIndicator",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.linear,
+                                initialState: CubeLoaderState.loading,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Tooltip(
+                            message: isRtl ? "طبقات دوارة • 27 مكعباً • دوران طبقي" : "Rotating Layers • 27 cubes • Layer Rotation",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "طبقات الشعار الدوارة (Rotating Layers)" : "Brand Logo Rotating Layers",
+                              desc: isRtl ? "دوران كل طبقة أفقية بسرعة وزاوية مختلفة لتأثير بصري ثلاثي الأبعاد" : "Each horizontal layer rotates at a different speed for a dynamic 3D depth effect",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logo,
+                                initialState: CubeLoaderState.rotatingLayers,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16),
                           Row(
                             children: [
                               Expanded(
-                                child: _buildShowcaseCard(
-                                  dialogContext,
-                                  title: isRtl ? "الحلقة المتموجة بالعمق (Circular Ring)" : "Circular Depth Ring",
-                                  desc: isRtl ? "تموج دائري في الحجم والعمق ملاحق للمدار" : "Chasing circular depth wave tracker",
-                                  child: const CubeLoader(
-                                    size: 90,
-                                    variant: CubeLoaderVariant.circular,
-                                    initialState: CubeLoaderState.loading,
+                                child: Tooltip(
+                                  message: isRtl ? "الحلقة المتموجة • 8 مكعبات • تحميل" : "Circular Depth Ring • 8 cubes • Loading",
+                                  child: _buildShowcaseCard(
+                                    dialogContext,
+                                    title: isRtl ? "الحلقة المتموجة بالعمق (Circular Ring)" : "Circular Depth Ring",
+                                    desc: isRtl ? "تموج دائري في الحجم والعمق ملاحق للمدار" : "Chasing circular depth wave tracker",
+                                    child: const CubeLoader(
+                                      size: 90,
+                                      variant: CubeLoaderVariant.circular,
+                                      initialState: CubeLoaderState.loading,
+                                    ),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildShowcaseCard(
-                                  dialogContext,
-                                  title: isRtl ? "الارتداد والجاذبية (Gravity Bounce)" : "Gravity Squash Bounce",
-                                  desc: isRtl ? "سقوط فيزيائي حر، اصطدام مرن مع انضغاط المكعبات" : "Deterministic bounce with volume-preserving squash",
-                                  child: const CubeLoader(
-                                    size: 90,
-                                    variant: CubeLoaderVariant.physics,
-                                    initialState: CubeLoaderState.loading,
+                                child: Tooltip(
+                                  message: isRtl ? "الجاذبية الفيزيائية • 1 مكعب • تحميل" : "Gravity Bounce • 1 cube • Loading",
+                                  child: _buildShowcaseCard(
+                                    dialogContext,
+                                    title: isRtl ? "الارتداد والجاذبية (Gravity Bounce)" : "Gravity Squash Bounce",
+                                    desc: isRtl ? "سقوط فيزيائي حر، اصطدام مرن مع انضغاط المكعبات" : "Deterministic bounce with volume-preserving squash",
+                                    child: const CubeLoader(
+                                      size: 90,
+                                      variant: CubeLoaderVariant.physics,
+                                      initialState: CubeLoaderState.loading,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -542,8 +555,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                               _buildStateItem(dialogContext, "Idle", LoadingLogoState.idle),
                               _buildStateItem(dialogContext, "Breathing", LoadingLogoState.breathing),
                               _buildStateItem(dialogContext, "Loading", LoadingLogoState.loading),
-                              _buildStateItem(dialogContext, "Success", LoadingLogoState.success),
-                              _buildStateItem(dialogContext, "Error", LoadingLogoState.error),
                             ],
                           ),
                           const SizedBox(height: 16),

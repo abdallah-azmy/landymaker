@@ -2,7 +2,6 @@ import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import '../localization/localization_cubit.dart';
 

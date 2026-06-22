@@ -148,11 +148,11 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
     - **Golden rule**: NEVER `await` a `google_fonts` call (`pendingFonts`, `getFont`, `getTextTheme`, etc.) in the startup sequence that blocks `runApp()`.
 
 40. **Unified CubeLoader System (CRITICAL)**: ALL loading indicators MUST use either `CubeLoader` or its backward-compatible wrappers. The `CubeLoader` (`lib/core/widgets/particles/cube_loader.dart`) unifies `LoadingLogo`, `CubeSpinner`, and `CubeProgress` into a single optimized widget with shared geometry.
-    - **Primary widget**: `CubeLoader` — use for new code. Has `variant: logo|single|cluster`.
+     - **Primary widget**: `CubeLoader` — use for new code. Has `variant: logo|single|cluster|linear|circular|physics`.
     - **Legacy wrappers** (delegate to CubeLoader, no breaking changes): `LoadingLogo`, `CubeSpinner`, `CubeProgress`.
     - **Size selection**: Page loaders → `size: 80`, Section loaders → `size: 48`, Inline/Tiny → `size: 24` or `size: 16`.
-    - **State selection**: Page/API loading → `initialState: CubeLoaderState.loading`, Brand showcase → `initialState: CubeLoaderState.breathing`, Feedback → `initialState: CubeLoaderState.success` or `.error`.
-    - **Variant selection**: Full logo (27 cubes) → `variant: CubeLoaderVariant.logo`, Single spinner → `variant: CubeLoaderVariant.single`, Upload progress → `variant: CubeLoaderVariant.cluster` + `value:`.
+     - **State selection**: Page/API loading → `initialState: CubeLoaderState.loading`, Brand showcase → `initialState: CubeLoaderState.breathing`, Rotating layers → `initialState: CubeLoaderState.rotatingLayers`, Static → `initialState: CubeLoaderState.idle`.
+     - **Variant selection**: Full logo (27 cubes) → `variant: CubeLoaderVariant.logo`, Single spinner → `variant: CubeLoaderVariant.single`, Upload progress → `variant: CubeLoaderVariant.cluster` + `value:`, Linear wave → `variant: CubeLoaderVariant.linear`, Circular ring → `variant: CubeLoaderVariant.circular`, Bounce → `variant: CubeLoaderVariant.physics`.
     - **Button loading**: Use `PrimaryButton(isLoading: true)` or `CubeLoader(variant: single, size: 16, color: Colors.white)`.
     - **Image loading**: `CustomNetworkImage` uses `CubeShimmer` (still independent, uses shared geometry).
     - **Image upload progress**: `CubeLoader(variant: cluster, value: progress, showPercentage: true)`.

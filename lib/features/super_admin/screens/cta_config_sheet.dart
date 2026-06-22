@@ -72,7 +72,7 @@ class _CtaConfigSheetState extends State<CtaConfigSheet> {
           Text('نوع التخطيط', style: theme.textTheme.labelLarge),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            value: _layout.name,
+            initialValue: _layout.name,
             decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
             items: CtaLayout.values.map((l) => DropdownMenuItem(value: l.name, child: Text(_layoutName(l)))).toList(),
             onChanged: (v) {

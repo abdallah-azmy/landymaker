@@ -41,7 +41,6 @@ import '../../features/super_admin/screens/super_admin_panel_screen.dart';
 import '../../features/super_admin/screens/platform_seo_screen.dart';
 import '../../features/super_admin/screens/homepage_editor_screen.dart';
 import '../../features/super_admin/controllers/homepage_editor_cubit.dart';
-import '../../features/super_admin/screens/user_profile_screen.dart';
 import '../../features/blog_admin/screens/blog_management_screen.dart';
 import '../../services/supabase_service.dart';
 import '../../services/database_service.dart';

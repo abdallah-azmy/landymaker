@@ -67,6 +67,11 @@ dependencies:
   cached_network_image: ^3.4.1
   path_provider: ^2.1.5
 
+  shared_preferences: any
+  web: any
+  intl: any
+  flutter_quill_delta_from_html: any
+  equatable: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

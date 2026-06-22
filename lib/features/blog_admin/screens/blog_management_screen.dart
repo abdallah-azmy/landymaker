@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' as intl;
-import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
 import '../controllers/blog_cubit.dart';
 import '../controllers/blog_state.dart';

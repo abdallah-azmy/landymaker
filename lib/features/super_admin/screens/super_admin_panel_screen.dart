@@ -335,7 +335,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 CustomTextField(label: 'رابط التوجيه (اختياري)', controller: redirectCtrl, hint: '/dashboard'),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: notifType,
+                  initialValue: notifType,
                   decoration: const InputDecoration(labelText: 'النوع', border: OutlineInputBorder()),
                   items: const [
                     DropdownMenuItem(value: 'info', child: Text('معلومات')),
@@ -709,7 +709,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                     Text("نوع الإشعار", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: notifType,
+                      initialValue: notifType,
                       dropdownColor: Theme.of(context).colorScheme.surface,
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -823,7 +823,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
               const Text("Subscription Tier", style: TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: selectedTier,
+                initialValue: selectedTier,
                 dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                 items: plans.map((p) => DropdownMenuItem(
                   value: p['id'].toString(),
@@ -835,7 +835,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
               const Text("System Role", style: TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: selectedRole,
+                initialValue: selectedRole,
                 dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                 items: const [
                   DropdownMenuItem(value: 'user', child: Text("Regular User")),
@@ -972,13 +972,13 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 SwitchListTile(
                   title: const Text("Custom Domain Access", style: TextStyle(fontSize: 14)),
                   value: customDomain,
-                  activeColor: Theme.of(context).colorScheme.secondary,
+                  activeThumbColor: Theme.of(context).colorScheme.secondary,
                   onChanged: (val) => setDialogState(() => customDomain = val),
                 ),
                 SwitchListTile(
                   title: const Text("Advanced SEO Access", style: TextStyle(fontSize: 14)),
                   value: seoAccess,
-                  activeColor: Theme.of(context).colorScheme.secondary,
+                  activeThumbColor: Theme.of(context).colorScheme.secondary,
                   onChanged: (val) => setDialogState(() => seoAccess = val),
                 ),
               ],
@@ -1441,7 +1441,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          title: Text(isEditing ? "Edit Template: ${existing!['name']}" : "Add New Template"),
+          title: Text(isEditing ? "Edit Template: ${existing['name']}" : "Add New Template"),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1513,13 +1513,13 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 SwitchListTile(
                   title: const Text("Is Draft (hidden from users)", style: TextStyle(fontSize: 14)),
                   value: isDraft,
-                  activeColor: Theme.of(context).colorScheme.secondary,
+                  activeThumbColor: Theme.of(context).colorScheme.secondary,
                   onChanged: (val) => setDialogState(() => isDraft = val),
                 ),
                 SwitchListTile(
                   title: const Text("Featured on Homepage", style: TextStyle(fontSize: 14)),
                   value: isFeatured,
-                  activeColor: Theme.of(context).colorScheme.secondary,
+                  activeThumbColor: Theme.of(context).colorScheme.secondary,
                   onChanged: (val) => setDialogState(() => isFeatured = val),
                 ),
               ],
@@ -1583,7 +1583,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                 };
 
                 if (isEditing) {
-                  context.read<SuperAdminCubit>().updateTemplate(existing!['id'], data);
+                  context.read<SuperAdminCubit>().updateTemplate(existing['id'], data);
                 } else {
                   data['is_active'] = true;
                   context.read<SuperAdminCubit>().createTemplate(data);
@@ -1645,7 +1645,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                   Text("Notification Type", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: _broadcastType,
+                    initialValue: _broadcastType,
                     dropdownColor: Theme.of(context).colorScheme.surface,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

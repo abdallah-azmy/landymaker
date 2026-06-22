@@ -10,10 +10,8 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui' show Color;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:landymaker/features/builder/controllers/upload_manager_cubit.dart';
 import 'package:landymaker/features/builder/models/selected_image_data.dart';
 import 'package:landymaker/injection_container.dart';
@@ -23,7 +21,6 @@ import '../../../services/auth_service.dart';
 import '../../../services/database_service.dart';
 import '../../../services/storage_service.dart';
 import '../../../services/subscription_service.dart';
-import '../../../core/error_handler.dart';
 import '../models/landing_page_theme.dart';
 import '../registries/template_registry.dart';
 import 'builder_state.dart';

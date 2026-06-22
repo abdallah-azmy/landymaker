@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../controllers/builder_cubit.dart';
 import '../../../controllers/builder_state.dart';
 import '../editor_types.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../core/widgets/atoms/primary_button.dart';

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../controllers/upload_manager_cubit.dart';
 import '../../../../injection_container.dart';
 import '../../../../core/widgets/atoms/cube_progress.dart';

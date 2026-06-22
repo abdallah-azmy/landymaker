@@ -6,7 +6,6 @@ import 'package:landymaker/features/builder/controllers/builder_state.dart';
 import 'package:landymaker/features/dashboard/controllers/landing_pages_cubit.dart';
 import 'package:landymaker/features/dashboard/controllers/active_website_cubit.dart';
 import 'package:landymaker/features/dashboard/controllers/landing_pages_state.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/cube_spinner.dart';
 import 'package:landymaker/core/widgets/particles/loading_logo.dart';

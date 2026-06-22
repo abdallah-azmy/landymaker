@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/custom_network_image.dart';
 import '../../controllers/pixabay_selector_cubit.dart';
@@ -67,7 +66,6 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
     String? query,
     String? type,
     String? orientation,
-    String? quality,
   }) {
     context.read<PixabaySelectorCubit>().searchImages(
       query ?? _searchController.text,

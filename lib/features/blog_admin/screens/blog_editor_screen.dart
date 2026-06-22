@@ -5,7 +5,6 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 import 'package:markdown/markdown.dart' as md;
-import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/atoms/cube_spinner.dart';
 import '../data/models/blog_post_model.dart';
 import '../controllers/blog_cubit.dart';
@@ -493,7 +492,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                             onChanged: (val) {
                               setState(() => _isPublished = val);
                             },
-                            activeColor: Colors.green,
+                            activeThumbColor: Colors.green,
                             activeTrackColor: Colors.green.withValues(alpha: .3),
                             inactiveThumbColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                             inactiveTrackColor: Theme.of(context).colorScheme.surface,

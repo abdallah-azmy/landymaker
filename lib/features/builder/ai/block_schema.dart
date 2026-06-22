@@ -280,7 +280,7 @@ class BlockPropertyMapper {
           }
           return null;
         case PropType.map:
-          if (raw is Map) return Map<String, dynamic>.from(raw as Map);
+          if (raw is Map) return Map<String, dynamic>.from(raw);
           return null;
         case PropType.dynamic:
           return raw;

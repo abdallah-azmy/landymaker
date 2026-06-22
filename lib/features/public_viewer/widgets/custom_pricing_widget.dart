@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/services/event_analytics_service.dart';
 import '../../../core/services/action_handler_service.dart';

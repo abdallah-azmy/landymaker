@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:landymaker/core/widgets/molecules/status_pill.dart';
 
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../controllers/builder_cubit.dart';

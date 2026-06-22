@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../injection_container.dart';
 import '../../../services/database_service.dart';
-import '../../builder/registries/block_registry.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../public_viewer/widgets/section_renderer.dart';
 

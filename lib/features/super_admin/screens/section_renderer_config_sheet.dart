@@ -95,7 +95,7 @@ class _SectionRendererConfigSheetState extends State<SectionRendererConfigSheet>
               Text('لا توجد صفحات هبوط متاحة', style: TextStyle(color: theme.colorScheme.onSurfaceVariant))
             else
               DropdownButtonFormField<String>(
-                value: _selectedPageId != null && _allPages.any((p) => p['id'].toString() == _selectedPageId)
+                initialValue: _selectedPageId != null && _allPages.any((p) => p['id'].toString() == _selectedPageId)
                     ? _selectedPageId
                     : null,
                 decoration: InputDecoration(

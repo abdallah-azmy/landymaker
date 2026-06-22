@@ -1,6 +1,6 @@
-import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'core/cube_geometry.dart' as cg;
 
 /// Visual layout variant for [CubeLoader].
@@ -25,13 +25,7 @@ enum CubeLoaderVariant {
 }
 
 /// Animation state for [CubeLoader].
-enum CubeLoaderState {
-  idle,
-  breathing,
-  loading,
-  success,
-  error,
-}
+enum CubeLoaderState { idle, breathing, loading, rotatingLayers }
 
 /// Size tier for rendering complexity.
 enum _CubeLoaderTier { micro, tiny, small, medium, large }
@@ -74,12 +68,13 @@ class CubeLoader extends StatefulWidget {
   State<CubeLoader> createState() => _CubeLoaderState();
 }
 
-class _CubeLoaderState extends State<CubeLoader>
-    with SingleTickerProviderStateMixin {
+class _CubeLoaderState extends State<CubeLoader> with TickerProviderStateMixin {
   late AnimationController _controller;
+  late AnimationController _explodeController;
   late CubeLoaderState _currentState;
 
   bool _isHovered = false;
+  int? _hoveredLayer;
   bool _isExploding = false;
   double _explodeProgress = 0.0;
   double _tapRotation = 0.0;
@@ -89,15 +84,36 @@ class _CubeLoaderState extends State<CubeLoader>
   double _clusterOrbitAngle = 0.0;
   double _lastTickValue = 0.0;
 
+  // Smoothed rotation speed (lerps toward target)
+  double _currentSpeed = 0.08;
+  double _targetSpeed = 0.08;
+
   @override
   void initState() {
     super.initState();
     _currentState = widget.initialState;
+    _targetSpeed = _speedForState(_currentState);
+    _currentSpeed = _targetSpeed;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat();
     _controller.addListener(_accumulateAngles);
+
+    _explodeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 960),
+    )..addListener(_onExplodeTick);
+    _explodeController.addStatusListener(_onExplodeStatus);
+  }
+
+  static double _speedForState(CubeLoaderState state) {
+    return switch (state) {
+      CubeLoaderState.idle => 0.05,
+      CubeLoaderState.breathing => 0.08,
+      CubeLoaderState.loading => 0.3,
+      CubeLoaderState.rotatingLayers => 0.2,
+    };
   }
 
   void _accumulateAngles() {
@@ -108,16 +124,41 @@ class _CubeLoaderState extends State<CubeLoader>
     } else {
       delta = (1.0 - _lastTickValue) + v;
     }
-    final speed = switch (_currentState) {
-      CubeLoaderState.idle => 0.05,
-      CubeLoaderState.breathing => 0.08,
-      CubeLoaderState.loading => 0.3,
-      CubeLoaderState.success => 0.02,
-      CubeLoaderState.error => 0.01,
-    };
-    _rotationAngle += delta * speed * pi * 2;
+    _targetSpeed = _speedForState(_currentState);
+    _currentSpeed += (_targetSpeed - _currentSpeed) * 0.1;
+    _rotationAngle += delta * _currentSpeed * pi * 2;
     _clusterOrbitAngle += delta * 0.2 * pi * 2;
     _lastTickValue = v;
+  }
+
+  void _onExplodeTick() {
+    final v = _explodeController.value;
+    setState(() {
+      if (v < 1 / 3) {
+        final t = v * 3;
+        _explodeProgress = t;
+        _tapRotation = 3.0 * t;
+      } else if (v < 2 / 3) {
+        final t = (v - 1 / 3) * 3;
+        _explodeProgress = 1 - t;
+        _tapRotation = 3.0 + 1.6 * t;
+      } else {
+        final t = (v - 2 / 3) * 3;
+        _explodeProgress = t;
+        _tapRotation = 4.6 + 1.0 * t;
+      }
+    });
+  }
+
+  void _onExplodeStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      setState(() {
+        _isExploding = false;
+        _explodeProgress = 0.0;
+        _tapRotation = 0.0;
+        _currentState = widget.initialState;
+      });
+    }
   }
 
   @override
@@ -130,6 +171,7 @@ class _CubeLoaderState extends State<CubeLoader>
 
   @override
   void dispose() {
+    _explodeController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -141,41 +183,30 @@ class _CubeLoaderState extends State<CubeLoader>
       _explodeProgress = 0.0;
       _tapRotation = 0.0;
     });
-    _startExplodeSequence();
-  }
-
-  void _startExplodeSequence() {
-    const totalSteps = 60;
-    int step = 0;
-    Timer.periodic(const Duration(milliseconds: 16), (t) {
-      step++;
-      setState(() {
-        if (step < 20) {
-          _explodeProgress = step / 20;
-          _tapRotation += 0.15;
-        } else if (step < 40) {
-          _explodeProgress = 1.0 - ((step - 20) / 20);
-          _tapRotation += 0.08;
-        } else {
-          _explodeProgress = (step - 40) / 20;
-          _tapRotation += 0.05;
-        }
-      });
-      if (step >= totalSteps) {
-        t.cancel();
-        setState(() {
-          _isExploding = false;
-          _explodeProgress = 0.0;
-          _tapRotation = 0.0;
-          _currentState = widget.initialState;
-        });
-      }
-    });
+    _explodeController.forward(from: 0);
   }
 
   void _onHover(bool hovering) {
     if (!widget.interactive) return;
-    setState(() => _isHovered = hovering);
+    setState(() {
+      _isHovered = hovering;
+      if (!hovering) _hoveredLayer = null;
+    });
+  }
+
+  void _onHoverMove(PointerHoverEvent e) {
+    if (!widget.interactive || _currentState != CubeLoaderState.rotatingLayers)
+      return;
+    final h = widget.size;
+    final y = e.localPosition.dy;
+    final band = h / 3;
+    setState(() {
+      _hoveredLayer = switch (y) {
+        _ when y < band => 1,
+        _ when y < band * 2 => 0,
+        _ => -1,
+      };
+    });
   }
 
   @override
@@ -185,9 +216,9 @@ class _CubeLoaderState extends State<CubeLoader>
     final isDark = widget.color != null
         ? false
         : theme.brightness == Brightness.dark;
-    final cubeColor = widget.color ?? (isDark
-        ? const Color(0xFF1E293B)
-        : const Color(0xFFE2E8F0));
+    final cubeColor =
+        widget.color ??
+        (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0));
 
     final breath = sin(_controller.value * pi * 2);
     final loadedBreath = sin(_controller.value * pi * 2 * 0.7);
@@ -197,6 +228,7 @@ class _CubeLoaderState extends State<CubeLoader>
     Widget loader = MouseRegion(
       onEnter: (_) => _onHover(true),
       onExit: (_) => _onHover(false),
+      onHover: _onHoverMove,
       child: GestureDetector(
         onTap: _handleTap,
         child: SizedBox(
@@ -226,6 +258,7 @@ class _CubeLoaderState extends State<CubeLoader>
                     tapRotation: _tapRotation,
                     showGlow: widget.showGlow,
                     value: widget.value,
+                    hoveredLayer: _hoveredLayer,
                   ),
                 ),
               );
@@ -244,12 +277,19 @@ class _CubeLoaderState extends State<CubeLoader>
         alignment: Alignment.center,
         children: [
           loader,
-          Text(
-            '${(widget.value! * 100).toInt()}%',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: (widget.size * 0.2).clamp(10.0, 16.0),
-              fontWeight: FontWeight.bold,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.45),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              '${(widget.value! * 100).toInt()}%',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: (widget.size * 0.2).clamp(10.0, 16.0),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -280,6 +320,7 @@ class _CubeLoaderPainter extends CustomPainter {
   final double tapRotation;
   final bool showGlow;
   final double? value;
+  final int? hoveredLayer;
 
   _CubeLoaderPainter({
     required this.animValue,
@@ -299,15 +340,18 @@ class _CubeLoaderPainter extends CustomPainter {
     required this.tapRotation,
     required this.showGlow,
     this.value,
+    this.hoveredLayer,
   });
 
-  // ---- Pre-allocated scratch buffers (reused every frame) ----
-  static final List<List<double>> _tv = List.generate(
-    8,
-    (_) => [0.0, 0.0, 0.0],
-  );
+  // ---- Per-instance scratch buffers (safe for concurrent painters) ----
+  final List<List<double>> _tv = List.generate(8, (_) => [0.0, 0.0, 0.0]);
   static final List<double> _nv = [0.0, 0.0, 0.0];
-  static final List<Offset> _quadPts = List.filled(4, Offset.zero);
+  final List<Offset> _quadPts = List.filled(4, Offset.zero);
+
+  // ---- Preallocated face buffer (zero-allocation in paint loop) ----
+  final List<_FaceData> _faceBuffer = List.generate(162, (_) => _FaceData());
+  final List<int> _sortKeys = List.generate(162, (i) => i);
+  int _faceCount = 0;
 
   static final Paint _fillPaint = Paint()..style = PaintingStyle.fill;
   static final Paint _strokePaint = Paint()
@@ -371,30 +415,30 @@ class _CubeLoaderPainter extends CustomPainter {
   }
 
   // ---- Logo variant (27 cubes, 3x3x3) ----
-  void _paintLogo(Canvas canvas, Size size, cg.RotationMatrix rot  ) {
+  void _paintLogo(Canvas canvas, Size size, cg.RotationMatrix rot) {
     final gapBase = size.width * 0.275;
     final cubeH = size.width * 0.255;
     final h = cubeH * 0.5;
-    final cornerRadius = (h * 0.65).clamp(0.3, h * 0.9);
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
     final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
     final px = size.width * 0.5;
     final py = size.height * 0.5;
 
     final double gap;
-    if (state == CubeLoaderState.breathing || state == CubeLoaderState.loading) {
+    if (state == CubeLoaderState.breathing ||
+        state == CubeLoaderState.loading) {
       gap = gapBase + breath * (size.width * 0.04);
     } else {
       gap = gapBase;
     }
 
     const maxI = 1;
-    final faces = <_FaceData>[];
+    _faceCount = 0;
     _fillPaint.color = cubeColor;
 
     for (int i = -maxI; i <= maxI; i++) {
       for (int j = -maxI; j <= maxI; j++) {
         for (int k = -maxI; k <= maxI; k++) {
-
           double cX = i * gap;
           double cY = j * gap;
           double cZ = k * gap;
@@ -410,116 +454,87 @@ class _CubeLoaderPainter extends CustomPainter {
             }
           }
 
+          // Layer-specific Y-axis rotation (before global isometric transform)
+          if (state == CubeLoaderState.rotatingLayers) {
+            double layerRot;
+            if (j == -1) {
+              layerRot = rotationAngle;
+            } else if (j == 0) {
+              layerRot = -rotationAngle * 0.5;
+            } else {
+              layerRot = rotationAngle * 1.5;
+            }
+            // Accelerate the hovered layer in interactive mode
+            if (hoveredLayer == j) {
+              layerRot *= 1.8;
+            }
+            final lc = cos(layerRot);
+            final ls = sin(layerRot);
+            final nx = cX * lc + cZ * ls;
+            final nz = -cX * ls + cZ * lc;
+            cX = nx;
+            cZ = nz;
+          }
+
           // Transform cube center
           double y1 = cY * rot.cxR - cZ * rot.sxR;
           double z1 = cY * rot.sxR + cZ * rot.cxR;
-          cY = y1; cZ = z1;
+          cY = y1;
+          cZ = z1;
           double x1 = cX * rot.cyR + cZ * rot.syR;
           double z2 = -cX * rot.syR + cZ * rot.cyR;
-          cX = x1; cZ = z2;
+          cX = x1;
+          cZ = z2;
           double x2 = cX * rot.czR - cY * rot.szR;
           double y2 = cX * rot.szR + cY * rot.czR;
-          cX = x2; cY = y2;
+          cX = x2;
+          cY = y2;
 
           final centerX = px + cX;
           final centerY = py - cY;
-
-          // Transform vertices
-          for (int v = 0; v < 8; v++) {
-            final vIn = cg.cubeVerts[v];
-            cg.rotatePoint(
-              [vIn[0] * h, vIn[1] * h, vIn[2] * h],
-              rot,
-              _tv[v],
-            );
-            _tv[v][2] += cZ; // z offset for depth sorting
-          }
-
-          // Ambient occlusion is calculated per-cube and applied to all its visible faces.
           final ao = cg.ambientOcclusion(i, j, k);
 
-          for (int f = 0; f < 6; f++) {
-            final n = cg.cubeNormals[f];
-            cg.rotatePoint(n, rot, _nv);
-            if (_nv[2] <= 0) continue;
-
-            double sumZ = 0;
-            final faceVerts = cg.cubeFaces[f];
-            for (int vi = 0; vi < 4; vi++) {
-              sumZ += _tv[faceVerts[vi]][2];
-            }
-
-            for (int vi = 0; vi < 4; vi++) {
-              final idx = faceVerts[vi];
-              final x = centerX + _tv[idx][0];
-              final y = centerY - _tv[idx][1];
-              _quadPts[vi] = Offset(x, y);
-            }
-
-            final rPath = cg.buildRoundedQuad(
-              _quadPts[0], _quadPts[1], _quadPts[2], _quadPts[3],
-              cornerRadius,
-            );
-
-            faces.add(_FaceData(
-              z: sumZ,
-              path: rPath,
-              faceIdx: f,
-              ao: ao,
-            ));
-          }
+          _renderCubeFaces(
+            centerX: centerX,
+            centerY: centerY,
+            h: h,
+            cZ: cZ,
+            scaleX: 1,
+            scaleY: 1,
+            scaleZ: 1,
+            cornerRadius: cornerRadius,
+            rot: rot,
+            ao: ao,
+          );
         }
       }
     }
 
-    // Sort and draw
-    faces.sort((a, b) => a.z.compareTo(b.z));
-    _drawFaces(canvas, faces, strokeWidth, cubeColor);
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
   }
 
   // ---- Single cube variant (replaces CubeSpinner) ----
   void _paintSingle(Canvas canvas, Size size, cg.RotationMatrix rot) {
     final h = size.width * 0.3;
-    final cornerRadius = (h * 0.22).clamp(0.5, h * 0.4);
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
     final strokeWidth = (h * 0.06).clamp(0.8, 2.5);
     final px = size.width * 0.5;
     final py = size.height * 0.5;
 
-    for (int v = 0; v < 8; v++) {
-      final vIn = cg.cubeVerts[v];
-      cg.rotatePoint(
-        [vIn[0] * h, vIn[1] * h, vIn[2] * h],
-        rot,
-        _tv[v],
-      );
-    }
+    _faceCount = 0;
+    _renderCubeFaces(
+      centerX: px,
+      centerY: py,
+      h: h,
+      cZ: 0,
+      scaleX: 1,
+      scaleY: 1,
+      scaleZ: 1,
+      cornerRadius: cornerRadius,
+      rot: rot,
+    );
 
-    final faces = <_FaceData>[];
-    for (int f = 0; f < 6; f++) {
-      final n = cg.cubeNormals[f];
-      cg.rotatePoint(n, rot, _nv);
-      if (_nv[2] <= 0) continue;
-
-      double sumZ = 0;
-      final faceVerts = cg.cubeFaces[f];
-      for (int vi = 0; vi < 4; vi++) {
-        sumZ += _tv[faceVerts[vi]][2];
-      }
-
-      for (int vi = 0; vi < 4; vi++) {
-        final idx = faceVerts[vi];
-        _quadPts[vi] = Offset(px + _tv[idx][0], py - _tv[idx][1]);
-      }
-
-      final rPath = cg.buildRoundedQuad(
-        _quadPts[0], _quadPts[1], _quadPts[2], _quadPts[3],
-        cornerRadius,
-      );
-      faces.add(_FaceData(z: sumZ, path: rPath, faceIdx: f));
-    }
-
-    faces.sort((a, b) => a.z.compareTo(b.z));
-    _drawFaces(canvas, faces, strokeWidth, cubeColor);
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
   }
 
   // ---- Cluster variant (3 cubes, replaces CubeProgress) ----
@@ -527,7 +542,7 @@ class _CubeLoaderPainter extends CustomPainter {
     final clusterR = size.width * 0.22;
     final cubeH = size.width * 0.13;
     final h = cubeH * 0.5;
-    final cornerRadius = (h * 0.35).clamp(0.3, h * 0.6);
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
     final strokeWidth = (h * 0.1).clamp(0.5, 1.5);
     const nCubes = 3;
     final isDeterminate = value != null;
@@ -563,44 +578,28 @@ class _CubeLoaderPainter extends CustomPainter {
 
       if (cubeBrightness < 0.01) continue;
 
-      for (int vIdx = 0; vIdx < 8; vIdx++) {
-        final vIn = cg.cubeVerts[vIdx];
-        cg.rotatePoint(
-          [vIn[0] * h, vIn[1] * h, vIn[2] * h],
-          rot,
-          _tv[vIdx],
-        );
-      }
+      _faceCount = 0;
+      _renderCubeFaces(
+        centerX: cubeCx,
+        centerY: cubeCy,
+        h: h,
+        cZ: 0,
+        scaleX: 1,
+        scaleY: 1,
+        scaleZ: 1,
+        cornerRadius: cornerRadius,
+        rot: rot,
+      );
 
-      final faces = <_FaceData>[];
-      for (int f = 0; f < 6; f++) {
-        final n = cg.cubeNormals[f];
-        cg.rotatePoint(n, rot, _nv);
-        if (_nv[2] <= 0) continue;
-
-        double sumZ = 0;
-        final faceVerts = cg.cubeFaces[f];
-        for (int vi = 0; vi < 4; vi++) {
-          sumZ += _tv[faceVerts[vi]][2];
-        }
-
-        for (int vi = 0; vi < 4; vi++) {
-          final idx = faceVerts[vi];
-          _quadPts[vi] = Offset(
-            cubeCx + _tv[idx][0],
-            cubeCy - _tv[idx][1],
-          );
-        }
-
-        final rPath = cg.buildRoundedQuad(
-          _quadPts[0], _quadPts[1], _quadPts[2], _quadPts[3],
-          cornerRadius,
-        );
-        faces.add(_FaceData(z: sumZ, path: rPath, faceIdx: f));
-      }
-
-      faces.sort((a, b) => a.z.compareTo(b.z));
-      clusterEntries.add(_ClusterEntry(faces: faces, brightness: cubeBrightness, yPos: cubeCy));
+      final cubeFaces = _faceBuffer.sublist(0, _faceCount);
+      cubeFaces.sort((a, b) => a.z.compareTo(b.z));
+      clusterEntries.add(
+        _ClusterEntry(
+          faces: cubeFaces,
+          brightness: cubeBrightness,
+          yPos: cubeCy,
+        ),
+      );
     }
 
     clusterEntries.sort((a, b) => a.yPos.compareTo(b.yPos));
@@ -631,20 +630,19 @@ class _CubeLoaderPainter extends CustomPainter {
     final nCubes = 5;
     final cubeH = size.width * 0.14;
     final h = cubeH * 0.5;
-    final cornerRadius = (h * 0.6).clamp(0.3, h * 0.9);
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
     final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
     final px = size.width * 0.5;
     final py = size.height * 0.5;
     final spacing = size.width * 0.20;
 
-    final faces = <_FaceData>[];
+    _faceCount = 0;
     _fillPaint.color = cubeColor;
 
     for (int i = 0; i < nCubes; i++) {
       final idx = i - 2;
       double cX = idx * spacing;
-      
-      // Calculate a moving wave phase
+
       final phase = animValue * pi * 2 - idx * 0.8;
       final wave = sin(phase);
       double cY = wave * size.height * 0.12;
@@ -652,49 +650,20 @@ class _CubeLoaderPainter extends CustomPainter {
 
       final scale = 0.75 + (wave + 1.0) * 0.125;
 
-      for (int v = 0; v < 8; v++) {
-        final vIn = cg.cubeVerts[v];
-        cg.rotatePoint(
-          [vIn[0] * h * scale, vIn[1] * h * scale, vIn[2] * h * scale],
-          rot,
-          _tv[v],
-        );
-        _tv[v][2] += cZ;
-      }
-
-      for (int f = 0; f < 6; f++) {
-        final n = cg.cubeNormals[f];
-        cg.rotatePoint(n, rot, _nv);
-        if (_nv[2] <= 0) continue;
-
-        double sumZ = 0;
-        final faceVerts = cg.cubeFaces[f];
-        for (int vi = 0; vi < 4; vi++) {
-          sumZ += _tv[faceVerts[vi]][2];
-        }
-
-        for (int vi = 0; vi < 4; vi++) {
-          final vidx = faceVerts[vi];
-          final x = px + cX + _tv[vidx][0];
-          final y = py - cY - _tv[vidx][1];
-          _quadPts[vi] = Offset(x, y);
-        }
-
-        final rPath = cg.buildRoundedQuad(
-          _quadPts[0], _quadPts[1], _quadPts[2], _quadPts[3],
-          cornerRadius,
-        );
-
-        faces.add(_FaceData(
-          z: sumZ,
-          path: rPath,
-          faceIdx: f,
-        ));
-      }
+      _renderCubeFaces(
+        centerX: px + cX,
+        centerY: py - cY,
+        h: h,
+        cZ: cZ,
+        scaleX: scale,
+        scaleY: scale,
+        scaleZ: scale,
+        cornerRadius: cornerRadius,
+        rot: rot,
+      );
     }
 
-    faces.sort((a, b) => a.z.compareTo(b.z));
-    _drawFaces(canvas, faces, strokeWidth, cubeColor);
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
   }
 
   // ---- Circular variant (6 cubes undulating orbit, replaces CircularProgressIndicator) ----
@@ -703,66 +672,37 @@ class _CubeLoaderPainter extends CustomPainter {
     final radius = size.width * 0.32;
     final cubeH = size.width * 0.13;
     final h = cubeH * 0.5;
-    final cornerRadius = (h * 0.6).clamp(0.3, h * 0.9);
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
     final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
     final px = size.width * 0.5;
     final py = size.height * 0.5;
 
-    final faces = <_FaceData>[];
+    _faceCount = 0;
     _fillPaint.color = cubeColor;
 
     for (int i = 0; i < nCubes; i++) {
       final angle = i * 2 * pi / nCubes + clusterOrbitAngle;
       double cX = radius * cos(angle);
       double cY = radius * sin(angle);
-      
+
       final wave = sin(animValue * pi * 2 - i * 1.0);
       double cZ = wave * size.width * 0.08;
       final scale = 0.7 + (wave + 1.0) * 0.15;
 
-      for (int v = 0; v < 8; v++) {
-        final vIn = cg.cubeVerts[v];
-        cg.rotatePoint(
-          [vIn[0] * h * scale, vIn[1] * h * scale, vIn[2] * h * scale],
-          rot,
-          _tv[v],
-        );
-        _tv[v][2] += cZ;
-      }
-
-      for (int f = 0; f < 6; f++) {
-        final n = cg.cubeNormals[f];
-        cg.rotatePoint(n, rot, _nv);
-        if (_nv[2] <= 0) continue;
-
-        double sumZ = 0;
-        final faceVerts = cg.cubeFaces[f];
-        for (int vi = 0; vi < 4; vi++) {
-          sumZ += _tv[faceVerts[vi]][2];
-        }
-
-        for (int vi = 0; vi < 4; vi++) {
-          final vidx = faceVerts[vi];
-          final x = px + cX + _tv[vidx][0];
-          final y = py - cY - _tv[vidx][1];
-          _quadPts[vi] = Offset(x, y);
-        }
-
-        final rPath = cg.buildRoundedQuad(
-          _quadPts[0], _quadPts[1], _quadPts[2], _quadPts[3],
-          cornerRadius,
-        );
-
-        faces.add(_FaceData(
-          z: sumZ,
-          path: rPath,
-          faceIdx: f,
-        ));
-      }
+      _renderCubeFaces(
+        centerX: px + cX,
+        centerY: py - cY,
+        h: h,
+        cZ: cZ,
+        scaleX: scale,
+        scaleY: scale,
+        scaleZ: scale,
+        cornerRadius: cornerRadius,
+        rot: rot,
+      );
     }
 
-    faces.sort((a, b) => a.z.compareTo(b.z));
-    _drawFaces(canvas, faces, strokeWidth, cubeColor);
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
   }
 
   // ---- Physics variant (3 cubes elastic bounce and squash/stretch) ----
@@ -770,12 +710,12 @@ class _CubeLoaderPainter extends CustomPainter {
     final nCubes = 3;
     final cubeH = size.width * 0.14;
     final h = cubeH * 0.5;
-    final cornerRadius = (h * 0.6).clamp(0.3, h * 0.9);
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
     final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
     final px = size.width * 0.5;
     final py = size.height * 0.5;
 
-    final faces = <_FaceData>[];
+    _faceCount = 0;
     _fillPaint.color = cubeColor;
 
     for (int i = 0; i < nCubes; i++) {
@@ -788,13 +728,13 @@ class _CubeLoaderPainter extends CustomPainter {
         final nt = t / 0.4;
         height = 1.0 - 4 * (nt - 0.5) * (nt - 0.5);
         if (nt > 0.93) {
-          squash = 1.0 - (nt - 0.93) * 4.3; // squash on impact
+          squash = 1.0 - (nt - 0.93) * 4.3;
         }
       } else if (t < 0.7) {
         final nt = (t - 0.4) / 0.3;
         height = 0.5 * (1.0 - 4 * (nt - 0.5) * (nt - 0.5));
         if (nt > 0.93 || nt < 0.07) {
-          squash = 0.9; // squash near bottom
+          squash = 0.9;
         }
       } else if (t < 0.9) {
         final nt = (t - 0.7) / 0.2;
@@ -811,70 +751,115 @@ class _CubeLoaderPainter extends CustomPainter {
       double scaleY = squash;
       double scaleZ = scaleX;
 
-      for (int v = 0; v < 8; v++) {
-        final vIn = cg.cubeVerts[v];
-        cg.rotatePoint(
-          [vIn[0] * h * scaleX, vIn[1] * h * scaleY, vIn[2] * h * scaleZ],
-          rot,
-          _tv[v],
-        );
-        _tv[v][2] += cZ;
-      }
-
-      for (int f = 0; f < 6; f++) {
-        final n = cg.cubeNormals[f];
-        cg.rotatePoint(n, rot, _nv);
-        if (_nv[2] <= 0) continue;
-
-        double sumZ = 0;
-        final faceVerts = cg.cubeFaces[f];
-        for (int vi = 0; vi < 4; vi++) {
-          sumZ += _tv[faceVerts[vi]][2];
-        }
-
-        for (int vi = 0; vi < 4; vi++) {
-          final vidx = faceVerts[vi];
-          final x = px + cX + _tv[vidx][0];
-          final y = py - cY - _tv[vidx][1];
-          _quadPts[vi] = Offset(x, y);
-        }
-
-        final rPath = cg.buildRoundedQuad(
-          _quadPts[0], _quadPts[1], _quadPts[2], _quadPts[3],
-          cornerRadius,
-        );
-
-        faces.add(_FaceData(
-          z: sumZ,
-          path: rPath,
-          faceIdx: f,
-        ));
-      }
+      _renderCubeFaces(
+        centerX: px + cX,
+        centerY: py - cY,
+        h: h,
+        cZ: cZ,
+        scaleX: scaleX,
+        scaleY: scaleY,
+        scaleZ: scaleZ,
+        cornerRadius: cornerRadius,
+        rot: rot,
+      );
     }
 
-    faces.sort((a, b) => a.z.compareTo(b.z));
-    _drawFaces(canvas, faces, strokeWidth, cubeColor);
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
+  }
+
+  /// Insertion sort on [_sortKeys] using face depths.
+  /// Nearly O(n) since faces are approximately back-to-front after cube transform.
+  void _sortFaces(int count) {
+    for (int i = 1; i < count; i++) {
+      final key = _sortKeys[i];
+      final keyZ = _faceBuffer[key].z;
+      int j = i - 1;
+      while (j >= 0 && _faceBuffer[_sortKeys[j]].z > keyZ) {
+        _sortKeys[j + 1] = _sortKeys[j];
+        j--;
+      }
+      _sortKeys[j + 1] = key;
+    }
+  }
+
+  /// Shared face rendering — writes into [_faceBuffer] at current [_faceCount].
+  void _renderCubeFaces({
+    required double centerX,
+    required double centerY,
+    required double h,
+    required double cZ,
+    required double scaleX,
+    required double scaleY,
+    required double scaleZ,
+    required double cornerRadius,
+    required cg.RotationMatrix rot,
+    double ao = 1.0,
+  }) {
+    for (int v = 0; v < 8; v++) {
+      final vIn = cg.cubeVerts[v];
+      cg.rotatePoint(
+        [vIn[0] * h * scaleX, vIn[1] * h * scaleY, vIn[2] * h * scaleZ],
+        rot,
+        _tv[v],
+      );
+      _tv[v][2] += cZ;
+    }
+
+    for (int f = 0; f < 6; f++) {
+      final n = cg.cubeNormals[f];
+      cg.rotatePoint(n, rot, _nv);
+      if (_nv[2] <= 0) continue;
+
+      double sumZ = 0;
+      final faceVerts = cg.cubeFaces[f];
+      for (int vi = 0; vi < 4; vi++) {
+        sumZ += _tv[faceVerts[vi]][2];
+      }
+
+      for (int vi = 0; vi < 4; vi++) {
+        final idx = faceVerts[vi];
+        final x = centerX + _tv[idx][0];
+        final y = centerY - _tv[idx][1];
+        _quadPts[vi] = Offset(x, y);
+      }
+
+      final rPath = cg.buildRoundedQuad(
+        _quadPts[0],
+        _quadPts[1],
+        _quadPts[2],
+        _quadPts[3],
+        cornerRadius,
+      );
+
+      final fd = _faceBuffer[_faceCount++];
+      fd.z = sumZ;
+      fd.path = rPath;
+      fd.faceIdx = f;
+      fd.ao = ao;
+    }
   }
 
   // ---- Shared drawing ----
-  void _drawFaces(Canvas canvas, List<_FaceData> faces, double strokeWidth, Color faceColor) {
-    final glowEnabled = showGlow && tier.index >= _CubeLoaderTier.small.index &&
+  void _drawFaces(
+    Canvas canvas,
+    int count,
+    double strokeWidth,
+    Color faceColor,
+  ) {
+    final glowEnabled =
+        showGlow &&
+        tier.index >= _CubeLoaderTier.small.index &&
         (state == CubeLoaderState.breathing ||
-         state == CubeLoaderState.loading ||
-         isHovered);
+            state == CubeLoaderState.loading ||
+            isHovered);
 
-    for (final face in faces) {
+    _sortFaces(count);
+
+    for (int fi = 0; fi < count; fi++) {
+      final face = _faceBuffer[_sortKeys[fi]];
       final rot = _lightRot ?? cg.computeRotation(_rx, _baseRy, 0.0);
       final lBright = _faceBrightness(face.faceIdx, rot);
       var brightness = lBright * face.ao;
-
-      if (state == CubeLoaderState.success) {
-        faceColor = Color.lerp(faceColor, const Color(0xFF22C55E), 0.3)!;
-        brightness = min(1.0, brightness + 0.2);
-      } else if (state == CubeLoaderState.error) {
-        faceColor = Color.lerp(faceColor, const Color(0xFFEF4444), 0.3)!;
-        brightness = min(1.0, brightness + 0.15);
-      }
 
       if (state == CubeLoaderState.loading) {
         brightness += sin(animValue * pi * 2 * 2) * 0.08;
@@ -902,8 +887,10 @@ class _CubeLoaderPainter extends CustomPainter {
         if (glowAlpha > 0.01) {
           _glowPaint.strokeWidth = strokeWidth * 2;
           _glowPaint.color = primaryColor.withValues(alpha: glowAlpha * 0.5);
-          _glowPaint.maskFilter =
-              MaskFilter.blur(BlurStyle.normal, (4 + glowAlpha * 4) * 1.0);
+          _glowPaint.maskFilter = MaskFilter.blur(
+            BlurStyle.normal,
+            (4 + glowAlpha * 4) * 1.0,
+          );
           canvas.drawPath(face.path, _glowPaint);
         }
       }
@@ -911,15 +898,8 @@ class _CubeLoaderPainter extends CustomPainter {
   }
 
   Color _strokeColor() {
-    switch (state) {
-      case CubeLoaderState.success:
-        return const Color(0xFF22C55E).withValues(alpha: 0.7);
-      case CubeLoaderState.error:
-        return const Color(0xFFEF4444).withValues(alpha: 0.7);
-      default:
-        if (isHovered) return primaryColor.withValues(alpha: 0.9);
-        return primaryColor.withValues(alpha: 0.6);
-    }
+    if (isHovered) return primaryColor.withValues(alpha: 0.9);
+    return primaryColor.withValues(alpha: 0.6);
   }
 
   double _faceBrightness(int faceIdx, cg.RotationMatrix rot) {
@@ -947,21 +927,19 @@ class _CubeLoaderPainter extends CustomPainter {
 // =============================================================================
 
 class _FaceData {
-  final double z;
-  final Path path;
-  final int faceIdx;
-  final double ao;
-  _FaceData({
-    required this.z,
-    required this.path,
-    required this.faceIdx,
-    this.ao = 1.0,
-  });
+  double z = 0;
+  Path path = Path();
+  int faceIdx = 0;
+  double ao = 1.0;
 }
 
 class _ClusterEntry {
   final List<_FaceData> faces;
   final double brightness;
   final double yPos;
-  _ClusterEntry({required this.faces, required this.brightness, required this.yPos});
+  _ClusterEntry({
+    required this.faces,
+    required this.brightness,
+    required this.yPos,
+  });
 }

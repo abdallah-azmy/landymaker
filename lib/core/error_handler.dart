@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'logger.dart';
-import 'utils/toast_service.dart';
 
 class ErrorHandler {
   static void logError(

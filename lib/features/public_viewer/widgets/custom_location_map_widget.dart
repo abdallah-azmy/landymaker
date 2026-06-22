@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';

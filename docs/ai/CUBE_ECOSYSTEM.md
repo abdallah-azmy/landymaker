@@ -15,12 +15,12 @@ This document explains the **entire cube rendering ecosystem** in LandyMaker. Th
 | **Purpose** | Branded loading animations (page load, button spinner, upload progress) |
 | **Widget** | `CubeLoader` in `particles/cube_loader.dart` |
 | **Max cubes** | 27 (logo variant) / 3 (cluster) / 1 (single) |
-| **Rendering** | Single `CustomPaint` with cached static scratch buffers |
+| **Rendering** | Single `CustomPaint` with per-instance scratch buffers (thread-safe) |
 | **Performance** | Zero allocations per frame; occlusion culling; cached rotation matrix |
-| **States** | `idle`, `breathing`, `loading`, `success`, `error` |
-| **Variants** | `logo` (27 cubes, 3x3x3), `single` (1 cube), `cluster` (3 cubes orbiting) |
+| **States** | `idle`, `breathing`, `loading`, `rotatingLayers` |
+| **Variants** | `logo` (27, 3×3×3), `single` (1), `cluster` (3 orbiting), `linear` (5 wave), `circular` (6 orbit), `physics` (3 bounce) |
 | **Animation** | 4-second `AnimationController.repeat()` with **accumulated rotation angles** (no loop-reset visual jumps) |
-| **Corner rounding** | Cubic bezier per variant: logo 25% of face edge, single 11%, cluster 17.5% |
+| **Corner rounding** | Unified cubic bezier: `(h × 0.22).clamp(0.3, h × 0.4)` for all variants |
 | **Ambient occlusion** | Inner cubes darker, faces occluded by neighbor skipped entirely |
 | **Legacy wrappers** | `LoadingLogo` → `CubeLoader(variant: logo)`, `CubeSpinner` → `CubeLoader(variant: single)`, `CubeProgress` → `CubeLoader(variant: cluster)` |
 
@@ -57,7 +57,7 @@ ALL cube renderers import this file. No cube-rendering code should duplicate the
 
 | File | Role | Lines |
 |------|------|-------|
-| `particles/cube_loader.dart` | **Primary widget**. StatefulWidget + _CubeLoaderPainter (CustomPaint). 3 variants, 5 states, accumulated rotation angles, zero-allocation scratch buffers, interactive tap-to-explode. | ~753 |
+| `particles/cube_loader.dart` | **Primary widget**. StatefulWidget + _CubeLoaderPainter (CustomPaint). 6 variants, 4 states, accumulated rotation angles, zero-allocation scratch buffers, interactive tap-to-explode. | ~963 |
 | `particles/loading_logo.dart` | Legacy wrapper. Maps `LoadingLogoState` → `CubeLoaderState`, delegates to `CubeLoader(variant: logo)`. | ~67 |
 | `atoms/cube_spinner.dart` | Legacy wrapper. Delegates to `CubeLoader(variant: single)`. | ~29 |
 | `atoms/cube_progress.dart` | Legacy wrapper. Delegates to `CubeLoader(variant: cluster)` with `value` for determinate progress. | ~33 |
@@ -94,7 +94,7 @@ ALL cube renderers import this file. No cube-rendering code should duplicate the
 ### Use `CubeLoader` (System A) when:
 - Showing a loading indicator on a page, section, button, or overlay
 - Showing upload progress with percentage
-- Showing success/error feedback after an operation
+- Showing a branded cube animation for any loading state
 - Creating a single branded cube animation (logo, spinner)
 - Any situation with ≤27 cubes that represents a "loading state"
 
@@ -160,13 +160,13 @@ lx, ly, lz      // Static light direction vector (normalized)
 // Functions
 computeRotation(rx, ry, rz)     → RotationMatrix (cached trig values)
 rotatePoint(List<double>, RotationMatrix, out)  → Euler rotation (X→Y→Z)
-lambertBrightness(nx, ny, nz)   → 0.4–1.0 brightness from dot product
+lambertBrightness(nx, ny, nz)   → 0.3–1.0 brightness from dot product
 buildRoundedQuad(a, b, c, d, r) → Path with cubic bezier corners (auto-falls back to polygon if r < 0.5)
 ambientOcclusion(ix, iy, iz)    → 0.85–1.0 factor based on neighbor count in 3×3×3 grid
 occludedFaces(ix, iy, iz)       → Bitmask of faces blocked by neighbors
 ```
 
-The light direction in `cube_geometry.dart` (`lx=0.243, ly=0.162, lz=0.956`) is used by `CubeLoader` and `CubeShimmer`. `FloatingCubeBackground` computes its OWN per-entity light direction dynamically from the mouse position, and uses `0.25 + max(0, dot) * 0.75` for brightness (not `cg.lambertBrightness`). This is intentional — DO NOT change this to use the static light.
+The light direction in `cube_geometry.dart` (`lx=0.5, ly=0.5, lz=0.707`) is used by `CubeLoader` and `CubeShimmer`. `FloatingCubeBackground` computes its OWN per-entity light direction dynamically from the mouse position, and uses `0.25 + max(0, dot) * 0.75` for brightness (not `cg.lambertBrightness`). This is intentional — DO NOT change this to use the static light.
 
 ---
 
@@ -327,15 +327,17 @@ Total Y rotation at any frame: `ry = π/4 + accumulatedRotationAngle` (continuou
 
 ### 10c. Corner Rounding
 
-Each individual cube face has rounded corners implemented with cubic bezier curves:
+Each individual cube face has rounded corners implemented with cubic bezier curves using a **unified formula across all variants**:
 
 ```
-cornerRadius = (h × 0.50).clamp(0.3, h × 0.8)
+cornerRadius = (h × 0.22).clamp(0.3, h × 0.4)
 ```
 
-This gives approximately **25% of the face edge** as the corner radius. The `buildRoundedQuad` function additionally clamps to `minEdge × 0.5`. For very small faces (cr < 0.5px), it falls back to sharp polygon (`addPolygon`).
+This gives approximately **22% of the face half-width** as the corner radius—a slightly tighter, more premium rounded look. The `buildRoundedQuad` function additionally clamps to `minEdge × 0.5`. For very small faces (cr < 0.5px), it falls back to sharp polygon (`addPolygon`).
 
 The control point distance for the cubic bezier is `cr × 0.55` (standard approximation of a quarter-circle arc, ≈ 4/3 × tan(π/8)).
+
+If `buildRoundedQuad` receives rounded corners from `FloatingCubeBackground` (in logo state), the same unified formula `(h * 0.22).clamp(0.3, h * 0.4)` is used.
 
 ### 10d. Colors
 
@@ -344,8 +346,7 @@ The control point distance for the cubic bezier is `cr × 0.55` (standard approx
 | Cube faces | `#E2E8F0` (slate-200) | `#1E293B` (slate-800) | via `CubeLoader.color` |
 | Cube strokes | `colorScheme.primary` | `colorScheme.primary` | via `CubeLoader.color` |
 | Face brightness | Lambertian (see below) | Lambertian (see below) | — |
-| Success tint | 30% `#22C55E` mixed in | 30% `#22C55E` mixed in | — |
-| Error tint | 30% `#EF4444` mixed in | 30% `#EF4444` mixed in | — |
+| Loading pulse | +0.08 sin-brightness boost on `loading` state | +0.08 sin-brightness boost on `loading` state | built-in animation |
 | Glow | `primaryColor` at varying alpha | `primaryColor` at varying alpha | controllable via `showGlow` |
 
 ### 10e. Lighting Model
@@ -353,16 +354,16 @@ The control point distance for the cubic bezier is `cr × 0.55` (standard approx
 The logo uses a STATIC light direction (NOT the dynamic mouse-based light from FloatingCubeBackground):
 
 ```dart
-lx = 0.243   // normalized light X
-ly = 0.162   // normalized light Y
-lz = 0.956   // normalized light Z (mostly from above-front)
+lx = 0.5    // normalized light X
+ly = 0.5    // normalized light Y
+lz = 0.707  // normalized light Z (45° above-horizontal)
 ```
 
 Face brightness is computed as **Lambertian diffuse**:
 
 ```
 dot = nx × lx + ny × ly + nz × lz       // face normal · light direction
-brightness = 0.4 + max(0, dot) × 0.6    // ambient (40%) + diffuse (60%)
+brightness = 0.3 + max(0, dot) × 0.7    // ambient (30%) + diffuse (70%)
 ```
 
 The light direction is NOT per-entity and NOT mouse-dependent — it is fixed in world space. The rotation matrix `_lightRot` is pre-computed once per frame and applied to all normals.
@@ -373,8 +374,8 @@ Each cube in the 3×3×3 grid has an AO factor based on how many of its 6 faces 
 
 ```dart
 brightness ×= ambientOcclusion(i, j, k)
-// = brightness × (0.85 + neighborCount / 6 × 0.15)
-// Range: 0.85 (center cube, 6 neighbors) to 1.0 (corner cube, 3 neighbors)
+// = 1.0 - ((neighborCount - 3) / 3.0) × 0.35
+// Range: 0.65 (center cube, 6 neighbors) to 1.0 (corner cube, 3 neighbors)
 ```
 
 Additionally, faces that are COMPLETELY OCCLUDED by a neighbor are SKIPPED entirely (not drawn):
@@ -418,8 +419,7 @@ The glow is drawn with a slightly larger path (blur + stroke) behind the main st
 | `idle` | Very slow (0.05 × 2π per 4s) | No | No |
 | `breathing` | Slow (0.08 × 2π per 4s) | Yes (gap pulsing) | Soft pulse |
 | `loading` | Fast (0.3 × 2π per 4s) | Yes | Bright pulse |
-| `success` | Very slow (0.02 × 2π per 4s), green tint | Yes | No |
-| `error` | Almost static (0.01 × 2π per 4s), red tint | No | No |
+| `rotatingLayers` | Medium (0.2 × 2π per 4s) | No (uses base gap) | No |
 
 The breath is: `breath = sin(controllerValue × 2π)` — modulates the gap between cubes by `±size.width × 0.04`.
 
@@ -433,8 +433,7 @@ Rotation angles accumulate continuously via `_accumulateAngles()` — they do NO
 4. Corners MUST be rounded with cubic bezier curves (not sharp, not quadratic bezier)
 5. The center cube MUST be darker (ambient occlusion) — this is a key depth cue
 6. The loading animation MUST loop seamlessly with NO visual discontinuity when the controller resets
-7. Success/error states MUST tint the entire cube cluster green/red, not individual cubes
-8. The cube colors MUST adapt to light/dark theme via `colorScheme` unless an explicit `color` override is provided
+7. The cube colors MUST adapt to light/dark theme via `colorScheme` unless an explicit `color` override is provided
 
 ---
 
@@ -442,17 +441,17 @@ Rotation angles accumulate continuously via `_accumulateAngles()` — they do NO
 
 | File | System | Lines | Primary Function |
 |------|--------|-------|-----------------|
-| `core/cube_geometry.dart` | Shared | ~144 | Cube math constants and functions |
-| `particles/cube_loader.dart` | A | ~753 | Unified loading indicator widget |
-| `particles/loading_logo.dart` | A | ~67 | Legacy wrapper → CubeLoader |
+| `core/cube_geometry.dart` | Shared | ~150 | Cube math constants and functions |
+| `particles/cube_loader.dart` | A | ~963 | Unified loading indicator widget |
+| `particles/loading_logo.dart` | A | ~65 | Legacy wrapper → CubeLoader |
 | `atoms/cube_spinner.dart` | A | ~29 | Legacy wrapper → CubeLoader |
 | `atoms/cube_progress.dart` | A | ~33 | Legacy wrapper → CubeLoader |
 | `atoms/cube_shimmer.dart` | A | ~177 | Cube-based skeleton shimmer |
 | `atoms/cube_refresh_indicator.dart` | A | ~346 | Pull-to-refresh orbit animation |
-| `particles/floating_cube_background.dart` | B | ~2104 | Full particle system with 4 modes |
+| `particles/floating_cube_background.dart` | B | ~2126 | Full particle system with 4 modes |
 | `particles/cube_mode_cubit.dart` | B | ~ | Mode state management |
 | `atoms/animated_cube_mode_toggle.dart` | B | ~108 | Mode toggle UI button |
-| `features/home/screens/landymaker_home_screen.dart` | C | ~550 | Preview mode overlay |
+| `features/home/screens/landymaker_home_screen.dart` | C | ~844 | Preview mode overlay |
 | `docs/ai/CUBE_ECOSYSTEM.md` | Doc | — | This file — master reference |
 | `docs/ai/CUBE_LOADER.md` | Doc | ~112 | CubeLoader detailed docs |
 | `docs/ai/LOADING_LOGO_SYSTEM.md` | Doc | ~121 | Legacy LoadingLogo (DEPRECATED) |

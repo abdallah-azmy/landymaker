@@ -6,8 +6,7 @@ enum LoadingLogoState {
   idle,
   breathing,
   loading,
-  success,
-  error,
+  rotatingLayers,
 }
 
 /// Legacy enum — maps to [CubeLoader] size tier.
@@ -36,21 +35,12 @@ class LoadingLogo extends StatelessWidget {
     this.showGlow = true,
   });
 
-  LoadingLogoSize get _tier {
-    if (size <= 24) return LoadingLogoSize.micro;
-    if (size <= 32) return LoadingLogoSize.tiny;
-    if (size <= 48) return LoadingLogoSize.small;
-    if (size <= 96) return LoadingLogoSize.medium;
-    return LoadingLogoSize.large;
-  }
-
   static CubeLoaderState _mapState(LoadingLogoState s) {
     switch (s) {
       case LoadingLogoState.idle: return CubeLoaderState.idle;
       case LoadingLogoState.breathing: return CubeLoaderState.breathing;
       case LoadingLogoState.loading: return CubeLoaderState.loading;
-      case LoadingLogoState.success: return CubeLoaderState.success;
-      case LoadingLogoState.error: return CubeLoaderState.error;
+      case LoadingLogoState.rotatingLayers: return CubeLoaderState.rotatingLayers;
     }
   }
 

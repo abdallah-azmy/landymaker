@@ -10,7 +10,6 @@ import '../../../core/widgets/atoms/cube_spinner.dart';
 import '../../../core/services/turnstile_service.dart';
 import '../../../core/utils/fingerprint_utils.dart';
 import '../../../core/localization/app_localizations.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/localized_text_parser.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../builder/models/landing_page_theme.dart';

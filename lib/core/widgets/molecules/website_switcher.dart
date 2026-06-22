@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../../features/dashboard/controllers/landing_pages_cubit.dart';
 import '../../../features/dashboard/controllers/landing_pages_state.dart';

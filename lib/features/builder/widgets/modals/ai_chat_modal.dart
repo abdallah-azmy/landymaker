@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/toast_service.dart';
 import '../../../auth/controllers/auth_cubit.dart';
@@ -10,7 +9,6 @@ import '../ai_chat_input.dart';
 import 'pixabay_selector_modal.dart';
 import 'image_picker_modal.dart';
 import 'package:landymaker/features/builder/controllers/ai_generation_cubit.dart';
-import 'package:landymaker/core/widgets/atoms/cube_spinner.dart';
 import 'package:landymaker/core/widgets/particles/loading_logo.dart';
 import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
 import 'package:landymaker/features/builder/controllers/builder_state.dart';

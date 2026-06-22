@@ -5,7 +5,6 @@ import 'package:landymaker/services/auth_service.dart';
 import 'package:landymaker/services/subscription_service.dart';
 
 import '../../../core/localization/localization_cubit.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/glass_container.dart';
 import '../../../core/widgets/atoms/primary_button.dart';

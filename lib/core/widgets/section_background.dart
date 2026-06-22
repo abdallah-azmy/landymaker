@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 import '../../features/builder/models/landing_page_theme.dart';
 import 'custom_network_image.dart';
 

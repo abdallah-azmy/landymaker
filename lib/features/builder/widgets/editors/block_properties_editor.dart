@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:landymaker/features/builder/models/landing_page_theme.dart';
 import '../modals/image_picker_modal.dart';
 import '../molecules/custom_image_field.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../core/widgets/atoms/custom_text_field.dart';
@@ -1127,7 +1126,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
       SwitchListTile(
         title: Text(loc.translate('visible')),
         value: block['is_visible'] ?? true,
-        activeColor: Theme.of(context).colorScheme.primary,
+        activeThumbColor: Theme.of(context).colorScheme.primary,
         onChanged: (val) =>
             cubit.updateBlockProperty(widget.index, 'is_visible', val),
       ),

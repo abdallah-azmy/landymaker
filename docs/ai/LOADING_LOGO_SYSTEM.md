@@ -32,8 +32,7 @@ const LoadingLogo({
 | `idle` | Very slow rotation (0.05×), minimal animation |
 | `breathing` | Slow rotation + pulsing cube gap breathing |
 | `loading` | Fast rotation (0.3×) + breathing + pulse glow |
-| `success` | Very slow rotation, green tint |
-| `error` | Almost static, red tint |
+| `rotatingLayers` | Medium rotation (0.2×) with per-horizontal-layer Y-axis rotation |
 
 ---
 

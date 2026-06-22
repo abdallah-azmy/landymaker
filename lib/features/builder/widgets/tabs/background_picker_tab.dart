@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/custom_network_image.dart';
 import '../../controllers/builder_cubit.dart';
@@ -83,7 +82,7 @@ class _BackgroundPickerTabState extends State<BackgroundPickerTab> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: CustomNetworkImage(
-                    imageUrl: currentBgUrl!,
+                    imageUrl: currentBgUrl,
                     fit: BoxFit.cover,
                   ),
                 ),

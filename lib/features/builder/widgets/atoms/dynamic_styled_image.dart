@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_network_image.dart';
 import '../../../../core/utils/numeric_parser.dart';
 

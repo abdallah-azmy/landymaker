@@ -49,7 +49,7 @@ class FeaturedProductEditor extends StatelessWidget {
         FormGroup(
           label: context.translate('theme_override'),
           child: DropdownButtonFormField<String>(
-            value: block['theme_override'],
+            initialValue: block['theme_override'],
             items: [
               DropdownMenuItem(value: null, child: Text(context.translate('default'))),
               ...LandingPageTheme.palettes.map((p) => DropdownMenuItem(value: p.name, child: Text(p.name))),

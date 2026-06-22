@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../services/tenant_routing_service.dart';
 import '../../../core/widgets/section_background.dart';

@@ -109,7 +109,7 @@ class HomepageSectionCard extends StatelessWidget {
             Switch(
               value: isVisible,
               onChanged: (_) => onToggle(),
-              activeColor: theme.colorScheme.primary,
+              activeThumbColor: theme.colorScheme.primary,
             ),
           ],
         ),

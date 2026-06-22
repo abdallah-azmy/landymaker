@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
@@ -298,7 +297,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
                     ),
                     Switch(
                       value: (context.read<LandingPageBuilderCubit>().state as BuilderLoaded).designMap['show_cookie_banner'] ?? true,
-                      activeColor: Theme.of(context).colorScheme.primary,
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
                       onChanged: (val) {
                         cubit.updateMetadata('show_cookie_banner', val);
                         setState(() {});

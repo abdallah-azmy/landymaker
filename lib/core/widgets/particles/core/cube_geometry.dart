@@ -85,11 +85,14 @@ double lambertBrightness(double nx, double ny, double nz) {
 Path buildRoundedQuad(Offset a, Offset b, Offset c, Offset d, double r) {
   final points = [a, b, c, d];
   final path = Path();
-  double minEdge = double.infinity;
+  double minEdgeSq = double.infinity;
   for (int i = 0; i < 4; i++) {
     final j = (i + 1) % 4;
-    minEdge = min(minEdge, (points[i] - points[j]).distance);
+    final dx = points[i].dx - points[j].dx;
+    final dy = points[i].dy - points[j].dy;
+    minEdgeSq = min(minEdgeSq, dx * dx + dy * dy);
   }
+  final minEdge = sqrt(minEdgeSq);
   final double cr = min(r, minEdge * 0.5);
   if (cr < 0.5) {
     path.addPolygon(points, true);

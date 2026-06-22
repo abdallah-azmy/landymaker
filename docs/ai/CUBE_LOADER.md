@@ -20,9 +20,9 @@ cube_progress.dart ──→  delegates to CubeLoader(variant: cluster)
 
 | File | Purpose | Lines |
 |------|---------|-------|
-| `lib/core/widgets/particles/cube_loader.dart` | Unified CubeLoader widget | ~450 |
-| `lib/core/widgets/particles/core/cube_geometry.dart` | Shared cube math (verts, faces, normals, rotation, lighting) | ~120 |
-| `lib/core/widgets/particles/loading_logo.dart` | Legacy wrapper (delegates to CubeLoader) | ~50 |
+| `lib/core/widgets/particles/cube_loader.dart` | Unified CubeLoader widget | ~960 |
+| `lib/core/widgets/particles/core/cube_geometry.dart` | Shared cube math (verts, faces, normals, rotation, lighting) | ~150 |
+| `lib/core/widgets/particles/loading_logo.dart` | Legacy wrapper (delegates to CubeLoader) | ~63 |
 | `lib/core/widgets/atoms/cube_spinner.dart` | Legacy wrapper (delegates to CubeLoader) | ~30 |
 | `lib/core/widgets/atoms/cube_progress.dart` | Legacy wrapper (delegates to CubeLoader) | ~40 |
 | `lib/core/widgets/atoms/cube_shimmer.dart` | Grid-based shimmer (still independent, uses cube_geometry) | ~150 |
@@ -36,7 +36,7 @@ const CubeLoader({
   Key? key,
   this.size = 48.0,                    // 16–512
   this.initialState = CubeLoaderState.breathing,
-  this.variant = CubeLoaderVariant.logo, // logo | single | cluster
+  this.variant = CubeLoaderVariant.logo, // logo | single | cluster | linear | circular | physics
   this.interactive = false,             // hover glow + tap explode
   this.showGlow = true,
   this.value,                           // determinate progress (0.0–1.0)
@@ -52,6 +52,9 @@ const CubeLoader({
 | `logo` | 27 (3×3×3) | `LoadingLogo` | Page/section/overlay loading |
 | `single` | 1 | `CubeSpinner` | Buttons, inline spinners |
 | `cluster` | 3 (orbit) | `CubeProgress` | Upload progress, image picker |
+| `linear` | 5 (wave) | — | Custom wave pulse indicator |
+| `circular` | 6 (orbit depth) | — | Circular depth-chasing ring |
+| `physics` | 3 (bounce) | — | Gravity squash-and-stretch bounce |
 
 ### States (`CubeLoaderState`)
 
@@ -60,8 +63,7 @@ const CubeLoader({
 | `idle` | Very slow rotation (0.05×) |
 | `breathing` | Slow rotation + pulsing gap |
 | `loading` | Fast rotation (0.3×) + pulse glow |
-| `success` | Very slow rotation, green tint |
-| `error` | Almost static, red tint |
+| `rotatingLayers` | Medium rotation (0.2×) with per-horizontal-layer independent Y-axis rotation |
 
 ## Rendering Improvements (vs V2 LoadingLogo)
 
@@ -71,7 +73,8 @@ const CubeLoader({
 - Eliminates the 4× duplication of the same 50-line constants block
 
 ### Zero-Allocation Painter
-- Static scratch buffers (`_tv`, `_nv`, `_path`, `_quadPts`) reused across all frames
+- Per-instance scratch buffers (`_tv`, `_quadPts`) — each `_CubeLoaderPainter` has its own, safe for concurrent rendering of multiple loaders
+- Static `_nv` (normal scratch) reused safely since `_faceBrightness` is called synchronously within paint
 - No `List.generate` or `new Path()` in the paint loop
 - Single `RotationMatrix` computed once per frame, reused for all cubes and all faces
 
@@ -80,7 +83,7 @@ const CubeLoader({
 - Smoother, more premium look at all sizes
 
 ### Ambient Occlusion
-- Cubes with more neighbors get darker (`0.85–1.0` brightness factor)
+- Cubes with more neighbors get darker (`0.65–1.0` brightness factor)
 - Occluded faces (neighbor completely blocking) are skipped entirely
 - Improves depth perception without extra draw calls
 
@@ -92,11 +95,13 @@ const CubeLoader({
 
 | Metric | V2 LoadingLogo | V3 CubeLoader |
 |--------|---------------|---------------|
-| Allocations in paint | ~162 `_FaceInfo` + `List.generate` | 0 (static buffers) |
+| Allocations in paint | ~162 `_FaceInfo` + `List.generate` | 0 (per-instance buffers) |
 | Draw calls per frame (logo) | 27×6×2 = 324 | 27×~3×2 = ~162 (backface + occlusion culled) |
 | `Path` objects per frame | 162 | 0 (reuses static `_path`) |
 | Rotation computations per frame | 27×6 = 162 | 1 (cached `_lightRot`) |
-| File size | 653 lines | ~450 lines |
+| `sqrt` calls in `buildRoundedQuad` | 4 per face | 1 per face (squared-distance) |
+| Variants | 1 (logo) | 6 (logo, single, cluster, linear, circular, physics) |
+| File size | 653 lines | ~963 lines |
 
 ## Migration Notes
 
@@ -107,8 +112,12 @@ const CubeLoader({
 
 ## Architecture Discoveries
 
-1. **Static scratch buffers in CustomPainter** are safe because Flutter renders frames sequentially. This is the standard approach for high-performance CustomPainters (used internally by Flutter framework).
+1. **Per-instance scratch buffers**: `_tv` and `_quadPts` are now instance-level (not `static`) to guarantee thread/multi-widget safety when multiple `CubeLoader` widgets render concurrently.
 
 2. **Euler rotation normalization**: The `(rx=0.70, ry=π/4)` angles produce an approximately isometric view. True isometric would be `rx=asin(tan(30°))≈0.615`, but 0.70 gives a slightly better visual (more top-face visible).
 
 3. **Face occlusion via neighbor check** (`occludedFaces`): The 3×3×3 grid means each cube has 0–6 neighbors. Faces facing a neighbor are invisible and can be skipped. This reduces draw calls by ~50% for inner cubes.
+
+4. **Squared-distance optimization**: `buildRoundedQuad` now computes squared distances (`dx*dx + dy*dy`) to find the minimum edge, calling `sqrt()` only once. This eliminates 75% of frame-level square root operations.
+
+5. **Rotating Layers**: The `rotatingLayers` state applies per-horizontal-layer Y-axis rotation before the global isometric transform. Layer speeds: bottom (j=-1) = +1.0×, middle (j=0) = -0.5×, top (j=1) = +1.5× of `rotationAngle`.

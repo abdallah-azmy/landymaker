@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/atoms/animated_theme_toggle.dart';
@@ -263,7 +262,7 @@ class _NotificationToggleTile extends StatelessWidget {
           Switch(
             value: notificationsEnabled,
             onChanged: toggleNotifications,
-            activeColor: Theme.of(context).colorScheme.secondary,
+            activeThumbColor: Theme.of(context).colorScheme.secondary,
             activeTrackColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
           ),
         ],

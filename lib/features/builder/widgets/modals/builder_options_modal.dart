@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../../../core/utils/toast_service.dart';
@@ -240,7 +239,7 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                     style: AppTypography.caption,
                   ),
                   value: widget.state.isPublished,
-                  activeColor: Colors.green,
+                  activeThumbColor: Colors.green,
                   onChanged: (val) {
                     widget.cubit.updateSettings(isPublished: val);
                   },

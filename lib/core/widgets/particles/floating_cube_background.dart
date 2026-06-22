@@ -18,7 +18,6 @@
 // ══════════════════════════════════════════════════════════════════════════════
 
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:landymaker/core/widgets/particles/cube_mode_cubit.dart';
@@ -104,10 +103,12 @@ class _SpatialHashGrid {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _TrailParticle {
-  double x, y, size, opacity;
-  double vx = 0, vy = 0;
-
-  _TrailParticle({this.x = 0, this.y = 0, this.size = 0, this.opacity = 0});
+  double x = 0;
+  double y = 0;
+  double size = 0;
+  double opacity = 0;
+  double vx = 0;
+  double vy = 0;
 }
 
 const int _kTrailPoolSize = 500;
@@ -164,7 +165,7 @@ class _TrailPool {
   }
 
   void update(double dt) {
-    final realDt = dt * 60;
+    final realDt = _realSec(dt);
     for (int i = 0; i < _kTrailPoolSize; i++) {
       final p = particles[i];
       if (p.opacity <= 0) continue;
@@ -317,6 +318,11 @@ class FloatingCubeBackground extends StatefulWidget {
   @override
   State<FloatingCubeBackground> createState() => _FloatingCubeBackgroundState();
 }
+
+/// Convert AnimationController `dt` (fraction of 60s) to real seconds.
+/// The background's `AnimationController` runs 0→1 over 60 seconds,
+/// so `dt * 60` gives the actual elapsed time in seconds.
+double _realSec(double dt) => dt * 60;
 
 class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     with SingleTickerProviderStateMixin {
@@ -548,7 +554,6 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 
   void _initFromBase() {
-    final topExclusion = widget.topExclusion;
     _entities = List.generate(_baseData.length, (i) {
       final d = _baseData[i];
       return _MergeEntity(
@@ -699,8 +704,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     final topExclusion = widget.topExclusion;
 
     if (_isGathering) {
-      final double gap = 22.0;
-      final double rx = 0.615;
+      final double gap = 20.0;
+      final double rx = 0.70;
       final double ry = pi / 4;
       final double rz = 0.0;
       final double cx = cos(rx), sx = sin(rx);
@@ -804,8 +809,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     // ── Entity update (repulsion + physics) ──
     if (_isPreBurst) {
-      final double gap = 22.0; // Spacing between cubes
-      final double rx = 0.615; // Isometric tilt down
+      final double gap = 20.0; // Spacing between cubes
+      final double rx = 0.70; // Isometric tilt (matches brand logo)
       final double ry = pi / 4; // Isometric 45 deg turn
       final double rz = 0.0;
 
@@ -941,7 +946,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   void _updateMergeMode(double dt, double topExclusion) {
     // Cooldown & random perturbation
     for (final e in _entities) {
-      if (e.mergeCooldown > 0 && !e.isSpiraling) e.mergeCooldown -= dt * 60;
+      if (e.mergeCooldown > 0 && !e.isSpiraling) e.mergeCooldown -= _realSec(dt);
     }
     for (final e in _entities) {
       if (e.isSpiraling) continue;
@@ -973,8 +978,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           processed.add(a);
           processed.add(b);
 
-          a.spiralCollapseTimer += dt * 60;
-          b.spiralCollapseTimer += dt * 60;
+          a.spiralCollapseTimer += _realSec(dt);
+          b.spiralCollapseTimer += _realSec(dt);
 
           const double totalDuration = 4.0;
           final collapseProgress = (a.spiralCollapseTimer / totalDuration)
@@ -1008,7 +1013,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               b.spiralInitialRadius +
               (targetRadiusB - b.spiralInitialRadius) * shrinkCurve;
 
-          a.spiralAngle += a.spiralSpeed * dt * 60 * widget.speed;
+          a.spiralAngle += a.spiralSpeed * _realSec(dt) * widget.speed;
           b.spiralAngle = a.spiralAngle + pi;
 
           double cx = (a.x * a.count + b.x * b.count) / totalCount;
@@ -1276,7 +1281,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     // Orbiter position updates
     for (final e in _entities) {
       if (e.parentCore == null) continue;
-      e.orbitAngle += e.orbitSpeed * dt * 60 * widget.speed;
+      e.orbitAngle += e.orbitSpeed * _realSec(dt) * widget.speed;
       final cosA = cos(e.orbitAngle);
       final sinA = sin(e.orbitAngle);
       e.x = e.parentCore!.x + e.orbitRadius * cosA;
@@ -1544,6 +1549,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               primaryColor: primaryColor,
               isRtl: isRtl,
               repelPoint: _hasRepelPoint ? _repelPoint : null,
+              isLogoState: _isPreBurst || _isGathering,
             ),
           );
         },
@@ -1660,7 +1666,7 @@ class _MergeEntity {
       }
     }
 
-    if (ignoreRepelTimer > 0) ignoreRepelTimer -= dt * 60;
+    if (ignoreRepelTimer > 0) ignoreRepelTimer -= _realSec(dt);
 
     if (repelPoint != null && !isSpiraling && ignoreRepelTimer <= 0) {
       final dx = x - repelPoint.dx;
@@ -1692,7 +1698,7 @@ class _MergeEntity {
       }
     }
 
-    final double realDt = dt * 60;
+    final double realDt = _realSec(dt);
 
     if (gravity) {
       // ── GRAVITY MODE PHYSICS ──
@@ -1795,9 +1801,9 @@ class _MergeEntity {
       }
     }
 
-    rx += vrx * dt * 60 * speedMultiplier;
-    ry += vry * dt * 60 * speedMultiplier;
-    rz += vrz * dt * 60 * speedMultiplier;
+    rx += vrx * _realSec(dt) * speedMultiplier;
+    ry += vry * _realSec(dt) * speedMultiplier;
+    rz += vrz * _realSec(dt) * speedMultiplier;
   }
 
   void applyBurst(Offset point, {bool isGravity = false}) {
@@ -1893,6 +1899,7 @@ class _CubePainter extends CustomPainter {
   final Color primaryColor;
   final bool isRtl;
   final Offset? repelPoint;
+  final bool isLogoState;
 
   _CubePainter({
     required this.entities,
@@ -1902,6 +1909,7 @@ class _CubePainter extends CustomPainter {
     required this.primaryColor,
     required this.isRtl,
     this.repelPoint,
+    this.isLogoState = false,
   });
 
   static final _nvScratch = [0.0, 0.0, 0.0];
@@ -2037,8 +2045,9 @@ class _CubePainter extends CustomPainter {
 
     for (final cubeData in allData) {
       if (cubeData.faces.isEmpty) continue;
+      final h = cubeData.size * 0.5;
       for (final fd in cubeData.faces) {
-        _drawFace(canvas, fd, fillPaint, strokePaint, cubeColor, drawStroke);
+        _drawFace(canvas, fd, fillPaint, strokePaint, cubeColor, drawStroke, h);
       }
     }
 
@@ -2070,6 +2079,7 @@ class _CubePainter extends CustomPainter {
     Paint strokePaint,
     Color cubeColor,
     bool drawStroke,
+    double h,
   ) {
     if (!fd.x0.isFinite ||
         !fd.y0.isFinite ||
@@ -2081,12 +2091,24 @@ class _CubePainter extends CustomPainter {
         !fd.y3.isFinite)
       return;
 
-    final path = Path()
-      ..moveTo(fd.x0, fd.y0)
-      ..lineTo(fd.x1, fd.y1)
-      ..lineTo(fd.x2, fd.y2)
-      ..lineTo(fd.x3, fd.y3)
-      ..close();
+    final Path path;
+    if (isLogoState) {
+      final cr = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+      path = cg.buildRoundedQuad(
+        Offset(fd.x0, fd.y0),
+        Offset(fd.x1, fd.y1),
+        Offset(fd.x2, fd.y2),
+        Offset(fd.x3, fd.y3),
+        cr,
+      );
+    } else {
+      path = Path()
+        ..moveTo(fd.x0, fd.y0)
+        ..lineTo(fd.x1, fd.y1)
+        ..lineTo(fd.x2, fd.y2)
+        ..lineTo(fd.x3, fd.y3)
+        ..close();
+    }
 
     final b = fd.brightness;
 

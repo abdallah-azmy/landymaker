@@ -11,7 +11,7 @@ import '../../../core/utils/toast_service.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
 import '../widgets/auth_layout_wrapper.dart';
-import '../../../core/widgets/particles/loading_logo_modified.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});

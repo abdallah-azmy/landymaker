@@ -6,6 +6,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../controllers/notification_cubit.dart';
 import '../controllers/notification_state.dart';
+import 'package:landymaker/core/widgets/particles/loading_logo.dart';
 
 class NotificationInboxModal extends StatelessWidget {
   const NotificationInboxModal({super.key});
@@ -91,7 +92,7 @@ class NotificationInboxModal extends StatelessWidget {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(20),
-              child: CircularProgressIndicator(),
+              child: LoadingLogo(size: 48),
             ),
           );
         }

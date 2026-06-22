@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/widgets/atoms/cube_spinner.dart';
 import '../../../injection_container.dart';
 import '../../../services/database_service.dart';
 
@@ -85,7 +86,7 @@ class _SectionRendererConfigSheetState extends State<SectionRendererConfigSheet>
             if (_loadingPages)
               const Center(child: Padding(
                 padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CubeSpinner(size: 16),
               ))
             else if (_allPages.isEmpty)
               Text('لا توجد صفحات هبوط متاحة', style: TextStyle(color: theme.colorScheme.onSurfaceVariant))

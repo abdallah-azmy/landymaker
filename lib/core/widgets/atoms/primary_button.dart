@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'cube_spinner.dart';
 
 class PrimaryButton extends StatefulWidget {
   final String text;
@@ -35,13 +36,9 @@ class _PrimaryButtonState extends State<PrimaryButton> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (widget.isLoading) ...[
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: widget.isSecondary ? cs.onSurface : cs.onPrimary,
-            ),
+          CubeSpinner(
+            size: 16,
+            color: widget.isSecondary ? cs.onSurface : cs.onPrimary,
           ),
           SizedBox(width: 8),
         ] else if (widget.icon != null) ...[

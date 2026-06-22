@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../../../core/widgets/atoms/animated_theme_toggle.dart';
+import '../../../../core/widgets/atoms/cube_spinner.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 
@@ -375,14 +376,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           child: state.isSaving
-              ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppColors.activeGreen,
-                  ),
-                )
+              ? CubeSpinner(size: 20, color: AppColors.activeGreen)
               : Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -431,14 +425,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         child: state.isSaving
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              )
+            ? CubeSpinner(size: 20, color: Theme.of(context).colorScheme.primary)
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

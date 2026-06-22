@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
+import '../particles/cube_loader.dart';
 
 class TechLoadingScreen extends StatelessWidget {
   const TechLoadingScreen({super.key});
@@ -7,27 +7,22 @@ class TechLoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkBackground, // Dark Slate Black
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/images/logo_small.webp',
-              height: 80,
-              width: 80,
+            const CubeLoader(
+              variant: CubeLoaderVariant.logo,
+              size: 80,
+              state: CubeLoaderState.loading,
+              glow: true,
             ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: 100,
-              height: 3,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(2),
-                child: LinearProgressIndicator(
-                  color: AppColors.primary,
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                ),
-              ),
+            const SizedBox(height: 32),
+            const CubeLoader(
+              variant: CubeLoaderVariant.single,
+              size: 24,
+              state: CubeLoaderState.loading,
             ),
           ],
         ),

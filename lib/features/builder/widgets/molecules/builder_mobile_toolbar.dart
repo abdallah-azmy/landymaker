@@ -4,6 +4,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
+import '../../../../core/widgets/atoms/cube_spinner.dart';
 import '../../models/preview_mode.dart';
 
 class BuilderMobileToolbar extends StatelessWidget {
@@ -266,14 +267,7 @@ class BuilderMobileToolbar extends StatelessWidget {
           ),
         ),
         child: state.isSaving
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.green,
-                ),
-              )
+            ? const CubeSpinner(size: 16, color: Colors.green)
             : Row(
                 children: [
                   Icon(

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
 import '../../../core/widgets/organisms/responsive_data_table.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
@@ -145,7 +146,7 @@ class _PlatformSeoScreenState extends State<PlatformSeoScreen> {
       child: BlocBuilder<SuperAdminCubit, SuperAdminState>(
         builder: (context, state) {
           if (state is! SuperAdminLoaded) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: LoadingLogo(size: 48, initialState: LoadingLogoState.loading));
           }
           
           return SingleChildScrollView(

@@ -8,6 +8,7 @@ import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/section_background.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
+import '../../../core/widgets/atoms/cube_spinner.dart';
 import '../../dashboard/controllers/leads_analytics_cubit.dart';
 import '../../dashboard/controllers/leads_analytics_state.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -458,7 +459,7 @@ class _LeadFormSubmitButton extends StatelessWidget {
           elevation: 0,
         ),
         child: props.isSubmitting
-            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0))
+            ? const CubeSpinner(size: 20, color: Colors.white)
             : Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16)),
       ),
     );

@@ -6,7 +6,7 @@ import '../../theme/app_typography.dart';
 import '../../../features/dashboard/controllers/landing_pages_cubit.dart';
 import '../../../features/dashboard/controllers/landing_pages_state.dart';
 import '../../../features/dashboard/controllers/active_website_cubit.dart';
-import '../particles/loading_logo_modified.dart';
+import '../particles/loading_logo.dart';
 
 class WebsiteSwitcher extends StatefulWidget {
   const WebsiteSwitcher({super.key});

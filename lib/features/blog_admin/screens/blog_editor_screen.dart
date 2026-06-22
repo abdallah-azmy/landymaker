@@ -6,6 +6,7 @@ import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 import 'package:markdown/markdown.dart' as md;
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/atoms/cube_spinner.dart';
 import '../data/models/blog_post_model.dart';
 import '../controllers/blog_cubit.dart';
 
@@ -530,7 +531,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                         ),
                       ),
                       icon: _isLoading 
-                        ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface, strokeWidth: 2))
+                        ? CubeSpinner(size: 20, color: Theme.of(context).colorScheme.surface)
                         : Icon(Icons.cloud_upload_rounded),
                       label: Text(
                         _isLoading ? "جاري الحفظ..." : (isMobile ? "حفظ" : "حفظ المقال"),

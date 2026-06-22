@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
 import '../controllers/homepage_editor_cubit.dart';
 import '../controllers/homepage_editor_state.dart';
 import '../widgets/homepage_section_card.dart';
@@ -118,7 +119,7 @@ class _HomepageEditorScreenState extends State<HomepageEditorScreen> {
     return BlocBuilder<HomepageEditorCubit, HomepageEditorState>(
       builder: (context, state) {
         if (state is HomepageEditorLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: LoadingLogo(size: 48, initialState: LoadingLogoState.loading));
         }
         if (state is HomepageEditorFailure) {
           return Center(

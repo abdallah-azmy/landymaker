@@ -17,7 +17,7 @@ import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
 import '../widgets/domain_setup_widget.dart';
 import '../widgets/empty_workspace_state.dart';
-import '../../../core/widgets/particles/loading_logo_modified.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
 
 class DomainSettingsScreen extends StatelessWidget {
   const DomainSettingsScreen({super.key});

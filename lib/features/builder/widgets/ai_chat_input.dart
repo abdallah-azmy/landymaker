@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/atoms/cube_spinner.dart';
 
 class AIChatInput extends StatefulWidget {
   final Function(String) onSend;
@@ -156,14 +157,7 @@ class _AIChatInputState extends State<AIChatInput> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: widget.isLoading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
+            ? const CubeSpinner(size: 20, color: Colors.white)
             : Icon(
                 Icons.send_rounded,
                 color: Colors.black,

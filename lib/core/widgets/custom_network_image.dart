@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'atoms/cube_shimmer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/builder/controllers/upload_manager_cubit.dart';
 import '../../features/builder/models/selected_image_data.dart';
 import '../../injection_container.dart';
+import 'atoms/cube_progress.dart';
 
 /// A reusable, robust network image component.
 /// It displays a skeleton/shimmer loader while the image is downloading,
@@ -129,14 +130,9 @@ class CustomNetworkImage extends StatelessWidget {
   }
 
   Widget _buildLoadingWidget() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey.shade800,
-      highlightColor: Colors.grey.shade700,
-      child: Container(
-        width: width,
-        height: height ?? 200.0,
-        color: Colors.black, // Background color that gets shimmered
-      ),
+    return CubeShimmer(
+      width: width,
+      height: height ?? 200.0,
     );
   }
 
@@ -159,24 +155,11 @@ class CustomNetworkImage extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              width: 48,
-              height: 48,
-              child: CircularProgressIndicator(
-                value: task.progress > 0 ? task.progress : null,
-                color: const Color(0xFF00E5FF),
-                backgroundColor: Colors.white24,
-              ),
-            ),
-            if (task.progress > 0)
-              Text(
-                '${(task.progress * 100).toInt()}%',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-          ],
+        CubeProgress(
+          size: 48,
+          color: const Color(0xFF00E5FF),
+          value: task.progress > 0 ? task.progress : null,
+          showPercentage: true,
         ),
         SizedBox(height: 8),
         IconButton(

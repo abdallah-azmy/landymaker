@@ -6,7 +6,8 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/molecules/data_card.dart';
 import '../../../core/widgets/molecules/page_context_banner.dart';
-import '../../../core/widgets/particles/loading_logo_modified.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 // Removed sl/AuthService imports to maintain architectural boundary
 import '../controllers/leads_analytics_cubit.dart';
 import '../controllers/leads_analytics_state.dart';
@@ -78,7 +79,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     // Calculate Conversion Rate
     final double conversionRate = views > 0 ? (conversions / views) * 100 : 0.0;
 
-    return RefreshIndicator(
+    return CubeRefreshIndicator(
       color: Theme.of(context).colorScheme.primary,
       onRefresh: cubit.fetchStatsForCurrentUser,
       child: SingleChildScrollView(

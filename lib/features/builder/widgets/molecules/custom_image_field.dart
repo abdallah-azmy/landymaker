@@ -3,6 +3,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/custom_network_image.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/atoms/cube_progress.dart';
 
 class CustomImageField extends StatelessWidget {
   final String? imageUrl;
@@ -114,7 +115,7 @@ class CustomImageField extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Center(
-                      child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
+                      child: CubeProgress(size: 48, color: Color(0xFF00E5FF)),
                     ),
                   ),
 

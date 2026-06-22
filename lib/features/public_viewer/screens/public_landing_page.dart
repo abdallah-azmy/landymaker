@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../../core/localization/localization_cubit.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 import '../../../services/tenant_routing_service.dart';
 import '../controllers/public_page_cubit.dart';
 import '../controllers/public_page_state.dart';
@@ -337,7 +338,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                       } catch (_) {}
                     }
 
-                    Widget content = RefreshIndicator(
+                    Widget content = CubeRefreshIndicator(
                       color: Theme.of(context).colorScheme.primary,
                       onRefresh: () async {
                         final identifier = widget.identifier ??

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/forms/elements/field_renderer.dart';
 import '../../../core/forms/validation_engine.dart';
+import '../../../core/widgets/atoms/cube_spinner.dart';
 import '../../../core/services/turnstile_service.dart';
 import '../../../core/utils/fingerprint_utils.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -493,14 +494,7 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
                 ),
               ),
               child: _isSubmitting
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
+                  ? const CubeSpinner(size: 20, color: Colors.white)
                   : Text(
                       _findNextVisibleStep(_currentStepIndex, 1) >=
                               _steps.length

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../controllers/upload_manager_cubit.dart';
 import '../../../../injection_container.dart';
+import '../../../../core/widgets/atoms/cube_progress.dart';
 import '../../models/selected_image_data.dart';
 
 class GlobalUploadManagerWidget extends StatelessWidget {
@@ -103,15 +104,10 @@ class GlobalUploadManagerWidget extends StatelessWidget {
                   // Circular Progress inside Thumbnail
                   if (task.error == null)
                     Center(
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          value: task.progress > 0 ? task.progress : null,
-                          strokeWidth: 2.5,
-                          color: Theme.of(context).colorScheme.primary,
-                          backgroundColor: Colors.white24,
-                        ),
+                      child: CubeProgress(
+                        size: 24,
+                        color: Theme.of(context).colorScheme.primary,
+                        value: task.progress > 0 ? task.progress : null,
                       ),
                     ),
                   

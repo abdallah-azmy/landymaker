@@ -6,7 +6,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/molecules/page_context_banner.dart';
-import '../../../core/widgets/particles/loading_logo_modified.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
 import '../controllers/notification_cubit.dart';
 import '../controllers/notification_state.dart';
 

@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/custom_network_image.dart';
 import '../../controllers/pixabay_selector_cubit.dart';
+import '../../../../core/widgets/atoms/cube_progress.dart';
 
 class PixabaySelectorModal extends StatefulWidget {
   final String initialQuery;
@@ -220,7 +221,7 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
       builder: (context, state) {
         if (state is PixabaySelectorLoading) {
           return Center(
-            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+            child: CubeProgress(color: Theme.of(context).colorScheme.primary),
           );
         }
         if (state is PixabaySelectorFailure) {

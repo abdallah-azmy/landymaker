@@ -15,7 +15,7 @@ import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
 import '../../../core/widgets/molecules/page_context_banner.dart';
 import '../widgets/empty_workspace_state.dart';
-import '../../../core/widgets/particles/loading_logo_modified.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
 
 class ProductFeedScreen extends StatelessWidget {
   const ProductFeedScreen({super.key});

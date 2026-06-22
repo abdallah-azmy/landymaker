@@ -10,6 +10,8 @@ import '../ai_chat_input.dart';
 import 'pixabay_selector_modal.dart';
 import 'image_picker_modal.dart';
 import 'package:landymaker/features/builder/controllers/ai_generation_cubit.dart';
+import 'package:landymaker/core/widgets/atoms/cube_spinner.dart';
+import 'package:landymaker/core/widgets/particles/loading_logo.dart';
 import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
 import 'package:landymaker/features/builder/controllers/builder_state.dart';
 import 'package:landymaker/features/builder/controllers/upload_manager_cubit.dart';
@@ -433,18 +435,17 @@ class _AIChatModalState extends State<AIChatModal> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          LoadingLogo(
+            size: 24,
+            initialState: LoadingLogoState.loading,
+            showGlow: false,
           ),
           SizedBox(width: 12),
-          Text(
-            message,
-            style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.primary),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.primary),
+            ),
           ),
         ],
       ),

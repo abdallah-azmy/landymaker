@@ -10,7 +10,8 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
-import '../../../core/widgets/particles/loading_logo_modified.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 import '../widgets/analytics_overview_widget.dart';
 import '../controllers/landing_pages_cubit.dart';
 import '../controllers/landing_pages_state.dart';
@@ -131,7 +132,7 @@ class _DesktopDashboardHome extends StatelessWidget {
     final totalViews = pages.fold<int>(0, (sum, p) => sum + (p['views_count'] as int? ?? 0));
     final totalLeads = pages.fold<int>(0, (sum, p) => sum + (p['purchases_count'] as int? ?? 0));
 
-    return RefreshIndicator(
+    return CubeRefreshIndicator(
       color: Theme.of(context).colorScheme.primary,
       onRefresh: () => context.read<LandingPagesCubit>().loadPages(),
       child: SingleChildScrollView(
@@ -198,7 +199,7 @@ class _MobileDashboardHome extends StatelessWidget {
     final totalViews = pages.fold<int>(0, (sum, p) => sum + (p['views_count'] as int? ?? 0));
     final totalLeads = pages.fold<int>(0, (sum, p) => sum + (p['purchases_count'] as int? ?? 0));
 
-    return RefreshIndicator(
+    return CubeRefreshIndicator(
       color: Theme.of(context).colorScheme.primary,
       onRefresh: () => context.read<LandingPagesCubit>().loadPages(),
       child: SingleChildScrollView(

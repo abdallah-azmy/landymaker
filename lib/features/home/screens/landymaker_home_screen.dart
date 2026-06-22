@@ -19,7 +19,6 @@ import '../widgets/home_footer.dart';
 import '../widgets/home_section_renderer.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
-import '../../../core/widgets/particles/loading_logo_original.dart';
 
 class LandyMakerHomeScreen extends StatefulWidget {
   const LandyMakerHomeScreen({super.key});
@@ -252,6 +251,21 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     setState(() => _isPreviewMode = false);
   }
 
+  Widget _buildStateItem(BuildContext context, String label, LoadingLogoState state) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: AppTypography.bodySmall.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        LoadingLogo(size: 80, initialState: state),
+      ],
+    );
+  }
+
   void _showLogoTestDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -269,7 +283,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      context.isRtl ? "مقارنة لودينج اللوجو" : "Logo Loader Comparison",
+                      context.isRtl ? "معاينة شعار التحميل" : "Loading Logo Preview",
                       style: AppTypography.h3.copyWith(
                         color: Theme.of(dialogContext).colorScheme.onSurface,
                       ),
@@ -281,9 +295,9 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                   ],
                 ),
                 const SizedBox(height: 24),
-                // Breathing Mode Row
+                // Loading Logo States Showcase
                 Text(
-                  context.isRtl ? "وضع النبض (Breathing Mode)" : "Breathing Mode",
+                  context.isRtl ? "حالات التحميل" : "Loading States",
                   style: AppTypography.bodyLarge.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(dialogContext).colorScheme.primary,
@@ -293,83 +307,17 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Column(
-                      children: [
-                        Text(
-                          context.isRtl ? "الأصلي" : "Original",
-                          style: AppTypography.bodySmall.copyWith(
-                            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const LoadingLogoOriginal(
-                          mode: LoadingLogoOriginalMode.breathing,
-                          size: 100,
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          context.isRtl ? "المعدل" : "Modified",
-                          style: AppTypography.bodySmall.copyWith(
-                            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const LoadingLogo(
-                          mode: LoadingLogoMode.breathing,
-                          size: 100,
-                        ),
-                      ],
-                    ),
+                    _buildStateItem(dialogContext, "Idle", LoadingLogoState.idle),
+                    _buildStateItem(dialogContext, "Breathing", LoadingLogoState.breathing),
+                    _buildStateItem(dialogContext, "Loading", LoadingLogoState.loading),
                   ],
                 ),
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 16),
-                // Rotating Layers Mode Row
-                Text(
-                  context.isRtl ? "وضع دوران الطبقات (Rotating Layers)" : "Rotating Layers Mode",
-                  style: AppTypography.bodyLarge.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(dialogContext).colorScheme.primary,
-                  ),
-                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Column(
-                      children: [
-                        Text(
-                          context.isRtl ? "الأصلي" : "Original",
-                          style: AppTypography.bodySmall.copyWith(
-                            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const LoadingLogoOriginal(
-                          mode: LoadingLogoOriginalMode.rotatingLayers,
-                          size: 100,
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          context.isRtl ? "المعدل" : "Modified",
-                          style: AppTypography.bodySmall.copyWith(
-                            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const LoadingLogo(
-                          mode: LoadingLogoMode.rotatingLayers,
-                          size: 100,
-                        ),
-                      ],
-                    ),
+                    _buildStateItem(dialogContext, "Success", LoadingLogoState.success),
+                    _buildStateItem(dialogContext, "Error", LoadingLogoState.error),
                   ],
                 ),
               ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/atoms/cube_spinner.dart';
 import '../../../injection_container.dart';
 import '../../../services/database_service.dart';
 import '../../home/models/home_layouts.dart';
@@ -181,7 +182,7 @@ class _TemplateConfigSheetState extends State<TemplateConfigSheet> {
             if (_loadingTemplates)
               const Center(child: Padding(
                 padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CubeSpinner(size: 16),
               ))
             else if (_allTemplates.isEmpty)
               Text('لا توجد قوالب متاحة', style: TextStyle(color: theme.colorScheme.onSurfaceVariant))

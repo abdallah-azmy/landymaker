@@ -8,6 +8,8 @@ import 'package:landymaker/features/dashboard/controllers/active_website_cubit.d
 import 'package:landymaker/features/dashboard/controllers/landing_pages_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/atoms/cube_spinner.dart';
+import 'package:landymaker/core/widgets/particles/loading_logo.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
@@ -267,7 +269,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
     if (_isCheckingLimit) {
       return SizedBox(
         height: 300,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: const LoadingLogo(size: 48)),
       );
     }
 
@@ -397,10 +399,9 @@ class _CreatePageModalState extends State<CreatePageModal> {
               suffixIcon: _isCheckingSlug
                   ? Padding(
                       padding: EdgeInsets.all(12),
-                      child: SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CubeSpinner(
+                        size: 16,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     )
                   : _isSlugAvailable

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' as intl;
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
 import '../controllers/blog_cubit.dart';
 import '../controllers/blog_state.dart';
 import 'blog_editor_screen.dart';
@@ -82,7 +83,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
               ),
               if (state is BlogLoading)
                 SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary)),
+                  child: const Center(child: LoadingLogo(size: 48, initialState: LoadingLogoState.loading)),
                 )
               else if (state is BlogError)
                 SliverFillRemaining(

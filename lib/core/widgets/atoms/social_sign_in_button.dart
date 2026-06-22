@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'cube_spinner.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../localization/app_localizations.dart';
@@ -29,11 +30,7 @@ class SocialSignInButton extends StatelessWidget {
           foregroundColor: Theme.of(context).colorScheme.onSurface,
         ),
         child: isLoading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.secondary),
-              )
+            ? CubeSpinner(size: 20, color: Theme.of(context).colorScheme.secondary)
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

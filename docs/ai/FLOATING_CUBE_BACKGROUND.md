@@ -7,6 +7,7 @@ A V2 real-time 3D cube particle system with four interactive modes (Standard, Me
 **Source**: `lib/core/widgets/particles/floating_cube_background.dart`
 **Mode Toggle**: `lib/core/widgets/particles/cube_mode_cubit.dart`
 **Toggle Widget**: `lib/core/widgets/atoms/animated_cube_mode_toggle.dart`
+**Shared Math**: `lib/core/widgets/particles/core/cube_geometry.dart` — `_CubePainter` delegates to `cg.cubeVerts`, `cg.cubeFaces`, `cg.cubeNormals`, `cg.computeRotation`, `cg.rotatePoint` (no duplicated constants).
 
 ---
 

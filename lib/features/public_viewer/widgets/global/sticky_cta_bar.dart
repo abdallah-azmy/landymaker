@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/services/action_handler_service.dart';
 import '../../../../core/services/event_analytics_service.dart';
+import '../../../../core/widgets/atoms/cube_spinner.dart';
 
 class StickyCtaBar extends StatefulWidget {
   final Map<String, dynamic> config;
@@ -190,14 +191,7 @@ class _StickyCtaBarState extends State<StickyCtaBar> {
                           }
                         },
                   child: _isLoading
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
+                      ? const CubeSpinner(size: 20, color: Colors.white)
                       : Text(
                           buttonText,
                           style: TextStyle(fontWeight: FontWeight.bold),

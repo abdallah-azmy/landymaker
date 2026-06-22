@@ -147,7 +147,20 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
     - **Fix** (see `lib/main.dart`): Fire font preloading as a **fire-and-forget microtask** (`Future(() async { ... })`) — NEVER `await` it inside the initialization `try` block. The `<link>` preload tags in `web/index.html` guarantee fonts are available even if the Dart API fails.
     - **Golden rule**: NEVER `await` a `google_fonts` call (`pendingFonts`, `getFont`, `getTextTheme`, etc.) in the startup sequence that blocks `runApp()`.
 
-40. **Google Fonts Loading Screen Protocol**:
+40. **Unified CubeLoader System (CRITICAL)**: ALL loading indicators MUST use either `CubeLoader` or its backward-compatible wrappers. The `CubeLoader` (`lib/core/widgets/particles/cube_loader.dart`) unifies `LoadingLogo`, `CubeSpinner`, and `CubeProgress` into a single optimized widget with shared geometry.
+    - **Primary widget**: `CubeLoader` — use for new code. Has `variant: logo|single|cluster`.
+    - **Legacy wrappers** (delegate to CubeLoader, no breaking changes): `LoadingLogo`, `CubeSpinner`, `CubeProgress`.
+    - **Size selection**: Page loaders → `size: 80`, Section loaders → `size: 48`, Inline/Tiny → `size: 24` or `size: 16`.
+    - **State selection**: Page/API loading → `initialState: CubeLoaderState.loading`, Brand showcase → `initialState: CubeLoaderState.breathing`, Feedback → `initialState: CubeLoaderState.success` or `.error`.
+    - **Variant selection**: Full logo (27 cubes) → `variant: CubeLoaderVariant.logo`, Single spinner → `variant: CubeLoaderVariant.single`, Upload progress → `variant: CubeLoaderVariant.cluster` + `value:`.
+    - **Button loading**: Use `PrimaryButton(isLoading: true)` or `CubeLoader(variant: single, size: 16, color: Colors.white)`.
+    - **Image loading**: `CustomNetworkImage` uses `CubeShimmer` (still independent, uses shared geometry).
+    - **Image upload progress**: `CubeLoader(variant: cluster, value: progress, showPercentage: true)`.
+    - **Pull to refresh**: `CubeRefreshIndicator` (remains independent).
+    - **Interactive mode**: Set `interactive: true` for hero/standalone logos to enable hover glow and tap explode.
+    - See `docs/ai/CUBE_LOADER.md` for comprehensive documentation.
+
+41. **Google Fonts Loading Screen Protocol**:
     - **Why**: After implementing Rule 39 (fire-and-forget font preloading), the home screen may render before Google Fonts are fully loaded. If text widgets render with system fonts, they will swap (FOUT) when Google Fonts arrive, or show tofu if fonts fail.
     - **Fix** (`lib/core/services/font_load_notifier.dart`): A top-level `FontLoadNotifier` (global singleton `fontLoadNotifier`) signals when font loading completes. The notifier is defined as a simple top-level variable (not registered in DI) so it can be accessed from both `_preloadFonts()` microtask (which runs before `sl` is initialized) and `landymaker_home_screen.dart`.
     - **Screen behavior**: When fonts are not yet ready, the home screen renders ONLY the cube background (`FloatingCubeBackground` inside `Positioned.fill`) — no `AppBar`, no scroll content, no widgets. When `fontLoadNotifier.markReady()` fires, `_fontsReady` transitions to `true`, causing a full rebuild that shows all content with their natural entrance animations.

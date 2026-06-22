@@ -22,6 +22,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:landymaker/core/widgets/particles/cube_mode_cubit.dart';
+import 'core/cube_geometry.dart' as cg;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PERFORMANCE & QUALITY
@@ -1898,34 +1899,7 @@ class _CubePainter extends CustomPainter {
     this.repelPoint,
   });
 
-  static const List<List<double>> _verts = [
-    [-1.0, -1.0, 1.0],
-    [1.0, -1.0, 1.0],
-    [1.0, 1.0, 1.0],
-    [-1.0, 1.0, 1.0],
-    [-1.0, -1.0, -1.0],
-    [1.0, -1.0, -1.0],
-    [1.0, 1.0, -1.0],
-    [-1.0, 1.0, -1.0],
-  ];
-
-  static const List<List<int>> _faces = [
-    [0, 1, 2, 3],
-    [4, 5, 6, 7],
-    [3, 2, 6, 7],
-    [0, 1, 5, 4],
-    [1, 2, 6, 5],
-    [0, 3, 7, 4],
-  ];
-
-  static const List<List<double>> _normals = [
-    [0.0, 0.0, 1.0],
-    [0.0, 0.0, -1.0],
-    [0.0, 1.0, 0.0],
-    [0.0, -1.0, 0.0],
-    [1.0, 0.0, 0.0],
-    [-1.0, 0.0, 0.0],
-  ];
+  static final _nvScratch = [0.0, 0.0, 0.0];
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1985,33 +1959,12 @@ class _CubePainter extends CustomPainter {
       final double ly = ldy / lDist;
       final double lz = ldz / lDist;
 
-      final cx = cos(entity.rx), sx = sin(entity.rx);
-      final cy = cos(entity.ry), sy = sin(entity.ry);
-      final cz = cos(entity.rz), sz = sin(entity.rz);
-
+      final rot = cg.computeRotation(entity.rx, entity.ry, entity.rz);
       for (int i = 0; i < 8; i++) {
-        double x = _verts[i][0] * h;
-        double y = _verts[i][1] * h;
-        double z = _verts[i][2] * h;
-
-        double y1 = y * cx - z * sx;
-        double z1 = y * sx + z * cx;
-        y = y1;
-        z = z1;
-
-        double x1 = x * cy + z * sy;
-        double z2 = -x * sy + z * cy;
-        x = x1;
-        z = z2;
-
-        double x2 = x * cz - y * sz;
-        double y2 = x * sz + y * cz;
-        x = x2;
-        y = y2;
-
-        tv[i][0] = x;
-        tv[i][1] = y;
-        tv[i][2] = z;
+        cg.rotatePoint(cg.cubeVerts[i], rot, tv[i]);
+        tv[i][0] *= h;
+        tv[i][1] *= h;
+        tv[i][2] *= h;
       }
 
       final faceBuffer = <_FaceDrawData>[];
@@ -2028,25 +1981,8 @@ class _CubePainter extends CustomPainter {
       }
 
       for (int f = 0; f < 6; f++) {
-        double nx = _normals[f][0];
-        double ny = _normals[f][1];
-        double nz = _normals[f][2];
-
-        double ny1 = ny * cx - nz * sx;
-        double nz1 = ny * sx + nz * cx;
-        ny = ny1;
-        nz = nz1;
-
-        double nx1 = nx * cy + nz * sy;
-        double nz2 = -nx * sy + nz * cy;
-        nx = nx1;
-        nz = nz2;
-
-        double nx2 = nx * cz - ny * sz;
-        double ny2 = nx * sz + ny * cz;
-        nx = nx2;
-        ny = ny2;
-
+        cg.rotatePoint(cg.cubeNormals[f], rot, _nvScratch);
+        final double nx = _nvScratch[0], ny = _nvScratch[1], nz = _nvScratch[2];
         if (nz <= 0) continue;
 
         final dot = nx * lx + ny * ly + nz * lz;
@@ -2054,10 +1990,10 @@ class _CubePainter extends CustomPainter {
 
         double sumZ = 0.0;
         for (int vi = 0; vi < 4; vi++) {
-          sumZ += tv[_faces[f][vi]][2];
+          sumZ += tv[cg.cubeFaces[f][vi]][2];
         }
 
-        final faceVerts = _faces[f];
+        final faceVerts = cg.cubeFaces[f];
         faceBuffer.add(
           _FaceDrawData(
             z: sumZ,

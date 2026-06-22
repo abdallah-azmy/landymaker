@@ -323,6 +323,7 @@ Includes:
 - DevOps & Assets Guide: `DEVOPS_AND_ASSETS.md`
 - API Logging Guide: `API_LOGGING_GUIDE.md`
 - Floating Cube Background: `FLOATING_CUBE_BACKGROUND.md`
+- Loading Logo System: `LOADING_LOGO_SYSTEM.md`
 
 
 ### Historical Reports (`/docs/archive/`)

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/particles/loading_logo.dart';
 import '../../../services/database_service.dart';
 import '../../../injection_container.dart';
 import '../controllers/user_profile_cubit.dart';
@@ -49,7 +50,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         child: BlocBuilder<UserProfileCubit, UserProfileState>(
           builder: (context, state) {
             if (state is UserProfileLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: LoadingLogo(size: 48, initialState: LoadingLogoState.loading));
             }
             if (state is UserProfileFailure) {
               return Center(

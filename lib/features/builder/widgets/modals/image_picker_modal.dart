@@ -4,6 +4,7 @@ import 'package:landymaker/core/widgets/draggable_modal_sheet.dart';
 import '../../controllers/image_picker_cubit.dart';
 import '../../controllers/image_picker_state.dart';
 import '../../../../core/widgets/custom_network_image.dart';
+import '../../../../core/widgets/atoms/cube_progress.dart';
 
 import '../../models/selected_image_data.dart';
 
@@ -259,7 +260,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
       builder: (context, state) {
         if (state is ImagePickerLoadingGallery) {
           return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
+            child: CubeProgress(color: Color(0xFF00E5FF)),
           );
         }
 
@@ -421,7 +422,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
             builder: (context, state) {
               if (state is ImagePickerLoadingPixabay) {
                 return const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
+                  child: CubeProgress(color: Color(0xFF00E5FF)),
                 );
               } else if (state is ImagePickerPixabayLoaded) {
                 if (state.images.isEmpty) {
@@ -470,7 +471,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                     if (state.isFetchingMore)
                       Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(
+                        child: const CubeProgress(
                           color: Color(0xFF00E5FF),
                         ),
                       ),

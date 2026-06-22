@@ -34,9 +34,9 @@ const List<List<double>> cubeNormals = [
 ];
 
 /// Normalized light direction vector (pre-computed).
-const double lx = 0.243;
-const double ly = 0.162;
-const double lz = 0.956;
+const double lx = 0.5;
+const double ly = 0.5;
+const double lz = 0.707;
 
 /// Euler rotation trig values cache.
 class RotationMatrix {
@@ -78,7 +78,7 @@ void rotatePoint(List<double> v, RotationMatrix r, List<double> out) {
 /// Lambertian diffuse brightness for a face normal [nx, ny, nz].
 double lambertBrightness(double nx, double ny, double nz) {
   final dot = nx * lx + ny * ly + nz * lz;
-  return 0.4 + max(0.0, dot) * 0.6;
+  return 0.3 + max(0.0, dot) * 0.7;
 }
 
 /// Build a rounded quad path from 4 corners with cubic bezier curves.
@@ -127,7 +127,10 @@ double ambientOcclusion(int ix, int iy, int iz) {
   if (iy < 1) neighbors++;
   if (iz > -1) neighbors++;
   if (iz < 1) neighbors++;
-  return 0.85 + (neighbors / 6) * 0.15;
+  // Correct AO: more neighbors = darker (lower factor)
+  // Center cube (6 neighbors) -> 0.65
+  // Corner cube (3 neighbors) -> 1.0
+  return 1.0 - ((neighbors - 3) / 3.0) * 0.35;
 }
 
 /// Determine which faces of a cube at [ix, iy, iz] are occluded by neighbors.

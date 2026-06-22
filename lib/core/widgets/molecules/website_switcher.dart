@@ -17,7 +17,15 @@ class WebsiteSwitcher extends StatefulWidget {
 
 class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _dialogScrollController = ScrollController();
   String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _dialogScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,9 +147,10 @@ class _WebsiteSwitcherState extends State<WebsiteSwitcher> {
                             }
 
                             return ListView.separated(
+                              controller: _dialogScrollController,
                               shrinkWrap: true,
                               itemCount: filtered.length,
-                              separatorBuilder: (_, __) => SizedBox(height: 8),
+                              separatorBuilder: (_, __) => const SizedBox(height: 8),
                               itemBuilder: (context, index) {
                                 final site = filtered[index];
                                 return _buildSiteItem(context, site);

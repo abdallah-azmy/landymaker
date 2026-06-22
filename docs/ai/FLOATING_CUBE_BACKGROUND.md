@@ -301,10 +301,12 @@ p.opacity -= realDt × 0.02
   vy += 0.005 × realDt × speedMultiplier;
   ```
 - **Heavy feel**: Gravity is 2.5× stronger than the previous value, so cubes fall fast and complete their bounce cycles quickly.
-- **Physics flow**: Gravity is applied **after** velocity decay, so the decay cannot weaken the gravitational pull. The order is: perturbation → mouse repulsion → scroll drift → edge repulsion → decay → **gravity** → speed cap → position update → boundary bounce.
+- **Physics flow** (varies by mode):
+  - **Gravity mode**: perturbation → mouse repulsion → scroll drift → edge repulsion → gravity acceleration → air resistance → speed cap → position update → boundary bounce
+  - **Non-gravity modes**: perturbation → mouse repulsion → scroll drift → edge repulsion → **speed cap** (`0.35`) → velocity decay → position update → boundary bounce
 - **Bottom soft repulsion disabled**: The bottom-edge soft repulsion zone is skipped in gravity mode, allowing cubes to reach and settle at `y = 1.0` naturally.
 - **Physics bounce**: When a cube hits the bottom edge (`y > 1`), it bounces with energy loss: `vy = -vy × (0.35–0.45)` (lose 55–65% energy per bounce). Combined with the stronger gravity, cubes exhibit only 2–3 visible bounces before settling.
-- **Scroll drift interaction**: `vy -= scrollDrift × 5.0` runs **before** gravity, so scrolling down pushes cubes upward against gravity. When scrolling stops, gravity pulls them back down — creating a "shake loose" effect from the bottom.
+- **Scroll drift interaction**: `vy -= scrollDrift × 2.0` runs **before** gravity (and before the speed cap & decay), so scrolling down pushes cubes upward against gravity. When scrolling stops, gravity pulls them back down — creating a "shake loose" effect from the bottom.
 - Cubes fall with no size-dependent gravity — all cubes accelerate at the same rate regardless of mass. Perceived weight comes from bounce restitution and friction:
   - Terminal velocity ≈ 0.12–0.14 (reached within ~25 frames / 0.4s)
   - Small and large cubes fall at the same speed, but heavier cubes (larger) lose less energy to air resistance
@@ -442,12 +444,54 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 - `speed` parameter (1.0 default) scales all velocities, rotation speeds, orbital speeds, and spiral angle advancement.
 - Applied as `* widget.speed` in movement and rotation calculations, NOT in velocity decay.
 
+### Scroll Drift (Critical Safety Notes)
+
+**Purpose**: When the user scrolls the page, cubes smoothly drift upward/downward — a subtle parallax-like effect. Implemented via `FloatingCubeBackgroundController.scrollDrift` which is set to `delta / height` on each scroll event.
+
+**Physics pipeline** (executes in this exact order every frame):
+```
+vy -= scrollDrift × 2.0          // 1. Apply scroll impulse (multiplier = 2.0)
+// ... edge repulsion zone ...
+speed = sqrt(vx² + vy²)          // 2. Speed cap (non-gravity modes only)
+if (speed > 0.35) normalize to 0.35
+decay = max(0, 1 - 1.5 × realDt) // 3. Decay toward base velocity
+vx = _baseVx + (vx - _baseVx) × decay
+vy = _baseVy + (vy - _baseVy) × decay
+// ... gravity mode (if applicable) ...
+// ... position update ...
+```
+
+**Protection layers** (TWO independent safeguards, do NOT remove either):
+
+| Layer | Location | Purpose | Catches scrollDrift > |
+|-------|----------|---------|----------------------|
+| Clamp | `_updateEntities` L687: `.clamp(-0.08, 0.08)` | Limits raw scroll delta input | ~72px on 900px screen |
+| Speed cap | `_MergeEntity.update` L1720: `if (speed > 0.35)` | Caps total velocity after impulse | `scrollDrift × 2.0 > 0.35` → `scrollDrift > 0.175` |
+
+**With both layers intact, a single scroll event can move cubes at most ~11% of the screen height**.
+
+**⚠️ Bug History (DO NOT REPEAT)**:
+
+1. **Commit `bc77e3d`**: Multiplier was increased from `2.0` to `5.0` — a 2.5x change that made the drift feel too aggressive for all normal scrolling.
+2. **Lost in refactor**: The original `_Cube` class had a speed cap at `0.35`. When the particle system was rewritten with `_MergeEntity`, this speed cap was **not carried over** to non-gravity modes, removing the second layer of protection.
+3. **Result**: With multiplier `5.0` + no speed cap, a 100px mouse scroll produced `scrollDrift × 5.0 = 0.556` velocity, moving cubes **~36% of the screen** per event — far beyond the intended subtle effect.
+
+**Fix applied (commit after investigation)**:
+- Reduced multiplier back to `2.0` (original value)
+- Added `clamp(-0.08, 0.08)` on the raw scrollDrift read (catches extreme scrolls)
+- Restored the `speed > 0.35` cap for non-gravity modes (defence-in-depth)
+- Both layers must remain in sync — if one is adjusted, the other may need re-evaluation
+
+**Testing**: After any change to scrollDrift multiplier, clamp bounds, or speed cap value, test with:
+- Mouse wheel click (large delta, ~100px): should feel like a gentle nudge, not a jarring jump
+- Trackpad smooth scrolling (small continuous deltas): cubes should drift smoothly with no stutter
+
 ### Boundary handling
 - Soft repulsion zone `0.1` from edges with force `0.04`.
 - Hard clamp to `[0, 1]` with bounce factor (`* 0.92`). Applied in `_MergeEntity.update()` for all entities.
 - **Top exclusion zone (`topExclusion`)**: A normalized parameter that shifts the effective top boundary downward. Cubes spawn at or below `topExclusion`, soft-repel at `topExclusion + 0.1`, and hard-clamp to `topExclusion`. Used to reserve space for UI elements like the app bar without visual displacement when they appear.
 - **Exception (spiral orbit)**: Death-spiral entities explicitly bypass bounds clamping, soft-edge repulsion, and random velocity perturbations in `_MergeEntity.update()` to preserve the clean circular orbit trajectory and prevent centroid wobble. However, the spiral position is explicitly clamped to `[topExclusion, 1]` so no cube center ever exits the visible area during the death-spiral.
-- Scroll drift pushes cubes upward when user scrolls down; drift-aware bounce at top/bottom edges amplifies bounce.
+- Scroll drift pushes cubes upward when user scrolls down (see "Scroll Drift" subsection). Drift-aware bounce at top/bottom edges amplifies bounce when scrollDrift > 0.001.
 
 ### Size lerp
 - `renderSize += (targetSize - renderSize) * dt * 180.0` — smooth size transition, reaches ~95% convergence in 1 real second.
@@ -463,7 +507,7 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 - The bottom-edge soft repulsion is **disabled** in gravity mode so cubes can settle naturally at `y = 1.0`.
 - Bottom bounce uses physics-based energy loss: `vy = -vy × (0.35 + random × 0.10)` (55–65% energy lost per bounce). The rest threshold is `|vy| < 0.015` — cubes snap to rest quickly instead of micro-bouncing.
 - On settle: strong floor friction (`vx *= max(0, 1 − 0.2 × realDt)`) kills horizontal slide rapidly. On bounce: impact friction `vx *= 0.6` heavily brakes sliding.
-- The scroll drift subtraction (`vy -= scrollDrift × 5.0`) runs before gravity, so scrolling down counteracts the gravitational pull.
+- The scroll drift subtraction (`vy -= scrollDrift × 2.0`) runs before gravity (and before the speed cap & decay in non-gravity modes), so scrolling down counteracts the gravitational pull. See the "Scroll Drift" subsection for the full physics pipeline and safety layers.
 
 ### Spatial Hash Scratch List Reuse
 - `_neighborScratch` is a single `List<int>` allocated once per `_FloatingCubeBackgroundState` instance.

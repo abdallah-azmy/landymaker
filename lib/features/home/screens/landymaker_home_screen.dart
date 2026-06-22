@@ -11,6 +11,8 @@ import '../../../core/services/font_load_notifier.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../models/home_layouts.dart';
 import '../../../core/widgets/atoms/animated_cube_mode_toggle.dart';
+import '../../../core/widgets/atoms/cube_shimmer.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 import '../widgets/home_navbar.dart';
 import '../widgets/home_hero_section.dart';
 import '../widgets/home_feature_bento.dart';
@@ -19,6 +21,8 @@ import '../widgets/home_footer.dart';
 import '../widgets/home_section_renderer.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/particles/loading_logo_original.dart';
+import '../../../core/widgets/particles/cube_loader.dart';
 
 class LandyMakerHomeScreen extends StatefulWidget {
   const LandyMakerHomeScreen({super.key});
@@ -258,10 +262,11 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
           label,
           style: AppTypography.bodySmall.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
-        LoadingLogo(size: 80, initialState: state),
+        LoadingLogo(size: 60, initialState: state),
       ],
     );
   }
@@ -270,61 +275,365 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     showDialog(
       context: context,
       builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        final isRtl = context.isRtl;
+        
         return Dialog(
-          backgroundColor: Theme.of(dialogContext).colorScheme.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: theme.colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           child: Container(
-            width: 500,
+            width: 700,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(dialogContext).size.height * 0.85,
+            ),
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      context.isRtl ? "معاينة شعار التحميل" : "Loading Logo Preview",
-                      style: AppTypography.h3.copyWith(
-                        color: Theme.of(dialogContext).colorScheme.onSurface,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isRtl ? "معاينة مؤشرات التحميل تفصيليًا" : "Loading Indicator Showcase",
+                            style: AppTypography.h3.copyWith(
+                              color: theme.colorScheme.onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            isRtl 
+                                ? "استعراض ومقارنة مؤشرات التحميل ثلاثية الأبعاد المتاحة" 
+                                : "Explore and test all active 3D cube-based loaders",
+                            style: AppTypography.bodySmall.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close_rounded),
                       onPressed: () => Navigator.of(dialogContext).pop(),
+                      style: IconButton.styleFrom(
+                        backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                        hoverColor: theme.colorScheme.surfaceContainerHighest,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
-                // Loading Logo States Showcase
-                Text(
-                  context.isRtl ? "حالات التحميل" : "Loading States",
-                  style: AppTypography.bodyLarge.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(dialogContext).colorScheme.primary,
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 16),
+                
+                // Scrollable Content
+                Expanded(
+                  child: Scrollbar(
+                    thumbVisibility: true,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          
+                          // SECTION 1: Brand Logo Comparison
+                          _buildSectionHeader(
+                            dialogContext,
+                            isRtl ? "1. مقارنة الشعار وتأثير الإضاءة ثلاثية الأبعاد" : "1. Logo Comparison & 3D Shading Light",
+                            isRtl 
+                                ? "مقارنة محاذاة الشعار القديم والجديد مع تعديل انحناء الحواف الفائقة والمسافات وضبط تباين الظلال" 
+                                : "Comparing legacy isometric logo vs the brand-aligned loader with high-contrast ambient shading",
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildShowcaseCard(
+                                  dialogContext,
+                                  title: isRtl ? "الشعار الأصلي القديم" : "Original Logo (Legacy)",
+                                  desc: isRtl ? "زاوية مائلة، حواف أقل التفافاً، فراغات متباعدة" : "Flat shading, low contrast, wider gaps",
+                                  child: const LoadingLogoOriginal(
+                                    size: 100,
+                                    mode: LoadingLogoOriginalMode.breathing,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildShowcaseCard(
+                                  dialogContext,
+                                  title: isRtl ? "الشعار المعدل (المطابق للهوية)" : "Modified Brand Logo",
+                                  desc: isRtl ? "حواف انسيابية مستديرة بالكامل، تباين ظلال قوي وتراص متناسق" : "Squircle capsules, compact gap, deep shadows",
+                                  child: const CubeLoader(
+                                    size: 100,
+                                    variant: CubeLoaderVariant.logo,
+                                    initialState: CubeLoaderState.breathing,
+                                    showGlow: true,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // SECTION 2: Standard Variants
+                          _buildSectionHeader(
+                            dialogContext,
+                            isRtl ? "2. المؤشرات الأساسية للنظام" : "2. System Basic Variants",
+                            isRtl 
+                                ? "مؤشر الزر الفردي الدوار، وحلقة التحميل الدائرية المدارية الثلاثية" 
+                                : "Standard small inline spinners and cluster orbit indicators",
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildShowcaseCard(
+                                  dialogContext,
+                                  title: isRtl ? "مؤشر الزر الدوار المفرد" : "Single Cube Spinner",
+                                  desc: isRtl ? "مخصص للأزرار والنصوص المدمجة" : "Used for button actions and inline loading",
+                                  child: const CubeLoader(
+                                    size: 36,
+                                    variant: CubeLoaderVariant.single,
+                                    initialState: CubeLoaderState.loading,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildShowcaseCard(
+                                  dialogContext,
+                                  title: isRtl ? "التحميل المداري المتراكم" : "Orbital Progress Ring",
+                                  desc: isRtl ? "محدد بنسبة التحميل المئوية التفاعلية" : "Determinate loading with percentage overlay",
+                                  child: const CubeLoader(
+                                    size: 72,
+                                    variant: CubeLoaderVariant.cluster,
+                                    value: 0.72,
+                                    showPercentage: true,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // SECTION 3: Custom Progressive Indicators
+                          _buildSectionHeader(
+                            dialogContext,
+                            isRtl ? "3. التأثيرات الجديدة المستوحاة" : "3. New Progressive Indicators",
+                            isRtl 
+                                ? "تموجات خطية متتالية، حلقات مدارية متموجة بالعمق، ومحاكاة القفز الفيزيائي للمكعبات" 
+                                : "Custom Linear, Circular, and Physics-bouncing indicators built with 3D cubes",
+                          ),
+                          const SizedBox(height: 12),
+                          _buildShowcaseCard(
+                            dialogContext,
+                            title: isRtl ? "تموج المكعبات الخطي (Linear Cube Wave)" : "Linear Cube Wave Progress",
+                            desc: isRtl ? "تموج نبضي ثلاثي الأبعاد مستوحى من مؤشر التقدم الخطي" : "3D staggered wave pulse inspired by LinearProgressIndicator",
+                            child: const CubeLoader(
+                              size: 110,
+                              variant: CubeLoaderVariant.linear,
+                              initialState: CubeLoaderState.loading,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildShowcaseCard(
+                                  dialogContext,
+                                  title: isRtl ? "الحلقة المتموجة بالعمق (Circular Ring)" : "Circular Depth Ring",
+                                  desc: isRtl ? "تموج دائري في الحجم والعمق ملاحق للمدار" : "Chasing circular depth wave tracker",
+                                  child: const CubeLoader(
+                                    size: 90,
+                                    variant: CubeLoaderVariant.circular,
+                                    initialState: CubeLoaderState.loading,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildShowcaseCard(
+                                  dialogContext,
+                                  title: isRtl ? "الارتداد والجاذبية (Gravity Bounce)" : "Gravity Squash Bounce",
+                                  desc: isRtl ? "سقوط فيزيائي حر، اصطدام مرن مع انضغاط المكعبات" : "Deterministic bounce with volume-preserving squash",
+                                  child: const CubeLoader(
+                                    size: 90,
+                                    variant: CubeLoaderVariant.physics,
+                                    initialState: CubeLoaderState.loading,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // SECTION 4: Advanced Elements
+                          _buildSectionHeader(
+                            dialogContext,
+                            isRtl ? "4. شيمر الهياكل وتحديث السحب التفاعلي" : "4. Skeleton Shimmer & Live Refresh Pull",
+                            isRtl 
+                                ? "مكعبات الشيمر ثلاثية الأبعاد لتنسيق الهياكل، وواجهة سحب لتجربة مؤشر التحديث المداري" 
+                                : "Skeleton loading structures and an interactive pull-to-refresh panel",
+                          ),
+                          const SizedBox(height: 12),
+                          _buildShowcaseCard(
+                            dialogContext,
+                            title: isRtl ? "هيكل الشيمر المكعب (Cube Shimmer)" : "Skeleton Cube Shimmer",
+                            desc: isRtl ? "تأثير شيمر متلاشي للواجهات تحت البناء" : "Shimmer grids for structural loading mockups",
+                            child: const SizedBox(
+                              width: double.infinity,
+                              height: 80,
+                              child: CubeShimmer(borderRadius: 12),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildShowcaseCard(
+                            dialogContext,
+                            title: isRtl ? "لوحة التحديث بالسحب التفاعلية (Pull-To-Refresh)" : "Interactive Pull-To-Refresh Sandbox",
+                            desc: isRtl 
+                                ? "اسحب القائمة لأسفل لتنشيط دوران التحديث ثلاثي الأبعاد" 
+                                : "Pull down inside the viewport card to activate 3D orbit refresh spinner",
+                            child: Container(
+                              height: 150,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: theme.colorScheme.outlineVariant),
+                              ),
+                              child: CubeRefreshIndicator(
+                                onRefresh: () async {
+                                  await Future.delayed(const Duration(seconds: 2));
+                                },
+                                color: theme.colorScheme.primary,
+                                child: ListView.builder(
+                                  itemCount: 4,
+                                  itemBuilder: (context, index) {
+                                    return ListTile(
+                                      leading: const Icon(Icons.dns_rounded),
+                                      title: Text(isRtl ? "تخزين البيانات السحابي رقم ${index + 1}" : "Cloud Storage Node #${index + 1}"),
+                                      subtitle: Text(isRtl ? "الحالة: متصل بالخادم الرئيسي" : "Status: Syncing with central server"),
+                                      dense: true,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          
+                          // SECTION 5: Loader States Grid
+                          _buildSectionHeader(
+                            dialogContext,
+                            isRtl ? "5. حالات الشعار الفردية" : "5. Brand Logo States",
+                            isRtl 
+                                ? "استعراض جميع حالات تشغيل الشعار المعدل المتاحة" 
+                                : "Previewing all operational states of the modified brand loader",
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _buildStateItem(dialogContext, "Idle", LoadingLogoState.idle),
+                              _buildStateItem(dialogContext, "Breathing", LoadingLogoState.breathing),
+                              _buildStateItem(dialogContext, "Loading", LoadingLogoState.loading),
+                              _buildStateItem(dialogContext, "Success", LoadingLogoState.success),
+                              _buildStateItem(dialogContext, "Error", LoadingLogoState.error),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildStateItem(dialogContext, "Idle", LoadingLogoState.idle),
-                    _buildStateItem(dialogContext, "Breathing", LoadingLogoState.breathing),
-                    _buildStateItem(dialogContext, "Loading", LoadingLogoState.loading),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildStateItem(dialogContext, "Success", LoadingLogoState.success),
-                    _buildStateItem(dialogContext, "Error", LoadingLogoState.error),
-                  ],
                 ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String title, String subtitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTypography.bodyLarge.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          subtitle,
+          style: AppTypography.caption.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShowcaseCard(
+    BuildContext context, {
+    required Widget child,
+    required String title,
+    String? desc,
+  }) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1.2,
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    if (desc != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        desc,
+                        style: AppTypography.caption.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Center(child: child),
+        ],
+      ),
     );
   }
 

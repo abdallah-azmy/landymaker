@@ -684,7 +684,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     double dt = current - _lastValue;
     if (dt < 0) dt += 1.0;
     _lastValue = current;
-    final scrollDrift = widget.controller?.scrollDrift ?? 0.0;
+    final scrollDrift = (widget.controller?.scrollDrift ?? 0.0).clamp(-0.08, 0.08);
 
     // ── Adaptive quality tracking ──
     _adaptiveQuality.update(dt);
@@ -932,7 +932,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     // ── Scroll drift reset ──
     if (widget.controller != null) {
-      widget.controller!.scrollDrift = 0.0;
+      widget.controller!.scrollDrift = 0.0; // ⚠️ scrollDrift is clamped to ±0.08 at read site with multiplier 2.0 — do NOT change these values without testing scroll behavior
     }
   }
 
@@ -1675,7 +1675,7 @@ class _MergeEntity {
       }
     }
 
-    vy -= scrollDrift * 5.0;
+    vy -= scrollDrift * 2.0; // ⚠️ scrollDrift is clamped to ±0.08 at read site — do NOT raise multiplier above 2.0 or remove the clamp without testing scroll behavior
 
     const double repZone = 0.1;
     const double repForce = 0.04;
@@ -1717,6 +1717,11 @@ class _MergeEntity {
       if (vy > 1.2) vy = 1.2; // 4x downward speed
     } else {
       // ── STANDARD/MERGE/ORBIT MODE PHYSICS ──
+      final double speed = sqrt(vx * vx + vy * vy);
+      if (speed > 0.35) {
+        vx = (vx / speed) * 0.35;
+        vy = (vy / speed) * 0.35;
+      }
       final double decay = max(0.0, 1.0 - 1.5 * realDt);
       vx = _baseVx + (vx - _baseVx) * decay;
       vy = _baseVy + (vy - _baseVy) * decay;

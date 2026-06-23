@@ -36,20 +36,78 @@ class _HomepageEditorScreenState extends State<HomepageEditorScreen> {
     final id = section['id'] as String? ?? '';
     final cubit = context.read<HomepageEditorCubit>();
 
+    final isDesktop = MediaQuery.of(context).size.width >= 800;
+
     void buildSheet({
       required Widget child,
     }) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadiusDirectional.only(
-            topStart: Radius.circular(24),
-            topEnd: Radius.circular(24),
+      if (isDesktop) {
+        showGeneralDialog(
+          context: context,
+          barrierDismissible: true,
+          barrierLabel: 'Config Panel',
+          barrierColor: Colors.black.withValues(alpha: 0.45),
+          transitionDuration: const Duration(milliseconds: 300),
+          pageBuilder: (ctx, animation, secondaryAnimation) {
+            final theme = Theme.of(ctx);
+            return Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                width: 500,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(28),
+                    bottomLeft: Radius.circular(28),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 24,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(28),
+                    bottomLeft: Radius.circular(28),
+                  ),
+                  child: Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: child,
+                  ),
+                ),
+              ),
+            );
+          },
+          transitionBuilder: (ctx, animation, secondaryAnimation, childWidget) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOutCubic,
+              )),
+              child: childWidget,
+            );
+          },
+        );
+      } else {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadiusDirectional.only(
+              topStart: Radius.circular(24),
+              topEnd: Radius.circular(24),
+            ),
           ),
-        ),
-        builder: (_) => child,
-      );
+          builder: (_) => child,
+        );
+      }
     }
 
     switch (key) {
@@ -155,29 +213,76 @@ class _HomepageEditorScreenState extends State<HomepageEditorScreen> {
         final sections = List<Map<String, dynamic>>.from(state.sections);
 
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 4),
+              padding: const EdgeInsetsDirectional.fromSTEB(24, 24, 24, 16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      '${sections.length} أقسام',
-                      style: theme.textTheme.titleMedium,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ترتيب وإدارة أقسام الصفحة الرئيسية',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'قم بتفعيل، إخفاء أو إعادة ترتيب أقسام الصفحة الرئيسية والتعديل على محتوياتها.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  FilledButton.tonalIcon(
-                    onPressed: () => context.go('/'),
-                    icon: const Icon(Icons.visibility_rounded, size: 18),
-                    label: const Text('معاينة حية'),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Text(
+                          '${sections.length} أقسام',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      IconButton(
+                        icon: const Icon(Icons.refresh_rounded),
+                        tooltip: 'تحديث البيانات',
+                        style: IconButton.styleFrom(
+                          backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.04),
+                        ),
+                        onPressed: () => context.read<HomepageEditorCubit>().loadSections(),
+                      ),
+                      const SizedBox(width: 12),
+                      FilledButton.icon(
+                        onPressed: () => context.go('/'),
+                        icon: const Icon(Icons.visibility_rounded, size: 16),
+                        label: const Text('معاينة حية'),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsetsDirectional.all(16),
+                padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 24),
                 child: ReorderableListView.builder(
                   itemCount: sections.length,
                   onReorder: (oldIndex, newIndex) {

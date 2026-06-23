@@ -9,7 +9,7 @@ This registry defines the "Readable Language" used between the Builder and the A
 - `textPrimary`: Hex color
 - `textSecondary`: Hex color
 - `button_text_color`: Hex color (Critical for contrast on buttons)
-- `font_family`: String (e.g., "Cairo", "Tajawal", "Almarai", "Roboto")
+- `font_family`: String (e.g., "Cairo", "Almarai", "Roboto")
 
 ## 🧱 Universal Properties (Every Block Supports These)
 - `type`: String (Block ID)

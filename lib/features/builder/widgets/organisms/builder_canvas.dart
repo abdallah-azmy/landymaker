@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/services/dynamic_font_service.dart';
 import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
 import 'package:landymaker/features/builder/models/preview_mode.dart';
 import '../../../../core/localization/localization_cubit.dart';
@@ -81,15 +81,27 @@ class BuilderCanvas extends StatelessWidget {
 
         try {
           content = DefaultTextStyle(
-            style: GoogleFonts.getFont(globalFont).copyWith(color: state.theme.textPrimary),
+            style: TextStyle(
+              fontFamily: globalFont,
+              fontFamilyFallback: const ['Cairo'],
+              color: state.theme.textPrimary,
+            ),
             child: Theme(
               data: ThemeData.light().copyWith(
-                textTheme: GoogleFonts.getTextTheme(globalFont, ThemeData.light().textTheme),
+                textTheme: ThemeData.light().textTheme.apply(
+                  fontFamily: globalFont,
+                  fontFamilyFallback: const ['Cairo'],
+                ),
               ),
               child: content,
             ),
           );
         } catch (_) {}
+
+        // Load picked font weights in the background so they render correctly in the editor
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          DynamicFontService.loadFontsFromDesign(state.designMap);
+        });
 
         return Stack(
           children: [

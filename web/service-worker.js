@@ -12,6 +12,10 @@ const STATIC_ASSETS = [
   '/flutter.js',
   '/flutter_bootstrap.js',
   '/main.dart.js',
+  '/assets/assets/fonts/Cairo-Regular.ttf',
+  '/assets/assets/fonts/Cairo-Medium.ttf',
+  '/assets/assets/fonts/Cairo-SemiBold.ttf',
+  '/assets/assets/fonts/Cairo-Bold.ttf',
 ];
 
 self.addEventListener('install', (event) => {

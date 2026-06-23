@@ -152,6 +152,7 @@ Global singleton services registered in `lib/injection_container.dart` via `GetI
 | **Turnstile** | Anti-spam Cloudflare widget builder | `registerViewFactory`, `getToken` | `dart:js` |
 | **PixelEvent** | Analytics capture and submission | `trackPageView`, `trackLead` | `dart:js` |
 | **FcmService** | Push notifications handler | `initialize`, `requestPermission` | `firebase_messaging` |
+| **DynamicFont** | Dynamic Google Fonts downloader | `loadFont`, `loadFontsFromDesign` | `http`, `FontLoader` |
 
 ---
 

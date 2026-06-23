@@ -133,19 +133,9 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
       - Use `MediaQuery` to calculate viewport-based heights.
     - **Rule**: Inside any widget tree that receives infinite height (inside `SingleChildScrollView > Column`, `ListView`, `CustomScrollView`), NEVER use `Expanded`/`Flexible` or `CrossAxisAlignment.stretch` without wrapping the subtree in a `SizedBox`/`ConstrainedBox` with an explicit height. Always verify the parent constraint chain when adding or removing `IntrinsicHeight` wrappers.
 
-39. **CanvasKit WASM Font Loading Safety (CRITICAL — White Screen Crash)**: 
-    - **Symptom**: App renders a white page with no error UI. Debug console shows:
-      ```
-      Error: RuntimeError: memory access out of bounds
-      ...canvaskit.wasm...
-      MakeFreeTypeFaceFromData
-      canvaskit_api.dart:2285
-      fonts.dart:133
-      ```
-    - **Root cause**: `GoogleFonts.pendingFonts()` downloads font bytes and passes them to CanvasKit's `MakeFreeTypeFaceFromData`. On some environments, the WASM binary raises a `RuntimeError` that is **not a Dart exception** and **bypasses `try/catch` entirely**, crashing the app before `runApp()` completes.
-    - **Why it appears after unrelated changes**: Any hot restart can trigger this pre-existing flake. It is never caused by the code being edited.
-    - **Fix** (see `lib/main.dart`): Fire font preloading as a **fire-and-forget microtask** (`Future(() async { ... })`) — NEVER `await` it inside the initialization `try` block. The `<link>` preload tags in `web/index.html` guarantee fonts are available even if the Dart API fails.
-    - **Golden rule**: NEVER `await` a `google_fonts` call (`pendingFonts`, `getFont`, `getTextTheme`, etc.) in the startup sequence that blocks `runApp()`.
+39. **Local Font Architecture & CanvasKit WASM Font Safety (CRITICAL)**: 
+    - **Default Font**: Cairo is registered locally as an asset in `pubspec.yaml` and is the global default font. This makes the application startup offline-safe and immune to CanvasKit WASM `MakeFreeTypeFaceFromData` runtime failures.
+    - **Global Google Fonts Ban**: Under no circumstances should Google Fonts packages be loaded during app startup, dashboard navigation, analytics, or settings. All core screens must rely on local Cairo font assets.
 
 40. **Unified CubeLoader System (CRITICAL)**: ALL loading indicators MUST use either `CubeLoader` or its backward-compatible wrappers. The `CubeLoader` (`lib/core/widgets/particles/cube_loader.dart`) unifies `LoadingLogo`, `CubeSpinner`, and `CubeProgress` into a single optimized widget with shared geometry.
      - **Primary widget**: `CubeLoader` — use for new code. Has `variant: logo|single|cluster|linear|circular|physics`.
@@ -162,14 +152,9 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
      - **Percentage overlay**: When `showPercentage: true`, the percentage text has a `Colors.black.withValues(alpha: 0.45)` rounded background for readability on any background.
      - See `docs/ai/CUBE_LOADER.md` for comprehensive documentation.
 
-41. **Google Fonts Loading Screen Protocol**:
-    - **Why**: After implementing Rule 39 (fire-and-forget font preloading), the home screen may render before Google Fonts are fully loaded. If text widgets render with system fonts, they will swap (FOUT) when Google Fonts arrive, or show tofu if fonts fail.
-    - **Fix** (`lib/core/services/font_load_notifier.dart`): A top-level `FontLoadNotifier` (global singleton `fontLoadNotifier`) signals when font loading completes. The notifier is defined as a simple top-level variable (not registered in DI) so it can be accessed from both `_preloadFonts()` microtask (which runs before `sl` is initialized) and `landymaker_home_screen.dart`.
-    - **Screen behavior**: When fonts are not yet ready, the home screen renders ONLY the cube background (`FloatingCubeBackground` inside `Positioned.fill`) — no `AppBar`, no scroll content, no widgets. When `fontLoadNotifier.markReady()` fires, `_fontsReady` transitions to `true`, causing a full rebuild that shows all content with their natural entrance animations.
-    - **Implementation** (see `lib/features/home/screens/landymaker_home_screen.dart`):
-      1. Import `fontLoadNotifier` from `font_load_notifier.dart`.
-      2. In `initState`: check `fontLoadNotifier.ready` immediately; if false, `addListener(_onFontsReady)`.
-      3. `_onFontsReady`: `if (mounted) setState(() => _fontsReady = true)` then `removeListener`.
-      4. In build: `Scaffold(appBar: _fontsReady ? HomeNavbar(...) : null)` and `if (_fontsReady) SingleChildScrollView(...)`.
-    - **main.dart** (`_preloadFonts`): After `await GoogleFonts.pendingFonts([...])` completes (or fails), call `fontLoadNotifier.markReady()` — regardless of success/failure, so the UI is never stuck.
-    - **Notifier lifecycle**: Since `fontLoadNotifier` is never disposed, `removeListener` in both `_onFontsReady` and `dispose` prevents memory leaks. Once `ready` is true, the listener is removed and subsequent home screen visits use `fontLoadNotifier.ready` directly.
+41. **Startup Font Readiness & Landing Page Dynamic Font loading**:
+    - **Startup**: Since Cairo is local and loaded as a native asset, the application startup rendering is fully offline-safe and renders the home screen immediately without FOUT/FOIT. Preloading/waiting for fonts on startup is completely deprecated and removed.
+    - **Landing Page & Canvas**: Landing pages and the builder canvas load custom fonts dynamically via `DynamicFontService.loadFontsFromDesign(designJson)`.
+    - **Fallback**: Local Cairo is used as the `fontFamilyFallback` on all text styles to guarantee that readable text is visible immediately while custom fonts load.
+    - **Google Fonts Package Ban**: The `google_fonts` package is strictly banned and removed from dependencies. Use `DynamicFontService` which parses the CSS from Google Fonts CSS API using a regex that matches `ttf`, `woff`, `woff2`, and `otf` URLs (`url\((?:"|\u0027)?(https://[^"\u0027)]+\.(?:ttf|woff2?|otf))(?:"|\u0027)?\)`), downloads the font files, and registers them dynamically using Flutter's native `FontLoader`.
+    - **Failed Fonts Caching**: To prevent redundant failed network calls, `DynamicFontService` caches failed font configurations in a `_failedFonts` set and skips future downloads.

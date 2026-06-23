@@ -111,7 +111,7 @@ LandyMaker features a strict design standard managed under the project's specifi
 - **Visual Theme**: Uses a default **Slate-based dark theme** (`AppColors`) with high-contrast accent colors (such as cyan and amber) to emphasize primary interactive components.
 - **Fluid Layouts**: UI widgets avoid hardcoded heights and utilize `LayoutBuilder` and `AspectRatio` to scale dynamically without layout overflows.
 - **Visual Spacing**: Enforces standard vertical spacing margins of **80px on desktop** and **40px on mobile** to maintain breathing room and design balance.
-- **Arabic-First Default**: While bilingual (AR/EN), Arabic Cairo/Tajawal styling is the primary design target.
+- **Arabic-First Default**: While bilingual (AR/EN), Arabic Cairo styling is the primary design target.
 - **Reusability Guard**: All developers (and AI assistants) must search `lib/core/widgets/` for existing elements before creating any new components, helper methods, or styling blocks to prevent duplication.
 - **Task Structuring via SPEC-KIT**: Complex features and architecture modifications must strictly adhere to **SPEC-KIT** guidelines documented under the [.specify/](./.specify/) directory.
 

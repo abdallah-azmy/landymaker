@@ -1,11 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/router/router_extensions.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/atoms/animated_theme_toggle.dart';
-import '../../../core/widgets/atoms/landy_maker_logo.dart';
 import '../../../core/widgets/atoms/language_switcher_button.dart';
 
 class AuthLayoutWrapper extends StatelessWidget {
@@ -20,8 +19,10 @@ class AuthLayoutWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background subtle gradient
@@ -36,52 +37,14 @@ class AuthLayoutWrapper extends StatelessWidget {
             ),
           ),
 
-          // Main Content
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isDesktop = constraints.maxWidth >= 768;
-
-              if (isDesktop) {
-                return Row(
-                  children: [
-                    // Left Brand Panel
-                    Expanded(
-                      flex: 4,
-                      child: brandPanel ?? _DefaultBrandPanel(),
-                    ),
-                    // Right Form Panel
-                    Expanded(
-                      flex: 6,
-                      child: Center(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(40),
-                          child: _AuthFormCard(child: form),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }
-
-              return Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.sizeOf(context).height,
-                  ),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(28),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const LandyMakerLogo(fontSize: 48),
-                        const SizedBox(height: 32),
-                        _AuthFormCard(child: form),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
+          // Main Centered Content
+          Positioned.fill(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 100, 24, 40),
+                child: _AuthFormCard(child: form),
+              ),
+            ),
           ),
 
           // Top Bar for Theme and Language (rendered last so it's on top and clickable)
@@ -100,32 +63,50 @@ class AuthLayoutWrapper extends StatelessWidget {
 class _AuthTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = context.watch<LocalizationCubit>();
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Theme.of(context).colorScheme.onSurface,
-                size: 20,
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor.withValues(alpha: 0.75),
+            border: Border(
+              bottom: BorderSide(
+                color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                width: 1.0,
               ),
-              onPressed: () => context.safePop(fallbackPath: '/'),
-              tooltip: loc.isRtl ? 'العودة للرئيسية' : 'Back to Home',
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const AnimatedThemeToggle(size: 36),
-                const SizedBox(width: 4),
-                const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconOnly),
-              ],
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: theme.colorScheme.onSurface,
+                      size: 20,
+                    ),
+                    onPressed: () => context.safePop(fallbackPath: '/'),
+                    tooltip: loc.isRtl ? 'العودة للرئيسية' : 'Back to Home',
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const AnimatedThemeToggle(size: 36),
+                      const SizedBox(width: 8),
+                      const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconOnly),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -138,18 +119,20 @@ class _AuthFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
-      constraints: const BoxConstraints(maxWidth: 480),
+      constraints: const BoxConstraints(maxWidth: 460),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 1,
+          color: theme.colorScheme.outlineVariant,
+          width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: theme.brightness == Brightness.dark ? 0.25 : 0.06),
             blurRadius: 32,
             offset: const Offset(0, 8),
           ),
@@ -157,139 +140,6 @@ class _AuthFormCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(40),
       child: child,
-    );
-  }
-}
-
-class _DefaultBrandPanel extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final loc = context.watch<LocalizationCubit>();
-
-    return Container(
-      padding: const EdgeInsets.all(60),
-      child: Stack(
-        children: [
-          // Animated radial gradient background
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.08,
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                ),
-              ),
-            ),
-          ),
-          // Decorative circles
-          PositionedDirectional(
-            top: -60,
-            end: -40,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          PositionedDirectional(
-            bottom: 40,
-            start: -30,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context)
-                    .colorScheme
-                    .secondary
-                    .withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          // Content
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const LandyMakerLogo(fontSize: 64),
-              const SizedBox(height: 40),
-              Text(
-                loc.translate('app_title'),
-                style: AppTypography.h1.copyWith(
-                  fontSize: 48,
-                  fontWeight: FontWeight.w900,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                loc.translate('auth_brand_tagline'),
-                style: AppTypography.bodyLarge.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 18,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 32),
-              _buildFeatureBullet(
-                context,
-                Icons.check_circle_rounded,
-                'ابن موقعك في أقل من 5 دقائق',
-                'Build your site in under 5 minutes',
-                loc,
-              ),
-              const SizedBox(height: 16),
-              _buildFeatureBullet(
-                context,
-                Icons.check_circle_rounded,
-                'أكثر من 20 قالب احترافي جاهز',
-                '20+ professional templates ready',
-                loc,
-              ),
-              const SizedBox(height: 16),
-              _buildFeatureBullet(
-                context,
-                Icons.check_circle_rounded,
-                'دعم كامل للعربية و RTL',
-                'Full Arabic & RTL support',
-                loc,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureBullet(
-    BuildContext context,
-    IconData icon,
-    String arText,
-    String enText,
-    loc,
-  ) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          color: Theme.of(context).colorScheme.primary,
-          size: 22,
-        ),
-        const SizedBox(width: 12),
-        Text(
-          loc.isRtl ? arText : enText,
-          style: AppTypography.bodyMedium.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontSize: 15,
-          ),
-        ),
-      ],
     );
   }
 }

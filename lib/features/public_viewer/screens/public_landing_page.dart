@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../core/services/dynamic_font_service.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../../core/localization/localization_cubit.dart';
@@ -157,8 +157,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     PixelEventService.trackPageView();
 
                     // Font Preloading for the specific font chosen by the user
-                    final themeJson = designJson['theme'] as Map<String, dynamic>? ?? {};
-                    _preloadFontsForPage(themeJson['defaultFont'] ?? 'Cairo');
+                    _preloadFontsForPage(designJson);
 
                     // Wait one frame for widgets to mount before attempting scroll
                     WidgetsBinding.instance.addPostFrameCallback(
@@ -366,14 +365,16 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
 
                     try {
                       content = DefaultTextStyle(
-                        style: GoogleFonts.getFont(
-                          globalFont,
-                        ).copyWith(color: theme.textPrimary),
+                        style: TextStyle(
+                          fontFamily: globalFont,
+                          fontFamilyFallback: const ['Cairo'],
+                          color: theme.textPrimary,
+                        ),
                         child: Theme(
                           data: Theme.of(context).copyWith(
-                            textTheme: GoogleFonts.getTextTheme(
-                              globalFont,
-                              Theme.of(context).textTheme,
+                            textTheme: Theme.of(context).textTheme.apply(
+                              fontFamily: globalFont,
+                              fontFamilyFallback: const ['Cairo'],
                             ),
                           ),
                           child: content,
@@ -477,12 +478,10 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
     }
   }
 
-  Future<void> _preloadFontsForPage(String fontName) async {
+  Future<void> _preloadFontsForPage(Map<String, dynamic> designJson) async {
     try {
-      await GoogleFonts.pendingFonts([
-        GoogleFonts.getFont(fontName, fontWeight: FontWeight.normal),
-        GoogleFonts.getFont(fontName, fontWeight: FontWeight.bold),
-      ]).timeout(const Duration(seconds: 3));
+      await DynamicFontService.loadFontsFromDesign(designJson)
+          .timeout(const Duration(seconds: 4));
     } catch (e) {
       debugPrint("Font preloading error: $e");
     } finally {

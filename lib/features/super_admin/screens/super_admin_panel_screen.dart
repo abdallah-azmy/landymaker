@@ -17,6 +17,7 @@ import '../controllers/super_admin_cubit.dart';
 import '../controllers/super_admin_state.dart';
 import '../controllers/homepage_editor_cubit.dart';
 import 'homepage_editor_screen.dart';
+import '../widgets/home_previews_tab.dart';
 import '../widgets/bulk_action_bar.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
 import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
@@ -46,7 +47,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 11, vsync: this);
+    _tabController = TabController(length: 12, vsync: this);
     _broadcastTitleController = TextEditingController();
     _broadcastMessageController = TextEditingController();
     _broadcastRedirectController = TextEditingController();
@@ -92,8 +93,10 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
         return 8;
       case 'homepage':
         return 9;
-      case 'landing-pages':
+      case 'home-previews':
         return 10;
+      case 'landing-pages':
+        return 11;
       default:
         return 0;
     }
@@ -143,6 +146,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           Tab(text: "Templates", icon: Icon(Icons.dashboard_customize_rounded)),
           Tab(text: "Broadcast", icon: Icon(Icons.campaign_rounded)),
           Tab(text: "Homepage", icon: Icon(Icons.web_rounded)),
+          Tab(text: "Home Previews", icon: Icon(Icons.mobile_friendly_rounded)),
           Tab(text: "Landing Pages", icon: Icon(Icons.web_asset_rounded)),
         ],
       ),
@@ -163,6 +167,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                   _buildTemplatesTab(state),
                   _buildBroadcastTab(state),
                   _buildHomepageTab(),
+                  _buildHomePreviewsTab(),
                   _buildLandingPagesTab(state),
                 ],
               )
@@ -1756,6 +1761,10 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
       create: (_) => HomepageEditorCubit(di.sl<DatabaseService>()),
       child: const HomepageEditorScreen(),
     );
+  }
+
+  Widget _buildHomePreviewsTab() {
+    return const HomePreviewsTab();
   }
 
   Widget _buildLandingPagesTab(SuperAdminLoaded state) {

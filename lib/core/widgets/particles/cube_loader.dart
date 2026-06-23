@@ -22,6 +22,42 @@ enum CubeLoaderVariant {
 
   /// Staggered gravity bouncing cubes with squash and stretch.
   physics,
+
+  /// Logo with rotation around the body diagonal axis (3 equal faces visible).
+  logoCornerAxis,
+
+  /// Logo with cascading wave animation through the 27 cubes.
+  logoWave,
+
+  /// Single cube wobbling on one corner.
+  singleWobble,
+
+  /// Clusters in a spiral orbital pattern.
+  clusterSpiral,
+
+  /// Bidirectional wave (meets in the middle).
+  linearBidi,
+
+  /// Double counter-rotating rings.
+  circularDouble,
+
+  /// Premium Rubik-style 3×3×3 cube logo with subtle breathing.
+  logoPremium,
+
+  /// Premium logo with gentle floating motion.
+  logoPremiumFloat,
+
+  /// Premium logo with wave passing through the cube body.
+  logoPremiumWave,
+
+  /// Premium logo with center core pulsing softly.
+  logoPremiumCorePulse,
+
+  /// Premium logo with very slow body-diagonal rotation.
+  logoPremiumRotate,
+
+  /// Experimental: premium logo with layered depth breathing.
+  logoPremiumAura,
 }
 
 /// Animation state for [CubeLoader].
@@ -411,6 +447,34 @@ class _CubeLoaderPainter extends CustomPainter {
       case CubeLoaderVariant.physics:
         _paintPhysics(canvas, size, rot);
         break;
+      case CubeLoaderVariant.logoCornerAxis:
+        _paintLogoCornerAxis(canvas, size);
+        break;
+      case CubeLoaderVariant.logoWave:
+        _paintLogoWave(canvas, size, rot);
+        break;
+      case CubeLoaderVariant.singleWobble:
+        _paintSingleWobble(canvas, size);
+        break;
+      case CubeLoaderVariant.clusterSpiral:
+        _paintClusterSpiral(canvas, size, rot);
+        break;
+      case CubeLoaderVariant.linearBidi:
+        _paintLinearBidi(canvas, size, rot);
+        break;
+      case CubeLoaderVariant.circularDouble:
+        _paintCircularDouble(canvas, size, rot);
+        break;
+      case CubeLoaderVariant.logoPremium:
+      case CubeLoaderVariant.logoPremiumFloat:
+      case CubeLoaderVariant.logoPremiumWave:
+      case CubeLoaderVariant.logoPremiumCorePulse:
+      case CubeLoaderVariant.logoPremiumAura:
+        _paintPremium(canvas, size, rot);
+        break;
+      case CubeLoaderVariant.logoPremiumRotate:
+        _paintPremiumRotate(canvas, size);
+        break;
     }
   }
 
@@ -773,6 +837,391 @@ class _CubeLoaderPainter extends CustomPainter {
     _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
   }
 
+  // ---- Logo corner-axis (body diagonal rotation, 3 faces equally visible) ----
+  void _paintLogoCornerAxis(Canvas canvas, Size size) {
+    final n = 3;
+    final spacing = size.width * 0.12;
+    final cubeH = spacing * 0.7;
+    final h = cubeH * 0.5;
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+    final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
+    final px = size.width * 0.5;
+    final py = size.height * 0.5;
+    final offset = -(n - 1) * 0.5;
+
+    final double bda = 1.0 / sqrt(3.0);
+
+    _faceCount = 0;
+    _fillPaint.color = cubeColor;
+
+    for (int ix = 0; ix < n; ix++) {
+      for (int iy = 0; iy < n; iy++) {
+        for (int iz = 0; iz < n; iz++) {
+          final baseX = (ix + offset) * spacing;
+          final baseY = (iy + offset) * spacing;
+          final baseZ = (iz + offset) * spacing;
+
+          final t = animValue * 2 * pi + (ix + iy + iz) * 0.15;
+
+          final rotated = <double>[baseX, baseY, baseZ];
+          cg.rotatePointAxis(rotated, bda, bda, bda, t, rotated);
+
+          _renderCubeFaces(
+            centerX: px + rotated[0],
+            centerY: py - rotated[1],
+            h: h,
+            cZ: rotated[2],
+            scaleX: 1.0,
+            scaleY: 1.0,
+            scaleZ: 1.0,
+            cornerRadius: cornerRadius,
+            rot: _lightRot!,
+          );
+        }
+      }
+    }
+
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
+  }
+
+  // ---- Logo cascading wave (cubes pulse outward from center) ----
+  void _paintLogoWave(Canvas canvas, Size size, cg.RotationMatrix rot) {
+    final n = 3;
+    final spacing = size.width * 0.12;
+    final cubeH = spacing * 0.7;
+    final h = cubeH * 0.5;
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+    final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
+    final px = size.width * 0.5;
+    final py = size.height * 0.5;
+    final offset = -(n - 1) * 0.5;
+
+    _faceCount = 0;
+    _fillPaint.color = cubeColor;
+
+    for (int ix = 0; ix < n; ix++) {
+      for (int iy = 0; iy < n; iy++) {
+        for (int iz = 0; iz < n; iz++) {
+          final dist = sqrt((ix - 1) * (ix - 1) + (iy - 1) * (iy - 1) + (iz - 1) * (iz - 1));
+          final phase = dist * 0.7 - animValue * 2 * pi;
+          final wave = sin(phase);
+          final scale = 0.6 + (wave + 1.0) * 0.2;
+          final cZ = wave * spacing * 0.5;
+
+          _renderCubeFaces(
+            centerX: px + (ix + offset) * spacing,
+            centerY: py - (iy + offset) * spacing,
+            h: h,
+            cZ: cZ + (iz + offset) * spacing * 0.3,
+            scaleX: scale,
+            scaleY: scale,
+            scaleZ: 0.7 + (wave + 1.0) * 0.15,
+            cornerRadius: cornerRadius,
+            rot: rot,
+          );
+        }
+      }
+    }
+
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
+  }
+
+  // ---- Single wobble (wobbles on one corner) ----
+  void _paintSingleWobble(Canvas canvas, Size size) {
+    final cubeH = size.width * 0.35;
+    final h = cubeH * 0.5;
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+    final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
+    final px = size.width * 0.5;
+    final py = size.height * 0.5;
+
+    _faceCount = 0;
+    _fillPaint.color = cubeColor;
+
+    final wobbleX = sin(animValue * 2 * pi) * 0.4;
+    final wobbleY = cos(animValue * 2 * pi * 0.63) * 0.35;
+    final wobbleZ = sin(animValue * 2 * pi * 1.17) * 0.25;
+    final wobbleRot = cg.computeRotation(
+      _rx + wobbleX,
+      _baseRy + wobbleY,
+      wobbleZ,
+    );
+
+    _renderCubeFaces(
+      centerX: px,
+      centerY: py,
+      h: h,
+      cZ: 0.0,
+      scaleX: 1.0,
+      scaleY: 1.0,
+      scaleZ: 1.0,
+      cornerRadius: cornerRadius,
+      rot: wobbleRot,
+    );
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
+  }
+
+  // ---- Cluster spiral (spiraling orbital pattern) ----
+  void _paintClusterSpiral(Canvas canvas, Size size, cg.RotationMatrix rot) {
+    final nCubes = 8;
+    final cubeH = size.width * 0.1;
+    final h = cubeH * 0.5;
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+    final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
+    final px = size.width * 0.5;
+    final py = size.height * 0.5;
+
+    _faceCount = 0;
+    _fillPaint.color = cubeColor;
+
+    for (int i = 0; i < nCubes; i++) {
+      final t = animValue * 2 * pi + i * 2.5;
+      final radius = size.width * 0.06 + i * size.width * 0.035;
+      final x = radius * cos(t);
+      final y = radius * sin(t);
+      final z = (i - nCubes * 0.5) * size.width * 0.06;
+      final scale = 0.5 + (sin(t + i) + 1.0) * 0.25;
+
+      _renderCubeFaces(
+        centerX: px + x,
+        centerY: py - y,
+        h: h,
+        cZ: z,
+        scaleX: scale,
+        scaleY: scale,
+        scaleZ: scale,
+        cornerRadius: cornerRadius,
+        rot: rot,
+      );
+    }
+
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
+  }
+
+  // ---- Linear bidirectional (wave meets in middle) ----
+  void _paintLinearBidi(Canvas canvas, Size size, cg.RotationMatrix rot) {
+    final nCubes = 8;
+    final cubeH = size.width * 0.1;
+    final h = cubeH * 0.5;
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+    final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
+    final px = size.width * 0.5;
+    final py = size.height * 0.5;
+    final totalW = size.width * 0.7;
+    final spacing = totalW / (nCubes - 1);
+    final startX = -totalW * 0.5;
+
+    _faceCount = 0;
+    _fillPaint.color = cubeColor;
+
+    for (int i = 0; i < nCubes; i++) {
+      final double cX = startX + i * spacing;
+      final phase1 = i * 0.8 - animValue * 2 * pi;
+      final phase2 = i * 0.8 + animValue * 2 * pi;
+      final wave1 = sin(phase1);
+      final wave2 = sin(phase2);
+      final wave = (wave1 + wave2) * 0.5;
+      final cY = wave * size.height * 0.15;
+      final cZ = wave * size.width * 0.1;
+      final scale = 0.5 + (wave + 1.0) * 0.25;
+
+      _renderCubeFaces(
+        centerX: px + cX,
+        centerY: py - cY,
+        h: h,
+        cZ: cZ,
+        scaleX: scale,
+        scaleY: scale,
+        scaleZ: scale,
+        cornerRadius: cornerRadius,
+        rot: rot,
+      );
+    }
+
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
+  }
+
+  // ---- Circular double (two counter-rotating rings) ----
+  void _paintCircularDouble(Canvas canvas, Size size, cg.RotationMatrix rot) {
+    final nCubes = 6;
+    final cubeH = size.width * 0.1;
+    final h = cubeH * 0.5;
+    final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+    final strokeWidth = (h * 0.08).clamp(0.8, 2.0);
+    final px = size.width * 0.5;
+    final py = size.height * 0.5;
+    final radius = size.width * 0.28;
+
+    _faceCount = 0;
+    _fillPaint.color = cubeColor;
+
+    for (int ring = 0; ring < 2; ring++) {
+      final double sign = ring == 0 ? 1.0 : -1.0;
+      final double zOffset = sign * size.width * 0.08;
+      for (int i = 0; i < nCubes; i++) {
+        final angle = i * 2 * pi / nCubes + animValue * 2 * pi * sign;
+        final cX = radius * cos(angle);
+        final cY = radius * sin(angle);
+        final cZ = zOffset + sin(angle * 2 + animValue * 2 * pi) * size.width * 0.05;
+        final wave = sin(animValue * 2 * pi - i * 1.0);
+        final scale = 0.6 + (wave + 1.0) * 0.2;
+
+        _renderCubeFaces(
+          centerX: px + cX,
+          centerY: py - cY,
+          h: h,
+          cZ: cZ,
+          scaleX: scale,
+          scaleY: scale,
+          scaleZ: scale,
+          cornerRadius: cornerRadius,
+          rot: rot,
+        );
+      }
+    }
+
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
+  }
+
+  // ---- Premium logo variants ----
+
+  void _paintPremium(Canvas canvas, Size size, cg.RotationMatrix rot) {
+    const n = 3;
+    final gap = size.width * 0.24;
+    final cubeH = size.width * 0.19;
+    final h = cubeH * 0.5;
+    final cornerRadius = (h * 0.25).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+    final strokeWidth = (h * 0.10).clamp(0.8, 2.0);
+    final px = size.width * 0.5;
+    final py = size.height * 0.5;
+    final offset = -(n - 1) * 0.5;
+    final t = animValue;
+
+    _faceCount = 0;
+    _fillPaint.color = cubeColor;
+
+    for (int ix = 0; ix < n; ix++) {
+      for (int iy = 0; iy < n; iy++) {
+        for (int iz = 0; iz < n; iz++) {
+          final dist = sqrt(
+            (ix - 1) * (ix - 1) + (iy - 1) * (iy - 1) + (iz - 1) * (iz - 1),
+          );
+
+          double cX = (ix + offset) * gap;
+          double cY = (iy + offset) * gap;
+          double cZ = (iz + offset) * gap;
+          double s = 1.0;
+
+          switch (variant) {
+            case CubeLoaderVariant.logoPremium:
+              cZ += breath * size.width * 0.015;
+              s = 1.0 + breath * 0.03;
+              break;
+            case CubeLoaderVariant.logoPremiumFloat:
+              cY += sin(t * pi * 2) * size.width * 0.02;
+              break;
+            case CubeLoaderVariant.logoPremiumWave:
+              final wave = sin(dist * 0.8 - t * pi * 2);
+              cZ += wave * gap * 0.3;
+              s = 0.85 + 0.15 * (wave * 0.5 + 0.5);
+              break;
+            case CubeLoaderVariant.logoPremiumCorePulse:
+              final pulse = sin(t * pi * 2 * 0.8);
+              if (dist < 1.5) {
+                s = 1.0 + pulse * 0.06;
+                cZ += pulse * size.width * 0.01;
+              }
+              break;
+            case CubeLoaderVariant.logoPremiumAura:
+              final layerBreath = sin(t * pi * 2 + dist * 0.5);
+              s = 0.92 + 0.08 * (layerBreath * 0.5 + 0.5);
+              cZ += layerBreath * size.width * 0.008;
+              break;
+            default:
+              break;
+          }
+
+          double y1 = cY * rot.cxR - cZ * rot.sxR;
+          double z1 = cY * rot.sxR + cZ * rot.cxR;
+          cY = y1; cZ = z1;
+          double x1 = cX * rot.cyR + cZ * rot.syR;
+          double z2 = -cX * rot.syR + cZ * rot.cyR;
+          cX = x1; cZ = z2;
+          double x2 = cX * rot.czR - cY * rot.szR;
+          double y2 = cX * rot.szR + cY * rot.czR;
+          cX = x2; cY = y2;
+
+          final centerX = px + cX;
+          final centerY = py - cY;
+          final ao = cg.ambientOcclusion(ix - 1, iy - 1, iz - 1);
+
+          _renderCubeFaces(
+            centerX: centerX,
+            centerY: centerY,
+            h: h,
+            cZ: cZ,
+            scaleX: s,
+            scaleY: s,
+            scaleZ: s,
+            cornerRadius: cornerRadius,
+            rot: rot,
+            ao: ao,
+          );
+        }
+      }
+    }
+
+    final strokeColor = isDark ? const Color(0xFF334155) : const Color(0xFF0F172A);
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor, strokeColor: strokeColor);
+  }
+
+  void _paintPremiumRotate(Canvas canvas, Size size) {
+    const n = 3;
+    final gap = size.width * 0.24;
+    final cubeH = size.width * 0.19;
+    final h = cubeH * 0.5;
+    final cornerRadius = (h * 0.25).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+    final strokeWidth = (h * 0.10).clamp(0.8, 2.0);
+    final px = size.width * 0.5;
+    final py = size.height * 0.5;
+    final offset = -(n - 1) * 0.5;
+    final bda = 1.0 / sqrt(3.0);
+
+    _faceCount = 0;
+    _fillPaint.color = cubeColor;
+
+    for (int ix = 0; ix < n; ix++) {
+      for (int iy = 0; iy < n; iy++) {
+        for (int iz = 0; iz < n; iz++) {
+          final baseX = (ix + offset) * gap;
+          final baseY = (iy + offset) * gap;
+          final baseZ = (iz + offset) * gap;
+
+          final rotAngle = rotationAngle * 0.06;
+          final rotated = <double>[baseX, baseY, baseZ];
+          cg.rotatePointAxis(rotated, bda, bda, bda, rotAngle, rotated);
+
+          final ao = cg.ambientOcclusion(ix - 1, iy - 1, iz - 1);
+          _renderCubeFaces(
+            centerX: px + rotated[0],
+            centerY: py - rotated[1],
+            h: h,
+            cZ: rotated[2],
+            scaleX: 1.0,
+            scaleY: 1.0,
+            scaleZ: 1.0,
+            cornerRadius: cornerRadius,
+            rot: _lightRot!,
+            ao: ao,
+          );
+        }
+      }
+    }
+
+    final strokeColor = isDark ? const Color(0xFF334155) : const Color(0xFF0F172A);
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor, strokeColor: strokeColor);
+  }
+
   /// Insertion sort on [_sortKeys] using face depths.
   /// Nearly O(n) since faces are approximately back-to-front after cube transform.
   void _sortFaces(int count) {
@@ -850,8 +1299,9 @@ class _CubeLoaderPainter extends CustomPainter {
     Canvas canvas,
     int count,
     double strokeWidth,
-    Color faceColor,
-  ) {
+    Color faceColor, {
+    Color? strokeColor,
+  }) {
     final glowEnabled =
         showGlow &&
         tier.index >= _CubeLoaderTier.small.index &&
@@ -874,7 +1324,7 @@ class _CubeLoaderPainter extends CustomPainter {
       _fillPaint.color = Color.lerp(Colors.black, faceColor, brightness)!;
 
       _strokePaint.strokeWidth = strokeWidth;
-      _strokePaint.color = _strokeColor();
+      _strokePaint.color = strokeColor ?? _strokeColor();
 
       canvas.drawPath(face.path, _fillPaint);
       canvas.drawPath(face.path, _strokePaint);

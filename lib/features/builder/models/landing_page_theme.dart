@@ -137,7 +137,7 @@ class LandingPageTheme {
       name: 'Lux-Earth',
       category: 'التجارة / متجر',
       description: 'ألوان ترابية دافئة توحي بالفخامة والثقة.',
-      defaultFont: 'Tajawal',
+      defaultFont: 'Cairo',
       primary: Color(0xFF5E3023),
       secondary: Color(0xFFA86A24),
       buttonTextColor: Colors.white,
@@ -335,7 +335,7 @@ class LandingPageTheme {
       background: Color(0xFFFFFFFF),
       textPrimary: Color(0xFF0F172A),
       textSecondary: Color(0xFF64748B),
-      defaultFont: 'Tajawal',
+      defaultFont: 'Cairo',
     ),
     const LandingPageTheme(
       name: 'Luxury Gold',

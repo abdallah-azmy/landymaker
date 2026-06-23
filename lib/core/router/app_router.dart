@@ -160,7 +160,7 @@ final GoRouter appRouter = GoRouter(
           return PublicLandingPage(identifier: identifier);
         }
 
-        return const LandyMakerHomeScreen();
+        return LandyMakerHomeScreen(key: ValueKey(state.pageKey));
       },
     ),
     StatefulShellRoute.indexedStack(

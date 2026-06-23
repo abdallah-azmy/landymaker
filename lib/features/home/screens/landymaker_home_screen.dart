@@ -8,7 +8,7 @@ import '../../../services/database_service.dart';
 import '../../../core/widgets/visibility_observer.dart';
 import '../../../core/widgets/particles/cube_mode_cubit.dart';
 import '../../../core/widgets/particles/floating_cube_background.dart';
-import '../../../core/services/font_load_notifier.dart';
+
 import '../../../core/localization/localization_cubit.dart';
 import '../models/home_layouts.dart';
 import '../../../core/widgets/atoms/animated_cube_mode_toggle.dart';
@@ -51,7 +51,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
   bool _bentoVisible = false;
   bool _ctaVisible = false;
 
-  bool _fontsReady = false;
+  bool _fontsReady = true;
   bool _isPreviewMode = false;
 
   late final AnimationController _logoAnimController;
@@ -71,12 +71,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     _lastScrollOffsetForDrift = LandyMakerHomeScreen.lastScrollOffset;
     _scrollController.addListener(_saveScrollPosition);
     _loadSections();
-
-    if (fontLoadNotifier.ready) {
-      _fontsReady = true;
-    } else {
-      fontLoadNotifier.addListener(_onFontsReady);
-    }
 
     _isThisTheFirstLoad = LandyMakerHomeScreen._isFirstAppLoad;
     LandyMakerHomeScreen._isFirstAppLoad = false;
@@ -117,12 +111,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
-  void _onFontsReady() {
-    if (mounted) {
-      setState(() => _fontsReady = true);
-    }
-    fontLoadNotifier.removeListener(_onFontsReady);
-  }
+
 
   @override
   void didChangeDependencies() {
@@ -316,6 +305,18 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
       CubeLoaderVariant.linear: isRtl ? "خطي" : "Linear Wave",
       CubeLoaderVariant.circular: isRtl ? "دائري" : "Circular Ring",
       CubeLoaderVariant.physics: isRtl ? "فيزيائي" : "Physics Bounce",
+      CubeLoaderVariant.logoCornerAxis: isRtl ? "شعار زاوية محورية" : "Logo Corner Axis",
+      CubeLoaderVariant.logoWave: isRtl ? "موجة الشعار" : "Logo Cascade Wave",
+      CubeLoaderVariant.singleWobble: isRtl ? "ترنح مفرد" : "Single Wobble",
+      CubeLoaderVariant.clusterSpiral: isRtl ? "دوامة المجموعة" : "Cluster Spiral",
+      CubeLoaderVariant.linearBidi: isRtl ? "موجة ثنائية الاتجاه" : "Bidirectional Wave",
+      CubeLoaderVariant.circularDouble: isRtl ? "حلقة مزدوجة" : "Double Ring",
+      CubeLoaderVariant.logoPremium: isRtl ? "شعار بريميوم" : "Premium Logo",
+      CubeLoaderVariant.logoPremiumFloat: isRtl ? "شعار عائم" : "Premium Float",
+      CubeLoaderVariant.logoPremiumWave: isRtl ? "موجة الشعار" : "Premium Wave",
+      CubeLoaderVariant.logoPremiumCorePulse: isRtl ? "نبض مركز الشعار" : "Premium Core Pulse",
+      CubeLoaderVariant.logoPremiumRotate: isRtl ? "دوران الشعار" : "Premium Rotate",
+      CubeLoaderVariant.logoPremiumAura: isRtl ? "هالة الشعار" : "Premium Aura",
     };
 
     showDialog(
@@ -491,6 +492,202 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                                 size: 90,
                                 variant: CubeLoaderVariant.physics,
                                 initialState: CubeLoaderState.loading,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // New logo-corner-axis standalone card
+                          _buildSectionHeader(
+                            dialogContext,
+                            isRtl ? "إضافات جديدة" : "New Additions",
+                            isRtl
+                                ? "خيارات دوران وزاوية جديدة لكل نوع"
+                                : "New rotation and angle options per variant",
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.logoCornerAxis] ?? "Logo Corner Axis",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "دوران زاوية الشعار" : "Logo Corner-Axis Rotation",
+                              desc: isRtl ? "دوران حول المحور القطري — 3 أوجه مرئية متساوية" : "Body-diagonal axis rotation — 3 equal visible faces",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logoCornerAxis,
+                                initialState: CubeLoaderState.loading,
+                                showGlow: true,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.logoWave] ?? "Logo Cascade Wave",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "موجة الشعار المتتالية" : "Logo Cascade Wave",
+                              desc: isRtl ? "تموج متدرج من المركز عبر 27 مكعباً" : "Wave ripple from center through all 27 cubes",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logoWave,
+                                initialState: CubeLoaderState.loading,
+                                showGlow: true,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.singleWobble] ?? "Single Wobble",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "ترنح المكعب المفرد" : "Single Cube Wobble",
+                              desc: isRtl ? "ترنح على زاوية واحدة بحركة عشوائية" : "Wobbling on one corner with organic motion",
+                              child: const CubeLoader(
+                                size: 72,
+                                variant: CubeLoaderVariant.singleWobble,
+                                initialState: CubeLoaderState.loading,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.clusterSpiral] ?? "Cluster Spiral",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "دوامة المجموعات" : "Cluster Spiral",
+                              desc: isRtl ? "8 مكعبات في مسار حلزوني حلزوني" : "8 cubes in a helical spiral orbit",
+                              child: const CubeLoader(
+                                size: 90,
+                                variant: CubeLoaderVariant.clusterSpiral,
+                                initialState: CubeLoaderState.loading,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.linearBidi] ?? "Bidirectional Wave",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "موجة ثنائية الاتجاه" : "Bidirectional Linear Wave",
+                              desc: isRtl ? "موجتان تلتقيان في المنتصف من كلا الجانبين" : "Two waves meeting in the middle from both sides",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.linearBidi,
+                                initialState: CubeLoaderState.loading,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.circularDouble] ?? "Double Ring",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "حلقة مزدوجة الدوران" : "Double Counter-Rotating Ring",
+                              desc: isRtl ? "حلقتان تدوران بعكس الاتجاه بترددات مختلفة" : "Two rings counter-rotating at different frequencies",
+                              child: const CubeLoader(
+                                size: 90,
+                                variant: CubeLoaderVariant.circularDouble,
+                                initialState: CubeLoaderState.loading,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // SECTION: Premium Logo Variants
+                          _buildSectionHeader(
+                            dialogContext,
+                            isRtl ? "إصدارات الشعار الفاخرة" : "Premium Logo Variants",
+                            isRtl
+                                ? "إصدارات بريميوم مستوحاة من مكعب روبيك بهندسة محسّنة"
+                                : "Premium Rubik-style cube variants with enhanced geometry",
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.logoPremium] ?? "Premium Logo",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "شعار بريميوم" : "Premium Logo",
+                              desc: isRtl ? "شعار 3×3×3 مع تنفس خفيف وزوايا محسّنة وحدود داكنة" : "3×3×3 logo with subtle breathing, enhanced spacing, dark Rubik-style borders",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logoPremium,
+                                initialState: CubeLoaderState.breathing,
+                                showGlow: true,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.logoPremiumFloat] ?? "Premium Float",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "شعار عائم" : "Premium Float",
+                              desc: isRtl ? "حركة طفو خفيفة جداً للمجموعة بأكملها" : "Very gentle floating motion of the entire cube group",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logoPremiumFloat,
+                                initialState: CubeLoaderState.breathing,
+                                showGlow: true,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.logoPremiumWave] ?? "Premium Wave",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "موجة بريميوم" : "Premium Wave",
+                              desc: isRtl ? "موجة تمر عبر المكعبات مع الحفاظ على الهيكل" : "Wave passing through cubes while maintaining the outer silhouette",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logoPremiumWave,
+                                initialState: CubeLoaderState.loading,
+                                showGlow: true,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.logoPremiumCorePulse] ?? "Premium Core Pulse",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "نبض المركز" : "Premium Core Pulse",
+                              desc: isRtl ? "نبض أنيق في المكعبات الداخلية مع الحفاظ على الثبات" : "Elegant pulse of the inner core cubes while outer layer stays stable",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logoPremiumCorePulse,
+                                initialState: CubeLoaderState.breathing,
+                                showGlow: true,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.logoPremiumRotate] ?? "Premium Rotate",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "دوران بطيء" : "Premium Slow Rotate",
+                              desc: isRtl ? "دوران بطيء جداً حول المحور القطري — دورة كاملة كل 30 ثانية" : "Very slow body-diagonal rotation — one full revolution per ~30 seconds",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logoPremiumRotate,
+                                initialState: CubeLoaderState.loading,
+                                showGlow: true,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Tooltip(
+                            message: variantLabels[CubeLoaderVariant.logoPremiumAura] ?? "Premium Aura",
+                            child: _buildShowcaseCard(
+                              dialogContext,
+                              title: isRtl ? "هالة الشعار" : "Premium Aura",
+                              desc: isRtl ? "طبقات تتنفس في طور متعاكس لتأثير هالة ثلاثي الأبعاد" : "Layers breathe in alternating phase for a subtle 3D aura effect",
+                              child: const CubeLoader(
+                                size: 110,
+                                variant: CubeLoaderVariant.logoPremiumAura,
+                                initialState: CubeLoaderState.breathing,
+                                showGlow: true,
                               ),
                             ),
                           ),
@@ -708,7 +905,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     _logoAnimController.removeListener(_onLogoAnimTick);
     _logoAnimController.removeStatusListener(_onLogoAnimStatus);
     _logoAnimController.dispose();
-    fontLoadNotifier.removeListener(_onFontsReady);
     super.dispose();
   }
 

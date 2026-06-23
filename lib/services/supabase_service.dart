@@ -252,12 +252,54 @@ class SupabaseService extends ChangeNotifier {
     try {
       final response = await _client!
           .from(DbConstants.landingPagesTable)
-          .select('id, name, created_at')
+          .select()
           .order('created_at', ascending: false);
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       debugPrint("Error fetching all landing pages: $e");
       return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getHomepagePreviewPages() async {
+    try {
+      final response = await _client!
+          .from(DbConstants.landingPagesTable)
+          .select()
+          .eq('website_type', 'homepage_preview')
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint("Error fetching homepage preview pages: $e");
+      return [];
+    }
+  }
+
+  Future<String?> cloneLandingPage({
+    required String sourcePageId,
+    required String newSubdomain,
+    required String websiteType,
+    required String userId,
+  }) async {
+    try {
+      final source = await getLandingPageById(sourcePageId);
+      if (source == null) throw Exception("Source landing page not found");
+
+      final result = await _client!
+          .from(DbConstants.landingPagesTable)
+          .insert({
+            'user_id': userId,
+            'subdomain': newSubdomain,
+            'design_json': source['design_json'],
+            'is_published': false,
+            'website_type': websiteType,
+          })
+          .select('id')
+          .single();
+      return result['id'] as String?;
+    } catch (e) {
+      debugPrint("Error cloning landing page: $e");
+      rethrow;
     }
   }
 

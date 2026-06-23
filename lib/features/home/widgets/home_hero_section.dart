@@ -62,8 +62,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
 
   List<Map<String, dynamic>> get _previewPages =>
       widget.previewPages != null && widget.previewPages!.isNotEmpty
-          ? widget.previewPages!
-          : _hardcodedPreviewPages;
+      ? widget.previewPages!
+      : _hardcodedPreviewPages;
 
   final List<Map<String, dynamic>> _hardcodedPreviewPages = [
     {
@@ -391,7 +391,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                 child: Container(
                   padding: const EdgeInsetsDirectional.all(32),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(32),
                   ),
                   child: Column(
@@ -401,7 +403,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                       _buildBadge(),
                       const SizedBox(height: 24),
                       Text(
-                        widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                        widget.title ??
+                            'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                         style: AppTypography.h1.copyWith(
                           fontSize: isMobile
                               ? 32
@@ -492,7 +495,9 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                   child: Container(
                     padding: const EdgeInsetsDirectional.all(32),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(32),
                     ),
                     child: Column(
@@ -502,7 +507,8 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                         _buildBadge(),
                         const SizedBox(height: 24),
                         Text(
-                          widget.title ?? 'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
+                          widget.title ??
+                              'ابنِ صفحة هبوط احترافية متكاملة لخدماتك',
                           style: AppTypography.h1.copyWith(
                             fontSize: isMobile
                                 ? 30
@@ -833,7 +839,10 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
               const SizedBox(height: 14),
               ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 44),
-                child: _TypewriterText(texts: _typewriterTexts, isMobile: isMobile),
+                child: _TypewriterText(
+                  texts: _typewriterTexts,
+                  isMobile: isMobile,
+                ),
               ),
               const SizedBox(height: 16),
               Text(

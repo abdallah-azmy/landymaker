@@ -9,7 +9,7 @@ import '../../models/landing_page_theme.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 import '../../controllers/builder_theme_cubit.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/services/dynamic_font_service.dart';
 
 class OutlineTab extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -893,6 +893,10 @@ Widget _buildFontPicker(
       final family = font['family']!;
       final isSelected = family == (theme.defaultFont ?? 'Cairo');
 
+      if (family.toLowerCase() != 'cairo') {
+        DynamicFontService.loadFont(family, [400, 700]);
+      }
+
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
@@ -922,7 +926,9 @@ Widget _buildFontPicker(
             children: [
               Text(
                 family,
-                style: GoogleFonts.getFont(family).copyWith(
+                style: TextStyle(
+                  fontFamily: family,
+                  fontFamilyFallback: const ['Cairo'],
                   fontSize: AppTypography.bodyMedium.fontSize ?? 14,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onSurface,
@@ -950,7 +956,9 @@ Widget _buildFontPicker(
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
               font['desc']!,
-              style: GoogleFonts.getFont(family).copyWith(
+              style: TextStyle(
+                fontFamily: family,
+                fontFamilyFallback: const ['Cairo'],
                 fontSize: AppTypography.caption.fontSize ?? 12,
                 color: AppTypography.caption.color,
                 height: 1.4,

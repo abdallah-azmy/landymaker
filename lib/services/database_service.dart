@@ -9,6 +9,24 @@ class DatabaseService {
     return _supabase.getAllLandingPages();
   }
 
+  Future<List<Map<String, dynamic>>> getHomepagePreviewPages() {
+    return _supabase.getHomepagePreviewPages();
+  }
+
+  Future<String?> cloneLandingPage({
+    required String sourcePageId,
+    required String newSubdomain,
+    required String websiteType,
+    required String userId,
+  }) {
+    return _supabase.cloneLandingPage(
+      sourcePageId: sourcePageId,
+      newSubdomain: newSubdomain,
+      websiteType: websiteType,
+      userId: userId,
+    );
+  }
+
   Future<Map<String, dynamic>?> getLandingPageByUserId(String userId) {
     return _supabase.getLandingPageByUserId(userId);
   }

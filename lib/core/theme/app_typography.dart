@@ -11,7 +11,6 @@ class AppTypography {
   // Font Family Fallbacks for Arabic & English clean rendering
   static const List<String> fontFallbacks = [
     'Cairo',
-    'Tajawal',
     'Outfit',
     'Inter',
     'system-ui',

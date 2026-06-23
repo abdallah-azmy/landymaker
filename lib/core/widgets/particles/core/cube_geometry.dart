@@ -75,6 +75,15 @@ void rotatePoint(List<double> v, RotationMatrix r, List<double> out) {
   out[0] = x; out[1] = y; out[2] = z;
 }
 
+/// Rotate point around an arbitrary axis (unit vector) by angle using Rodrigues' formula.
+void rotatePointAxis(List<double> v, double ax, double ay, double az, double angle, List<double> out) {
+  final c = cos(angle), s = sin(angle), t = 1 - c;
+  final x = v[0], y = v[1], z = v[2];
+  out[0] = x * (ax * ax * t + c) + y * (ax * ay * t - az * s) + z * (ax * az * t + ay * s);
+  out[1] = x * (ay * ax * t + az * s) + y * (ay * ay * t + c) + z * (ay * az * t - ax * s);
+  out[2] = x * (az * ax * t - ay * s) + y * (az * ay * t + ax * s) + z * (az * az * t + c);
+}
+
 /// Lambertian diffuse brightness for a face normal [nx, ny, nz].
 double lambertBrightness(double nx, double ny, double nz) {
   final dot = nx * lx + ny * ly + nz * lz;

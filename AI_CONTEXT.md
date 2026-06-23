@@ -10,9 +10,25 @@ This document serves as your **core project memory** and **Master Entry Point**.
 
 For deep-dives into specific systems, refer to the dedicated documentation files in the `docs/ai/` directory:
 
+### ⚠️ Read These First (Core Architecture & Rules)
 - **[AI Development Rules](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/AI_DOCUMENTATION_RULES.md)**: CRITICAL. Contains all strict execution protocols, UI/UX patterns, state management rules, and development guidelines.
 - **[DevOps & Assets](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/DEVOPS_AND_ASSETS.md)**: CRITICAL. Read before any deployment, CI/CD, image handling, or secrets modification.
 - **[Unified System Map](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/SYSTEM_MAP.md)**: The map of all files, including directory structures, features index, screens index, routes, services, and dependency flowcharts.
+
+### 🧊 Cube Loading & Logo System (Read in Order)
+- **[Cube Ecosystem](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/CUBE_ECOSYSTEM.md)**: **MASTER REFERENCE** for the two-system cube rendering architecture (System A: CubeLoader, System B: FloatingCubeBackground). Explains when to use which system, performance rules, brand visual spec, and file inventory.
+- **[Cube Loader](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/CUBE_LOADER.md)**: Detailed API, variants, states, architecture discoveries, and performance characteristics for the unified `CubeLoader` widget.
+- **[Floating Cube Background](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/FLOATING_CUBE_BACKGROUND.md)**: Full documentation for the V2 particle system: all 4 mode rules, physics engine, entity lifecycle, scroll drift safety, trail/burst particles, and WASM safety.
+- **[Loading Logo System](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/LOADING_LOGO_SYSTEM.md)**: Legacy wrapper (DEPRECATED — all new code should use `CubeLoader` directly).
+
+### 🏗️ Builder & Feature Systems
+- **[Builder Architecture](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/BUILDER_ARCHITECTURE.md)**: Editor workspace data flow, BlockRegistry mappings, theme management, undo/redo, auto-save, and template system.
+- **[Block Schema Registry](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/BLOCK_SCHEMA_REGISTRY.md)**: JSON schema definitions for every supported block type (hero, features, pricing, etc.) and the AI Agent generation rules.
+- **[Theme System](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/THEME_SYSTEM.md)**: Dynamic light/dark Material 3 theme architecture, color mapping table, and critical Rule #30 for dynamic color enforcement.
+
+### 🔧 Debugging & Reference
+- **[API Logging Guide](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/API_LOGGING_GUIDE.md)**: Structured logging system (logger package), SupabaseLoggingMixin, and troubleshooting.
+- **[Concurrent Modification Crash Fix](file:///Users/abdallahazmy/Projects/landymaker/docs/ai/CONCURRENT_MODIFICATION_CRASH_FIX.md)**: Guide for fixing `ConcurrentModificationError` in physics/particle loops — essential before modifying `FloatingCubeBackground`.
 
 ---
 
@@ -314,25 +330,35 @@ Includes:
 
 Includes:
 
-### Active Documentation (`/docs/ai/`)
-- Unified System Map & Index: `SYSTEM_MAP.md` (Combines project structures, features list, routes, screens, services, and diagrams)
-- Strict AI Coding Rules: `AI_DOCUMENTATION_RULES.md`
-- Builder Architecture Guide: `BUILDER_ARCHITECTURE.md`
-- Block Schema Registry: `BLOCK_SCHEMA_REGISTRY.md`
-- Theme System: `THEME_SYSTEM.md`
-- DevOps & Assets Guide: `DEVOPS_AND_ASSETS.md`
-- API Logging Guide: `API_LOGGING_GUIDE.md`
-- Floating Cube Background: `FLOATING_CUBE_BACKGROUND.md`
-- Loading Logo System: `LOADING_LOGO_SYSTEM.md`
+### Active Documentation (`/docs/ai/`) — Full Index
 
+#### 🧊 Cube & Loading System
+| File | Purpose |
+|------|---------|
+| `CUBE_ECOSYSTEM.md` | **Master reference** — two-system architecture (CubeLoader vs FloatingCubeBackground), performance rules, brand visual spec, file inventory |
+| `CUBE_LOADER.md` | Detailed CubeLoader API: variants, states, architecture discoveries, smooth speed, hover layer, clamp safety |
+| `FLOATING_CUBE_BACKGROUND.md` | Complete particle system docs: all 4 mode rules, physics engine, entity lifecycle, trails, scroll drift safety, WASM safety |
+| `LOADING_LOGO_SYSTEM.md` | Legacy LoadingLogo wrapper (DEPRECATED — use CubeLoader) |
 
-### Historical Reports (`/docs/archive/`)
-- **Mission Execution Plan**: `MISSION_EXECUTION.md` (Tracks implemented Growth & AI features)
-- **Security Audit**: `SECURITY_AUDIT_REPORT.md` (Mission verification)
-- **AI Agent Specs**: `AI_AGENT_REPORT.md` (Agent cost & quality optimization)
-- **Guest Flow**: `GUEST_FLOW_GUIDE.md` (Guest AI generation logic)
-- **Continuation Prompt**: `AI_AGENT_CONTINUATION_PROMPT.md` (Master plan for future AI models)
-- **Interactive AI Agent Reports**: Analysis, Architecture, and Final Report
+#### 🏗️ Builder & Feature Systems
+| File | Purpose |
+|------|---------|
+| `BUILDER_ARCHITECTURE.md` | Editor workspace data flow, BlockRegistry, theme management, undo/redo, templates |
+| `BLOCK_SCHEMA_REGISTRY.md` | JSON schema definitions for all block types, AI generation rules |
+| `THEME_SYSTEM.md` | Dynamic M3 light/dark theme, color mapping, Rule #30 enforcement |
+| `SYSTEM_MAP.md` | Unified directory map, features index, screens/routes index, services, dependency flowcharts |
+
+#### 🚀 DevOps & Infrastructure
+| File | Purpose |
+|------|---------|
+| `DEVOPS_AND_ASSETS.md` | CI/CD pipeline, Vercel deployment, image management, secrets, icon assets |
+| `API_LOGGING_GUIDE.md` | Structured logging system, SupabaseLoggingMixin, debugging |
+
+#### 🔧 Debugging & Maintenance
+| File | Purpose |
+|------|---------|
+| `CONCURRENT_MODIFICATION_CRASH_FIX.md` | Fix pattern for `ConcurrentModificationError` in physics/particle loops |
+| `AI_DOCUMENTATION_RULES.md` | All strict coding rules (1-41): UI patterns, state management, RTL, security, CubeLoader rules |
 
 Any task affecting one of these systems MUST:
 

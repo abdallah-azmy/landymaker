@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/atoms/cube_spinner.dart';
+import '../../../injection_container.dart';
+import '../../../services/database_service.dart';
 import '../../home/models/home_layouts.dart';
 
 class HeroConfigSheet extends StatefulWidget {
@@ -22,6 +25,10 @@ class _HeroConfigSheetState extends State<HeroConfigSheet> {
   late TextEditingController _typewriterArController;
   late TextEditingController _typewriterEnController;
 
+  List<Map<String, dynamic>> _allPages = [];
+  Set<String> _selectedPageIds = {};
+  bool _loadingPages = true;
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +44,29 @@ class _HeroConfigSheetState extends State<HeroConfigSheet> {
     _typewriterArController = TextEditingController(text: twAr is List ? (twAr).join('\n') : '');
     final twEn = widget.config['typewriter_texts_en'];
     _typewriterEnController = TextEditingController(text: twEn is List ? (twEn).join('\n') : '');
+
+    final ids = widget.config['preview_page_ids'];
+    if (ids is List) {
+      _selectedPageIds = ids.map((e) => e.toString()).toSet();
+    }
+
+    _loadPages();
+  }
+
+  Future<void> _loadPages() async {
+    try {
+      final pages = await sl<DatabaseService>().fetchAllLandingPages();
+      if (mounted) {
+        setState(() {
+          _allPages = pages;
+          _loadingPages = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _loadingPages = false);
+      }
+    }
   }
 
   @override
@@ -52,6 +82,16 @@ class _HeroConfigSheetState extends State<HeroConfigSheet> {
     super.dispose();
   }
 
+  void _togglePage(String id) {
+    setState(() {
+      if (_selectedPageIds.contains(id)) {
+        _selectedPageIds.remove(id);
+      } else {
+        _selectedPageIds.add(id);
+      }
+    });
+  }
+
   void _save() {
     widget.onSave({
       'layout': _layout.name,
@@ -65,6 +105,7 @@ class _HeroConfigSheetState extends State<HeroConfigSheet> {
       'typewriter_texts_en': _typewriterEnController.text.split('\n').where((l) => l.trim().isNotEmpty).toList(),
       'show_phone_preview': widget.config['show_phone_preview'] ?? true,
       'show_ai_button': widget.config['show_ai_button'] ?? true,
+      'preview_page_ids': _selectedPageIds.toList(),
     });
     Navigator.pop(context);
   }
@@ -77,116 +118,147 @@ class _HeroConfigSheetState extends State<HeroConfigSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
         top: 24, start: 24, end: 24,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Text('إعدادات القسم الترحيبي', style: theme.textTheme.titleLarge),
-              const Spacer(),
-              IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text('نوع التخطيط', style: theme.textTheme.labelLarge),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            initialValue: _layout.name,
-            decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-            items: HeroLayout.values.map((l) => DropdownMenuItem(value: l.name, child: Text(_layoutName(l)))).toList(),
-            onChanged: (v) {
-              if (v != null) setState(() => _layout = HeroLayout.values.firstWhere((e) => e.name == v));
-            },
-          ),
-          const SizedBox(height: 16),
-          Text('العنوان (عربي)', style: theme.textTheme.labelMedium),
-          const SizedBox(height: 4),
-          TextField(
-            controller: _titleArController,
-            decoration: InputDecoration(
-              hintText: 'ابنِ صفحة هبوط احترافية',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Text('إعدادات القسم الترحيبي', style: theme.textTheme.titleLarge),
+                const Spacer(),
+                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded)),
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
-          Text('العنوان (إنجليزي)', style: theme.textTheme.labelMedium),
-          const SizedBox(height: 4),
-          TextField(
-            controller: _titleEnController,
-            decoration: InputDecoration(
-              hintText: 'Build a Professional Landing Page',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 16),
+            Text('نوع التخطيط', style: theme.textTheme.labelLarge),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _layout.name,
+              decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+              items: HeroLayout.values.map((l) => DropdownMenuItem(value: l.name, child: Text(_layoutName(l)))).toList(),
+              onChanged: (v) {
+                if (v != null) setState(() => _layout = HeroLayout.values.firstWhere((e) => e.name == v));
+              },
             ),
-          ),
-          const SizedBox(height: 12),
-          Text('النص الفرعي (عربي)', style: theme.textTheme.labelMedium),
-          const SizedBox(height: 4),
-          TextField(
-            controller: _subtitleArController,
-            decoration: InputDecoration(
-              hintText: 'بدون الحاجة لخبرة برمجية',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 16),
+            Text('العنوان (عربي)', style: theme.textTheme.labelMedium),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _titleArController,
+              decoration: InputDecoration(
+                hintText: 'ابنِ صفحة هبوط احترافية',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-            maxLines: 2,
-          ),
-          const SizedBox(height: 12),
-          Text('النص الفرعي (إنجليزي)', style: theme.textTheme.labelMedium),
-          const SizedBox(height: 4),
-          TextField(
-            controller: _subtitleEnController,
-            decoration: InputDecoration(
-              hintText: 'Without any coding experience needed',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 12),
+            Text('العنوان (إنجليزي)', style: theme.textTheme.labelMedium),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _titleEnController,
+              decoration: InputDecoration(
+                hintText: 'Build a Professional Landing Page',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-            maxLines: 2,
-          ),
-          const SizedBox(height: 12),
-          Text('نص الزر (عربي)', style: theme.textTheme.labelMedium),
-          const SizedBox(height: 4),
-          TextField(
-            controller: _ctaTextArController,
-            decoration: InputDecoration(
-              hintText: 'ابدأ مجاناً',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 12),
+            Text('النص الفرعي (عربي)', style: theme.textTheme.labelMedium),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _subtitleArController,
+              decoration: InputDecoration(
+                hintText: 'بدون الحاجة لخبرة برمجية',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              maxLines: 2,
             ),
-          ),
-          const SizedBox(height: 12),
-          Text('نص الزر (إنجليزي)', style: theme.textTheme.labelMedium),
-          const SizedBox(height: 4),
-          TextField(
-            controller: _ctaTextEnController,
-            decoration: InputDecoration(
-              hintText: 'Start Free',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 12),
+            Text('النص الفرعي (إنجليزي)', style: theme.textTheme.labelMedium),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _subtitleEnController,
+              decoration: InputDecoration(
+                hintText: 'Without any coding experience needed',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              maxLines: 2,
             ),
-          ),
-          const SizedBox(height: 12),
-          Text('نصوص الكتابة المتحركة (عربي) — سطر لكل نص', style: theme.textTheme.labelMedium),
-          const SizedBox(height: 4),
-          TextField(
-            controller: _typewriterArController,
-            decoration: InputDecoration(
-              hintText: 'منيو مطعم إلكتروني\nمعرض أعمال شخصي',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 12),
+            Text('نص الزر (عربي)', style: theme.textTheme.labelMedium),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _ctaTextArController,
+              decoration: InputDecoration(
+                hintText: 'ابدأ مجاناً',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-            maxLines: 4,
-          ),
-          const SizedBox(height: 12),
-          Text('نصوص الكتابة المتحركة (إنجليزي)', style: theme.textTheme.labelMedium),
-          const SizedBox(height: 4),
-          TextField(
-            controller: _typewriterEnController,
-            decoration: InputDecoration(
-              hintText: 'Interactive digital menu\nPersonal portfolio',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 12),
+            Text('نص الزر (إنجليزي)', style: theme.textTheme.labelMedium),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _ctaTextEnController,
+              decoration: InputDecoration(
+                hintText: 'Start Free',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-            maxLines: 4,
-          ),
-          const SizedBox(height: 24),
-          FilledButton(onPressed: _save, child: const Text('حفظ')),
-          const SizedBox(height: 24),
-        ],
+            const SizedBox(height: 12),
+            Text('نصوص الكتابة المتحركة (عربي) — سطر لكل نص', style: theme.textTheme.labelMedium),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _typewriterArController,
+              decoration: InputDecoration(
+                hintText: 'منيو مطعم إلكتروني\nمعرض أعمال شخصي',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              maxLines: 4,
+            ),
+            const SizedBox(height: 12),
+            Text('نصوص الكتابة المتحركة (إنجليزي)', style: theme.textTheme.labelMedium),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _typewriterEnController,
+              decoration: InputDecoration(
+                hintText: 'Interactive digital menu\nPersonal portfolio',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              maxLines: 4,
+            ),
+            const SizedBox(height: 16),
+            Text('اختيار صفحات الهبوط للمعاينة', style: theme.textTheme.labelLarge),
+            const SizedBox(height: 8),
+            if (_loadingPages)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: CubeSpinner(
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              )
+            else if (_allPages.isEmpty)
+              Text('لا توجد صفحات هبوط متاحة في النظام', style: TextStyle(color: theme.colorScheme.onSurfaceVariant))
+            else
+              ..._allPages.map((p) {
+                final id = p['id']?.toString() ?? '';
+                final name = p['name'] as String? ?? p['subdomain'] as String? ?? 'بدون اسم';
+                final isSelected = _selectedPageIds.contains(id);
+                return CheckboxListTile(
+                  title: Text(name),
+                  value: isSelected,
+                  onChanged: (_) => _togglePage(id),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                );
+              }),
+            const SizedBox(height: 24),
+            FilledButton(onPressed: _save, child: const Text('حفظ')),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }

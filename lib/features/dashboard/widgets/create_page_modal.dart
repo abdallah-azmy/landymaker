@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,10 +44,158 @@ class _CreatePageModalState extends State<CreatePageModal> {
   String _selectedTemplateId = 'empty';
   Timer? _debounce;
 
+  String? _customTemplateName;
+  bool _loadingCustomTemplate = false;
+
+  static final Map<String, Map<String, dynamic>> _hardcodedTemplates = {
+    'midnight_ocean': {
+      'theme': {
+        'primary': 0xFF3B82F6,
+        'secondary': 0xFF60A5FA,
+        'background': 0xFF030712,
+        'textPrimary': 0xFFFFFFFF,
+        'textSecondary': 0xFF9CA3AF,
+        'buttonTextColor': 0xFFFFFFFF,
+        'name': 'Midnight Ocean',
+      },
+      'blocks': [
+        {
+          'type': 'hero',
+          'title': 'أناقة وفخامة تليق بك',
+          'subtitle': 'نحن لا نقص الشعر فقط، بل نصنع الثقة والمظهر المثالي الذي تستحقه بأحدث القصات العالمية.',
+          'button_text': 'احجز مقعدك الآن',
+          'image_url': 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400',
+        },
+        {
+          'type': 'features',
+          'title': 'خدماتنا المميزة',
+          'items': [
+            {
+              'title': 'قص وتصفيف احترافي',
+              'description': 'أحدث القصات والستايلات العالمية.',
+            },
+            {
+              'title': 'حلاقة ذقن بالبخار',
+              'description': 'جلسة تنظيف ذقن متكاملة بالبخار.',
+            },
+          ],
+        },
+      ],
+    },
+    'lux_earth': {
+      'theme': {
+        'primary': 0xFFD97706,
+        'secondary': 0xFFF59E0B,
+        'background': 0xFF0F172A,
+        'textPrimary': 0xFFFFFFFF,
+        'textSecondary': 0xFF94A3B8,
+        'buttonTextColor': 0xFFFFFFFF,
+        'name': 'Lux-Earth',
+      },
+      'blocks': [
+        {
+          'type': 'hero',
+          'title': 'ساعات ذكية فاخرة',
+          'subtitle': 'اكتشف مجموعتنا الحصرية من الساعات الذكية والأجهزة التقنية الراقية.',
+          'button_text': 'تسوق الآن',
+          'image_url': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+        },
+        {
+          'type': 'products',
+          'title': 'المنتجات الأكثر مبيعاً',
+          'items': [
+            {
+              'name': 'ساعة ذكية فاخرة Pro',
+              'price': '1200 EGP',
+              'description': 'تتبع نشاطك وصحتك بكل سهولة مع تصميم عصري.',
+              'image_url': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+              'button_text': 'طلب مباشر',
+            },
+          ],
+        },
+      ],
+    },
+    'butter_sky': {
+      'theme': {
+        'primary': 0xFF0EA5E9,
+        'secondary': 0xFF38BDF8,
+        'background': 0xFF0F172A,
+        'textPrimary': 0xFFFFFFFF,
+        'textSecondary': 0xFF94A3B8,
+        'buttonTextColor': 0xFF0F172A,
+        'name': 'Butter & Sky',
+      },
+      'blocks': [
+        {
+          'type': 'hero',
+          'title': 'تصميم هويات بصرية مذهلة',
+          'subtitle': 'نساعد الشركات الناشئة على بناء هويات وتجارب مستخدم فريدة للويب والهاتف.',
+          'button_text': 'شاهد أعمالي',
+          'image_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+        },
+        {
+          'type': 'social_qr',
+          'title': 'تابع منصاتي',
+          'subtitle': 'تابعني على حساباتي الرسمية لمزيد من التصاميم اليومية',
+          'links': [
+            {'platform': 'instagram', 'url': 'https://instagram.com'},
+            {'platform': 'linkedin', 'url': 'https://linkedin.com'},
+          ],
+        },
+      ],
+    },
+  };
+
   @override
   void initState() {
     super.initState();
     _checkInitialLimit();
+
+    final pendingId = TenantRoutingService.pendingTemplateId;
+    if (pendingId != null) {
+      _selectedTemplateId = pendingId;
+      _resolveTemplateName(pendingId);
+    }
+  }
+
+  Future<void> _resolveTemplateName(String id) async {
+    // Check built-in templates first
+    final builtIn = TemplateRegistry.availableTemplates.firstWhere(
+      (t) => t.id == id,
+      orElse: () => const TemplateMetadata(id: '', name: '', description: '', imageUrl: ''),
+    );
+    if (builtIn.id.isNotEmpty) {
+      return; // It's standard built-in, ListView handles selection automatically
+    }
+
+    // Check hardcoded home preview page names
+    if (id == 'midnight_ocean') {
+      setState(() => _customTemplateName = 'Midnight Ocean');
+      return;
+    } else if (id == 'lux_earth') {
+      setState(() => _customTemplateName = 'Lux-Earth');
+      return;
+    } else if (id == 'butter_sky') {
+      setState(() => _customTemplateName = 'Butter & Sky');
+      return;
+    }
+
+    // Otherwise, fetch from Supabase
+    setState(() => _loadingCustomTemplate = true);
+    try {
+      final page = await sl<DatabaseService>().getLandingPageById(id);
+      if (page != null && mounted) {
+        setState(() {
+          _customTemplateName = page['name'] as String? ?? page['subdomain'] as String? ?? 'تصميم مخصص';
+        });
+      }
+    } catch (_) {
+      // ignore
+    } finally {
+      if (mounted) {
+        setState(() => _loadingCustomTemplate = false);
+      }
+    }
   }
 
   Future<void> _checkInitialLimit() async {
@@ -211,7 +360,30 @@ class _CreatePageModalState extends State<CreatePageModal> {
 
       // 3. Apply template if not empty
       if (_selectedTemplateId != 'empty') {
-        builderCubit.applyTemplate(_selectedTemplateId);
+        if (_hardcodedTemplates.containsKey(_selectedTemplateId)) {
+          final customDesign = _hardcodedTemplates[_selectedTemplateId]!;
+          builderCubit.applyCustomDesign(customDesign);
+        } else {
+          final isBuiltIn = TemplateRegistry.availableTemplates.any((t) => t.id == _selectedTemplateId);
+          if (isBuiltIn) {
+            builderCubit.applyTemplate(_selectedTemplateId);
+          } else {
+            // Custom landing page UUID from DB
+            final pageData = await sl<DatabaseService>().getLandingPageById(_selectedTemplateId);
+            if (pageData != null) {
+              Map<String, dynamic> designMap = {'blocks': []};
+              final rawDesign = pageData['design_json'];
+              if (rawDesign != null) {
+                if (rawDesign is String) {
+                  designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
+                } else {
+                  designMap = Map<String, dynamic>.from(rawDesign as Map);
+                }
+              }
+              builderCubit.applyCustomDesign(designMap);
+            }
+          }
+        }
       }
 
       // 4. Save to database immediately
@@ -314,6 +486,78 @@ class _CreatePageModalState extends State<CreatePageModal> {
               ),
             ),
             SizedBox(height: 12),
+            if (_customTemplateName != null || _loadingCustomTemplate) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.dashboard_customize_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            loc.isRtl ? 'التصميم المستهدف الحالي:' : 'Current target design:',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          if (_loadingCustomTemplate)
+                            SizedBox(
+                              height: 12,
+                              width: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            )
+                          else
+                            Text(
+                              _customTemplateName ?? '',
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedTemplateId = 'empty';
+                          _customTemplateName = null;
+                          TenantRoutingService.pendingTemplateId = null;
+                        });
+                      },
+                      icon: Icon(
+                        Icons.delete_forever_rounded,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 18,
+                      ),
+                      tooltip: loc.isRtl ? 'إزالة الاختيار' : 'Remove template',
+                    ),
+                  ],
+                ),
+              ),
+            ],
             SizedBox(
               height: 120,
               child: ListView.separated(
@@ -324,8 +568,13 @@ class _CreatePageModalState extends State<CreatePageModal> {
                   final template = TemplateRegistry.availableTemplates[index];
                   final isSelected = _selectedTemplateId == template.id;
                   return GestureDetector(
-                    onTap: () =>
-                        setState(() => _selectedTemplateId = template.id),
+                    onTap: () {
+                      setState(() {
+                        _selectedTemplateId = template.id;
+                        _customTemplateName = null;
+                        TenantRoutingService.pendingTemplateId = null;
+                      });
+                    },
                     child: Container(
                       width: 100,
                       decoration: BoxDecoration(

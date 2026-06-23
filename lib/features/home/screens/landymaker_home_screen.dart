@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +23,7 @@ import '../widgets/home_footer.dart';
 import '../widgets/home_section_renderer.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/particles/cube_loader.dart';
+import '../../builder/models/landing_page_theme.dart';
 
 class LandyMakerHomeScreen extends StatefulWidget {
   const LandyMakerHomeScreen({super.key});
@@ -56,6 +58,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
   bool _burstTriggered = false;
 
   List<Map<String, dynamic>> _sections = [];
+  List<Map<String, dynamic>> _previewPages = [];
   bool _sectionsLoaded = false;
   late final bool _isThisTheFirstLoad;
 
@@ -139,11 +142,60 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
           _sections = sections;
           _sectionsLoaded = true;
         });
+
+        final heroConfig = _sectionConfig('hero');
+        final pageIds = heroConfig['preview_page_ids'];
+        if (pageIds is List && pageIds.isNotEmpty) {
+          final List<String> ids = pageIds.map((e) => e.toString()).toList();
+          _loadPreviewPages(ids);
+        }
       }
     } catch (_) {
       if (mounted) {
         setState(() => _sectionsLoaded = true);
       }
+    }
+  }
+
+  Future<void> _loadPreviewPages(List<String> ids) async {
+    try {
+      final dbPages = await sl<DatabaseService>().getLandingPagesByIds(ids);
+      final List<Map<String, dynamic>> parsedPages = [];
+      for (final p in dbPages) {
+        try {
+          Map<String, dynamic> designMap = {'blocks': []};
+          final rawDesign = p['design_json'];
+          if (rawDesign != null) {
+            if (rawDesign is String) {
+              designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
+            } else {
+              designMap = Map<String, dynamic>.from(rawDesign as Map);
+            }
+          }
+          final name = p['name'] as String? ?? p['subdomain'] as String? ?? 'بدون اسم';
+          final theme = designMap['theme'] != null
+              ? LandingPageTheme.fromJson(designMap['theme'])
+              : LandingPageTheme.palettes.last;
+          final blocks = designMap['blocks'] as List<dynamic>? ?? [];
+
+          parsedPages.add({
+            'id': p['id'] as String,
+            'name': name,
+            'theme': theme,
+            'blocks': blocks,
+          });
+        } catch (e) {
+          debugPrint("Error parsing homepage preview page: $e");
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _previewPages = parsedPages;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error loading homepage preview pages: $e");
     }
   }
 
@@ -718,6 +770,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                                 onGetStartedPressed: () =>
                                     context.go('/templates'),
                                 parentScrollController: _scrollController,
+                                previewPages: _previewPages,
                               ),
                             if (_isSectionVisible('features'))
                               VisibilityObserver(

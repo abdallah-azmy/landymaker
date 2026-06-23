@@ -14,6 +14,10 @@ import '../../../features/builder/controllers/builder_state.dart';
 import '../controllers/auth_cubit.dart';
 import '../controllers/auth_state.dart';
 import '../widgets/auth_layout_wrapper.dart';
+import '../../../injection_container.dart';
+import '../../../services/database_service.dart';
+import '../../../services/tenant_routing_service.dart';
+import '../../../features/builder/registries/template_registry.dart';
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback? onRegisterSuccess;
@@ -31,10 +35,60 @@ class _RegisterScreenState extends State<RegisterScreen> with WidgetsBindingObse
   final _passwordController = TextEditingController();
   bool _isGoogleLoading = false;
 
+  String? _pendingTemplateName;
+  bool _loadingPendingTemplate = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _resolvePendingTemplate();
+  }
+
+  Future<void> _resolvePendingTemplate() async {
+    final pendingId = TenantRoutingService.pendingTemplateId;
+    if (pendingId == null) return;
+
+    // Check built-in templates first
+    final builtIn = TemplateRegistry.availableTemplates.firstWhere(
+      (t) => t.id == pendingId,
+      orElse: () => const TemplateMetadata(id: '', name: '', description: '', imageUrl: ''),
+    );
+    if (builtIn.id.isNotEmpty) {
+      setState(() {
+        _pendingTemplateName = builtIn.name;
+      });
+      return;
+    }
+
+    // Check hardcoded home preview page names
+    if (pendingId == 'midnight_ocean') {
+      setState(() => _pendingTemplateName = 'Midnight Ocean');
+      return;
+    } else if (pendingId == 'lux_earth') {
+      setState(() => _pendingTemplateName = 'Lux-Earth');
+      return;
+    } else if (pendingId == 'butter_sky') {
+      setState(() => _pendingTemplateName = 'Butter & Sky');
+      return;
+    }
+
+    // Otherwise, fetch from Supabase
+    setState(() => _loadingPendingTemplate = true);
+    try {
+      final page = await sl<DatabaseService>().getLandingPageById(pendingId);
+      if (page != null && mounted) {
+        setState(() {
+          _pendingTemplateName = page['name'] as String? ?? page['subdomain'] as String? ?? 'تصميم مخصص';
+        });
+      }
+    } catch (_) {
+      // ignore
+    } finally {
+      if (mounted) {
+        setState(() => _loadingPendingTemplate = false);
+      }
+    }
   }
 
   void _handleRegister(BuildContext context) {
@@ -179,6 +233,83 @@ class _RegisterScreenState extends State<RegisterScreen> with WidgetsBindingObse
     super.dispose();
   }
 
+  Widget _buildPendingTemplateWidget(BuildContext context) {
+    if (TenantRoutingService.pendingTemplateId == null) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    final loc = context.read<LocalizationCubit>();
+    final isArabic = loc.isRtl;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.dashboard_customize_rounded,
+            color: theme.colorScheme.primary,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isArabic ? 'القالب المختار لصفحتك:' : 'Selected Template:',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                if (_loadingPendingTemplate)
+                  SizedBox(
+                    height: 14,
+                    width: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: theme.colorScheme.primary,
+                    ),
+                  )
+                else
+                  Text(
+                    _pendingTemplateName ?? '',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: () {
+              setState(() {
+                TenantRoutingService.pendingTemplateId = null;
+                _pendingTemplateName = null;
+              });
+            },
+            icon: Icon(
+              Icons.delete_forever_rounded,
+              color: theme.colorScheme.error,
+              size: 20,
+            ),
+            tooltip: isArabic ? 'إزالة الاختيار' : 'Remove template',
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AuthLayoutWrapper(
@@ -229,6 +360,7 @@ class _RegisterScreenState extends State<RegisterScreen> with WidgetsBindingObse
                   ),
                 ),
                 const SizedBox(height: 32),
+                _buildPendingTemplateWidget(context),
 
                 // Google Sign-In Button (appears FIRST)
                 SocialSignInButton(

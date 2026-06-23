@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/blur_effect.dart';
@@ -10,6 +11,9 @@ import '../../public_viewer/widgets/section_renderer.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../builder/widgets/modals/ai_chat_modal.dart';
 import '../models/home_layouts.dart';
+import '../../../services/tenant_routing_service.dart';
+import '../../auth/controllers/auth_cubit.dart';
+import '../../auth/controllers/auth_state.dart';
 
 /// Pixabay background image used in the [HeroLayout.fullWidthImage] layout.
 const _kHeroBgImage =
@@ -24,6 +28,7 @@ class HomeHeroSection extends StatefulWidget {
   final String? subtitle;
   final String? ctaText;
   final List<String>? typewriterTexts;
+  final List<Map<String, dynamic>>? previewPages;
 
   const HomeHeroSection({
     super.key,
@@ -35,6 +40,7 @@ class HomeHeroSection extends StatefulWidget {
     this.subtitle,
     this.ctaText,
     this.typewriterTexts,
+    this.previewPages,
   });
 
   @override
@@ -54,8 +60,14 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
         "متجر إلكتروني لمنتجاتك الخاصة",
       ];
 
-  final List<Map<String, dynamic>> _previewPages = [
+  List<Map<String, dynamic>> get _previewPages =>
+      widget.previewPages != null && widget.previewPages!.isNotEmpty
+          ? widget.previewPages!
+          : _hardcodedPreviewPages;
+
+  final List<Map<String, dynamic>> _hardcodedPreviewPages = [
     {
+      'id': 'midnight_ocean',
       'name': 'Midnight Ocean',
       'theme': LandingPageTheme(
         primary: Color(0xFF3B82F6),
@@ -93,6 +105,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
       ],
     },
     {
+      'id': 'lux_earth',
       'name': 'Lux-Earth',
       'theme': LandingPageTheme(
         primary: Color(0xFFD97706),
@@ -130,6 +143,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
       ],
     },
     {
+      'id': 'butter_sky',
       'name': 'Butter & Sky',
       'theme': LandingPageTheme(
         primary: Color(0xFF0EA5E9),
@@ -1010,6 +1024,62 @@ class _PhonePreviewState extends State<_PhonePreview> {
     });
   }
 
+  Widget _buildUseDesignButton(BuildContext context) {
+    final theme = Theme.of(context);
+    final currentPage = widget.previewPages[_activePreviewIndex];
+    final pageId = currentPage['id']?.toString() ?? '';
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          TenantRoutingService.pendingTemplateId = pageId;
+          final authState = context.read<AuthCubit>().state;
+          if (authState is Authenticated) {
+            context.go('/dashboard');
+          } else {
+            context.go('/register');
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.bolt_rounded,
+                color: theme.colorScheme.onPrimary,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'استخدم هذا التصميم',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Dynamic sizing: mobile gets slightly smaller mockup to leave comfortable scroll margins on sides
@@ -1246,6 +1316,14 @@ class _PhonePreviewState extends State<_PhonePreview> {
                             );
                           }),
                         ),
+                      ),
+
+                      // Use This Design floating button
+                      Positioned(
+                        bottom: 40,
+                        left: 20,
+                        right: 20,
+                        child: _buildUseDesignButton(context),
                       ),
                     ],
                   ),

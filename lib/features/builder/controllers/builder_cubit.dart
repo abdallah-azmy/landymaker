@@ -1052,6 +1052,29 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     importTemplateAssets(sl<UploadManagerCubit>());
   }
 
+  void applyCustomDesign(Map<String, dynamic> customDesign) {
+    final currentState = state;
+    if (currentState is! BuilderLoaded) return;
+
+    final blocksRaw = customDesign['blocks'] as List<dynamic>? ?? [];
+    final themeRaw = customDesign['theme'] as Map<String, dynamic>? ?? {};
+
+    final newDesign = {'blocks': blocksRaw};
+    final newTheme = LandingPageTheme.fromJson(themeRaw);
+
+    _themeCubit.replaceTheme(newTheme);
+    _emitDirty(
+      currentState.copyWith(
+        designMap: newDesign,
+        theme: newTheme,
+        successMessage: "تم تطبيق التصميم المخصص بنجاح!",
+      ),
+    );
+
+    // Automatically trigger import of external assets into user's account
+    importTemplateAssets(sl<UploadManagerCubit>());
+  }
+
   void addBlock(String type, {Map<String, dynamic>? presetOverrides}) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;

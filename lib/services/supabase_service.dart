@@ -284,6 +284,21 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getLandingPagesByIds(List<String> pageIds) async {
+    try {
+      if (pageIds.isEmpty) return [];
+      final response = await _client!
+          .from(DbConstants.landingPagesTable)
+          .select()
+          .inFilter('id', pageIds);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint("Error fetching landing pages by IDs: $e");
+      return [];
+    }
+  }
+
+
   Future<Map<String, dynamic>?> getLandingPageByDomain(
     String domain, {
     bool isCustom = false,

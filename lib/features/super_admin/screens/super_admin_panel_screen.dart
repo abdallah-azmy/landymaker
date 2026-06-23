@@ -19,6 +19,7 @@ import '../controllers/homepage_editor_cubit.dart';
 import 'homepage_editor_screen.dart';
 import '../widgets/bulk_action_bar.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 
 class SuperAdminPanelScreen extends StatefulWidget {
   const SuperAdminPanelScreen({super.key});
@@ -145,24 +146,28 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
           Tab(text: "Landing Pages", icon: Icon(Icons.web_asset_rounded)),
         ],
       ),
-      body: state is SuperAdminLoaded
-          ? TabBarView(
-              controller: _tabController,
-              children: [
-                _buildUsersTab(state),
-                _buildPlansTab(state),
-                _buildSecurityTab(state),
-                _buildAuditTab(state),
-                _buildStatsTab(state),
-                _buildPaymentsTab(state),
-                _buildAffiliatesTab(state),
-                _buildTemplatesTab(state),
-                _buildBroadcastTab(state),
-                _buildHomepageTab(),
-                _buildLandingPagesTab(state),
-              ],
-            )
-          : const Center(child: LoadingLogo()),
+      body: CubeRefreshIndicator(
+        color: Theme.of(context).colorScheme.primary,
+        onRefresh: () => context.read<SuperAdminCubit>().fetchAdminMetrics(),
+        child: state is SuperAdminLoaded
+            ? TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildUsersTab(state),
+                  _buildPlansTab(state),
+                  _buildSecurityTab(state),
+                  _buildAuditTab(state),
+                  _buildStatsTab(state),
+                  _buildPaymentsTab(state),
+                  _buildAffiliatesTab(state),
+                  _buildTemplatesTab(state),
+                  _buildBroadcastTab(state),
+                  _buildHomepageTab(),
+                  _buildLandingPagesTab(state),
+                ],
+              )
+            : const Center(child: LoadingLogo()),
+      ),
       ),
     );
   }

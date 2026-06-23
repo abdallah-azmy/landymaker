@@ -7,6 +7,7 @@ import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/responsive/responsive_layout.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 import '../../../core/utils/file_utils.dart';
 import '../../../core/utils/toast_service.dart';
 import '../controllers/media_gallery_cubit.dart';
@@ -55,15 +56,19 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
             }
           }
         },
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(ResponsiveUtils.getPadding(context)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(loc, isMobile),
-              SizedBox(height: 32),
-              _buildGalleryContent(loc, isMobile),
-            ],
+        child: CubeRefreshIndicator(
+          color: Theme.of(context).colorScheme.primary,
+          onRefresh: () => context.read<MediaGalleryCubit>().loadImages(),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(ResponsiveUtils.getPadding(context)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(loc, isMobile),
+                SizedBox(height: 32),
+                _buildGalleryContent(loc, isMobile),
+              ],
+            ),
           ),
         ),
       ),

@@ -6,6 +6,7 @@ import '../../../core/localization/localization_cubit.dart';
 import '../../../core/responsive/responsive_utils.dart';
 import '../../../core/widgets/molecules/page_context_banner.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 import '../controllers/notification_cubit.dart';
 import '../controllers/notification_state.dart';
 
@@ -56,9 +57,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final cubit = context.watch<NotificationCubit>();
     final state = cubit.state;
 
-    return Padding(
-      padding: EdgeInsets.all(ResponsiveUtils.getPadding(context)),
-      child: Column(
+    return CubeRefreshIndicator(
+      color: Theme.of(context).colorScheme.primary,
+      onRefresh: () => cubit.fetchNotifications(),
+      child: Padding(
+        padding: EdgeInsets.all(ResponsiveUtils.getPadding(context)),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -273,6 +277,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

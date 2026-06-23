@@ -6,6 +6,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 import '../../../services/database_service.dart';
 import '../../../services/tenant_routing_service.dart';
 import '../../../injection_container.dart';
@@ -112,28 +113,32 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         ),
         centerTitle: true,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final bool isMobile = constraints.maxWidth < 600;
-          final bool isDesktop = constraints.maxWidth >= 900;
+      body: CubeRefreshIndicator(
+        color: Theme.of(context).colorScheme.primary,
+        onRefresh: _loadTemplates,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isMobile = constraints.maxWidth < 600;
+            final bool isDesktop = constraints.maxWidth >= 900;
 
-          if (isDesktop) {
-            return _TemplatePickerDesktop(
+            if (isDesktop) {
+              return _TemplatePickerDesktop(
+                categories: _categories,
+                selectedCategory: _selectedCategory,
+                filteredTemplates: _filteredTemplates,
+                onCategorySelected: _onCategorySelected,
+              );
+            }
+
+            return _TemplatePickerMobile(
               categories: _categories,
               selectedCategory: _selectedCategory,
               filteredTemplates: _filteredTemplates,
               onCategorySelected: _onCategorySelected,
+              isMobile: isMobile,
             );
-          }
-
-          return _TemplatePickerMobile(
-            categories: _categories,
-            selectedCategory: _selectedCategory,
-            filteredTemplates: _filteredTemplates,
-            onCategorySelected: _onCategorySelected,
-            isMobile: isMobile,
-          );
-        },
+          },
+        ),
       ),
     );
   }

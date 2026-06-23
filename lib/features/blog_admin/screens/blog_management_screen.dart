@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' as intl;
 import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 import '../controllers/blog_cubit.dart';
 import '../controllers/blog_state.dart';
 import 'blog_editor_screen.dart';
@@ -40,7 +41,10 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
       ),
       body: BlocBuilder<BlogCubit, BlogState>(
         builder: (context, state) {
-          return CustomScrollView(
+          return CubeRefreshIndicator(
+            color: Theme.of(context).colorScheme.primary,
+            onRefresh: () => context.read<BlogCubit>().loadBlogData(),
+            child: CustomScrollView(
             slivers: [
               SliverAppBar(
                 expandedHeight: 160.0,
@@ -241,10 +245,11 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                   ),
                 ),
             ],
-          );
-        },
-      ),
-    );
+          ),
+        );
+      },
+    ),
+  );
   }
 
   void _showDeleteDialog(BuildContext context, String postId, String postTitle) {

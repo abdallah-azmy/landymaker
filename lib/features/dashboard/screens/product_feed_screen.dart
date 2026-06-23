@@ -15,6 +15,7 @@ import '../controllers/landing_pages_state.dart';
 import '../../../core/widgets/molecules/page_context_banner.dart';
 import '../widgets/empty_workspace_state.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
+import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
 
 class ProductFeedScreen extends StatelessWidget {
   const ProductFeedScreen({super.key});
@@ -37,34 +38,42 @@ class ProductFeedScreen extends StatelessWidget {
         final bool isLoadingAccess =
             snapshot.connectionState == ConnectionState.waiting;
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Product Feed Sync", style: AppTypography.h1),
-              const SizedBox(height: 8),
-              Text(
-                "Sync your products automatically with Google Shopping, Facebook, and Instagram.",
-                style: AppTypography.bodyLarge.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+        return CubeRefreshIndicator(
+          color: Theme.of(context).colorScheme.primary,
+          onRefresh: () async {
+            // Refresh logic: re-fetch subscription status and page data
+            final pagesCubit = context.read<LandingPagesCubit>();
+            pagesCubit.loadPages();
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Product Feed Sync", style: AppTypography.h1),
+                const SizedBox(height: 8),
+                Text(
+                  "Sync your products automatically with Google Shopping, Facebook, and Instagram.",
+                  style: AppTypography.bodyLarge.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              const PageContextBanner(
-                title: "مزامنة المنتجات (Product Feed)",
-                description: "التحكم في مزامنة منتجات متجرك الإلكتروني الحالي مع المنصات الإعلانية مثل Google و Facebook.",
-                icon: Icons.rss_feed_rounded,
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
+                const PageContextBanner(
+                  title: "مزامنة المنتجات (Product Feed)",
+                  description: "التحكم في مزامنة منتجات متجرك الإلكتروني الحالي مع المنصات الإعلانية مثل Google و Facebook.",
+                  icon: Icons.rss_feed_rounded,
+                ),
+                const SizedBox(height: 24),
 
-              if (isLoadingAccess)
-                const Center(child: LoadingLogo())
-              else if (!hasPremiumAccess)
-                _buildUpgradeRequiredState(context, loc)
-              else
-                _buildFeedContent(context),
-            ],
+                if (isLoadingAccess)
+                  const Center(child: LoadingLogo())
+                else if (!hasPremiumAccess)
+                  _buildUpgradeRequiredState(context, loc)
+                else
+                  _buildFeedContent(context),
+              ],
+            ),
           ),
         );
       },

@@ -345,7 +345,7 @@ class _CubeLoaderPainter extends CustomPainter {
 
   // ---- Per-instance scratch buffers (safe for concurrent painters) ----
   final List<List<double>> _tv = List.generate(8, (_) => [0.0, 0.0, 0.0]);
-  static final List<double> _nv = [0.0, 0.0, 0.0];
+  final List<double> _nv = [0.0, 0.0, 0.0];
   final List<Offset> _quadPts = List.filled(4, Offset.zero);
 
   // ---- Preallocated face buffer (zero-allocation in paint loop) ----
@@ -353,12 +353,12 @@ class _CubeLoaderPainter extends CustomPainter {
   final List<int> _sortKeys = List.generate(162, (i) => i);
   int _faceCount = 0;
 
-  static final Paint _fillPaint = Paint()..style = PaintingStyle.fill;
-  static final Paint _strokePaint = Paint()
+  final Paint _fillPaint = Paint()..style = PaintingStyle.fill;
+  final Paint _strokePaint = Paint()
     ..style = PaintingStyle.stroke
     ..strokeCap = StrokeCap.round
     ..strokeJoin = StrokeJoin.round;
-  static final Paint _glowPaint = Paint()
+  final Paint _glowPaint = Paint()
     ..style = PaintingStyle.stroke
     ..strokeCap = StrokeCap.round
     ..strokeJoin = StrokeJoin.round;
@@ -517,11 +517,17 @@ class _CubeLoaderPainter extends CustomPainter {
   void _paintSingle(Canvas canvas, Size size, cg.RotationMatrix rot) {
     final h = size.width * 0.3;
     final cornerRadius = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
-    final strokeWidth = (h * 0.06).clamp(0.8, 2.5);
+    final strokeWidth = (h * 0.12).clamp(1.2, 2.5);
     final px = size.width * 0.5;
     final py = size.height * 0.5;
 
     _faceCount = 0;
+    // Multi-axis rotation at different speeds for a random-looking tumble
+    final singleRot = cg.computeRotation(
+      _rx + rotationAngle * 1.4,
+      _baseRy + rotationAngle * 0.7,
+      rotationAngle * 0.5,
+    );
     _renderCubeFaces(
       centerX: px,
       centerY: py,
@@ -531,7 +537,7 @@ class _CubeLoaderPainter extends CustomPainter {
       scaleY: 1,
       scaleZ: 1,
       cornerRadius: cornerRadius,
-      rot: rot,
+      rot: singleRot,
     );
 
     _drawFaces(canvas, _faceCount, strokeWidth, cubeColor);
@@ -898,8 +904,7 @@ class _CubeLoaderPainter extends CustomPainter {
   }
 
   Color _strokeColor() {
-    if (isHovered) return primaryColor.withValues(alpha: 0.9);
-    return primaryColor.withValues(alpha: 0.6);
+    return primaryColor;
   }
 
   double _faceBrightness(int faceIdx, cg.RotationMatrix rot) {

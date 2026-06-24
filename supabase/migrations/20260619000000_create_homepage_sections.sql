@@ -14,10 +14,12 @@ CREATE TABLE IF NOT EXISTS public.homepage_sections (
 ALTER TABLE public.homepage_sections ENABLE ROW LEVEL SECURITY;
 
 -- Public can read visible sections
+DROP POLICY IF EXISTS "Allow public read access for visible sections" ON public.homepage_sections;
 CREATE POLICY "Allow public read access for visible sections"
 ON public.homepage_sections FOR SELECT USING (is_visible = true);
 
 -- Only super_admin can manage sections
+DROP POLICY IF EXISTS "Allow super_admin full access" ON public.homepage_sections;
 CREATE POLICY "Allow super_admin full access"
 ON public.homepage_sections
 FOR ALL

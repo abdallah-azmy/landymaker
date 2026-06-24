@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:landymaker/core/widgets/particles/cube_mode_cubit.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -45,6 +46,23 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
             ? (config?['cta_text_ar'] as String?)
             : (config?['cta_text_en'] as String?);
 
+        final logoText = context.isRtl
+            ? (config?['logo_text_ar'] as String?)
+            : (config?['logo_text_en'] as String?);
+
+        final primaryLinks = context.isRtl
+            ? (config?['primary_links_ar'])
+            : (config?['primary_links_en']);
+
+        final linksList = (primaryLinks as List<dynamic>?) ?? [];
+        final List<Map<String, String>> parsedLinks = linksList.map((e) {
+          final m = e as Map<String, dynamic>;
+          return {
+            'label': (m['label'] as String? ?? ''),
+            'path': (m['path'] as String? ?? ''),
+          };
+        }).toList();
+
         if (isMobile) {
           return _MobileNavbar(
             isLoggedIn: isLoggedIn,
@@ -54,6 +72,8 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
             showLogin: config?['show_login'] as bool? ?? true,
             cubeCount: cubeCount,
             onPreviewTapped: onPreviewTapped,
+            logoText: logoText,
+            parsedLinks: parsedLinks,
           );
         }
 
@@ -65,6 +85,8 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
           showLogin: config?['show_login'] as bool? ?? true,
           cubeCount: cubeCount,
           onPreviewTapped: onPreviewTapped,
+          logoText: logoText,
+          parsedLinks: parsedLinks,
         );
       },
     );
@@ -80,6 +102,8 @@ class _DesktopNavbar extends StatelessWidget {
   final bool showLogin;
   final ValueNotifier<int>? cubeCount;
   final VoidCallback? onPreviewTapped;
+  final String? logoText;
+  final List<Map<String, String>> parsedLinks;
 
   const _DesktopNavbar({
     required this.isLoggedIn,
@@ -89,6 +113,8 @@ class _DesktopNavbar extends StatelessWidget {
     this.showLogin = true,
     this.cubeCount,
     this.onPreviewTapped,
+    this.logoText,
+    required this.parsedLinks,
   });
 
   @override
@@ -110,43 +136,46 @@ class _DesktopNavbar extends StatelessWidget {
         child: SizedBox(
           height: 70,
           child: Padding(
-            padding: const EdgeInsetsDirectional.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 64,
               vertical: 12,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _LogoSection(),
+                _LogoSection(logoText: logoText),
+                
+                // Primary Links (Desktop)
+                if (parsedLinks.isNotEmpty)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: parsedLinks.map((link) {
+                      final label = link['label'] ?? '';
+                      final path = link['path'] ?? '';
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        child: TextButton(
+                          onPressed: () {
+                            if (path.startsWith('http://') || path.startsWith('https://')) {
+                              launchUrl(Uri.parse(path));
+                            } else {
+                              context.go(path);
+                            }
+                          },
+                          child: Text(
+                            label,
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
                 Row(
                   children: [
-                    // if (cubeCount != null)
-                    //   BlocBuilder<CubeModeCubit, CubeMode>(
-                    //     builder: (context, mode) {
-                    //       if (mode == CubeMode.merge) {
-                    //         return Padding(
-                    //           padding: const EdgeInsetsDirectional.only(
-                    //             end: 6,
-                    //           ),
-                    //           child: ValueListenableBuilder<int>(
-                    //             valueListenable: cubeCount!,
-                    //             builder: (context, count, _) {
-                    //               return Text(
-                    //                 '$count',
-                    //                 style: AppTypography.bodyMedium.copyWith(
-                    //                   color: Theme.of(
-                    //                     context,
-                    //                   ).colorScheme.primary,
-                    //                   fontWeight: FontWeight.bold,
-                    //                 ),
-                    //               );
-                    //             },
-                    //           ),
-                    //         );
-                    //       }
-                    //       return const SizedBox.shrink();
-                    //     },
-                    //   ),
                     if (onPreviewTapped != null)
                       IconButton(
                         tooltip: 'وضع استعراض المكعبات',
@@ -230,6 +259,8 @@ class _MobileNavbar extends StatelessWidget {
   final bool showLogin;
   final ValueNotifier<int>? cubeCount;
   final VoidCallback? onPreviewTapped;
+  final String? logoText;
+  final List<Map<String, String>> parsedLinks;
 
   const _MobileNavbar({
     required this.isLoggedIn,
@@ -239,6 +270,8 @@ class _MobileNavbar extends StatelessWidget {
     this.showLogin = true,
     this.cubeCount,
     this.onPreviewTapped,
+    this.logoText,
+    required this.parsedLinks,
   });
 
   @override
@@ -260,7 +293,7 @@ class _MobileNavbar extends StatelessWidget {
         child: SizedBox(
           height: 70,
           child: Padding(
-            padding: const EdgeInsetsDirectional.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 24,
               vertical: 12,
             ),
@@ -270,7 +303,7 @@ class _MobileNavbar extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _LogoSection(),
+                    _LogoSection(logoText: logoText),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -320,6 +353,7 @@ class _MobileNavbar extends StatelessWidget {
                           userEmail: userEmail,
                           showLogin: showLogin,
                           ctaText: ctaText,
+                          parsedLinks: parsedLinks,
                         ),
                       ],
                     ),
@@ -339,12 +373,14 @@ class _MobileMenuPopup extends StatelessWidget {
   final String userEmail;
   final bool showLogin;
   final String? ctaText;
+  final List<Map<String, String>> parsedLinks;
 
   const _MobileMenuPopup({
     required this.isLoggedIn,
     required this.userEmail,
     required this.showLogin,
     this.ctaText,
+    required this.parsedLinks,
   });
 
   @override
@@ -414,6 +450,45 @@ class _MobileMenuPopup extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Primary Links (Mobile Popup)
+                        if (parsedLinks.isNotEmpty) ...[
+                          ...parsedLinks.map((link) {
+                            final label = link['label'] ?? '';
+                            final path = link['path'] ?? '';
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    if (path.startsWith('http://') || path.startsWith('https://')) {
+                                      launchUrl(Uri.parse(path));
+                                    } else {
+                                      context.go(path);
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.link_rounded, size: 22, color: Theme.of(context).colorScheme.primary),
+                                        const SizedBox(width: 16),
+                                        Text(
+                                          label,
+                                          style: AppTypography.bodyMedium.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                              ],
+                            );
+                          }),
+                        ],
                         if (isLoggedIn) ...[
                           Padding(
                             padding: const EdgeInsets.all(20),
@@ -557,6 +632,10 @@ class _MobileMenuPopup extends StatelessWidget {
 
 /// Shared Logo section for both layouts.
 class _LogoSection extends StatelessWidget {
+  final String? logoText;
+
+  const _LogoSection({this.logoText});
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -564,7 +643,34 @@ class _LogoSection extends StatelessWidget {
       children: [
         Image.asset('assets/images/logo_small.webp', height: 38, width: 38),
         const SizedBox(width: 10),
-        const LandyMakerLogo(fontSize: 22),
+        if (logoText != null && logoText!.isNotEmpty)
+          InkWell(
+            onTap: () {
+              try {
+                final authState = context.read<AuthCubit>().state;
+                if (authState is Authenticated) {
+                  context.go('/dashboard');
+                  return;
+                }
+              } catch (_) {}
+              context.go('/');
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                logoText!,
+                style: AppTypography.h3.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 22,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ),
+          )
+        else
+          const LandyMakerLogo(fontSize: 22),
       ],
     );
   }

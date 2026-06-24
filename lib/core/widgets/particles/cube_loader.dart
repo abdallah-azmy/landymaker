@@ -433,6 +433,8 @@ class _CubeLoaderPainter extends CustomPainter {
 
     switch (variant) {
       case CubeLoaderVariant.logo:
+        _paintPremiumCornerAxis(canvas, size);
+        break;
       case CubeLoaderVariant.logoPremiumCornerAxis:
         _paintPremiumCornerAxis(canvas, size);
         break;
@@ -907,7 +909,9 @@ class _CubeLoaderPainter extends CustomPainter {
     for (int ix = 0; ix < n; ix++) {
       for (int iy = 0; iy < n; iy++) {
         for (int iz = 0; iz < n; iz++) {
-          final dist = sqrt((ix - 1) * (ix - 1) + (iy - 1) * (iy - 1) + (iz - 1) * (iz - 1));
+          final dist = sqrt(
+            (ix - 1) * (ix - 1) + (iy - 1) * (iy - 1) + (iz - 1) * (iz - 1),
+          );
           final phase = dist * 0.7 - animValue * 2 * pi;
           final wave = sin(phase);
           final scale = 0.6 + (wave + 1.0) * 0.2;
@@ -1067,7 +1071,8 @@ class _CubeLoaderPainter extends CustomPainter {
         final angle = i * 2 * pi / nCubes + animValue * 2 * pi * sign;
         final cX = radius * cos(angle);
         final cY = radius * sin(angle);
-        final cZ = zOffset + sin(angle * 2 + animValue * 2 * pi) * size.width * 0.05;
+        final cZ =
+            zOffset + sin(angle * 2 + animValue * 2 * pi) * size.width * 0.05;
         final wave = sin(animValue * 2 * pi - i * 1.0);
         final scale = 0.6 + (wave + 1.0) * 0.2;
 
@@ -1151,13 +1156,16 @@ class _CubeLoaderPainter extends CustomPainter {
 
           double y1 = cY * rot.cxR - cZ * rot.sxR;
           double z1 = cY * rot.sxR + cZ * rot.cxR;
-          cY = y1; cZ = z1;
+          cY = y1;
+          cZ = z1;
           double x1 = cX * rot.cyR + cZ * rot.syR;
           double z2 = -cX * rot.syR + cZ * rot.cyR;
-          cX = x1; cZ = z2;
+          cX = x1;
+          cZ = z2;
           double x2 = cX * rot.czR - cY * rot.szR;
           double y2 = cX * rot.szR + cY * rot.czR;
-          cX = x2; cY = y2;
+          cX = x2;
+          cY = y2;
 
           final centerX = px + cX;
           final centerY = py - cY;
@@ -1179,8 +1187,16 @@ class _CubeLoaderPainter extends CustomPainter {
       }
     }
 
-    final strokeColor = isDark ? const Color(0xFF334155) : const Color(0xFF0F172A);
-    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor, strokeColor: strokeColor);
+    final strokeColor = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFF0F172A);
+    _drawFaces(
+      canvas,
+      _faceCount,
+      strokeWidth,
+      cubeColor,
+      strokeColor: strokeColor,
+    );
   }
 
   void _paintPremiumCornerAxis(Canvas canvas, Size size) {
@@ -1206,7 +1222,7 @@ class _CubeLoaderPainter extends CustomPainter {
     const double baseRx = 0.7853981633974483; // pi / 4
     const double baseRy = 0.6154797086703873; // asin(1 / sqrt(3))
     const double cornerRz = 0.5235987755982988; // pi / 6
-    
+
     final cornerRot = cg.computeRotation(baseRx, baseRy, cornerRz);
     _lightRot = cornerRot;
 
@@ -1230,7 +1246,7 @@ class _CubeLoaderPainter extends CustomPainter {
           // Project the 3D center to 2D screen space using the camera matrix
           final projected = <double>[0.0, 0.0, 0.0];
           cg.rotatePoint(rotated, cornerRot, projected);
-          
+
           cubes.add((ix, iy, iz, projected));
         }
       }
@@ -1266,7 +1282,13 @@ class _CubeLoaderPainter extends CustomPainter {
       );
 
       // VERY IMPORTANT: logoPremiumCornerAxis MUST use primaryColor for strokes and glows.
-      _drawFaces(canvas, _faceCount, strokeWidth, cubeColor, strokeColor: primaryColor);
+      _drawFaces(
+        canvas,
+        _faceCount,
+        strokeWidth,
+        cubeColor,
+        strokeColor: primaryColor,
+      );
     }
   }
 
@@ -1313,8 +1335,16 @@ class _CubeLoaderPainter extends CustomPainter {
       }
     }
 
-    final strokeColor = isDark ? const Color(0xFF334155) : const Color(0xFF0F172A);
-    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor, strokeColor: strokeColor);
+    final strokeColor = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFF0F172A);
+    _drawFaces(
+      canvas,
+      _faceCount,
+      strokeWidth,
+      cubeColor,
+      strokeColor: strokeColor,
+    );
   }
 
   /// Insertion sort on [_sortKeys] using face depths.
@@ -1355,7 +1385,11 @@ class _CubeLoaderPainter extends CustomPainter {
       final vIn = cg.cubeVerts[v];
       cg.rotatePointAxis(
         [vIn[0] * h * scaleX, vIn[1] * h * scaleY, vIn[2] * h * scaleZ],
-        bodyAx, bodyAy, bodyAz, bodyAngle, _bodyV,
+        bodyAx,
+        bodyAy,
+        bodyAz,
+        bodyAngle,
+        _bodyV,
       );
       cg.rotatePoint(_bodyV, rot, _tv[v]);
       _tv[v][2] += cZ;
@@ -1393,9 +1427,7 @@ class _CubeLoaderPainter extends CustomPainter {
       fd.path = rPath;
       fd.faceIdx = f;
       fd.ao = ao;
-      fd.bodyNormal = bodyAngle != 0
-          ? [_bodyN[0], _bodyN[1], _bodyN[2]]
-          : null;
+      fd.bodyNormal = bodyAngle != 0 ? [_bodyN[0], _bodyN[1], _bodyN[2]] : null;
     }
   }
 
@@ -1419,7 +1451,11 @@ class _CubeLoaderPainter extends CustomPainter {
     for (int fi = 0; fi < count; fi++) {
       final face = _faceBuffer[_sortKeys[fi]];
       final rot = _lightRot ?? cg.computeRotation(_rx, _baseRy, 0.0);
-      final lBright = _faceBrightness(face.faceIdx, rot, bodyNormal: face.bodyNormal);
+      final lBright = _faceBrightness(
+        face.faceIdx,
+        rot,
+        bodyNormal: face.bodyNormal,
+      );
       var brightness = lBright * face.ao;
 
       if (state == CubeLoaderState.loading) {
@@ -1462,7 +1498,11 @@ class _CubeLoaderPainter extends CustomPainter {
     return primaryColor;
   }
 
-  double _faceBrightness(int faceIdx, cg.RotationMatrix rot, {List<double>? bodyNormal}) {
+  double _faceBrightness(
+    int faceIdx,
+    cg.RotationMatrix rot, {
+    List<double>? bodyNormal,
+  }) {
     final n = bodyNormal ?? cg.cubeNormals[faceIdx];
     cg.rotatePoint(n, rot, _nv);
     return cg.lambertBrightness(_nv[0], _nv[1], _nv[2]);

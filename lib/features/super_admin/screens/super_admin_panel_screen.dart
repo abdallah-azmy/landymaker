@@ -13,6 +13,7 @@ import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
 import '../../builder/registries/template_registry.dart';
 import '../../../services/supabase_service.dart';
+import '../../../services/auth_service.dart';
 import '../controllers/super_admin_cubit.dart';
 import '../controllers/super_admin_state.dart';
 import '../controllers/homepage_editor_cubit.dart';
@@ -1292,7 +1293,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                   PrimaryButton(
                     text: "Add Template",
                     width: 160,
-                    onPressed: () => _showTemplateEditorDialog(null),
+                    onPressed: () => _showTemplateEditorDialog(state, null),
                   ),
                 ],
               ),
@@ -1335,7 +1336,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
                     IconButton(
                       icon: Icon(Icons.edit_rounded, size: 18, color: Theme.of(context).colorScheme.secondary),
                       tooltip: "Edit",
-                      onPressed: () => _showTemplateEditorDialog(t),
+                      onPressed: () => _showTemplateEditorDialog(state, t),
                     ),
                     IconButton(
                       icon: Icon(
@@ -1419,7 +1420,7 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     }
   }
 
-  void _showTemplateEditorDialog(Map<String, dynamic>? existing) {
+  void _showTemplateEditorDialog(SuperAdminLoaded state, Map<String, dynamic>? existing) {
     final isEditing = existing != null;
     final idController = TextEditingController(text: existing?['id'] ?? '');
     final nameController = TextEditingController(text: existing?['name'] ?? '');
@@ -1427,6 +1428,8 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
     final imageUrlController = TextEditingController(text: existing?['image_url'] ?? '');
     final categoryController = TextEditingController(text: existing?['category'] ?? 'general');
     final aiHintController = TextEditingController(text: existing?['ai_prompt_hint'] ?? '');
+
+    final personalPages = state.pages.where((p) => p['user_id'] == di.sl<AuthService>().currentUserId).toList();
 
     String designJsonText = '';
     if (existing?['design_json'] != null) {
@@ -1457,6 +1460,53 @@ class _SuperAdminPanelScreenState extends State<SuperAdminPanelScreen>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (!isEditing && personalPages.isNotEmpty) ...[
+                  Text(
+                    "نسخ من صفحة هبوط شخصية (Clone from Page)",
+                    style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<Map<String, dynamic>>(
+                        isExpanded: true,
+                        hint: const Text("اختر صفحة لنسخها كقالب (Select page to clone)"),
+                        dropdownColor: Theme.of(context).colorScheme.surface,
+                        items: personalPages.map((page) {
+                          final subdomain = page['subdomain'] as String? ?? '';
+                          final name = page['name'] as String? ?? subdomain;
+                          return DropdownMenuItem<Map<String, dynamic>>(
+                            value: page,
+                            child: Text(name),
+                          );
+                        }).toList(),
+                        onChanged: (page) {
+                          if (page == null) return;
+                          setDialogState(() {
+                            final rawSubdomain = page['subdomain'] as String? ?? '';
+                            idController.text = rawSubdomain.toLowerCase().replaceAll(RegExp(r'[^a-z0-9_-]'), '_');
+                            nameController.text = page['name'] as String? ?? rawSubdomain;
+                            descriptionController.text = page['description'] as String? ?? '';
+                            final dj = page['design_json'];
+                            if (dj is String) {
+                              designJsonController.text = dj;
+                            } else if (dj != null) {
+                              designJsonController.text = const JsonEncoder.withIndent('  ').convert(dj);
+                            } else {
+                              designJsonController.text = '{"blocks": []}';
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 CustomTextField(
                   controller: idController,
                   hintText: "Template ID (e.g. saas_startup)",

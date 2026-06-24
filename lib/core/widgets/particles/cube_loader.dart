@@ -1213,6 +1213,7 @@ class _CubeLoaderPainter extends CustomPainter {
     _faceCount = 0;
     _fillPaint.color = cubeColor;
 
+    final cubes = <(int, int, int, List<double>)>[];
     for (int ix = 0; ix < n; ix++) {
       for (int iy = 0; iy < n; iy++) {
         for (int iz = 0; iz < n; iz++) {
@@ -1226,33 +1227,47 @@ class _CubeLoaderPainter extends CustomPainter {
           final rotated = <double>[baseX, baseY, baseZ];
           cg.rotatePointAxis(rotated, bda, bda, -bda, rotAngle, rotated);
 
-          // CRITICAL FIX: Project the 3D center to 2D screen space using the camera matrix!
+          // Project the 3D center to 2D screen space using the camera matrix
           final projected = <double>[0.0, 0.0, 0.0];
           cg.rotatePoint(rotated, cornerRot, projected);
-
-          final ao = cg.ambientOcclusion(ix - 1, iy - 1, iz - 1);
-          _renderCubeFaces(
-            centerX: px + projected[0],
-            centerY: py - projected[1],
-            h: h,
-            cZ: projected[2],
-            scaleX: 1.0,
-            scaleY: 1.0,
-            scaleZ: 1.0,
-            cornerRadius: cornerRadius,
-            rot: cornerRot,
-            ao: ao,
-            bodyAx: bda,
-            bodyAy: bda,
-            bodyAz: -bda,
-            bodyAngle: rotAngle,
-          );
+          
+          cubes.add((ix, iy, iz, projected));
         }
       }
     }
 
-    // VERY IMPORTANT: logoPremiumCornerAxis MUST use primaryColor for strokes and glows.
-    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor, strokeColor: primaryColor);
+    // Sort cubes back-to-front by their projected Z depth
+    cubes.sort((a, b) => a.$4[2].compareTo(b.$4[2]));
+
+    final rotAngle = animValue * 2 * pi / 3;
+    for (final c in cubes) {
+      _faceCount = 0;
+      final ix = c.$1;
+      final iy = c.$2;
+      final iz = c.$3;
+      final projected = c.$4;
+
+      final ao = cg.ambientOcclusion(ix - 1, iy - 1, iz - 1);
+      _renderCubeFaces(
+        centerX: px + projected[0],
+        centerY: py - projected[1],
+        h: h,
+        cZ: projected[2],
+        scaleX: 1.0,
+        scaleY: 1.0,
+        scaleZ: 1.0,
+        cornerRadius: cornerRadius,
+        rot: cornerRot,
+        ao: ao,
+        bodyAx: bda,
+        bodyAy: bda,
+        bodyAz: -bda,
+        bodyAngle: rotAngle,
+      );
+
+      // VERY IMPORTANT: logoPremiumCornerAxis MUST use primaryColor for strokes and glows.
+      _drawFaces(canvas, _faceCount, strokeWidth, cubeColor, strokeColor: primaryColor);
+    }
   }
 
   void _paintPremiumRotate(Canvas canvas, Size size) {

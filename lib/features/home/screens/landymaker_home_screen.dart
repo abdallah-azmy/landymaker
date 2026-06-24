@@ -20,7 +20,6 @@ import '../widgets/home_hero_section.dart';
 import '../widgets/home_feature_bento.dart';
 import '../widgets/home_cta_section.dart';
 import '../widgets/home_footer.dart';
-import '../widgets/home_section_renderer.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/particles/cube_loader.dart';
 import '../../builder/models/landing_page_theme.dart';
@@ -1023,19 +1022,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                                 copyrightText: _localeValue(
                                   footerConfig,
                                   'copyright_text',
-                                ),
-                              ),
-                            if (_isSectionVisible('section_renderer'))
-                              HomeSectionRenderer(
-                                landingPageId:
-                                    _sectionConfig(
-                                          'section_renderer',
-                                        )['landing_page_id']
-                                        as String? ??
-                                    '',
-                                displayTitle: _localeValue(
-                                  _sectionConfig('section_renderer'),
-                                  'display',
                                 ),
                               ),
                           ],

@@ -12,7 +12,6 @@ import 'template_config_sheet.dart';
 import 'desktop_preview_config_sheet.dart';
 import 'footer_config_sheet.dart';
 import 'navbar_config_sheet.dart';
-import 'section_renderer_config_sheet.dart';
 
 class HomepageEditorScreen extends StatefulWidget {
   const HomepageEditorScreen({super.key});
@@ -156,13 +155,6 @@ class _HomepageEditorScreenState extends State<HomepageEditorScreen> {
       case 'navbar':
         buildSheet(
           child: NavbarConfigSheet(
-            config: config,
-            onSave: (updated) => cubit.updateConfig(id, updated),
-          ),
-        );
-      case 'section_renderer':
-        buildSheet(
-          child: SectionRendererConfigSheet(
             config: config,
             onSave: (updated) => cubit.updateConfig(id, updated),
           ),

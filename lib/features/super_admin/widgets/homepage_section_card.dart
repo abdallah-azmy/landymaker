@@ -123,7 +123,6 @@ class HomepageSectionCard extends StatelessWidget {
       'cta': Icons.call_to_action_rounded,
       'footer': Icons.layers_rounded,
       'navbar': Icons.navigation_rounded,
-      'section_renderer': Icons.web_asset_rounded,
     };
 
     final glowColor = isVisible

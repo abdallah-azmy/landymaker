@@ -13,7 +13,7 @@ class TechLoadingScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CubeLoader(
-              variant: CubeLoaderVariant.logo,
+              variant: CubeLoaderVariant.logoPremiumCornerAxis,
               size: 80,
               initialState: CubeLoaderState.loading,
               showGlow: true,

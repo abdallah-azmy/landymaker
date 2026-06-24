@@ -49,7 +49,7 @@ class LoadingLogo extends StatelessWidget {
     return CubeLoader(
       size: size,
       initialState: _mapState(initialState),
-      variant: CubeLoaderVariant.logo,
+      variant: CubeLoaderVariant.logoPremiumCornerAxis,
       interactive: interactive,
       showGlow: showGlow,
     );

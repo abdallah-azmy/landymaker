@@ -705,9 +705,9 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     if (_isGathering) {
       final double gap = 20.0;
-      final double rx = 0.70;
+      final double rx = 0.85;
       final double ry = pi / 4;
-      final double rz = 0.0;
+      final double rz = 0.5003747769;
       final double cx = cos(rx), sx = sin(rx);
       final double cy = cos(ry), sy = sin(ry);
       final double cz = cos(rz), sz = sin(rz);
@@ -810,9 +810,9 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     // ── Entity update (repulsion + physics) ──
     if (_isPreBurst) {
       final double gap = 20.0; // Spacing between cubes
-      final double rx = 0.70; // Isometric tilt (matches brand logo)
+      final double rx = 0.85; // CornerAxis tilt (matches new brand logo)
       final double ry = pi / 4; // Isometric 45 deg turn
-      final double rz = 0.0;
+      final double rz = 0.5003747769; // Makes it rest on a single corner
 
       final double cx = cos(rx), sx = sin(rx);
       final double cy = cos(ry), sy = sin(ry);

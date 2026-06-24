@@ -44,6 +44,9 @@ enum CubeLoaderVariant {
   /// Premium Rubik-style 3×3×3 cube logo with subtle breathing.
   logoPremium,
 
+  /// Premium Logo with corner-to-corner body diagonal rotation.
+  logoPremiumCornerAxis,
+
   /// Premium logo with gentle floating motion.
   logoPremiumFloat,
 
@@ -464,6 +467,9 @@ class _CubeLoaderPainter extends CustomPainter {
         break;
       case CubeLoaderVariant.circularDouble:
         _paintCircularDouble(canvas, size, rot);
+        break;
+      case CubeLoaderVariant.logoPremiumCornerAxis:
+        _paintPremiumCornerAxis(canvas, size);
         break;
       case CubeLoaderVariant.logoPremium:
       case CubeLoaderVariant.logoPremiumFloat:
@@ -1113,6 +1119,9 @@ class _CubeLoaderPainter extends CustomPainter {
           double s = 1.0;
 
           switch (variant) {
+            case CubeLoaderVariant.logoPremiumCornerAxis:
+              // Handled by _paintPremiumCornerAxis separately.
+              break;
             case CubeLoaderVariant.logoPremium:
               cZ += breath * size.width * 0.015;
               s = 1.0 + breath * 0.03;
@@ -1173,6 +1182,76 @@ class _CubeLoaderPainter extends CustomPainter {
 
     final strokeColor = isDark ? const Color(0xFF334155) : const Color(0xFF0F172A);
     _drawFaces(canvas, _faceCount, strokeWidth, cubeColor, strokeColor: strokeColor);
+  }
+
+  void _paintPremiumCornerAxis(Canvas canvas, Size size) {
+    const n = 3;
+    final gap = size.width * 0.24;
+    final cubeH = size.width * 0.19;
+    final h = cubeH * 0.5;
+    final cornerRadius = (h * 0.25).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+    final strokeWidth = (h * 0.10).clamp(0.8, 2.0);
+    final px = size.width * 0.5;
+    final py = size.height * 0.5;
+    final offset = -(n - 1) * 0.5;
+    final bda = 1.0 / sqrt(3.0);
+
+    // To match logoPremium exactly, we use its base orientation but add
+    // a 2D Z-rotation so it visually stands on one corner.
+    // The logoPremium base orientation is rx=0.70, ry=pi/4.
+    // In that orientation, the vector from the bottom corner (-1, -1, 1)
+    // to the top corner (1, 1, -1) has screen coordinates cX ≈ 0.6218, cY ≈ 1.409.
+    // To make this vector perfectly vertical, we rotate by rz = atan2(cX, cY).
+    const double baseRx = 0.70;
+    const double baseRy = pi / 4;
+    const double cornerRz = 0.4155920829; // Precalculated atan2(0.621813, 1.40906)
+    
+    final cornerRot = cg.computeRotation(baseRx, baseRy, cornerRz);
+    _lightRot = cornerRot;
+
+    _faceCount = 0;
+    _fillPaint.color = cubeColor;
+
+    for (int ix = 0; ix < n; ix++) {
+      for (int iy = 0; iy < n; iy++) {
+        for (int iz = 0; iz < n; iz++) {
+          final baseX = (ix + offset) * gap;
+          final baseY = (iy + offset) * gap;
+          final baseZ = (iz + offset) * gap;
+
+          // The axis connecting bottom (-1,-1,1) to top (1,1,-1) is (1, 1, -1).
+          // We rotate around this axis so the silhouette rotates like a diamond.
+          final rotAngle = animValue * 2 * pi / 3;
+          final rotated = <double>[baseX, baseY, baseZ];
+          cg.rotatePointAxis(rotated, bda, bda, -bda, rotAngle, rotated);
+
+          // CRITICAL FIX: Project the 3D center to 2D screen space using the camera matrix!
+          final projected = <double>[0.0, 0.0, 0.0];
+          cg.rotatePoint(rotated, cornerRot, projected);
+
+          final ao = cg.ambientOcclusion(ix - 1, iy - 1, iz - 1);
+          _renderCubeFaces(
+            centerX: px + projected[0],
+            centerY: py - projected[1],
+            h: h,
+            cZ: projected[2],
+            scaleX: 1.0,
+            scaleY: 1.0,
+            scaleZ: 1.0,
+            cornerRadius: cornerRadius,
+            rot: cornerRot,
+            ao: ao,
+            bodyAx: bda,
+            bodyAy: bda,
+            bodyAz: -bda,
+            bodyAngle: rotAngle,
+          );
+        }
+      }
+    }
+
+    // VERY IMPORTANT: logoPremiumCornerAxis MUST use primaryColor for strokes and glows.
+    _drawFaces(canvas, _faceCount, strokeWidth, cubeColor, strokeColor: primaryColor);
   }
 
   void _paintPremiumRotate(Canvas canvas, Size size) {
@@ -1249,20 +1328,27 @@ class _CubeLoaderPainter extends CustomPainter {
     required double cornerRadius,
     required cg.RotationMatrix rot,
     double ao = 1.0,
+    double bodyAx = 0,
+    double bodyAy = 0,
+    double bodyAz = 0,
+    double bodyAngle = 0,
   }) {
+    final _bodyV = <double>[0, 0, 0];
+    final _bodyN = <double>[0, 0, 0];
     for (int v = 0; v < 8; v++) {
       final vIn = cg.cubeVerts[v];
-      cg.rotatePoint(
+      cg.rotatePointAxis(
         [vIn[0] * h * scaleX, vIn[1] * h * scaleY, vIn[2] * h * scaleZ],
-        rot,
-        _tv[v],
+        bodyAx, bodyAy, bodyAz, bodyAngle, _bodyV,
       );
+      cg.rotatePoint(_bodyV, rot, _tv[v]);
       _tv[v][2] += cZ;
     }
 
     for (int f = 0; f < 6; f++) {
       final n = cg.cubeNormals[f];
-      cg.rotatePoint(n, rot, _nv);
+      cg.rotatePointAxis(n, bodyAx, bodyAy, bodyAz, bodyAngle, _bodyN);
+      cg.rotatePoint(_bodyN, rot, _nv);
       if (_nv[2] <= 0) continue;
 
       double sumZ = 0;
@@ -1291,6 +1377,9 @@ class _CubeLoaderPainter extends CustomPainter {
       fd.path = rPath;
       fd.faceIdx = f;
       fd.ao = ao;
+      fd.bodyNormal = bodyAngle != 0
+          ? [_bodyN[0], _bodyN[1], _bodyN[2]]
+          : null;
     }
   }
 
@@ -1314,7 +1403,7 @@ class _CubeLoaderPainter extends CustomPainter {
     for (int fi = 0; fi < count; fi++) {
       final face = _faceBuffer[_sortKeys[fi]];
       final rot = _lightRot ?? cg.computeRotation(_rx, _baseRy, 0.0);
-      final lBright = _faceBrightness(face.faceIdx, rot);
+      final lBright = _faceBrightness(face.faceIdx, rot, bodyNormal: face.bodyNormal);
       var brightness = lBright * face.ao;
 
       if (state == CubeLoaderState.loading) {
@@ -1357,8 +1446,8 @@ class _CubeLoaderPainter extends CustomPainter {
     return primaryColor;
   }
 
-  double _faceBrightness(int faceIdx, cg.RotationMatrix rot) {
-    final n = cg.cubeNormals[faceIdx];
+  double _faceBrightness(int faceIdx, cg.RotationMatrix rot, {List<double>? bodyNormal}) {
+    final n = bodyNormal ?? cg.cubeNormals[faceIdx];
     cg.rotatePoint(n, rot, _nv);
     return cg.lambertBrightness(_nv[0], _nv[1], _nv[2]);
   }
@@ -1386,6 +1475,7 @@ class _FaceData {
   Path path = Path();
   int faceIdx = 0;
   double ao = 1.0;
+  List<double>? bodyNormal;
 }
 
 class _ClusterEntry {

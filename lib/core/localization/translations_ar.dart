@@ -15,7 +15,7 @@ const Map<String, String> translationsAr = {
   'hero': 'القسم الرئيسي',
   'features': 'المميزات',
   'lead_form': 'نموذج التواصل',
-  'dashboard': 'نظرة عامة',
+  'dashboard': 'لوحة التحكم',
   'super_admin': 'الإدارة العامة',
   'analytics': 'تقارير الأداء',
   'leads': 'العملاء والطلبات',

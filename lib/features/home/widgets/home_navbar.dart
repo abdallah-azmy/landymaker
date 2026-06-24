@@ -20,7 +20,7 @@ import '../../auth/controllers/auth_state.dart';
 /// ARCHITECTURE: Self-contained Auth state integration.
 /// Renders [_DesktopNavbar] or [_MobileNavbar] based on width.
 /// ======================================================
-class HomeNavbar extends StatefulWidget implements PreferredSizeWidget {
+class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
   final Map<String, dynamic>? config;
   final ValueNotifier<int>? cubeCount;
   final VoidCallback? onPreviewTapped;
@@ -28,59 +28,7 @@ class HomeNavbar extends StatefulWidget implements PreferredSizeWidget {
   const HomeNavbar({super.key, this.config, this.cubeCount, this.onPreviewTapped});
 
   @override
-  // Extra 200px allows the animated mobile menu to expand below the bar
-  // without clipping. On desktop only the 70px bar is visible.
-  Size get preferredSize => const Size.fromHeight(70 + 200);
-
-  @override
-  State<HomeNavbar> createState() => _HomeNavbarState();
-}
-
-class _HomeNavbarState extends State<HomeNavbar>
-    with SingleTickerProviderStateMixin {
-  bool _menuOpen = false;
-  late AnimationController _menuController;
-  late Animation<double> _menuHeight;
-  late Animation<double> _menuOpacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _menuController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 260),
-    );
-
-    _menuHeight = Tween<double>(begin: 0, end: 200).animate(
-      CurvedAnimation(parent: _menuController, curve: Curves.easeInOut),
-    );
-    _menuOpacity = CurvedAnimation(
-      parent: _menuController,
-      curve: Curves.easeOut,
-    );
-  }
-
-  @override
-  void dispose() {
-    _menuController.dispose();
-    super.dispose();
-  }
-
-  void _toggleMenu() {
-    setState(() => _menuOpen = !_menuOpen);
-    if (_menuOpen) {
-      _menuController.forward();
-    } else {
-      _menuController.reverse();
-    }
-  }
-
-  void _closeMenu() {
-    if (_menuOpen) {
-      setState(() => _menuOpen = false);
-      _menuController.reverse();
-    }
-  }
+  Size get preferredSize => const Size.fromHeight(70);
 
   @override
   Widget build(BuildContext context) {
@@ -89,36 +37,23 @@ class _HomeNavbarState extends State<HomeNavbar>
     final String userEmail = isLoggedIn ? authState.email : '';
     final String userId = isLoggedIn ? authState.userId : '';
 
-    _menuHeight = Tween<double>(begin: 0, end: isLoggedIn ? 192 : 156).animate(
-      CurvedAnimation(parent: _menuController, curve: Curves.easeInOut),
-    );
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
 
         final ctaText = context.isRtl
-            ? (widget.config?['cta_text_ar'] as String?)
-            : (widget.config?['cta_text_en'] as String?);
+            ? (config?['cta_text_ar'] as String?)
+            : (config?['cta_text_en'] as String?);
 
         if (isMobile) {
-          return TapRegion(
-            onTapOutside: (event) => _closeMenu(),
-            child: _MobileNavbar(
-              isLoggedIn: isLoggedIn,
-              userEmail: userEmail,
-              userId: userId,
-              menuOpen: _menuOpen,
-              toggleMenu: _toggleMenu,
-              closeMenu: _closeMenu,
-              menuController: _menuController,
-              menuHeight: _menuHeight,
-              menuOpacity: _menuOpacity,
-              ctaText: ctaText,
-              showLogin: widget.config?['show_login'] as bool? ?? true,
-              cubeCount: widget.cubeCount,
-              onPreviewTapped: widget.onPreviewTapped,
-            ),
+          return _MobileNavbar(
+            isLoggedIn: isLoggedIn,
+            userEmail: userEmail,
+            userId: userId,
+            ctaText: ctaText,
+            showLogin: config?['show_login'] as bool? ?? true,
+            cubeCount: cubeCount,
+            onPreviewTapped: onPreviewTapped,
           );
         }
 
@@ -127,9 +62,9 @@ class _HomeNavbarState extends State<HomeNavbar>
           userEmail: userEmail,
           userId: userId,
           ctaText: ctaText,
-          showLogin: widget.config?['show_login'] as bool? ?? true,
-          cubeCount: widget.cubeCount,
-          onPreviewTapped: widget.onPreviewTapped,
+          showLogin: config?['show_login'] as bool? ?? true,
+          cubeCount: cubeCount,
+          onPreviewTapped: onPreviewTapped,
         );
       },
     );
@@ -286,17 +221,11 @@ class _DesktopNavbar extends StatelessWidget {
   }
 }
 
-/// Mobile version of the Navbar with hamburger menu and animated dropdown.
+/// Mobile version of the Navbar with PopupMenu for both logged in and out states.
 class _MobileNavbar extends StatelessWidget {
   final bool isLoggedIn;
   final String userEmail;
   final String userId;
-  final bool menuOpen;
-  final VoidCallback toggleMenu;
-  final VoidCallback closeMenu;
-  final AnimationController menuController;
-  final Animation<double> menuHeight;
-  final Animation<double> menuOpacity;
   final String? ctaText;
   final bool showLogin;
   final ValueNotifier<int>? cubeCount;
@@ -306,12 +235,6 @@ class _MobileNavbar extends StatelessWidget {
     required this.isLoggedIn,
     required this.userEmail,
     required this.userId,
-    required this.menuOpen,
-    required this.toggleMenu,
-    required this.closeMenu,
-    required this.menuController,
-    required this.menuHeight,
-    required this.menuOpacity,
     this.ctaText,
     this.showLogin = true,
     this.cubeCount,
@@ -320,239 +243,201 @@ class _MobileNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final BorderRadius radius = BorderRadius.only(
-      bottomLeft: Radius.circular(menuOpen ? 24 : 0),
-      bottomRight: Radius.circular(menuOpen ? 24 : 0),
-    );
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        boxShadow: menuOpen
-            ? [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 30,
-                  offset: const Offset(0, 15),
-                ),
-              ]
-            : null,
-      ),
-      child: AppBlurEffect(
-        blur: 12.0,
-        borderRadius: radius,
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
-            borderRadius: radius,
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                width: 1,
-              ),
-              left: menuOpen
-                  ? BorderSide(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                      width: 1,
-                    )
-                  : BorderSide.none,
-              right: menuOpen
-                  ? BorderSide(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                      width: 1,
-                    )
-                  : BorderSide.none,
+    return AppBlurEffect(
+      blur: 12.0,
+      borderRadius: BorderRadius.zero,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+          border: Border(
+            bottom: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              width: 1,
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Main bar
-              SizedBox(
-                height: 70,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  child: Center(
-                    child: Container(
-                      constraints: const BoxConstraints(maxWidth: 1200),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _LogoSection(),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (onPreviewTapped != null)
-                                IconButton(
-                                  tooltip: 'وضع استعراض المكعبات',
-                                  icon: const Icon(Icons.view_in_ar_outlined),
-                                  onPressed: onPreviewTapped,
-                                ),
-                              const AnimatedCubeModeToggle(size: 32),
-                              if (cubeCount != null)
-                                BlocBuilder<CubeModeCubit, CubeMode>(
-                                  builder: (context, mode) {
-                                    if (mode == CubeMode.merge) {
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsetsDirectional.only(
-                                              start: 6,
-                                            ),
-                                        child: ValueListenableBuilder<int>(
-                                          valueListenable: cubeCount!,
-                                          builder: (context, count, _) {
-                                            return Text(
-                                              '$count',
-                                              style: AppTypography.bodyMedium
-                                                  .copyWith(
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                            );
-                                          },
+        ),
+        child: SizedBox(
+          height: 70,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 24,
+              vertical: 12,
+            ),
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _LogoSection(),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (onPreviewTapped != null)
+                          IconButton(
+                            tooltip: 'وضع استعراض المكعبات',
+                            icon: const Icon(Icons.view_in_ar_outlined),
+                            onPressed: onPreviewTapped,
+                          ),
+                        const AnimatedCubeModeToggle(size: 32),
+                        if (cubeCount != null)
+                          BlocBuilder<CubeModeCubit, CubeMode>(
+                            builder: (context, mode) {
+                              if (mode == CubeMode.merge) {
+                                return Padding(
+                                  padding: const EdgeInsetsDirectional.only(
+                                    start: 6,
+                                  ),
+                                  child: ValueListenableBuilder<int>(
+                                    valueListenable: cubeCount!,
+                                    builder: (context, count, _) {
+                                      return Text(
+                                        '$count',
+                                        style: AppTypography.bodyMedium.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       );
-                                    }
-                                    return const SizedBox.shrink();
-                                  },
-                                ),
-                              const SizedBox(width: 6),
-                              const AnimatedThemeToggle(size: 32),
-                              const SizedBox(width: 4),
-                              const LanguageSwitcherButton(
-                                variant: LanguageSwitcherVariant.iconOnly,
-                              ),
-                              const SizedBox(width: 8),
-                              RepaintBoundary(
-                                child: IconButton(
-                                  tooltip: menuOpen
-                                      ? context.translate('close_menu')
-                                      : context.translate('open_menu'),
-                                  icon: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 200),
-                                    transitionBuilder: (child, anim) =>
-                                        RotationTransition(
-                                          turns: anim,
-                                          child: FadeTransition(
-                                            opacity: anim,
-                                            child: child,
-                                          ),
-                                        ),
-                                    child: Icon(
-                                      menuOpen
-                                          ? Icons.close_rounded
-                                          : Icons.menu_rounded,
-                                      key: ValueKey(menuOpen),
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface,
-                                      size: 28,
-                                    ),
+                                    },
                                   ),
-                                  onPressed: toggleMenu,
-                                ),
-                              ),
-                            ],
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
                           ),
-                        ],
-                      ),
+                        const SizedBox(width: 6),
+                        const AnimatedThemeToggle(size: 32),
+                        const SizedBox(width: 4),
+                        const LanguageSwitcherButton(
+                          variant: LanguageSwitcherVariant.iconOnly,
+                        ),
+                        const SizedBox(width: 8),
+                        _MobileMenuPopup(
+                          isLoggedIn: isLoggedIn,
+                          userEmail: userEmail,
+                          showLogin: showLogin,
+                          ctaText: ctaText,
+                        ),
+                      ],
                     ),
-                  ),
+                  ],
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-              // Mobile drop-down menu
-              AnimatedBuilder(
-                animation: menuController,
-                builder: (context, child) {
-                  return ClipRect(
-                    child: SizedBox(
-                      height: menuHeight.value,
-                      child: Opacity(
-                        opacity: menuOpacity.value,
-                        child: SingleChildScrollView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          child: child,
-                        ),
-                      ),
-                    ),
-                  );
-                },
+class _MobileMenuPopup extends StatelessWidget {
+  final bool isLoggedIn;
+  final String userEmail;
+  final bool showLogin;
+  final String? ctaText;
+
+  const _MobileMenuPopup({
+    required this.isLoggedIn,
+    required this.userEmail,
+    required this.showLogin,
+    this.ctaText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = context.watch<LocalizationCubit>();
+    return PopupMenuButton<String>(
+      offset: const Offset(0, 48),
+      color: Colors.transparent,
+      elevation: 0,
+      padding: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      onSelected: (value) {},
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+          child: Icon(
+            Icons.menu_rounded,
+            color: Theme.of(context).colorScheme.onSurface,
+            size: 28,
+          ),
+        ),
+      ),
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem<String>(
+            enabled: false,
+            padding: EdgeInsets.zero,
+            height: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.4 : 0.15),
+                    blurRadius: 32,
+                    spreadRadius: 4,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: AppBlurEffect(
+                blur: 20.0,
+                borderRadius: BorderRadius.circular(24),
                 child: Container(
-                  width: double.infinity,
+                  width: 280,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                      bottomRight: Radius.circular(24),
-                    ),
-                    border: Border(
-                      top: BorderSide(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                        width: 0.5,
-                      ),
+                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.65),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+                      width: 1,
                     ),
                   ),
-                  padding: const EdgeInsetsDirectional.symmetric(
-                    horizontal: 24,
-                    vertical: 24,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (isLoggedIn) ...[
-                        if (showLogin) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 16,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHigh,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outlineVariant,
-                              ),
-                            ),
+                  child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (isLoggedIn) ...[
+                          Padding(
+                            padding: const EdgeInsets.all(20),
                             child: Row(
                               children: [
                                 CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.15),
+                                  radius: 20,
+                                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                                   child: Text(
-                                    userEmail.isNotEmpty
-                                        ? userEmail[0].toUpperCase()
-                                        : 'U',
+                                    userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.secondary,
+                                      color: Theme.of(context).colorScheme.secondary,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 16),
                                 Expanded(
                                   child: Text(
                                     userEmail,
                                     style: AppTypography.bodyMedium.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -560,119 +445,112 @@ class _MobileNavbar extends StatelessWidget {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            key: const ValueKey('mobile_go_dashboard'),
-                            onPressed: () {
-                              closeMenu();
+                          Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
                               context.go('/dashboard');
                             },
-                            icon: const Icon(Icons.dashboard_outlined),
-                            label: Text(context.translate('dashboard')),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primary,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onPrimary,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.dashboard_outlined, size: 22, color: Theme.of(context).colorScheme.primary),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    loc.translate('dashboard'),
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              elevation: 0,
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          OutlinedButton.icon(
-                            key: const ValueKey('mobile_logout'),
-                            onPressed: () {
-                              closeMenu();
+                          Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
                               context.read<AuthCubit>().logout();
                             },
-                            icon: const Icon(
-                              Icons.power_settings_new_rounded,
-                              color: AppColors.dangerRed,
-                            ),
-                            label: Text(
-                              context.translate('logout'),
-                              style: const TextStyle(
-                                color: AppColors.dangerRed,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.power_settings_new_rounded, size: 20, color: AppColors.dangerRed),
+                                  const SizedBox(width: 14),
+                                  Text(
+                                    loc.translate('logout'),
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      color: AppColors.dangerRed,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
-                                color: AppColors.dangerRed,
-                                width: 1.5,
+                          ),
+                        ] else ...[
+                          if (showLogin)
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                                context.go('/login');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.login_rounded, size: 22, color: Theme.of(context).colorScheme.primary),
+                                    const SizedBox(width: 16),
+                                    Text(
+                                      loc.translate('login'),
+                                      style: AppTypography.bodyMedium.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                            ),
+                          if (showLogin)
+                            Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              context.go('/register');
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.person_add_outlined, size: 22, color: Theme.of(context).colorScheme.primary),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    ctaText ?? loc.translate('start_free'),
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ],
-                      ] else ...[
-                        if (showLogin)
-                          OutlinedButton(
-                            onPressed: () {
-                              closeMenu();
-                              context.go('/login');
-                            },
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outlineVariant,
-                                width: 1.5,
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                            child: Text(
-                              context.translate('login'),
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        if (showLogin) const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            closeMenu();
-                            context.go('/register');
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: Text(
-                            ctaText ?? context.translate('start_free'),
-                            style: AppTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ],
+            ),
+            ),
           ),
-        ),
-      ),
+        ];
+      },
     );
   }
 }
@@ -705,16 +583,11 @@ class _UserAvatarMenu extends StatelessWidget {
     final loc = context.watch<LocalizationCubit>();
     return PopupMenuButton<String>(
       offset: const Offset(0, 48),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Theme.of(context).colorScheme.surface,
-      elevation: 4,
-      onSelected: (value) {
-        if (value == 'dashboard') {
-          context.go('/dashboard');
-        } else if (value == 'logout') {
-          context.read<AuthCubit>().logout();
-        }
-      },
+      color: Colors.transparent,
+      elevation: 0,
+      padding: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      onSelected: (value) {},
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
@@ -762,36 +635,101 @@ class _UserAvatarMenu extends StatelessWidget {
           ),
         ),
       ),
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'dashboard',
-          child: Row(
-            children: [
-              const Icon(Icons.dashboard_outlined, size: 18),
-              const SizedBox(width: 12),
-              Text(loc.translate('dashboard')),
-            ],
-          ),
-        ),
-        const PopupMenuDivider(),
-        PopupMenuItem(
-          value: 'logout',
-          child: Row(
-            children: [
-              const Icon(
-                Icons.power_settings_new_rounded,
-                size: 18,
-                color: AppColors.dangerRed,
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem<String>(
+            enabled: false,
+            padding: EdgeInsets.zero,
+            height: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.4 : 0.15),
+                    blurRadius: 32,
+                    spreadRadius: 4,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Text(
-                loc.translate('logout'),
-                style: const TextStyle(color: AppColors.dangerRed),
+              child: AppBlurEffect(
+                blur: 20.0,
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  width: 220,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.65),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+                      width: 1,
+                    ),
+                  ),
+                  child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                            context.go('/dashboard');
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            child: Row(
+                              children: [
+                                Icon(Icons.dashboard_outlined, size: 22, color: Theme.of(context).colorScheme.primary),
+                                const SizedBox(width: 16),
+                                Text(
+                                  loc.translate('dashboard'),
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                            context.read<AuthCubit>().logout();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.power_settings_new_rounded, size: 20, color: AppColors.dangerRed),
+                                const SizedBox(width: 14),
+                                Text(
+                                  loc.translate('logout'),
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: AppColors.dangerRed,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ],
+            ),
+            ),
           ),
-        ),
-      ],
+        ];
+      },
     );
   }
 }

@@ -1201,10 +1201,11 @@ class _CubeLoaderPainter extends CustomPainter {
     // In that orientation, the vector from the bottom corner (-1, -1, 1)
     // to the top corner (1, 1, -1) has screen coordinates cX ≈ 0.6218, cY ≈ 1.409.
     // To make this vector perfectly vertical, we rotate by rz = atan2(cX, cY).
-    // M_target = RotX(0.85) * RotY(pi/4) -> ensures perfect left/right symmetry
-    const double baseRx = 1.01358485;
-    const double baseRy = 0.48554181;
-    const double cornerRz = 0.64434190; // Precalculated for perfect verticality and symmetry
+    // M_target = RotX(asin(1/sqrt(3))) * RotY(pi/4) -> true isometric projection
+    // Equivalent RotZ * RotY * RotX angles:
+    const double baseRx = 0.7853981633974483; // pi / 4
+    const double baseRy = 0.6154797086703873; // asin(1 / sqrt(3))
+    const double cornerRz = 0.5235987755982988; // pi / 6
     
     final cornerRot = cg.computeRotation(baseRx, baseRy, cornerRz);
     _lightRot = cornerRot;

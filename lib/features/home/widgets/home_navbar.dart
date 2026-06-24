@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -37,6 +38,7 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
     final bool isLoggedIn = authState is Authenticated;
     final String userEmail = isLoggedIn ? authState.email : '';
     final String userId = isLoggedIn ? authState.userId : '';
+    final String? userPhotoUrl = isLoggedIn ? authState.photoURL : null;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -68,6 +70,7 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
             isLoggedIn: isLoggedIn,
             userEmail: userEmail,
             userId: userId,
+            userPhotoUrl: userPhotoUrl,
             ctaText: ctaText,
             showLogin: config?['show_login'] as bool? ?? true,
             cubeCount: cubeCount,
@@ -81,6 +84,7 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
           isLoggedIn: isLoggedIn,
           userEmail: userEmail,
           userId: userId,
+          userPhotoUrl: userPhotoUrl,
           ctaText: ctaText,
           showLogin: config?['show_login'] as bool? ?? true,
           cubeCount: cubeCount,
@@ -94,10 +98,11 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 /// Desktop version of the Navbar with horizontal actions.
-class _DesktopNavbar extends StatelessWidget {
+class _DesktopNavbar extends StatefulWidget {
   final bool isLoggedIn;
   final String userEmail;
   final String userId;
+  final String? userPhotoUrl;
   final String? ctaText;
   final bool showLogin;
   final ValueNotifier<int>? cubeCount;
@@ -109,6 +114,7 @@ class _DesktopNavbar extends StatelessWidget {
     required this.isLoggedIn,
     required this.userEmail,
     required this.userId,
+    this.userPhotoUrl,
     this.ctaText,
     this.showLogin = true,
     this.cubeCount,
@@ -116,6 +122,39 @@ class _DesktopNavbar extends StatelessWidget {
     this.logoText,
     required this.parsedLinks,
   });
+
+  @override
+  State<_DesktopNavbar> createState() => _DesktopNavbarState();
+}
+
+class _DesktopNavbarState extends State<_DesktopNavbar> {
+  OverlayEntry? _sideMenuOverlay;
+
+  void _toggleSideMenu() {
+    if (_sideMenuOverlay != null) {
+      _sideMenuOverlay!.remove();
+      _sideMenuOverlay = null;
+    } else {
+      _sideMenuOverlay = OverlayEntry(
+        builder: (context) => _DesktopSideMenu(
+          isLoggedIn: widget.isLoggedIn,
+          showLogin: widget.showLogin,
+          ctaText: widget.ctaText,
+          onClose: () {
+            _sideMenuOverlay?.remove();
+            _sideMenuOverlay = null;
+          },
+        ),
+      );
+      Overlay.of(context).insert(_sideMenuOverlay!);
+    }
+  }
+
+  @override
+  void dispose() {
+    _sideMenuOverlay?.remove();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,44 +182,42 @@ class _DesktopNavbar extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _LogoSection(logoText: logoText),
-                
-                // Primary Links (Desktop)
-                if (parsedLinks.isNotEmpty)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: parsedLinks.map((link) {
-                      final label = link['label'] ?? '';
-                      final path = link['path'] ?? '';
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: TextButton(
-                          onPressed: () {
-                            if (path.startsWith('http://') || path.startsWith('https://')) {
-                              launchUrl(Uri.parse(path));
-                            } else {
-                              context.go(path);
-                            }
-                          },
-                          child: Text(
-                            label,
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: _toggleSideMenu,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outlineVariant,
                             ),
                           ),
+                          child: Icon(
+                            Icons.menu_rounded,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 22,
+                          ),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    _LogoSection(logoText: widget.logoText),
+                  ],
+                ),
 
                 Row(
                   children: [
-                    if (onPreviewTapped != null)
+                    if (widget.onPreviewTapped != null)
                       IconButton(
                         tooltip: 'وضع استعراض المكعبات',
                         icon: const Icon(Icons.view_in_ar_outlined),
-                        onPressed: onPreviewTapped,
+                        onPressed: widget.onPreviewTapped,
                       ),
                     const AnimatedCubeModeToggle(size: 32),
 
@@ -191,11 +228,15 @@ class _DesktopNavbar extends StatelessWidget {
                       variant: LanguageSwitcherVariant.iconAndText,
                     ),
                     const SizedBox(width: 20),
-                    if (isLoggedIn) ...[
-                      if (showLogin)
-                        _UserAvatarMenu(email: userEmail, userId: userId),
+                    if (widget.isLoggedIn) ...[
+                      if (widget.showLogin)
+                        _UserAvatarMenu(
+                          email: widget.userEmail,
+                          userId: widget.userId,
+                          photoUrl: widget.userPhotoUrl,
+                        ),
                     ] else ...[
-                      if (showLogin)
+                      if (widget.showLogin)
                         TextButton(
                           onPressed: () => context.go('/login'),
                           child: Text(
@@ -206,7 +247,7 @@ class _DesktopNavbar extends StatelessWidget {
                             ),
                           ),
                         ),
-                      if (showLogin) const SizedBox(width: 16),
+                      if (widget.showLogin) const SizedBox(width: 16),
                       ElevatedButton(
                         onPressed: () => context.go('/register'),
                         style:
@@ -231,7 +272,7 @@ class _DesktopNavbar extends StatelessWidget {
                               ),
                             ),
                         child: Text(
-                          ctaText ?? context.translate('start_free'),
+                          widget.ctaText ?? context.translate('start_free'),
                           style: AppTypography.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -250,11 +291,365 @@ class _DesktopNavbar extends StatelessWidget {
   }
 }
 
+/// Desktop side menu with all page links.
+class _DesktopSideMenu extends StatefulWidget {
+  final bool isLoggedIn;
+  final bool showLogin;
+  final String? ctaText;
+  final VoidCallback onClose;
+
+  const _DesktopSideMenu({
+    required this.isLoggedIn,
+    required this.showLogin,
+    this.ctaText,
+    required this.onClose,
+  });
+
+  @override
+  State<_DesktopSideMenu> createState() => _DesktopSideMenuState();
+}
+
+class _DesktopSideMenuState extends State<_DesktopSideMenu>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animController;
+  late final Animation<double> _fadeAnimation;
+  Animation<Offset> _slideAnimation = const AlwaysStoppedAnimation(Offset.zero);
+  late final FocusNode _menuFocusNode;
+  GoRouter? _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _menuFocusNode = FocusNode();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOut,
+    ));
+    _animController.forward();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _router = GoRouter.of(context);
+      _router!.addListener(_onRouteChanged);
+      _menuFocusNode.requestFocus();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateSlideAnimation();
+  }
+
+  void _updateSlideAnimation() {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(isRtl ? 1.0 : -1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutCubic,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _router?.removeListener(_onRouteChanged);
+    _menuFocusNode.dispose();
+    _animController.dispose();
+    super.dispose();
+  }
+
+  void _close() {
+    _animController.reverse().then((_) {
+      widget.onClose();
+    });
+  }
+
+  void _onRouteChanged() {
+    if (mounted && (_animController.isAnimating || _animController.value > 0)) {
+      _close();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = context.watch<LocalizationCubit>();
+    final menuItems = <_SideMenuItem>[];
+
+    if (widget.isLoggedIn) {
+      menuItems.add(_SideMenuItem(
+        icon: Icons.dashboard_outlined,
+        label: loc.translate('dashboard'),
+        path: '/dashboard',
+      ));
+    }
+
+    menuItems.addAll([
+      _SideMenuItem(
+        icon: Icons.info_outline_rounded,
+        label: context.isRtl ? 'من نحن' : 'About',
+        path: '/about',
+      ),
+      _SideMenuItem(
+        icon: Icons.description_outlined,
+        label: context.isRtl ? 'الشروط والأحكام' : 'Terms',
+        path: '/terms',
+      ),
+      _SideMenuItem(
+        icon: Icons.privacy_tip_outlined,
+        label: context.isRtl ? 'سياسة الخصوصية' : 'Privacy',
+        path: '/privacy-policy',
+      ),
+      _SideMenuItem(
+        icon: Icons.article_outlined,
+        label: context.isRtl ? 'المدونة' : 'Blog',
+        path: '/blog',
+      ),
+    ]);
+
+    if (!widget.isLoggedIn) {
+      if (widget.showLogin) {
+        menuItems.add(_SideMenuItem(
+          icon: Icons.login_rounded,
+          label: loc.translate('login'),
+          path: '/login',
+        ));
+      }
+      if (widget.showLogin) {
+        menuItems.add(_SideMenuItem(
+          icon: Icons.person_add_outlined,
+          label: widget.ctaText ?? loc.translate('start_free'),
+          path: '/register',
+          isHighlighted: true,
+        ));
+      }
+    }
+
+    menuItems.add(_SideMenuItem(
+      icon: Icons.grid_view_rounded,
+      label: context.isRtl ? 'القوالب' : 'Templates',
+      path: '/templates',
+    ));
+
+    menuItems.add(_SideMenuItem(
+      icon: Icons.crop_square_rounded,
+      label: context.isRtl ? 'صفحة المكعبات' : 'Cubes',
+      path: '/cubes',
+      isBottom: true,
+    ));
+
+    return CallbackShortcuts(
+      bindings: {
+        SingleActivator(LogicalKeyboardKey.escape): _close,
+      },
+      child: Focus(
+        focusNode: _menuFocusNode,
+        autofocus: true,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: GestureDetector(
+            onTap: _close,
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.5),
+              child: SafeArea(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: GestureDetector(
+                      onTap: () {},
+                  child: Container(
+                    width: 300,
+                    margin: const EdgeInsets.only(top: 70),
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+                      border: Border(
+                        end: BorderSide(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                          width: 1,
+                        ),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 40,
+                          spreadRadius: 4,
+                          offset: const Offset(8, 0),
+                        ),
+                      ],
+                    ),
+                    child: AppBlurEffect(
+                      blur: 20.0,
+                      borderRadius: BorderRadius.zero,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.zero,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Header
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 20,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.menu_rounded,
+                                      size: 24,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      context.isRtl ? 'القائمة' : 'Menu',
+                                      style: AppTypography.h3.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Menu Items
+                              Expanded(
+                                child: ListView(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  children: [
+                                    for (int i = 0; i < menuItems.length; i++) ...[
+                                      if (menuItems[i].isBottom && i > 0) ...[
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 24,
+                                            vertical: 8,
+                                          ),
+                                          child: Divider(
+                                            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                                          ),
+                                        ),
+                                      ],
+                                      _buildMenuItem(context, menuItems[i]),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(BuildContext context, _SideMenuItem item) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            _close();
+            if (item.path.startsWith('http://') || item.path.startsWith('https://')) {
+              launchUrl(Uri.parse(item.path));
+            } else {
+              context.go(item.path);
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: item.isHighlighted
+                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+                        : Theme.of(context).colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    item.icon,
+                    size: 20,
+                    color: item.isHighlighted
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    item.label,
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: item.isHighlighted ? FontWeight.bold : FontWeight.w600,
+                      color: item.isHighlighted
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SideMenuItem {
+  final IconData icon;
+  final String label;
+  final String path;
+  final bool isHighlighted;
+  final bool isBottom;
+
+  const _SideMenuItem({
+    required this.icon,
+    required this.label,
+    required this.path,
+    this.isHighlighted = false,
+    this.isBottom = false,
+  });
+}
+
 /// Mobile version of the Navbar with PopupMenu for both logged in and out states.
 class _MobileNavbar extends StatelessWidget {
   final bool isLoggedIn;
   final String userEmail;
   final String userId;
+  final String? userPhotoUrl;
   final String? ctaText;
   final bool showLogin;
   final ValueNotifier<int>? cubeCount;
@@ -266,6 +661,7 @@ class _MobileNavbar extends StatelessWidget {
     required this.isLoggedIn,
     required this.userEmail,
     required this.userId,
+    this.userPhotoUrl,
     this.ctaText,
     this.showLogin = true,
     this.cubeCount,
@@ -351,6 +747,7 @@ class _MobileNavbar extends StatelessWidget {
                         _MobileMenuPopup(
                           isLoggedIn: isLoggedIn,
                           userEmail: userEmail,
+                          userPhotoUrl: userPhotoUrl,
                           showLogin: showLogin,
                           ctaText: ctaText,
                           parsedLinks: parsedLinks,
@@ -371,6 +768,7 @@ class _MobileNavbar extends StatelessWidget {
 class _MobileMenuPopup extends StatelessWidget {
   final bool isLoggedIn;
   final String userEmail;
+  final String? userPhotoUrl;
   final bool showLogin;
   final String? ctaText;
   final List<Map<String, String>> parsedLinks;
@@ -378,7 +776,8 @@ class _MobileMenuPopup extends StatelessWidget {
   const _MobileMenuPopup({
     required this.isLoggedIn,
     required this.userEmail,
-    required this.showLogin,
+    this.userPhotoUrl,
+    this.showLogin,
     this.ctaText,
     required this.parsedLinks,
   });
@@ -492,20 +891,23 @@ class _MobileMenuPopup extends StatelessWidget {
                         if (isLoggedIn) ...[
                           Padding(
                             padding: const EdgeInsets.all(20),
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                                  child: Text(
-                                    userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.secondary,
-                                    ),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 20,
+                                    backgroundImage: userPhotoUrl != null ? NetworkImage(userPhotoUrl!) : null,
+                                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                                    child: userPhotoUrl == null
+                                        ? Text(
+                                            userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context).colorScheme.secondary,
+                                            ),
+                                          )
+                                        : null,
                                   ),
-                                ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Text(
@@ -680,8 +1082,9 @@ class _LogoSection extends StatelessWidget {
 class _UserAvatarMenu extends StatelessWidget {
   final String email;
   final String userId;
+  final String? photoUrl;
 
-  _UserAvatarMenu({required this.email, required this.userId})
+  _UserAvatarMenu({required this.email, required this.userId, this.photoUrl})
     : super(key: ValueKey(userId));
 
   @override
@@ -710,17 +1113,20 @@ class _UserAvatarMenu extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 14,
+                backgroundImage: photoUrl != null ? NetworkImage(photoUrl!) : null,
                 backgroundColor: Theme.of(
                   context,
                 ).colorScheme.primary.withValues(alpha: 0.15),
-                child: Text(
-                  email.isNotEmpty ? email[0].toUpperCase() : 'U',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
+                child: photoUrl == null
+                    ? Text(
+                        email.isNotEmpty ? email[0].toUpperCase() : 'U',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      )
+                    : null,
               ),
               const SizedBox(width: 8),
               Text(
@@ -802,6 +1208,32 @@ class _UserAvatarMenu extends StatelessWidget {
                             ),
                           ),
                         ),
+                        if (photoUrl != null) ...[
+                          Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              launchUrl(Uri.parse('https://myaccount.google.com/'));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.google, size: 20, color: Theme.of(context).colorScheme.primary),
+                                  const SizedBox(width: 14),
+                                  Text(
+                                    'إدارة حساب Google',
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                         Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
                         InkWell(
                           onTap: () {

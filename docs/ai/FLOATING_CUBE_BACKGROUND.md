@@ -40,7 +40,21 @@ A V2 real-time 3D cube particle system with four interactive modes (Standard, Me
   - **0.35** (525ms): `triggerLogoBurst` fires at the peak of the scale, teleporting all cubes to the screen center with strong outward radial velocities and randomized rotations.
   - **0.35–0.40** (525–600ms): Logo holds at peak scale briefly as cubes begin to spread.
   - **0.40–1.0** (600–1500ms): Logo scales down (1.15→0.95) and fades out (1.0→0.0) simultaneously, revealing cubes already spread across the screen.
-- The `triggerLogoBurst` function spawns cubes tightly behind the logo (radius ~ 0.0) with a strong outward velocity, creating a perfect "logo explodes into cubes" effect as the logo fades.
+- The `triggerLogoBurst` function assigns each cube:
+  - **Staggered force**: `0.5 + (i % 5) * 0.2 + random * 1.4` for depth-layered velocity variety (some fly fast, some slow).
+  - **Vertical spread**: Even-indexed cubes get upward bias, odd-indexed get downward bias for true 3D dispersion.
+  - **Randomized rotation angles**: `rx`, `ry`, `rz` randomized at burst time so cubes tumble chaotically.
+  - **Strong rotational velocity**: `vrx/vry/vrz` assigned at burst time (up to ±6.0/±8.0/±3.0) for dramatic tumbling.
+  - **Extra cubes (≥27)**: Velocities scaled by 0.75× for staggered depth effect — they explode slightly slower and with less rotation, appearing to trail behind the main burst.
+- 200 trail flash particles spawn at burst center (`spread: 0.25`) for a dramatic light flash effect.
+
+### Pre-Burst Enhanced Extra Cube Cluster
+- During pre-burst state (logo displayed before explosion), first 27 cubes form the 3×3×3 isometric cube grid at center.
+- **Extra cubes (index ≥ 27)** are no longer hidden at center — they are now positioned in a staggered 3D cluster **behind** the logo:
+  - Positioned at varying radial distances and angles behind the logo using isometric rotation.
+  - Each gets unique rotation offsets (`rx + n*0.15`, `ry + n*0.12`, `rz + n*0.1`) for visual variety.
+  - Visible with small render sizes (9–17) so they appear as a subtle "halo" cluster behind the main logo.
+  - On burst, they explode with 75% of the main velocity, creating a layered 3D explosion effect.
 
 ### Split-on-Tap (Merge Mode)
 - In merge mode, tapping a merged cube (one with `count > 1`) splits it back into its two constituent cubes.

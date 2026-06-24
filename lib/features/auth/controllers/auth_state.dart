@@ -8,11 +8,13 @@ class Authenticated extends AuthState {
   final String userId;
   final String email;
   final String role;
+  final String? photoURL;
 
   Authenticated({
     required this.userId,
     required this.email,
     required this.role,
+    this.photoURL,
   });
 }
 

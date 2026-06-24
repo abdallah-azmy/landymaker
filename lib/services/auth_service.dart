@@ -8,6 +8,7 @@ class AuthService {
   String? get currentUserId => _supabase.currentUserId;
   String? get currentUserEmail => _supabase.currentUserEmail;
   String get currentUserRole => _supabase.currentUserRole;
+  String? get currentUserPhotoUrl => _supabase.currentUserPhotoUrl;
   bool get isAuthenticated => _supabase.isAuthenticated;
 
   void addListener(void Function() listener) {

@@ -32,11 +32,13 @@ class SupabaseService extends ChangeNotifier {
   String? _currentUserId;
   String _currentUserRole = 'user'; // 'user' or 'super_admin'
   String _currentUserTier = 'free'; // 'free' or 'pro'
+  String? _currentUserPhotoUrl;
 
   String? get currentUserEmail => _currentUserEmail;
   String? get currentUserId => _currentUserId;
   String get currentUserRole => _currentUserRole;
   String get currentUserTier => _currentUserTier;
+  String? get currentUserPhotoUrl => _currentUserPhotoUrl;
   bool get isAuthenticated => _currentUserId != null;
   SupabaseClient get client => _client!;
 
@@ -92,6 +94,7 @@ class SupabaseService extends ChangeNotifier {
       if (session != null) {
         _currentUserId = session.user.id;
         _currentUserEmail = session.user.email;
+        _currentUserPhotoUrl = session.user.userMetadata?['avatar_url'] as String?;
         await _fetchUserRole(session.user.id);
       }
 
@@ -101,11 +104,13 @@ class SupabaseService extends ChangeNotifier {
         if (session != null) {
           _currentUserId = session.user.id;
           _currentUserEmail = session.user.email;
+          _currentUserPhotoUrl = session.user.userMetadata?['avatar_url'] as String?;
           await _fetchUserRole(session.user.id);
         } else {
           _currentUserId = null;
           _currentUserEmail = null;
           _currentUserRole = 'user';
+          _currentUserPhotoUrl = null;
         }
         notifyListeners();
       });
@@ -191,6 +196,7 @@ class SupabaseService extends ChangeNotifier {
     _currentUserId = null;
     _currentUserEmail = null;
     _currentUserRole = 'user';
+    _currentUserPhotoUrl = null;
     notifyListeners();
   }
 

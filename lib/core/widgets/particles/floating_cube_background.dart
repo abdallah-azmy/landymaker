@@ -383,12 +383,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       // Restore original base sizes
       e.targetSize = d.size;
 
-      // Unhide the core cubes by restoring their size and giving them a tiny random offset
       if (i >= 27) {
-        final angle = Random().nextDouble() * 2 * pi;
-        final radius = Random().nextDouble() * 0.005;
-        e.x = center.dx + cos(angle) * radius;
-        e.y = center.dy + sin(angle) * radius;
+        // Extra cubes: restore size from pre-burst staggered position
         e.renderSize = d.size;
       }
 
@@ -405,21 +401,47 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         dist = 0.01;
       }
 
-      // Massive explosive physical force outward
-      final force = 0.8 + Random().nextDouble() * 0.8;
-      e.vx = (dx / dist) * force + (Random().nextDouble() - 0.5) * 0.05;
-      e.vy = (dy / dist) * force + (Random().nextDouble() - 0.5) * 0.05;
+      // 3D Realistic Explosion Physics
+      // Stagger force by index to create depth layers (some fly fast, some slow)
+      final forceBase = 0.5 + (i % 5) * 0.2;
+      final force = forceBase + Random().nextDouble() * 1.4;
 
-      // Note: We DO NOT randomize e.rx, e.ry, e.rz here.
-      // The massive vx/vy velocities will naturally spin them out of their
-      // isometric Rubik's cube alignment in the physics loop.
+      // Primary radial velocity
+      e.vx = (dx / dist) * force + (Random().nextDouble() - 0.5) * 0.08;
+      e.vy = (dy / dist) * force + (Random().nextDouble() - 0.5) * 0.08;
+
+      // Add vertical spread for 3D feel — cubes don't all fly in a flat plane
+      if (i.isEven) {
+        e.vy += (Random().nextDouble() - 0.3) * 0.3;
+      } else {
+        e.vy += (Random().nextDouble() - 0.7) * 0.3;
+      }
+
+      // Randomize burst rotation angles so cubes tumble chaotically
+      e.rx = pi / 4 + (Random().nextDouble() - 0.5) * 2.0;
+      e.ry = pi / 4 + (Random().nextDouble() - 0.5) * 2.5;
+      e.rz = (Random().nextDouble() - 0.5) * 1.5;
+
+      // Assign strong rotational velocity for dramatic tumbling
+      e.vrx = (Random().nextDouble() - 0.5) * 6.0;
+      e.vry = (Random().nextDouble() - 0.5) * 8.0;
+      e.vrz = (Random().nextDouble() - 0.5) * 3.0;
+
+      // For extra cubes (behind the logo): add slight delay
+      // by giving them slightly lower initial velocity
+      if (i >= 27) {
+        e.vx *= 0.75;
+        e.vy *= 0.75;
+        e.vrx *= 0.7;
+        e.vry *= 0.7;
+      }
     }
-    // Spawn a massive flash particle effect
+    // Spawn a massive flash particle effect with wider spread for more drama
     _trailPool.spawnBurst(
       center.dx,
       center.dy,
-      150,
-      spread: 0.15,
+      200,
+      spread: 0.25,
       entitySize: 40.0,
     );
   }
@@ -864,11 +886,34 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           e.renderSize = 19.0;
           e.targetSize = 19.0;
         } else {
-          // Hide surplus cubes at the core
-          e.x = 0.5;
-          e.y = 0.5;
-          e.renderSize = 0.0;
-          e.targetSize = 0.0;
+          // Position surplus cubes in a staggered 3D cluster behind the logo
+          final int extraIndex = i - 27;
+          final double spreadAngle = (extraIndex % 7) * pi / 3.5;
+          final double staggerRadius = 6.0 + (extraIndex % 4) * 6.0;
+          final double behindOffset = 12.0 + (extraIndex % 5) * 8.0;
+          double eX = staggerRadius * cos(spreadAngle);
+          double eY = staggerRadius * sin(spreadAngle) * 0.6;
+          double eZ = -(gap * 1.5 + behindOffset);
+          double eY1 = eY * cx - eZ * sx;
+          double eZ1 = eY * sx + eZ * cx;
+          eY = eY1;
+          eZ = eZ1;
+          double eX1 = eX * cy + eZ * sy;
+          double eZ2 = -eX * sy + eZ * cy;
+          eX = eX1;
+          eZ = eZ2;
+          double eX2 = eX * cz - eY * sz;
+          double eY2 = eX * sz + eY * cz;
+          eX = eX2;
+          eY = eY2;
+          e.depth = eZ;
+          e.x = 0.5 + eX / _screenSize.width;
+          e.y = 0.5 - eY / _screenSize.height;
+          e.rx = rx + (extraIndex % 3) * 0.15;
+          e.ry = ry + (extraIndex % 4) * 0.12;
+          e.rz = rz + (extraIndex % 5) * 0.1;
+          e.renderSize = 9.0 + (extraIndex % 3) * 4.0;
+          e.targetSize = 9.0 + (extraIndex % 3) * 4.0;
         }
         e.vx = 0;
         e.vy = 0;

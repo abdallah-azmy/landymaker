@@ -43,6 +43,7 @@ class AuthCubit extends Cubit<AuthState> {
         userId: _authService.currentUserId!,
         email: _authService.currentUserEmail!,
         role: _authService.currentUserRole,
+        photoURL: _authService.currentUserPhotoUrl,
       ));
     } else {
       if (state is! Unauthenticated) {
@@ -85,6 +86,7 @@ class AuthCubit extends Cubit<AuthState> {
           userId: _authService.currentUserId!,
           email: _authService.currentUserEmail!,
           role: _authService.currentUserRole,
+          photoURL: _authService.currentUserPhotoUrl,
         ));
       } else {
         emit(AuthFailure("Login failed"));
@@ -114,6 +116,7 @@ class AuthCubit extends Cubit<AuthState> {
           userId: _authService.currentUserId!,
           email: _authService.currentUserEmail!,
           role: _authService.currentUserRole,
+          photoURL: _authService.currentUserPhotoUrl,
         ));
       } else {
         emit(AuthFailure("Registration failed"));
@@ -174,6 +177,7 @@ class AuthCubit extends Cubit<AuthState> {
         userId: _pendingGoogleUserId!,
         email: _pendingGoogleEmail!,
         role: _authService.currentUserRole,
+        photoURL: _authService.currentUserPhotoUrl,
       ));
       _pendingGoogleEmail = null;
       _pendingGoogleUserId = null;

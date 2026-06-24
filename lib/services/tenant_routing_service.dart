@@ -47,6 +47,7 @@ class TenantRoutingService {
     'terms',
     'templates',
     'guest-preview',
+    'cubes',
     'sitemap',
     'robots.txt',
     'favicon.ico',

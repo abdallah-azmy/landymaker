@@ -704,7 +704,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     final topExclusion = widget.topExclusion;
 
     if (_isGathering) {
-      final double gap = 22.5;
+      final double gap = 24.0;
       final double rx = 0.85;
       final double ry = pi / 4;
       final double rz = 0.5003747769;
@@ -739,19 +739,18 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           double y2 = X * sz + Y * cz;
           X = x2;
           Y = y2;
+          
+          e.depth = Z;
 
           double targetX = 0.5 + X / _screenSize.width;
           double targetY = 0.5 - Y / _screenSize.height;
-          double targetZ = Z;
 
           double dx = targetX - e.x;
           double dy = targetY - e.y;
-          double dz = targetZ - e.z;
 
           // Easing
           e.x += dx * 0.06;
           e.y += dy * 0.06;
-          e.z += dz * 0.06;
 
           // Dampen physical velocity
           e.vx *= 0.8;
@@ -780,13 +779,13 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             drz += 2 * pi;
           e.rz += drz * 0.06;
 
-          e.targetSize = 18.0;
-          e.renderSize += (18.0 - e.renderSize) * 0.08;
+          e.targetSize = 19.0;
+          e.renderSize += (19.0 - e.renderSize) * 0.08;
 
           if (dx.abs() > 0.005 ||
               dy.abs() > 0.005 ||
               drx.abs() > 0.1 ||
-              (18.0 - e.renderSize).abs() > 1.0) {
+              (19.0 - e.renderSize).abs() > 1.0) {
             allArrived = false;
           }
         } else {
@@ -812,7 +811,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     // ── Entity update (repulsion + physics) ──
     if (_isPreBurst) {
-      final double gap = 22.5; // Spacing between cubes
+      final double gap = 24.0; // Spacing between cubes
       final double rx = 0.85; // CornerAxis tilt (matches new brand logo)
       final double ry = pi / 4; // Isometric 45 deg turn
       final double rz = 0.5003747769; // Makes it rest on a single corner
@@ -850,6 +849,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           double y2 = X * sz + Y * cz;
           X = x2;
           Y = y2;
+          
+          e.depth = Z;
 
           // Map to 2D screen delta
           double dx = X;
@@ -857,12 +858,11 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
           e.x = 0.5 + dx / _screenSize.width;
           e.y = 0.5 + dy / _screenSize.height;
-          e.z = Z;
           e.rx = rx;
           e.ry = ry;
           e.rz = rz;
-          e.renderSize = 18.0;
-          e.targetSize = 18.0;
+          e.renderSize = 19.0;
+          e.targetSize = 19.0;
         } else {
           // Hide surplus cubes at the core
           e.x = 0.5;
@@ -1586,7 +1586,7 @@ class _BaseCubeData {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _MergeEntity {
-  double x, y, z;
+  double x, y;
   int count;
   double vx, vy;
   final double _baseVx, _baseVy;
@@ -1594,6 +1594,7 @@ class _MergeEntity {
   double vrx, vry, vrz;
   double renderSize;
   double targetSize;
+  double depth = 0.0;
   double mergeTimer = 0.0;
   double mergeCooldown = 0.0;
   double ignoreRepelTimer = 0.0;
@@ -1626,7 +1627,6 @@ class _MergeEntity {
   _MergeEntity({
     double? x,
     double? y,
-    double? z,
     double? vx,
     double? vy,
     int count = 1,
@@ -1639,7 +1639,6 @@ class _MergeEntity {
   }) : x = x ?? Random().nextDouble(),
        baseIndices = baseIndices ?? List.generate(count, (i) => i),
        y = y ?? Random().nextDouble(),
-       z = z ?? 0.0,
        count = count,
        vx = vx ?? (Random().nextDouble() - 0.5) * 0.05,
        vy = vy ?? (Random().nextDouble() - 0.5) * 0.05,
@@ -1880,13 +1879,13 @@ class _FaceDrawData {
 
 class _CubeDrawData {
   final double size;
-  final double z;
+  final double depth;
   final double left, right, top, bottom;
   final List<_FaceDrawData> faces;
 
   _CubeDrawData({
     required this.size,
-    required this.z,
+    required this.depth,
     required this.left,
     required this.right,
     required this.top,
@@ -2040,7 +2039,7 @@ class _CubePainter extends CustomPainter {
       allData.add(
         _CubeDrawData(
           size: entity.renderSize,
-          z: entity.z,
+          depth: entity.depth,
           left: minX,
           right: maxX,
           top: minY,
@@ -2050,11 +2049,7 @@ class _CubePainter extends CustomPainter {
       );
     }
 
-    if (isLogoState) {
-      allData.sort((a, b) => a.z.compareTo(b.z));
-    } else {
-      allData.sort((a, b) => a.size.compareTo(b.size));
-    }
+    allData.sort((a, b) => isLogoState ? a.depth.compareTo(b.depth) : a.size.compareTo(b.size));
 
     for (final cubeData in allData) {
       if (cubeData.faces.isEmpty) continue;

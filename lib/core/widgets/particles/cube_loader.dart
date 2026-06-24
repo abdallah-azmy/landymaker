@@ -433,7 +433,8 @@ class _CubeLoaderPainter extends CustomPainter {
 
     switch (variant) {
       case CubeLoaderVariant.logo:
-        _paintLogo(canvas, size, rot);
+      case CubeLoaderVariant.logoPremiumCornerAxis:
+        _paintPremiumCornerAxis(canvas, size);
         break;
       case CubeLoaderVariant.single:
         _paintSingle(canvas, size, rot);
@@ -468,9 +469,7 @@ class _CubeLoaderPainter extends CustomPainter {
       case CubeLoaderVariant.circularDouble:
         _paintCircularDouble(canvas, size, rot);
         break;
-      case CubeLoaderVariant.logoPremiumCornerAxis:
-        _paintPremiumCornerAxis(canvas, size);
-        break;
+
       case CubeLoaderVariant.logoPremium:
       case CubeLoaderVariant.logoPremiumFloat:
       case CubeLoaderVariant.logoPremiumWave:

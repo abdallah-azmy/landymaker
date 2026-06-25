@@ -382,6 +382,11 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   void _triggerLogoBurst(Offset center) {
     _preBurstValue = false;
 
+    // Split all merged entities into individuals and reset merge state
+    // so cubes scatter as individual pieces (no pre-merged clumps)
+    _splitMergedEntities();
+    _resetMergeState();
+
     // Pre-compute depth range for normalisation
     double minDepth = double.infinity, maxDepth = double.negativeInfinity;
     for (final e in _entities) {
@@ -390,28 +395,36 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     }
     final depthRange = maxDepth - minDepth;
 
-    for (int i = 0; i < _entities.length; i++) {
-      final e = _entities[i];
-      final d = _baseData[e.baseIndices.first];
+    // Determine if the user clicked ON the logo (near screen centre) or in empty space
+    final isLogoClick = (center - const Offset(0.5, 0.5)).distance < 0.12;
+
+    // Pre-compute primary direction for directional explosion
+    // (away from click point → cubes fly opposite to the tap)
+    double dirX = 0.5 - center.dx;
+    double dirY = 0.5 - center.dy;
+    final dirDist = sqrt(dirX * dirX + dirY * dirY);
+    if (dirDist > 0.001) {
+      dirX /= dirDist;
+      dirY /= dirDist;
+    } else {
+      dirX = 1.0;
+      dirY = 0.0;
+    }
+
+    for (final e in _entities) {
+      final firstIdx = e.baseIndices.first;
+      final d = _baseData[firstIdx];
 
       // Restore original base sizes
       e.targetSize = d.size;
 
-      if (i >= 27) {
+      // For extra cubes (base index >= 27), restore renderSize as it was hidden
+      if (firstIdx >= 27) {
         e.renderSize = d.size;
       }
 
-      // Calculate vector from centre to their CURRENT position
-      double dx = e.x - center.dx;
-      double dy = e.y - center.dy;
-      double dist = sqrt(dx * dx + dy * dy);
-
-      if (dist < 0.001) {
-        final angle = Random().nextDouble() * 2 * pi;
-        dx = cos(angle) * 0.01;
-        dy = sin(angle) * 0.01;
-        dist = 0.01;
-      }
+      e.vx = 0;
+      e.vy = 0;
 
       // Normalise depth 0..1 (front → back)
       final depthNorm = depthRange > 0
@@ -420,14 +433,25 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
       // Front cubes fly faster, rear cubes emerge slower
       final depthVel = 0.4 + depthNorm * 1.0;
-      final randForce = 0.5 + Random().nextDouble() * 1.0;
+      final randForce = 0.5 + Random().nextDouble() * 1.2;
       final force = depthVel * randForce;
 
-      e.vx = (dx / dist) * force + (Random().nextDouble() - 0.5) * 0.25;
-      e.vy = (dy / dist) * force + (Random().nextDouble() - 0.5) * 0.25;
-
-      // Vertical spread based on depth — rear cubes arc up, front cubes arc down
-      e.vy += (0.5 - depthNorm) * 0.7 + (Random().nextDouble() - 0.5) * 0.4;
+      if (isLogoClick) {
+        // ── Spherical explosion: uniform distribution in all directions ──
+        final angle = Random().nextDouble() * 2 * pi;
+        e.vx = cos(angle) * force;
+        e.vy = sin(angle) * force;
+      } else {
+        // ── Directional explosion: cubes fly away from click, then spread ──
+        final spreadAngle = (Random().nextDouble() - 0.5) * pi * 0.6;
+        final cosSpread = cos(spreadAngle);
+        final sinSpread = sin(spreadAngle);
+        e.vx = (dirX * cosSpread - dirY * sinSpread) * force;
+        e.vy = (dirX * sinSpread + dirY * cosSpread) * force;
+        // Extra randomness for organic feel
+        e.vx += (Random().nextDouble() - 0.5) * 0.3;
+        e.vy += (Random().nextDouble() - 0.5) * 0.3;
+      }
 
       // Tumble intensity scales with explosion speed
       final speed = sqrt(e.vx * e.vx + e.vy * e.vy);

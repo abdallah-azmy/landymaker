@@ -268,12 +268,12 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
         event.localPosition.dx / size.width,
         event.localPosition.dy / size.height,
       );
-      if (!_cubeController.trySplit(normalized)) {
-        if (_isPreviewMode && _cubeController.isLogoFormed) {
-          _cubeController.triggerLogoBurst(normalized);
-        } else {
-          _cubeController.burstAt(normalized);
-        }
+      if (_isPreviewMode && _cubeController.isLogoFormed) {
+        // In preview mode with the logo formed, clicking anywhere triggers
+        // the logo burst (spherical on the logo, directional in empty space).
+        _cubeController.triggerLogoBurst(normalized);
+      } else if (!_cubeController.trySplit(normalized)) {
+        _cubeController.burstAt(normalized);
       }
     }
   }

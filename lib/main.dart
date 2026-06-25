@@ -50,8 +50,6 @@ void main() async {
   try {
     // Initialize SEO
     AppSEO.config();
-    
-
 
     // Initialize all dependencies via GetIt Service Locator
     await initDependencies();
@@ -93,10 +91,7 @@ void main() async {
                   Text(
                     '$e',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.redAccent, fontSize: 14),
                   ),
                   SizedBox(height: 24),
                   const Text(
@@ -113,8 +108,6 @@ void main() async {
   }
 }
 
-
-
 class LandyMakerApp extends StatelessWidget {
   const LandyMakerApp({super.key});
 
@@ -129,9 +122,7 @@ class LandyMakerApp extends StatelessWidget {
           create: (_) => sl<ActiveWebsiteCubit>(),
         ),
         BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>()),
-        BlocProvider<BuilderThemeCubit>(
-          create: (_) => sl<BuilderThemeCubit>(),
-        ),
+        BlocProvider<BuilderThemeCubit>(create: (_) => sl<BuilderThemeCubit>()),
         BlocProvider<LandingPageBuilderCubit>(
           create: (_) => sl<LandingPageBuilderCubit>(),
         ),
@@ -142,15 +133,16 @@ class LandyMakerApp extends StatelessWidget {
           create: (_) => sl<PixabaySelectorCubit>(),
         ),
         BlocProvider<AIGenerationCubit>(
-          create: (context) => AIGenerationCubit(sl<SupabaseService>(), context.read<LandingPageBuilderCubit>()),
+          create: (context) => AIGenerationCubit(
+            sl<SupabaseService>(),
+            context.read<LandingPageBuilderCubit>(),
+          ),
         ),
         BlocProvider<LandingPagesCubit>(create: (_) => sl<LandingPagesCubit>()),
         BlocProvider<LeadsAnalyticsCubit>(
           create: (_) => sl<LeadsAnalyticsCubit>(),
         ),
-        BlocProvider<MediaGalleryCubit>(
-          create: (_) => sl<MediaGalleryCubit>(),
-        ),
+        BlocProvider<MediaGalleryCubit>(create: (_) => sl<MediaGalleryCubit>()),
         BlocProvider<SuperAdminCubit>(create: (_) => sl<SuperAdminCubit>()),
         BlocProvider<PublicPageCubit>(create: (_) => sl<PublicPageCubit>()),
         BlocProvider<BlogCubit>(create: (_) => sl<BlogCubit>()),
@@ -162,27 +154,27 @@ class LandyMakerApp extends StatelessWidget {
               return ToastificationWrapper(
                 child: OfflineBanner(
                   child: MaterialApp.router(
-                  title: 'LandyMaker',
-                  debugShowCheckedModeBanner: false,
-                  routerConfig: appRouter,
+                    title: 'LandyMaker',
+                    debugShowCheckedModeBanner: false,
+                    routerConfig: appRouter,
 
-                  // Locale Configurations
-                  locale: locale,
-                  supportedLocales: const [Locale('ar'), Locale('en')],
-                  localizationsDelegates: const [
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                    quill.FlutterQuillLocalizations.delegate,
-                  ],
+                    // Locale Configurations
+                    locale: locale,
+                    supportedLocales: const [Locale('ar'), Locale('en')],
+                    localizationsDelegates: const [
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate,
+                      GlobalCupertinoLocalizations.delegate,
+                      quill.FlutterQuillLocalizations.delegate,
+                    ],
 
-                  // Dual-mode theme system
-                  theme: AppTheme.light(),
-                  darkTheme: AppTheme.dark(),
-                  themeMode: themeMode,
+                    // Dual-mode theme system
+                    theme: AppTheme.light(),
+                    darkTheme: AppTheme.dark(),
+                    themeMode: themeMode,
+                  ),
                 ),
-              ),
-            );
+              );
             },
           );
         },

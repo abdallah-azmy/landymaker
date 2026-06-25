@@ -269,6 +269,7 @@ class FloatingCubeBackgroundController {
   bool Function(Offset)? onTrySplit;
   double scrollDrift = 0.0;
   final ValueNotifier<int> cubeCount = ValueNotifier<int>(0);
+  bool isLogoFormed = false;
 
   void gatherIntoLogo() {
     onGatherIntoLogo?.call();
@@ -334,6 +335,10 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   bool _hasRepelPoint = false;
   Size _screenSize = const Size(800, 800);
   late bool _isPreBurst;
+  set _preBurstValue(bool value) {
+    _isPreBurst = value;
+    widget.controller?.isLogoFormed = value;
+  }
   bool _isGathering = false;
 
   // V2 features
@@ -375,7 +380,16 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 
   void _triggerLogoBurst(Offset center) {
-    _isPreBurst = false;
+    _preBurstValue = false;
+
+    // Pre-compute depth range for normalisation
+    double minDepth = double.infinity, maxDepth = double.negativeInfinity;
+    for (final e in _entities) {
+      if (e.depth < minDepth) minDepth = e.depth;
+      if (e.depth > maxDepth) maxDepth = e.depth;
+    }
+    final depthRange = maxDepth - minDepth;
+
     for (int i = 0; i < _entities.length; i++) {
       final e = _entities[i];
       final d = _baseData[e.baseIndices.first];
@@ -384,16 +398,14 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       e.targetSize = d.size;
 
       if (i >= 27) {
-        // Extra cubes: restore size from pre-burst staggered position
         e.renderSize = d.size;
       }
 
-      // Calculate vector from center to their CURRENT position
+      // Calculate vector from centre to their CURRENT position
       double dx = e.x - center.dx;
       double dy = e.y - center.dy;
       double dist = sqrt(dx * dx + dy * dy);
 
-      // Failsafe for perfectly centered elements
       if (dist < 0.001) {
         final angle = Random().nextDouble() * 2 * pi;
         dx = cos(angle) * 0.01;
@@ -401,40 +413,36 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         dist = 0.01;
       }
 
-      // 3D Realistic Explosion Physics
-      // Stagger force by index to create depth layers (some fly fast, some slow)
-      final forceBase = 0.5 + (i % 5) * 0.2;
-      final force = forceBase + Random().nextDouble() * 1.4;
+      // Normalise depth 0..1 (front → back)
+      final depthNorm = depthRange > 0
+          ? ((e.depth - minDepth) / depthRange).clamp(0.0, 1.0)
+          : 0.5;
 
-      // Primary radial velocity
-      e.vx = (dx / dist) * force + (Random().nextDouble() - 0.5) * 0.08;
-      e.vy = (dy / dist) * force + (Random().nextDouble() - 0.5) * 0.08;
+      // Front cubes fly faster, rear cubes emerge slower
+      final depthVel = 0.4 + depthNorm * 1.0;
+      final randForce = 0.5 + Random().nextDouble() * 1.0;
+      final force = depthVel * randForce;
 
-      // Add vertical spread for 3D feel — cubes don't all fly in a flat plane
-      if (i.isEven) {
-        e.vy += (Random().nextDouble() - 0.3) * 0.3;
-      } else {
-        e.vy += (Random().nextDouble() - 0.7) * 0.3;
-      }
+      e.vx = (dx / dist) * force + (Random().nextDouble() - 0.5) * 0.25;
+      e.vy = (dy / dist) * force + (Random().nextDouble() - 0.5) * 0.25;
 
-      // Randomize burst rotation angles so cubes tumble chaotically
-      e.rx = pi / 4 + (Random().nextDouble() - 0.5) * 2.0;
-      e.ry = pi / 4 + (Random().nextDouble() - 0.5) * 2.5;
-      e.rz = (Random().nextDouble() - 0.5) * 1.5;
+      // Vertical spread based on depth — rear cubes arc up, front cubes arc down
+      e.vy += (0.5 - depthNorm) * 0.7 + (Random().nextDouble() - 0.5) * 0.4;
 
-      // Assign strong rotational velocity for dramatic tumbling
-      e.vrx = (Random().nextDouble() - 0.5) * 6.0;
-      e.vry = (Random().nextDouble() - 0.5) * 8.0;
-      e.vrz = (Random().nextDouble() - 0.5) * 3.0;
+      // Tumble intensity scales with explosion speed
+      final speed = sqrt(e.vx * e.vx + e.vy * e.vy);
+      final tumble = (speed * 2.5).clamp(0.5, 6.0);
 
-      // For extra cubes (behind the logo): add slight delay
-      // by giving them slightly lower initial velocity
-      if (i >= 27) {
-        e.vx *= 0.75;
-        e.vy *= 0.75;
-        e.vrx *= 0.7;
-        e.vry *= 0.7;
-      }
+      e.rx = pi / 4 + (Random().nextDouble() - 0.5) * tumble;
+      e.ry = pi / 4 + (Random().nextDouble() - 0.5) * tumble * 1.3;
+      e.rz = (Random().nextDouble() - 0.5) * tumble * 0.6;
+
+      e.vrx = (Random().nextDouble() - 0.5) * tumble * 1.8;
+      e.vry = (Random().nextDouble() - 0.5) * tumble * 2.5;
+      e.vrz = (Random().nextDouble() - 0.5) * tumble * 1.0;
+
+      // Enable burst speed boost for 2 seconds so cubes fly across the page
+      e.burstBoost = 2.0;
     }
     // Spawn a massive flash particle effect with wider spread for more drama
     _trailPool.spawnBurst(
@@ -684,7 +692,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   @override
   void initState() {
     super.initState();
-    _isPreBurst = widget.initialPreBurst;
+    _preBurstValue = widget.initialPreBurst;
     _generateBaseData();
     _initFromBase();
     _animController = AnimationController(
@@ -702,7 +710,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   void _startGatherIntoLogo() {
     _isGathering = true;
-    _isPreBurst = false;
+    _preBurstValue = false;
   }
 
   void _updateEntities() {
@@ -826,7 +834,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
       if (allArrived) {
         _isGathering = false;
-        _isPreBurst = true;
+        _preBurstValue = true;
       }
       return; // Skip normal physics while gathering
     }
@@ -912,8 +920,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           e.rx = rx + (extraIndex % 3) * 0.15;
           e.ry = ry + (extraIndex % 4) * 0.12;
           e.rz = rz + (extraIndex % 5) * 0.1;
-          e.renderSize = 9.0 + (extraIndex % 3) * 4.0;
-          e.targetSize = 9.0 + (extraIndex % 3) * 4.0;
+          e.renderSize = 0;
+          e.targetSize = 0;
         }
         e.vx = 0;
         e.vy = 0;
@@ -1642,6 +1650,7 @@ class _MergeEntity {
   double depth = 0.0;
   double mergeTimer = 0.0;
   double mergeCooldown = 0.0;
+  double burstBoost = 0.0;
   double ignoreRepelTimer = 0.0;
   double _timeSinceLastChange = 0.0;
   double lastScrollDrift = 0.0;
@@ -1774,9 +1783,19 @@ class _MergeEntity {
     } else {
       // ── STANDARD/MERGE/ORBIT MODE PHYSICS ──
       final double speed = sqrt(vx * vx + vy * vy);
-      if (speed > 0.35) {
-        vx = (vx / speed) * 0.35;
-        vy = (vy / speed) * 0.35;
+      if (burstBoost > 0) {
+        final cap = (0.5 + burstBoost * 0.25).clamp(0.35, 1.0);
+        if (speed > cap) {
+          vx = (vx / speed) * cap;
+          vy = (vy / speed) * cap;
+        }
+        burstBoost -= realDt;
+        if (burstBoost < 0) burstBoost = 0;
+      } else {
+        if (speed > 0.35) {
+          vx = (vx / speed) * 0.35;
+          vy = (vy / speed) * 0.35;
+        }
       }
       final double decay = max(0.0, 1.0 - 1.5 * realDt);
       vx = _baseVx + (vx - _baseVx) * decay;

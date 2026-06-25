@@ -14,6 +14,7 @@ class SidebarNavigation extends StatelessWidget {
   final ValueChanged<int> onTabSelected;
   final bool isAdmin;
   final String userEmail;
+  final String? userPhotoUrl;
   final VoidCallback onLogout;
   final List<Map<String, dynamic>>? menuItemsOverride;
 
@@ -23,6 +24,7 @@ class SidebarNavigation extends StatelessWidget {
     required this.onTabSelected,
     required this.isAdmin,
     required this.userEmail,
+    this.userPhotoUrl,
     required this.onLogout,
     this.menuItemsOverride,
   });
@@ -304,7 +306,12 @@ class SidebarNavigation extends StatelessWidget {
             ),
           ),
           
-          _SidebarFooter(userEmail: userEmail, isAdmin: isAdmin, onLogout: onLogout),
+          _SidebarFooter(
+            userEmail: userEmail,
+            userPhotoUrl: userPhotoUrl,
+            isAdmin: isAdmin,
+            onLogout: onLogout,
+          ),
         ],
       ),
     );
@@ -409,10 +416,16 @@ class _SidebarItemState extends State<_SidebarItem> {
 
 class _SidebarFooter extends StatelessWidget {
   final String userEmail;
+  final String? userPhotoUrl;
   final bool isAdmin;
   final VoidCallback onLogout;
 
-  const _SidebarFooter({required this.userEmail, required this.isAdmin, required this.onLogout});
+  const _SidebarFooter({
+    required this.userEmail,
+    this.userPhotoUrl,
+    required this.isAdmin,
+    required this.onLogout,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -430,11 +443,14 @@ class _SidebarFooter extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 16,
+                backgroundImage: userPhotoUrl != null ? NetworkImage(userPhotoUrl!) : null,
                 backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                child: Text(
-                  userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary),
-                ),
+                child: userPhotoUrl == null
+                    ? Text(
+                        userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary),
+                      )
+                    : null,
               ),
               const SizedBox(width: 10),
               Expanded(

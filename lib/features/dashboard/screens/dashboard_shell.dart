@@ -51,16 +51,14 @@ class _DashboardShellState extends State<DashboardShell> {
     super.initState();
     LandyMakerHomeScreen.resetScrollPosition();
     _loadData();
-    _initNotificationCubit();
     _initFCMListener();
   }
 
-  void _initNotificationCubit() {
-    final authState = context.read<AuthCubit>().state;
-    if (authState is Authenticated) {
+  void _initNotificationCubit(String userId) {
+    if (_notificationCubit == null) {
       _notificationCubit = NotificationCubit(
         supabase: SupabaseService.instance,
-        userId: authState.userId,
+        userId: userId,
       )..fetchNotifications();
     }
   }
@@ -133,8 +131,11 @@ class _DashboardShellState extends State<DashboardShell> {
     final authState = context.watch<AuthCubit>().state;
     if (authState is! Authenticated) return const Scaffold();
 
+    _initNotificationCubit(authState.userId);
+
     final isSuperAdmin = authState.role == 'super_admin';
     final userEmail = authState.email;
+    final userPhotoUrl = authState.photoURL;
 
     return BlocProvider.value(
       value: _notificationCubit!,
@@ -146,6 +147,7 @@ class _DashboardShellState extends State<DashboardShell> {
             currentIndex: widget.navigationShell.currentIndex,
             isAdmin: isSuperAdmin,
             userEmail: userEmail,
+            userPhotoUrl: userPhotoUrl,
             onLogout: () {
               context.read<AuthCubit>().logout();
             },
@@ -159,6 +161,7 @@ class _DashboardShellState extends State<DashboardShell> {
               navigationShell: widget.navigationShell,
               sidebar: sidebar,
               notificationCubit: _notificationCubit!,
+              userPhotoUrl: userPhotoUrl,
             );
           }
 
@@ -179,11 +182,13 @@ class _DesktopDashboardShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   final Widget sidebar;
   final NotificationCubit notificationCubit;
+  final String? userPhotoUrl;
 
   const _DesktopDashboardShell({
     required this.navigationShell,
     required this.sidebar,
     required this.notificationCubit,
+    this.userPhotoUrl,
   });
 
   @override
@@ -204,6 +209,7 @@ class _DesktopDashboardShell extends StatelessWidget {
                     _DashboardTopBar(
                       notificationCubit: notificationCubit,
                       loc: loc,
+                      userPhotoUrl: userPhotoUrl,
                     ),
                     Expanded(
                       key: ValueKey(navigationShell.currentIndex),
@@ -273,10 +279,12 @@ class _MobileDashboardShell extends StatelessWidget {
 class _DashboardTopBar extends StatelessWidget {
   final NotificationCubit notificationCubit;
   final LocalizationCubit loc;
+  final String? userPhotoUrl;
 
   const _DashboardTopBar({
     required this.notificationCubit,
     required this.loc,
+    this.userPhotoUrl,
   });
 
   @override
@@ -295,7 +303,10 @@ class _DashboardTopBar extends StatelessWidget {
           const SizedBox(width: 16),
           _NotificationBell(notificationCubit: notificationCubit),
           const SizedBox(width: 16),
-          _UserAvatarChip(userEmail: context.read<AuthCubit>().state is Authenticated ? (context.read<AuthCubit>().state as Authenticated).email : ''),
+          _UserAvatarChip(
+            userEmail: context.read<AuthCubit>().state is Authenticated ? (context.read<AuthCubit>().state as Authenticated).email : '',
+            userPhotoUrl: userPhotoUrl,
+          ),
         ],
       ),
     );
@@ -360,7 +371,8 @@ class _NotificationBell extends StatelessWidget {
 
 class _UserAvatarChip extends StatelessWidget {
   final String userEmail;
-  const _UserAvatarChip({required this.userEmail});
+  final String? userPhotoUrl;
+  const _UserAvatarChip({required this.userEmail, this.userPhotoUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -392,15 +404,18 @@ class _UserAvatarChip extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 14,
+                backgroundImage: userPhotoUrl != null ? NetworkImage(userPhotoUrl!) : null,
                 backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                child: Text(
-                  userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
+                child: userPhotoUrl == null
+                    ? Text(
+                        userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      )
+                    : null,
               ),
               const SizedBox(width: 8),
               Text(

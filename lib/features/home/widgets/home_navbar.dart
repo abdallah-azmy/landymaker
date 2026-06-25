@@ -315,7 +315,6 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
   late final Animation<double> _fadeAnimation;
   Animation<Offset> _slideAnimation = const AlwaysStoppedAnimation(Offset.zero);
   late final FocusNode _menuFocusNode;
-  GoRouter? _router;
 
   @override
   void initState() {
@@ -336,8 +335,6 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _router = GoRouter.of(context);
-      _router!.addListener(_onRouteChanged);
       _menuFocusNode.requestFocus();
     });
   }
@@ -361,7 +358,6 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
 
   @override
   void dispose() {
-    _router?.removeListener(_onRouteChanged);
     _menuFocusNode.dispose();
     _animController.dispose();
     super.dispose();
@@ -371,12 +367,6 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
     _animController.reverse().then((_) {
       widget.onClose();
     });
-  }
-
-  void _onRouteChanged() {
-    if (mounted && (_animController.isAnimating || _animController.value > 0)) {
-      _close();
-    }
   }
 
   @override
@@ -466,93 +456,95 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
                     position: _slideAnimation,
                     child: GestureDetector(
                       onTap: () {},
-                  child: Container(
-                    width: 300,
-                    margin: const EdgeInsets.only(top: 70),
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-                      border: Border(
-                        end: BorderSide(
-                          color: Theme.of(context).colorScheme.outlineVariant,
-                          width: 1,
+                      child: Container(
+                        width: 300,
+                        margin: const EdgeInsets.only(top: 70),
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+                          border: BorderDirectional(
+                            end: BorderSide(
+                              color: Theme.of(context).colorScheme.outlineVariant,
+                              width: 1,
+                            ),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 40,
+                              spreadRadius: 4,
+                              offset: const Offset(8, 0),
+                            ),
+                          ],
                         ),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          blurRadius: 40,
-                          spreadRadius: 4,
-                          offset: const Offset(8, 0),
-                        ),
-                      ],
-                    ),
-                    child: AppBlurEffect(
-                      blur: 20.0,
-                      borderRadius: BorderRadius.zero,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.zero,
-                        child: Material(
-                          color: Colors.transparent,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Header
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 20,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                        child: AppBlurEffect(
+                          blur: 20.0,
+                          borderRadius: BorderRadius.zero,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.zero,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  // Header
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 20,
                                     ),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.menu_rounded,
-                                      size: 24,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      context.isRtl ? 'القائمة' : 'Menu',
-                                      style: AppTypography.h3.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).colorScheme.onSurface,
-                                        fontSize: 20,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                                        ),
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              // Menu Items
-                              Expanded(
-                                child: ListView(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
-                                  children: [
-                                    for (int i = 0; i < menuItems.length; i++) ...[
-                                      if (menuItems[i].isBottom && i > 0) ...[
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 24,
-                                            vertical: 8,
-                                          ),
-                                          child: Divider(
-                                            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.menu_rounded,
+                                          size: 24,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          context.isRtl ? 'القائمة' : 'Menu',
+                                          style: AppTypography.h3.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                            fontSize: 20,
                                           ),
                                         ),
                                       ],
-                                      _buildMenuItem(context, menuItems[i]),
-                                    ],
-                                  ],
-                                ),
+                                    ),
+                                  ),
+                                  // Menu Items
+                                  Expanded(
+                                    child: ListView(
+                                      padding: const EdgeInsets.symmetric(vertical: 8),
+                                      children: [
+                                        for (int i = 0; i < menuItems.length; i++) ...[
+                                          if (menuItems[i].isBottom && i > 0) ...[
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 24,
+                                                vertical: 8,
+                                              ),
+                                              child: Divider(
+                                                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                                              ),
+                                            ),
+                                          ],
+                                          _buildMenuItem(context, menuItems[i]),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -562,8 +554,6 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
               ),
             ),
           ),
-        ),
-        ),
         ),
       ),
     );
@@ -777,7 +767,7 @@ class _MobileMenuPopup extends StatelessWidget {
     required this.isLoggedIn,
     required this.userEmail,
     this.userPhotoUrl,
-    this.showLogin,
+    this.showLogin = true,
     this.ctaText,
     required this.parsedLinks,
   });
@@ -1208,32 +1198,30 @@ class _UserAvatarMenu extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (photoUrl != null) ...[
-                          Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                              launchUrl(Uri.parse('https://myaccount.google.com/'));
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.google, size: 20, color: Theme.of(context).colorScheme.primary),
-                                  const SizedBox(width: 14),
-                                  Text(
-                                    'إدارة حساب Google',
-                                    style: AppTypography.bodyMedium.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
+                        Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                            context.read<AuthCubit>().switchGoogleAccount();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                            child: Row(
+                              children: [
+                                Icon(Icons.swap_horiz_rounded, size: 20, color: Theme.of(context).colorScheme.primary),
+                                const SizedBox(width: 14),
+                                Text(
+                                  context.isRtl ? 'تبديل الحساب' : 'Switch account',
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                         Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
                         InkWell(
                           onTap: () {

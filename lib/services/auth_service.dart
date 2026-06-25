@@ -47,7 +47,7 @@ class AuthService {
     return _supabase.updatePassword(newPassword);
   }
 
-  Future<void> signInWithGoogle() {
-    return _supabase.signInWithGoogle();
+  Future<void> signInWithGoogle({bool selectAccount = false}) {
+    return _supabase.signInWithGoogle(selectAccount: selectAccount);
   }
 }

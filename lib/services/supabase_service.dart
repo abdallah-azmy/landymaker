@@ -18,6 +18,8 @@ import '../core/dio_http_client_adapter.dart';
 import '../core/http_client.dart';
 import '../core/utils/env_utils.dart';
 import '../core/utils/fingerprint_utils.dart';
+import 'web_auth_helper.dart';
+
 
 /// Singleton service wrapping Supabase with Supabase SDK
 class SupabaseService extends ChangeNotifier {
@@ -94,7 +96,14 @@ class SupabaseService extends ChangeNotifier {
       if (session != null) {
         _currentUserId = session.user.id;
         _currentUserEmail = session.user.email;
-        _currentUserPhotoUrl = session.user.userMetadata?['avatar_url'] as String?;
+        
+        Logger.info('Supabase initial session user metadata: ${session.user.userMetadata}');
+        Logger.info('Supabase initial session user identities: ${session.user.identities?.map((i) => i.identityData).toList()}');
+        
+        final extractedPhoto = _extractPhotoUrl(session.user);
+        if (extractedPhoto != null && extractedPhoto.isNotEmpty) {
+          _currentUserPhotoUrl = extractedPhoto;
+        }
         await _fetchUserRole(session.user.id);
       }
 
@@ -104,7 +113,14 @@ class SupabaseService extends ChangeNotifier {
         if (session != null) {
           _currentUserId = session.user.id;
           _currentUserEmail = session.user.email;
-          _currentUserPhotoUrl = session.user.userMetadata?['avatar_url'] as String?;
+          
+          Logger.info('Supabase auth state changed user metadata: ${session.user.userMetadata}');
+          Logger.info('Supabase auth state changed user identities: ${session.user.identities?.map((i) => i.identityData).toList()}');
+          
+          final extractedPhoto = _extractPhotoUrl(session.user);
+          if (extractedPhoto != null && extractedPhoto.isNotEmpty) {
+            _currentUserPhotoUrl = extractedPhoto;
+          }
           await _fetchUserRole(session.user.id);
         } else {
           _currentUserId = null;
@@ -122,6 +138,40 @@ class SupabaseService extends ChangeNotifier {
       );
       rethrow;
     }
+  }
+
+  /// Extracts the user's Google profile photo URL.
+  ///
+  /// Checks in order:
+  /// 1. `user_metadata['picture']` — OIDC standard (GoTrue JWT source of truth)
+  /// 2. `user_metadata['avatar_url']` — legacy Supabase key
+  /// 3. `identities[0].identity_data['picture']` — provider-level fallback
+  /// 4. `identities[0].identity_data['avatar_url']` — provider-level fallback
+  static String? _extractPhotoUrl(User user) {
+    // ── user_metadata (from raw_user_meta_data column) ──
+    final meta = user.userMetadata;
+    if (meta != null) {
+      final picture = meta['picture'] as String?;
+      if (picture != null && picture.isNotEmpty) return picture;
+
+      final avatarUrl = meta['avatar_url'] as String?;
+      if (avatarUrl != null && avatarUrl.isNotEmpty) return avatarUrl;
+    }
+
+    // ── identity_data (from auth.identities table) ──
+    // Populated even when raw_user_meta_data is empty for some projects.
+    final identity = user.identities?.isNotEmpty == true
+        ? user.identities!.first
+        : null;
+    if (identity != null) {
+      final idPicture = identity.identityData?['picture'] as String?;
+      if (idPicture != null && idPicture.isNotEmpty) return idPicture;
+
+      final idAvatarUrl = identity.identityData?['avatar_url'] as String?;
+      if (idAvatarUrl != null && idAvatarUrl.isNotEmpty) return idAvatarUrl;
+    }
+
+    return null;
   }
 
   // Fetch the role and tier of authenticated user from profiles table
@@ -224,12 +274,24 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
-  Future<void> signInWithGoogle() async {
+  Future<void> signInWithGoogle({bool selectAccount = false}) async {
     try {
-      await _client!.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: kIsWeb ? null : 'com.landymaker.app://login-callback',
-      );
+      if (kIsWeb) {
+        final success = await signInWithGoogleWeb(
+          client: _client!,
+          selectAccount: selectAccount,
+        );
+        if (!success) {
+          debugPrint('Google Sign In web flow completed without authentication (cancelled).');
+        }
+      } else {
+        final queryParams = selectAccount ? {'prompt': 'select_account'} : null;
+        await _client!.auth.signInWithOAuth(
+          OAuthProvider.google,
+          redirectTo: 'com.landymaker.app://login-callback',
+          queryParams: queryParams,
+        );
+      }
     } catch (e) {
       debugPrint('Google Sign In exception: $e');
       rethrow;

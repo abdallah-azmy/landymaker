@@ -5,6 +5,7 @@ import '../../../../injection_container.dart';
 import '../../../../core/constants/db_constants.dart';
 import '../../../../services/supabase_service.dart';
 import '../../../core/services/fcm_service.dart';
+import '../../../../core/logger.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -167,6 +168,14 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       _pendingGoogleConsent = false;
       emit(AuthFailure(e.toString()));
+    }
+  }
+
+  Future<void> switchGoogleAccount() async {
+    try {
+      await _authService.signInWithGoogle(selectAccount: true);
+    } catch (e, stack) {
+      Logger.error("Failed to switch Google account", e, stack);
     }
   }
 

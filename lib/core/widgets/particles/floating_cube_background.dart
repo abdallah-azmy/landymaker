@@ -1822,16 +1822,11 @@ class _MergeEntity {
         if (gravity) vy *= 0.8;
       }
       if (y < topExclusion) {
-        y = topExclusion;
-        final drift = scrollDrift.abs();
-        if (drift > 0.001) {
-          final bounceFactor = (0.92 + drift * 10.0).clamp(0.92, 1.5);
-          vy = -vy * bounceFactor;
-          vx += (Random().nextDouble() - 0.5) * drift * 4.0;
-        } else {
-          vy = 0.03 + Random().nextDouble() * 0.04;
-          vx += (Random().nextDouble() - 0.5) * 0.015;
-        }
+        final deficit = topExclusion - y;
+        // Soft push instead of hard snap — cubes ease into the exclusion zone naturally
+        vy += deficit * 3.0;
+        y += deficit * 0.25;
+        vx += (Random().nextDouble() - 0.5) * 0.015;
       }
       if (y >= 1.0) {
         y = 1.0;

@@ -933,7 +933,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
 
     const double navbarHeight = 70.0;
     final screenHeight = MediaQuery.of(context).size.height;
-    final topExclusion = (navbarHeight / screenHeight).clamp(0.0, 1.0);
+    final topExclusion = _isPreviewMode ? 0.0 : (navbarHeight / screenHeight).clamp(0.0, 1.0);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,

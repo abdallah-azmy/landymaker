@@ -642,6 +642,14 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 
   void _initFromBase() {
+    _totalBuildCubes = (_baseData.length ~/ _bricksPerGroup) * _bricksPerGroup;
+    if (_totalBuildCubes > _totalBricks * _bricksPerGroup) {
+      _totalBuildCubes = _totalBricks * _bricksPerGroup;
+    }
+    _entityBrickIndex = List.generate(_baseData.length, (i) {
+      return i < _totalBuildCubes ? (i ~/ _bricksPerGroup) : -1;
+    });
+
     _entities = List.generate(_baseData.length, (i) {
       final d = _baseData[i];
       return _MergeEntity(
@@ -1813,7 +1821,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               primaryColor: primaryColor,
               isRtl: isRtl,
               repelPoint: _hasRepelPoint ? _repelPoint : null,
-              isLogoState: _isPreBurst || _isGathering,
+              isLogoState: _isPreBurst || _isGathering || _isBuilding,
             ),
           );
         },
@@ -2367,7 +2375,7 @@ class _CubePainter extends CustomPainter {
 
     final Path path;
     if (isLogoState) {
-      final cr = (h * 0.22).clamp(0.3, max(0.3, h * 0.4)).toDouble();
+      final cr = (h * 0.36).clamp(0.3, max(0.3, h * 0.45)).toDouble();
       path = cg.buildRoundedQuad(
         Offset(fd.x0, fd.y0),
         Offset(fd.x1, fd.y1),
@@ -2382,6 +2390,15 @@ class _CubePainter extends CustomPainter {
         ..lineTo(fd.x2, fd.y2)
         ..lineTo(fd.x3, fd.y3)
         ..close();
+    }
+
+    if (isLogoState) {
+      final glowPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = h * 0.55
+        ..color = const Color(0xFF00E5FF).withOpacity(0.72)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7.0);
+      canvas.drawPath(path, glowPaint);
     }
 
     final b = fd.brightness;

@@ -89,24 +89,24 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
 
     if (_isThisTheFirstLoad) {
       // ── First-load experience ──
-      // 1. HTML loader → persistent HTML logo (bg → transparent, logo stays)
-      // 2. HTML gathering squares KEEP looping forever (continuous).
-      // 3. IN PARALLEL: Flutter cubes fly from viewport edges toward the
-      //    3×3×3 grid positions, forming the big cube behind the logo.
-      //    All 27 bricks build simultaneously (parallel) over ~2 seconds.
-      // 4. The HTML logo IMAGE stays visible permanently on top (z-index).
-      //    The user sees BOTH: the logo + Flutter cubes assembling.
-      // 5. When APIs complete (sections loaded) + building done → burst + content
+      // 1. HTML loader starts with accelerated spawning and smooth lerping.
+      // 2. When Flutter first frame is loaded, the loader background transitions to transparent.
+      // 3. The Flutter cube starts fully formed (initialPreBurst = true) behind the HTML logo.
+      // 4. We trigger a cross-fade transition immediately: HTML logo fades out via _removePersistentLogo()
+      //    over 1.5s, while the Flutter cube fades in over 1.5s via _logoAnimController.
+      // 5. Once APIs are loaded and the 1.5s cross-fade completes, the Flutter cube explodes and contents fade in.
 
       _burstTriggered = false; // Content hidden, cubes visible as loading view
+      _gatheringComplete = true; // No building to wait for on first load
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Transition the HTML loader background to transparent (revealing Flutter behind it)
         _transitionToPersistentLogo();
-        // First load: Flutter cubes build the big cube behind the HTML logo.
-        // The HTML logo IMAGE stays visible permanently (no _removePersistentLogo)
-        // — the user watches Flutter cubes fly from viewport edges and assemble
-        // into the 3×3×3 big cube while the logo remains on top.
-        _cubeController.buildIntoLogo();
+        // Start fading the HTML persistent logo immediately (takes 1.5s)
+        _removePersistentLogo();
+        // Start fading in the fully formed Flutter cube (takes 1.5s)
+        _logoAnimController.forward();
+        // Wait for APIs and then trigger the burst (enforcing minimum 1.5s delay)
         _waitForLoadingThenRevealCubes();
       });
     } else {
@@ -116,6 +116,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
   }
 
   Future<void> _waitForLoadingThenRevealCubes() async {
+    final startTime = DateTime.now();
     // Wait for sections (API responses) to finish loading, with a safe timeout
     final deadline = DateTime.now().add(const Duration(seconds: 4));
     while (!_sectionsLoaded && DateTime.now().isBefore(deadline)) {
@@ -128,10 +129,20 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
       await Future.delayed(const Duration(milliseconds: 50));
       if (!mounted) return;
     }
+
+    // Ensure we wait at least 1500ms on first load for the HTML logo fade-out and Flutter cube fade-in to complete
+    if (_isThisTheFirstLoad) {
+      final elapsed = DateTime.now().difference(startTime);
+      final remaining = const Duration(milliseconds: 1500) - elapsed;
+      if (remaining > Duration.zero) {
+        await Future.delayed(remaining);
+      }
+    }
+
     // Loading complete → trigger everything simultaneously for a seamless cascade:
     //   1. Cubes explode (spherical from center)
     //   2. Content starts fading in (_burstTriggered = true)
-    //   3. Persistent HTML logo is already fading (started alongside building)
+    //   3. Persistent HTML logo has fully faded out
     if (mounted) {
       _burstTriggered = true;
       _darkBg = false;
@@ -1008,13 +1019,23 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                 ),
               ),
               Positioned.fill(
-                child: FloatingCubeBackground(
-                  topExclusion: topExclusion,
-                  cubeCount: _cubeCount,
-                  isActive: _particlesActive,
-                  controller: _cubeController,
-                  cubeMode: context.watch<CubeModeCubit>().state,
-                  initialPreBurst: false,
+                child: AnimatedBuilder(
+                  animation: _logoAnimController,
+                  builder: (context, child) {
+                    final opacity = _isThisTheFirstLoad ? _logoAnimController.value : 1.0;
+                    return Opacity(
+                      opacity: opacity,
+                      child: child,
+                    );
+                  },
+                  child: FloatingCubeBackground(
+                    topExclusion: topExclusion,
+                    cubeCount: _cubeCount,
+                    isActive: _particlesActive,
+                    controller: _cubeController,
+                    cubeMode: context.watch<CubeModeCubit>().state,
+                    initialPreBurst: _isThisTheFirstLoad,
+                  ),
                 ),
               ),
               if (_fontsReady)

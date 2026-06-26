@@ -144,8 +144,7 @@
       transform: scale(1.0) translateZ(0);
       filter: brightness(0.6) drop-shadow(0 0 0px rgba(0, 229, 255, 0));
       will-change: transform, filter, opacity;
-      /* Smooth transitions so that JS-driven scale and filter changes animate smoothly */
-      transition: transform 0.15s ease-out, filter 0.15s ease-out;
+      /* Removed transition for transform/filter to let JS frame-lerping drive the animations smoothly without fight */
     }
 
     /* When the loader is in persistent-logo mode, clicks pass through to Flutter */
@@ -393,26 +392,47 @@
     }
 
     var cubesGathered = 0;
-    var totalNeededCubes = 20; // Max glow/scale is reached when 20 cubes have arrived (within 3-4s total)
+    var totalNeededCubes = 15; // Max glow/scale is reached when 15 cubes have arrived
     var _htmlCubesSpawning = true;
+    var currentProgress = 0.0;
+    var targetProgress = 0.0;
 
     function onCubeArrive() {
       if (!_htmlCubesSpawning) return;
       cubesGathered++;
-      var progress = Math.min(cubesGathered / totalNeededCubes, 1.0);
+    }
+
+    function updateLogoFrame() {
+      // Calculate target progress based on arriving cubes
+      var cubeProgress = Math.min(cubesGathered / totalNeededCubes, 1.0);
       
-      // Scale from 1.0 to 1.42 (42% size increase)
-      var scale = 1.0 + (0.42 * progress);
-      // Brightness from 0.6 to 1.45
-      var brightness = 0.6 + (0.85 * progress);
-      // Shadow blur up to 25px
-      var shadowBlur = 25 * progress;
-      var shadowOpacity = 0.75 * progress;
+      // Add a small time factor to make it feel continuous even between cube arrivals
+      var elapsed = performance.now() - _glowStartTime;
+      var timeProgress = Math.min(elapsed / 3800, 1.0);
+      
+      // Merge them: 70% cube arrival, 30% time
+      targetProgress = (cubeProgress * 0.7) + (timeProgress * 0.3);
+      if (targetProgress > 1.0) targetProgress = 1.0;
+      
+      // Smooth lerp
+      currentProgress += (targetProgress - currentProgress) * 0.04;
       
       var logo = document.querySelector('.loading-logo, .logo-persistent');
       if (logo) {
-        logo.style.transform = 'scale(' + scale.toFixed(3) + ') translateZ(0)';
-        logo.style.filter = 'brightness(' + brightness.toFixed(3) + ') drop-shadow(0 0 ' + shadowBlur.toFixed(1) + 'px rgba(0, 229, 255, ' + shadowOpacity.toFixed(3) + '))';
+        // Scale from 1.0 to 1.42 (42% size increase)
+        var scale = 1.0 + (0.42 * currentProgress);
+        // Brightness from 0.6 to 1.45
+        var brightness = 0.6 + (0.85 * currentProgress);
+        // Shadow blur up to 25px
+        var shadowBlur = 25 * currentProgress;
+        var shadowOpacity = 0.75 * currentProgress;
+        
+        logo.style.transform = 'scale(' + scale.toFixed(4) + ') translateZ(0)';
+        logo.style.filter = 'brightness(' + brightness.toFixed(4) + ') drop-shadow(0 0 ' + shadowBlur.toFixed(2) + 'px rgba(0, 229, 255, ' + shadowOpacity.toFixed(4) + '))';
+      }
+      
+      if (_htmlCubesSpawning || currentProgress < targetProgress - 0.001) {
+        requestAnimationFrame(updateLogoFrame);
       }
     }
 
@@ -454,12 +474,12 @@
       window._htmlCubeEdgePositions = JSON.stringify(allPositions);
 
       // Start with a slow spawn rate relative to total time, and rapidly accelerate
-      var spawnInterval = 350; // starts at 350ms
       var positionIndex = 0;
+      var startTime = performance.now();
 
       function spawnLoop() {
         if (!_htmlCubesSpawning) return;
-        var duration = 1.0 + Math.random() * 0.8; // flight duration: 1.0s to 1.8s (much faster flight)
+        var duration = 0.8 + Math.random() * 0.5; // flight duration: 0.8s to 1.3s
         var delayRange = 0.2; // short delay range for responsiveness
         
         var pos;
@@ -472,8 +492,10 @@
 
         spawnGatheringCube(duration, delayRange, pos);
 
-        // Exponential acceleration: decrease interval by multiplying by 0.78 per spawn down to 80ms
-        spawnInterval = Math.max(80, spawnInterval * 0.78);
+        // Quadratic acceleration over 3.5 seconds:
+        var elapsed = performance.now() - startTime;
+        var progress = Math.min(elapsed / 3500, 1.0);
+        var spawnInterval = 400 - (320 * progress * progress); // starts at 400ms, drops to 80ms quadratically
 
         setTimeout(spawnLoop, spawnInterval);
       }
@@ -482,6 +504,7 @@
       spawnLoop();
     }
     createGatheringSquares();
+    requestAnimationFrame(updateLogoFrame);
 
     // ── Logo glow is handled purely by CSS animation (logo-ramp, 6s) ───
     // No JS tracking needed — the CSS does a simple gradual ramp from no

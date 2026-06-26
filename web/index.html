@@ -394,13 +394,15 @@
 
     var cubesGathered = 0;
     var totalNeededCubes = 20; // Max glow/scale is reached when 20 cubes have arrived (within 3-4s total)
+    var _htmlCubesSpawning = true;
 
     function onCubeArrive() {
+      if (!_htmlCubesSpawning) return;
       cubesGathered++;
       var progress = Math.min(cubesGathered / totalNeededCubes, 1.0);
       
-      // Scale from 1.0 to 1.35 (35% size increase)
-      var scale = 1.0 + (0.35 * progress);
+      // Scale from 1.0 to 1.42 (42% size increase)
+      var scale = 1.0 + (0.42 * progress);
       // Brightness from 0.6 to 1.45
       var brightness = 0.6 + (0.85 * progress);
       // Shadow blur up to 25px
@@ -452,10 +454,11 @@
       window._htmlCubeEdgePositions = JSON.stringify(allPositions);
 
       // Start with a slow spawn rate relative to total time, and rapidly accelerate
-      var spawnInterval = 400; // starts at 400ms
+      var spawnInterval = 350; // starts at 350ms
       var positionIndex = 0;
 
       function spawnLoop() {
+        if (!_htmlCubesSpawning) return;
         var duration = 1.0 + Math.random() * 0.8; // flight duration: 1.0s to 1.8s (much faster flight)
         var delayRange = 0.2; // short delay range for responsiveness
         
@@ -469,8 +472,8 @@
 
         spawnGatheringCube(duration, delayRange, pos);
 
-        // Exponential acceleration: decrease interval by multiplying by 0.80 per spawn down to 100ms
-        spawnInterval = Math.max(100, spawnInterval * 0.80);
+        // Exponential acceleration: decrease interval by multiplying by 0.78 per spawn down to 80ms
+        spawnInterval = Math.max(80, spawnInterval * 0.78);
 
         setTimeout(spawnLoop, spawnInterval);
       }
@@ -487,7 +490,15 @@
     // Density increase (more cubes over time) is handled by the spawning
     // logic above. Both effects (glow + density) continue forever.
 
+    function stopHtmlSpawning() {
+      _htmlCubesSpawning = false;
+      if (_gatheringContainer) {
+        _gatheringContainer.innerHTML = ''; // Clear all gathering HTML cubes instantly
+      }
+    }
+
     function removeLoader() {
+      stopHtmlSpawning();
       var loading = document.getElementById('loading-indicator');
       if (loading) {
         loading.style.transition = 'opacity 0.25s ease';
@@ -507,6 +518,7 @@
     // — gathering squares KEEP looping (they don't fade out — Flutter cubes
     //   build behind them, creating a seamless visual continuation)
     function transitionToPersistentLogo() {
+      stopHtmlSpawning();
       var loading = document.getElementById('loading-indicator');
       if (!loading) return;
       loading.classList.add('persistent-mode');
@@ -524,6 +536,7 @@
     // Fading the #loading-indicator automatically fades all children
     // (logo image + gathering squares) together as one layer.
     function removePersistentLogo() {
+      stopHtmlSpawning();
       var loading = document.getElementById('loading-indicator');
       if (!loading) return;
       loading.style.transition = 'opacity 1.5s ease';

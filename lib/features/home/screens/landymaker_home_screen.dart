@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import '../../../services/database_service.dart';
 import '../../../core/widgets/visibility_observer.dart';
 import '../../../core/widgets/particles/cube_mode_cubit.dart';
 import '../../../core/widgets/particles/floating_cube_background.dart';
+import '../../../core/utils/js_helper.dart';
 
 import '../../../core/localization/localization_cubit.dart';
 import '../models/home_layouts.dart';
@@ -55,6 +57,9 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
 
   late final AnimationController _logoAnimController;
   bool _burstTriggered = false;
+  bool _persistentLogoRemoved = false;
+  bool _gatheringComplete = false;
+  bool _darkBg = true;
 
   List<Map<String, dynamic>> _sections = [];
   List<Map<String, dynamic>> _previewPages = [];
@@ -79,34 +84,81 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
       duration: const Duration(milliseconds: 1500),
     );
     
+    // Wire gather-complete callback (used when entering preview mode)
+    _cubeController.onGatherComplete = _onGatherComplete;
+
     if (_isThisTheFirstLoad) {
-      _logoAnimController.addListener(_onLogoAnimTick);
-      _logoAnimController.addStatusListener(_onLogoAnimStatus);
+      // ── First-load experience ──
+      // 1. HTML loader → persistent HTML logo (bg → transparent, logo stays)
+      // 2. HTML gathering squares KEEP looping forever (continuous).
+      // 3. IN PARALLEL: Flutter cubes fly from viewport edges toward the
+      //    3×3×3 grid positions, forming the big cube behind the logo.
+      //    All 27 bricks build simultaneously (parallel) over ~2 seconds.
+      // 4. The HTML logo IMAGE stays visible permanently on top (z-index).
+      //    The user sees BOTH: the logo + Flutter cubes assembling.
+      // 5. When APIs complete (sections loaded) + building done → burst + content
+
+      _burstTriggered = false; // Content hidden, cubes visible as loading view
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _logoAnimController.forward();
+        _transitionToPersistentLogo();
+        // First load: Flutter cubes build the big cube behind the HTML logo.
+        // The HTML logo IMAGE stays visible permanently (no _removePersistentLogo)
+        // — the user watches Flutter cubes fly from viewport edges and assemble
+        // into the 3×3×3 big cube while the logo remains on top.
+        _cubeController.buildIntoLogo();
+        _waitForLoadingThenRevealCubes();
       });
     } else {
       _burstTriggered = true;
+      _darkBg = false;
     }
   }
 
-  void _onLogoAnimTick() {
-    // Trigger burst 900ms after Flutter first frame (900 / 1500 = 0.6)
-    // This gives the HTML loader time to fade out, and lets the user
-    // actually see the fully formed logo cube for a moment before it explodes.
-    if (!_burstTriggered && _logoAnimController.value >= 0.6) {
+  Future<void> _waitForLoadingThenRevealCubes() async {
+    // Wait for sections (API responses) to finish loading, with a safe timeout
+    final deadline = DateTime.now().add(const Duration(seconds: 4));
+    while (!_sectionsLoaded && DateTime.now().isBefore(deadline)) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return;
+    }
+    // Also wait for cubes to finish gathering into logo formation
+    // (in case sections loaded before gathering completed)
+    while (!_gatheringComplete && DateTime.now().isBefore(deadline)) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      if (!mounted) return;
+    }
+    // Loading complete → trigger everything simultaneously for a seamless cascade:
+    //   1. Cubes explode (spherical from center)
+    //   2. Content starts fading in (_burstTriggered = true)
+    //   3. Persistent HTML logo is already fading (started alongside building)
+    if (mounted) {
       _burstTriggered = true;
+      _darkBg = false;
+      _persistentLogoRemoved = true;
       _cubeController.triggerLogoBurst(const Offset(0.5, 0.5));
-    }
-    if (_logoAnimController.value < 1.0) {
       setState(() {});
     }
   }
 
-  void _onLogoAnimStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed && mounted) {
+  void _onGatherComplete() {
+    // Called when cubes finish gathering into logo formation
+    // (e.g., after entering preview mode).
+    _gatheringComplete = true;
+    if (mounted) {
       setState(() {});
+    }
+  }
+
+  void _transitionToPersistentLogo() {
+    if (kIsWeb) {
+      callJs('transitionToPersistentLogo');
+    }
+  }
+
+  void _removePersistentLogo() {
+    if (kIsWeb) {
+      callJs('removePersistentLogo');
     }
   }
 
@@ -116,7 +168,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     final width = MediaQuery.of(context).size.width;
-    final computed = 50 + ((width - 400) / 10).clamp(0, 80).toInt();
+    final computed = (50 + ((width - 400) / 10).clamp(0, 80).toInt()).clamp(81, 130);
     if (computed != _cubeCount) {
       setState(() => _cubeCount = computed);
     }
@@ -268,9 +320,12 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
         event.localPosition.dx / size.width,
         event.localPosition.dy / size.height,
       );
-      if (_isPreviewMode && _cubeController.isLogoFormed) {
-        // In preview mode with the logo formed, clicking anywhere triggers
-        // the logo burst (spherical on the logo, directional in empty space).
+      // Only trigger the full logo explosion if:
+      // - The cube logo is fully formed (isLogoFormed)
+      // - The persistent HTML logo has already been removed (loading complete)
+      // On first load, this prevents premature burst during the loading phase
+      if (_cubeController.isLogoFormed && _persistentLogoRemoved) {
+        _burstTriggered = true;
         _cubeController.triggerLogoBurst(normalized);
       } else if (!_cubeController.trySplit(normalized)) {
         _cubeController.burstAt(normalized);
@@ -917,8 +972,6 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
   void dispose() {
     _scrollController.removeListener(_saveScrollPosition);
     _scrollController.dispose();
-    _logoAnimController.removeListener(_onLogoAnimTick);
-    _logoAnimController.removeStatusListener(_onLogoAnimStatus);
     _logoAnimController.dispose();
     super.dispose();
   }
@@ -944,6 +997,16 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
           onPointerDown: _onPointerDown,
           child: Stack(
             children: [
+              // Dark background matching HTML loader — fades as content appears
+              // Prevents harsh color shift between HTML loading and Flutter canvas
+              AnimatedOpacity(
+                opacity: _darkBg && !_isPreviewMode ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 1000),
+                curve: Curves.easeInOut,
+                child: const ColoredBox(
+                  color: Color(0xFF060A12),
+                ),
+              ),
               Positioned.fill(
                 child: FloatingCubeBackground(
                   topExclusion: topExclusion,
@@ -951,7 +1014,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                   isActive: _particlesActive,
                   controller: _cubeController,
                   cubeMode: context.watch<CubeModeCubit>().state,
-                  initialPreBurst: _isThisTheFirstLoad,
+                  initialPreBurst: false,
                 ),
               ),
               if (_fontsReady)
@@ -1033,6 +1096,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
               AnimatedOpacity(
                 opacity: _burstTriggered && !_isPreviewMode ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 800),
+                curve: Curves.easeInOut,
                 child: AnimatedSlide(
                   offset: _fontsReady ? Offset.zero : const Offset(0, -1),
                   duration: const Duration(milliseconds: 600),

@@ -20,6 +20,7 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:landymaker/core/utils/js_helper.dart';
 import 'package:landymaker/core/widgets/particles/cube_mode_cubit.dart';
 import 'core/cube_geometry.dart' as cg;
 
@@ -266,6 +267,8 @@ class FloatingCubeBackgroundController {
   void Function(Offset)? onBurst;
   void Function(Offset)? onLogoBurst;
   void Function()? onGatherIntoLogo;
+  void Function()? onGatherComplete;
+  void Function()? onBuildIntoLogo;
   bool Function(Offset)? onTrySplit;
   double scrollDrift = 0.0;
   final ValueNotifier<int> cubeCount = ValueNotifier<int>(0);
@@ -273,6 +276,10 @@ class FloatingCubeBackgroundController {
 
   void gatherIntoLogo() {
     onGatherIntoLogo?.call();
+  }
+
+  void buildIntoLogo() {
+    onBuildIntoLogo?.call();
   }
 
   void repelAt(Offset? normalizedPosition) {
@@ -340,6 +347,27 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     widget.controller?.isLogoFormed = value;
   }
   bool _isGathering = false;
+  bool _isBuilding = false;
+
+  // ── Parallel brick building system ───────────────────────────────────
+  // Cubes are grouped into "bricks" (3 cubes per brick). Each brick = one
+  // position in the 3×3×3 grid. ALL bricks build simultaneously (in
+  // parallel), so the big cube assembles while remaining visible (~2s total).
+  // Within each brick, the 3 cubes are slightly staggered (~33ms apart)
+  // so you can see individual cubes merging into each brick.
+  static const int _bricksPerGroup = 3;
+  static const int _totalBricks = 27;
+  // Total _brickRevealProgress = 36 units:
+  //   1.5 units flight + 0.33 stagger per cube + pop-in snap
+  // At 18 units/sec = ~2 seconds for all bricks to complete simultaneously.
+  // Slow enough for the user to see cubes flying from viewport edges toward
+  // their grid positions, while the persistent HTML logo stays visible on top.
+  static const double _brickTotalDuration = 36.0;
+  int _totalBuildCubes = _totalBricks * _bricksPerGroup;
+  List<double> _brickStartX = <double>[];
+  List<double> _brickStartY = <double>[];
+  List<int> _entityBrickIndex = <int>[];
+  double _brickRevealProgress = 0.0;
 
   // V2 features
   final _spatialHash = _SpatialHashGrid();
@@ -380,6 +408,9 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 
   void _triggerLogoBurst(Offset center) {
+    // If still gathering or building, stop so burst velocities aren't overridden
+    _isGathering = false;
+    _isBuilding = false;
     _preBurstValue = false;
 
     // Split all merged entities into individuals and reset merge state
@@ -468,6 +499,9 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       // Enable burst speed boost for 2 seconds so cubes fly across the page
       e.burstBoost = 2.0;
     }
+    // Clear building phase state
+    _brickStartX.clear();
+    _brickStartY.clear();
     // Spawn a massive flash particle effect with wider spread for more drama
     _trailPool.spawnBurst(
       center.dx,
@@ -729,12 +763,106 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     widget.controller?.onBurst = triggerBurst;
     widget.controller?.onLogoBurst = _triggerLogoBurst;
     widget.controller?.onGatherIntoLogo = _startGatherIntoLogo;
+    widget.controller?.onBuildIntoLogo = _startBuildIntoLogo;
     widget.controller?.onTrySplit = _trySplitAt;
   }
 
   void _startGatherIntoLogo() {
+    _isBuilding = false;
     _isGathering = true;
     _preBurstValue = false;
+    // Scatter all cubes to viewport edges for dramatic gathering effect
+    final rng = Random(42);
+    for (final e in _entities) {
+      final side = rng.nextInt(4);
+      switch (side) {
+        case 0: // top
+          e.x = 0.1 + rng.nextDouble() * 0.8;
+          e.y = -0.1 - rng.nextDouble() * 0.3;
+          break;
+        case 1: // bottom
+          e.x = 0.1 + rng.nextDouble() * 0.8;
+          e.y = 1.1 + rng.nextDouble() * 0.3;
+          break;
+        case 2: // left
+          e.x = -0.1 - rng.nextDouble() * 0.3;
+          e.y = 0.1 + rng.nextDouble() * 0.8;
+          break;
+        case 3: // right
+          e.x = 1.1 + rng.nextDouble() * 0.3;
+          e.y = 0.1 + rng.nextDouble() * 0.8;
+          break;
+      }
+      e.vx = 0;
+      e.vy = 0;
+    }
+  }
+
+  void _startBuildIntoLogo() {
+    _isGathering = false;
+    _isBuilding = true;
+    _preBurstValue = false;
+    _brickStartX.clear();
+    _brickStartY.clear();
+    _entityBrickIndex.clear();
+    _brickRevealProgress = 0.0;
+
+    // Total cubes used in building (must be multiple of _bricksPerGroup)
+    _totalBuildCubes = (_entities.length ~/ _bricksPerGroup) * _bricksPerGroup;
+    if (_totalBuildCubes > _totalBricks * _bricksPerGroup) {
+      _totalBuildCubes = _totalBricks * _bricksPerGroup;
+    }
+
+    // Try to read edge positions from HTML (stored in window._htmlCubeEdgePositions
+    // by the HTML gathering-cube code). This ensures Flutter cubes launch from the
+    // SAME positions as HTML cubes, creating a seamless visual continuation where
+    // cubes fly behind the logo in HTML and emerge as Flutter bricks.
+    // All 27 bricks build simultaneously (parallel) so the big cube forms quickly.
+    // If positions aren't available (non-web or preview mode), fall back to Random(42).
+    final List<Map<String, dynamic>>? htmlPositions = readJsArray('_htmlCubeEdgePositions');
+    final bool useHtmlPositions = htmlPositions != null && htmlPositions.length >= _totalBuildCubes;
+
+    // Scatter ALL cubes to viewport edges — using HTML positions if available
+    // so the Flutter cubes appear to continue from where HTML cubes left off.
+    // Each cube is assigned to a brick (0..26). 3 cubes per brick fly toward
+    // the same grid target. When all 3 arrive, the brick "snaps" into place.
+    final rng = Random(42);
+    for (int i = 0; i < _entities.length; i++) {
+      final e = _entities[i];
+      if (useHtmlPositions && i < _totalBuildCubes) {
+        // Normalized positions from HTML (0..1 range, centered at 0.5)
+        e.x = (htmlPositions[i]['x'] as num).toDouble() + 0.5;
+        e.y = (htmlPositions[i]['y'] as num).toDouble() + 0.5;
+      } else {
+        final side = rng.nextInt(4);
+        switch (side) {
+          case 0:
+            e.x = 0.1 + rng.nextDouble() * 0.8;
+            e.y = -0.1 - rng.nextDouble() * 0.3;
+            break;
+          case 1:
+            e.x = 0.1 + rng.nextDouble() * 0.8;
+            e.y = 1.1 + rng.nextDouble() * 0.3;
+            break;
+          case 2:
+            e.x = -0.1 - rng.nextDouble() * 0.3;
+            e.y = 0.1 + rng.nextDouble() * 0.8;
+            break;
+          case 3:
+            e.x = 1.1 + rng.nextDouble() * 0.3;
+            e.y = 0.1 + rng.nextDouble() * 0.8;
+            break;
+        }
+      }
+      _brickStartX.add(e.x);
+      _brickStartY.add(e.y);
+      // Assign to a brick group: cubes i..i+_bricksPerGroup-1 → same brick
+      _entityBrickIndex.add(i < _totalBuildCubes ? (i ~/ _bricksPerGroup) : -1);
+      e.vx = 0;
+      e.vy = 0;
+      e.renderSize = 0.0;
+      e.targetSize = 0.0;
+    }
   }
 
   void _updateEntities() {
@@ -802,9 +930,9 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           double dx = targetX - e.x;
           double dy = targetY - e.y;
 
-          // Easing
-          e.x += dx * 0.06;
-          e.y += dy * 0.06;
+          // Fast gathering (easing ×2 for quick logo formation)
+          e.x += dx * 0.12;
+          e.y += dy * 0.12;
 
           // Dampen physical velocity
           e.vx *= 0.8;
@@ -817,24 +945,25 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             drx -= 2 * pi;
           else if (drx < -pi)
             drx += 2 * pi;
-          e.rx += drx * 0.06;
+          e.rx += drx * 0.12;
 
           double dry = (ry - e.ry) % (2 * pi);
           if (dry > pi)
             dry -= 2 * pi;
           else if (dry < -pi)
             dry += 2 * pi;
-          e.ry += dry * 0.06;
+          e.ry += dry * 0.12;
 
           double drz = (rz - e.rz) % (2 * pi);
           if (drz > pi)
             drz -= 2 * pi;
           else if (drz < -pi)
             drz += 2 * pi;
-          e.rz += drz * 0.06;
+          e.rz += drz * 0.12;
 
           e.targetSize = 19.0;
-          e.renderSize += (19.0 - e.renderSize) * 0.08;
+          // Speed up size transition too
+          e.renderSize += (19.0 - e.renderSize) * 0.15;
 
           if (dx.abs() > 0.005 ||
               dy.abs() > 0.005 ||
@@ -846,10 +975,10 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           // Surplus cubes go to center and vanish
           double dx = 0.5 - e.x;
           double dy = 0.5 - e.y;
-          e.x += dx * 0.06;
-          e.y += dy * 0.06;
+          e.x += dx * 0.12;
+          e.y += dy * 0.12;
           e.targetSize = 0.0;
-          e.renderSize += (0.0 - e.renderSize) * 0.1;
+          e.renderSize += (0.0 - e.renderSize) * 0.15;
           if (e.renderSize > 1.0) {
             allArrived = false;
           }
@@ -858,17 +987,42 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
       if (allArrived) {
         _isGathering = false;
+        // Preview mode: go directly to pre-burst (no separate building phase)
+        // Cubes are already at their grid positions with correct sizes
         _preBurstValue = true;
+        widget.controller?.onGatherComplete?.call();
       }
       return; // Skip normal physics while gathering
     }
 
-    // ── Entity update (repulsion + physics) ──
-    if (_isPreBurst) {
-      final double gap = 24.0; // Spacing between cubes
-      final double rx = 0.7853981633974483; // True isometric rotation (pi/4)
-      final double ry = 0.6154797086703873; // True isometric pitch (asin(1/sqrt(3)))
-      final double rz = 0.5235987755982988; // True isometric roll (pi/6)
+    // ── Parallel brick building ─────────────────────────────────────────
+    // All 27 bricks build simultaneously (in parallel) over ~2 seconds.
+    // Each brick = 3 cubes flying from edges toward the same grid position.
+    // The 3 cubes per brick are slightly staggered (~33ms apart) so you can
+    // see individual cubes merging into each brick while the HTML logo
+    // gradually fades out in sync with _brickRevealProgress.
+    if (_isBuilding) {
+      _brickRevealProgress += _realSec(dt) * 18.0;
+
+      // --- Logo fade: call JS to update logo opacity in sync with building progress ---
+      if (kIsWeb) {
+        final opacity = (1.0 - (_brickRevealProgress / _brickTotalDuration)).clamp(0.0, 1.0);
+        callJsWithArg('setLogoOpacity', opacity.toStringAsFixed(3));
+      }
+      // -------------------------------------------------------------------------
+
+      if (_brickRevealProgress >= _brickTotalDuration) {
+        _isBuilding = false;
+        _preBurstValue = true;
+        widget.controller?.onGatherComplete?.call();
+      }
+    }
+
+    if (_isPreBurst || _isBuilding) {
+      final double gap = 24.0;
+      final double rx = 0.7853981633974483;
+      final double ry = 0.6154797086703873;
+      final double rz = 0.5235987755982988;
 
       final double cx = cos(rx), sx = sin(rx);
       final double cy = cos(ry), sy = sin(ry);
@@ -876,81 +1030,110 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
       for (int i = 0; i < _entities.length; i++) {
         final e = _entities[i];
-        if (i < 27) {
-          // Construct a 3x3x3 grid
-          int ix = (i % 3) - 1;
-          int iy = ((i ~/ 3) % 3) - 1;
-          int iz = (i ~/ 9) - 1;
+        if (i < _totalBuildCubes) {
+          final int brickIndex = _entityBrickIndex[i];
+          int ix = (brickIndex % 3) - 1;
+          int iy = ((brickIndex ~/ 3) % 3) - 1;
+          int iz = (brickIndex ~/ 9) - 1;
 
-          double X = ix * gap;
-          double Y = iy * gap;
-          double Z = iz * gap;
+          double X = ix * gap, Y = iy * gap, Z = iz * gap;
+          double y1 = Y * cx - Z * sx, z1 = Y * sx + Z * cx; Y = y1; Z = z1;
+          double x1 = X * cy + Z * sy, z2 = -X * sy + Z * cy; X = x1; Z = z2;
+          double x2 = X * cz - Y * sz, y2 = X * sz + Y * cz; X = x2; Y = y2;
 
-          // Rotate around X
-          double y1 = Y * cx - Z * sx;
-          double z1 = Y * sx + Z * cx;
-          Y = y1;
-          Z = z1;
-
-          // Rotate around Y
-          double x1 = X * cy + Z * sy;
-          double z2 = -X * sy + Z * cy;
-          X = x1;
-          Z = z2;
-
-          // Rotate around Z
-          double x2 = X * cz - Y * sz;
-          double y2 = X * sz + Y * cz;
-          X = x2;
-          Y = y2;
-          
           e.depth = Z;
+          final double targetX = 0.5 + X / _screenSize.width;
+          final double targetY = 0.5 - Y / _screenSize.height;
 
-          // Map to 2D screen delta
-          double dx = X;
-          double dy = -Y;
+          final int cubeInBrick = i % _bricksPerGroup;
 
-          e.x = 0.5 + dx / _screenSize.width;
-          e.y = 0.5 + dy / _screenSize.height;
-          e.rx = rx;
-          e.ry = ry;
-          e.rz = rz;
-          e.renderSize = 19.0;
-          e.targetSize = 19.0;
+          if (_isBuilding) {
+            // PARALLEL: all bricks start simultaneously. Within each brick,
+            // cubes stagger by 0.33 units so they don't overlap perfectly.
+            final double cubeOffset = cubeInBrick * 0.33;
+            final double raw = _brickRevealProgress - cubeOffset;
+            if (raw > 0 && raw < 1.5) {
+              // Flying from edge toward grid position
+              final double t = (raw / 1.5).clamp(0.0, 1.0);
+              final double easeT = 1.0 - pow(1.0 - t, 3);
+              e.x = _brickStartX[i] + (targetX - _brickStartX[i]) * easeT;
+              e.y = _brickStartY[i] + (targetY - _brickStartY[i]) * easeT;
+              final double popScale = 1.0 + 0.3 * (1.0 - t) * cos(t * pi * 0.5);
+              // Primary cube (0) grows to full brick size, others stay small
+              e.renderSize = (cubeInBrick == 0 ? 19.0 : 8.0) * popScale;
+              e.targetSize = 19.0;
+            } else if (raw >= 1.5) {
+              // Arrived at target
+              e.x = targetX;
+              e.y = targetY;
+              if (cubeInBrick == 0) {
+                // Primary cube: snap pop-in for the brick itself
+                final double snapRaw = (raw - 1.5).clamp(0.0, 1.0);
+                final double snapScale = 1.0 + 0.3 * (1.0 - snapRaw) * cos(snapRaw * pi * 0.5);
+                e.renderSize = 19.0 * snapScale;
+              } else {
+                e.renderSize = 0; // absorbed into the brick
+              }
+              e.targetSize = 19.0;
+            } else {
+              // Not yet active: hidden at edge
+              e.x = _brickStartX[i];
+              e.y = _brickStartY[i];
+              e.renderSize = 0;
+              e.targetSize = 0;
+            }
+            e.rx = rx; e.ry = ry; e.rz = rz;
+          } else {
+            // Pre-burst: primary cube (0) of each brick visible at grid pos
+            e.x = targetX;
+            e.y = targetY;
+            e.rx = rx; e.ry = ry; e.rz = rz;
+            e.renderSize = (cubeInBrick == 0) ? 19.0 : 0;
+            e.targetSize = (cubeInBrick == 0) ? 19.0 : 0;
+          }
         } else {
-          // Position surplus cubes in a staggered 3D cluster behind the logo
-          final int extraIndex = i - 27;
-          final double spreadAngle = (extraIndex % 7) * pi / 3.5;
-          final double staggerRadius = 6.0 + (extraIndex % 4) * 6.0;
-          final double behindOffset = 12.0 + (extraIndex % 5) * 8.0;
-          double eX = staggerRadius * cos(spreadAngle);
-          double eY = staggerRadius * sin(spreadAngle) * 0.6;
-          double eZ = -(gap * 1.5 + behindOffset);
-          double eY1 = eY * cx - eZ * sx;
-          double eZ1 = eY * sx + eZ * cx;
-          eY = eY1;
-          eZ = eZ1;
-          double eX1 = eX * cy + eZ * sy;
-          double eZ2 = -eX * sy + eZ * cy;
-          eX = eX1;
-          eZ = eZ2;
-          double eX2 = eX * cz - eY * sz;
-          double eY2 = eX * sz + eY * cz;
-          eX = eX2;
-          eY = eY2;
-          e.depth = eZ;
-          e.x = 0.5 + eX / _screenSize.width;
-          e.y = 0.5 - eY / _screenSize.height;
-          e.rx = rx + (extraIndex % 3) * 0.15;
-          e.ry = ry + (extraIndex % 4) * 0.12;
-          e.rz = rz + (extraIndex % 5) * 0.1;
-          e.renderSize = 0;
-          e.targetSize = 0;
+          // Extra cubes (index >= _totalBuildCubes)
+          if (_isBuilding) {
+            // Drift slowly toward center, hidden
+            final double dx = 0.5 - e.x;
+            final double dy = 0.5 - e.y;
+            e.x += dx * 0.05;
+            e.y += dy * 0.05;
+            e.renderSize = 0;
+            e.targetSize = 0;
+          } else {
+            // Pre-burst: staggered cluster behind logo
+            final int extraIndex = i - _totalBuildCubes;
+            final double spreadAngle = (extraIndex % 7) * pi / 3.5;
+            final double staggerRadius = 6.0 + (extraIndex % 4) * 6.0;
+            final double behindOffset = 12.0 + (extraIndex % 5) * 8.0;
+            double eX = staggerRadius * cos(spreadAngle);
+            double eY = staggerRadius * sin(spreadAngle) * 0.6;
+            double eZ = -(gap * 1.5 + behindOffset);
+            double eY1 = eY * cx - eZ * sx;
+            double eZ1 = eY * sx + eZ * cx;
+            eY = eY1; eZ = eZ1;
+            double eX1 = eX * cy + eZ * sy;
+            double eZ2 = -eX * sy + eZ * cy;
+            eX = eX1; eZ = eZ2;
+            double eX2 = eX * cz - eY * sz;
+            double eY2 = eX * sz + eY * cz;
+            eX = eX2; eY = eY2;
+            e.depth = eZ;
+            e.x = 0.5 + eX / _screenSize.width;
+            e.y = 0.5 - eY / _screenSize.height;
+            e.rx = rx + (extraIndex % 3) * 0.15;
+            e.ry = ry + (extraIndex % 4) * 0.12;
+            e.rz = rz + (extraIndex % 5) * 0.1;
+            e.renderSize = 0;
+            e.targetSize = 0;
+          }
         }
         e.vx = 0;
         e.vy = 0;
       }
-      return; // Skip all other physics while in pre-burst state
+
+      return; // Skip all other physics while in building/pre-burst state
     }
 
     final bool gravity = widget.cubeMode == CubeMode.gravity;

@@ -34,6 +34,7 @@ This document explains the **entire cube rendering ecosystem** in LandyMaker. Th
 | **Rendering** | Single `_CubePainter (CustomPaint)` with spatial hashing, isolate offloading, adaptive quality |
 | **Performance** | O(n) spatial hash; isolate WebWorker offload (≥50 cubes); auto-quality reduction at <30 FPS |
 | **Modes** | `standard`, `merge`, `orbit`, `gravity` (controlled by `CubeModeCubit`) |
+| **Phases** | `_isGathering` (scatter from edges → fly to logo), `_isBuilding` (parallel brick building, 27 bricks simultaneously, ~2s, logo fades out gradually with progress), `_isPreBurst` (hold logo formation waiting for burst) |
 | **Lighting** | Dynamic per-entity light direction from mouse position (repelPoint) |
 | **Corners** | Sharp polygon faces (no rounding — cubes are small particles) |
 | **Particles** | 500-pool ring buffer for trail dust + burst dust; 3D spherical distribution on split |
@@ -68,7 +69,7 @@ ALL cube renderers import this file. No cube-rendering code should duplicate the
 
 | File | Role | Lines |
 |------|------|-------|
-| `particles/floating_cube_background.dart` | **Full particle system**. StatefulWidget with 60s AnimationController, spatial hash grid, isolate offloading, adaptive quality, trail/burst particles, 4 modes, preview mode (gatherIntoLogo / triggerLogoBurst). | ~2131 |
+| `particles/floating_cube_background.dart` | **Full particle system**. StatefulWidget with 60s AnimationController, spatial hash grid, isolate offloading, adaptive quality, trail/burst particles, 4 modes, preview mode (gatherIntoLogo / buildIntoLogo / triggerLogoBurst). | ~2398 |
 | `particles/cube_mode_cubit.dart` | BLoC/Cubit managing `CubeMode` enum (standard/merge/orbit/gravity). Persists to SharedPreferences. | ~ |
 | `atoms/animated_cube_mode_toggle.dart` | Circular toggle button cycling cube modes with bounce animation. Uses icons, NOT cube rendering. | ~108 |
 
@@ -107,7 +108,7 @@ ALL cube renderers import this file. No cube-rendering code should duplicate the
 
 ### Use preview mode (System C) when:
 - Showing cubes full-screen with mode controls and exit button
-- Triggering the logo burst animation on page load
+- Triggering the logo burst animation on page load (build phase on first load, gather phase on subsequent preview entries)
 - The `_enterPreviewMode()` / `_exitPreviewMode()` pattern in the home screen
 
 ### NEVER:
@@ -452,10 +453,10 @@ Rotation angles accumulate continuously via `_accumulateAngles()` — they do NO
 | `atoms/cube_progress.dart` | A | ~33 | Legacy wrapper → CubeLoader |
 | `atoms/cube_shimmer.dart` | A | ~177 | Cube-based skeleton shimmer |
 | `atoms/cube_refresh_indicator.dart` | A | ~346 | Pull-to-refresh orbit animation |
-| `particles/floating_cube_background.dart` | B | ~2131 | Full particle system with 4 modes |
+| `particles/floating_cube_background.dart` | B | ~2398 | Full particle system with 4 modes + building phase |
 | `particles/cube_mode_cubit.dart` | B | ~ | Mode state management |
 | `atoms/animated_cube_mode_toggle.dart` | B | ~108 | Mode toggle UI button |
-| `features/home/screens/landymaker_home_screen.dart` | C | ~844 | Preview mode overlay |
+| `features/home/screens/landymaker_home_screen.dart` | C | ~1178 | Preview mode overlay + first-load build orchestration |
 | `docs/ai/CUBE_ECOSYSTEM.md` | Doc | — | This file — master reference |
 | `docs/ai/CUBE_LOADER.md` | Doc | ~130 | CubeLoader detailed docs |
 | `docs/ai/LOADING_LOGO_SYSTEM.md` | Doc | ~121 | Legacy LoadingLogo (DEPRECATED) |

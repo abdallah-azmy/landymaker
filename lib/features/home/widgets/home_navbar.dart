@@ -27,7 +27,12 @@ class HomeNavbar extends StatelessWidget implements PreferredSizeWidget {
   final ValueNotifier<int>? cubeCount;
   final VoidCallback? onPreviewTapped;
 
-  const HomeNavbar({super.key, this.config, this.cubeCount, this.onPreviewTapped});
+  const HomeNavbar({
+    super.key,
+    this.config,
+    this.cubeCount,
+    this.onPreviewTapped,
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(70);
@@ -175,10 +180,7 @@ class _DesktopNavbarState extends State<_DesktopNavbar> {
         child: SizedBox(
           height: 70,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 64,
-              vertical: 12,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 64, vertical: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -192,10 +194,14 @@ class _DesktopNavbarState extends State<_DesktopNavbar> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHigh,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Theme.of(context).colorScheme.outlineVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outlineVariant,
                             ),
                           ),
                           child: Icon(
@@ -327,10 +333,7 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -347,13 +350,13 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
 
   void _updateSlideAnimation() {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    _slideAnimation = Tween<Offset>(
-      begin: Offset(isRtl ? 1.0 : -1.0, 0.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(
+          begin: Offset(isRtl ? 1.0 : -1.0, 0.0),
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
   }
 
   @override
@@ -375,11 +378,13 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
     final menuItems = <_SideMenuItem>[];
 
     if (widget.isLoggedIn) {
-      menuItems.add(_SideMenuItem(
-        icon: Icons.dashboard_outlined,
-        label: loc.translate('dashboard'),
-        path: '/dashboard',
-      ));
+      menuItems.add(
+        _SideMenuItem(
+          icon: Icons.dashboard_outlined,
+          label: loc.translate('dashboard'),
+          path: '/dashboard',
+        ),
+      );
     }
 
     menuItems.addAll([
@@ -407,39 +412,45 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
 
     if (!widget.isLoggedIn) {
       if (widget.showLogin) {
-        menuItems.add(_SideMenuItem(
-          icon: Icons.login_rounded,
-          label: loc.translate('login'),
-          path: '/login',
-        ));
+        menuItems.add(
+          _SideMenuItem(
+            icon: Icons.login_rounded,
+            label: loc.translate('login'),
+            path: '/login',
+          ),
+        );
       }
       if (widget.showLogin) {
-        menuItems.add(_SideMenuItem(
-          icon: Icons.person_add_outlined,
-          label: widget.ctaText ?? loc.translate('start_free'),
-          path: '/register',
-          isHighlighted: true,
-        ));
+        menuItems.add(
+          _SideMenuItem(
+            icon: Icons.person_add_outlined,
+            label: widget.ctaText ?? loc.translate('start_free'),
+            path: '/register',
+            isHighlighted: true,
+          ),
+        );
       }
     }
 
-    menuItems.add(_SideMenuItem(
-      icon: Icons.grid_view_rounded,
-      label: context.isRtl ? 'القوالب' : 'Templates',
-      path: '/templates',
-    ));
+    menuItems.add(
+      _SideMenuItem(
+        icon: Icons.grid_view_rounded,
+        label: context.isRtl ? 'القوالب' : 'Templates',
+        path: '/templates',
+      ),
+    );
 
-    menuItems.add(_SideMenuItem(
-      icon: Icons.crop_square_rounded,
-      label: context.isRtl ? 'صفحة المكعبات' : 'Cubes',
-      path: '/cubes',
-      isBottom: true,
-    ));
+    menuItems.add(
+      _SideMenuItem(
+        icon: Icons.crop_square_rounded,
+        label: context.isRtl ? 'صفحة المكعبات' : 'Cubes',
+        path: '/cubes',
+        isBottom: true,
+      ),
+    );
 
     return CallbackShortcuts(
-      bindings: {
-        SingleActivator(LogicalKeyboardKey.escape): _close,
-      },
+      bindings: {SingleActivator(LogicalKeyboardKey.escape): _close},
       child: Focus(
         focusNode: _menuFocusNode,
         autofocus: true,
@@ -461,10 +472,14 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
                         margin: const EdgeInsets.only(top: 70),
                         height: double.infinity,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface.withValues(alpha: 0.95),
                           border: BorderDirectional(
                             end: BorderSide(
-                              color: Theme.of(context).colorScheme.outlineVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outlineVariant,
                               width: 1,
                             ),
                           ),
@@ -497,7 +512,10 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
                                     decoration: BoxDecoration(
                                       border: Border(
                                         bottom: BorderSide(
-                                          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outlineVariant
+                                              .withValues(alpha: 0.3),
                                         ),
                                       ),
                                     ),
@@ -506,14 +524,18 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
                                         Icon(
                                           Icons.menu_rounded,
                                           size: 24,
-                                          color: Theme.of(context).colorScheme.onSurface,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                         ),
                                         const SizedBox(width: 12),
                                         Text(
                                           context.isRtl ? 'القائمة' : 'Menu',
                                           style: AppTypography.h3.copyWith(
                                             fontWeight: FontWeight.bold,
-                                            color: Theme.of(context).colorScheme.onSurface,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
                                             fontSize: 20,
                                           ),
                                         ),
@@ -523,17 +545,28 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
                                   // Menu Items
                                   Expanded(
                                     child: ListView(
-                                      padding: const EdgeInsets.symmetric(vertical: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
                                       children: [
-                                        for (int i = 0; i < menuItems.length; i++) ...[
-                                          if (menuItems[i].isBottom && i > 0) ...[
+                                        for (
+                                          int i = 0;
+                                          i < menuItems.length;
+                                          i++
+                                        ) ...[
+                                          if (menuItems[i].isBottom &&
+                                              i > 0) ...[
                                             Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 24,
-                                                vertical: 8,
-                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 24,
+                                                    vertical: 8,
+                                                  ),
                                               child: Divider(
-                                                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .outlineVariant
+                                                    .withValues(alpha: 0.3),
                                               ),
                                             ),
                                           ],
@@ -567,7 +600,8 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
         child: InkWell(
           onTap: () {
             _close();
-            if (item.path.startsWith('http://') || item.path.startsWith('https://')) {
+            if (item.path.startsWith('http://') ||
+                item.path.startsWith('https://')) {
               launchUrl(Uri.parse(item.path));
             } else {
               context.go(item.path);
@@ -575,17 +609,16 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: item.isHighlighted
-                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.15)
                         : Theme.of(context).colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -602,7 +635,9 @@ class _DesktopSideMenuState extends State<_DesktopSideMenu>
                   child: Text(
                     item.label,
                     style: AppTypography.bodyMedium.copyWith(
-                      fontWeight: item.isHighlighted ? FontWeight.bold : FontWeight.w600,
+                      fontWeight: item.isHighlighted
+                          ? FontWeight.bold
+                          : FontWeight.w600,
                       color: item.isHighlighted
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurface,
@@ -679,10 +714,7 @@ class _MobileNavbar extends StatelessWidget {
         child: SizedBox(
           height: 70,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 12,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1200),
@@ -713,12 +745,13 @@ class _MobileNavbar extends StatelessWidget {
                                     builder: (context, count, _) {
                                       return Text(
                                         '$count',
-                                        style: AppTypography.bodyMedium.copyWith(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        style: AppTypography.bodyMedium
+                                            .copyWith(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                       );
                                     },
                                   ),
@@ -811,7 +844,11 @@ class _MobileMenuPopup extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.4 : 0.15),
+                    color: Colors.black.withValues(
+                      alpha: Theme.of(context).brightness == Brightness.dark
+                          ? 0.4
+                          : 0.15,
+                    ),
                     blurRadius: 32,
                     spreadRadius: 4,
                     offset: const Offset(0, 12),
@@ -824,196 +861,293 @@ class _MobileMenuPopup extends StatelessWidget {
                 child: Container(
                   width: 280,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.65),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.65),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withValues(alpha: 0.4),
                       width: 1,
                     ),
                   ),
                   child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Primary Links (Mobile Popup)
-                        if (parsedLinks.isNotEmpty) ...[
-                          ...parsedLinks.map((link) {
-                            final label = link['label'] ?? '';
-                            final path = link['path'] ?? '';
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    if (path.startsWith('http://') || path.startsWith('https://')) {
-                                      launchUrl(Uri.parse(path));
-                                    } else {
-                                      context.go(path);
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.link_rounded, size: 22, color: Theme.of(context).colorScheme.primary),
-                                        const SizedBox(width: 16),
-                                        Text(
-                                          label,
-                                          style: AppTypography.bodyMedium.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(context).colorScheme.onSurface,
+                    borderRadius: BorderRadius.circular(24),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Primary Links (Mobile Popup)
+                          if (parsedLinks.isNotEmpty) ...[
+                            ...parsedLinks.map((link) {
+                              final label = link['label'] ?? '';
+                              final path = link['path'] ?? '';
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      if (path.startsWith('http://') ||
+                                          path.startsWith('https://')) {
+                                        launchUrl(Uri.parse(path));
+                                      } else {
+                                        context.go(path);
+                                      }
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 16,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.link_rounded,
+                                            size: 22,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(width: 16),
+                                          Text(
+                                            label,
+                                            style: AppTypography.bodyMedium
+                                                .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurface,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                              ],
-                            );
-                          }),
-                        ],
-                        if (isLoggedIn) ...[
-                          Padding(
-                            padding: const EdgeInsets.all(20),
+                                  Divider(
+                                    height: 1,
+                                    thickness: 1,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant
+                                        .withValues(alpha: 0.3),
+                                  ),
+                                ],
+                              );
+                            }),
+                          ],
+                          if (isLoggedIn) ...[
+                            Padding(
+                              padding: const EdgeInsets.all(20),
                               child: Row(
                                 children: [
                                   CircleAvatar(
                                     radius: 20,
-                                    backgroundImage: userPhotoUrl != null ? NetworkImage(userPhotoUrl!) : null,
-                                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                                    backgroundImage: userPhotoUrl != null
+                                        ? NetworkImage(userPhotoUrl!)
+                                        : null,
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withValues(alpha: 0.15),
                                     child: userPhotoUrl == null
                                         ? Text(
-                                            userEmail.isNotEmpty ? userEmail[0].toUpperCase() : 'U',
+                                            userEmail.isNotEmpty
+                                                ? userEmail[0].toUpperCase()
+                                                : 'U',
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
-                                              color: Theme.of(context).colorScheme.secondary,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.secondary,
                                             ),
                                           )
                                         : null,
                                   ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    userEmail,
-                                    style: AppTypography.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                              context.go('/dashboard');
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.dashboard_outlined, size: 22, color: Theme.of(context).colorScheme.primary),
                                   const SizedBox(width: 16),
-                                  Text(
-                                    loc.translate('dashboard'),
-                                    style: AppTypography.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.onSurface,
+                                  Expanded(
+                                    child: Text(
+                                      userEmail,
+                                      style: AppTypography.bodyMedium.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                              context.read<AuthCubit>().logout();
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.power_settings_new_rounded, size: 20, color: AppColors.dangerRed),
-                                  const SizedBox(width: 14),
-                                  Text(
-                                    loc.translate('logout'),
-                                    style: AppTypography.bodyMedium.copyWith(
-                                      color: AppColors.dangerRed,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outlineVariant
+                                  .withValues(alpha: 0.3),
                             ),
-                          ),
-                        ] else ...[
-                          if (showLogin)
                             InkWell(
                               onTap: () {
                                 Navigator.pop(context);
-                                context.go('/login');
+                                context.go('/dashboard');
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 16,
+                                ),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.login_rounded, size: 22, color: Theme.of(context).colorScheme.primary),
+                                    Icon(
+                                      Icons.dashboard_outlined,
+                                      size: 22,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
                                     const SizedBox(width: 16),
                                     Text(
-                                      loc.translate('login'),
+                                      loc.translate('dashboard'),
                                       style: AppTypography.bodyMedium.copyWith(
                                         fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).colorScheme.onSurface,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                          if (showLogin)
-                            Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                              context.go('/register');
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.person_add_outlined, size: 22, color: Theme.of(context).colorScheme.primary),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    ctaText ?? loc.translate('start_free'),
-                                    style: AppTypography.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary,
+                            Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outlineVariant
+                                  .withValues(alpha: 0.3),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                                context.read<AuthCubit>().logout();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 14,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.power_settings_new_rounded,
+                                      size: 20,
+                                      color: AppColors.dangerRed,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 14),
+                                    Text(
+                                      loc.translate('logout'),
+                                      style: AppTypography.bodyMedium.copyWith(
+                                        color: AppColors.dangerRed,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
+                          ] else ...[
+                            if (showLogin)
+                              InkWell(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  context.go('/login');
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 16,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.login_rounded,
+                                        size: 22,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Text(
+                                        loc.translate('login'),
+                                        style: AppTypography.bodyMedium
+                                            .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            if (showLogin)
+                              Divider(
+                                height: 1,
+                                thickness: 1,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant
+                                    .withValues(alpha: 0.3),
+                              ),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                                context.go('/register');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 16,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.person_add_outlined,
+                                      size: 22,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Text(
+                                      ctaText ?? loc.translate('start_free'),
+                                      style: AppTypography.bodyMedium.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
             ),
           ),
         ];
@@ -1103,7 +1237,9 @@ class _UserAvatarMenu extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 14,
-                backgroundImage: photoUrl != null ? NetworkImage(photoUrl!) : null,
+                backgroundImage: photoUrl != null
+                    ? NetworkImage(photoUrl!)
+                    : null,
                 backgroundColor: Theme.of(
                   context,
                 ).colorScheme.primary.withValues(alpha: 0.15),
@@ -1148,7 +1284,11 @@ class _UserAvatarMenu extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.4 : 0.15),
+                    color: Colors.black.withValues(
+                      alpha: Theme.of(context).brightness == Brightness.dark
+                          ? 0.4
+                          : 0.15,
+                    ),
                     blurRadius: 32,
                     spreadRadius: 4,
                     offset: const Offset(0, 12),
@@ -1161,97 +1301,144 @@ class _UserAvatarMenu extends StatelessWidget {
                 child: Container(
                   width: 220,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.65),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.65),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withValues(alpha: 0.4),
                       width: 1,
                     ),
                   ),
                   child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                            context.go('/dashboard');
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                            child: Row(
-                              children: [
-                                Icon(Icons.dashboard_outlined, size: 22, color: Theme.of(context).colorScheme.primary),
-                                const SizedBox(width: 16),
-                                Text(
-                                  loc.translate('dashboard'),
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.onSurface,
+                    borderRadius: BorderRadius.circular(24),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              context.go('/dashboard');
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.dashboard_outlined,
+                                    size: 22,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    loc.translate('dashboard'),
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                            context.read<AuthCubit>().switchGoogleAccount();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                            child: Row(
-                              children: [
-                                Icon(Icons.swap_horiz_rounded, size: 20, color: Theme.of(context).colorScheme.primary),
-                                const SizedBox(width: 14),
-                                Text(
-                                  context.isRtl ? 'تبديل الحساب' : 'Switch account',
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              context.read<AuthCubit>().switchGoogleAccount();
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 14,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.swap_horiz_rounded,
+                                    size: 20,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 14),
+                                  Text(
+                                    context.isRtl
+                                        ? 'تبديل الحساب'
+                                        : 'Switch account',
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                            context.read<AuthCubit>().logout();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.power_settings_new_rounded, size: 20, color: AppColors.dangerRed),
-                                const SizedBox(width: 14),
-                                Text(
-                                  loc.translate('logout'),
-                                  style: AppTypography.bodyMedium.copyWith(
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              context.read<AuthCubit>().logout();
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 14,
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.power_settings_new_rounded,
+                                    size: 20,
                                     color: AppColors.dangerRed,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 14),
+                                  Text(
+                                    loc.translate('logout'),
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      color: AppColors.dangerRed,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
             ),
           ),
         ];

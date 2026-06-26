@@ -121,7 +121,6 @@
   <style>
     #loading-indicator {
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       position: fixed;
@@ -129,27 +128,76 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-color: #030712; /* Dark Slate Black matching AppColors.darkBackground */
+      background-color: #060A12; /* Matches AppColors.darkBackground exactly */
       z-index: 99999;
       font-family: 'Cairo', sans-serif;
-      transition: opacity 0.1s ease-out;
+      will-change: opacity;
+      transition: background-color 0.4s ease;
     }
     
-    .loading-logo {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 24px;
+    .loading-logo, .logo-persistent {
+      width: 90px;
+      height: 90px;
       object-fit: contain;
-      /* Slow continuous glow — starts gradually and stays bright */
-      animation: logo-glow 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      position: relative;
+      z-index: 2;
+      transform: scale(1.0) translateZ(0);
+      filter: brightness(0.6) drop-shadow(0 0 0px rgba(0, 229, 255, 0));
+      will-change: transform, filter, opacity;
+      /* Smooth transitions so that JS-driven scale and filter changes animate smoothly */
+      transition: transform 0.15s ease-out, filter 0.15s ease-out;
     }
 
-    @keyframes logo-glow {
+    /* When the loader is in persistent-logo mode, clicks pass through to Flutter */
+    #loading-indicator.persistent-mode {
+      pointer-events: none;
+    }
+
+    /* Gathering cubes: small isometric SVG cubes that converge toward the logo
+       while Flutter is booting, creating a seamless transition to the 3D cube gathering.
+       Pure CSS animation (translate + rotate) — GPU composited, zero overhead. */
+    #gathering-squares {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .gathering-cube {
+      position: absolute;
+      left: calc(50% - 8px);
+      top: calc(50% - 8px);
+      width: 16px;
+      height: 16px;
+      opacity: 0;
+      animation-name: gather-loop;
+      animation-duration: 8s;
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      animation-iteration-count: 1; /* Only run once, cleaned up via JS on completion */
+      animation-delay: var(--delay, 0s);
+      will-change: transform, opacity;
+    }
+
+    /* Flying gather animation:
+       - 0%:  invisible at edge position
+       - 15%: fully visible, flying toward its target point
+       - 90%: almost at target, begins to fade out
+       - 100%: arrives at target (behind logo), becomes completely transparent
+       This makes the cube disappear immediately once it reaches the logo. */
+    @keyframes gather-loop {
       0% {
-        filter: brightness(0.8) drop-shadow(0 0 0px rgba(0, 229, 255, 0));
+        opacity: 0;
+        transform: translate(calc(var(--sx) * 1px), calc(var(--sy) * 1px)) rotateZ(calc(var(--rz) * 1deg)) scale(0.3);
+      }
+      15% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
       }
       100% {
-        filter: brightness(1.3) drop-shadow(0 0 30px rgba(0, 229, 255, 0.9));
+        opacity: 0;
+        transform: translate(calc(var(--tx) * 1px), calc(var(--ty) * 1px)) rotateZ(0deg) scale(0.7);
       }
     }
 
@@ -176,6 +224,7 @@
 
   <!-- Fallback/SEO loader -->
   <div id="loading-indicator">
+    <div id="gathering-squares"></div>
     <img class="loading-logo" src="assets/assets/images/logo.webp" onerror="this.src='logo_social.webp'" alt="LandyMaker">
   </div>
 
@@ -262,26 +311,248 @@
       return true;
     }
 
+    // ── SVG isometric cubes ──────────────────────────────────────────────
+    // 27 small 3D cubes (SVG) fly in from screen EDGES toward the logo,
+    // creating a dramatic gathering effect that matches the Flutter cube
+    // particle system aesthetic.
+    // Each cube starts at a random edge position with its own delay and rotation.
+    // Cubes DISAPPEAR behind the logo (z-index: 1 vs logo z-index: 2), so they
+    // look like they're being absorbed into the logo. Each arrival increases
+    // the logo's glow — with density increasing over time as more cubes spawn.
+    //
+    // IMPORTANT: Edge positions are also stored in window._htmlCubeEdgePositions
+    // so Flutter can read them and launch its cubes from the SAME positions,
+    // creating a seamless visual continuation — as if the HTML cubes fly behind
+    // the logo and emerge as Flutter cubes on the other side.
+    var _gatheringContainer = document.getElementById('gathering-squares');
+    var _glowStartTime = performance.now();
+    var _glowArrivals = 0;
+    var _glowMaxArrivals = 300;
+    var _ns = 'http://www.w3.org/2000/svg';
+    var _viewW = window.innerWidth;
+    var _viewH = window.innerHeight;
+    var _glowActive = false;
+
+    // Pre-generate 81 edge positions (for 27 bricks × 3 cubes each) and store
+    // them globally so Flutter can reuse them for perfect direction continuity.
+    window._htmlCubeEdgePositions = [];
+
+    function buildSvgCube() {
+      var svg = document.createElementNS(_ns, 'svg');
+      svg.setAttribute('viewBox', '0 0 16 16');
+      svg.setAttribute('width', '16');
+      svg.setAttribute('height', '16');
+
+      var top = document.createElementNS(_ns, 'polygon');
+      top.setAttribute('points', '8,2 14,5 8,8 2,5');
+      top.setAttribute('fill', '#0ff');
+      top.setAttribute('opacity', '0.92');
+
+      var left = document.createElementNS(_ns, 'polygon');
+      left.setAttribute('points', '8,8 2,5 2,11 8,14');
+      left.setAttribute('fill', '#00c8ff');
+      left.setAttribute('opacity', '0.82');
+
+      var right = document.createElementNS(_ns, 'polygon');
+      right.setAttribute('points', '8,8 14,5 14,11 8,14');
+      right.setAttribute('fill', '#0088cc');
+      right.setAttribute('opacity', '0.72');
+
+      var edge = document.createElementNS(_ns, 'polygon');
+      edge.setAttribute('points', '8,2 14,5 8,8 2,5');
+      edge.setAttribute('fill', 'none');
+      edge.setAttribute('stroke', '#66f0ff');
+      edge.setAttribute('stroke-width', '0.5');
+      edge.setAttribute('opacity', '0.7');
+
+      svg.appendChild(top);
+      svg.appendChild(left);
+      svg.appendChild(right);
+      svg.appendChild(edge);
+      return svg;
+    }
+
+    function getEdgePosition() {
+      var side = Math.floor(Math.random() * 4);
+      var pos;
+      switch (side) {
+        case 0:
+          pos = { x: (Math.random() - 0.5) * _viewW * 1.2, y: -_viewH * (0.3 + Math.random() * 0.5) };
+          break;
+        case 1:
+          pos = { x: (Math.random() - 0.5) * _viewW * 1.2, y: _viewH * (0.3 + Math.random() * 0.5) };
+          break;
+        case 2:
+          pos = { x: -_viewW * (0.3 + Math.random() * 0.5), y: (Math.random() - 0.5) * _viewH * 1.2 };
+          break;
+        default:
+          pos = { x: _viewW * (0.3 + Math.random() * 0.5), y: (Math.random() - 0.5) * _viewH * 1.2 };
+      }
+      // Normalize to 0..1 range for Flutter compatibility
+      return { x: pos.x / _viewW, y: pos.y / _viewH };
+    }
+
+    var cubesGathered = 0;
+    var totalNeededCubes = 20; // Max glow/scale is reached when 20 cubes have arrived (within 3-4s total)
+
+    function onCubeArrive() {
+      cubesGathered++;
+      var progress = Math.min(cubesGathered / totalNeededCubes, 1.0);
+      
+      // Scale from 1.0 to 1.35 (35% size increase)
+      var scale = 1.0 + (0.35 * progress);
+      // Brightness from 0.6 to 1.45
+      var brightness = 0.6 + (0.85 * progress);
+      // Shadow blur up to 25px
+      var shadowBlur = 25 * progress;
+      var shadowOpacity = 0.75 * progress;
+      
+      var logo = document.querySelector('.loading-logo, .logo-persistent');
+      if (logo) {
+        logo.style.transform = 'scale(' + scale.toFixed(3) + ') translateZ(0)';
+        logo.style.filter = 'brightness(' + brightness.toFixed(3) + ') drop-shadow(0 0 ' + shadowBlur.toFixed(1) + 'px rgba(0, 229, 255, ' + shadowOpacity.toFixed(3) + '))';
+      }
+    }
+
+    function spawnGatheringCube(durationSec, delayRange, pos) {
+      if (!_gatheringContainer) return;
+      var wrapper = document.createElement('div');
+      wrapper.className = 'gathering-cube';
+
+      // Store px values for CSS
+      wrapper.style.setProperty('--sx', String(pos.x * _viewW));
+      wrapper.style.setProperty('--sy', String(pos.y * _viewH));
+      wrapper.style.setProperty('--tx', String((Math.random() - 0.5) * 70));
+      wrapper.style.setProperty('--ty', String((Math.random() - 0.5) * 70));
+      wrapper.style.setProperty('--rz', String((Math.random() - 0.5) * 360));
+      var delay = Math.random() * delayRange;
+      wrapper.style.setProperty('--delay', String(delay.toFixed(2)) + 's');
+      wrapper.style.setProperty('animation-duration', durationSec + 's');
+
+      wrapper.appendChild(buildSvgCube());
+      _gatheringContainer.appendChild(wrapper);
+
+      // DOM Cleanup & Logo update: Remove element and trigger logo growth/glow on arrival
+      setTimeout(function() {
+        if (wrapper && wrapper.parentNode) {
+          wrapper.parentNode.removeChild(wrapper);
+        }
+        onCubeArrive();
+      }, (durationSec + delay) * 1000);
+    }
+
+    // Pre-compute 81 edge positions, store globally for Flutter, then start
+    // the gradual spawning loop.
+    function createGatheringSquares() {
+      if (!_gatheringContainer) return;
+      var allPositions = [];
+      for (var i = 0; i < 81; i++) {
+        allPositions.push(getEdgePosition());
+      }
+      window._htmlCubeEdgePositions = JSON.stringify(allPositions);
+
+      // Start with a slow spawn rate relative to total time, and rapidly accelerate
+      var spawnInterval = 400; // starts at 400ms
+      var positionIndex = 0;
+
+      function spawnLoop() {
+        var duration = 1.0 + Math.random() * 0.8; // flight duration: 1.0s to 1.8s (much faster flight)
+        var delayRange = 0.2; // short delay range for responsiveness
+        
+        var pos;
+        if (positionIndex < 81) {
+          pos = allPositions[positionIndex];
+          positionIndex++;
+        } else {
+          pos = getEdgePosition();
+        }
+
+        spawnGatheringCube(duration, delayRange, pos);
+
+        // Exponential acceleration: decrease interval by multiplying by 0.80 per spawn down to 100ms
+        spawnInterval = Math.max(100, spawnInterval * 0.80);
+
+        setTimeout(spawnLoop, spawnInterval);
+      }
+
+      // Start spawning loop immediately
+      spawnLoop();
+    }
+    createGatheringSquares();
+
+    // ── Logo glow is handled purely by CSS animation (logo-ramp, 6s) ───
+    // No JS tracking needed — the CSS does a simple gradual ramp from no
+    // glow to full glow over 6 seconds and holds there permanently.
+    // The gathering cubes just loop infinitely; they don't drive the glow.
+    // Density increase (more cubes over time) is handled by the spawning
+    // logic above. Both effects (glow + density) continue forever.
+
     function removeLoader() {
       var loading = document.getElementById('loading-indicator');
       if (loading) {
+        loading.style.transition = 'opacity 0.25s ease';
         loading.style.opacity = '0';
         setTimeout(function() {
           if (loading.parentNode) {
             loading.parentNode.removeChild(loading);
           }
-        }, 100);
+        }, 280);
+      }
+    }
+
+    // Transition the loader to a persistent logo state:
+    // — background becomes transparent (page content visible behind it)
+    // — logo continues its slow glow ramp-up (same animation, no class swap)
+    // — clicks pass through to the Flutter app
+    // — gathering squares KEEP looping (they don't fade out — Flutter cubes
+    //   build behind them, creating a seamless visual continuation)
+    function transitionToPersistentLogo() {
+      var loading = document.getElementById('loading-indicator');
+      if (!loading) return;
+      loading.classList.add('persistent-mode');
+      // Use inline style for smooth CSS transition (the base #loading-indicator has transition: background-color)
+      loading.style.backgroundColor = 'transparent';
+      // Logo keeps its original class — the animation continues naturally without restarting
+      // (.loading-logo and .logo-persistent share the same logo-ramp animation now)
+      // Gathering squares stay visible — they keep looping continuously
+    }
+
+    // Remove the persistent logo with a SLOW fade-out (1500ms).
+    // As the logo fades, Flutter cubes are simultaneously building the
+    // 3×3×3 cube behind it — the slow overlap makes it look like the
+    // logo is turning into the real Flutter cube.
+    // Fading the #loading-indicator automatically fades all children
+    // (logo image + gathering squares) together as one layer.
+    function removePersistentLogo() {
+      var loading = document.getElementById('loading-indicator');
+      if (!loading) return;
+      loading.style.transition = 'opacity 1.5s ease';
+      loading.style.opacity = '0';
+      setTimeout(function() {
+        if (loading && loading.parentNode) {
+          loading.parentNode.removeChild(loading);
+        }
+      }, 1550);
+    }
+
+    function setLogoOpacity(value) {
+      var logo = document.querySelector('.loading-logo, .logo-persistent');
+      if (logo) {
+        logo.style.opacity = String(value);
       }
     }
 
     // Register first frame listener only if it is NOT a public page.
     // For public pages, Dart will call window.removeLandyMakerLoader() directly when ready.
     if (!isPublicLandingPage()) {
-      window.addEventListener('flutter-first-frame', removeLoader);
+      window.addEventListener('flutter-first-frame', transitionToPersistentLogo);
     }
 
-    // Expose globally so Dart can call it
+    // Expose globally so Dart can call them
     window.removeLandyMakerLoader = removeLoader;
+    window.transitionToPersistentLogo = transitionToPersistentLogo;
+    window.removePersistentLogo = removePersistentLogo;
+    window.setLogoOpacity = setLogoOpacity;
     
     // Safety fallback: auto-remove loader after 12 seconds if Flutter takes too long or fails to load
     setTimeout(removeLoader, 12000);

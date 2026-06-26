@@ -127,3 +127,45 @@
 - النقر على الوجو → انفجار كروي منتشر في كل الاتجاهات
 - النقر في الزاوية → المكعبات تطير بعيداً عن الزاوية في شكل مخروط
 - `flutter analyze` بدون أخطاء
+
+## * [x] Phase 6 — HTML-to-Cubes seamless transition + auto-detect load timing
+
+### Goal
+ربط تحميل الصفحة HTML مع الـ 3D cube logo في تجربة واحدة سلسة:
+- HTML loader → persistent logo (الخلفية تختفي، اللوجو يفضل ظاهر)
+- الـ 3D cube logo في preBrust تحت اللوجو HTML (نفس الموقع)
+- المحتوى مخفي (`_burstTriggered = false`)، المكعب المرئي شغال كـ loading view
+- لما API الـ sections يخلص → auto-burst + content fade + HTML logo fade في وقت واحد
+- تداخل زمني: الانفجار يحصل والمحتوى يظهر تدريجياً والـ HTML logo يختفي
+
+### The cascade (all three fire simultaneously):
+1. T=0: `_burstTriggered = true` → Content starts fading in (AnimatedOpacity 800ms)
+2. T=0: `triggerLogoBurst(center)` → Cubes explode spherically, burstBoost scatters them across screen
+3. T=0: `removePersistentLogo()` → HTML logo fades out (CSS 0.5s)
+4. T=500ms: HTML logo fully gone → scattered cubes visible against content
+5. T=800ms: Content fully visible → page is interactive
+
+### What changed
+1. `landymaker_home_screen.dart:107-122`: `_waitForLoadingThenRevealCubes` — polls `_sectionsLoaded`, then fires burst + content + logo removal simultaneously
+2. `landymaker_home_screen.dart:96`: `_burstTriggered = false` on first load (content hidden, cube logo as loading view)
+3. `landymaker_home_screen.dart:307-309`: `_onPointerDown` guarded with `_persistentLogoRemoved` to prevent premature burst during loading
+4. `landymaker_home_screen.dart:988`: `initialPreBurst: _isThisTheFirstLoad` (cubes start as formed logo on first load)
+5. `web/index.html`: Persistent logo mode (class `persistent-mode`, CSS `logo-persistent` with breathing animation, `transitionToPersistentLogo()` / `removePersistentLogo()` JS functions)
+
+### Files involved
+- `lib/features/home/screens/landymaker_home_screen.dart`
+- `lib/core/widgets/particles/floating_cube_background.dart`
+- `web/index.html`
+- `lib/core/utils/js_helper.dart` (NEW)
+- `lib/core/utils/js_helper_web.dart` (NEW)
+- `lib/core/utils/js_helper_stub.dart` (NEW)
+
+### Risks
+- Content might appear before API data is ready (`_burstTriggered = true` before `_sectionsLoaded` is set — mitigated by polling loop)
+- On non-web platforms (mobile, desktop), `callJs` is a no-op so the persistent HTML phase is skipped entirely → cubes start in preBurst → auto-burst when sections load → content appears. The transition is less dramatic but still functional.
+- If sections load very fast (< 100ms), the persistent logo phase is barely visible. Mitigated by minimum delay? Not implemented — letting it be fast is actually better UX.
+
+### Validation steps
+- First load (web): HTML logo → bg fades → logo breathes → loading → burst + content + logo fade cascade → cubes scattered, page interactive
+- First load (non-web): Cubes in preBurst → loading → auto-burst → content appears
+- Subsequent visits: Cubes scattered, content visible immediately, normal interaction

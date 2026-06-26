@@ -33,8 +33,8 @@ A V2 real-time 3D cube particle system with four interactive modes (Standard, Me
 ### `FloatingCubeBackground` parameters
 - `topExclusion` (double, default `0.0`): Normalized fraction of the top area to exclude from cube spawning and movement. The home screen passes `70 / screenHeight` to reserve space for the app bar. Cubes spawn below this line, soft-repel at `topExclusion + 0.1`, and hard-clamp to `topExclusion`.
 
-### Logo Burst Animation (Initial Load)
-- A unified 1500ms `AnimationController` (`_logoAnimController`) orchestrates the entire transition in phases:
+### Logo Burst Animation (Initial Load & Preview)
+The burst animation is the final step after either the building phase (first load) or the gathering phase (preview mode). A unified 1500ms `AnimationController` (`_logoAnimController`) orchestrates the entire transition in phases:
   - **0.0–0.15** (0–225ms): Logo at full size (scale=1.0), full opacity — allows HTML loader fade-out (300ms) to complete without visual gap.
   - **0.15–0.35** (225–525ms): Logo scales up from 1.0→1.15 (anticipation phase).
   - **0.35** (525ms): `triggerLogoBurst` fires at the peak of the scale, teleporting all cubes to the screen center with strong outward radial velocities and randomized rotations.
@@ -48,9 +48,22 @@ A V2 real-time 3D cube particle system with four interactive modes (Standard, Me
   - **Extra cubes (≥27)**: Velocities scaled by 0.75× for staggered depth effect — they explode slightly slower and with less rotation, appearing to trail behind the main burst.
 - 200 trail flash particles spawn at burst center (`spread: 0.25`) for a dramatic light flash effect.
 
-### Pre-Burst Enhanced Extra Cube Cluster
-- During pre-burst state (logo displayed before explosion), first 27 cubes form the 3×3×3 isometric cube grid at center.
-- **Extra cubes (index ≥ 27)** are no longer hidden at center — they are now positioned in a staggered 3D cluster **behind** the logo:
+### Building Phase — Parallel Bricks (First Load)
+- On first app load, cubes skip the scatter+gather sequence and enter a **building phase** directly.
+- `buildIntoLogo()` scatters ALL cubes to random viewport edges (or reads HTML's stored positions for a seamless transition). Each cube is assigned to a **brick group** (`_bricksPerGroup = 3` cubes per brick, 27 bricks total).
+- All 27 bricks build **simultaneously (in parallel)**, not one after another. Cubes from all bricks fly from edges toward their grid positions at the same time.
+- Within each brick, the 3 cubes are slightly staggered (~33ms apart) so you can see the merging effect.
+- When a cube reaches its target, it either: becomes the visible brick (primary cube, index 0 of the group) with a pop-in overshoot, or is absorbed into the brick (other 2 cubes vanish).
+- Total time: `_brickTotalDuration = 36.0` units. At **18 units/sec**: **~2.0 seconds** for ALL 27 bricks to complete — visible enough for the user.
+- **Logo fade**: As bricks complete, the HTML logo IMAGE gradually fades out in sync with building progress. The Flutter update loop calls a JS function `setLogoOpacity(1.0 - _brickRevealProgress / _brickTotalDuration)` every frame during building. When `_brickRevealProgress ≥ _brickTotalDuration`, the logo is fully transparent (`opacity: 0`).
+- On completion → `_isBuilding = false`, `_preBurstValue = true`, `onGatherComplete` fires.
+- Extra cubes (index ≥ `_totalBuildCubes`) drift toward center, hidden.
+- The persistent HTML logo starts fully visible on top (z-index: 99999) and fades out gradually as the big cube assembles behind it.
+
+### Pre-Burst State (Holding Logo Formation)
+- Reached after building completes (first load) or gathering completes (preview mode).
+- During pre-burst state, first 27 cubes form the 3×3×3 isometric cube grid at center.
+- **Extra cubes (index ≥ 27)** are positioned in a staggered 3D cluster **behind** the logo:
   - Positioned at varying radial distances and angles behind the logo using isometric rotation.
   - Each gets unique rotation offsets (`rx + n*0.15`, `ry + n*0.12`, `rz + n*0.1`) for visual variety.
   - Visible with small render sizes (9–17) so they appear as a subtle "halo" cluster behind the main logo.
@@ -342,8 +355,19 @@ p.opacity -= realDt × 0.02
 ### `FloatingCubeBackgroundController` methods
 - `repelAt(Offset?)`: Sets the repel point for mouse hover repulsion (range 0.25, force 0.30). Calling with `null` clears it.
 - `burstAt(Offset)`: Explosive force from a point (range 0.65, force 0.60 + extra close-range push). In gravity mode, the close-range push uses a wider range (0.5), stronger force (0.8), and is scaled inversely by `sizeFactor` (1/sizeFactor) — big cubes are hard to push, small cubes fly easily.
+- `gatherIntoLogo()`: Triggers the scatter+gather sequence — all cubes teleport to viewport edges (randomized), then fly inward to form the 3×3×3 logo grid. Used in preview mode (not first load).
+- `buildIntoLogo()`: Triggers the **building phase** — all cubes scatter to random viewport edges, then fly directly to their specific grid positions with a unified pop-in (~1.6s for 27 cubes). Used on first app load.
 - `triggerLogoBurst(Offset)`: Teleports all cubes to near the given center point with strong outward radial velocities. Used for the initial page-load logo explosion animation.
 - `trySplit(Offset) -> bool`: Attempts to split a merged cube at the given normalized position. Returns true if a split occurred, false otherwise. The caller should fall back to `burstAt` on false. On split, 40 burst dust particles explode with 3D spherical physics, and the two resulting cubes receive a strong `pushForce = 0.3` away from each other.
+
+### `FloatingCubeBackgroundController` callbacks
+- `onRepelUpdate`: Wired to `_repelAt` — sets the repel point for mouse hover.
+- `onBurst`: Wired to `_burstAt` — triggers an explosive force from a point.
+- `onLogoBurst`: Wired to `_triggerLogoBurst` — triggers the burst animation.
+- `onGatherIntoLogo`: Wired to `_startGatherIntoLogo` — scatters cubes and starts the gather sequence.
+- `onBuildIntoLogo`: Wired to `_startBuildIntoLogo` — scatters cubes to viewport edges and starts the unified edge→grid building phase.
+- `onGatherComplete`: Fired when either gathering or building completes — transitions to `_isPreBurst = true` and signals the home screen that cubes are ready for the burst.
+- `onTrySplit`: Wired to `_trySplitAt` — handles tap-to-split in merge mode.
 
 ### `_MergeEntity` class
 All state fields live on the entity:
@@ -379,6 +403,10 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 
 ### Entity lifecycle
 - **Init**: `_generateBaseData()` creates `_baseData` list. `_initFromBase()` creates `_entities` with unique offsets.
+- **Build (first load)**: `buildIntoLogo()` → `_startBuildIntoLogo()` scatters cubes to viewport edges, sets `renderSize = 0`, enters `_isBuilding = true`. All 27 bricks build simultaneously in parallel via `_brickRevealProgress` (18 units/sec, 36 total units = ~2s). Within each brick, 3 cubes are staggered (~33ms apart). Each cube flies edge→grid; primary cube snaps into place with pop-in, others absorbed. The HTML logo IMAGE gradually fades out as bricks complete — `setLogoOpacity(1.0 - progress/36.0)` is called each frame. By the time building finishes, the logo is fully transparent and the big Flutter cube is fully revealed behind it.
+- **Gather (preview mode)**: `gatherIntoLogo()` → `_startGatherIntoLogo()` scatters cubes to viewport edges, then each frame animates them toward logo grid positions. On arrival → goes directly to `_isPreBurst = true` (skips building phase entirely).
+- **Hold (pre-burst)**: Building or gathering completion → `_isPreBurst = true`. Cubes hold logo formation (first 27 in 3×3×3 grid, extras in staggered cluster behind). Waiting for `triggerLogoBurst` call.
+- **Burst**: `triggerLogoBurst` → `_triggerLogoBurst()` sets `_isPreBurst = false`, assigns each cube strong outward radial velocities, randomized rotations, and rotational velocities. Cubes explode outward from center. Trail particles spawn for fast-moving cubes.
 - **Merge**: Two entities collapse into one with combined `baseIndices`, summed `renderSize` → `targetSize`, mass-weighted position. Split history fields (`splitLeft`, `splitRight`, etc.) are populated from the merging entities' own split history.
 - **Split (mode change)**: On mode change away from merge, `_splitMergedEntities()` reconstructs each base cube from `baseIndices`.
 - **Split (tap)**: In merge mode, `_trySplitAt(normalizedPoint)` finds the topmost merged cube under the tap point and calls `_splitEntity(source)`, which removes the merged entity and inserts two new entities reconstructed from the stored split index lists. Both split entities receive `mergeCooldown = 2.0` real seconds plus a strong repulsion velocity (pushForce=0.3) away from each other to prevent immediate re-merge. Additionally, 40 burst dust particles explode with 3D spherical physics (velocity, drag, shrink) at the split location.
@@ -404,10 +432,12 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 - `_drawFace` guards against non-finite coordinates as final safety layer.
 
 ### Logo State Angles & Spacing
-During `_isPreBurst` and `_isGathering` states, the isometric projection uses:
-- `rx = 0.70` (not the previous 0.615) — matches the brand logo's viewing angle
-- `gap = 20.0` (reduced from 22.0) — makes the logo look more compact and proportional
-- `e.renderSize = 18.0` — consistent cube face size for the 3×3×3 grid
+During `_isBuilding`, `_isPreBurst`, and `_isGathering` states, the isometric projection uses:
+- `rx = 0.7853981633974483` (π/4) — true isometric Y rotation
+- `ry = 0.6154797086703873` (asin(1/√3)) — true isometric pitch
+- `rz = 0.5235987755982988` (π/6) — true isometric roll
+- `gap = 24.0` — spacing between cube centers in the 3×3×3 grid
+- `e.renderSize = 19.0` — final cube face size (building phase animates from 0 → 19.0 with elastic pop-in)
 
 ### Color scheme
 - **Cube Base**: Light mode `#D8D8D8`, Dark mode `#505050`. Modulated by dynamic brightness.
@@ -426,6 +456,12 @@ During `_isPreBurst` and `_isGathering` states, the isometric projection uses:
 | `_PhysicsPayload` | `floating_cube_background.dart` | Serialized state for isolate (`Float64List`) |
 | `_PhysicsResult` | `floating_cube_background.dart` | Force deltas from isolate |
 | `_CubePainter` | `floating_cube_background.dart` | V2: trails in front, dynamic mouse light, adaptive quality |
+
+### State-level phase flags
+- `_isGathering` (bool): Cubes are flying from viewport edges toward logo formation. After gather → sets `_preBurstValue = true` directly (no separate building phase in preview mode).
+- `_isBuilding` (bool): All 27 bricks build simultaneously in parallel. Cubes grouped into bricks (3 per brick) fly from viewport edges toward their brick's grid position. `_brickRevealProgress` increments at 18 units/sec (total 36 = ~2s). On completion → `_isPreBurst = true`.
+- `_isPreBurst` (bool): Cubes hold the logo formation (3×3×3 grid + extra cluster). Waiting for `triggerLogoBurst` to explode.
+- `_brickRevealProgress` (double): Tracks parallel building progress (0.0 → 36.0). Each cube has a stagger offset (0, 0.33, 0.67 within its brick) and flies for 1.5 units. When `_brickRevealProgress ≥ 36.0`, all bricks are placed and building is complete.
 
 ---
 

@@ -392,7 +392,7 @@
     }
 
     var cubesGathered = 0;
-    var totalNeededCubes = 15; // Max glow/scale is reached when 15 cubes have arrived
+    var totalNeededCubes = 45; // Max glow/scale is reached when 45 cubes have arrived (3x for 3x spawn rate)
     var _htmlCubesSpawning = true;
     var currentProgress = 0.0;
     var targetProgress = 0.0;
@@ -419,8 +419,8 @@
       
       var logo = document.querySelector('.loading-logo, .logo-persistent');
       if (logo) {
-        // Scale from 1.0 to 1.42 (42% size increase)
-        var scale = 1.0 + (0.42 * currentProgress);
+        // Scale from 1.0 to 1.48 (48% size increase)
+        var scale = 1.0 + (0.48 * currentProgress);
         // Brightness from 0.6 to 1.45
         var brightness = 0.6 + (0.85 * currentProgress);
         // Shadow blur up to 25px
@@ -495,7 +495,7 @@
         // Quadratic acceleration over 3.5 seconds:
         var elapsed = performance.now() - startTime;
         var progress = Math.min(elapsed / 3500, 1.0);
-        var spawnInterval = 400 - (320 * progress * progress); // starts at 400ms, drops to 80ms quadratically
+        var spawnInterval = (400 - (320 * progress * progress)) / 3; // starts at 133ms, drops to 26.6ms — 3x faster
 
         setTimeout(spawnLoop, spawnInterval);
       }

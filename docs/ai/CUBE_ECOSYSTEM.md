@@ -34,7 +34,7 @@ This document explains the **entire cube rendering ecosystem** in LandyMaker. Th
 | **Rendering** | Single `_CubePainter (CustomPaint)` with spatial hashing, isolate offloading, adaptive quality |
 | **Performance** | O(n) spatial hash; isolate WebWorker offload (≥50 cubes); auto-quality reduction at <30 FPS |
 | **Modes** | `standard`, `merge`, `orbit`, `gravity` (controlled by `CubeModeCubit`) |
-| **Phases** | `_isGathering` (scatter from edges → fly to logo), `_isBuilding` (parallel brick building, 27 bricks simultaneously, ~2s, logo fades out gradually with progress), `_isPreBurst` (hold logo formation waiting for burst) |
+| **Phases** | `_isGathering` (ease from current positions → fly to logo, brick-based index mapping), `_isBuilding` (parallel brick building, 27 bricks simultaneously, ~2s, logo fades out gradually with progress), `_isPreBurst` (hold logo formation waiting for burst) |
 | **Lighting** | Dynamic per-entity light direction from mouse position (repelPoint) |
 | **Corners** | Sharp polygon faces (no rounding — cubes are small particles) |
 | **Particles** | 500-pool ring buffer for trail dust + burst dust; 3D spherical distribution on split |

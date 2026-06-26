@@ -779,28 +779,18 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     _isBuilding = false;
     _isGathering = true;
     _preBurstValue = false;
-    // Scatter all cubes to viewport edges for dramatic gathering effect
-    final rng = Random(42);
+
+    // Recalculate brick assignments to handle dynamic cube counts
+    _totalBuildCubes = (_entities.length ~/ _bricksPerGroup) * _bricksPerGroup;
+    if (_totalBuildCubes > _totalBricks * _bricksPerGroup) {
+      _totalBuildCubes = _totalBricks * _bricksPerGroup;
+    }
+    _entityBrickIndex = List.generate(_entities.length, (i) {
+      return i < _totalBuildCubes ? (i ~/ _bricksPerGroup) : -1;
+    });
+
+    // Halt physical momentum so cubes ease from their current floating positions
     for (final e in _entities) {
-      final side = rng.nextInt(4);
-      switch (side) {
-        case 0: // top
-          e.x = 0.1 + rng.nextDouble() * 0.8;
-          e.y = -0.1 - rng.nextDouble() * 0.3;
-          break;
-        case 1: // bottom
-          e.x = 0.1 + rng.nextDouble() * 0.8;
-          e.y = 1.1 + rng.nextDouble() * 0.3;
-          break;
-        case 2: // left
-          e.x = -0.1 - rng.nextDouble() * 0.3;
-          e.y = 0.1 + rng.nextDouble() * 0.8;
-          break;
-        case 3: // right
-          e.x = 1.1 + rng.nextDouble() * 0.3;
-          e.y = 0.1 + rng.nextDouble() * 0.8;
-          break;
-      }
       e.vx = 0;
       e.vy = 0;
     }
@@ -906,30 +896,18 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
       for (int i = 0; i < _entities.length; i++) {
         final e = _entities[i];
-        if (i < 27) {
-          int ix = (i % 3) - 1;
-          int iy = ((i ~/ 3) % 3) - 1;
-          int iz = (i ~/ 9) - 1;
+        if (i < _totalBuildCubes) {
+          final int brickIndex = _entityBrickIndex[i];
+          final int cubeInBrick = i % _bricksPerGroup;
+          int ix = (brickIndex % 3) - 1;
+          int iy = ((brickIndex ~/ 3) % 3) - 1;
+          int iz = (brickIndex ~/ 9) - 1;
 
-          double X = ix * gap;
-          double Y = iy * gap;
-          double Z = iz * gap;
+          double X = ix * gap, Y = iy * gap, Z = iz * gap;
+          double y1 = Y * cx - Z * sx, z1 = Y * sx + Z * cx; Y = y1; Z = z1;
+          double x1 = X * cy + Z * sy, z2 = -X * sy + Z * cy; X = x1; Z = z2;
+          double x2 = X * cz - Y * sz, y2 = X * sz + Y * cz; X = x2; Y = y2;
 
-          double y1 = Y * cx - Z * sx;
-          double z1 = Y * sx + Z * cx;
-          Y = y1;
-          Z = z1;
-
-          double x1 = X * cy + Z * sy;
-          double z2 = -X * sy + Z * cy;
-          X = x1;
-          Z = z2;
-
-          double x2 = X * cz - Y * sz;
-          double y2 = X * sz + Y * cz;
-          X = x2;
-          Y = y2;
-          
           e.depth = Z;
 
           double targetX = 0.5 + X / _screenSize.width;
@@ -938,45 +916,33 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           double dx = targetX - e.x;
           double dy = targetY - e.y;
 
-          // Fast gathering (easing ×2 for quick logo formation)
           e.x += dx * 0.12;
           e.y += dy * 0.12;
-
-          // Dampen physical velocity
           e.vx *= 0.8;
           e.vy *= 0.8;
 
-          // Ease rotation to match isometric projection
-          // We must handle angle wrapping for smooth rotation
           double drx = (rx - e.rx) % (2 * pi);
-          if (drx > pi)
-            drx -= 2 * pi;
-          else if (drx < -pi)
-            drx += 2 * pi;
+          if (drx > pi) drx -= 2 * pi;
+          else if (drx < -pi) drx += 2 * pi;
           e.rx += drx * 0.12;
 
           double dry = (ry - e.ry) % (2 * pi);
-          if (dry > pi)
-            dry -= 2 * pi;
-          else if (dry < -pi)
-            dry += 2 * pi;
+          if (dry > pi) dry -= 2 * pi;
+          else if (dry < -pi) dry += 2 * pi;
           e.ry += dry * 0.12;
 
           double drz = (rz - e.rz) % (2 * pi);
-          if (drz > pi)
-            drz -= 2 * pi;
-          else if (drz < -pi)
-            drz += 2 * pi;
+          if (drz > pi) drz -= 2 * pi;
+          else if (drz < -pi) drz += 2 * pi;
           e.rz += drz * 0.12;
 
-          e.targetSize = 19.0;
-          // Speed up size transition too
-          e.renderSize += (19.0 - e.renderSize) * 0.15;
+          e.targetSize = (cubeInBrick == 0) ? 19.0 : 0.0;
+          e.renderSize += (e.targetSize - e.renderSize) * 0.15;
 
           if (dx.abs() > 0.005 ||
               dy.abs() > 0.005 ||
               drx.abs() > 0.1 ||
-              (19.0 - e.renderSize).abs() > 1.0) {
+              (e.targetSize - e.renderSize).abs() > 1.0) {
             allArrived = false;
           }
         } else {

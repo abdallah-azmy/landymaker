@@ -658,9 +658,9 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         y: _isPreBurst ? 0.5 : Random().nextDouble(),
         size: d.size,
         targetSize: d.size,
-        rx: _isPreBurst ? pi / 4 : d.rx,
-        ry: _isPreBurst ? pi / 4 : d.ry,
-        rz: _isPreBurst ? 0.0 : d.rz,
+        rx: _isPreBurst ? 0.7853981633974483 : d.rx,
+        ry: _isPreBurst ? 0.6154797086703873 : d.ry,
+        rz: _isPreBurst ? 0.5235987755982988 : d.rz,
         vx: _isPreBurst ? 0.0 : null,
         vy: _isPreBurst ? 0.0 : null,
         baseIndices: [i],
@@ -891,7 +891,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     final topExclusion = widget.topExclusion;
 
     if (_isGathering) {
-      final double gap = 24.0;
+      final double gap = 24.7;
       final double rx = 0.7853981633974483;
       final double ry = 0.6154797086703873;
       final double rz = 0.5235987755982988;
@@ -957,7 +957,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             drz += 2 * pi;
           e.rz += drz * gatherSpeed;
 
-          e.targetSize = (cubeInBrick == 0) ? 19.0 : 0.0;
+          e.targetSize = (cubeInBrick == 0) ? 19.5 : 0.0;
           e.renderSize += (e.targetSize - e.renderSize) * 0.3;
 
           // Smoothly apply ambient occlusion as they gather to prevent lighting jump
@@ -1019,7 +1019,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     }
 
     if (_isPreBurst || _isBuilding) {
-      final double gap = 24.0;
+      final double gap = 24.7;
       final double rx = 0.7853981633974483;
       final double ry = 0.6154797086703873;
       final double rz = 0.5235987755982988;
@@ -1066,8 +1066,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               e.y = _brickStartY[i] + (targetY - _brickStartY[i]) * easeT;
               final double popScale = 1.0 + 0.3 * (1.0 - t) * cos(t * pi * 0.5);
               // Primary cube (0) grows to full brick size, others stay small
-              e.renderSize = (cubeInBrick == 0 ? 19.0 : 8.0) * popScale;
-              e.targetSize = 19.0;
+              e.renderSize = (cubeInBrick == 0 ? 19.5 : 8.0) * popScale;
+              e.targetSize = 19.5;
             } else if (raw >= 1.5) {
               // Arrived at target
               e.x = targetX;
@@ -1077,11 +1077,11 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
                 final double snapRaw = (raw - 1.5).clamp(0.0, 1.0);
                 final double snapScale =
                     1.0 + 0.3 * (1.0 - snapRaw) * cos(snapRaw * pi * 0.5);
-                e.renderSize = 19.0 * snapScale;
+                e.renderSize = 19.5 * snapScale;
               } else {
                 e.renderSize = 0; // absorbed into the brick
               }
-              e.targetSize = 19.0;
+              e.targetSize = 19.5;
             } else {
               // Not yet active: hidden at edge
               e.x = _brickStartX[i];
@@ -1099,8 +1099,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             e.rx = rx;
             e.ry = ry;
             e.rz = rz;
-            e.renderSize = (cubeInBrick == 0) ? 19.0 : 0;
-            e.targetSize = (cubeInBrick == 0) ? 19.0 : 0;
+            e.renderSize = (cubeInBrick == 0) ? 19.5 : 0;
+            e.targetSize = (cubeInBrick == 0) ? 19.5 : 0;
           }
         } else {
           // Extra cubes (index >= _totalBuildCubes)
@@ -1833,6 +1833,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               isRtl: isRtl,
               repelPoint: _hasRepelPoint ? _repelPoint : null,
               isLogoState: _isPreBurst || _isGathering || _isBuilding,
+              showGlow: _isPreBurst && widget.initialPreBurst,
             ),
           );
         },
@@ -2195,6 +2196,7 @@ class CubePainter extends CustomPainter {
   final bool isRtl;
   final Offset? repelPoint;
   final bool isLogoState;
+  final bool showGlow;
 
   CubePainter({
     required this.entities,
@@ -2205,6 +2207,7 @@ class CubePainter extends CustomPainter {
     required this.isRtl,
     this.repelPoint,
     this.isLogoState = false,
+    this.showGlow = false,
   });
 
   static final _nvScratch = [0.0, 0.0, 0.0];
@@ -2216,9 +2219,13 @@ class CubePainter extends CustomPainter {
       ..strokeWidth = 0.8;
     final fillPaint = Paint()..style = PaintingStyle.fill;
 
-    final cubeColor = brightness == Brightness.light
-        ? const Color(0xFFD8D8D8)
-        : const Color(0xFF505050);
+    final cubeColor = isLogoState
+        ? (brightness == Brightness.light
+            ? const Color(0xFFE2E8F0)
+            : const Color(0xFF1E293B))
+        : (brightness == Brightness.light
+            ? const Color(0xFFD8D8D8)
+            : const Color(0xFF505050));
 
     // ── Transform vertices ──
     final tv = <List<double>>[
@@ -2250,17 +2257,10 @@ class CubePainter extends CustomPainter {
       final px = entity.x * size.width;
       final py = entity.y * size.height;
 
-      // Fixed point light to give each cube subtle individual lighting based on its position,
-      // avoiding a "jump" to a single flat lighting when they align into the logo.
-      final double lightX = isRtl ? 0.9 : 0.1;
-      final double lightY = 0.05;
-      final double ldx = lightX - entity.x;
-      final double ldy = entity.y - lightY;
-      final double ldz = 0.5;
-      final double lDist = sqrt(ldx * ldx + ldy * ldy + ldz * ldz);
-      final double lx = ldx / lDist;
-      final double ly = ldy / lDist;
-      final double lz = ldz / lDist;
+      // Shading coordinates to match the logo image's top-left-front lighting exactly.
+      final double lx = -0.3;
+      final double ly = 0.9;
+      final double lz = 0.3;
 
       final rot = cg.computeRotation(entity.rx, entity.ry, entity.rz);
       for (int i = 0; i < 8; i++) {
@@ -2387,7 +2387,7 @@ class CubePainter extends CustomPainter {
 
     final Path path;
     if (isLogoState) {
-      final cr = (h * 0.36).clamp(0.3, max(0.3, h * 0.45)).toDouble();
+      final cr = (h * 0.35).clamp(0.3, max(0.3, h * 0.45)).toDouble();
       path = cg.buildRoundedQuad(
         Offset(fd.x0, fd.y0),
         Offset(fd.x1, fd.y1),
@@ -2404,8 +2404,16 @@ class CubePainter extends CustomPainter {
         ..close();
     }
 
-    // We do NOT draw the glow stroke during isLogoState anymore to prevent 
-    // the sudden jump in lighting/glow over the cubes.
+    if (showGlow) {
+      final glowPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..color = const Color(0xFF00E5FF).withValues(alpha: 0.65)
+        ..strokeWidth = h * 0.8
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12.0);
+      canvas.drawPath(path, glowPaint);
+    }
 
     final b = fd.brightness;
 
@@ -2418,7 +2426,14 @@ class CubePainter extends CustomPainter {
     canvas.drawPath(path, fillPaint);
 
     if (drawStroke) {
-      strokePaint.color = primaryColor;
+      strokePaint.color = isLogoState
+          ? const Color(0xFF00E5FF)
+          : primaryColor;
+      strokePaint.strokeWidth = isLogoState
+          ? (h * 0.12).clamp(1.2, 2.5)
+          : (h * 0.08).clamp(0.8, 2.0);
+      strokePaint.strokeCap = StrokeCap.round;
+      strokePaint.strokeJoin = StrokeJoin.round;
       canvas.drawPath(path, strokePaint);
     }
   }

@@ -1168,7 +1168,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                 opacity: _darkBg && !_isPreviewMode ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 1000),
                 curve: Curves.easeInOut,
-                child: const ColoredBox(color: Color(0xFF060A12)),
+                child: const ColoredBox(color: Color(0xFF0F172A)),
               ),
               Positioned.fill(
                 child: AnimatedBuilder(
@@ -1185,7 +1185,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                     isActive: _particlesActive,
                     controller: _cubeController,
                     cubeMode: context.watch<CubeModeCubit>().state,
-                    initialPreBurst: _isThisTheFirstLoad,
+                    initialPreBurst: _isThisTheFirstLoad && !_persistentLogoRemoved && !_isPreviewMode,
                   ),
                 ),
               ),

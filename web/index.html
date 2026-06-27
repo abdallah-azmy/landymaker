@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar">
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -22,18 +23,21 @@
     ======================================
   -->
   <!-- 1. Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+  <script>(function (w, d, s, l, i) {
+      w[l] = w[l] || []; w[l].push({
+        'gtm.start':
+          new Date().getTime(), event: 'gtm.js'
+      }); var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+          'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-XXXXXXX');</script>
   <!-- End Google Tag Manager -->
 
   <!-- 2. Google Analytics (GA4) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX');
   </script>
@@ -41,10 +45,10 @@
 
   <!-- 3. Microsoft Clarity -->
   <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
     })(window, document, "clarity", "script", "YOUR_CLARITY_ID");
   </script>
   <!-- 
@@ -100,7 +104,8 @@
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://www.landymaker.com/">
   <meta property="twitter:title" content="LandyMaker | منصتك المتكاملة لإنشاء المتاجر وصفحات الهبوط">
-  <meta property="twitter:description" content="لاندي ميكر | LandyMaker — منصة بناء صفحات الهبوط الاحترافية للسوق العربي">
+  <meta property="twitter:description"
+    content="لاندي ميكر | LandyMaker — منصة بناء صفحات الهبوط الاحترافية للسوق العربي">
   <meta property="twitter:image" content="https://www.landymaker.com/logo_social.webp">
 
   <!-- iOS meta tags & icons -->
@@ -110,7 +115,7 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <!-- Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
@@ -128,14 +133,16 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-color: #060A12; /* Matches AppColors.darkBackground exactly */
+      background-color: #060A12;
+      /* Matches AppColors.darkBackground exactly */
       z-index: 99999;
       font-family: 'Cairo', sans-serif;
       will-change: opacity;
       transition: background-color 0.4s ease;
     }
-    
-    .loading-logo, .logo-persistent {
+
+    .loading-logo,
+    .logo-persistent {
       width: 90px;
       height: 90px;
       object-fit: contain;
@@ -144,7 +151,18 @@
       transform: scale(1.0) translateZ(0);
       filter: brightness(0.6) drop-shadow(0 0 0px rgba(0, 229, 255, 0));
       will-change: transform, filter, opacity;
-      /* Removed transition for transform/filter to let JS frame-lerping drive the animations smoothly without fight */
+      animation: logo-ramp 3.8s ease-out forwards;
+    }
+
+    @keyframes logo-ramp {
+      0% {
+        transform: scale(1) translateZ(0);
+        filter: brightness(0.6) drop-shadow(0 0 0px rgba(0, 229, 255, 0));
+      }
+      100% {
+        transform: scale(1.25) translateZ(0);
+        filter: brightness(1.45) drop-shadow(0 0 25px rgba(0, 229, 255, 0.75));
+      }
     }
 
     /* When the loader is in persistent-logo mode, clicks pass through to Flutter */
@@ -172,7 +190,8 @@
       animation-name: gather-loop;
       animation-duration: 8s;
       animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-      animation-iteration-count: 1; /* Only run once, cleaned up via JS on completion */
+      animation-iteration-count: 1;
+      /* Only run once, cleaned up via JS on completion */
       animation-delay: var(--delay, 0s);
       will-change: transform, opacity;
     }
@@ -188,12 +207,15 @@
         opacity: 0;
         transform: translate(calc(var(--sx) * 1px), calc(var(--sy) * 1px)) rotateZ(calc(var(--rz) * 1deg)) scale(0.3);
       }
+
       15% {
         opacity: 1;
       }
+
       90% {
         opacity: 1;
       }
+
       100% {
         opacity: 0;
         transform: translate(calc(var(--tx) * 1px), calc(var(--ty) * 1px)) rotateZ(0deg) scale(0.7);
@@ -214,6 +236,7 @@
     }
   </style>
 </head>
+
 <body class="notranslate">
   <!-- Visually hidden links for crawlers and Google OAuth Verification bots only (permanent in DOM) -->
   <div class="sr-only">
@@ -224,7 +247,8 @@
   <!-- Fallback/SEO loader -->
   <div id="loading-indicator">
     <div id="gathering-squares"></div>
-    <img class="loading-logo" src="assets/assets/images/logo.webp" onerror="this.src='logo_social.webp'" alt="LandyMaker">
+    <img class="loading-logo" src="assets/assets/images/logo.webp" onerror="this.src='logo_social.webp'"
+      alt="LandyMaker">
   </div>
 
   <script>
@@ -284,14 +308,14 @@
       var host = window.location.hostname.toLowerCase();
       var path = window.location.pathname;
       var pathSegments = path.split('/').filter(Boolean);
-      
+
       var isCoreDomain = host === 'localhost' ||
-                         host === '127.0.0.1' ||
-                         host === 'landymaker.com' ||
-                         host === 'landymaker.vercel.app' ||
-                         host.indexOf('dashboard.') === 0 ||
-                         host.indexOf('app.') === 0;
-                         
+        host === '127.0.0.1' ||
+        host === 'landymaker.com' ||
+        host === 'landymaker.vercel.app' ||
+        host.indexOf('dashboard.') === 0 ||
+        host.indexOf('app.') === 0;
+
       if (isCoreDomain) {
         if (pathSegments.length > 0) {
           var firstSegment = pathSegments[0].trim();
@@ -336,135 +360,23 @@
     // them globally so Flutter can reuse them for perfect direction continuity.
     window._htmlCubeEdgePositions = [];
 
-    function buildSvgCube() {
-      var svg = document.createElementNS(_ns, 'svg');
-      svg.setAttribute('viewBox', '0 0 16 16');
-      svg.setAttribute('width', '16');
-      svg.setAttribute('height', '16');
-
-      var top = document.createElementNS(_ns, 'polygon');
-      top.setAttribute('points', '8,2 14,5 8,8 2,5');
-      top.setAttribute('fill', '#0ff');
-      top.setAttribute('opacity', '0.92');
-
-      var left = document.createElementNS(_ns, 'polygon');
-      left.setAttribute('points', '8,8 2,5 2,11 8,14');
-      left.setAttribute('fill', '#00c8ff');
-      left.setAttribute('opacity', '0.82');
-
-      var right = document.createElementNS(_ns, 'polygon');
-      right.setAttribute('points', '8,8 14,5 14,11 8,14');
-      right.setAttribute('fill', '#0088cc');
-      right.setAttribute('opacity', '0.72');
-
-      var edge = document.createElementNS(_ns, 'polygon');
-      edge.setAttribute('points', '8,2 14,5 8,8 2,5');
-      edge.setAttribute('fill', 'none');
-      edge.setAttribute('stroke', '#66f0ff');
-      edge.setAttribute('stroke-width', '0.5');
-      edge.setAttribute('opacity', '0.7');
-
-      svg.appendChild(top);
-      svg.appendChild(left);
-      svg.appendChild(right);
-      svg.appendChild(edge);
-      return svg;
-    }
+    var _gatheringContainer = document.getElementById('gathering-squares');
+    var _viewW = window.innerWidth;
+    var _viewH = window.innerHeight;
+    var _htmlCubesSpawning = true;
 
     function getEdgePosition() {
       var side = Math.floor(Math.random() * 4);
       var pos;
       switch (side) {
-        case 0:
-          pos = { x: (Math.random() - 0.5) * _viewW * 1.2, y: -_viewH * (0.3 + Math.random() * 0.5) };
-          break;
-        case 1:
-          pos = { x: (Math.random() - 0.5) * _viewW * 1.2, y: _viewH * (0.3 + Math.random() * 0.5) };
-          break;
-        case 2:
-          pos = { x: -_viewW * (0.3 + Math.random() * 0.5), y: (Math.random() - 0.5) * _viewH * 1.2 };
-          break;
-        default:
-          pos = { x: _viewW * (0.3 + Math.random() * 0.5), y: (Math.random() - 0.5) * _viewH * 1.2 };
+        case 0: pos = { x: (Math.random() - 0.5) * _viewW * 1.2, y: -_viewH * (0.3 + Math.random() * 0.5) }; break;
+        case 1: pos = { x: (Math.random() - 0.5) * _viewW * 1.2, y: _viewH * (0.3 + Math.random() * 0.5) }; break;
+        case 2: pos = { x: -_viewW * (0.3 + Math.random() * 0.5), y: (Math.random() - 0.5) * _viewH * 1.2 }; break;
+        default: pos = { x: _viewW * (0.3 + Math.random() * 0.5), y: (Math.random() - 0.5) * _viewH * 1.2 };
       }
-      // Normalize to 0..1 range for Flutter compatibility
       return { x: pos.x / _viewW, y: pos.y / _viewH };
     }
 
-    var cubesGathered = 0;
-    var totalNeededCubes = 45; // Max glow/scale is reached when 45 cubes have arrived (3x for 3x spawn rate)
-    var _htmlCubesSpawning = true;
-    var currentProgress = 0.0;
-    var targetProgress = 0.0;
-
-    function onCubeArrive() {
-      if (!_htmlCubesSpawning) return;
-      cubesGathered++;
-    }
-
-    function updateLogoFrame() {
-      // Calculate target progress based on arriving cubes
-      var cubeProgress = Math.min(cubesGathered / totalNeededCubes, 1.0);
-      
-      // Add a small time factor to make it feel continuous even between cube arrivals
-      var elapsed = performance.now() - _glowStartTime;
-      var timeProgress = Math.min(elapsed / 3800, 1.0);
-      
-      // Merge them: 70% cube arrival, 30% time
-      targetProgress = (cubeProgress * 0.7) + (timeProgress * 0.3);
-      if (targetProgress > 1.0) targetProgress = 1.0;
-      
-      // Smooth lerp
-      currentProgress += (targetProgress - currentProgress) * 0.04;
-      
-      var logo = document.querySelector('.loading-logo, .logo-persistent');
-      if (logo) {
-        // Scale from 1.0 to 1.48 (48% size increase)
-        var scale = 1.0 + (0.48 * currentProgress);
-        // Brightness from 0.6 to 1.45
-        var brightness = 0.6 + (0.85 * currentProgress);
-        // Shadow blur up to 25px
-        var shadowBlur = 25 * currentProgress;
-        var shadowOpacity = 0.75 * currentProgress;
-        
-        logo.style.transform = 'scale(' + scale.toFixed(4) + ') translateZ(0)';
-        logo.style.filter = 'brightness(' + brightness.toFixed(4) + ') drop-shadow(0 0 ' + shadowBlur.toFixed(2) + 'px rgba(0, 229, 255, ' + shadowOpacity.toFixed(4) + '))';
-      }
-      
-      if (_htmlCubesSpawning || currentProgress < targetProgress - 0.001) {
-        requestAnimationFrame(updateLogoFrame);
-      }
-    }
-
-    function spawnGatheringCube(durationSec, delayRange, pos) {
-      if (!_gatheringContainer) return;
-      var wrapper = document.createElement('div');
-      wrapper.className = 'gathering-cube';
-
-      // Store px values for CSS
-      wrapper.style.setProperty('--sx', String(pos.x * _viewW));
-      wrapper.style.setProperty('--sy', String(pos.y * _viewH));
-      wrapper.style.setProperty('--tx', String((Math.random() - 0.5) * 70));
-      wrapper.style.setProperty('--ty', String((Math.random() - 0.5) * 70));
-      wrapper.style.setProperty('--rz', String((Math.random() - 0.5) * 360));
-      var delay = Math.random() * delayRange;
-      wrapper.style.setProperty('--delay', String(delay.toFixed(2)) + 's');
-      wrapper.style.setProperty('animation-duration', durationSec + 's');
-
-      wrapper.appendChild(buildSvgCube());
-      _gatheringContainer.appendChild(wrapper);
-
-      // DOM Cleanup & Logo update: Remove element and trigger logo growth/glow on arrival
-      setTimeout(function() {
-        if (wrapper && wrapper.parentNode) {
-          wrapper.parentNode.removeChild(wrapper);
-        }
-        onCubeArrive();
-      }, (durationSec + delay) * 1000);
-    }
-
-    // Pre-compute 81 edge positions, store globally for Flutter, then start
-    // the gradual spawning loop.
     function createGatheringSquares() {
       if (!_gatheringContainer) return;
       var allPositions = [];
@@ -473,51 +385,60 @@
       }
       window._htmlCubeEdgePositions = JSON.stringify(allPositions);
 
-      // Start with a slow spawn rate relative to total time, and rapidly accelerate
       var positionIndex = 0;
       var startTime = performance.now();
 
       function spawnLoop() {
         if (!_htmlCubesSpawning) return;
-        var duration = 0.8 + Math.random() * 0.5; // flight duration: 0.8s to 1.3s
-        var delayRange = 0.2; // short delay range for responsiveness
-        
-        var pos;
-        if (positionIndex < 81) {
-          pos = allPositions[positionIndex];
-          positionIndex++;
-        } else {
-          pos = getEdgePosition();
-        }
 
-        spawnGatheringCube(duration, delayRange, pos);
+        var pos = positionIndex < 81 ? allPositions[positionIndex++] : getEdgePosition();
 
-        // Quadratic acceleration over 3.5 seconds:
+        var wrapper = document.createElement('div');
+        wrapper.className = 'gathering-cube';
+
+        // Use SVG for crispness, identical to Flutter cubes
+        wrapper.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><polygon points="8,2 14,5 8,8 2,5" fill="#0ff" opacity="0.92"/><polygon points="8,8 2,5 2,11 8,14" fill="#00c8ff" opacity="0.82"/><polygon points="8,8 14,5 14,11 8,14" fill="#0088cc" opacity="0.72"/><polygon points="8,2 14,5 8,8 2,5" fill="none" stroke="#66f0ff" stroke-width="0.5" opacity="0.7"/></svg>';
+
+        // Random starting distance from edges
+        var startX = pos.x * _viewW;
+        var startY = pos.y * _viewH;
+
+        // Slight random offset from center for organic gathering
+        var endX = (Math.random() - 0.5) * 70;
+        var endY = (Math.random() - 0.5) * 70;
+
+        wrapper.style.setProperty('--sx', String(startX));
+        wrapper.style.setProperty('--sy', String(startY));
+        wrapper.style.setProperty('--tx', String(endX));
+        wrapper.style.setProperty('--ty', String(endY));
+        wrapper.style.setProperty('--rz', String((Math.random() - 0.5) * 360));
+
+        var duration = 0.8 + Math.random() * 0.5;
+        wrapper.style.animationDuration = String(duration) + 's';
+
+        _gatheringContainer.appendChild(wrapper);
+
+        // Remove element exactly when animation completes
+        setTimeout(function () {
+          if (wrapper.parentNode) {
+            wrapper.parentNode.removeChild(wrapper);
+          }
+        }, duration * 1000);
+
         var elapsed = performance.now() - startTime;
         var progress = Math.min(elapsed / 3500, 1.0);
-        var spawnInterval = (400 - (320 * progress * progress)) / 3; // starts at 133ms, drops to 26.6ms — 3x faster
+        var spawnInterval = (400 - (320 * progress * progress)) / 3;
 
         setTimeout(spawnLoop, spawnInterval);
       }
 
-      // Start spawning loop immediately
       spawnLoop();
     }
     createGatheringSquares();
-    requestAnimationFrame(updateLogoFrame);
-
-    // ── Logo glow is handled purely by CSS animation (logo-ramp, 6s) ───
-    // No JS tracking needed — the CSS does a simple gradual ramp from no
-    // glow to full glow over 6 seconds and holds there permanently.
-    // The gathering cubes just loop infinitely; they don't drive the glow.
-    // Density increase (more cubes over time) is handled by the spawning
-    // logic above. Both effects (glow + density) continue forever.
 
     function stopHtmlSpawning() {
       _htmlCubesSpawning = false;
-      if (_gatheringContainer) {
-        _gatheringContainer.innerHTML = ''; // Clear all gathering HTML cubes instantly
-      }
+      // Do NOT clear canvas or innerHTML instantly. Let existing cubes finish their animation gracefully!
     }
 
     function removeLoader() {
@@ -526,7 +447,7 @@
       if (loading) {
         loading.style.transition = 'opacity 0.25s ease';
         loading.style.opacity = '0';
-        setTimeout(function() {
+        setTimeout(function () {
           if (loading.parentNode) {
             loading.parentNode.removeChild(loading);
           }
@@ -564,7 +485,7 @@
       if (!loading) return;
       loading.style.transition = 'opacity 1.5s ease';
       loading.style.opacity = '0';
-      setTimeout(function() {
+      setTimeout(function () {
         if (loading && loading.parentNode) {
           loading.parentNode.removeChild(loading);
         }
@@ -589,14 +510,14 @@
     window.transitionToPersistentLogo = transitionToPersistentLogo;
     window.removePersistentLogo = removePersistentLogo;
     window.setLogoOpacity = setLogoOpacity;
-    
+
     // Safety fallback: auto-remove loader after 12 seconds if Flutter takes too long or fails to load
     setTimeout(removeLoader, 12000);
   </script>
 
   <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
 
   <!-- PWA Install Prompt Handler -->
@@ -617,7 +538,7 @@
       console.log('[PWA] App installed');
     });
 
-    window.landyPwaInstall = function() {
+    window.landyPwaInstall = function () {
       const prompt = window.landyPwaDeferredPrompt;
       if (prompt) {
         prompt.prompt();
@@ -645,4 +566,5 @@
 
   <script src="flutter_bootstrap.js" async></script>
 </body>
+
 </html>

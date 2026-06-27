@@ -28,19 +28,19 @@ import 'core/cube_geometry.dart' as cg;
 // PERFORMANCE & QUALITY
 // ─────────────────────────────────────────────────────────────────────────────
 
-enum _QualityMode { high, low }
+enum QualityMode { high, low }
 
 class _AdaptiveQuality {
-  _QualityMode mode = _QualityMode.high;
+  QualityMode mode = QualityMode.high;
   int _slowFrameCount = 0;
 
   void update(double dt) {
     if (dt > 0.033) {
       _slowFrameCount++;
-      if (_slowFrameCount >= 15) mode = _QualityMode.low;
+      if (_slowFrameCount >= 15) mode = QualityMode.low;
     } else {
       _slowFrameCount = 0;
-      mode = _QualityMode.high;
+      mode = QualityMode.high;
     }
   }
 }
@@ -114,11 +114,11 @@ class _TrailParticle {
 
 const int _kTrailPoolSize = 500;
 
-class _TrailPool {
+class TrailPool {
   final List<_TrailParticle> particles;
   int _writeIndex = 0;
 
-  _TrailPool()
+  TrailPool()
     : particles = List.generate(_kTrailPoolSize, (_) => _TrailParticle());
 
   void spawn(double x, double y, double size) {
@@ -346,6 +346,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     _isPreBurst = value;
     widget.controller?.isLogoFormed = value;
   }
+
   bool _isGathering = false;
   bool _isBuilding = false;
 
@@ -371,7 +372,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   // V2 features
   final _spatialHash = _SpatialHashGrid();
-  final _trailPool = _TrailPool();
+  final _trailPool = TrailPool();
   final _adaptiveQuality = _AdaptiveQuality();
   final _neighborScratch = <int>[];
   Future<void>? _isolateFuture;
@@ -817,8 +818,11 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     // cubes fly behind the logo in HTML and emerge as Flutter bricks.
     // All 27 bricks build simultaneously (parallel) so the big cube forms quickly.
     // If positions aren't available (non-web or preview mode), fall back to Random(42).
-    final List<Map<String, dynamic>>? htmlPositions = readJsArray('_htmlCubeEdgePositions');
-    final bool useHtmlPositions = htmlPositions != null && htmlPositions.length >= _totalBuildCubes;
+    final List<Map<String, dynamic>>? htmlPositions = readJsArray(
+      '_htmlCubeEdgePositions',
+    );
+    final bool useHtmlPositions =
+        htmlPositions != null && htmlPositions.length >= _totalBuildCubes;
 
     // Scatter ALL cubes to viewport edges — using HTML positions if available
     // so the Flutter cubes appear to continue from where HTML cubes left off.
@@ -869,11 +873,14 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     double dt = current - _lastValue;
     if (dt < 0) dt += 1.0;
     _lastValue = current;
-    final scrollDrift = (widget.controller?.scrollDrift ?? 0.0).clamp(-0.08, 0.08);
+    final scrollDrift = (widget.controller?.scrollDrift ?? 0.0).clamp(
+      -0.08,
+      0.08,
+    );
 
     // ── Adaptive quality tracking ──
     _adaptiveQuality.update(dt);
-    final bool lowQuality = _adaptiveQuality.mode == _QualityMode.low;
+    final bool lowQuality = _adaptiveQuality.mode == QualityMode.low;
 
     // ── Cube count notifier ──
     if (widget.controller != null &&
@@ -893,6 +900,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       final double cz = cos(rz), sz = sin(rz);
 
       bool allArrived = true;
+      final double gatherSpeed =
+          0.13; // Reduced further to 0.13 to slow down the gathering animation
 
       for (int i = 0; i < _entities.length; i++) {
         final e = _entities[i];
@@ -904,9 +913,15 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           int iz = (brickIndex ~/ 9) - 1;
 
           double X = ix * gap, Y = iy * gap, Z = iz * gap;
-          double y1 = Y * cx - Z * sx, z1 = Y * sx + Z * cx; Y = y1; Z = z1;
-          double x1 = X * cy + Z * sy, z2 = -X * sy + Z * cy; X = x1; Z = z2;
-          double x2 = X * cz - Y * sz, y2 = X * sz + Y * cz; X = x2; Y = y2;
+          double y1 = Y * cx - Z * sx, z1 = Y * sx + Z * cx;
+          Y = y1;
+          Z = z1;
+          double x1 = X * cy + Z * sy, z2 = -X * sy + Z * cy;
+          X = x1;
+          Z = z2;
+          double x2 = X * cz - Y * sz, y2 = X * sz + Y * cz;
+          X = x2;
+          Y = y2;
 
           e.depth = Z;
 
@@ -916,43 +931,53 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           double dx = targetX - e.x;
           double dy = targetY - e.y;
 
-          e.x += dx * 0.12;
-          e.y += dy * 0.12;
-          e.vx *= 0.8;
-          e.vy *= 0.8;
+          e.x += dx * gatherSpeed;
+          e.y += dy * gatherSpeed;
+          e.vx *= 0.7;
+          e.vy *= 0.7;
 
           double drx = (rx - e.rx) % (2 * pi);
-          if (drx > pi) drx -= 2 * pi;
-          else if (drx < -pi) drx += 2 * pi;
-          e.rx += drx * 0.12;
+          if (drx > pi)
+            drx -= 2 * pi;
+          else if (drx < -pi)
+            drx += 2 * pi;
+          e.rx += drx * gatherSpeed;
 
           double dry = (ry - e.ry) % (2 * pi);
-          if (dry > pi) dry -= 2 * pi;
-          else if (dry < -pi) dry += 2 * pi;
-          e.ry += dry * 0.12;
+          if (dry > pi)
+            dry -= 2 * pi;
+          else if (dry < -pi)
+            dry += 2 * pi;
+          e.ry += dry * gatherSpeed;
 
           double drz = (rz - e.rz) % (2 * pi);
-          if (drz > pi) drz -= 2 * pi;
-          else if (drz < -pi) drz += 2 * pi;
-          e.rz += drz * 0.12;
+          if (drz > pi)
+            drz -= 2 * pi;
+          else if (drz < -pi)
+            drz += 2 * pi;
+          e.rz += drz * gatherSpeed;
 
           e.targetSize = (cubeInBrick == 0) ? 19.0 : 0.0;
-          e.renderSize += (e.targetSize - e.renderSize) * 0.15;
+          e.renderSize += (e.targetSize - e.renderSize) * 0.3;
 
-          if (dx.abs() > 0.005 ||
-              dy.abs() > 0.005 ||
-              drx.abs() > 0.1 ||
-              (e.targetSize - e.renderSize).abs() > 1.0) {
+          // Smoothly apply ambient occlusion as they gather to prevent lighting jump
+          final targetAo = cg.ambientOcclusion(ix, iy, iz);
+          e.ao += (targetAo - e.ao) * gatherSpeed;
+
+          if (dx.abs() > 0.0005 ||
+              dy.abs() > 0.0005 ||
+              drx.abs() > 0.01 ||
+              (e.targetSize - e.renderSize).abs() > 0.1) {
             allArrived = false;
           }
         } else {
-          // Surplus cubes go to center and vanish
+          // Surplus cubes go to center and vanish rapidly
           double dx = 0.5 - e.x;
           double dy = 0.5 - e.y;
-          e.x += dx * 0.12;
-          e.y += dy * 0.12;
+          e.x += dx * 0.28;
+          e.y += dy * 0.28;
           e.targetSize = 0.0;
-          e.renderSize += (0.0 - e.renderSize) * 0.15;
+          e.renderSize += (0.0 - e.renderSize) * 0.4;
           if (e.renderSize > 1.0) {
             allArrived = false;
           }
@@ -980,7 +1005,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
       // --- Logo fade: call JS to update logo opacity in sync with building progress ---
       if (kIsWeb) {
-        final opacity = (1.0 - (_brickRevealProgress / _brickTotalDuration)).clamp(0.0, 1.0);
+        final opacity = (1.0 - (_brickRevealProgress / _brickTotalDuration))
+            .clamp(0.0, 1.0);
         callJsWithArg('setLogoOpacity', opacity.toStringAsFixed(3));
       }
       // -------------------------------------------------------------------------
@@ -1011,9 +1037,15 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           int iz = (brickIndex ~/ 9) - 1;
 
           double X = ix * gap, Y = iy * gap, Z = iz * gap;
-          double y1 = Y * cx - Z * sx, z1 = Y * sx + Z * cx; Y = y1; Z = z1;
-          double x1 = X * cy + Z * sy, z2 = -X * sy + Z * cy; X = x1; Z = z2;
-          double x2 = X * cz - Y * sz, y2 = X * sz + Y * cz; X = x2; Y = y2;
+          double y1 = Y * cx - Z * sx, z1 = Y * sx + Z * cx;
+          Y = y1;
+          Z = z1;
+          double x1 = X * cy + Z * sy, z2 = -X * sy + Z * cy;
+          X = x1;
+          Z = z2;
+          double x2 = X * cz - Y * sz, y2 = X * sz + Y * cz;
+          X = x2;
+          Y = y2;
 
           e.depth = Z;
           final double targetX = 0.5 + X / _screenSize.width;
@@ -1043,7 +1075,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               if (cubeInBrick == 0) {
                 // Primary cube: snap pop-in for the brick itself
                 final double snapRaw = (raw - 1.5).clamp(0.0, 1.0);
-                final double snapScale = 1.0 + 0.3 * (1.0 - snapRaw) * cos(snapRaw * pi * 0.5);
+                final double snapScale =
+                    1.0 + 0.3 * (1.0 - snapRaw) * cos(snapRaw * pi * 0.5);
                 e.renderSize = 19.0 * snapScale;
               } else {
                 e.renderSize = 0; // absorbed into the brick
@@ -1056,12 +1089,16 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               e.renderSize = 0;
               e.targetSize = 0;
             }
-            e.rx = rx; e.ry = ry; e.rz = rz;
+            e.rx = rx;
+            e.ry = ry;
+            e.rz = rz;
           } else {
             // Pre-burst: primary cube (0) of each brick visible at grid pos
             e.x = targetX;
             e.y = targetY;
-            e.rx = rx; e.ry = ry; e.rz = rz;
+            e.rx = rx;
+            e.ry = ry;
+            e.rz = rz;
             e.renderSize = (cubeInBrick == 0) ? 19.0 : 0;
             e.targetSize = (cubeInBrick == 0) ? 19.0 : 0;
           }
@@ -1086,13 +1123,16 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
             double eZ = -(gap * 1.5 + behindOffset);
             double eY1 = eY * cx - eZ * sx;
             double eZ1 = eY * sx + eZ * cx;
-            eY = eY1; eZ = eZ1;
+            eY = eY1;
+            eZ = eZ1;
             double eX1 = eX * cy + eZ * sy;
             double eZ2 = -eX * sy + eZ * cy;
-            eX = eX1; eZ = eZ2;
+            eX = eX1;
+            eZ = eZ2;
             double eX2 = eX * cz - eY * sz;
             double eY2 = eX * sz + eY * cz;
-            eX = eX2; eY = eY2;
+            eX = eX2;
+            eY = eY2;
             e.depth = eZ;
             e.x = 0.5 + eX / _screenSize.width;
             e.y = 0.5 - eY / _screenSize.height;
@@ -1113,6 +1153,9 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     final bool gravity = widget.cubeMode == CubeMode.gravity;
     final bool isMergeMode = widget.cubeMode == CubeMode.merge;
     for (final e in _entities) {
+      if (!_isGathering && !_isBuilding && !_isPreBurst) {
+        e.ao += (1.0 - e.ao) * 0.1;
+      }
       e.update(
         dt,
         widget.speed,
@@ -1175,7 +1218,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     // ── Scroll drift reset ──
     if (widget.controller != null) {
-      widget.controller!.scrollDrift = 0.0; // ⚠️ scrollDrift is clamped to ±0.08 at read site with multiplier 2.0 — do NOT change these values without testing scroll behavior
+      widget.controller!.scrollDrift =
+          0.0; // ⚠️ scrollDrift is clamped to ±0.08 at read site with multiplier 2.0 — do NOT change these values without testing scroll behavior
     }
   }
 
@@ -1184,7 +1228,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   void _updateMergeMode(double dt, double topExclusion) {
     // Cooldown & random perturbation
     for (final e in _entities) {
-      if (e.mergeCooldown > 0 && !e.isSpiraling) e.mergeCooldown -= _realSec(dt);
+      if (e.mergeCooldown > 0 && !e.isSpiraling)
+        e.mergeCooldown -= _realSec(dt);
     }
     for (final e in _entities) {
       if (e.isSpiraling) continue;
@@ -1779,7 +1824,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
         builder: (context, _) {
           return CustomPaint(
             size: Size.infinite,
-            painter: _CubePainter(
+            painter: CubePainter(
               entities: _entities,
               trailPool: _trailPool,
               qualityMode: _adaptiveQuality.mode,
@@ -1835,6 +1880,7 @@ class _MergeEntity {
   double ignoreRepelTimer = 0.0;
   double _timeSinceLastChange = 0.0;
   double lastScrollDrift = 0.0;
+  double ao = 1.0;
 
   _MergeEntity? parentCore;
   double orbitRadius = 0.0;
@@ -1921,7 +1967,9 @@ class _MergeEntity {
       }
     }
 
-    vy -= scrollDrift * 2.0; // ⚠️ scrollDrift is clamped to ±0.08 at read site — do NOT raise multiplier above 2.0 or remove the clamp without testing scroll behavior
+    vy -=
+        scrollDrift *
+        2.0; // ⚠️ scrollDrift is clamped to ±0.08 at read site — do NOT raise multiplier above 2.0 or remove the clamp without testing scroll behavior
 
     const double repZone = 0.1;
     const double repForce = 0.04;
@@ -2138,17 +2186,17 @@ class _CubeDrawData {
 // CUSTOM PAINTER (V2: trails in front, adaptive quality)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _CubePainter extends CustomPainter {
+class CubePainter extends CustomPainter {
   final List<_MergeEntity> entities;
-  final _TrailPool trailPool;
-  final _QualityMode qualityMode;
+  final TrailPool trailPool;
+  final QualityMode qualityMode;
   final Brightness brightness;
   final Color primaryColor;
   final bool isRtl;
   final Offset? repelPoint;
   final bool isLogoState;
 
-  _CubePainter({
+  CubePainter({
     required this.entities,
     required this.trailPool,
     required this.qualityMode,
@@ -2191,7 +2239,7 @@ class _CubePainter extends CustomPainter {
     final allData = <_CubeDrawData>[];
 
     // Only draw stroke in high quality (adaptive rendering)
-    final bool drawStroke = qualityMode == _QualityMode.high;
+    final bool drawStroke = qualityMode == QualityMode.high;
 
     for (final entity in entities) {
       if (entity.x.isNaN || entity.x.isInfinite) continue;
@@ -2202,15 +2250,10 @@ class _CubePainter extends CustomPainter {
       final px = entity.x * size.width;
       final py = entity.y * size.height;
 
-      final double lightX, lightY;
-      final rp = repelPoint;
-      if (rp != null) {
-        lightX = rp.dx;
-        lightY = rp.dy;
-      } else {
-        lightX = isRtl ? 0.9 : 0.1;
-        lightY = 0.05;
-      }
+      // Fixed point light to give each cube subtle individual lighting based on its position,
+      // avoiding a "jump" to a single flat lighting when they align into the logo.
+      final double lightX = isRtl ? 0.9 : 0.1;
+      final double lightY = 0.05;
       final double ldx = lightX - entity.x;
       final double ldy = entity.y - lightY;
       final double ldz = 0.5;
@@ -2246,7 +2289,7 @@ class _CubePainter extends CustomPainter {
         if (nz <= 0) continue;
 
         final dot = nx * lx + ny * ly + nz * lz;
-        final brightness = 0.25 + max(0.0, dot) * 0.75;
+        final brightness = (0.25 + max(0.0, dot) * 0.75) * entity.ao;
 
         double sumZ = 0.0;
         for (int vi = 0; vi < 4; vi++) {
@@ -2289,7 +2332,10 @@ class _CubePainter extends CustomPainter {
       );
     }
 
-    allData.sort((a, b) => isLogoState ? a.depth.compareTo(b.depth) : a.size.compareTo(b.size));
+    allData.sort(
+      (a, b) =>
+          isLogoState ? a.depth.compareTo(b.depth) : a.size.compareTo(b.size),
+    );
 
     for (final cubeData in allData) {
       if (cubeData.faces.isEmpty) continue;
@@ -2300,7 +2346,7 @@ class _CubePainter extends CustomPainter {
     }
 
     // ── Trail / Dust Particles (in front of cubes) ──
-    if (qualityMode == _QualityMode.high) {
+    if (qualityMode == QualityMode.high) {
       final trailPaint = Paint()..style = PaintingStyle.fill;
       for (int i = 0; i < _kTrailPoolSize; i++) {
         final tp = trailPool.particles[i];
@@ -2358,14 +2404,8 @@ class _CubePainter extends CustomPainter {
         ..close();
     }
 
-    if (isLogoState) {
-      final glowPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = h * 0.55
-        ..color = const Color(0xFF00E5FF).withOpacity(0.72)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7.0);
-      canvas.drawPath(path, glowPaint);
-    }
+    // We do NOT draw the glow stroke during isLogoState anymore to prevent 
+    // the sudden jump in lighting/glow over the cubes.
 
     final b = fd.brightness;
 
@@ -2384,5 +2424,5 @@ class _CubePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_CubePainter oldDelegate) => true;
+  bool shouldRepaint(CubePainter oldDelegate) => true;
 }

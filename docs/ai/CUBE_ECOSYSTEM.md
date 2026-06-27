@@ -84,6 +84,7 @@ ALL cube renderers import this file. No cube-rendering code should duplicate the
 | File | Role |
 |------|------|
 | `docs/ai/CUBE_LOADER.md` | Detailed docs for CubeLoader (API, variants, states, architecture, performance) |
+| `docs/ai/HTML_LOADING_VIEW.md` | Pre-Flutter HTML loading screen: logo animation, SVG cubes, background transition, persistent logo |
 | `docs/ai/LOADING_LOGO_SYSTEM.md` | Legacy LoadingLogo docs (marked DEPRECATED in favor of CubeLoader) |
 | `docs/ai/FLOATING_CUBE_BACKGROUND.md` | Complete docs for floating cube system: all 4 mode rules, physics, particle system, entity lifecycle, WASM safety |
 | `docs/ai/AI_DOCUMENTATION_RULES.md` | Rule 40 (Unified CubeLoader System) — mandates CubeLoader for ALL loading, lists variant/state selection guidance |
@@ -167,7 +168,7 @@ ambientOcclusion(ix, iy, iz)    → 0.85–1.0 factor based on neighbor count in
 occludedFaces(ix, iy, iz)       → Bitmask of faces blocked by neighbors
 ```
 
-The light direction in `cube_geometry.dart` (`lx=0.5, ly=0.5, lz=0.707`) is used by `CubeLoader` and `CubeShimmer`. `FloatingCubeBackground` computes its OWN per-entity light direction dynamically from the mouse position, and uses `0.25 + max(0, dot) * 0.75` for brightness (not `cg.lambertBrightness`). This is intentional — DO NOT change this to use the static light.
+The light direction in `cube_geometry.dart` (`lx=0.5, ly=0.5, lz=0.707`) is used by `CubeLoader` and `CubeShimmer`. `FloatingCubeBackground` computes its OWN per-entity light direction using a fixed point-light position (e.g. `0.1, 0.05, 0.5`), and uses `0.25 + max(0, dot) * 0.75` for brightness (not `cg.lambertBrightness`). This is intentional — DO NOT change this to use the directional static light, as the point light creates subtle per-cube variations that make them distinct when they merge into the logo.
 
 ---
 
@@ -205,9 +206,10 @@ When working on cube-related code, read files in this order:
 
 1. **This file** (`CUBE_ECOSYSTEM.md`) — understand the two-system architecture
 2. `docs/ai/AI_DOCUMENTATION_RULES.md` — especially Rule 40 (CubeLoader usage rules)
-3. `docs/ai/CUBE_LOADER.md` — CubeLoader API, variants, states, performance
-4. `docs/ai/FLOATING_CUBE_BACKGROUND.md` — mode physics, particles, entity lifecycle, WASM safety
-5. The actual source files listed in the File Map above
+3. `docs/ai/HTML_LOADING_VIEW.md` — understand the pre-Flutter HTML loading screen (logo, SVG cubes, cross-fade)
+4. `docs/ai/CUBE_LOADER.md` — CubeLoader API, variants, states, performance
+5. `docs/ai/FLOATING_CUBE_BACKGROUND.md` — mode physics, particles, entity lifecycle, WASM safety
+6. The actual source files listed in the File Map above
 
 The documentation in `docs/ai/` is the architecture contract. If you change any behavioral rule, constant, mode transition, entity lifecycle, or physics parameter, you MUST update the corresponding `.md` file.
 

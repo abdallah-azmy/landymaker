@@ -7,7 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/organisms/sidebar_navigation.dart';
-import '../../../core/widgets/atoms/animated_theme_toggle.dart';
+// import '../../../core/widgets/atoms/animated_theme_toggle.dart';
 import '../../../core/utils/toast_service.dart';
 import '../../auth/controllers/auth_cubit.dart';
 import '../../auth/controllers/auth_state.dart';
@@ -255,8 +255,9 @@ class _MobileDashboardShell extends StatelessWidget {
           onPressed: () => scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
-          const AnimatedThemeToggle(size: 36),
-          const SizedBox(width: 8),
+          // Theme toggle is hidden for now
+          // const AnimatedThemeToggle(size: 36),
+          // const SizedBox(width: 8),
           _NotificationBell(notificationCubit: notificationCubit),
         ],
         bottom: PreferredSize(
@@ -299,8 +300,9 @@ class _DashboardTopBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const AnimatedThemeToggle(size: 40),
-          const SizedBox(width: 16),
+          // Theme toggle is hidden for now
+          // const AnimatedThemeToggle(size: 40),
+          // const SizedBox(width: 16),
           _NotificationBell(notificationCubit: notificationCubit),
           const SizedBox(width: 16),
           _UserAvatarChip(

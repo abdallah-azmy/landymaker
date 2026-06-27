@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/router/router_extensions.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/localization/localization_cubit.dart';
-import '../../../core/widgets/atoms/animated_theme_toggle.dart';
+// import '../../../core/widgets/atoms/animated_theme_toggle.dart';
 import '../../../core/widgets/atoms/language_switcher_button.dart';
 
 class AuthLayoutWrapper extends StatelessWidget {
@@ -98,8 +98,9 @@ class _AuthTopBar extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const AnimatedThemeToggle(size: 36),
-                      const SizedBox(width: 8),
+                      // Theme toggle is hidden for now
+                      // const AnimatedThemeToggle(size: 36),
+                      // const SizedBox(width: 8),
                       const LanguageSwitcherButton(variant: LanguageSwitcherVariant.iconOnly),
                     ],
                   ),

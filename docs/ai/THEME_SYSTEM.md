@@ -67,13 +67,23 @@ const AnimatedThemeToggle(size: 36),  // Mobile
 - Scale: `TweenSequence` bounce effect (1.0 → 0.8 → 1.2 → 1.0)
 - Icon: `Icons.light_mode_rounded` (orange, light) / `Icons.dark_mode_rounded` (amber, dark)
 
-### Placement (Currently Active)
-| Location | File | Mode |
+### Placement (Currently Disabled / Hidden)
+> [!IMPORTANT]
+> **Theme Switching is temporarily disabled.** The `AnimatedThemeToggle` widgets have been commented out/hidden in all locations to enforce a dark-mode-only development phase. Toggling has also been disabled in `ThemeCubit` (forcing `ThemeMode.dark`).
+>
+> **Do NOT delete the underlying light mode assets, theme styling definitions, or toggle widgets**, as we will restore light mode/toggle functionality in the future.
+>
+> **For future modifications / additions**: Write and test styling targeting **Dark Mode only**. Do not spend effort implementing or adjusting layouts for Light Mode.
+
+| Location | File | Status |
 |---|---|---|
-| Builder Desktop AppBar | `builder_app_bar.dart` | Between SEO and Preview buttons |
-| Builder Mobile AppBar | `builder_app_bar.dart` | First action button |
-| Dashboard Desktop TopBar | `dashboard_shell.dart` | First item in `_DashboardTopBar` Row |
-| Dashboard Mobile AppBar | `dashboard_shell.dart` | First action in mobile `AppBar` |
+| Builder Desktop AppBar | `builder_app_bar.dart` | Commented out |
+| Builder Mobile AppBar | `builder_app_bar.dart` | Commented out |
+| Dashboard Desktop TopBar | `dashboard_shell.dart` | Commented out |
+| Dashboard Mobile AppBar | `dashboard_shell.dart` | Commented out |
+| Marketing Home Navbar | `home_navbar.dart` | Commented out (desktop/mobile) |
+| Settings Screen | `settings_screen.dart` | Commented out (desktop/mobile) |
+| Auth Screen Wrapper | `auth_layout_wrapper.dart` | Commented out |
 
 ---
 
@@ -83,7 +93,10 @@ const AnimatedThemeToggle(size: 36),  // Mobile
 > **NEVER use `const BoxDecoration`, `const Text`, or `const Icon` with `AppColors.background`, `AppColors.cardBg`, `AppColors.border`, `AppColors.textPrimary`, `AppColors.textSecondary`, or `AppColors.textMuted`.** These are runtime values from `Theme.of(context)` and are NOT compile-time constants. Doing so causes `const_eval_method_invocation` errors.
 
 > [!IMPORTANT]
-> **RULE #30 — Dynamic Color Enforcement**: All new widgets and modifications to existing widgets MUST use `Theme.of(context).colorScheme.*` for surface/text/border colors. Running `grep -r "AppColors.background\|AppColors.cardBg\|AppColors.border\|AppColors.textPrimary\|AppColors.textSecondary\|AppColors.textMuted" lib/ --include="*.dart" --exclude="app_colors.dart"` should yield ZERO results in a fully compliant codebase.
+> **RULE #30 — Dynamic Color Enforcement**: All new widgets and modifications to existing widgets MUST use `Theme.of(context).colorScheme.*` for surface/text/border colors. Even though only **Dark Mode** is currently active and visible to users, we must still write clean Material 3 dynamic color code referencing `Theme.of(context).colorScheme.*` rather than hardcoding static dark colors or using static `AppColors.*` references. This guarantees that when Light Mode is re-enabled in the future, the code will dynamically adapt without major rewrites.
+
+> [!IMPORTANT]
+> **RULE #31 — Dark-Mode-First / Dark-Mode-Only Dev**: Focus layouts, colors, and graphics on **Dark Mode only**. Do not modify or spend efforts writing alternative Light Mode stylesheets, but do NOT delete existing Light Mode resources or classes. Keep them untouched for future activation.
 
 > [!NOTE]
 > **Const Stripping Rule**: When replacing a static `AppColors.*` value with a dynamic `Theme.of(context).*` value inside a widget tree, you MUST remove the `const` keyword from the enclosing constructor (e.g. `const BoxDecoration(...)` becomes `BoxDecoration(...)`). Also remove `const` from ancestor widgets if necessary to propagate the non-const context.

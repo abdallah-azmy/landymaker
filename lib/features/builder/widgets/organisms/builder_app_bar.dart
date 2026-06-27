@@ -4,7 +4,7 @@ import '../../models/preview_mode.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
-import '../../../../core/widgets/atoms/animated_theme_toggle.dart';
+// import '../../../../core/widgets/atoms/animated_theme_toggle.dart';
 import '../../../../core/widgets/atoms/cube_spinner.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
@@ -243,6 +243,8 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       label: "SEO",
                       onPressed: onShowSeo,
                     ),
+                    // Theme toggle is hidden for now
+                    /*
                     VerticalDivider(
                       color: Theme.of(context).colorScheme.outlineVariant,
                       indent: 12,
@@ -250,6 +252,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       width: 32,
                     ),
                     const AnimatedThemeToggle(size: 40),
+                    */
                     VerticalDivider(
                       color: Theme.of(context).colorScheme.outlineVariant,
                       indent: 12,
@@ -310,8 +313,8 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             )
           else ...[
-            const AnimatedThemeToggle(size: 36),
-            const SizedBox(width: 8),
+            // const AnimatedThemeToggle(size: 36),
+            // const SizedBox(width: 8),
             IconButton(
               icon: Icon(
                 Icons.auto_awesome_rounded,

@@ -9,7 +9,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/atoms/animated_cube_mode_toggle.dart';
-import '../../../core/widgets/atoms/animated_theme_toggle.dart';
+// import '../../../core/widgets/atoms/animated_theme_toggle.dart';
 import '../../../core/widgets/atoms/landy_maker_logo.dart';
 import '../../../core/widgets/atoms/language_switcher_button.dart';
 import '../../../core/widgets/atoms/blur_effect.dart';
@@ -227,8 +227,9 @@ class _DesktopNavbarState extends State<_DesktopNavbar> {
                       ),
                     const AnimatedCubeModeToggle(size: 32),
 
-                    const SizedBox(width: 6),
-                    const AnimatedThemeToggle(size: 32),
+                    // Theme toggle is hidden for now
+                    // const SizedBox(width: 6),
+                    // const AnimatedThemeToggle(size: 32),
                     const SizedBox(width: 8),
                     const LanguageSwitcherButton(
                       variant: LanguageSwitcherVariant.iconAndText,
@@ -760,8 +761,9 @@ class _MobileNavbar extends StatelessWidget {
                               return const SizedBox.shrink();
                             },
                           ),
-                        const SizedBox(width: 6),
-                        const AnimatedThemeToggle(size: 32),
+                        // Theme toggle is hidden for now
+                        // const SizedBox(width: 6),
+                        // const AnimatedThemeToggle(size: 32),
                         const SizedBox(width: 4),
                         const LanguageSwitcherButton(
                           variant: LanguageSwitcherVariant.iconOnly,

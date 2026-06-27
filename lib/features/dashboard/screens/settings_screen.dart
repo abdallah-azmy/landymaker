@@ -124,10 +124,11 @@ class _SettingsDesktop extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _SectionHeader(title: loc.translate('theme_mode')),
-              const SizedBox(height: 16),
-              _AppearanceTile(loc: loc),
-              const SizedBox(height: 40),
+              // Theme mode settings hidden for now
+              // _SectionHeader(title: loc.translate('theme_mode')),
+              // const SizedBox(height: 16),
+              // _AppearanceTile(loc: loc),
+              // const SizedBox(height: 40),
               _SectionHeader(title: loc.translate('language')),
               const SizedBox(height: 16),
               _LanguageTile(loc: loc),
@@ -170,10 +171,11 @@ class _SettingsMobile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionHeader(title: loc.translate('theme_mode')),
-          const SizedBox(height: 16),
-          _AppearanceTile(loc: loc),
-          const SizedBox(height: 40),
+          // Theme mode settings hidden for now
+          // _SectionHeader(title: loc.translate('theme_mode')),
+          // const SizedBox(height: 16),
+          // _AppearanceTile(loc: loc),
+          // const SizedBox(height: 40),
           _SectionHeader(title: loc.translate('language')),
           const SizedBox(height: 16),
           _LanguageTile(loc: loc),
@@ -354,9 +356,9 @@ class _IconWrapper extends StatelessWidget {
   }
 }
 
-class _AppearanceTile extends StatelessWidget {
+class AppearanceTile extends StatelessWidget {
   final LocalizationCubit loc;
-  const _AppearanceTile({required this.loc});
+  const AppearanceTile({required this.loc});
 
   @override
   Widget build(BuildContext context) {

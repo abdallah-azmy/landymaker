@@ -68,6 +68,13 @@
   <title>LandyMaker | منصتك المتكاملة لإنشاء المتاجر وصفحات الهبوط</title>
   <meta name="description" content="لاندي ميكر | LandyMaker — منصة بناء صفحات الهبوط الاحترافية للسوق العربي">
   <meta name="keywords" content="متجر إلكتروني, صفحة هبوط, سلة تسوق, سيرة ذاتية, بدون برمجة, Landing Page, E-commerce">
+  
+  <!-- Open Graph / Social Media Meta Tags -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="LandyMaker | منصتك المتكاملة لإنشاء المتاجر وصفحات الهبوط">
+  <meta property="og:description" content="لاندي ميكر | LandyMaker — منصة بناء صفحات الهبوط الاحترافية للسوق العربي">
+  <meta property="og:url" content="https://landymaker.com/">
+  <meta name="twitter:card" content="summary_large_image">
 
   <!-- Structured Data (JSON-LD) for Google & AI Search -->
   <script type="application/ld+json">
@@ -554,13 +561,26 @@
   <!-- PWA Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').then((reg) => {
-          console.log('[PWA] Service Worker registered');
-        }).catch((err) => {
-          console.warn('[PWA] Service Worker registration failed:', err);
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        // Automatically unregister service worker on localhost to avoid caching issues during development
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (let registration of registrations) {
+            registration.unregister().then((success) => {
+              if (success) {
+                console.log('[PWA] Unregistered service worker on localhost to prevent debugging cache issues');
+              }
+            });
+          }
         });
-      });
+      } else {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js').then((reg) => {
+            console.log('[PWA] Service Worker registered');
+          }).catch((err) => {
+            console.warn('[PWA] Service Worker registration failed:', err);
+          });
+        });
+      }
     }
   </script>
 

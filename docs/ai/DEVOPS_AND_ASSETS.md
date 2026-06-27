@@ -75,8 +75,8 @@ Output Directory: `.next`.
 
 ### App Icons & Assets
 The project has **two sets** of icon/asset files. Both must be updated when changing the logo:
-- `web/favicon.png`, `web/icons/Icon-*.png`, `web/logo_social.webp` (Copied to build by Flutter)
-- `assets/images/logo.webp`, `assets/images/logo_small.webp` (Bundled inside Flutter app)
+- `web/favicon.png`, `web/icons/Icon-*.png`, `web/logo_social.webp` (Copied to build by Flutter. Note: `logo_social.webp` has a solid black background for social media previews)
+- `assets/images/logo.webp`, `assets/images/logo_small.webp` (Bundled inside Flutter app. Note: these are fully transparent for UI rendering), `assets/images/app_icon_source.png` (Master PNG source for generating icons)
 
 ### Blog URL Routing & Middleware Precedence
 The blog lives at `landymaker.com/blog/...` but is served from `landymaker-blog.vercel.app`.

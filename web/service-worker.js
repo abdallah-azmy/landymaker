@@ -79,7 +79,12 @@ self.addEventListener('fetch', (event) => {
       return response;
     }).catch(() => caches.match(request).then((cached) => {
       if (cached) return cached;
-      return caches.match('/');
+      // Only fallback to index.html (SPA routing) for HTML document requests.
+      // Returning HTML for failed JS, WASM, or Font fetches crashes the Flutter Web engine.
+      if (request.headers.get('accept') && request.headers.get('accept').includes('text/html')) {
+        return caches.match('/');
+      }
+      return null; // Let the browser handle it as a normal network error
     })),
   );
 });

@@ -80,10 +80,10 @@ dev_dependencies:
 flutter_launcher_icons:
   android: false
   ios: false
-  image_path: "assets/images/logo.webp"
+  image_path: "assets/images/app_icon_source.png"
   web:
     generate: true
-    image_path: "assets/images/logo.webp"
+    image_path: "assets/images/app_icon_source.png"
     background_color: "#030712"
     theme_color: "#00E5FF"
 

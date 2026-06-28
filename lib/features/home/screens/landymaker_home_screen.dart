@@ -1185,7 +1185,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                     isActive: _particlesActive,
                     controller: _cubeController,
                     cubeMode: context.watch<CubeModeCubit>().state,
-                    initialPreBurst: _isThisTheFirstLoad && !_persistentLogoRemoved && !_isPreviewMode,
+                    initialPreBurst:
+                        _isThisTheFirstLoad &&
+                        !_persistentLogoRemoved &&
+                        !_isPreviewMode,
                   ),
                 ),
               ),
@@ -1347,19 +1350,19 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
           ),
         ),
       ),
-      floatingActionButton: _isPreviewMode
-          ? null
-          : FloatingActionButton(
-              onPressed: () => _showLogoTestDialog(context),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              tooltip: context.isRtl
-                  ? "مقارنة لودينج اللوجو"
-                  : "Compare Loading Logos",
-              child: Icon(
-                Icons.bug_report_rounded,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
-            ),
+      // floatingActionButton: _isPreviewMode
+      //     ? null
+      //     : FloatingActionButton(
+      //         onPressed: () => _showLogoTestDialog(context),
+      //         backgroundColor: Theme.of(context).colorScheme.primary,
+      //         tooltip: context.isRtl
+      //             ? "مقارنة لودينج اللوجو"
+      //             : "Compare Loading Logos",
+      //         child: Icon(
+      //           Icons.bug_report_rounded,
+      //           color: Theme.of(context).colorScheme.onPrimary,
+      //         ),
+      //       ),
     );
   }
 }

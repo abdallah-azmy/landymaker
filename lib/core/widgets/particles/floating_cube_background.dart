@@ -28,12 +28,33 @@ import 'core/cube_geometry.dart' as cg;
 // PERFORMANCE & QUALITY
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [QualityMode] — quality level for adaptive rendering.
+///
+/// **Responsibility**: Defines two rendering tiers (high / low) to keep
+/// the animation smooth on underpowered devices.
+/// **Used by**: [_AdaptiveQuality], [CubePainter].
+/// **Key state**: `high` → draw strokes + trails; `low` → skip them.
+/// **⚠️ AI Warning**: Do not add intermediate values without also updating
+/// [_AdaptiveQuality.update] and [CubePainter.paint].
 enum QualityMode { high, low }
 
+/// [_AdaptiveQuality] — monitors frame duration and downgrades quality when
+/// the animation runs too slowly.
+///
+/// **Responsibility**: Tracks consecutive slow frames and toggles [mode]
+/// between [QualityMode.high] and [QualityMode.low].
+/// **Used by**: [_FloatingCubeBackgroundState].
+/// **Key state**: [mode], [_slowFrameCount].
+/// **⚠️ AI Warning**: The threshold (15 slow frames at >33 ms) must not
+/// be changed without profiling on a real low-end device.
 class _AdaptiveQuality {
   QualityMode mode = QualityMode.high;
   int _slowFrameCount = 0;
 
+  /// Updates the quality decision based on the latest frame delta [dt].
+  ///
+  /// Called every frame from [_FloatingCubeBackgroundState._updateEntities].
+  /// Side effects: may flip [mode] between high and low.
   void update(double dt) {
     if (dt > 0.033) {
       _slowFrameCount++;
@@ -49,6 +70,16 @@ class _AdaptiveQuality {
 // SPATIAL HASH GRID  (O(n) collision detection via 11×11 cell grid)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [_SpatialHashGrid] — O(n) spatial hash for fast neighbour lookups.
+///
+/// **Responsibility**: Partitions normalized coordinates (0..1) into an
+/// 11×11 cell grid so collision / repulsion checks only examine nearby
+/// entities instead of O(n²) pairwise comparisons.
+/// **Used by**: [_FloatingCubeBackgroundState].
+/// **Key state**: [_cells], [_occupied].
+/// **⚠️ AI Warning**: The grid dimensions [_gridSize] and [_cellSize] are
+/// tuned for 50-400 entities. Changing these values will alter collision
+/// behaviour everywhere.
 class _SpatialHashGrid {
   static const int _gridSize = 11;
   static const int _totalCells = _gridSize * _gridSize;
@@ -61,6 +92,9 @@ class _SpatialHashGrid {
     : _cells = List.generate(_totalCells, (_) => <int>[]),
       _occupied = List.filled(_totalCells, false);
 
+  /// Clears all occupied cells so the grid can be rebuilt each frame.
+  ///
+  /// Called once per frame from [_FloatingCubeBackgroundState._updateEntities].
   void clear() {
     for (int i = 0; i < _totalCells; i++) {
       if (_occupied[i]) {
@@ -70,6 +104,9 @@ class _SpatialHashGrid {
     }
   }
 
+  /// Inserts entity [index] at position ([x], [y]) into the grid.
+  ///
+  /// Called once per entity per frame from [_FloatingCubeBackgroundState].
   void insert(int index, double x, double y) {
     final cx = (x / _cellSize).floor().clamp(0, _gridSize - 1);
     final cy = (y / _cellSize).floor().clamp(0, _gridSize - 1);
@@ -78,6 +115,10 @@ class _SpatialHashGrid {
     _occupied[key] = true;
   }
 
+  /// Fills [out] with indices of all entities in the 3×3 cell region
+  /// surrounding ([x], [y]).
+  ///
+  /// Called once per entity per frame. [out] is cleared before filling.
   void queryNeighbors(double x, double y, List<int> out) {
     final cx = (x / _cellSize).floor().clamp(0, _gridSize - 1);
     final cy = (y / _cellSize).floor().clamp(0, _gridSize - 1);
@@ -103,6 +144,13 @@ class _SpatialHashGrid {
 // TRAIL PARTICLES (Ring Buffer — no GC allocations per frame)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [_TrailParticle] — a single dust / trail particle in the ring buffer.
+///
+/// **Responsibility**: Holds position, size, opacity, and velocity for one
+/// particle rendered behind the cubes.
+/// **Used by**: [TrailPool].
+/// **Key state**: [opacity] drives visibility (faded out when ≤ 0).
+/// **⚠️ AI Warning**: All fields are mutated in-place — no allocation per frame.
 class _TrailParticle {
   double x = 0;
   double y = 0;
@@ -112,8 +160,18 @@ class _TrailParticle {
   double vy = 0;
 }
 
+/// Maximum number of trail particles in the ring buffer.
+/// Must be kept in sync with [TrailPool.particles] length.
 const int _kTrailPoolSize = 500;
 
+/// [TrailPool] — lock-free ring buffer that reuses [_TrailParticle] instances.
+///
+/// **Responsibility**: Spawns, updates, and renders dust / trail particles
+/// without allocating any GC memory per frame.
+/// **Used by**: [_FloatingCubeBackgroundState], [CubePainter].
+/// **Key state**: [particles], [_writeIndex].
+/// **⚠️ AI Warning**: The ring-buffer overwrites the oldest particle when
+/// full. Do not change the pool size without profiling memory usage.
 class TrailPool {
   final List<_TrailParticle> particles;
   int _writeIndex = 0;
@@ -121,6 +179,10 @@ class TrailPool {
   TrailPool()
     : particles = List.generate(_kTrailPoolSize, (_) => _TrailParticle());
 
+  /// Spawns a single trail particle at ([x], [y]) with a size derived from [size].
+  ///
+  /// Called when a cube moves faster than the speed threshold.
+  /// Side effects: overwrites the oldest particle in the ring buffer.
   void spawn(double x, double y, double size) {
     final p = particles[_writeIndex % _kTrailPoolSize];
     p.x = x;
@@ -133,6 +195,10 @@ class TrailPool {
     _writeIndex = (_writeIndex + 1) % _kTrailPoolSize;
   }
 
+  /// Spawns a burst of [count] particles at ([x], [y]) for explosion effects.
+  ///
+  /// Called on logo burst and entity split. Uses 3D spherical distribution
+  /// for a volumetric cloud effect.
   void spawnBurst(
     double x,
     double y,
@@ -165,6 +231,10 @@ class TrailPool {
     }
   }
 
+  /// Advances all trail particles by [dt] (animation-controller fraction).
+  ///
+  /// Applies velocity damping, size decay, and opacity fade.
+  /// Called once per frame from [_FloatingCubeBackgroundState._updateEntities].
   void update(double dt) {
     final realDt = _realSec(dt);
     for (int i = 0; i < _kTrailPoolSize; i++) {
@@ -191,6 +261,14 @@ class TrailPool {
 // ISOLATE / WEBWORKER OFFLOADING
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [_PhysicsPayload] — data transferred to the physics isolate/worker.
+///
+/// **Responsibility**: Carries flattened position/size arrays so the
+/// isolate can compute repulsion forces without accessing Flutter objects.
+/// **Used by**: [_physicsWorker].
+/// **Key state**: [positions], [sizes], [entityCount], [mode].
+/// **⚠️ AI Warning**: All fields are required. Do not add reference-typed
+/// fields (they cross the isolate boundary by copy).
 class _PhysicsPayload {
   final Float64List positions;
   final Float64List sizes;
@@ -205,12 +283,25 @@ class _PhysicsPayload {
   });
 }
 
+/// [_PhysicsResult] — forces computed by the isolate/worker.
+///
+/// **Responsibility**: Holds a flattened array of (fx, fy) delta pairs
+/// for each entity processed by [_physicsWorker].
+/// **Used by**: [_FloatingCubeBackgroundState._tryRunIsolate].
+/// **Key state**: [forceDeltas] (length = 2 × entityCount).
 class _PhysicsResult {
   final Float64List forceDeltas;
 
   _PhysicsResult({required this.forceDeltas});
 }
 
+/// Computes pairwise repulsion forces for all entities in [p].
+///
+/// Called via `compute()` on a background isolate. In standard and merge
+/// modes it applies size-ratio filtering and distance-based separation;
+/// in gravity mode the vertical floor repulsion is severely damped to
+/// prevent the popcorn effect.
+/// Do NOT call from the main isolate directly — use [_FloatingCubeBackgroundState._tryRunIsolate] instead.
 @pragma('vm:isolate-untagged')
 _PhysicsResult _physicsWorker(_PhysicsPayload p) {
   final forces = Float64List(p.entityCount * 2);
@@ -262,6 +353,17 @@ _PhysicsResult _physicsWorker(_PhysicsPayload p) {
 // CONTROLLER
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [FloatingCubeBackgroundController] — imperative API to drive the
+/// cube particle system from outside the widget tree.
+///
+/// **Responsibility**: Exposes callbacks wired into
+/// [_FloatingCubeBackgroundState] so parent widgets can trigger repel,
+/// burst, gather, build, and split actions.
+/// **Used by**: Screens that host [FloatingCubeBackground].
+/// **Key state**: [scrollDrift], [cubeCount], [isLogoFormed].
+/// **⚠️ AI Warning**: Each callback is a replaceable function pointer.
+/// Two widgets must never share the same controller instance without
+/// re-wiring callbacks in didUpdateWidget.
 class FloatingCubeBackgroundController {
   void Function(Offset?)? onRepelUpdate;
   void Function(Offset)? onBurst;
@@ -274,26 +376,48 @@ class FloatingCubeBackgroundController {
   final ValueNotifier<int> cubeCount = ValueNotifier<int>(0);
   bool isLogoFormed = false;
 
+  /// Triggers the gathering animation where cubes fly toward logo grid positions.
+  ///
+  /// Called from the UI (e.g. tap on logo in collapsed state).
+  /// Side effects: sets [_FloatingCubeBackgroundState._isGathering] = true.
   void gatherIntoLogo() {
     onGatherIntoLogo?.call();
   }
 
+  /// Triggers the parallel brick-building animation.
+  ///
+  /// Called after gather completes. Side effects: sets
+  /// [_FloatingCubeBackgroundState._isBuilding] = true.
   void buildIntoLogo() {
     onBuildIntoLogo?.call();
   }
 
+  /// Sets the mouse / touch repel point.
+  ///
+  /// Pass `null` to clear. Called from UI gesture handlers.
   void repelAt(Offset? normalizedPosition) {
     onRepelUpdate?.call(normalizedPosition);
   }
 
+  /// Fires a burst / explosion at the given normalized position.
+  ///
+  /// Called from UI tap handler. Side effects: applies impulse to nearby
+  /// entities and spawns trail particles.
   void burstAt(Offset normalizedPosition) {
     onBurst?.call(normalizedPosition);
   }
 
+  /// Fires a full logo burst explosion at the given position.
+  ///
+  /// Called when the assembled logo is tapped. Side effects: splits all
+  /// merged entities and scatters them with depth-based velocities.
   void triggerLogoBurst(Offset normalizedPosition) {
     onLogoBurst?.call(normalizedPosition);
   }
 
+  /// Attempts to split a merged entity at the given position.
+  ///
+  /// Returns true if a split occurred. Called from UI tap handler.
   bool trySplit(Offset normalizedPosition) {
     return onTrySplit?.call(normalizedPosition) ?? false;
   }
@@ -303,6 +427,18 @@ class FloatingCubeBackgroundController {
 // WIDGET
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [FloatingCubeBackground] — a stateful widget that renders a 3D cube
+/// particle system with Standard, Merge, Orbit, and Gravity modes.
+///
+/// **Responsibility**: Owns the animation controller and delegates all
+/// painting to [CubePainter]. Exposes an imperative controller API
+/// via [FloatingCubeBackgroundController].
+/// **Used by**: Screens that need an animated particle background (home,
+/// splash, etc.).
+/// **Key state**: [cubeCount], [speed], [cubeMode], [isActive].
+/// **⚠️ AI Warning**: Changing [cubeCount] at runtime triggers
+/// `didUpdateWidget` which appends to the entity list. Ensure the new
+/// count is never lower than the old count without full reinitialisation.
 class FloatingCubeBackground extends StatefulWidget {
   final int cubeCount;
   final double speed;
@@ -327,11 +463,24 @@ class FloatingCubeBackground extends StatefulWidget {
   State<FloatingCubeBackground> createState() => _FloatingCubeBackgroundState();
 }
 
-/// Convert AnimationController `dt` (fraction of 60s) to real seconds.
+/// Converts [AnimationController] tick [dt] (fraction of 60 s) to real seconds.
+///
 /// The background's `AnimationController` runs 0→1 over 60 seconds,
 /// so `dt * 60` gives the actual elapsed time in seconds.
 double _realSec(double dt) => dt * 60;
 
+/// [_FloatingCubeBackgroundState] — manages the full lifecycle, physics, and
+/// rendering data for the cube particle system.
+///
+/// **Responsibility**: Owns the entity list, spatial hash, trail pool,
+/// adaptive quality tracker, and the frame-update loop. Handles all mode
+/// transitions (gather → build → pre-burst → normal).
+/// **Used by**: [FloatingCubeBackground.createState].
+/// **Key state**: [_entities], [_baseData], [_animController], [_isGathering],
+/// [_isBuilding], [_isPreBurst], [_repelPoint].
+/// **⚠️ AI Warning**: Every field is mutated every frame. Do not add
+/// allocations in the hot loop without profiling. The `_preBurstValue` setter
+/// also updates `controller.isLogoFormed` — keep in sync.
 class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
@@ -379,11 +528,19 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   // ── Controller wiring ─────────────────────────────────────────────────
 
+  /// Stores the current repel point and updates the active flag.
+  ///
+  /// Called from the controller callback [FloatingCubeBackgroundController.onRepelUpdate].
   void setRepelPoint(Offset? point) {
     _repelPoint = point;
     _hasRepelPoint = point != null;
   }
 
+  /// Applies an explosive impulse to all entities near [point].
+  ///
+  /// Called from [FloatingCubeBackgroundController.onBurst].
+  /// In gravity mode the impulse has an upward bias.
+  /// Side effects: modifies [vx]/[vy] on nearby [_MergeEntity] instances.
   void triggerBurst(Offset point) {
     final bool isGravity = widget.cubeMode == CubeMode.gravity;
     for (final e in _entities.toList()) {
@@ -720,6 +877,12 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   // ── Isolate offloading ────────────────────────────────────────────────
 
+  /// Offloads physics computation to a background isolate when
+  /// entity count ≥ 50.
+  ///
+  /// Called from the standard-mode physics block in [_updateEntities].
+  /// Side effects: launches a `compute` call that applies force deltas
+  /// to [_entities] on completion.
   void _tryRunIsolate() {
     if (_isolateFuture != null) return;
     final n = _entities.length;
@@ -756,6 +919,11 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   // ── Init / Update ─────────────────────────────────────────────────────
 
+  /// Initialises base data, entities, animation controller, and wires up
+  /// all controller callbacks.
+  ///
+  /// Called once when the state object is created. Side effects: starts
+  /// the animation loop if [FloatingCubeBackground.isActive] is true.
   @override
   void initState() {
     super.initState();
@@ -1740,6 +1908,11 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   // ── didUpdateWidget / dispose / build ──────────────────────────────────
 
+  /// Responds to widget configuration changes (cube count, mode, controller).
+  ///
+  /// Re-wires controller callbacks when the controller instance changes,
+  /// appends entities when [cubeCount] grows, and handles mode transitions
+  /// (e.g. splitting merged entities when leaving merge mode).
   @override
   void didUpdateWidget(FloatingCubeBackground oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -1793,6 +1966,9 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     }
   }
 
+  /// Disposes the animation controller and nulls all controller callbacks.
+  ///
+  /// Called when the state object is removed from the tree permanently.
   @override
   void dispose() {
     _animController.removeListener(_updateEntities);
@@ -1805,6 +1981,11 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     super.dispose();
   }
 
+  /// Builds the widget tree: a [RepaintBoundary] wrapping an [AnimatedBuilder]
+  /// that delegates painting to [CubePainter].
+  ///
+  /// Reads [MediaQuery.sizeOf] each build to keep [_screenSize] in sync.
+  /// Called every frame during animation.
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
@@ -1847,6 +2028,14 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 // BASE DATA
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [_BaseCubeData] — immutable seed data for one cube.
+///
+/// **Responsibility**: Stores the initial position, rotation, and size of
+/// each cube. Copied into [_MergeEntity] at startup.
+/// **Used by**: [_FloatingCubeBackgroundState], [_MergeEntity].
+/// **Key state**: [x], [y], [rx], [ry], [rz], [size].
+/// **⚠️ AI Warning**: All fields are `final`. Do not add mutable state here —
+/// use [_MergeEntity] instead.
 class _BaseCubeData {
   final double x, y;
   final double rx, ry, rz;
@@ -1866,6 +2055,17 @@ class _BaseCubeData {
 // ENTITY  (V2: mouse repulsion)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [_MergeEntity] — a single cube (or merged cube group) with physics state.
+///
+/// **Responsibility**: Owns position, velocity, rotation, size, merge/orbit
+/// state, and spiral-collision data for one rendered cube. Supports
+/// split operations via the `split*` fields.
+/// **Used by**: [_FloatingCubeBackgroundState], [CubePainter].
+/// **Key state**: [x], [y], [vx], [vy], [rx], [ry], [rz], [renderSize],
+/// [targetSize], [count], [baseIndices], [isSpiraling], [spiralPartner].
+/// **⚠️ AI Warning**: Many fields are mutated per frame. The [count] field
+/// tracks how many base cubes this entity represents — never set it to a
+/// value that differs from [baseIndices].length.
 class _MergeEntity {
   double x, y;
   int count;
@@ -1907,6 +2107,12 @@ class _MergeEntity {
   List<int>? splitRightLeft;
   List<int>? splitRightRight;
 
+  /// Creates a [_MergeEntity] with optional initial values.
+  ///
+  /// Any omitted field gets a random default. [count] defaults to 1.
+  /// [baseIndices] defaults to `List.generate(count, (i) => i)`.
+  /// The `_baseVx`/`_baseVy` are captured from the initial velocity for
+  /// drift-restoration decay.
   _MergeEntity({
     double? x,
     double? y,
@@ -1936,6 +2142,13 @@ class _MergeEntity {
        renderSize = size ?? (6.0 + Random().nextDouble() * 18.0),
        targetSize = targetSize ?? size ?? (6.0 + Random().nextDouble() * 18.0);
 
+  /// Advances physics state by [dt] (animation-controller fraction).
+  ///
+  /// Applies random perturbation, mouse repel, scroll drift, boundary
+  /// repulsion, gravity (if enabled), velocity caps/decay, position
+  /// update, wall bouncing, and rotation integration.
+  /// Called once per frame from [_FloatingCubeBackgroundState._updateEntities].
+  /// Do NOT call from UI handlers — use [applyBurst] or direct field writes.
   void update(
     double dt,
     double speedMultiplier,
@@ -2101,6 +2314,11 @@ class _MergeEntity {
     rz += vrz * _realSec(dt) * speedMultiplier;
   }
 
+  /// Applies an explosive impulse away from [point].
+  ///
+  /// Called from [_FloatingCubeBackgroundState.triggerBurst].
+  /// In gravity mode the impulse has a strong upward (negative Y) bias.
+  /// Side effects: modifies [vx], [vy].
   void applyBurst(Offset point, {bool isGravity = false}) {
     final dx = x - point.dx;
     final dy = y - point.dy;
@@ -2123,6 +2341,11 @@ class _MergeEntity {
     }
   }
 
+  /// Applies size-gated separation repulsion from [other].
+  ///
+  /// Called from the spatial-hash loop in standard mode. Skips if the
+  /// size ratio is below 0.5 or entities are too far apart (>0.06).
+  /// Side effects: modifies [vx], [vy].
   void applyRepulsionFrom(_MergeEntity other) {
     if (identical(this, other)) return;
     final sizeRatio = renderSize < other.renderSize
@@ -2148,6 +2371,12 @@ class _MergeEntity {
 // RENDERING DATA CLASSES
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [_FaceDrawData] — pre-computed screen-space coordinates for one cube face.
+///
+/// **Responsibility**: Stores the four projected corners and the brightness
+/// for z-sorting and rendering one face of a cube.
+/// **Used by**: [CubePainter], [_CubeDrawData].
+/// **Key state**: [z] (used for painter's-algorithm sorting), [brightness].
 class _FaceDrawData {
   final double z;
   final double brightness;
@@ -2167,6 +2396,13 @@ class _FaceDrawData {
   });
 }
 
+/// [_CubeDrawData] — pre-computed draw data for one cube.
+///
+/// **Responsibility**: Bundles a cube's projected bounding box, size,
+/// depth, and face list so the painter can z-sort and render them.
+/// **Used by**: [CubePainter].
+/// **Key state**: [faces] (already z-sorted per cube), [depth] (for
+/// cross-cube sorting in logo state).
 class _CubeDrawData {
   final double size;
   final double depth;
@@ -2188,6 +2424,17 @@ class _CubeDrawData {
 // CUSTOM PAINTER (V2: trails in front, adaptive quality)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// [CubePainter] — [CustomPainter] that renders all cubes, trails, and
+/// the logo backing hexagon.
+///
+/// **Responsibility**: Transforms 3D cube geometry to screen-space
+/// coordinates, sorts by depth/size, draws filled faces with lighting,
+/// optional strokes (high quality only), and trail particles in front.
+/// **Used by**: [FloatingCubeBackground.build].
+/// **Key state**: [entities], [trailPool], [qualityMode], [brightness].
+/// **⚠️ AI Warning**: All fields are read-only during painting. Sorting
+/// strategy switches between depth (logo state) and size (normal state) —
+/// do not change without visual regression testing.
 class CubePainter extends CustomPainter {
   final List<_MergeEntity> entities;
   final TrailPool trailPool;
@@ -2411,6 +2658,11 @@ class CubePainter extends CustomPainter {
     }
   }
 
+  /// Draws a single quadrilateral face onto [canvas].
+  ///
+  /// In logo state the face is drawn with rounded corners (via
+  /// [cg.buildRoundedQuad]); otherwise as a plain quad. Applies
+  /// brightness-modulated fill colour and optional stroke.
   void _drawFace(
     Canvas canvas,
     _FaceDrawData fd,
@@ -2470,6 +2722,7 @@ class CubePainter extends CustomPainter {
     }
   }
 
+  /// Always returns true — the painter re-draws every frame during animation.
   @override
   bool shouldRepaint(CubePainter oldDelegate) => true;
 }

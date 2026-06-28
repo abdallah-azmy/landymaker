@@ -1,3 +1,12 @@
+/// Dependency injection root for the entire application.
+///
+/// **Responsibility**: Registers all services, cubits, and repositories with
+/// `GetIt` before the app runs. Must be called once at startup.
+/// **Used by**: `main.dart`
+/// **Key state**: `sl` (the `GetIt` singleton) holds every registered dependency.
+/// **⚠️ AI Warning**: Do NOT change registration order (supabase → services → cubits).
+/// Do NOT add `BuildContext`-dependent registrations here — use `context.read()` or
+/// `BlocProvider` in the widget tree instead.
 import 'package:get_it/get_it.dart';
 import 'services/supabase_service.dart';
 import 'services/auth_service.dart';
@@ -25,8 +34,26 @@ import 'features/builder/controllers/ai_generation_cubit.dart';
 import 'features/builder/controllers/pixabay_selector_cubit.dart';
 import 'features/builder/controllers/upload_manager_cubit.dart';
 
+/// The global service locator instance.
+///
+/// **Used by**: Every file that needs DI access via `sl<T>()`
+/// **⚠️ AI Warning**: Prefer `context.read()` in widgets; use `sl` only in
+/// non-widget code (services, repositories, cubit constructors).
 final sl = GetIt.instance;
 
+/// Initializes all application dependencies.
+///
+/// Called once from `main.dart` before `runApp()`. Registers:
+/// 1. HTTP client (Dio)
+/// 2. Supabase service (singleton, initialized first)
+/// 3. Child services (Auth, Storage, Database, Subscription, ImageMedia)
+/// 4. Global cubits (Theme, CubeMode, Localization, ActiveWebsite)
+/// 5. Feature cubits (Auth, Builder, Dashboard, SuperAdmin, Blog, PublicPage)
+///
+/// Side effects: HTTP calls to Supabase, Dio initialization, service initialization.
+///
+/// **⚠️ AI Warning**: Do NOT call this more than once. Order matters — supabase
+/// must be registered before dependent services.
 Future<void> initDependencies() async {
   // 1. Initialize HTTP Client with Dio + PrettyDioLogger
   await DioFactory.getDio();
@@ -48,25 +75,12 @@ Future<void> initDependencies() async {
   sl.registerFactory<AIGenerationCubit>(() => AIGenerationCubit(sl<SupabaseService>(), sl<LandingPageBuilderCubit>()));
 
   // 4. Global Cubits / State Managers (Registered as Singletons / Factories)
-  // Theme: App-wide light/dark mode toggle
   sl.registerSingleton<ThemeCubit>(ThemeCubit());
-
-  // Cube Mode: Standard floating cubes vs. merge/cluster mode
   sl.registerSingleton<CubeModeCubit>(CubeModeCubit());
-
-  // Localization: App-wide language toggle persists globally
   sl.registerSingleton<LocalizationCubit>(LocalizationCubit());
-
-  // Active Website: Tracks which site the user is currently managing
   sl.registerSingleton<ActiveWebsiteCubit>(ActiveWebsiteCubit());
-
-  // Auth: Governs user profile status
   sl.registerFactory<AuthCubit>(() => AuthCubit(sl<AuthService>()));
-
-  // Builder Theme: Owns LandingPageTheme separately from the main builder cubit
   sl.registerFactory<BuilderThemeCubit>(() => BuilderThemeCubit());
-
-  // Builder: Section layout configuration sessions
   sl.registerFactory<LandingPageBuilderCubit>(
     () => LandingPageBuilderCubit(
       authService: sl<AuthService>(),
@@ -76,8 +90,6 @@ Future<void> initDependencies() async {
       themeCubit: sl<BuilderThemeCubit>(),
     ),
   );
-
-  // Page Listing Manager
   sl.registerFactory<LandingPagesCubit>(
     () => LandingPagesCubit(
       databaseService: sl<DatabaseService>(),
@@ -85,30 +97,20 @@ Future<void> initDependencies() async {
       subscriptionService: sl<SubscriptionService>(),
     ),
   );
-
-  // Leads & Analytics Tracker
   sl.registerFactory<LeadsAnalyticsCubit>(
     () => LeadsAnalyticsCubit(
       authService: sl<AuthService>(),
       databaseService: sl<DatabaseService>(),
     ),
   );
-
-  // Media Gallery Manager
   sl.registerFactory<MediaGalleryCubit>(
     () => MediaGalleryCubit(storageService: sl<StorageService>()),
   );
-
-  // Super Admin panel cubit
   sl.registerFactory<SuperAdminCubit>(
     () => SuperAdminCubit(databaseService: sl<DatabaseService>()),
   );
-
-  // Blog Admin
   sl.registerSingleton<BlogRepository>(BlogRepository(sl<SupabaseService>().client));
   sl.registerFactory<BlogCubit>(() => BlogCubit(sl<BlogRepository>()));
-
-  // Public Landing Page cubit
   sl.registerFactory<PublicPageCubit>(
     () => PublicPageCubit(
       databaseService: sl<DatabaseService>(),

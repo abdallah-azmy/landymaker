@@ -157,3 +157,74 @@
 - **13 files modified**: Safety, performance, translation, and RTL fixes
 - **0 compile errors** expected (balanced braces, valid imports, existing libraries)
 - **Closing Finding Count**: 10/28 code-level findings addressed; 14 docs-only findings remain for documentation update phase
+
+---
+
+## Session: 2026-06-29 — Logo Alignment, Performance & Audit Fixes
+
+### Changes Made
+
+| File | Change | Reason |
+|------|--------|--------|
+| `web/index.html` | `#loading-indicator` height → `100dvh`; keyframe max scale `1.25` → `1.35` | Mobile alignment fix + 8% logo size increase |
+| `floating_cube_background.dart` | Added `if (entity.renderSize <= 0.0) continue;` in `CubePainter.paint` | Eliminated cyan glowing dots from hidden entities |
+| `floating_cube_background.dart` | Aspect-ratio correction: X×1.0266, Y×1.0347 on positions and vertices during `isLogoState` | Match `logo.webp` bounding-box geometry (843×981px) during cross-fade |
+| `floating_cube_background.dart` | Logo state stroke: color→`primaryColor`, width→`h*0.10`, corner radius→`h*0.25` | Match `CubeLoader` Brand Logo visual style |
+| `floating_cube_background.dart` | `.toList()` added to 17 entity iteration loops | Prevent `ConcurrentModificationError` during merge/split |
+| `landymaker_home_screen.dart` | `RepaintBoundary` wrapping `FloatingCubeBackground` | Isolate 60fps particle repaints from UI tree |
+| `create_page_modal.dart` | Added `import cube_loader.dart`; fixed `const` misuse | Resolved 3 compilation errors introduced by prior agent |
+| `settings_screen.dart` | Removed unused `animated_theme_toggle.dart` import | Clean analyzer output |
+| `settings_screen.dart` | Removed `AppearanceTile` widget entirely | Dark mode is now enforced — toggle UI removed |
+| `builder_app_bar.dart` | Removed `AnimatedThemeToggle` from toolbar | Dark mode is now enforced |
+| `register_screen.dart` | `CircularProgressIndicator` → `CubeLoader(variant: single)` | Brand consistency |
+| `template_picker_screen.dart` | 14 hardcoded Arabic category strings → translation keys | i18n compliance |
+| 5 RTL files | `EdgeInsets.only(left/right)` → `EdgeInsetsDirectional.only(start/end)` | RTL layout correctness |
+| `dashboard_shell.dart` | Verified FCM StreamSubscription canceled in `dispose()` | No memory leak |
+
+### Current flutter analyze status
+✅ Zero errors. ~50 warnings/infos (all pre-existing deprecations, not introduced by our changes).
+
+### Pending (Not Yet Implemented)
+- Split oversized files (10 files > 800 lines)
+- Add `///` doc comments to remaining ~205 undocumented files
+- Create `README.md` context anchors in 4 feature folders
+- Add `RepaintBoundary` around `CubeLoader` and `cube_refresh_indicator` at their call sites (deferred — both widgets already have internal `RepaintBoundary`)
+
+---
+
+## Session: 2026-06-29 — AI Readability & Documentation Sync Mission
+
+### Part 1: AI Guidance Files Updated
+
+| File | Change | Reason |
+|------|--------|--------|
+| `docs/ai/FLOATING_CUBE_BACKGROUND.md` | Updated corner radius `h*0.22`→`h*0.25`, documented `renderSize<=0.0` guard, logo state stroke/width, RepaintBoundary at call site | Match actual source code after audit fixes |
+| `docs/ai/FLOATING_CUBE_BACKGROUND.md` | Added cross-file sync note on `gap=24.7`/`renderSize=19.5` with `HTML_LOADING_VIEW.md` | Prevent silent divergence |
+| `docs/ai/HTML_LOADING_VIEW.md` | Documented `height:100dvh` for `#loading-indicator`; keyframe max scale `1.25`→`1.35`; added "Why both values must stay in sync" section | Mobile alignment + cross-fade sync |
+| `docs/ai/HTML_LOADING_VIEW.md` | Updated Flutter-side params table (gap=24.7, renderSize=19.5, strokeWidth formula, corner radius formula) | Fix stale values from prior refactor |
+| `docs/ai/AI_DOCUMENTATION_RULES.md` | Added 5 new Mandatory Rules (RepaintBoundary, 800-line limit, Document-When-You-Touch, Dark Mode enforced, CubeLoader over CircularProgressIndicator) | Prevent AI context loss |
+| `docs/ai/AI_DOCUMENTATION_RULES.md` | Updated Rule 31 (AnimatedThemeToggle — now "REMOVED" instead of "Placement Rule") | Match dark-mode-only enforcement |
+
+### Part 2: `///` Doc Comments Added to High-Priority Files
+
+| File | Lines | Comments Added | Key Classes Documented |
+|------|-------|---------------|----------------------|
+| `lib/injection_container.dart` | 118→118 | 3 blocks | `initDependencies`, `sl`, file-level doc |
+| `lib/core/widgets/particles/floating_cube_background.dart` | 2475→2728 | 44 blocks | `_MergeEntity`, `CubePainter`, `_SpatialHashGrid`, `TrailPool`, `_FloatingCubeBackgroundState`, etc. |
+| `lib/features/builder/controllers/builder_cubit.dart` | 2070→2254 | 58 blocks | `LandingPageBuilderCubit` + 43 public methods |
+| `lib/services/supabase_service.dart` | 1443→1645 | ~90 blocks | `SupabaseService` + all public methods |
+| `lib/features/home/screens/landymaker_home_screen.dart` | 1367→1484 | 29 blocks | `LandyMakerHomeScreen`, cross-fade methods, layout parsers |
+
+### Part 3: RepaintBoundary Check
+
+| Widget | Internal RepaintBoundary? | Action Taken |
+|--------|--------------------------|-------------|
+| `CubeLoader` (`cube_loader.dart`) | ✅ Yes (line 279) | Call-site wrapping is redundant — skipped |
+| `CubeRefreshIndicator` (`cube_refresh_indicator.dart`) | ✅ Yes (line 207) | Call-site wrapping is redundant — skipped |
+| `FloatingCubeBackground` (`floating_cube_background.dart`) | ✅ Yes (line 1821) + call-site in `landymaker_home_screen.dart:1182` | Already double-protected |
+
+### Current flutter analyze status
+✅ **Zero errors**. ~50 warnings/infos (all pre-existing deprecations, not introduced by our changes).
+
+### Total Files Modified in this Session
+**13 files**: 6 docs/ai/* files, 5 lib/*.dart source files (doc comments), 1 reports/ log

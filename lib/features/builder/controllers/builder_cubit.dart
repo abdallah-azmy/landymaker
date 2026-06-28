@@ -26,18 +26,50 @@ import '../registries/template_registry.dart';
 import 'builder_state.dart';
 import 'builder_theme_cubit.dart';
 
+/// [LandingPageBuilderCubit] — central state manager for the landing page builder.
+///
+/// **Responsibility**: Owns the entire page editing lifecycle (blocks, theme, undo/redo,
+/// auto-save, page loading, image management, settings).
+/// **Used by**: `BuilderWorkspaceScreen` (and its child widgets via `BlocProvider`).
+/// **Key state**: `BuilderState` (typically `BuilderLoaded`) containing `designMap`,
+/// `theme`, `subdomain`, `pageId`, `isPublished`, undo/redo flags, messages.
+/// **⚠️ AI Warning**: Do NOT change `_history` / `_historyIndex` logic, `_emitDirty`,
+/// or the `_themeSubscription` listener — these are critical for undo/redo and
+/// theme sync. Do NOT remove `_suppressHistoryFromTheme` guard.
 class LandingPageBuilderCubit extends Cubit<BuilderState> {
+  /// Auth service for current user identity.
   final AuthService _authService;
+
+  /// Database service for CRUD on landing pages.
   final DatabaseService _databaseService;
+
+  /// Storage service for file uploads (images, etc.).
   final StorageService _storageService;
+
+  /// Subscription service for page-limit checks.
   final SubscriptionService _subscriptionService;
+
+  /// Theme cubit — any theme change emitted here is mirrored into the builder state.
   final BuilderThemeCubit _themeCubit;
+
+  /// Subscription to theme changes from `_themeCubit`.
   StreamSubscription? _themeSubscription;
+
+  /// Guard against re-recording history when theme changes originate from undo/redo.
   bool _suppressHistoryFromTheme = false;
 
+  /// Serialised history stack of `{designMap, theme}` snapshots for undo/redo.
   final List<String> _history = [];
+
+  /// Current position in `_history` (-1 = no history).
   int _historyIndex = -1;
 
+  /// Creates the cubit, wires dependencies, and starts listening to theme changes.
+  ///
+  /// Initialises with `BuilderInitial`. Every theme change from `_themeCubit` is
+  /// merged into the current `BuilderLoaded` state (unless suppressed by undo/redo).
+  /// **⚠️ Do NOT remove the theme subscription — it is the only link between theme
+  /// edits in the panel and the builder state.**
   LandingPageBuilderCubit({
     required AuthService authService,
     required DatabaseService databaseService,
@@ -59,12 +91,17 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     });
   }
 
+  /// Cancels the theme subscription and closes the cubit.
   @override
   Future<void> close() {
     _themeSubscription?.cancel();
     return super.close();
   }
 
+  /// Serialises [state]'s design+theme and pushes onto the undo stack.
+  ///
+  /// Trims any redo branch ahead of the current index. Caps history at 50 entries.
+  /// Skips if the new snapshot is identical to the current top.
   void _saveToHistory(BuilderLoaded state) {
     if (_historyIndex < _history.length - 1) {
       _history.removeRange(_historyIndex + 1, _history.length);
@@ -94,6 +131,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
+  /// Emits [state] with up-to-date `hasUnsavedChanges`, `canUndo`, `canRedo` flags.
+  ///
+  /// Saves to history unless [skipHistory] is true. Sets `hasUnsavedChanges` to
+  /// `!isClean`. This is the single emit-path for all mutations — always call this
+  /// instead of `emit()` directly.
   void _emitDirty(
     BuilderLoaded state, {
     bool isClean = false,
@@ -111,6 +153,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Steps back one entry in the undo history.
+  ///
+  /// Restores both `designMap` and `theme` from the serialised snapshot. Suppresses
+  /// theme-cubit re-entry via `_suppressHistoryFromTheme`.
   void undo() {
     final currentState = state;
     if (currentState is! BuilderLoaded || _historyIndex <= 0) return;
@@ -131,6 +177,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Steps forward one entry in the redo history.
+  ///
+  /// Same restoration logic as `undo()`.
   void redo() {
     final currentState = state;
     if (currentState is! BuilderLoaded || _historyIndex >= _history.length - 1)
@@ -152,6 +201,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Loads the landing page for the currently authenticated user.
+  ///
+  /// Emits `BuilderFailure` if no user is found.
   Future<void> loadForCurrentUser() async {
     final userId = _authService.currentUserId;
     if (userId == null) {
@@ -161,14 +213,20 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     await loadPageForUser(userId);
   }
 
+  /// Saves the current page for the authenticated user.
+  ///
+  /// No-op if no user is logged in.
   Future<void> saveForCurrentUser() async {
     final userId = _authService.currentUserId;
     if (userId == null) return;
     await savePage(userId);
   }
 
-  /// Claim a guest's in-memory design after registration:
-  /// generates a random slug (site-xxxxx) and saves to DB.
+  /// Claims a guest's in-memory design after registration.
+  ///
+  /// Generates a random slug (`site-xxxxx`) if none is set, checks route
+  /// availability, and saves to DB. Returns the new `pageId` or null on failure.
+  /// Called when [userId] is first assigned after guest sign-up.
   Future<String?> claimGuestDesign(String userId) async {
     final currentState = state;
     if (currentState is! BuilderLoaded) return null;
@@ -202,6 +260,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     return _saveGuestDesign(userId, sanitized, currentState);
   }
 
+  /// Persists the guest design with a fresh [subdomain] for the given [userId].
+  ///
+  /// Sets `isClean` after successful save. Returns the DB `pageId` or null.
   Future<String?> _saveGuestDesign(
     String userId,
     String subdomain,
@@ -235,6 +296,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
+  /// Loads the page for a specific [userId] from the database.
+  ///
+  /// Emits `BuilderLoading` first, then `BuilderLoaded` or `BuilderFailure`.
+  /// Delegates to `_handleLoadedPage` for the actual state emission.
   Future<void> loadPageForUser(String userId) async {
     emit(BuilderLoading());
     try {
@@ -245,6 +310,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
+  /// Loads a page by UUID or subdomain string.
+  ///
+  /// Auto-detects UUID vs. domain. Internally calls `_handleLoadedPage`.
   Future<void> loadPageById(String pageIdOrSubdomain) async {
     emit(BuilderLoading());
     try {
@@ -266,6 +334,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
+  /// Merges an incoming JSON design (from AI or external source) into the current state.
+  ///
+  /// Supports three modes:
+  /// - `full_rebuild`: replaces all blocks.
+  /// - Partial (blocks with `_index`): merge/replace at specific indices.
+  /// - Full list: heuristic subset-edit or block-by-block merge by type.
+  /// Also merges theme and top-level metadata. Does NOT skip history.
+  /// Called when AI generates or edits a design.
   void applyDesignJson(Map<String, dynamic> designJson) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -472,6 +548,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Recursively strips null/empty values from [map].
+  ///
+  /// Used to sanitise incoming AI/API data before merging into the design.
+  /// Never returns nulls or empty strings — these are considered "unset".
   Map<String, dynamic> _cleanIncomingMap(Map<String, dynamic> map) {
     final cleaned = <String, dynamic>{};
     map.forEach((key, value) {
@@ -501,6 +581,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     return cleaned;
   }
 
+  /// Resets the builder to a blank new page.
+  ///
+  /// Clears history, uses the last palette as the starting theme, and emits a
+  /// clean `BuilderLoaded` with an empty blocks list.
   void initializeNewPage() {
     _history.clear();
     _historyIndex = -1;
@@ -519,6 +603,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Parses a raw DB page map and emits the corresponding `BuilderLoaded` state.
+  ///
+  /// Handles null → `BuilderEmptyWorkspace`, permission check, deserialisation of
+  /// `design_json` (string or map), and theme restoration.
   void _handleLoadedPage(Map<String, dynamic>? page) {
     _history.clear();
     _historyIndex = -1;
@@ -570,6 +658,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Persists the current design to the database for [userId].
+  ///
+  /// Validates subdomain, checks for pending uploads, checks route availability,
+  /// enforces subscription page limits, resolves Pixabay URLs, and saves.
+  /// Emits success/error messages (localised Arabic).
   Future<void> savePage(String userId) async {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -678,6 +771,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
+  /// Updates page-level settings (subdomain, custom domain, published flag).
+  ///
+  /// Passing `customDomain: ''` clears the custom domain.
   void updateSettings({
     String? subdomain,
     String? customDomain,
@@ -699,7 +795,13 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
-  /// Magic Image Swapper: Replaces all images in the design with new ones from Pixabay
+  /// Replaces ALL images in the current design with fresh ones from Pixabay for [category].
+  ///
+  /// Fetches photos, illustrations, and portraits in parallel, then cycles through
+  /// blocks replacing `image_url`, `bg_image_url`, and list items. Each replacement
+  /// is uploaded via `UploadManagerCubit` for persistence.
+  /// Called when the user taps "Magic Image Swap".
+  /// **⚠️ This is a destructive, one-shot operation — every existing image URL is replaced.**
   Future<void> magicReplaceImages(String category) async {
     final currentState = state;
     if (currentState is! BuilderLoaded || category.isEmpty) return;
@@ -836,7 +938,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
-  /// Scans the design for external assets and imports them to the user's gallery
+  /// Scans every block for external image URLs and triggers background imports.
+  ///
+  /// Replaces raw URLs with `upload://` placeholders; `UploadManagerCubit` persists
+  /// them and calls back `updatePropertyByUploadId` with the final hosted URL.
+  /// Called automatically after applying a template or custom design.
   void importTemplateAssets(UploadManagerCubit uploadManager) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -897,8 +1003,11 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
-  /// Scans design map for pixabay.com URLs and uploads them to ImgBB before publish.
-  /// This ensures previews use fast Pixabay CDN URLs but published pages serve from ImgBB.
+  /// Scans [design] for `pixabay.com` URLs and uploads them to ImgBB before publish.
+  ///
+  /// This ensures previews use fast Pixabay CDN URLs but published pages serve from
+  /// ImgBB (persistent storage). Each unique URL is resolved with a 30-second timeout.
+  /// Called from `savePage()`.
   Future<void> _resolvePixabayUrlsInDesign(Map<String, dynamic> design) async {
     final pixabayUrls = <String>[];
     final replacements = <String, String>{};
@@ -980,7 +1089,12 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     replace(design);
   }
 
-  /// Reactive update for background uploads/imports
+  /// Replaces all placeholder `[uploadId]` references in the design with the real [finalUrl].
+  ///
+  /// Called by `UploadManagerCubit` callbacks when an async upload completes.
+  /// Searches every block's `image_url`, `bg_image_url`, and list items.
+  /// **⚠️ This is the only method that resolves `upload://` placeholders — do not change
+  /// the search logic or the flagging convention.**
   void updatePropertyByUploadId(String uploadId, String finalUrl) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1032,6 +1146,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
+  /// Applies a pre-built template by [templateType] (e.g. `'saas'`, `'store'`).
+  ///
+  /// Replaces the entire design and theme from `TemplateRegistry`. Automatically
+  /// triggers `importTemplateAssets` for external images.
   void applyTemplate(String templateType) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1052,6 +1170,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     importTemplateAssets(sl<UploadManagerCubit>());
   }
 
+  /// Applies a fully custom design map (blocks + theme) from external input.
+  ///
+  /// Unlike `applyDesignJson`, this replaces everything wholesale.
+  /// Automatically triggers `importTemplateAssets`.
   void applyCustomDesign(Map<String, dynamic> customDesign) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1075,6 +1197,12 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     importTemplateAssets(sl<UploadManagerCubit>());
   }
 
+  /// Creates and appends a new block of [type] to the design.
+  ///
+  /// Each type has a default preset (hero, features, pricing, faq, gallery, etc.).
+  /// Optional [presetOverrides] are deep-merged into the default preset via
+  /// `_mergeBlockPreset`. Triggers `importTemplateAssets` for any override images.
+  /// Called from the block-picker panel.
   void addBlock(String type, {Map<String, dynamic>? presetOverrides}) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1448,6 +1576,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     importTemplateAssets(sl<UploadManagerCubit>());
   }
 
+  /// Deep-merges [overrides] into [base] map (recursive for nested maps).
+  ///
+  /// Lists are replaced entirely (not merged). Used by `addBlock` to apply
+  /// preset overrides onto a block default.
   Map<String, dynamic> _mergeBlockPreset(
     Map<String, dynamic> base,
     Map<String, dynamic> overrides,
@@ -1469,6 +1601,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     return merged;
   }
 
+  /// Updates a single property of the sticky CTA (`sticky_cta` in designMap).
+  ///
+  /// Called when the user edits the floating action button settings.
   void updateStickyCta(String key, dynamic value) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1486,6 +1621,8 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Updates a specific field [key] on a pricing plan [itemIndex] inside the
+  /// pricing block at [blockIndex].
   void updatePricingPlan(
     int blockIndex,
     int itemIndex,
@@ -1519,6 +1656,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Adds a default FAQ item to the FAQ block at [blockIndex].
   void addFaqItem(int blockIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1541,6 +1679,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Removes the FAQ item at [itemIndex] from the FAQ block at [blockIndex].
   void deleteFaqItem(int blockIndex, int itemIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1565,6 +1704,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Updates a single field [key] on a FAQ item inside the block at [blockIndex].
   void updateFaqItem(int blockIndex, int itemIndex, String key, String value) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1593,6 +1733,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Adds a default testimonial item to the testimonials block at [blockIndex].
   void addTestimonialItem(int blockIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1619,6 +1760,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Removes the testimonial at [itemIndex] from the block at [blockIndex].
   void deleteTestimonialItem(int blockIndex, int itemIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1643,6 +1785,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Updates a field on a testimonial item inside the block at [blockIndex].
   void updateTestimonialItem(
     int blockIndex,
     int itemIndex,
@@ -1676,6 +1819,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Adds a default image URL to the gallery block at [blockIndex].
+  ///
+  /// Also syncs a parallel `gallery_links` list (kept in lockstep with `items`).
   void addGalleryImage(int blockIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1706,6 +1852,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Removes the image at [itemIndex] from the gallery block at [blockIndex].
+  ///
+  /// Also removes the corresponding entry from `gallery_links`.
   void deleteGalleryImage(int blockIndex, int itemIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1738,6 +1887,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Removes the block at [index] from the blocks list.
   void deleteBlock(int index) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1754,6 +1904,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Moves a block from [oldIndex] to [newIndex] in the blocks list.
+  ///
+  /// Also sets `focusedSectionIndex` to the new position.
+  /// Called from drag-and-drop reorder in the workspace.
   void reorderBlocks(int oldIndex, int newIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1775,6 +1929,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Moves the block at [index] one step up or down.
+  ///
+  /// [up] = true moves toward index 0, false moves toward the end.
+  /// No-op if the block is already at the edge.
   void moveBlock(int index, bool up) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1794,6 +1952,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Updates a single property [key] on the block at [index].
+  ///
+  /// Supports dot-notation nested keys (e.g. `'layout_config.direction'`).
+  /// This is the workhorse method for most property-panel edits.
   void updateBlockProperty(int index, String key, dynamic value) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1828,6 +1990,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Updates a field on a feature item inside the features block at [blockIndex].
   void updateFeatureItem(
     int blockIndex,
     int itemIndex,
@@ -1861,6 +2024,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Adds a default product item to the products block at [blockIndex].
   void addProductItem(int blockIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1891,6 +2055,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Removes the product at [itemIndex] from the products block at [blockIndex].
   void deleteProductItem(int blockIndex, int itemIndex) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1915,6 +2080,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Updates a field on a product item inside the products block at [blockIndex].
   void updateProductItem(
     int blockIndex,
     int itemIndex,
@@ -1948,6 +2114,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Sets a top-level key in `designMap` (e.g. `business_name`, `meta_description`).
   void updateMetadata(String key, dynamic value) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1960,6 +2127,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Sets the currently focused/selected section index.
+  ///
+  /// Passing `null` deselects (clears focus).
   void selectSection(int? index) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1971,6 +2141,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Focuses a specific element (by [elementId]) inside the section at [sectionIndex].
+  ///
+  /// Used for long-press element selection in the canvas.
   void focusElement(int sectionIndex, String elementId) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1982,6 +2155,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     );
   }
 
+  /// Deep-copies the block at [index] and inserts the copy right after it.
   void duplicateBlock(int index) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -1999,6 +2173,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Toggles the `is_visible` flag on the block at [index].
+  ///
+  /// Hidden blocks remain in the design but are not rendered on the published page.
   void toggleBlockVisibility(int index) {
     final currentState = state;
     if (currentState is! BuilderLoaded) return;
@@ -2018,6 +2195,10 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
   }
 
+  /// Updates a `style_overrides` property on a sub-element (identified by [elementId])
+  /// inside the section at [sectionIndex].
+  ///
+  /// Used for granular element-level style editing (e.g. font size, colour of a heading).
   void updateElementProperty(
     int sectionIndex,
     String elementId,
@@ -2059,6 +2240,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState> {
     }
   }
 
+  /// Clears both `errorMessage` and `successMessage` from the current state.
+  ///
+  /// Called after a toast/snackbar has been shown.
   void clearMessages() {
     final currentState = state;
     if (currentState is BuilderLoaded) {

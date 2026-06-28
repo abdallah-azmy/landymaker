@@ -427,9 +427,14 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 - **V2 Trails**: In high quality mode, trail/burst dust particles are drawn as small filled **circles** (`canvas.drawCircle`) **in front of** all cubes. Color uses `primaryColor` with opacity × 0.35, creating a subtle branded sparkle effect.
 - **V2 Dynamic Lighting**: Face brightness is computed from Lambertian dot product `dot = nx·lx + ny·ly + nz·lz`. The light source (lx, ly, lz) is calculated per entity from `repelPoint` (mouse cursor) when available, falling back to a fixed top-corner position based on layout direction. This provides responsive, real-time shading feedback as the user moves their mouse.
 - **V2 Adaptive**: In low quality mode, `strokePaint` is not drawn and trail particles are skipped entirely.
-- **V2.1 Rounded Corners (Logo State)**: When `isLogoState` is true (during pre-burst/gathering phases), each cube face is drawn using `cg.buildRoundedQuad` with the unified corner radius `(h * 0.22).clamp(0.3, max(0.3, h * 0.4))` (upper bound protected against `ArgumentError` when `h < 0.75`). When not in logo state (cubes are floating freely), sharp polygon paths are used for maximum performance.
+- **V2.1 Rounded Corners (Logo State)**: When `isLogoState` is true (during pre-burst/gathering phases), each cube face is drawn using `cg.buildRoundedQuad` with the unified corner radius `(h * 0.25).clamp(0.3, max(0.3, h * 0.40))` (upper bound protected against `ArgumentError` when `h < 0.75`). When not in logo state (cubes are floating freely), sharp polygon paths are used for maximum performance.
 - **Aspect-Ratio Alignment Scaling (Logo State)**: When `isLogoState` is true, the projected coordinates (both entity centers and cube vertices) are scaled by `1.0266` along the X-axis and `1.0347` along the Y-axis. This mathematically matches the height-to-width ratio of the `logo.webp` image exactly (which is `1.1637`), ensuring zero shape pop during transition.
-- Entities with NaN/Infinite x, y, or renderSize, or with `renderSize <= 0.0` are skipped (safety guard against WASM Aborted and to hide extra/redundant cubes).
+- **`renderSize <= 0.0` guard** (`floating_cube_background.dart:2294`): Entities with NaN/Infinite x, y, or renderSize, or with `renderSize <= 0.0` are skipped entirely in `CubePainter.paint`. This prevents 1.2px cyan stroke artifacts from hidden/surplus entities (extra cubes absorbed into bricks during merge or building).
+- **Logo state rendering style** in `_drawFace()` matches the `CubeLoader` Brand Logo variant exactly:
+  - Corner radius: `(h * 0.25).clamp(0.3, h * 0.40)` 
+  - Stroke color: `primaryColor` (line 2463)
+  - Stroke width: `(h * 0.10).clamp(0.8, 2.0)` (line 2464-2465)
+- **RepaintBoundary** is NOT inside the widget — it is applied at the call site in `landymaker_home_screen.dart` (line 1182). This ensures the 60fps particle repaint cycle does not propagate up the widget tree.
 - `_drawFace` guards against non-finite coordinates as final safety layer.
 
 ### Logo State Angles & Spacing
@@ -437,8 +442,8 @@ During `_isBuilding`, `_isPreBurst`, and `_isGathering` states, the isometric pr
 - `rx = 0.7853981633974483` (π/4) — true isometric Y rotation
 - `ry = 0.6154797086703873` (asin(1/√3)) — true isometric pitch
 - `rz = 0.5235987755982988` (π/6) — true isometric roll
-- `gap = 24.7` — spacing between cube centers in the 3×3×3 grid
-- `e.renderSize = 19.5` — final cube face size (building phase animates from 0 → 19.5 with elastic pop-in)
+- **`gap = 24.7`** — spacing between cube centers in the 3×3×3 grid (**must stay in sync** with HTML_LOADING_VIEW.md section 8)
+- **`e.renderSize = 19.5`** — final cube face size (**must stay in sync** with HTML_LOADING_VIEW.md section 8; building phase animates from 0 → 19.5 with elastic pop-in)
 
 ### Color scheme
 - **Cube Base**: Light mode `#D8D8D8`, Dark mode `#505050`. Modulated by dynamic brightness.

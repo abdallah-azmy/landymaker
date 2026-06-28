@@ -101,7 +101,7 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
     - **Const Stripping**: When using `Theme.of(context)` inside a constructor argument that was previously `const`, you MUST remove the `const` keyword from that constructor (e.g., `const BoxDecoration` → `BoxDecoration`).
     - **Context Propagation**: Private helper methods that build sub-widgets (e.g., `_buildCard()`) MUST receive `BuildContext context` as their first parameter when they reference `Theme.of(context)`.
     - **Permitted Exceptions**: `AppColors.primary`, `AppColors.secondary`, `AppColors.dangerRed`, `AppColors.activeGreen`, `AppColors.warningOrange`, and `AppColors.primaryGradient` may still be used as brand/semantic colors where a `colorScheme` equivalent is not appropriate.
-31. **AnimatedThemeToggle Placement Rule**: The `AnimatedThemeToggle` widget (`lib/core/widgets/atoms/animated_theme_toggle.dart`) MUST appear in every top-level `AppBar` that the user interacts with. Currently required in: `BuilderAppBar` (desktop + mobile), and `DashboardShell` (`_DesktopTopBar` for desktop, mobile `AppBar` for mobile). When adding new top-level screens with their own `AppBar`, include `const AnimatedThemeToggle()` in the `actions` list.
+31. **AnimatedThemeToggle is REMOVED**: The `AnimatedThemeToggle` widget (`lib/core/widgets/atoms/animated_theme_toggle.dart`) and all theme-switching UI have been **removed**. Dark mode is enforced — light mode is postponed. Do NOT re-add, re-enable, or reference `AnimatedThemeToggle` or any theme-switching UI anywhere. See rule "Dark Mode is Enforced" in the Mandatory Rules section below.
 32. **Consent Dialog Barrier Rule**: Any critical confirmation dialog (e.g., Google new-user consent, section delete) MUST set `barrierDismissible: false` to prevent accidental dismissal without user choice. Inline legal links (privacy/terms) inside such dialogs MUST use `RichText` + `TapGestureRecognizer` for tappable hyperlinks — NEVER concatenate translated strings with plain `Text`.
 33. **Section Deletion Flow (CRITICAL)**: The delete action in `block_properties_editor.dart` MUST follow this flow:
     - Show `AlertDialog` with "هل تريد حذف هذا القسم؟" and two buttons: "حذف" (error color) confirming, and "إلغاء" dismissing.
@@ -157,4 +157,40 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
     - **Landing Page & Canvas**: Landing pages and the builder canvas load custom fonts dynamically via `DynamicFontService.loadFontsFromDesign(designJson)`.
     - **Fallback**: Local Cairo is used as the `fontFamilyFallback` on all text styles to guarantee that readable text is visible immediately while custom fonts load.
     - **Google Fonts Package Ban**: The `google_fonts` package is strictly banned and removed from dependencies. Use `DynamicFontService` which parses the CSS from Google Fonts CSS API using a regex that matches `ttf`, `woff`, `woff2`, and `otf` URLs (`url\((?:"|\u0027)?(https://[^"\u0027)]+\.(?:ttf|woff2?|otf))(?:"|\u0027)?\)`), downloads the font files, and registers them dynamically using Flutter's native `FontLoader`.
-    - **Failed Fonts Caching**: To prevent redundant failed network calls, `DynamicFontService` caches failed font configurations in a `_failedFonts` set and skips future downloads.
+     - **Failed Fonts Caching**: To prevent redundant failed network calls, `DynamicFontService` caches failed font configurations in a `_failedFonts` set and skips future downloads.
+
+---
+
+## Mandatory Rules Added [2026-06-29]
+
+**Rule: RepaintBoundary for Heavy Painters**
+Any `CustomPaint` or widget with a heavy per-frame canvas (particle systems, loaders, animated backgrounds) MUST be wrapped in `RepaintBoundary` at its call site. This prevents the animation's 60fps repaint cycle from propagating up the widget tree and invalidating unrelated UI elements.
+Current implementation: `FloatingCubeBackground` is wrapped in `RepaintBoundary` inside `landymaker_home_screen.dart`.
+
+**Rule: 800-Line File Limit**
+No Dart file may exceed 800 lines. Files approaching this limit must be split into focused sub-files before new features are added. Currently oversized files (do not add lines to these — split first):
+- `floating_cube_background.dart` — 2,475 lines
+- `builder_cubit.dart` — 2,070 lines  
+- `template_registry.dart` — 1,814 lines
+- `section_library_modal.dart` — 1,680 lines
+- `super_admin_panel_screen.dart` — 1,868 lines
+- `home_navbar.dart` — 1,450 lines
+- `supabase_service.dart` — 1,443 lines
+- `home_hero_section.dart` — 1,384 lines
+- `landymaker_home_screen.dart` — 1,367 lines
+- `block_properties_editor.dart` — 1,501 lines
+- `builder_sidebar_tabs.dart` — 1,219 lines
+
+**Rule: Document-When-You-Touch**
+When any AI agent modifies a file, it MUST add `///` doc comments to every class and public method it touches. Use this format:
+  /// [ClassName] — one-line description of purpose.
+  ///
+  /// **Used by**: [file or screen that instantiates this]
+  /// **Depends on**: [key services or cubits]
+  /// **⚠️ AI Warning**: [anything critical not to change and why]
+
+**Rule: Dark Mode is Enforced**
+The application enforces dark mode only. Light mode has been postponed. Do NOT add, re-enable, or reference `AnimatedThemeToggle` or any theme-switching UI anywhere. The toggle has been fully removed from `settings_screen.dart` and `builder_app_bar.dart`.
+
+**Rule: CubeLoader over CircularProgressIndicator**
+Never use Flutter's default `CircularProgressIndicator`. Always use `CubeLoader` from `lib/core/widgets/particles/cube_loader.dart`. For small inline indicators, use `CubeLoaderVariant.single` with `showGlow: false`.

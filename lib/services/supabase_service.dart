@@ -21,27 +21,50 @@ import '../core/utils/fingerprint_utils.dart';
 import 'web_auth_helper.dart';
 
 
-/// Singleton service wrapping Supabase with Supabase SDK
+/// [SupabaseService] — singleton service wrapping Supabase with Supabase SDK.
+///
+/// **Responsibility**: Owns all Supabase interactions — auth, landing pages CRUD,
+/// analytics, storage, templates, notifications, admin/bulk operations. Acts as the
+/// single source of truth for current user identity (id, email, role, tier, photo).
+/// **Used by**: All screens and view models that require Supabase data. Accessed via
+/// `SupabaseService.instance`.
+/// **Key state**: `_currentUserId`, `_currentUserRole`, `_currentUserTier`, `_client`.
+/// **⚠️ AI Warning**: Never replace the singleton or call `Supabase.initialize` twice.
+/// Do not bypass auth checks. The `client` getter assumes it is non-null after init.
 class SupabaseService extends ChangeNotifier {
+  /// Singleton accessor. Use `SupabaseService.instance` everywhere.
   static final SupabaseService instance = SupabaseService._internal();
 
+  /// Private internal constructor for singleton pattern.
   SupabaseService._internal();
 
+  /// The underlying Supabase client, set during [initialize]. Access via [client] getter.
   SupabaseClient? _client;
 
-  // Track currently authenticated user info
+  /// Email of the currently authenticated user, or null when logged out.
   String? _currentUserEmail;
+  /// ID (UUID) of the currently authenticated user, or null when logged out.
   String? _currentUserId;
-  String _currentUserRole = 'user'; // 'user' or 'super_admin'
-  String _currentUserTier = 'free'; // 'free' or 'pro'
+  /// Role of the current user: `'user'` or `'super_admin'`.
+  String _currentUserRole = 'user';
+  /// Tier of the current user: `'free'`, `'pro'`, `'business'`, or `'agency'`.
+  String _currentUserTier = 'free';
+  /// URL of the current user's profile photo (from Google OAuth or identity data).
   String? _currentUserPhotoUrl;
 
+  /// The current user's email address, or null if not authenticated.
   String? get currentUserEmail => _currentUserEmail;
+  /// The current user's Supabase user ID (UUID), or null if not authenticated.
   String? get currentUserId => _currentUserId;
+  /// The current user's role — `'user'` or `'super_admin'`.
   String get currentUserRole => _currentUserRole;
+  /// The current user's subscription tier — `'free'`, `'pro'`, `'business'`, or `'agency'`.
   String get currentUserTier => _currentUserTier;
+  /// The current user's profile photo URL (from OAuth provider).
   String? get currentUserPhotoUrl => _currentUserPhotoUrl;
+  /// Whether a user is currently authenticated (non-null userId).
   bool get isAuthenticated => _currentUserId != null;
+  /// The initialized Supabase client. Throws if accessed before [initialize].
   SupabaseClient get client => _client!;
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -65,10 +88,19 @@ class SupabaseService extends ChangeNotifier {
   //     --dart-define=SUPABASE_ANON_KEY=eyJ...
   // ─────────────────────────────────────────────────────────────────────────
 
+  /// Supabase project URL, resolved from environment via [EnvUtils].
   static final String supabaseUrl = EnvUtils.supabaseUrl;
+  /// Supabase anonymous API key, resolved from environment via [EnvUtils].
   static final String supabaseAnonKey = EnvUtils.supabaseAnonKey;
 
-  /// Initialize Supabase Flutter Client
+  /// Initializes the Supabase Flutter SDK, restores the existing session, and
+  /// starts listening to auth state changes.
+  ///
+  /// Called once at app startup. Must complete before any other Supabase call.
+  /// Side effects: Sets `_client`, fetches user role/tier via `_fetchUserRole`,
+  /// registers an `onAuthStateChange` listener that updates local state and calls
+  /// `notifyListeners`.
+  /// Do NOT call directly from UI — call it once in the app bootstrap layer.
   Future<void> initialize() async {
     if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
       throw Exception(
@@ -140,13 +172,16 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
-  /// Extracts the user's Google profile photo URL.
+  /// Extracts the user's profile photo URL from Supabase auth User object.
   ///
   /// Checks in order:
   /// 1. `user_metadata['picture']` — OIDC standard (GoTrue JWT source of truth)
   /// 2. `user_metadata['avatar_url']` — legacy Supabase key
   /// 3. `identities[0].identity_data['picture']` — provider-level fallback
   /// 4. `identities[0].identity_data['avatar_url']` — provider-level fallback
+  ///
+  /// Called during [initialize] and on auth state changes.
+  /// ⚠️ Do not change lookup order without verifying OIDC claim structure.
   static String? _extractPhotoUrl(User user) {
     // ── user_metadata (from raw_user_meta_data column) ──
     final meta = user.userMetadata;
@@ -174,7 +209,11 @@ class SupabaseService extends ChangeNotifier {
     return null;
   }
 
-  // Fetch the role and tier of authenticated user from profiles table
+  /// Fetches the current user's `role` and `tier` from the profiles table.
+  ///
+  /// Called after login, session restore, and auth state changes.
+  /// Side effects: Updates `_currentUserRole` and `_currentUserTier`.
+  /// Uses `maybeSingle` so it gracefully handles missing profiles.
   Future<void> _fetchUserRole(String userId) async {
     try {
       final response = await _client!
@@ -195,6 +234,12 @@ class SupabaseService extends ChangeNotifier {
   // AUTHENTICATION OPERATIONS
   // ----------------------------------------------------
 
+  /// Registers a new user via Supabase Auth with email, password, and full name.
+  ///
+  /// Called when the user submits the registration form.
+  /// Side effects: On success, sets local auth state and calls `notifyListeners`.
+  /// Returns `true` if the user was created, `false` otherwise.
+  /// Do NOT call directly from UI — use the AuthViewModel instead.
   Future<bool> register({
     required String email,
     required String password,
@@ -220,6 +265,12 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Authenticates an existing user with email and password.
+  ///
+  /// Called when the user submits the login form.
+  /// Side effects: On success, sets local auth state, fetches role via
+  /// `_fetchUserRole`, and calls `notifyListeners`.
+  /// Returns `true` if login succeeds, `false` otherwise.
   Future<bool> login({required String email, required String password}) async {
     try {
       final response = await _client!.auth.signInWithPassword(
@@ -241,6 +292,11 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Signs out the current user and clears all local auth state.
+  ///
+  /// Called when the user taps "Sign Out".
+  /// Side effects: Clears `_currentUserId`, `_currentUserEmail`,
+  /// `_currentUserRole`, `_currentUserPhotoUrl`, and calls `notifyListeners`.
   Future<void> logout() async {
     await _client!.auth.signOut();
     _currentUserId = null;
@@ -250,6 +306,10 @@ class SupabaseService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sends a password reset email to the given address via Supabase Auth.
+  ///
+  /// Called from the "Forgot Password" flow.
+  /// Uses `Uri.base.origin` to construct the redirect URL for the reset page.
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       final redirectTo = '${Uri.base.origin}/reset-password';
@@ -263,6 +323,9 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Updates the current user's password via Supabase Auth.
+  ///
+  /// Called from the "Reset Password" form after the user clicks the email link.
   Future<void> updatePassword(String newPassword) async {
     try {
       await _client!.auth.updateUser(
@@ -274,6 +337,11 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Initiates Google OAuth sign-in. On web uses a custom popup flow via
+  /// [signInWithGoogleWeb]; on mobile uses Supabase's built-in OAuth.
+  ///
+  /// Called when the user taps "Sign in with Google".
+  /// [selectAccount] forces the Google account picker to show on every attempt.
   Future<void> signInWithGoogle({bool selectAccount = false}) async {
     try {
       if (kIsWeb) {
@@ -302,6 +370,7 @@ class SupabaseService extends ChangeNotifier {
   // LANDING PAGES OPERATIONS
   // ----------------------------------------------------
 
+  /// Fetches all landing pages owned by [userId], ordered by most recently updated.
   Future<List<Map<String, dynamic>>> getLandingPagesByUserId(String userId) async {
     try {
       final response = await _client!
@@ -316,6 +385,9 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches every landing page across all users, ordered by creation date.
+  ///
+  /// Used by super admin dashboard.
   Future<List<Map<String, dynamic>>> getAllLandingPages() async {
     try {
       final response = await _client!
@@ -329,6 +401,9 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches landing pages with `website_type` = `'homepage_preview'`.
+  ///
+  /// Used to display preview cards on the main landing page.
   Future<List<Map<String, dynamic>>> getHomepagePreviewPages() async {
     try {
       final response = await _client!
@@ -343,6 +418,10 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Clones a source landing page's design into a new page with a new subdomain.
+  ///
+  /// Called when a user duplicates a page from the dashboard or picks a template.
+  /// Returns the newly created page ID, or null on failure.
   Future<String?> cloneLandingPage({
     required String sourcePageId,
     required String newSubdomain,
@@ -371,6 +450,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Returns the first (most recent) landing page for [userId], or null if none exist.
   Future<Map<String, dynamic>?> getLandingPageByUserId(String userId) async {
     try {
       final pages = await getLandingPagesByUserId(userId);
@@ -381,6 +461,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches a single landing page by its UUID [pageId].
   Future<Map<String, dynamic>?> getLandingPageById(String pageId) async {
     try {
       return await _client!
@@ -394,6 +475,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches multiple landing pages in a single query by their UUIDs [pageIds].
   Future<List<Map<String, dynamic>>> getLandingPagesByIds(List<String> pageIds) async {
     try {
       if (pageIds.isEmpty) return [];
@@ -409,6 +491,12 @@ class SupabaseService extends ChangeNotifier {
   }
 
 
+  /// Fetches a landing page by its subdomain or custom domain.
+  ///
+  /// Used by the public renderer when resolving a URL to a landing page.
+  /// When [isCustom] is true, checks `custom_domain` column and enforces the
+  /// Pro-tier gate. When [publishedOnly] is true, excludes unpublished pages.
+  /// Applies the 30-day inactivity auto-suspend policy for free-tier pages.
   Future<Map<String, dynamic>?> getLandingPageByDomain(
     String domain, {
     bool isCustom = false,
@@ -453,8 +541,12 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
-  /// Saves the landing page and returns the page ID (whether existing or newly created).
-  /// On INSERT, the ID is returned directly from Supabase (no second round-trip needed).
+  /// Saves (inserts or updates) a landing page and returns its page ID.
+  ///
+  /// When [pageId] is null, performs an INSERT and returns the new ID in one
+  /// round-trip. When [pageId] is non-null, performs an UPDATE on that row.
+  /// Called by the page builder when the user hits "Save".
+  /// Side effects: Encodes [designMap] via `jsonEncode` before writing.
   Future<String?> saveLandingPage({
     required String userId,
     required String subdomain,
@@ -505,6 +597,9 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Toggles the `is_published` flag on a landing page.
+  ///
+  /// Called when the user publishes or unpublishes a page from the dashboard.
   Future<void> updatePagePublishStatus(String pageId, bool isPublished) async {
     try {
       await _client!
@@ -521,6 +616,10 @@ class SupabaseService extends ChangeNotifier {
   // LEADS CAPTURE OPERATIONS
   // ----------------------------------------------------
 
+  /// Submits a lead via the `lead-submit` Edge Function.
+  ///
+  /// Called when a visitor fills out a form on a published landing page.
+  /// Returns `true` on HTTP 200, `false` otherwise.
   Future<bool> submitLead({
     required String landingPageId,
     required Map<String, dynamic> formData,
@@ -547,6 +646,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches all leads for a given landing page, newest first.
   Future<List<Map<String, dynamic>>> getLeadsByLandingPage(
     String landingPageId,
   ) async {
@@ -567,6 +667,10 @@ class SupabaseService extends ChangeNotifier {
   // ANALYTICS & STATS OPERATIONS
   // ----------------------------------------------------
 
+  /// Records an analytics event for a landing page.
+  ///
+  /// Delegates to [recordPageEvent].
+  /// Called by the public renderer when a visitor views or interacts with a page.
   Future<void> recordAnalyticsEvent({
     required String landingPageId,
     required String eventType,
@@ -574,6 +678,10 @@ class SupabaseService extends ChangeNotifier {
     await recordPageEvent(landingPageId: landingPageId, eventType: eventType);
   }
 
+  /// Records a page event via the `record_page_event` RPC function.
+  ///
+  /// Called when a visitor views, converts, or performs an action on a page.
+  /// Side effects: Captures a browser fingerprint via [FingerprintUtils].
   Future<void> recordPageEvent({
     required String landingPageId,
     required String eventType,
@@ -592,6 +700,8 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Returns view, unique visitor, and conversion counts for a page via the
+  /// `get_enhanced_page_stats` RPC function.
   Future<Map<String, int>> getPageAnalyticsStats(String landingPageId) async {
     try {
       final res = await _client!.rpc('get_enhanced_page_stats', params: {'page_id': landingPageId});
@@ -611,6 +721,11 @@ class SupabaseService extends ChangeNotifier {
   // STORAGE IMAGE UPLOADS & MANAGEMENT
   // ----------------------------------------------------
 
+  /// Lists all images for the current user, combining Supabase Storage files
+  /// and ImgBB assets from the `user_assets` table.
+  ///
+  /// Results are sorted by creation date (newest first).
+  /// Returns an empty list if the user is not authenticated.
   Future<List<Map<String, dynamic>>> listUserImages() async {
     try {
       final userId = _currentUserId;
@@ -662,6 +777,9 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Looks up an ImgBB asset URL by its image hash in the `user_assets` table.
+  ///
+  /// Used to avoid re-uploading duplicate images.
   Future<String?> findAssetByHash(String hash) async {
     try {
       final res = await _client!
@@ -675,6 +793,10 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Registers an external ImgBB asset URL in the `user_assets` table for the
+  /// current user.
+  ///
+  /// Called after a successful ImgBB upload to keep a record of the image.
   Future<void> registerExternalAsset(String url, String name, {String? hash}) async {
     try {
       final userId = _currentUserId;
@@ -692,6 +814,8 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Deletes an image. If [source] is `'imgbb'`, removes the record from
+  /// `user_assets` by [assetId]. Otherwise removes the file from Supabase Storage.
   Future<void> deleteImage(String fileName, {String? source, String? assetId}) async {
     try {
       final userId = _currentUserId;
@@ -710,6 +834,9 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Uploads a [PlatformFile] (from `file_picker`) to Supabase Storage.
+  ///
+  /// Delegates to [uploadImageBytes]. Throws if [file.bytes] is null.
   Future<String?> uploadImage(PlatformFile file) async {
     final bytes = file.bytes;
     if (bytes == null) {
@@ -721,6 +848,12 @@ class SupabaseService extends ChangeNotifier {
   int? _cachedAssetsCount;
   DateTime? _lastCountFetch;
 
+  /// Uploads raw image [bytes] to Supabase Storage under the current user's folder.
+  ///
+  /// Enforces tier-based upload quotas (Free: 50, Pro: 200, Business: 500,
+  /// Agency: 1000, Super Admin: unlimited). Caches the asset count for 10 seconds
+  /// to avoid repeated LIST calls during bulk uploads.
+  /// Returns the public URL of the uploaded file, or throws on failure.
   Future<String?> uploadImageBytes(Uint8List bytes, String fileName) async {
     try {
       final userId = _currentUserId;
@@ -785,6 +918,7 @@ class SupabaseService extends ChangeNotifier {
   // SUPER ADMIN OPERATIONS (REAL DATA)
   // ----------------------------------------------------
 
+  /// Fetches all user profiles with their landing page count for the admin dashboard.
   Future<List<Map<String, dynamic>>> getAdminUsers() async {
     try {
       final res = await _client!
@@ -803,6 +937,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches all landing pages with owner profile data for the admin dashboard.
   Future<List<Map<String, dynamic>>> getAdminPages() async {
     try {
       final res = await _client!.from(DbConstants.landingPagesTable).select('*, profiles(full_name, email)').order('created_at', ascending: false);
@@ -813,6 +948,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches all subscription requests for the admin dashboard.
   Future<List<Map<String, dynamic>>> getAdminSubscriptionRequests() async {
     try {
       final res = await _client!.from('subscription_requests').select('*, profiles(full_name, email)').order('created_at', ascending: false);
@@ -823,6 +959,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Updates the `status` of a subscription request row.
   Future<void> updateSubscriptionStatus(String id, String status) async {
     try {
       await _client!.from('subscription_requests').update({'status': status}).eq('id', id);
@@ -832,6 +969,8 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Sets or clears the `custom_domain` on a landing page and resets
+  /// `domain_status` to `'pending'`.
   Future<void> updateCustomDomain(String pageId, String? domain) async {
     try {
       await _client!.from(DbConstants.landingPagesTable).update({
@@ -844,6 +983,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Calls the `refresh_domain_verification_token` RPC and returns the new token.
   Future<String> refreshDomainVerificationToken(String pageId) async {
     try {
       final res = await _client!.rpc('refresh_domain_verification_token', params: {'page_id': pageId});
@@ -854,6 +994,8 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Invokes the `verify-custom-domain` Edge Function to verify or detach a
+  /// custom domain DNS configuration.
   Future<Map<String, dynamic>> verifyCustomDomain(String pageId, {String? previousDomain, String action = 'verify'}) async {
     try {
       final res = await _client!.functions.invoke('verify-custom-domain', body: {
@@ -868,6 +1010,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches all affiliate profiles with user data for the admin dashboard.
   Future<List<Map<String, dynamic>>> getAdminAffiliates() async {
     try {
       final res = await _client!.from('affiliate_profiles').select('*, profiles(full_name, email)').order('created_at', ascending: false);
@@ -878,6 +1021,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Aggregates total views, purchases, and recent analytics logs for the admin dashboard.
   Future<Map<String, dynamic>> getAdminGlobalStats() async {
     try {
       final pagesRes = await _client!.from(DbConstants.landingPagesTable).select('views_count, purchases_count');
@@ -903,6 +1047,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches all subscription plans ordered by monthly price ascending.
   Future<List<Map<String, dynamic>>> getSubscriptionPlans() async {
     try {
       final res = await _client!.from('subscription_plans').select().order('monthly_price', ascending: true);
@@ -913,6 +1058,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches system-wide security limits (e.g. rate limits) as a key-value map.
   Future<Map<String, int>> getSystemSecurityLimits() async {
     try {
       final res = await _client!.from('system_security_limits').select('key, value_int');
@@ -927,6 +1073,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Updates a subscription plan row by [id] with the given [data].
   Future<void> updateSubscriptionPlan(String id, Map<String, dynamic> data) async {
     try {
       await _client!.from('subscription_plans').update(data).eq('id', id);
@@ -936,6 +1083,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Updates a user's profile row by [userId] with the given [data].
   Future<void> updateUserProfile(String userId, Map<String, dynamic> data) async {
     try {
       await _client!.from(DbConstants.profilesTable).update(data).eq('id', userId);
@@ -945,6 +1093,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches the 100 most recent system audit logs with user profile data.
   Future<List<Map<String, dynamic>>> getSystemAuditLogs() async {
     try {
       final res = await _client!
@@ -959,6 +1108,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches subscription requests for a specific user, newest first.
   Future<List<Map<String, dynamic>>> getUserSubscriptionRequests(String userId) async {
     try {
       final res = await _client!
@@ -973,6 +1123,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches audit logs for a specific user, limited to the 50 most recent entries.
   Future<List<Map<String, dynamic>>> getUserAuditLogs(String userId) async {
     try {
       final res = await _client!
@@ -988,6 +1139,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Aggregates total views, leads, and page count for a specific user.
   Future<Map<String, dynamic>> getUserAggregatedAnalytics(String userId) async {
     try {
       final pages = await getLandingPagesByUserId(userId);
@@ -1009,6 +1161,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches all platform SEO settings ordered by route path.
   Future<List<Map<String, dynamic>>> getPlatformSeoSettings() async {
     try {
       final res = await _client!.from('platform_seo_settings').select().order('route_path', ascending: true);
@@ -1019,6 +1172,13 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Checks whether a given subdomain [route] is available for use.
+  ///
+  /// Verifies against three sources:
+  /// 1. Hardcoded system routes (e.g. `'dashboard'`, `'admin'`)
+  /// 2. `platform_seo_settings` table (when [checkPlatform] is true)
+  /// 3. `landing_pages` table (when [checkUsers] is true, optionally excluding [excludePageId])
+  /// Returns `false` (not available) on any error to fail safe.
   Future<bool> isRouteAvailable(String route, {String? excludePageId, bool checkPlatform = true, bool checkUsers = true}) async {
     try {
       final cleanRoute = route.startsWith('/') ? route : '/$route';
@@ -1061,6 +1221,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Upserts a platform SEO settings row keyed by [routePath].
   Future<void> updatePlatformSeoSettings(String routePath, Map<String, dynamic> data) async {
     try {
       await _client!.from('platform_seo_settings').upsert({
@@ -1073,6 +1234,8 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Returns aggregate counts (total users, active pages, total leads) for the
+  /// super admin dashboard.
   Future<Map<String, dynamic>> getSuperAdminMetrics() async {
     try {
       final usersRes = await _client!
@@ -1094,6 +1257,7 @@ class SupabaseService extends ChangeNotifier {
       return {'total_users': 0, 'active_pages': 0, 'total_leads': 0};
     }
   }
+  /// Fetches a single user profile by [userId].
   Future<Map<String, dynamic>?> getProfile(String userId) async {
     try {
       return await _client!.from(DbConstants.profilesTable).select().eq('id', userId).maybeSingle();
@@ -1107,6 +1271,7 @@ class SupabaseService extends ChangeNotifier {
   // TEMPLATE OPERATIONS
   // ----------------------------------------------------
 
+  /// Fetches public templates that are active and not draft.
   Future<List<Map<String, dynamic>>> fetchPublicTemplates() async {
     try {
       final res = await _client!
@@ -1122,6 +1287,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches templates that are active, not draft, and marked as featured.
   Future<List<Map<String, dynamic>>> fetchFeaturedTemplates() async {
     try {
       final res = await _client!
@@ -1138,6 +1304,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Fetches every template (active or inactive) for the admin panel.
   Future<List<Map<String, dynamic>>> fetchAllTemplates() async {
     try {
       final res = await _client!
@@ -1151,6 +1318,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Inserts a new template row with the given [data].
   Future<void> createTemplate(Map<String, dynamic> data) async {
     try {
       await _client!.from(DbConstants.templatesTable).insert(data);
@@ -1160,6 +1328,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Updates an existing template row by [id] with the given [data].
   Future<void> updateTemplate(String id, Map<String, dynamic> data) async {
     try {
       await _client!.from(DbConstants.templatesTable).update(data).eq('id', id);
@@ -1169,6 +1338,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Soft-deletes a template by setting `is_active` to false.
   Future<void> deleteTemplate(String id) async {
     try {
       await _client!.from(DbConstants.templatesTable).update({'is_active': false}).eq('id', id);
@@ -1180,6 +1350,7 @@ class SupabaseService extends ChangeNotifier {
 
   // ── Homepage Sections CRUD ──────────────────────────────────────────────
 
+  /// Fetches all homepage sections ordered by `sort_order`.
   Future<List<Map<String, dynamic>>> getHomepageSections() async {
     try {
       final response = await _client!
@@ -1193,6 +1364,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Upserts a homepage section keyed by [sectionKey].
   Future<void> upsertHomepageSection(String sectionKey, Map<String, dynamic> data) async {
     try {
       await _client!
@@ -1204,6 +1376,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Updates a homepage section row by [id] with the given [data].
   Future<void> updateHomepageSection(String id, Map<String, dynamic> data) async {
     try {
       await _client!
@@ -1216,6 +1389,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Updates the `sort_order` for each section in [sections] to persist drag-and-drop reordering.
   Future<void> reorderHomepageSections(List<Map<String, dynamic>> sections) async {
     try {
       for (final s in sections) {
@@ -1230,6 +1404,9 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Inserts homepage sections from a registry if they do not already exist.
+  ///
+  /// Used during seeding/initialization. Returns the count of inserted rows.
   Future<int> seedHomepageSectionsFromRegistry(List<Map<String, dynamic>> sections) async {
     int inserted = 0;
     for (final s in sections) {
@@ -1250,6 +1427,9 @@ class SupabaseService extends ChangeNotifier {
     return inserted;
   }
 
+  /// Inserts templates from a registry if they do not already exist (by ID).
+  ///
+  /// Used during seeding/initialization. Returns the count of inserted rows.
   Future<int> seedTemplatesFromRegistry(List<Map<String, dynamic>> templates) async {
     int inserted = 0;
     for (final t in templates) {
@@ -1281,6 +1461,7 @@ class SupabaseService extends ChangeNotifier {
   // NOTIFICATIONS OPERATIONS
   // ----------------------------------------------------
 
+  /// Fetches notifications for a user, newest first.
   Future<List<Map<String, dynamic>>> getNotifications(String userId) async {
     try {
       final res = await _client!
@@ -1295,6 +1476,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Marks a single notification as read.
   Future<void> markNotificationAsRead(String notificationId) async {
     try {
       await _client!
@@ -1306,6 +1488,7 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Marks all notifications for a user as read.
   Future<void> markAllNotificationsAsRead(String userId) async {
     try {
       await _client!
@@ -1317,6 +1500,8 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Sends a notification to all users via the `broadcast_notification` RPC,
+  /// then fires an FCM push notification in the background.
   Future<void> broadcastNotification(
     String title,
     String message,
@@ -1340,6 +1525,8 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Sends a notification to specific [userIds] via the `send_targeted_notification`
+  /// RPC, then fires an FCM push notification in the background.
   Future<void> sendTargetedNotification(
     List<String> userIds,
     String title,
@@ -1365,6 +1552,9 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Blocks or unblocks a list of users by setting `is_blocked` and `blocked_at`.
+  ///
+  /// Called from the admin panel for moderation actions.
   Future<void> bulkBlockUsers(List<String> userIds, bool isBlocked) async {
     try {
       await _client!.from(DbConstants.profilesTable)
@@ -1377,6 +1567,9 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Changes the `tier` for a list of users in a single batch query.
+  ///
+  /// Called from the admin panel for bulk tier changes.
   Future<void> bulkUpdateUserTier(List<String> userIds, String newTier) async {
     try {
       await _client!.from(DbConstants.profilesTable)
@@ -1389,6 +1582,11 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Extends the subscription end date by [months] for each user in [userIds].
+  ///
+  /// Calculates the new end date relative to the existing `subscription_end_date`
+  /// if it is in the future, or relative to the current date if it has expired.
+  /// Called from the admin panel for bulk subscription extensions.
   Future<void> bulkAddSubscriptionMonths(List<String> userIds, int months) async {
     try {
       for (final userId in userIds) {
@@ -1419,6 +1617,10 @@ class SupabaseService extends ChangeNotifier {
     }
   }
 
+  /// Sends an FCM push notification via the `send-notification` Edge Function.
+  ///
+  /// Called fire-and-forget from [broadcastNotification] and [sendTargetedNotification].
+  /// Failures are logged but never thrown — FCM errors must not break the UI flow.
   Future<void> _sendFcmPush({
     required List<String>? userIds,
     required String title,

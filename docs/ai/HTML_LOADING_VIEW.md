@@ -12,6 +12,12 @@ Once Flutter is ready, a **1.5s cross-fade transition** occurs: the HTML logo fa
 
 ## 1. Visual Elements
 
+### 0. Loading Indicator Container (`#loading-indicator`)
+- **Height**: `height: 100dvh` (Dynamic Viewport Height) with `100vh` fallback via CSS cascade (`height: 100vh; height: 100dvh;`).
+- **Why `100dvh`**: On mobile browsers, the browser chrome (address bar, bottom toolbar) reduces the actual viewport. `100vh` includes the chrome area, shifting the logo's geometric center upward relative to Flutter's canvas. `100dvh` uses the dynamic viewport, which excludes chrome, matching Flutter's canvas center exactly.
+- Background: `#0F172A` (matches `AppColors.darkSurface`).
+- z-index: 99999, `will-change: opacity`, `transition: background-color 0.4s ease`.
+
 ### 1a. Logo Image (`loading-logo`)
 - HTML: `<img class="loading-logo" src="assets/assets/images/logo.webp">`
 - CSS size: 90×90px, `object-fit: contain`
@@ -63,6 +69,11 @@ Driven by `updateLogoFrame()` (rAF loop):
 - Formula: `scale = 1.0 + (0.49 × currentProgress)`
 - Max: `1.49` (49% increase from 90×90px base)
 - Applied via: `logo.style.transform = 'scale(1.49) translateZ(0)'`
+
+### Logo CSS Keyframe (`logo-ramp`)
+- Applied via `animation: logo-ramp 3.8s ease-out forwards;` on `.loading-logo`
+- **Max scale**: `1.35` (increased from `1.25` — an 8% increase)
+- **Why**: The CSS keyframe max scale (1.35) determines the HTML logo's independent ramp-up animation. The `updateLogoFrame()` JS function further applies additional scaling via `currentProgress` (up to 1.49×). The keyframe value `1.35` was increased from `1.25` to visually match the enlarged Flutter logo cube (`renderSize = 19.5`) during cross-fade, preventing a size-divergence pop.
 
 ### Logo Glow (CSS Filter)
 - Brightness: `0.6 + (0.61 × currentProgress)` → max `1.21`
@@ -223,10 +234,12 @@ Key points:
 
 | Parameter | Value | Location |
 |-----------|-------|----------|
-| `gap` | 24.0 | `floating_cube_background.dart` |
-| `renderSize` / `targetSize` | 19.0 | `floating_cube_background.dart` |
-| `strokeWidth` | 0.8 | `floating_cube_background.dart` |
-| Stroke color | `primaryColor` (theme-dependent) | `_drawFace()` |
+| `gap` | **24.7** | `floating_cube_background.dart:894` |
+| `renderSize` / `targetSize` | **19.5** | `floating_cube_background.dart:1069` |
+| `strokeWidth` (logo state) | `(h × 0.10).clamp(0.8, 2.0)` | `_drawFace():2464-2465` |
+| `strokeWidth` (free state) | `0.8` | `_CubePainter.paint():2222` |
+| Stroke color (logo state) | `primaryColor` (theme-dependent, NOT cyan) | `_drawFace():2463` |
+| Stroke color (free state) | `Theme.colorScheme.primary` | `_drawFace()` |
 | Face color (dark) | `#505050` | `_CubePainter.paint()` |
 | Face color (light) | `#D8D8D8` | `_CubePainter.paint()` |
 | Lighting | Lambertian, `0.25 + max(0, dot) × 0.75` | `_CubePainter.paint()` |
@@ -235,7 +248,7 @@ Key points:
 | Glow opacity | 0.72 | `_drawFace()` |
 | Glow blur | 7.0 (`MaskFilter`) | `_drawFace()` |
 | Glow width | `h × 0.55` | `_drawFace()` |
-| Corner radius | `(h × 0.36).clamp(0.3, max(0.3, h × 0.45))` | `_drawFace()` |
+| Corner radius (logo state) | `(h × 0.25).clamp(0.3, max(0.3, h × 0.40))` | `_drawFace():2435` |
 
 ---
 
@@ -251,3 +264,4 @@ Key points:
 8. **Service Worker Fallback Cache Injection Crash**: If CanvasKit (`canvaskit.js` / `canvaskit.wasm`) or fonts (Roboto) fail to load (due to offline state, local network blocker, etc.), the Service Worker's catch-all fallback block must **NOT** return `/` (which resolves to `index.html`'s HTML content). Returning HTML content for JS/WASM files crashes the dynamic loader of the Flutter Web Engine with a fatal `TypeError: Failed to fetch dynamically imported module`. The service worker must be restricted to only return `/` fallback if the request `Accept` header specifically contains `text/html` (document page routing).
 9. **Service Worker Caching in Local Development**: Registering the service worker on `localhost` or `127.0.0.1` during debug runs causes aggressive caching of the JS files (`main.dart.js`, `flutter_bootstrap.js`), preventing Hot Reload/Hot Restart from taking effect and causing persistent white screens when the port or code changes. The service worker registration block in `index.html` must detect if the host is `localhost` or `127.0.0.1`, programmatically unregister any existing service worker, and prevent any new registration.
 10. **Logo Image Transparency vs. Bounding Box Glow**: The main loader logo image (`logo.webp`) **must** be transparent on the outside, but keep its inner cube faces completely solid and opaque. If the logo has a solid background (black or dark blue), the CSS `drop-shadow` filter in `index.html` will apply to the rectangular boundaries (bounding box) of the image, causing a blocky, square-shaped glow behind the logo. If it is correctly transparent, the glow will trace the outer edges of the 3D cube shapes, producing a clean, round, organic glowing neon effect.
+11. **Why HTML `height: 100dvh` and Flutter `gap: 24.7` / `renderSize: 19.5` must stay in sync**: The HTML logo and Flutter cube are cross-faded over ~1.5 seconds during first load. The HTML `#loading-indicator` uses `100dvh` to center the logo at the same Y-position Flutter considers center. The Flutter `gap` (24.7) and `renderSize` (19.5) produce a 3×3×3 cube grid whose visual extent matches the HTML logo's `logo.webp` bounding-box (843×981px, aspect ratio 1.1637). If any of these diverge — e.g., `height: 100vh` (includes browser chrome) shifts the HTML logo downward, or wrong gap/resize changes the cube size — there is a visible shape-pop or position-jump that breaks the seamless transition illusion.

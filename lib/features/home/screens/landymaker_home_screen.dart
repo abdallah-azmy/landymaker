@@ -26,12 +26,26 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/particles/cube_loader.dart';
 import '../../builder/models/landing_page_theme.dart';
 
+/// [LandyMakerHomeScreen] — the app's main landing page StatefulWidget.
+///
+/// **Responsibility**: Configures scroll-position persistence and delegates
+/// state management to `_LandyMakerHomeScreenState`.
+/// **Used by**: App router as the home/root route.
+/// **Key state**: `lastScrollOffset` (static) persists scroll across rebuilds;
+/// `_isFirstAppLoad` (static) distinguishes first-ever launch from subsequent
+/// navigations.
+/// **⚠️ AI Warning**: `_isFirstAppLoad` controls the HTML→Flutter cross-fade
+/// animation. Changing its semantics will break the first-load transition.
 class LandyMakerHomeScreen extends StatefulWidget {
   const LandyMakerHomeScreen({super.key});
 
   static bool _isFirstAppLoad = true;
+  /// Persists the most recent scroll offset across widget rebuilds so the
+  /// user returns to the same position when navigating back.
   static double lastScrollOffset = 0.0;
 
+  /// Resets [lastScrollOffset] to zero. Called when the user navigates to a
+  /// new page to prevent automatic scrolling on return.
   static void resetScrollPosition() {
     lastScrollOffset = 0.0;
   }
@@ -40,6 +54,18 @@ class LandyMakerHomeScreen extends StatefulWidget {
   State<LandyMakerHomeScreen> createState() => _LandyMakerHomeScreenState();
 }
 
+/// [_LandyMakerHomeScreenState] — orchestrates the entire home screen lifecycle.
+///
+/// **Responsibility**: Owns scroll position, cube particle system, section data
+/// loading, preview mode, and the first-load HTML→Flutter cross-fade transition.
+/// **Used by**: `LandyMakerHomeScreen.createState()`.
+/// **Key state**: `_burstTriggered`, `_persistentLogoRemoved`, `_darkBg` control
+/// the reveal cascade; `_sections`/`_previewPages` hold CMS data; `_isPreviewMode`
+/// toggles the logo-burst overlay; `_cubeController` manages all particle cubes.
+/// **⚠️ AI Warning**: The first-load logic in `initState` uses
+/// `addPostFrameCallback` to schedule `_transitionToPersistentLogo`,
+/// `_removePersistentLogo`, and `_waitForLoadingThenRevealCubes`. Reordering
+/// these or changing their timing will break the splash→content handoff.
 class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     with SingleTickerProviderStateMixin {
   late final ScrollController _scrollController;
@@ -66,6 +92,13 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
   bool _sectionsLoaded = false;
   late final bool _isThisTheFirstLoad;
 
+  /// Initialises scroll controller, loads CMS sections, and triggers the
+  /// first-load HTML→Flutter cross-fade when `_isFirstAppLoad` is true.
+  ///
+  /// Called once when the State is inserted into the tree. Side effects:
+  /// registers scroll listener, wires `_cubeController.onGatherComplete`, and
+  /// on first load schedules the background transition, logo fade-out, and
+  /// reveal cascade via `addPostFrameCallback`.
   @override
   void initState() {
     super.initState();
@@ -115,6 +148,13 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Waits for CMS sections to load and cubes to gather, then triggers the
+  /// content-reveal cascade (burst, dark-bg fade, persistent-logo removal).
+  ///
+  /// Called once from `initState`'s `addPostFrameCallback` on first load.
+  /// Enforces a minimum 1.5 s delay so the HTML→Flutter cross-fade completes.
+  /// Side effects: sets `_burstTriggered = true`, `_darkBg = false`, calls
+  /// `_cubeController.triggerLogoBurst`.
   Future<void> _waitForLoadingThenRevealCubes() async {
     final startTime = DateTime.now();
     // Wait for sections (API responses) to finish loading, with a safe timeout
@@ -152,6 +192,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Callback invoked by `_cubeController` when cubes finish gathering into
+  /// logo formation (e.g. after exiting preview mode).
+  ///
+  /// Sets `_gatheringComplete = true` and triggers a rebuild.
   void _onGatherComplete() {
     // Called when cubes finish gathering into logo formation
     // (e.g., after entering preview mode).
@@ -161,18 +205,30 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Communicates with the HTML host via JS interop to transition the HTML
+  /// loader background to transparent, revealing the Flutter canvas behind it.
+  ///
+  /// Called during the first-load cross-fade. No-op on non-web platforms.
   void _transitionToPersistentLogo() {
     if (kIsWeb) {
       callJs('transitionToPersistentLogo');
     }
   }
 
+  /// Communicates with the HTML host via JS interop to fade out the
+  /// persistent HTML logo overlay, completing the handoff from HTML loading
+  /// to Flutter rendering.
+  ///
+  /// Called during the first-load cross-fade. No-op on non-web platforms.
   void _removePersistentLogo() {
     if (kIsWeb) {
       callJs('removePersistentLogo');
     }
   }
 
+  /// Recomputes the cube count based on screen width whenever dependencies
+  /// change. A responsive adjustment: more cubes on wider screens (81–130
+  /// range).
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -186,6 +242,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Fetches homepage section configurations from the database service.
+  ///
+  /// On success sets `_sectionsLoaded = true` and triggers preview-page loading
+  /// for the hero section. Catches errors silently to avoid blocking the UI.
   Future<void> _loadSections() async {
     try {
       final sections = await sl<DatabaseService>().getHomepageSections();
@@ -209,6 +269,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Fetches landing pages referenced by the hero section's
+  /// `preview_page_ids` config, parsing their design JSON into preview models.
+  ///
+  /// Each page includes id, name, `LandingPageTheme`, and block list.
   Future<void> _loadPreviewPages(List<String> ids) async {
     try {
       final dbPages = await sl<DatabaseService>().getLandingPagesByIds(ids);
@@ -252,6 +316,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Persists the current scroll offset to `LandyMakerHomeScreen.lastScrollOffset`
+  /// and drives cube drift based on scroll velocity.
+  ///
+  /// Called on every scroll event via `_scrollController` listener.
   void _saveScrollPosition() {
     if (_scrollController.hasClients) {
       final current = _scrollController.offset;
@@ -263,18 +331,25 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Returns `true` if the section with the given [key] is marked as visible
+  /// in the CMS configuration. Defaults to visible when sections aren't loaded.
   bool _isSectionVisible(String key) {
     if (!_sectionsLoaded) return true;
     final section = _sections.where((s) => s['section_key'] == key).firstOrNull;
     return section == null || section['is_visible'] == true;
   }
 
+  /// Returns the config map for a section identified by [key], or an empty map
+  /// if the section is not found.
   Map<String, dynamic> _sectionConfig(String key) {
     final section = _sections.where((s) => s['section_key'] == key).firstOrNull;
     if (section == null) return {};
     return (section['config'] as Map<String, dynamic>?) ?? {};
   }
 
+  /// Returns a locale-aware string value from the section config using the
+  /// current RTL setting. Falls back to the base key when the locale variant
+  /// is absent.
   String? _localeValue(Map<String, dynamic> config, String baseKey) {
     final isArabic = context.isRtl;
     if (isArabic) {
@@ -283,6 +358,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     return (config['${baseKey}_en'] ?? config[baseKey]) as String?;
   }
 
+  /// Returns a locale-aware list value from the section config (e.g. typewriter
+  /// texts) using the current RTL setting. Returns `null` when absent.
   List<String>? _localeList(Map<String, dynamic> config, String baseKey) {
     final isArabic = context.isRtl;
     final val = isArabic ? config['${baseKey}_ar'] : config['${baseKey}_en'];
@@ -290,6 +367,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     return null;
   }
 
+  /// Parses a hero layout name string into a [HeroLayout] enum value,
+  /// defaulting to [HeroLayout.split].
   HeroLayout _parseHeroLayout(String? name) {
     if (name == null) return HeroLayout.split;
     return HeroLayout.values.firstWhere(
@@ -298,6 +377,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     );
   }
 
+  /// Parses a feature layout name string into a [FeatureLayout] enum value,
+  /// defaulting to [FeatureLayout.bentoGrid].
   FeatureLayout _parseFeatureLayout(String? name) {
     if (name == null) return FeatureLayout.bentoGrid;
     return FeatureLayout.values.firstWhere(
@@ -306,6 +387,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     );
   }
 
+  /// Parses a CTA layout name string into a [CtaLayout] enum value,
+  /// defaulting to [CtaLayout.centeredGradient].
   CtaLayout _parseCtaLayout(String? name) {
     if (name == null) return CtaLayout.centeredGradient;
     return CtaLayout.values.firstWhere(
@@ -314,6 +397,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     );
   }
 
+  /// Repels cubes away from the pointer's normalized position on hover.
+  ///
+  /// Called by `MouseRegion.onHover`. Passes `null` on exit to clear the
+  /// repeller.
   void _onPointerHover(PointerHoverEvent event) {
     final size = context.size;
     if (size != null && size.width > 0 && size.height > 0) {
@@ -326,6 +413,11 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Handles tap on the background to trigger cube interactions.
+  ///
+  /// If the logo is fully formed and the persistent HTML logo is removed,
+  /// triggers a full logo explosion. Otherwise attempts a split or burst at
+  /// the tapped position.
   void _onPointerDown(PointerDownEvent event) {
     final size = context.size;
     if (size != null && size.width > 0 && size.height > 0) {
@@ -346,6 +438,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Enters preview mode: gathers cubes into logo formation and scrolls to top.
+  ///
+  /// The preview overlay replaces the normal navigation and provides cube-mode
+  /// toggling.
   void _enterPreviewMode() {
     setState(() => _isPreviewMode = true);
     _cubeController.gatherIntoLogo();
@@ -358,10 +454,17 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     }
   }
 
+  /// Exits preview mode, restoring the normal navigation and cube interactions.
   void _exitPreviewMode() {
     setState(() => _isPreviewMode = false);
   }
 
+  /// Displays a dialog showcasing every [CubeLoaderVariant] with interactive
+  /// previews, including standalone cards, in-button variants, determinate
+  /// progress indicators, and related widgets (CubeShimmer,
+  /// CubeRefreshIndicator).
+  ///
+  /// Called from the FAB. This is a development / debug tool.
   void _showLogoTestDialog(BuildContext context) {
     final variants = CubeLoaderVariant.values;
     final isRtl = context.isRtl;
@@ -1050,6 +1153,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     );
   }
 
+  /// Builds a section header with a title and subtitle styled in the app's
+  /// typography system. Used internally by `_showLogoTestDialog`.
   Widget _buildSectionHeader(
     BuildContext context,
     String title,
@@ -1076,6 +1181,8 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     );
   }
 
+  /// Builds a showcase card containing a title, optional description, and a
+  /// centered child widget. Used internally by `_showLogoTestDialog`.
   Widget _buildShowcaseCard(
     BuildContext context, {
     required Widget child,
@@ -1131,6 +1238,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     );
   }
 
+  /// Disposes the scroll controller, its listener, and the logo animation
+  /// controller.
+  ///
+  /// Called when the State is removed from the tree.
   @override
   void dispose() {
     _scrollController.removeListener(_saveScrollPosition);
@@ -1139,6 +1250,12 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
     super.dispose();
   }
 
+  /// Builds the home screen Scaffold with a stacked layout: dark background,
+  /// floating cube particles, scrollable content sections, navbar, and an
+  /// optional preview-mode overlay with cube-mode toggling.
+  ///
+  /// Content sections (hero, features, CTA, footer) fade in after the
+  /// first-load cross-fade completes (`_burstTriggered = true`).
   @override
   Widget build(BuildContext context) {
     final heroConfig = _sectionConfig('hero');

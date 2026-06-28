@@ -386,7 +386,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   void triggerBurst(Offset point) {
     final bool isGravity = widget.cubeMode == CubeMode.gravity;
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       e.applyBurst(point, isGravity: isGravity);
       final dx = e.x - point.dx;
       final dy = e.y - point.dy;
@@ -421,7 +421,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     // Pre-compute depth range for normalisation
     double minDepth = double.infinity, maxDepth = double.negativeInfinity;
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (e.depth < minDepth) minDepth = e.depth;
       if (e.depth > maxDepth) maxDepth = e.depth;
     }
@@ -443,7 +443,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
       dirY = 0.0;
     }
 
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       final firstIdx = e.baseIndices.first;
       final d = _baseData[firstIdx];
 
@@ -671,7 +671,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   void _splitMergedEntities() {
     final topExclusion = widget.topExclusion;
     final newEntities = <_MergeEntity>[];
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       e.spiralPartner = null;
       if (e.count > 1) {
         for (final idx in e.baseIndices) {
@@ -702,7 +702,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 
   void _freeOrbiters() {
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (e.parentCore != null) {
         e.parentCore!.orbiterCount--;
         e.parentCore = null;
@@ -711,7 +711,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
   }
 
   void _resetMergeState() {
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       e.mergeTimer = 0.0;
       e.mergeCooldown = 0.0;
       e.spiralPartner = null;
@@ -791,7 +791,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     });
 
     // Halt physical momentum so cubes ease from their current floating positions
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       e.vx = 0;
       e.vy = 0;
     }
@@ -1152,7 +1152,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     final bool gravity = widget.cubeMode == CubeMode.gravity;
     final bool isMergeMode = widget.cubeMode == CubeMode.merge;
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (!_isGathering && !_isBuilding && !_isPreBurst) {
         e.ao += (1.0 - e.ao) * 0.1;
       }
@@ -1168,7 +1168,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     }
 
     // ── NaN safety guard ──
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (e.x.isNaN || e.x.isInfinite) e.x = 0.5;
       if (e.y.isNaN || e.y.isInfinite) e.y = (topExclusion + 1.0) * 0.5;
       if (e.renderSize.isNaN || e.renderSize.isInfinite) e.renderSize = 10.0;
@@ -1177,7 +1177,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     // ── Trail particles ──
     if (!lowQuality) {
-      for (final e in _entities) {
+      for (final e in _entities.toList()) {
         final speed = sqrt(e.vx * e.vx + e.vy * e.vy);
         if (speed > 0.15) {
           _trailPool.spawn(
@@ -1227,18 +1227,18 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   void _updateMergeMode(double dt, double topExclusion) {
     // Cooldown & random perturbation
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (e.mergeCooldown > 0 && !e.isSpiraling)
         e.mergeCooldown -= _realSec(dt);
     }
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (e.isSpiraling) continue;
       e.vx += (Random().nextDouble() - 0.5) * 0.01;
       e.vy += (Random().nextDouble() - 0.5) * 0.01;
     }
 
     // Size lerp
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       e.renderSize += (e.targetSize - e.renderSize) * dt * 180.0;
     }
 
@@ -1562,7 +1562,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
   void _updateOrbitMode(double dt, double topExclusion) {
     // Orbiter position updates
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (e.parentCore == null) continue;
       e.orbitAngle += e.orbitSpeed * _realSec(dt) * widget.speed;
       final cosA = cos(e.orbitAngle);
@@ -1575,7 +1575,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     // Collect cores
     final cores = <_MergeEntity>[];
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (e.parentCore == null && e.renderSize > 12.0) {
         cores.add(e);
       }
@@ -1676,7 +1676,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
     }
 
     // ── Escape checks ──
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (e.parentCore == null) continue;
       final core = e.parentCore!;
       if (core.orbiterCount == 0) {
@@ -1731,7 +1731,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
     // ── NaN safety ──
     final topExclusion3 = widget.topExclusion;
-    for (final e in _entities) {
+    for (final e in _entities.toList()) {
       if (e.x.isNaN || e.x.isInfinite) e.x = 0.5;
       if (e.y.isNaN || e.y.isInfinite) e.y = (topExclusion3 + 1.0) * 0.5;
       if (e.renderSize.isNaN || e.renderSize.isInfinite) e.renderSize = 10.0;
@@ -2432,7 +2432,7 @@ class CubePainter extends CustomPainter {
 
     final Path path;
     if (isLogoState) {
-      final cr = (h * 0.35).clamp(0.3, max(0.3, h * 0.45)).toDouble();
+      final cr = (h * 0.25).clamp(0.3, max(0.3, h * 0.40)).toDouble();
       path = cg.buildRoundedQuad(
         Offset(fd.x0, fd.y0),
         Offset(fd.x1, fd.y1),
@@ -2460,11 +2460,9 @@ class CubePainter extends CustomPainter {
     canvas.drawPath(path, fillPaint);
 
     if (drawStroke) {
-      strokePaint.color = isLogoState
-          ? const Color(0xFF00E5FF)
-          : primaryColor;
+      strokePaint.color = primaryColor;
       strokePaint.strokeWidth = isLogoState
-          ? (h * 0.12).clamp(1.2, 2.5)
+          ? (h * 0.10).clamp(0.8, 2.0)
           : (h * 0.08).clamp(0.8, 2.0);
       strokePaint.strokeCap = StrokeCap.round;
       strokePaint.strokeJoin = StrokeJoin.round;

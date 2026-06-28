@@ -483,7 +483,7 @@ class _BlogEditorScreenState extends State<BlogEditorScreen> {
                           color: _isPublished ? Colors.green.withValues(alpha: .5) : Theme.of(context).colorScheme.outlineVariant,
                         ),
                       ),
-                      padding: const EdgeInsets.only(right: 4, left: 12, top: 4, bottom: 4),
+                      padding: const EdgeInsetsDirectional.only(end: 4, start: 12, top: 4, bottom: 4),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

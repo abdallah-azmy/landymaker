@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
-import '../../../core/widgets/atoms/animated_theme_toggle.dart';
+
 import '../../../core/services/fcm_service.dart';
 import '../../../core/services/pwa_install_service.dart';
 
@@ -352,51 +352,6 @@ class _IconWrapper extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(icon, color: Theme.of(context).colorScheme.secondary, size: 22),
-    );
-  }
-}
-
-class AppearanceTile extends StatelessWidget {
-  final LocalizationCubit loc;
-  const AppearanceTile({required this.loc});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
-      ),
-      child: Row(
-        children: [
-          const _IconWrapper(icon: Icons.palette_rounded),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  loc.translate('theme_mode'),
-                  style: AppTypography.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  loc.translate('theme_mode_desc'),
-                  style: AppTypography.caption.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const AnimatedThemeToggle(size: 40),
-        ],
-      ),
     );
   }
 }

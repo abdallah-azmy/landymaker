@@ -149,7 +149,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                         const SizedBox(width: 8),
                         // Distinct Add Button
                         Padding(
-                          padding: const EdgeInsets.only(right: 4.0),
+                          padding: const EdgeInsetsDirectional.only(end: 4.0),
                           child: InkWell(
                             onTap: onAddBlock,
                             borderRadius: BorderRadius.circular(16),

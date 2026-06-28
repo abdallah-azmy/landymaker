@@ -6,6 +6,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
 import '../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../core/widgets/atoms/social_sign_in_button.dart';
+import '../../../core/widgets/particles/cube_loader.dart';
 import '../../../core/widgets/molecules/form_group.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/utils/toast_service.dart';
@@ -271,12 +272,13 @@ class _RegisterScreenState extends State<RegisterScreen> with WidgetsBindingObse
                 ),
                 const SizedBox(height: 2),
                 if (_loadingPendingTemplate)
-                  SizedBox(
+                  const SizedBox(
                     height: 14,
                     width: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: theme.colorScheme.primary,
+                    child: CubeLoader(
+                      size: 14,
+                      variant: CubeLoaderVariant.single,
+                      showGlow: false,
                     ),
                   )
                 else

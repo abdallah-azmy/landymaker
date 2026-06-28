@@ -52,7 +52,7 @@ class _BlogManagementScreenState extends State<BlogManagementScreen> {
                 pinned: true,
                 backgroundColor: Theme.of(context).colorScheme.surface,
                 flexibleSpace: FlexibleSpaceBar(
-                  titlePadding: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
+                  titlePadding: const EdgeInsetsDirectional.only(start: 20, end: 20, bottom: 16),
                   title: Text(
                     "إدارة المقالات",
                     style: TextStyle(

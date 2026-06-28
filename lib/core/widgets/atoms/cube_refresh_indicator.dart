@@ -159,7 +159,7 @@ class _CubePullIndicator extends StatelessWidget {
         children: List.generate(count, (i) {
           final c = color.withValues(alpha: 0.5 + 0.5 * (i + 1) / count);
           return Padding(
-            padding: EdgeInsets.only(right: i < count - 1 ? 4 : 0),
+            padding: EdgeInsetsDirectional.only(end: i < count - 1 ? 4 : 0),
             child: CubeSpinner(size: 12, color: c, strokeWidth: 1.5),
           );
         }),
@@ -204,10 +204,12 @@ class _CubeOrbitState extends State<_CubeOrbit>
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
-          return CustomPaint(
-            painter: _CubeOrbitPainter(
-              animValue: _controller.value,
-              color: widget.color,
+          return RepaintBoundary(
+            child: CustomPaint(
+              painter: _CubeOrbitPainter(
+                animValue: _controller.value,
+                color: widget.color,
+              ),
             ),
           );
         },

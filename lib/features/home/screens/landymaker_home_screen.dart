@@ -465,7 +465,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                 // Scrollable Content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(right: 16),
+                    padding: const EdgeInsetsDirectional.only(end: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -1179,13 +1179,15 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                         : 1.0;
                     return Opacity(opacity: opacity, child: child);
                   },
-                  child: FloatingCubeBackground(
-                    topExclusion: topExclusion,
-                    cubeCount: _cubeCount,
-                    isActive: _particlesActive,
-                    controller: _cubeController,
-                    cubeMode: context.watch<CubeModeCubit>().state,
-                    initialPreBurst: _isThisTheFirstLoad && !_persistentLogoRemoved && !_isPreviewMode,
+                  child: RepaintBoundary(
+                    child: FloatingCubeBackground(
+                      topExclusion: topExclusion,
+                      cubeCount: _cubeCount,
+                      isActive: _particlesActive,
+                      controller: _cubeController,
+                      cubeMode: context.watch<CubeModeCubit>().state,
+                      initialPreBurst: _isThisTheFirstLoad && !_persistentLogoRemoved && !_isPreviewMode,
+                    ),
                   ),
                 ),
               ),

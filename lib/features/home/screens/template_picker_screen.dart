@@ -256,7 +256,7 @@ class _Sidebar extends StatelessWidget {
           Padding(
             padding: const EdgeInsetsDirectional.only(start: 16, end: 16, bottom: 8),
             child: Text(
-              'التصنيفات',
+              context.translate('cat_categories'),
               style: AppTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -266,14 +266,14 @@ class _Sidebar extends StatelessWidget {
           Divider(color: Theme.of(context).colorScheme.outlineVariant, height: 1),
           _SidebarItem(
             category: null,
-            label: 'الكل',
+            label: context.translate('cat_all'),
             isSelected: selectedCategory == null,
             onTap: () => onCategorySelected(null),
           ),
           ...categories.map(
             (cat) => _SidebarItem(
               category: cat,
-              label: _getCategoryLabel(cat),
+              label: context.translate('cat_$cat'),
               isSelected: selectedCategory == cat,
               onTap: () => onCategorySelected(cat),
             ),
@@ -349,14 +349,14 @@ class _MobileFilterBar extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              selectedCategory == null ? 'جميع القوالب' : _getCategoryLabel(selectedCategory!),
+              selectedCategory == null ? context.translate('cat_all_templates') : context.translate('cat_${selectedCategory!}'),
               style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           TextButton.icon(
             onPressed: () => _showFilterSheet(context),
             icon: Icon(Icons.filter_list_rounded, size: 18),
-            label: const Text('تصفية'),
+            label: Text(context.translate('cat_filter')),
             style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.secondary),
           ),
         ],
@@ -386,7 +386,7 @@ class _MobileFilterBar extends StatelessWidget {
                 SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text('تصنيف القوالب', style: AppTypography.h3),
+                  child: Text(context.translate('cat_template_categories'), style: AppTypography.h3),
                 ),
                 SizedBox(height: 16),
                 Divider(color: Theme.of(context).colorScheme.outlineVariant, height: 1),
@@ -396,7 +396,7 @@ class _MobileFilterBar extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     children: [
                       _SheetItem(
-                        label: 'الكل',
+                        label: context.translate('cat_all'),
                         isSelected: selectedCategory == null,
                         onTap: () {
                           onCategorySelected(null);
@@ -405,7 +405,7 @@ class _MobileFilterBar extends StatelessWidget {
                       ),
                       ...categories.map(
                         (cat) => _SheetItem(
-                          label: _getCategoryLabel(cat),
+                          label: context.translate('cat_$cat'),
                           isSelected: selectedCategory == cat,
                           onTap: () {
                             onCategorySelected(cat);
@@ -634,26 +634,4 @@ class _TemplateCardState extends State<_TemplateCard> {
   }
 }
 
-String _getCategoryLabel(String category) {
-  switch (category) {
-    case 'general': return 'عام';
-    case 'technology': return 'تقنية';
-    case 'ecommerce': return 'متاجر';
-    case 'creator': return 'مبدعون';
-    case 'professional_services': return 'خدمات مهنية';
-    case 'real_estate': return 'عقارات';
-    case 'education': return 'تعليم';
-    case 'events': return 'مناسبات';
-    case 'food': return 'مطاعم';
-    case 'healthcare': return 'صحة';
-    case 'beauty': return 'تجميل';
-    case 'fitness': return 'لياقة';
-    case 'agency': return 'وكالات';
-    case 'nonprofit': return 'غير ربحي';
-    case 'digital_product': return 'منتجات رقمية';
-    case 'industrial': return 'صناعي';
-    case 'travel': return 'سفر';
-    case 'creative': return 'إبداعي';
-    default: return category[0].toUpperCase() + category.substring(1);
-  }
-}
+

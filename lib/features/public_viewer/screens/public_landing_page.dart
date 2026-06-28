@@ -326,15 +326,14 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     Color? globalBgColor;
                     if (globalBgColorHex != null &&
                         globalBgColorHex.isNotEmpty) {
-                      try {
-                        final hexStr = globalBgColorHex.replaceAll('#', '');
-                        if (hexStr.length == 6)
-                          globalBgColor = Color(
-                            int.parse('FF$hexStr', radix: 16),
-                          );
-                        else if (hexStr.length == 8)
-                          globalBgColor = Color(int.parse(hexStr, radix: 16));
-                      } catch (_) {}
+                      final hexStr = globalBgColorHex.replaceAll('#', '');
+                      if (hexStr.length == 6) {
+                        final parsed = int.tryParse('FF$hexStr', radix: 16);
+                        if (parsed != null) globalBgColor = Color(parsed);
+                      } else if (hexStr.length == 8) {
+                        final parsed = int.tryParse(hexStr, radix: 16);
+                        if (parsed != null) globalBgColor = Color(parsed);
+                      }
                     }
 
                     Widget content = CubeRefreshIndicator(

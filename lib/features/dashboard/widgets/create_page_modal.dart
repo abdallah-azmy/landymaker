@@ -9,6 +9,7 @@ import 'package:landymaker/features/dashboard/controllers/active_website_cubit.d
 import 'package:landymaker/features/dashboard/controllers/landing_pages_state.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/atoms/cube_spinner.dart';
+import '../../../core/widgets/particles/cube_loader.dart';
 import 'package:landymaker/core/widgets/particles/loading_logo.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../../core/widgets/atoms/primary_button.dart';
@@ -519,12 +520,13 @@ class _CreatePageModalState extends State<CreatePageModal> {
                           ),
                           const SizedBox(height: 2),
                           if (_loadingCustomTemplate)
-                            SizedBox(
+                            const SizedBox(
                               height: 12,
                               width: 12,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Theme.of(context).colorScheme.primary,
+                              child: CubeLoader(
+                                size: 12,
+                                variant: CubeLoaderVariant.single,
+                                showGlow: false,
                               ),
                             )
                           else

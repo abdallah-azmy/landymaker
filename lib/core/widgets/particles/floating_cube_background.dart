@@ -2291,6 +2291,7 @@ class CubePainter extends CustomPainter {
       if (entity.x.isNaN || entity.x.isInfinite) continue;
       if (entity.y.isNaN || entity.y.isInfinite) continue;
       if (entity.renderSize.isNaN || entity.renderSize.isInfinite) continue;
+      if (entity.renderSize <= 0.0) continue;
 
       final h = entity.renderSize * 0.5;
       final px = entity.x * size.width;

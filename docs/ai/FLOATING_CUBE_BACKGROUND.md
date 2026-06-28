@@ -62,7 +62,7 @@ The burst animation is the final step after either the building phase (first loa
 
 ### Pre-Burst State (Holding Logo Formation)
 - Reached after building completes (first load) or gathering completes (preview mode).
-- During pre-burst state, the primary cube of each brick (`cubeInBrick == 0`, i.e., entities at indices 0, 3, 6, ..., 78) forms the 3×3×3 isometric cube grid at center with `renderSize = 19.0`. The other two cubes per brick are invisible (`renderSize = 0`).
+- During pre-burst state, the primary cube of each brick (`cubeInBrick == 0`, i.e., entities at indices 0, 3, 6, ..., 78) forms the 3×3×3 isometric cube grid at center with `renderSize = 19.5`. The other two cubes per brick are invisible (`renderSize = 0`).
 - **Extra cubes (index ≥ `_totalBuildCubes`)** are positioned in a staggered 3D cluster **behind** the logo:
   - Positioned at varying radial distances and angles behind the logo using isometric rotation.
   - Each gets unique rotation offsets (`rx + n*0.15`, `ry + n*0.12`, `rz + n*0.1`) for visual variety.
@@ -404,7 +404,7 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 ### Entity lifecycle
 - **Init**: `_generateBaseData()` creates `_baseData` list. `_initFromBase()` creates `_entities` with unique offsets.
 - **Build (first load)**: `buildIntoLogo()` → `_startBuildIntoLogo()` scatters cubes to viewport edges, sets `renderSize = 0`, enters `_isBuilding = true`. All 27 bricks build simultaneously in parallel via `_brickRevealProgress` (18 units/sec, 36 total units = ~2s). Within each brick, 3 cubes are staggered (~33ms apart). Each cube flies edge→grid; primary cube snaps into place with pop-in, others absorbed. The HTML logo IMAGE gradually fades out as bricks complete — `setLogoOpacity(1.0 - progress/36.0)` is called each frame. By the time building finishes, the logo is fully transparent and the big Flutter cube is fully revealed behind it.
-- **Gather (preview mode)**: `gatherIntoLogo()` → `_startGatherIntoLogo()` halts physical velocity and eases cubes from their current positions toward logo grid positions using the brick-based index mapping (`_entityBrickIndex[i] = i ~/ 3`, `cubeInBrick = i % 3`). Primary cubes (`cubeInBrick == 0`) fly to grid targets with `targetSize = 19.0`; others are invisible (`targetSize = 0.0`). This ensures no coordinate teleportation at the transition to `_isPreBurst`. On arrival → goes directly to `_isPreBurst = true` (skips building phase entirely).
+- **Gather (preview mode)**: `gatherIntoLogo()` → `_startGatherIntoLogo()` halts physical velocity and eases cubes from their current positions toward logo grid positions using the brick-based index mapping (`_entityBrickIndex[i] = i ~/ 3`, `cubeInBrick = i % 3`). Primary cubes (`cubeInBrick == 0`) fly to grid targets with `targetSize = 19.5`; others are invisible (`targetSize = 0.0`). This ensures no coordinate teleportation at the transition to `_isPreBurst`. On arrival → goes directly to `_isPreBurst = true` (skips building phase entirely).
 - **Hold (pre-burst)**: Building or gathering completion → `_isPreBurst = true`. Cubes hold logo formation (primary cube of each brick at 3×3×3 grid, extras in staggered cluster behind). Waiting for `triggerLogoBurst` call.
 - **Burst**: `triggerLogoBurst` → `_triggerLogoBurst()` sets `_isPreBurst = false`, assigns each cube strong outward radial velocities, randomized rotations, and rotational velocities. Cubes explode outward from center. Trail particles spawn for fast-moving cubes.
 - **Merge**: Two entities collapse into one with combined `baseIndices`, summed `renderSize` → `targetSize`, mass-weighted position. Split history fields (`splitLeft`, `splitRight`, etc.) are populated from the merging entities' own split history.
@@ -428,7 +428,7 @@ Read-only initial state for each base cube (size, position seed, rotation seed).
 - **V2 Dynamic Lighting**: Face brightness is computed from Lambertian dot product `dot = nx·lx + ny·ly + nz·lz`. The light source (lx, ly, lz) is calculated per entity from `repelPoint` (mouse cursor) when available, falling back to a fixed top-corner position based on layout direction. This provides responsive, real-time shading feedback as the user moves their mouse.
 - **V2 Adaptive**: In low quality mode, `strokePaint` is not drawn and trail particles are skipped entirely.
 - **V2.1 Rounded Corners (Logo State)**: When `isLogoState` is true (during pre-burst/gathering phases), each cube face is drawn using `cg.buildRoundedQuad` with the unified corner radius `(h * 0.22).clamp(0.3, max(0.3, h * 0.4))` (upper bound protected against `ArgumentError` when `h < 0.75`). When not in logo state (cubes are floating freely), sharp polygon paths are used for maximum performance.
-- Entities with NaN/Infinite x, y, or renderSize are skipped (safety guard against WASM Aborted).
+- Entities with NaN/Infinite x, y, or renderSize, or with `renderSize <= 0.0` are skipped (safety guard against WASM Aborted and to hide extra/redundant cubes).
 - `_drawFace` guards against non-finite coordinates as final safety layer.
 
 ### Logo State Angles & Spacing
@@ -436,8 +436,8 @@ During `_isBuilding`, `_isPreBurst`, and `_isGathering` states, the isometric pr
 - `rx = 0.7853981633974483` (π/4) — true isometric Y rotation
 - `ry = 0.6154797086703873` (asin(1/√3)) — true isometric pitch
 - `rz = 0.5235987755982988` (π/6) — true isometric roll
-- `gap = 24.0` — spacing between cube centers in the 3×3×3 grid
-- `e.renderSize = 19.0` — final cube face size (building phase animates from 0 → 19.0 with elastic pop-in)
+- `gap = 24.7` — spacing between cube centers in the 3×3×3 grid
+- `e.renderSize = 19.5` — final cube face size (building phase animates from 0 → 19.5 with elastic pop-in)
 
 ### Color scheme
 - **Cube Base**: Light mode `#D8D8D8`, Dark mode `#505050`. Modulated by dynamic brightness.

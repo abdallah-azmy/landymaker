@@ -1834,6 +1834,7 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
               repelPoint: _hasRepelPoint ? _repelPoint : null,
               isLogoState: _isPreBurst || _isGathering || _isBuilding,
               showGlow: _isPreBurst && widget.initialPreBurst,
+              isPreBurst: _isPreBurst,
             ),
           );
         },
@@ -2197,6 +2198,7 @@ class CubePainter extends CustomPainter {
   final Offset? repelPoint;
   final bool isLogoState;
   final bool showGlow;
+  final bool isPreBurst;
 
   CubePainter({
     required this.entities,
@@ -2208,6 +2210,7 @@ class CubePainter extends CustomPainter {
     this.repelPoint,
     this.isLogoState = false,
     this.showGlow = false,
+    this.isPreBurst = false,
   });
 
   static final _nvScratch = [0.0, 0.0, 0.0];
@@ -2226,6 +2229,42 @@ class CubePainter extends CustomPainter {
         : (brightness == Brightness.light
             ? const Color(0xFFD8D8D8)
             : const Color(0xFF505050));
+
+    // Draw solid backing hexagon and glow behind the entire logo cube if in pre-burst state.
+    // This prevents light bleed through the gaps between the small cubes and matches the logo image's silhouette glow.
+    if (isPreBurst) {
+      final double gap = 24.7;
+      final double h = 19.5 * 0.5;
+      final double totalR = gap + h;
+      final double Y_max = 1.6329 * totalR;
+      final double X_max = 1.4142 * totalR;
+      final double Y_mid = 0.8165 * totalR;
+
+      final double cx = size.width * 0.5;
+      final double cy = size.height * 0.5;
+
+      final hexPath = Path()
+        ..moveTo(cx, cy - Y_max)
+        ..lineTo(cx + X_max, cy - Y_mid)
+        ..lineTo(cx + X_max, cy + Y_mid)
+        ..lineTo(cx, cy + Y_max)
+        ..lineTo(cx - X_max, cy + Y_mid)
+        ..lineTo(cx - X_max, cy - Y_mid)
+        ..close();
+
+      if (showGlow) {
+        final glowPaint = Paint()
+          ..style = PaintingStyle.fill
+          ..color = const Color(0xFF00E5FF).withValues(alpha: 0.65)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12.0);
+        canvas.drawPath(hexPath, glowPaint);
+      }
+
+      final backingPaint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = cubeColor;
+      canvas.drawPath(hexPath, backingPaint);
+    }
 
     // ── Transform vertices ──
     final tv = <List<double>>[
@@ -2402,17 +2441,6 @@ class CubePainter extends CustomPainter {
         ..lineTo(fd.x2, fd.y2)
         ..lineTo(fd.x3, fd.y3)
         ..close();
-    }
-
-    if (showGlow) {
-      final glowPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..color = const Color(0xFF00E5FF).withValues(alpha: 0.65)
-        ..strokeWidth = h * 0.8
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12.0);
-      canvas.drawPath(path, glowPaint);
     }
 
     final b = fd.brightness;

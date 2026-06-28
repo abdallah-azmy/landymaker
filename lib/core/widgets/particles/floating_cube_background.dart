@@ -925,8 +925,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
 
           e.depth = Z;
 
-          double targetX = 0.5 + X / _screenSize.width;
-          double targetY = 0.5 - Y / _screenSize.height;
+          double targetX = 0.5 + (X * 1.0266) / _screenSize.width;
+          double targetY = 0.5 - (Y * 1.0347) / _screenSize.height;
 
           double dx = targetX - e.x;
           double dy = targetY - e.y;
@@ -1048,8 +1048,8 @@ class _FloatingCubeBackgroundState extends State<FloatingCubeBackground>
           Y = y2;
 
           e.depth = Z;
-          final double targetX = 0.5 + X / _screenSize.width;
-          final double targetY = 0.5 - Y / _screenSize.height;
+          final double targetX = 0.5 + (X * 1.0266) / _screenSize.width;
+          final double targetY = 0.5 - (Y * 1.0347) / _screenSize.height;
 
           final int cubeInBrick = i % _bricksPerGroup;
 
@@ -2236,9 +2236,9 @@ class CubePainter extends CustomPainter {
       final double gap = 24.7;
       final double h = 19.5 * 0.5;
       final double totalR = gap + h;
-      final double Y_max = 1.6329 * totalR;
-      final double X_max = 1.4142 * totalR;
-      final double Y_mid = 0.8165 * totalR;
+      final double Y_max = 1.6329 * totalR * 1.0347;
+      final double X_max = 1.4142 * totalR * 1.0266;
+      final double Y_mid = 0.8165 * totalR * 1.0347;
 
       final double cx = size.width * 0.5;
       final double cy = size.height * 0.5;
@@ -2305,8 +2305,13 @@ class CubePainter extends CustomPainter {
       final rot = cg.computeRotation(entity.rx, entity.ry, entity.rz);
       for (int i = 0; i < 8; i++) {
         cg.rotatePoint(cg.cubeVerts[i], rot, tv[i]);
-        tv[i][0] *= h;
-        tv[i][1] *= h;
+        if (isLogoState) {
+          tv[i][0] *= h * 1.0266;
+          tv[i][1] *= h * 1.0347;
+        } else {
+          tv[i][0] *= h;
+          tv[i][1] *= h;
+        }
         tv[i][2] *= h;
       }
 

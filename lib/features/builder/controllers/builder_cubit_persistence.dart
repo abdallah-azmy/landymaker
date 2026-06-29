@@ -21,6 +21,8 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
   BuilderThemeCubit get _themeCubit;
   List<String> get _history;
   set _historyIndex(int value);
+  bool get _suppressHistoryFromTheme;
+  set _suppressHistoryFromTheme(bool value);
 
   /// Loads the landing page for the currently authenticated user.
   ///
@@ -360,8 +362,11 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     }
 
     if (newTheme != null) {
+      _suppressHistoryFromTheme = true;
       _themeCubit.replaceTheme(newTheme);
+      _suppressHistoryFromTheme = false;
     }
+    DynamicFontService.loadFontsFromDesign(newDesignMap);
     _emitDirty(
       currentState.copyWith(
         designMap: newDesignMap,
@@ -467,6 +472,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
         ? LandingPageTheme.fromJson(designMap['theme'])
         : LandingPageTheme.palettes.last;
     _themeCubit.replaceTheme(loadedTheme);
+    DynamicFontService.loadFontsFromDesign(designMap);
     _emitDirty(
       BuilderLoaded(
         pageId: pageId,
@@ -984,6 +990,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     final newTheme = TemplateRegistry.getTemplateTheme(templateType);
 
     _themeCubit.replaceTheme(newTheme);
+    DynamicFontService.loadFontsFromDesign(newDesign);
     _emitDirty(
       currentState.copyWith(
         designMap: newDesign,
@@ -1011,6 +1018,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     final newTheme = LandingPageTheme.fromJson(themeRaw);
 
     _themeCubit.replaceTheme(newTheme);
+    DynamicFontService.loadFontsFromDesign(newDesign);
     _emitDirty(
       currentState.copyWith(
         designMap: newDesign,

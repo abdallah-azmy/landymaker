@@ -4,6 +4,9 @@ import '../../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
 import '../../../controllers/builder_cubit.dart';
 
+/// Editor for the service_steps block type.
+/// Exposes title, subtitle, layout_style (vertical/horizontal),
+/// and steps with title and description.
 class ServiceStepsEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -42,6 +45,19 @@ class ServiceStepsEditor extends StatelessWidget {
             controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
             focusNode: getFocusNode("${index}_subtitle"),
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
+          ),
+        ),
+        SizedBox(height: 24),
+        FormGroup(
+          label: 'نوع التخطيط',
+          child: DropdownButtonFormField<String>(
+            initialValue: (block['layout_style'] as String?) ?? 'vertical',
+            items: const [
+              DropdownMenuItem(value: 'vertical', child: Text('عمودي (Vertical)')),
+              DropdownMenuItem(value: 'horizontal', child: Text('أفقي (Horizontal)')),
+            ],
+            onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
+            decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
           ),
         ),
         SizedBox(height: 24),

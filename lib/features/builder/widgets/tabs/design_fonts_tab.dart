@@ -8,6 +8,10 @@ import '../../controllers/builder_state.dart';
 import '../../controllers/builder_theme_cubit.dart';
 import '../../models/landing_page_theme.dart';
 
+/// Font family picker tab for the builder sidebar.
+///
+/// Uses `BlocBuilder<BuilderThemeCubit, LandingPageTheme>` per Rule #34.
+/// Pre-loads non-Cairo fonts via `DynamicFontService` for instant preview.
 class DesignFontsTab extends StatelessWidget {
   final LocalizationCubit loc;
   final LandingPageBuilderCubit cubit;

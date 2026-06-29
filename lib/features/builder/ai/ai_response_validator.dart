@@ -24,26 +24,28 @@ class AIResponseValidator {
         return null;
       }
 
-      // Theme Validation
-      if (designJson.containsKey('global_theme')) {
-        final theme = designJson['global_theme'];
-        if (theme is Map) {
-          theme.forEach((key, value) {
-            if (key.contains('color') ||
-                [
-                  'primary',
-                  'secondary',
-                  'background',
-                  'textPrimary',
-                  'textSecondary',
-                ].contains(key)) {
-              if (value is String &&
-                  value.isNotEmpty &&
-                  !value.startsWith('#')) {
-                theme[key] = '#$value';
+      // Theme Validation — fix hex prefixes for both `theme` and `global_theme` keys
+      for (final themeKey in ['theme', 'global_theme']) {
+        if (designJson.containsKey(themeKey)) {
+          final theme = designJson[themeKey];
+          if (theme is Map) {
+            theme.forEach((key, value) {
+              if (key.contains('color') ||
+                  [
+                    'primary',
+                    'secondary',
+                    'background',
+                    'textPrimary',
+                    'textSecondary',
+                  ].contains(key)) {
+                if (value is String &&
+                    value.isNotEmpty &&
+                    !value.startsWith('#')) {
+                  theme[key] = '#$value';
+                }
               }
-            }
-          });
+            });
+          }
         }
       }
 

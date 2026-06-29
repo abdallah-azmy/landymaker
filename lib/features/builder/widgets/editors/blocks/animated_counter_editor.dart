@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:landymaker/core/widgets/molecules/form_group.dart';
 import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 
+/// Editor for the animated_counter block type.
+/// Exposes title, variant (0=Row/1=Grid), card_style, hover_effect,
+/// stagger_animations, and counter items with value, label, prefix, suffix.
 class AnimatedCounterEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -36,17 +40,78 @@ class AnimatedCounterEditor extends StatelessWidget {
           onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
         ),
         SizedBox(height: 16),
+        FormGroup(
+          label: 'نوع العرض',
+          child: SegmentedButton<int>(
+            segments: const [
+              ButtonSegment(value: 0, label: Text('صف')),
+              ButtonSegment(value: 1, label: Text('شبكة')),
+            ],
+            selected: {(block['variant'] as int?) ?? 0},
+            onSelectionChanged: (val) =>
+                cubit.updateBlockProperty(index, 'variant', val.first),
+            style: const ButtonStyle(visualDensity: VisualDensity.compact),
+          ),
+        ),
+        SizedBox(height: 16),
+        FormGroup(
+          label: 'نوع البطاقة',
+          child: SegmentedButton<String>(
+            segments: [
+              ButtonSegment(value: 'classic', label: Text('كلاسيكي')),
+              ButtonSegment(value: 'modern', label: Text('حديث')),
+              ButtonSegment(value: 'minimal', label: Text('بسيط')),
+            ],
+            selected: {block['card_style'] ?? 'classic'},
+            onSelectionChanged: (val) =>
+                cubit.updateBlockProperty(index, 'card_style', val.first),
+            style: const ButtonStyle(visualDensity: VisualDensity.compact),
+          ),
+        ),
+        SizedBox(height: 16),
+        FormGroup(
+          label: 'تأثير التحويم',
+          child: SegmentedButton<String>(
+            segments: [
+              ButtonSegment(value: 'none', label: Text('بدون')),
+              ButtonSegment(value: 'scale', label: Text('تكبير')),
+              ButtonSegment(value: 'elevate', label: Text('رفع')),
+              const ButtonSegment(value: 'glow', label: Text('وهج')),
+            ],
+            selected: {block['hover_effect'] ?? 'scale'},
+            onSelectionChanged: (val) =>
+                cubit.updateBlockProperty(index, 'hover_effect', val.first),
+            style: const ButtonStyle(visualDensity: VisualDensity.compact),
+          ),
+        ),
+        SizedBox(height: 16),
+        SwitchListTile(
+          value: block['stagger_animations'] ?? true,
+          onChanged: (val) =>
+              cubit.updateBlockProperty(index, 'stagger_animations', val),
+          title: Text('تحريك متدرج', style: AppTypography.bodyMedium),
+          contentPadding: EdgeInsets.zero,
+          activeThumbColor: Theme.of(context).colorScheme.primary,
+        ),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               "العدادات (Counters)",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+              style: AppTypography.bodyLarge.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             TextButton.icon(
               onPressed: () {
                 final List items = List.from(block['items'] ?? []);
-                items.add({'value': '100', 'label': 'تسمية جديدة', 'prefix': '', 'suffix': ''});
+                items.add({
+                  'value': '100',
+                  'label': 'تسمية جديدة',
+                  'prefix': '',
+                  'suffix': '',
+                });
                 cubit.updateBlockProperty(index, 'items', items);
               },
               icon: Icon(Icons.add_rounded, size: 16),
@@ -56,12 +121,15 @@ class AnimatedCounterEditor extends StatelessWidget {
         ),
         SizedBox(height: 10),
         ...List.generate(((block['items'] as List?) ?? []).length, (tIndex) {
-          final Map<String, dynamic> item = ((block['items'] as List?) ?? [])[tIndex];
+          final Map<String, dynamic> item =
+              ((block['items'] as List?) ?? [])[tIndex];
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -71,7 +139,11 @@ class AnimatedCounterEditor extends StatelessWidget {
                   children: [
                     Text("عداد #${tIndex + 1}", style: AppTypography.caption),
                     IconButton(
-                      icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 20),
+                      icon: Icon(
+                        Icons.delete_outline_rounded,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 20,
+                      ),
                       onPressed: () {
                         final List items = List.from(block['items'] ?? []);
                         items.removeAt(tIndex);
@@ -82,11 +154,16 @@ class AnimatedCounterEditor extends StatelessWidget {
                 ),
                 CustomTextField(
                   hintText: "القيمة (الرقم)",
-                  controller: getController("${index}_counter_${tIndex}_value", item['value']?.toString() ?? ''),
+                  controller: getController(
+                    "${index}_counter_${tIndex}_value",
+                    item['value']?.toString() ?? '',
+                  ),
                   focusNode: getFocusNode("${index}_counter_${tIndex}_value"),
                   onChanged: (val) {
                     final List items = List.from(block['items'] ?? []);
-                    final updatedItem = Map<String, dynamic>.from(items[tIndex]);
+                    final updatedItem = Map<String, dynamic>.from(
+                      items[tIndex],
+                    );
                     updatedItem['value'] = val;
                     items[tIndex] = updatedItem;
                     cubit.updateBlockProperty(index, 'items', items);
@@ -96,11 +173,16 @@ class AnimatedCounterEditor extends StatelessWidget {
                 SizedBox(height: 12),
                 CustomTextField(
                   hintText: "التسمية (مثال: عميل سعيد)",
-                  controller: getController("${index}_counter_${tIndex}_label", item['label'] ?? ''),
+                  controller: getController(
+                    "${index}_counter_${tIndex}_label",
+                    item['label'] ?? '',
+                  ),
                   focusNode: getFocusNode("${index}_counter_${tIndex}_label"),
                   onChanged: (val) {
                     final List items = List.from(block['items'] ?? []);
-                    final updatedItem = Map<String, dynamic>.from(items[tIndex]);
+                    final updatedItem = Map<String, dynamic>.from(
+                      items[tIndex],
+                    );
                     updatedItem['label'] = val;
                     items[tIndex] = updatedItem;
                     cubit.updateBlockProperty(index, 'items', items);
@@ -112,11 +194,18 @@ class AnimatedCounterEditor extends StatelessWidget {
                     Expanded(
                       child: CustomTextField(
                         hintText: "بادئة (Prefix)",
-                        controller: getController("${index}_counter_${tIndex}_prefix", item['prefix'] ?? ''),
-                        focusNode: getFocusNode("${index}_counter_${tIndex}_prefix"),
+                        controller: getController(
+                          "${index}_counter_${tIndex}_prefix",
+                          item['prefix'] ?? '',
+                        ),
+                        focusNode: getFocusNode(
+                          "${index}_counter_${tIndex}_prefix",
+                        ),
                         onChanged: (val) {
                           final List items = List.from(block['items'] ?? []);
-                          final updatedItem = Map<String, dynamic>.from(items[tIndex]);
+                          final updatedItem = Map<String, dynamic>.from(
+                            items[tIndex],
+                          );
                           updatedItem['prefix'] = val;
                           items[tIndex] = updatedItem;
                           cubit.updateBlockProperty(index, 'items', items);
@@ -127,11 +216,18 @@ class AnimatedCounterEditor extends StatelessWidget {
                     Expanded(
                       child: CustomTextField(
                         hintText: "خاتمة (Suffix)",
-                        controller: getController("${index}_counter_${tIndex}_suffix", item['suffix'] ?? ''),
-                        focusNode: getFocusNode("${index}_counter_${tIndex}_suffix"),
+                        controller: getController(
+                          "${index}_counter_${tIndex}_suffix",
+                          item['suffix'] ?? '',
+                        ),
+                        focusNode: getFocusNode(
+                          "${index}_counter_${tIndex}_suffix",
+                        ),
                         onChanged: (val) {
                           final List items = List.from(block['items'] ?? []);
-                          final updatedItem = Map<String, dynamic>.from(items[tIndex]);
+                          final updatedItem = Map<String, dynamic>.from(
+                            items[tIndex],
+                          );
                           updatedItem['suffix'] = val;
                           items[tIndex] = updatedItem;
                           cubit.updateBlockProperty(index, 'items', items);

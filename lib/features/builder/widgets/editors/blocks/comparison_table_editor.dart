@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../../../core/theme/app_typography.dart';
 import '../../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
+import '../../../../../../core/localization/app_localizations.dart';
 import '../../../controllers/builder_cubit.dart';
 
+/// Editor for the comparison_table block type.
+/// Exposes title, subtitle, layout_style, plans with is_popular toggle,
+/// and features with per-plan boolean values.
 class ComparisonTableEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -38,6 +42,19 @@ class ComparisonTableEditor extends StatelessWidget {
         ),
         SizedBox(height: 16),
         FormGroup(
+          label: 'نوع التخطيط',
+          child: DropdownButtonFormField<String>(
+            initialValue: (block['layout_style'] as String?) ?? 'table',
+            items: const [
+              DropdownMenuItem(value: 'table', child: Text('جدول')),
+              DropdownMenuItem(value: 'cards', child: Text('بطاقات')),
+            ],
+            onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
+            decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
+          ),
+        ),
+        SizedBox(height: 16),
+        FormGroup(
           label: 'العنوان الفرعي',
           child: CustomTextField(
             controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
@@ -54,32 +71,45 @@ class ComparisonTableEditor extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: CustomTextField(
-                    hintText: "اسم الخطة",
-                    controller: getController("${index}_plan_${i}_name", plan['name'] ?? ''),
-                    focusNode: getFocusNode("${index}_plan_${i}_name"),
-                    onChanged: (val) {
-                      plans[i]['name'] = val;
-                      cubit.updateBlockProperty(index, 'plans', plans);
-                    },
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomTextField(
+                        hintText: "اسم الخطة",
+                        controller: getController("${index}_plan_${i}_name", plan['name'] ?? ''),
+                        focusNode: getFocusNode("${index}_plan_${i}_name"),
+                        onChanged: (val) {
+                          plans[i]['name'] = val;
+                          cubit.updateBlockProperty(index, 'plans', plans);
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
+                      onPressed: () {
+                        plans.removeAt(i);
+                        for (var f in features) {
+                          final List vals = List.from(f['values'] ?? []);
+                          if (i < vals.length) vals.removeAt(i);
+                          f['values'] = vals;
+                        }
+                        cubit.updateBlockProperty(index, 'plans', plans);
+                        cubit.updateBlockProperty(index, 'features', features);
+                      },
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
-                  onPressed: () {
-                    plans.removeAt(i);
-                    // Also need to remove values from features
-                    for (var f in features) {
-                      final List vals = List.from(f['values'] ?? []);
-                      if (i < vals.length) vals.removeAt(i);
-                      f['values'] = vals;
-                    }
+                SwitchListTile(
+                  title: Text("خطة مميزة؟", style: AppTypography.caption),
+                  value: plan['is_popular'] ?? false,
+                  onChanged: (val) {
+                    plans[i]['is_popular'] = val;
                     cubit.updateBlockProperty(index, 'plans', plans);
-                    cubit.updateBlockProperty(index, 'features', features);
                   },
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
                 ),
               ],
             ),
@@ -87,7 +117,7 @@ class ComparisonTableEditor extends StatelessWidget {
         }),
         OutlinedButton(
           onPressed: () {
-            plans.add({'name': 'خطة جديدة'});
+            plans.add({'name': 'خطة جديدة', 'is_popular': false});
             for (var f in features) {
               final List vals = List.from(f['values'] ?? []);
               vals.add(false);

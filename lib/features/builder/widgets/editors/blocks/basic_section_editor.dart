@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:landymaker/core/widgets/molecules/form_group.dart';
 import 'package:landymaker/core/widgets/molecules/status_pill.dart';
 
 import '../../../../../core/theme/app_typography.dart';
@@ -7,6 +8,9 @@ import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
 import '../../molecules/custom_image_field.dart';
 
+/// Editor for the basic_section block type.
+/// Exposes layout_direction, spacing, main_axis_alignment,
+/// cross_axis_alignment, and a flexible elements list (text/image).
 class BasicSectionEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -34,6 +38,72 @@ class BasicSectionEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FormGroup(
+          label: 'اتجاه التخطيط',
+          child: DropdownButtonFormField<String>(
+            initialValue: (block['layout_direction'] as String?) ?? 'column',
+            items: const [
+              DropdownMenuItem(value: 'column', child: Text('عمودي')),
+              DropdownMenuItem(value: 'row', child: Text('أفقي')),
+            ],
+            onChanged: (val) =>
+                cubit.updateBlockProperty(index, 'layout_direction', val),
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+          ),
+        ),
+        SizedBox(height: 16),
+        FormGroup(
+          label:
+              'المسافة بين العناصر: ${((block['spacing'] ?? 20.0) as num).toInt()}',
+          child: Slider(
+            value: ((block['spacing'] ?? 20.0) as num).toDouble(),
+            min: 0,
+            max: 100,
+            divisions: 20,
+            activeColor: Theme.of(context).colorScheme.primary,
+            onChanged: (val) =>
+                cubit.updateBlockProperty(index, 'spacing', val),
+          ),
+        ),
+        SizedBox(height: 16),
+        FormGroup(
+          label: 'محاذاة رئيسية',
+          child: DropdownButtonFormField<String>(
+            initialValue: (block['main_axis_alignment'] as String?) ?? 'center',
+            items: const [
+              DropdownMenuItem(value: 'start', child: Text('بداية')),
+              DropdownMenuItem(value: 'center', child: Text('وسط')),
+              DropdownMenuItem(value: 'end', child: Text('نهاية')),
+              DropdownMenuItem(value: 'spaceBetween', child: Text('مسافة بين')),
+            ],
+            onChanged: (val) =>
+                cubit.updateBlockProperty(index, 'main_axis_alignment', val),
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+          ),
+        ),
+        SizedBox(height: 16),
+        FormGroup(
+          label: 'محاذاة عرضية',
+          child: DropdownButtonFormField<String>(
+            initialValue:
+                (block['cross_axis_alignment'] as String?) ?? 'center',
+            items: const [
+              DropdownMenuItem(value: 'start', child: Text('بداية')),
+              DropdownMenuItem(value: 'center', child: Text('وسط')),
+              DropdownMenuItem(value: 'end', child: Text('نهاية')),
+              DropdownMenuItem(value: 'stretch', child: Text('تمدد')),
+            ],
+            onChanged: (val) =>
+                cubit.updateBlockProperty(index, 'cross_axis_alignment', val),
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+          ),
+        ),
         SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -90,7 +160,9 @@ class BasicSectionEditor extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,8 +211,14 @@ class BasicSectionEditor extends StatelessWidget {
                   CustomImageField(
                     label: "الصورة",
                     imageUrl: elem['url'],
-                    onAction: () => pickImage(cubit, index, itemIndex: i, itemKey: 'url'),
-                    onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: i, itemKey: 'url'),
+                    onAction: () =>
+                        pickImage(cubit, index, itemIndex: i, itemKey: 'url'),
+                    onSaveTemplateAsset: () => persistAsset(
+                      cubit,
+                      index,
+                      itemIndex: i,
+                      itemKey: 'url',
+                    ),
                   ),
                   SizedBox(height: 12),
                   Row(

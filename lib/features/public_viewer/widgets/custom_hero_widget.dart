@@ -261,7 +261,7 @@ class _HeroGlassLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsetsDirectional.all(32),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(30),
@@ -303,7 +303,9 @@ class _HeroMinimalLayout extends StatelessWidget {
   }
 }
 
-/// Shared Text Content widget.
+/// Renders the hero's title, subtitle, premium tag, and button.
+///
+/// Applies `theme?.defaultFont` from the landing page theme to all text.
 class _HeroTextContent extends StatelessWidget {
   final _HeroProps props;
   final CrossAxisAlignment alignment;
@@ -319,21 +321,27 @@ class _HeroTextContent extends StatelessWidget {
         SizedBox(height: 16),
         Text(
           props.title,
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
           style: AppTypography.h1.copyWith(
             height: 1.1,
             fontSize: props.isMobile ? 32 : 48,
             fontWeight: FontWeight.w900,
             color: props.textColor,
+            fontFamily: props.theme?.defaultFont,
           ),
           textAlign: alignment == CrossAxisAlignment.center ? TextAlign.center : TextAlign.start,
         ),
         SizedBox(height: 12),
         Text(
           props.subtitle,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
           style: AppTypography.bodyLarge.copyWith(
             color: props.subTextColor,
             fontSize: props.isMobile ? 14 : 18,
             height: 1.5,
+            fontFamily: props.theme?.defaultFont,
           ),
           textAlign: alignment == CrossAxisAlignment.center ? TextAlign.center : TextAlign.start,
         ),
@@ -365,6 +373,7 @@ class _HeroPremiumTag extends StatelessWidget {
           fontWeight: FontWeight.bold,
           fontSize: props.isMobile ? 10 : 12,
           letterSpacing: props.isRtl ? 0 : 1.2,
+          fontFamily: props.theme?.defaultFont,
         ),
       ),
     );
@@ -404,7 +413,7 @@ class _HeroButton extends StatelessWidget {
           Flexible(
             child: Text(
               props.buttonText,
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16),
+              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16, fontFamily: props.theme?.defaultFont),
               overflow: TextOverflow.ellipsis,
             ),
           ),

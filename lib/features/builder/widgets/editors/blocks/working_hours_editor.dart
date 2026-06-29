@@ -5,6 +5,8 @@ import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
 
+/// Editor for the working_hours block type.
+/// Exposes title, variant (0=List/1=Table), and schedule key-value pairs.
 class WorkingHoursEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -36,6 +38,19 @@ class WorkingHoursEditor extends StatelessWidget {
             controller: getController("${index}_working_hours_title", block['title'] ?? 'مواعيد العمل'),
             focusNode: getFocusNode("${index}_working_hours_title"),
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+          ),
+        ),
+        SizedBox(height: 16),
+        FormGroup(
+          label: 'نوع العرض',
+          child: SegmentedButton<int>(
+            segments: const [
+              ButtonSegment(value: 0, label: Text('قائمة')),
+              ButtonSegment(value: 1, label: Text('جدول')),
+            ],
+            selected: {(block['variant'] as int?) ?? 0},
+            onSelectionChanged: (val) => cubit.updateBlockProperty(index, 'variant', val.first),
+            style: const ButtonStyle(visualDensity: VisualDensity.compact),
           ),
         ),
         SizedBox(height: 16),

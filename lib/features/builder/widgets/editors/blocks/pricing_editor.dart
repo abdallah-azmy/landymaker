@@ -6,6 +6,8 @@ import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../core/utils/localized_text_parser.dart';
 import '../common/dynamic_list_editor.dart';
 
+/// Editor for the pricing block type.
+/// Exposes title, subtitle, layout_style, has_toggle, and pricing plan items.
 class PricingEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -34,6 +36,13 @@ class PricingEditor extends StatelessWidget {
           controller: getController("${index}_title", LocalizedTextParser.extractText(block['title'], 'ar')),
           focusNode: getFocusNode("${index}_title"),
           onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
+        ),
+        SizedBox(height: 16),
+        CustomTextField(
+          hintText: "العنوان الفرعي",
+          controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
+          focusNode: getFocusNode("${index}_subtitle"),
+          onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
         ),
         SizedBox(height: 16),
         DropdownButtonFormField<String>(

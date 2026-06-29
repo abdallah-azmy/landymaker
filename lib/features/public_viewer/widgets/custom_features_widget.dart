@@ -205,29 +205,34 @@ class _BentoFeaturesLayout extends StatelessWidget {
           _FeaturesHeader(props: props),
           const SizedBox(height: 64),
         ],
-        SizedBox(
-          height: 600,
-          child: Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: _FeatureCard(item: props.items[0], props: props, isLarge: true),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final double bentoHeight = constraints.maxWidth.clamp(400, 600);
+            return SizedBox(
+              height: bentoHeight,
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: _FeatureCard(item: props.items[0], props: props, isLarge: true),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      children: [
+                        if (props.items.length > 1) Expanded(child: _FeatureCard(item: props.items[1], props: props)),
+                        if (props.items.length > 2) ...[
+                          const SizedBox(height: 20),
+                          Expanded(child: _FeatureCard(item: props.items[2], props: props)),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 20),
-              Expanded(
-                flex: 2,
-                child: Column(
-                  children: [
-                    if (props.items.length > 1) Expanded(child: _FeatureCard(item: props.items[1], props: props)),
-                    if (props.items.length > 2) ...[
-                      const SizedBox(height: 20),
-                      Expanded(child: _FeatureCard(item: props.items[2], props: props)),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ],
     );

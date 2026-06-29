@@ -6,6 +6,71 @@ class DynamicFontService {
   static final Set<String> _loadedFonts = {};
   static final Set<String> _failedFonts = {};
 
+  /// Checks if the design JSON contains any custom fonts that need network loading.
+  static bool hasCustomFonts(Map<String, dynamic> designJson) {
+    final themeJson = designJson['theme'] as Map<String, dynamic>? ?? {};
+    final defaultFont = themeJson['defaultFont'] ?? themeJson['font_family'];
+    if (defaultFont != null && defaultFont is String && defaultFont.isNotEmpty) {
+      final f = defaultFont.toLowerCase();
+      if (f != 'cairo' && f != 'sans-serif') return true;
+    }
+
+    final blocks = designJson['blocks'];
+    if (blocks is List) {
+      for (final block in blocks) {
+        if (block is Map) {
+          if (_hasCustomFontsInBlock(Map<String, dynamic>.from(block))) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  static bool _hasCustomFontsInBlock(Map<String, dynamic> block) {
+    String? fontFamily;
+    final overrides = block['styleOverrides'] ?? block['style_overrides'];
+    if (overrides is Map) {
+      if (overrides.containsKey('fontFamily')) {
+        fontFamily = overrides['fontFamily']?.toString();
+      } else if (overrides.containsKey('font_family')) {
+        fontFamily = overrides['font_family']?.toString();
+      }
+    }
+    if (fontFamily == null) {
+      if (block.containsKey('fontFamily')) {
+        fontFamily = block['fontFamily']?.toString();
+      } else if (block.containsKey('font_family')) {
+        fontFamily = block['font_family']?.toString();
+      }
+    }
+    if (fontFamily != null && fontFamily.isNotEmpty) {
+      final f = fontFamily.toLowerCase();
+      if (f != 'cairo' && f != 'sans-serif') return true;
+    }
+
+    bool found = false;
+    block.forEach((key, value) {
+      if (found) return;
+      if (value is Map) {
+        if (_hasCustomFontsInBlock(Map<String, dynamic>.from(value))) {
+          found = true;
+        }
+      } else if (value is List) {
+        for (final item in value) {
+          if (found) break;
+          if (item is Map) {
+            if (_hasCustomFontsInBlock(Map<String, dynamic>.from(item))) {
+              found = true;
+            }
+          }
+        }
+      }
+    });
+    return found;
+  }
+
   /// Scans the landing page design JSON recursively to find all custom font families
   /// and their associated weights, then triggers loading for them.
   static Future<void> loadFontsFromDesign(Map<String, dynamic> designJson) async {

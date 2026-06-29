@@ -6,6 +6,9 @@ import '../../../controllers/builder_cubit.dart';
 import '../../molecules/custom_image_field.dart';
 import '../editor_types.dart';
 
+/// Editor for the team_members block type.
+/// Exposes title, subtitle, variant (0=Grid/1=Carousel),
+/// and team member items with name, role, bio, image_url, socials.
 class TeamMembersEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -48,6 +51,19 @@ class TeamMembersEditor extends StatelessWidget {
             controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
             focusNode: getFocusNode("${index}_subtitle"),
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
+          ),
+        ),
+        SizedBox(height: 24),
+        FormGroup(
+          label: 'نوع العرض',
+          child: SegmentedButton<int>(
+            segments: const [
+              ButtonSegment(value: 0, label: Text('شبكة')),
+              ButtonSegment(value: 1, label: Text('شريط متحرك')),
+            ],
+            selected: {(block['variant'] as int?) ?? 0},
+            onSelectionChanged: (val) => cubit.updateBlockProperty(index, 'variant', val.first),
+            style: const ButtonStyle(visualDensity: VisualDensity.compact),
           ),
         ),
         SizedBox(height: 24),

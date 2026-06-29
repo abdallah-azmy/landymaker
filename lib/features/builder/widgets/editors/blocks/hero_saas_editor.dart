@@ -7,9 +7,10 @@ import '../editor_types.dart';
 import '../../../../../core/localization/app_localizations.dart';
 import 'editor_utils.dart';
 
-/// Editor for hero and hero_saas block types.
-/// Handles subtitle, image_url, button_text, button_url, layout_style, badge_text.
-class HeroEditor extends StatelessWidget {
+/// Editor for the hero_saas block type.
+/// Handles subtitle, image_url, button_text, button_url, badge_text,
+/// tech_logos, and layout_style (dashboardSplit / launchCenter / darkSaas).
+class HeroSaasEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
   final int index;
@@ -19,7 +20,7 @@ class HeroEditor extends StatelessWidget {
   final PickAndUploadImage pickAndUploadImage;
   final PersistAsset persistAsset;
 
-  const HeroEditor({
+  const HeroSaasEditor({
     required this.cubit,
     required this.block,
     required this.index,
@@ -33,6 +34,8 @@ class HeroEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> techLogos = (block['tech_logos'] as List?)?.cast<String>() ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -87,8 +90,44 @@ class HeroEditor extends StatelessWidget {
           block,
           context.translate('layout_style'),
           'layout_style',
-          ['standard', 'split', 'centered', 'glass', 'fullWidthBg', 'minimal'],
+          ['dashboardSplit', 'launchCenter', 'darkSaas'],
           (val) => cubit.updateBlockProperty(index, 'layout_style', val),
+        ),
+        SizedBox(height: 16),
+        FormGroup(
+          label: context.translate('tech_logos'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...List.generate(techLogos.length, (i) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(techLogos[i], style: const TextStyle(fontSize: 12)),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 18),
+                        onPressed: () {
+                          final updated = List<String>.from(techLogos)..removeAt(i);
+                          cubit.updateBlockProperty(index, 'tech_logos', updated);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              TextButton.icon(
+                onPressed: () {
+                  final updated = List<String>.from(techLogos)..add('https://');
+                  cubit.updateBlockProperty(index, 'tech_logos', updated);
+                },
+                icon: const Icon(Icons.add, size: 16),
+                label: Text(context.translate('add_logo')),
+              ),
+            ],
+          ),
         ),
       ],
     );

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../features/builder/models/landing_page_theme.dart';
 import 'custom_network_image.dart';
 
+/// Section background container with image overlay, blur, and theme support.
+/// Renders layers: bg image → color overlay → blur → content.
+/// Reads both `bg_overlay_opacity ?? overlay_opacity` and `bg_color ?? background_color` for backward compat.
 class SectionBackground extends StatelessWidget {
   final String? bgImageUrl;
   final String? bgOverlayColor;
@@ -54,7 +57,7 @@ class SectionBackground extends StatelessWidget {
     // Default padding logic
     EdgeInsetsGeometry finalPadding = padding ?? const EdgeInsets.symmetric(vertical: 60, horizontal: 24);
     if (verticalPaddingOverride != null) {
-      finalPadding = EdgeInsets.symmetric(vertical: verticalPaddingOverride!, horizontal: 24);
+      finalPadding = EdgeInsetsDirectional.symmetric(vertical: verticalPaddingOverride!, horizontal: 24);
     }
 
     // Parse overlay color from hex string

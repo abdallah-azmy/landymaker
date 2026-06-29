@@ -7,6 +7,11 @@ import '../../controllers/builder_state.dart';
 import '../../controllers/builder_theme_cubit.dart';
 import '../../models/landing_page_theme.dart';
 
+/// Color palette and custom color picker tab for the builder sidebar.
+///
+/// Contains a segmented control to switch between palette list and custom
+/// color pickers. Palette list uses `BlocBuilder<BuilderThemeCubit>` for
+/// instant reactivity on theme changes.
 class DesignColorsTab extends StatefulWidget {
   final LocalizationCubit loc;
   final LandingPageBuilderCubit cubit;
@@ -118,14 +123,13 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
   }
 
   Widget _buildPalettesList() {
-    return BlocBuilder<LandingPageBuilderCubit, BuilderState>(
-      builder: (context, state) {
-        if (state is! BuilderLoaded) return const SizedBox.shrink();
+    return BlocBuilder<BuilderThemeCubit, LandingPageTheme>(
+      builder: (context, theme) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ...LandingPageTheme.palettes.map((palette) {
-              final isSelected = state.theme.name == palette.name;
+              final isSelected = theme.name == palette.name;
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
@@ -150,7 +154,7 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
                 child: ListTile(
                   onTap: () {
                     final newTheme = palette.copyWith(
-                      defaultFont: state.theme.defaultFont,
+                      defaultFont: theme.defaultFont,
                     );
                     context.read<BuilderThemeCubit>().updateTheme(newTheme);
                   },
@@ -220,9 +224,8 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
   }
 
   Widget _buildCustomColorsList() {
-    return BlocBuilder<LandingPageBuilderCubit, BuilderState>(
-      builder: (context, state) {
-        if (state is! BuilderLoaded) return const SizedBox.shrink();
+    return BlocBuilder<BuilderThemeCubit, LandingPageTheme>(
+      builder: (context, theme) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -231,28 +234,28 @@ class _DesignColorsTabState extends State<DesignColorsTab> {
               context.read<BuilderThemeCubit>(),
               "اللون الأساسي",
               "primary",
-              state.theme.primary,
+              theme.primary,
             ),
             _buildColorPickerItem(
               context,
               context.read<BuilderThemeCubit>(),
               "اللون الثانوي",
               "secondary",
-              state.theme.secondary,
+              theme.secondary,
             ),
             _buildColorPickerItem(
               context,
               context.read<BuilderThemeCubit>(),
               "لون الخلفية",
               "background",
-              state.theme.background,
+              theme.background,
             ),
             _buildColorPickerItem(
               context,
               context.read<BuilderThemeCubit>(),
               "لون النص الرئيسي",
               "textPrimary",
-              state.theme.textPrimary,
+              theme.textPrimary,
             ),
           ],
         );
@@ -313,11 +316,11 @@ void _showColorPicker(
   final List<Color> colors = [
     Theme.of(context).colorScheme.primary,
     Theme.of(context).colorScheme.secondary,
-    Theme.of(context).colorScheme.primary,
+    const Color(0xFF0EA5E9), // Sky blue
     Colors.green,
     Theme.of(context).colorScheme.error,
     Colors.blue,
-    Colors.green,
+    Colors.indigo,
     Colors.red,
     Colors.purple,
     Colors.orange,

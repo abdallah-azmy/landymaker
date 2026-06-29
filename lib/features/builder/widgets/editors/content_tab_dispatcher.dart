@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../controllers/builder_cubit.dart';
 import 'editor_types.dart';
 import 'blocks/hero_editor.dart';
+import 'blocks/hero_saas_editor.dart';
 import 'blocks/features_editor.dart';
 import 'blocks/logo_header_editor.dart';
 import 'blocks/lead_form_editor.dart';
@@ -27,7 +28,10 @@ import 'blocks/cta_banner_editor.dart';
 import 'blocks/comparison_table_editor.dart';
 import 'blocks/featured_product_editor.dart';
 import 'blocks/bento_store_editor.dart';
+import 'blocks/whatsapp_editor.dart';
 
+/// Dispatches to the correct block editor widget based on block type.
+/// Returns null for unregistered types (falls back to no editor).
 Widget? buildContentEditor({
   required String type,
   required LandingPageBuilderCubit cubit,
@@ -41,8 +45,14 @@ Widget? buildContentEditor({
 }) {
   switch (type) {
     case 'hero':
-    case 'hero_saas':
       return HeroEditor(
+        cubit: cubit, block: block, index: index,
+        getController: getController, getFocusNode: getFocusNode,
+        pickImage: pickImage, pickAndUploadImage: pickAndUploadImage,
+        persistAsset: persistAsset,
+      );
+    case 'hero_saas':
+      return HeroSaasEditor(
         cubit: cubit, block: block, index: index,
         getController: getController, getFocusNode: getFocusNode,
         pickImage: pickImage, pickAndUploadImage: pickAndUploadImage,
@@ -194,6 +204,13 @@ Widget? buildContentEditor({
       );
     case 'features':
       return FeaturesEditor(
+        cubit: cubit, block: block, index: index,
+        getController: getController, getFocusNode: getFocusNode,
+        pickImage: pickImage, pickAndUploadImage: pickAndUploadImage,
+        persistAsset: persistAsset,
+      );
+    case 'whatsapp':
+      return WhatsappEditor(
         cubit: cubit, block: block, index: index,
         getController: getController, getFocusNode: getFocusNode,
       );

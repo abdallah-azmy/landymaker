@@ -148,7 +148,15 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                     PixelEventService.trackPageView();
 
                     // Font Preloading for the specific font chosen by the user
-                    _preloadFontsForPage(designJson);
+                    final hasCustom = DynamicFontService.hasCustomFonts(designJson);
+                    if (!hasCustom) {
+                      if (mounted) {
+                        setState(() => _isLoadingFonts = false);
+                      }
+                      _removeHtmlLoader();
+                    } else {
+                      _preloadFontsForPage(designJson);
+                    }
 
                     // Wait one frame for widgets to mount before attempting scroll
                     WidgetsBinding.instance.addPostFrameCallback(

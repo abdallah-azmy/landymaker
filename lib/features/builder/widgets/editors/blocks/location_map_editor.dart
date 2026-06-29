@@ -4,6 +4,8 @@ import '../editor_types.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
 
+/// Editor for the location_map block type.
+/// Exposes title, address, map_iframe_url, lat, lng, and zoom.
 class LocationMapEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -54,7 +56,6 @@ class LocationMapEditor extends StatelessWidget {
             controller: getController("${index}_map_iframe_url", block['map_iframe_url'] ?? ''),
             focusNode: getFocusNode("${index}_map_iframe_url"),
             onChanged: (val) {
-              // Basic check to see if user pasted full iframe instead of src url
               String cleanUrl = val;
               if (val.contains('src="')) {
                 final match = RegExp(r'src="([^"]+)"').firstMatch(val);
@@ -64,6 +65,52 @@ class LocationMapEditor extends StatelessWidget {
               }
               cubit.updateBlockProperty(index, 'map_iframe_url', cleanUrl);
             },
+          ),
+        ),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: FormGroup(
+                label: "خط العرض (Latitude)",
+                child: CustomTextField(
+                  controller: getController("${index}_lat", (block['lat'] ?? '').toString()),
+                  focusNode: getFocusNode("${index}_lat"),
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) {
+                    final parsed = double.tryParse(val);
+                    if (parsed != null) cubit.updateBlockProperty(index, 'lat', parsed);
+                  },
+                ),
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: FormGroup(
+                label: "خط الطول (Longitude)",
+                child: CustomTextField(
+                  controller: getController("${index}_lng", (block['lng'] ?? '').toString()),
+                  focusNode: getFocusNode("${index}_lng"),
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) {
+                    final parsed = double.tryParse(val);
+                    if (parsed != null) cubit.updateBlockProperty(index, 'lng', parsed);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        FormGroup(
+          label: "مستوى التكبير (Zoom): ${((block['zoom'] ?? 15) as num).toInt()}",
+          child: Slider(
+            value: ((block['zoom'] ?? 15) as num).toDouble(),
+            min: 1,
+            max: 20,
+            divisions: 19,
+            activeColor: Theme.of(context).colorScheme.primary,
+            onChanged: (val) => cubit.updateBlockProperty(index, 'zoom', val.round()),
           ),
         ),
       ],

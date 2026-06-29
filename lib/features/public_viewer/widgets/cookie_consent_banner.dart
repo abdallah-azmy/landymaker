@@ -6,6 +6,7 @@ import '../../builder/models/landing_page_theme.dart';
 import '../../../core/services/pixel_bootstrap_service.dart';
 import '../../../core/services/pixel_event_service.dart';
 
+/// Cookie consent banner with accept/reject controls and pixel initialization.
 class CookieConsentBanner extends StatefulWidget {
   final Map<String, dynamic> designJson;
   final LandingPageTheme? theme;
@@ -70,10 +71,10 @@ class _CookieConsentBannerState extends State<CookieConsentBanner> {
     final subTextColor = widget.theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
     final bgColor = widget.theme?.background ?? Theme.of(context).colorScheme.surfaceContainerHigh;
 
-    return Positioned(
+    return PositionedDirectional(
       bottom: 24,
-      left: 24,
-      right: 24,
+      start: 24,
+      end: 24,
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 600),

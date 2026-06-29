@@ -9,6 +9,11 @@ import '../../../../core/widgets/molecules/form_group.dart';
 import '../../controllers/builder_cubit.dart';
 import 'blocks/editor_utils.dart';
 
+/// Block design properties editor — background, blur, overlay, animation, layout.
+///
+/// Composes the universal properties from [BLOCK_SCHEMA_REGISTRY.md] into a
+/// scrollable column of controls. Supports per-section theme overrides, font
+/// overrides, card layout mode, background image/blur/overlay, and animation.
 class BlockDesignSettings extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -219,12 +224,38 @@ class BlockDesignSettings extends StatelessWidget {
           block: block,
         ),
         SizedBox(height: 16),
+        if (const {
+          'features', 'pricing', 'testimonials', 'products', 'faq',
+          'team_members', 'animated_counter', 'statistics_grid',
+          'contact_info', 'trust_logos',
+        }.contains(type))
+          buildDropdown(
+            context, block,
+            'طريقة توزيع البطاقات',
+            'card_layout_mode',
+            ['auto', 'equal'],
+            (val) => cubit.updateBlockProperty(index, 'card_layout_mode', val),
+          ),
+        SizedBox(height: 16),
         CustomImageField(
           label: loc.translate('bg_image_url'),
           imageUrl: block['bg_image_url'],
           isUploading: (block['bg_image_url'] ?? '').toString().startsWith('upload://'),
           onAction: () => onPickMedia(cubit, index, isBackground: true),
           onSaveTemplateAsset: () => onPersistAsset(cubit, index, isBackground: true),
+        ),
+        SizedBox(height: 16),
+        buildColorPickerItem(
+          context,
+          "لون طبقة التعتيم",
+          LandingPageTheme.parseColor(block['bg_overlay_color'], null) ?? Colors.transparent,
+          () => showBlockColorPicker(
+            context,
+            cubit,
+            index,
+            'bg_overlay_color',
+            LandingPageTheme.parseColor(block['bg_overlay_color'], null) ?? Colors.transparent,
+          ),
         ),
         SizedBox(height: 16),
         FormGroup(
@@ -244,6 +275,11 @@ class BlockDesignSettings extends StatelessWidget {
               ),
             ],
           ),
+        ),
+        SizedBox(height: 16),
+        buildSlider(context, 'تمويه الخلفية', 'bg_blur', 0.0, 20.0,
+          (val) => cubit.updateBlockProperty(index, 'bg_blur', val),
+          block: block,
         ),
         SizedBox(height: 16),
         SwitchListTile(

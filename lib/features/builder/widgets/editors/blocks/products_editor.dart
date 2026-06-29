@@ -11,6 +11,10 @@ import '../../../../../core/utils/toast_service.dart';
 import '../../molecules/custom_image_field.dart';
 import '../../../../../../core/localization/app_localizations.dart';
 
+/// Editor for the products block type.
+/// Exposes layout_style, whatsapp_number, mobile_columns, card_style,
+/// hover_effect, stagger_animations, show_category_filter, categories,
+/// and the product items list editor.
 class ProductsEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -38,6 +42,21 @@ class ProductsEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FormGroup(
+          label: context.translate('layout_style'),
+          child: DropdownButtonFormField<String>(
+            initialValue: (block['layout_style'] as String?) ?? 'grid_2',
+            items: const [
+              DropdownMenuItem(value: 'grid_2', child: Text('2 أعمدة')),
+              DropdownMenuItem(value: 'grid_3', child: Text('3 أعمدة')),
+              DropdownMenuItem(value: 'list', child: Text('قائمة')),
+              DropdownMenuItem(value: 'carousel', child: Text('شريط متحرك')),
+            ],
+            onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
+            decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
+          ),
+        ),
+        SizedBox(height: 16),
         FormGroup(
           label: context.translate('title'),
           child: CustomTextField(

@@ -3,6 +3,10 @@ part of 'builder_cubit.dart';
 /// Encodes a design map to JSON in a background isolate.
 String _serializeDesignMap(Map<String, dynamic> map) => jsonEncode(map);
 
+/// Decodes a JSON string into a design map in a background isolate.
+Map<String, dynamic> _decodeDesignJson(String json) =>
+    Map<String, dynamic>.from(jsonDecode(json));
+
 /// Mixin containing page persistence operations for [LandingPageBuilderCubit].
 mixin BuilderCubitPersistence on Cubit<BuilderState> {
   // Abstract declarations satisfied by LandingPageBuilderCubit.
@@ -123,7 +127,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     emit(BuilderLoading());
     try {
       final page = await _databaseService.getLandingPageByUserId(userId);
-      _handleLoadedPage(page);
+      await _handleLoadedPage(page);
     } catch (e) {
       emit(BuilderFailure(e.toString()));
     }
@@ -147,7 +151,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
           publishedOnly: false,
         );
       }
-      _handleLoadedPage(page);
+      await _handleLoadedPage(page);
     } catch (e) {
       emit(BuilderFailure(e.toString()));
     }
@@ -426,7 +430,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
   ///
   /// Handles null → `BuilderEmptyWorkspace`, permission check, deserialisation of
   /// `design_json` (string or map), and theme restoration.
-  void _handleLoadedPage(Map<String, dynamic>? page) {
+  Future<void> _handleLoadedPage(Map<String, dynamic>? page) async {
     _history.clear();
     _historyIndex = -1;
 
@@ -447,18 +451,18 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     String subdomain = page['subdomain'] ?? '';
     String? customDomain = page['custom_domain'];
     bool isPublished = page['is_published'] ?? false;
+
     String? pageId = page['id'] as String?;
     final String websiteType = page['website_type'] ?? 'landing_page';
 
     final dynamic rawDesign = page['design_json'];
     if (rawDesign != null) {
       if (rawDesign is String) {
-        designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
+        designMap = await Isolate.run(() => _decodeDesignJson(rawDesign));
       } else {
         designMap = Map<String, dynamic>.from(rawDesign);
       }
     }
-
     final loadedTheme = designMap['theme'] != null
         ? LandingPageTheme.fromJson(designMap['theme'])
         : LandingPageTheme.palettes.last;

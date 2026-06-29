@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import '../../../core/utils/json_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -279,15 +279,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
       final List<Map<String, dynamic>> parsedPages = [];
       for (final p in dbPages) {
         try {
-          Map<String, dynamic> designMap = {'blocks': []};
-          final rawDesign = p['design_json'];
-          if (rawDesign != null) {
-            if (rawDesign is String) {
-              designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
-            } else {
-              designMap = Map<String, dynamic>.from(rawDesign as Map);
-            }
-          }
+          final designMap = await parseJsonDesign(p['design_json']);
           final name =
               p['name'] as String? ?? p['subdomain'] as String? ?? 'بدون اسم';
           final theme = designMap['theme'] != null

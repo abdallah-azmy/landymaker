@@ -162,12 +162,14 @@ class LandingPageBuilderCubit extends Cubit<BuilderState>
   ///
   /// Restores both `designMap` and `theme` from the serialised snapshot. Suppresses
   /// theme-cubit re-entry via `_suppressHistoryFromTheme`.
-  void undo() {
+  Future<void> undo() async {
     final currentState = state;
     if (currentState is! BuilderLoaded || _historyIndex <= 0) return;
 
     _historyIndex--;
-    final snapshot = jsonDecode(_history[_historyIndex]);
+    final snapshot = await Isolate.run(
+      () => Map<String, dynamic>.from(jsonDecode(_history[_historyIndex])),
+    );
     final restoredTheme = LandingPageTheme.fromJson(snapshot['theme']);
     _suppressHistoryFromTheme = true;
     _themeCubit.replaceTheme(restoredTheme);
@@ -185,13 +187,15 @@ class LandingPageBuilderCubit extends Cubit<BuilderState>
   /// Steps forward one entry in the redo history.
   ///
   /// Same restoration logic as `undo()`.
-  void redo() {
+  Future<void> redo() async {
     final currentState = state;
     if (currentState is! BuilderLoaded || _historyIndex >= _history.length - 1)
       return;
 
     _historyIndex++;
-    final snapshot = jsonDecode(_history[_historyIndex]);
+    final snapshot = await Isolate.run(
+      () => Map<String, dynamic>.from(jsonDecode(_history[_historyIndex])),
+    );
     final restoredTheme = LandingPageTheme.fromJson(snapshot['theme']);
     _suppressHistoryFromTheme = true;
     _themeCubit.replaceTheme(restoredTheme);

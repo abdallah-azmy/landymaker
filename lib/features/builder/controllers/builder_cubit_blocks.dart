@@ -4,10 +4,7 @@ part of 'builder_cubit.dart';
 mixin BuilderCubitBlocks on Cubit<BuilderState> {
   // Satisfied by LandingPageBuilderCubit._emitDirty
   void _emitDirty(
-    BuilderLoaded state, {
-    bool isClean = false,
-    bool skipHistory = false,
-  });
+    BuilderLoaded state);
 
   // Satisfied by BuilderCubitPersistence.importTemplateAssets
   void importTemplateAssets(UploadManagerCubit uploadManager);

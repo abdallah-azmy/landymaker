@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:js' as js;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -112,15 +111,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
               BlocConsumer<PublicPageCubit, PublicPageState>(
                 listener: (context, state) {
                   if (state is PublicPageLoaded) {
-                    final rawDesign = state.pageData['design_json'];
-                    Map<String, dynamic> designJson = {};
-                    if (rawDesign is String) {
-                      try {
-                        designJson = Map<String, dynamic>.from(jsonDecode(rawDesign));
-                      } catch (_) {}
-                    } else if (rawDesign is Map) {
-                      designJson = Map<String, dynamic>.from(rawDesign);
-                    }
+                    final designJson = state.designJson;
 
                     // Apply SEO Meta Tags for browser title/OG info
                     final seoTitle = designJson['meta_title'] ?? "${state.pageData['subdomain'] ?? 'Page'} | LandyMaker";
@@ -303,17 +294,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                       return _buildSuspendedState(context, loc);
                     }
 
-                    final rawDesign = state.pageData['design_json'];
-                    Map<String, dynamic> designJson = {};
-                    if (rawDesign is String) {
-                      try {
-                        designJson = Map<String, dynamic>.from(
-                          jsonDecode(rawDesign),
-                        );
-                      } catch (_) {}
-                    } else if (rawDesign is Map) {
-                      designJson = Map<String, dynamic>.from(rawDesign);
-                    }
+                    final designJson = state.designJson;
 
                     final themeJson =
                         designJson['theme'] as Map<String, dynamic>? ?? {};
@@ -405,15 +386,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
               BlocBuilder<PublicPageCubit, PublicPageState>(
                 builder: (context, state) {
                   if (state is PublicPageLoaded) {
-                    final rawDesign = state.pageData['design_json'];
-                    Map<String, dynamic> designJson = {};
-                    if (rawDesign is String) {
-                      try {
-                        designJson = Map<String, dynamic>.from(jsonDecode(rawDesign));
-                      } catch (_) {}
-                    } else if (rawDesign is Map) {
-                      designJson = Map<String, dynamic>.from(rawDesign);
-                    }
+                    final designJson = state.designJson;
                     if (designJson['sticky_cta']?['is_enabled'] == true) {
                       final themeJson = designJson['theme'] as Map<String, dynamic>? ?? {};
                       final theme = LandingPageTheme.fromJson(themeJson);
@@ -437,15 +410,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
               BlocBuilder<PublicPageCubit, PublicPageState>(
                 builder: (context, state) {
                   if (state is PublicPageLoaded) {
-                    final rawDesign = state.pageData['design_json'];
-                    Map<String, dynamic> designJson = {};
-                    if (rawDesign is String) {
-                      try {
-                        designJson = Map<String, dynamic>.from(jsonDecode(rawDesign));
-                      } catch (_) {}
-                    } else if (rawDesign is Map) {
-                      designJson = Map<String, dynamic>.from(rawDesign);
-                    }
+                    final designJson = state.designJson;
                     final themeJson = designJson['theme'] as Map<String, dynamic>? ?? {};
                     final theme = LandingPageTheme.fromJson(themeJson);
                     return CookieConsentBanner(designJson: designJson, theme: theme);

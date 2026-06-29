@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/utils/json_utils.dart';
 import '../../../services/database_service.dart';
 import '../../dashboard/controllers/leads_analytics_cubit.dart';
 import 'public_page_state.dart';
@@ -20,23 +20,18 @@ class PublicPageCubit extends Cubit<PublicPageState> {
     try {
       final page = await _databaseService.getLandingPageByDomain(identifier, isCustom: isCustom);
       if (page != null) {
-        final rawDesign = page['design_json'];
-        Map<String, dynamic> designMap = {'blocks': []};
-
-        if (rawDesign != null) {
-          if (rawDesign is String) {
-            designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
-          } else {
-            designMap = Map<String, dynamic>.from(rawDesign);
-          }
-        }
+        final designMap = await parseJsonDesign(page['design_json']);
 
         final List rawBlocks = designMap['blocks'] ?? [];
         final List<Map<String, dynamic>> blocks = rawBlocks
             .map((b) => Map<String, dynamic>.from(b as Map))
             .toList();
 
-        emit(PublicPageLoaded(pageData: page, blocks: blocks));
+        emit(PublicPageLoaded(
+          pageData: page,
+          blocks: blocks,
+          designJson: designMap,
+        ));
 
         // Record a page view event in the background
         final pageId = page['id'] as String;

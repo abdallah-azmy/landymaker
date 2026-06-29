@@ -219,7 +219,7 @@ class _HomePreviewsTabState extends State<HomePreviewsTab> {
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: selectedTemplate,
+                    initialValue: selectedTemplate,
                     decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                     items: TemplateRegistry.availableTemplates
                         .map((t) => DropdownMenuItem(value: t.id, child: Text(t.name)))

@@ -180,7 +180,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                         _buildToolButton(
                           context: context,
                           icon: Icons.undo_rounded,
-                          onPressed: state.canUndo ? cubit.undo : null,
+                          onPressed: state.canUndo ? () => cubit.undo() : null,
                           color: state.canUndo
                               ? Theme.of(context).colorScheme.onSurface
                               : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
@@ -189,7 +189,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                         _buildToolButton(
                           context: context,
                           icon: Icons.redo_rounded,
-                          onPressed: state.canRedo ? cubit.redo : null,
+                          onPressed: state.canRedo ? () => cubit.redo() : null,
                           color: state.canRedo
                               ? Theme.of(context).colorScheme.onSurface
                               : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),

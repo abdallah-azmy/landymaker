@@ -164,7 +164,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                   : Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.3),
-              onPressed: state.canUndo ? cubit.undo : null,
+              onPressed: state.canUndo ? () => cubit.undo() : null,
               tooltip: loc.translate('undo'),
             ),
             IconButton(
@@ -174,7 +174,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                   : Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.3),
-              onPressed: state.canRedo ? cubit.redo : null,
+              onPressed: state.canRedo ? () => cubit.redo() : null,
               tooltip: loc.translate('redo'),
             ),
           ],

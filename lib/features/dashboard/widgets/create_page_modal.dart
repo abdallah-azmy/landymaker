@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:landymaker/core/utils/json_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
 import 'package:landymaker/features/builder/controllers/builder_state.dart';
@@ -372,15 +372,7 @@ class _CreatePageModalState extends State<CreatePageModal> {
             // Custom landing page UUID from DB
             final pageData = await sl<DatabaseService>().getLandingPageById(_selectedTemplateId);
             if (pageData != null) {
-              Map<String, dynamic> designMap = {'blocks': []};
-              final rawDesign = pageData['design_json'];
-              if (rawDesign != null) {
-                if (rawDesign is String) {
-                  designMap = Map<String, dynamic>.from(jsonDecode(rawDesign));
-                } else {
-                  designMap = Map<String, dynamic>.from(rawDesign as Map);
-                }
-              }
+              final designMap = await parseJsonDesign(pageData['design_json']);
               builderCubit.applyCustomDesign(designMap);
             }
           }

@@ -153,7 +153,7 @@ class _DesktopGalleryLayout extends StatelessWidget {
       children: [
         _GalleryHeader(props: props),
         SizedBox(height: 64),
-        if (props.displayMode == 'carousel') _GalleryCarousel(props: props) else _GalleryGrid(props: props),
+        if (props.displayMode == 'carousel') _GalleryCarousel(props: props) else if (props.displayMode == 'masonry') _GalleryMasonryLayout(props: props) else _GalleryGrid(props: props),
       ],
     );
   }
@@ -170,7 +170,7 @@ class _MobileGalleryLayout extends StatelessWidget {
       children: [
         _GalleryHeader(props: props),
         SizedBox(height: 32),
-        if (props.displayMode == 'carousel') _GalleryCarousel(props: props) else _GalleryGrid(props: props),
+        if (props.displayMode == 'carousel') _GalleryCarousel(props: props) else if (props.displayMode == 'masonry') _GalleryMasonryLayout(props: props) else _GalleryGrid(props: props),
       ],
     );
   }
@@ -243,6 +243,87 @@ class _GalleryGrid extends StatelessWidget {
         }
         return Column(children: rows);
       },
+    );
+  }
+}
+
+/// Masonry layout for Gallery: two uneven columns on desktop, single column on mobile.
+class _GalleryMasonryLayout extends StatelessWidget {
+  final _GalleryProps props;
+  const _GalleryMasonryLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    if (props.items.isEmpty) return const SizedBox.shrink();
+
+    if (props.isMobile) {
+      return Column(
+        children: props.items.asMap().entries.map((entry) {
+          return Padding(
+            padding: EdgeInsetsDirectional.only(bottom: entry.key < props.items.length - 1 ? 16 : 0),
+            child: _GalleryMasonryItem(url: entry.value, subTextColor: props.subTextColor),
+          );
+        }).toList(),
+      );
+    }
+
+    final List<String> leftCol = [];
+    final List<String> rightCol = [];
+    for (int i = 0; i < props.items.length; i++) {
+      if (i.isEven) {
+        leftCol.add(props.items[i]);
+      } else {
+        rightCol.add(props.items[i]);
+      }
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            children: leftCol.asMap().entries.map((entry) {
+              return Padding(
+                padding: EdgeInsetsDirectional.only(bottom: entry.key < leftCol.length - 1 ? 16 : 0),
+                child: _GalleryMasonryItem(url: entry.value, subTextColor: props.subTextColor),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            children: rightCol.asMap().entries.map((entry) {
+              return Padding(
+                padding: EdgeInsetsDirectional.only(bottom: entry.key < rightCol.length - 1 ? 16 : 0),
+                child: _GalleryMasonryItem(url: entry.value, subTextColor: props.subTextColor),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A single masonry item with alternating heights.
+class _GalleryMasonryItem extends StatelessWidget {
+  final String url;
+  final Color subTextColor;
+  const _GalleryMasonryItem({required this.url, required this.subTextColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: subTextColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: CustomNetworkImage(
+        imageUrl: url,
+        fit: BoxFit.cover,
+      ),
     );
   }
 }

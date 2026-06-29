@@ -1,33 +1,198 @@
 {
-  "ThemeModel": "{name: string, primary: hex, secondary: hex, background: hex, textPrimary: hex, textSecondary: hex, buttonTextColor: hex, button_text_color: hex, defaultFont: string, font_family: string, globalBgImageUrl: url, globalBgColorHex: hex, category: string, description: string} // AI Hint: Global page theme — applies to ALL sections unless overridden.",
-  "hero": "{title, subtitle, button_text, button_url, image_url, vertical_padding: 0-300, variant: 0-2, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color: hex, theme_override: string, bg_blur: 0-20, animation: {type: \"fadeIn\"|\"slideUp\"|\"zoomIn\"|\"bounceIn\", duration: ms, delay: ms, intensity: 0.1-2.0}} // AI Hint: Primary landing header.",
-  "hero_saas": "{title, subtitle, button_text, button_url, image_url, vertical_padding: 0-300, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, animation: {type, duration, delay, intensity}} // AI Hint: Software/app focus.",
-  "features": "{title, layout_style: \"grid\"|\"bento\", variant: 0-2, items: [{title, description, image_url, link_url}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}} // AI Hint: Explain benefits.",
-  "products": "{title, layout_style: \"grid_2\"|\"grid_3\"|\"list\"|\"carousel\", whatsapp_number, mobile_columns: 1|2, show_category_filter: bool, categories: [string], items: [{id, name, price, description, image_url, button_text, purchase_url, category}], card_style: \"classic\"|\"modern\"|\"minimal\", hover_effect: \"none\"|\"scale\"|\"elevate\"|\"glow\", stagger_animations: bool, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}} // AI Hint: E-commerce catalog.",
-  "featured_product": "{name, price, description, image_url, button_text, badge_text, layout_style: \"split\"|\"centered\"|\"reversed\", whatsapp_number, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}} // AI Hint: Single high-value item.",
-  "bento_store": "{title, items: [{name, price, image_url}], layout_style: \"modern\"|\"tight\"|\"glass\", whatsapp_number, hover_effect: \"none\"|\"scale\"|\"elevate\"|\"glow\", stagger_animations: bool, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}} // AI Hint: Magazine-style store.",
-  "pricing (v1 - legacy)": "{title, schema_version: 1, variant: 0-2, items: [{name, price, features: [string], is_popular: bool}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}",
-  "pricing (v2 - toggle)": "{title, subtitle, schema_version: 2, has_toggle: true, variant: 0-2, toggle_labels: {monthly: \"شهري\", yearly: \"سنوي\"}, items: [{plan_id, name, prices: {monthly: num, yearly: num}, currency, periods: {monthly, yearly}, discount_mode: \"hidden\"|\"auto\"|\"manual\", manual_discount_text, features: [string], button_text, button_action_type: \"link\"|\"checkout\", button_action_value, is_popular}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}} // AI Hint: Subscription tiers.",
-  "testimonials": "{title, items: [{author, role, quote, image_url}], layout_style: \"masonry\"|\"carousel\", bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}} // AI Hint: Social proof.",
-  "faq": "{title, items: [{question, answer, image_url}], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}} // AI Hint: Objection handling.",
-  "gallery": "{title, display_mode: \"grid\"|\"carousel\"|\"masonry\", grid_columns: 1-6, items: [image_url_string], gallery_links: [url_string], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}} // AI Hint: Visual showcase.",
-  "contact_info": "{title, email, phone, location, phone_icon, email_icon, location_icon, card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "video_embed": "{title, subtitle, video_url, aspect_ratio: \"16:9\"|\"4:3\"|\"1:1\"|\"9:16\", max_width, use_thumbnail: bool, thumbnail_url, autoplay: bool, show_controls: bool, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "logo_header": "{title, logo_url, logo_height: num, alignment: \"left\"|\"center\"|\"right\", bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}",
-  "lead_form": "{title, button_text, whatsapp_auto_open: bool, whatsapp_number, whatsapp_message_template, fields: [{field_id, field_type: \"text\"|\"email\"|\"phone\"|\"textarea\"|\"select\", label, placeholder, is_required: bool, options: [{value, label}], validation: {min_length}}], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "lead_magnet": "{title, subtitle, button_text, image_url, whatsapp_auto_open, whatsapp_number, fields: [same as lead_form], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "multi_step_lead_form": "{title, subtitle, success_message, enable_local_save: bool, schema_version, whatsapp_auto_open, whatsapp_number, steps: [{step_id, step_title, fields: [same as lead_form]}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "working_hours": "{title, schedule: {day_label: \"time_range\"}, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}",
-  "location_map": "{title, address, map_iframe_url, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}",
-  "trust_logos": "{title, items: [logo_image_url_string], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "animated_counter": "{title, items: [{value, label, prefix, suffix}], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "social_qr": "{title, subtitle, links: [{platform: \"website\"|\"instagram\"|\"facebook\"|\"twitter\"|\"linkedin\"|\"whatsapp\", url, image_url}], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "qr_code": "{title, subtitle, qr_payload, qr_size: 100-350, card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "whatsapp": "{title, phone_number, message, button_text, card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "basic_section": "{title, layout_direction: \"column\"|\"row\", spacing: 0-100, vertical_padding, main_axis_alignment: \"start\"|\"center\"|\"end\"|\"spaceBetween\", cross_axis_alignment: \"start\"|\"center\"|\"end\"|\"stretch\", elements: [{id, type: \"text\"|\"image\", content, url, width, height, fit, style_overrides: {}}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, animation: {type, duration, delay, intensity}}",
-  "statistics_grid": "{title, subtitle, items: [{value, label, icon}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "team_members": "{title, subtitle, items: [{name, role, bio, image_url, socials}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "service_steps": "{title, subtitle, items: [{title, description}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "cta_banner": "{title, subtitle, button_text, button_url, secondary_button_text, secondary_button_url, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
-  "comparison_table": "{title, subtitle, plans: [{name, price}], features: [{name, values: [bool_per_plan]}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}"
+  "ThemeModel": {
+    "schema": "{name: string, primary: hex, secondary: hex, background: hex, textPrimary: hex, textSecondary: hex, buttonTextColor: hex, button_text_color: hex, defaultFont: string, font_family: string, globalBgImageUrl: url, globalBgColorHex: hex, category: string, description: string}",
+    "ai_intent": "page_theme",
+    "ai_when_to_use": "Global page theme — applies to ALL sections unless overridden per-block.",
+    "ai_avoid_when": "Always include a theme. Omit only for surgical edits that do not change colors."
+  },
+  "hero": {
+    "schema": "{title, subtitle, button_text, button_url, image_url, vertical_padding: 0-300, variant: 0-2, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color: hex, theme_override: string, bg_blur: 0-20, animation: {type: \"fadeIn\"|\"slideUp\"|\"zoomIn\"|\"bounceIn\", duration: ms, delay: ms, intensity: 0.1-2.0}}",
+    "allowedLayoutStyles": ["standard", "split", "centered", "glass", "fullWidthBg", "fullWidthImage", "gradientOnly", "minimal"],
+    "ai_intent": "primary_offer",
+    "ai_when_to_use": "Use once near the top to express the core offer, audience, CTA, and primary image.",
+    "ai_avoid_when": "Avoid if hero_saas is more appropriate (software, dashboard products). Never use two hero blocks on one page."
+  },
+  "hero_saas": {
+    "schema": "{title, subtitle, button_text, button_url, image_url, vertical_padding: 0-300, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["dashboardSplit", "launchCenter", "darkSaas"],
+    "ai_intent": "saas_hero",
+    "ai_when_to_use": "Use for software, dashboards, apps, subscriptions, and B2B technology offers.",
+    "ai_avoid_when": "Avoid for physical products, restaurants, clinics. Use hero for general business pages."
+  },
+  "features": {
+    "schema": "{title, layout_style: \"grid\"|\"bento\", variant: 0-2, items: [{title, description, image_url, link_url}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["grid", "bento"],
+    "ai_intent": "benefit_explanation",
+    "ai_when_to_use": "Use to translate product/service capabilities into user benefits, usually 3 to 6 items.",
+    "ai_avoid_when": "Avoid for very simple pages with only 1-2 key benefits; use hero subtitle instead."
+  },
+  "products": {
+    "schema": "{title, layout_style: \"grid_2\"|\"grid_3\"|\"list\"|\"carousel\", whatsapp_number, mobile_columns: 1|2, show_category_filter: bool, categories: [string], items: [{id, name, price, description, image_url, button_text, purchase_url, category}], card_style: \"classic\"|\"modern\"|\"minimal\", hover_effect: \"none\"|\"scale\"|\"elevate\"|\"glow\", stagger_animations: bool, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["grid_2", "grid_3", "list", "carousel"],
+    "ai_intent": "catalog",
+    "ai_when_to_use": "Use for stores, menus, packages, property units, service bundles, or any sellable item list.",
+    "ai_avoid_when": "Avoid if there is only 1 product — use featured_product instead."
+  },
+  "featured_product": {
+    "schema": "{name, price, description, image_url, button_text, badge_text, layout_style: \"split\"|\"centered\"|\"reversed\", whatsapp_number, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["split", "centered", "reversed"],
+    "ai_intent": "featured_offer",
+    "ai_when_to_use": "Use to highlight a best-seller, a specific high-value product, or a primary offer.",
+    "ai_avoid_when": "Avoid if the catalog has 4+ items — use products instead."
+  },
+  "bento_store": {
+    "schema": "{title, items: [{name, price, image_url}], layout_style: \"modern\"|\"tight\"|\"glass\", whatsapp_number, hover_effect: \"none\"|\"scale\"|\"elevate\"|\"glow\", stagger_animations: bool, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["modern", "tight", "glass"],
+    "ai_intent": "modern_catalog",
+    "ai_when_to_use": "Use for visual brands that want a magazine-style product display.",
+    "ai_avoid_when": "Avoid for simple or text-heavy pages; use products or featured_product instead."
+  },
+  "pricing (v1 - legacy)": {
+    "schema": "{title, schema_version: 1, variant: 0-2, items: [{name, price, features: [string], is_popular: bool}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}"
+  },
+  "pricing": {
+    "schema": "{title, subtitle, schema_version: 2, has_toggle: true, variant: 0-2, toggle_labels: {monthly: \"شهري\", yearly: \"سنوي\"}, items: [{plan_id, name, prices: {monthly: num, yearly: num}, currency, periods: {monthly, yearly}, discount_mode: \"hidden\"|\"auto\"|\"manual\", manual_discount_text, features: [string], button_text, button_action_type: \"link\"|\"checkout\", button_action_value, is_popular}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["cards", "table"],
+    "ai_intent": "price_comparison",
+    "ai_when_to_use": "Use for subscription tiers, service packages, course plans, memberships, and clear price comparison.",
+    "ai_avoid_when": "Avoid if the product/service has a single fixed price with no tiers."
+  },
+  "testimonials": {
+    "schema": "{title, items: [{author, role, quote, image_url}], layout_style: \"cards\"|\"carousel\", bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["cards", "carousel"],
+    "ai_intent": "testimonial_proof",
+    "ai_when_to_use": "Use when the user mentions reviews, clients, success stories, outcomes, or trust-building.",
+    "ai_avoid_when": "Avoid if the page lacks real customer data or is purely transactional."
+  },
+  "faq": {
+    "schema": "{title, items: [{question, answer, image_url}], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "objection_handling",
+    "ai_when_to_use": "Use near the end to answer objections about pricing, delivery, refunds, booking, eligibility, or support.",
+    "ai_avoid_when": "Avoid for very short pages or if the offer is self-explanatory."
+  },
+  "gallery": {
+    "schema": "{title, display_mode: \"grid\"|\"carousel\"|\"masonry\", grid_columns: 1-6, items: [image_url_string], gallery_links: [url_string], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["grid", "carousel", "masonry"],
+    "ai_intent": "visual_showcase",
+    "ai_when_to_use": "Use for portfolios, properties, menus, salon results, event photos, venues, and product detail visuals.",
+    "ai_avoid_when": "Avoid if there are fewer than 3 images."
+  },
+  "contact_info": {
+    "schema": "{title, email, phone, location, phone_icon, email_icon, location_icon, card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "contact_details",
+    "ai_when_to_use": "Use for physical businesses, service providers, clinics, offices, and pages that need final contact clarity.",
+    "ai_avoid_when": "Avoid if contact info is already in the footer or a lead form is present."
+  },
+  "video_embed": {
+    "schema": "{title, subtitle, video_url, aspect_ratio: \"16:9\"|\"4:3\"|\"1:1\"|\"9:16\", max_width, use_thumbnail: bool, thumbnail_url, autoplay: bool, show_controls: bool, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "video_explainer",
+    "ai_when_to_use": "Use for demos, trailers, course previews, property tours, testimonials, and product explainers.",
+    "ai_avoid_when": "Avoid if no video URL is available or the page is text-only."
+  },
+  "logo_header": {
+    "schema": "{title, logo_url, logo_height: num, alignment: \"left\"|\"center\"|\"right\", bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}",
+    "ai_intent": "brand_identity",
+    "ai_when_to_use": "Use as the first block when the prompt mentions a brand, store, clinic, agency, or formal company header.",
+    "ai_avoid_when": "Avoid for personal pages, creators, or when the hero already contains the brand name."
+  },
+  "lead_form": {
+    "schema": "{title, button_text, whatsapp_auto_open: bool, whatsapp_number, whatsapp_message_template, fields: [{field_id, field_type: \"text\"|\"email\"|\"phone\"|\"textarea\"|\"select\", label, placeholder, is_required: bool, options: [{value, label}], validation: {min_length}}], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "simple_lead_capture",
+    "ai_when_to_use": "Use when the user needs a short contact, callback, demo, or newsletter form.",
+    "ai_avoid_when": "Avoid if the service requires multi-step qualification — use multi_step_lead_form instead."
+  },
+  "lead_magnet": {
+    "schema": "{title, subtitle, button_text, image_url, whatsapp_auto_open, whatsapp_number, fields: [same as lead_form], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "resource_gate",
+    "ai_when_to_use": "Use for free guides, coupons, catalogs, reports, checklists, or downloadable resources.",
+    "ai_avoid_when": "Avoid if there is no gated offer (free download, coupon, etc.)."
+  },
+  "multi_step_lead_form": {
+    "schema": "{title, subtitle, success_message, enable_local_save: bool, schema_version, whatsapp_auto_open, whatsapp_number, steps: [{step_id, step_title, fields: [same as lead_form]}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "qualified_lead_capture",
+    "ai_when_to_use": "Use for quotes, bookings, eligibility checks, real estate inquiries, medical appointments, or complex lead qualification.",
+    "ai_avoid_when": "Avoid for simple contact gathering — use lead_form instead."
+  },
+  "working_hours": {
+    "schema": "{title, schedule: {day_label: \"time_range\"}, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}",
+    "ai_intent": "availability",
+    "ai_when_to_use": "Use for restaurants, clinics, salons, stores, gyms, events, and appointment-based businesses.",
+    "ai_avoid_when": "Avoid for online-only businesses or SaaS products without physical hours."
+  },
+  "location_map": {
+    "schema": "{title, address, map_iframe_url, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}",
+    "ai_intent": "physical_location",
+    "ai_when_to_use": "Use when the prompt includes an address, branch, venue, showroom, clinic, restaurant, or event location.",
+    "ai_avoid_when": "Avoid for online-only businesses without a physical location."
+  },
+  "trust_logos": {
+    "schema": "{title, items: [logo_image_url_string], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "social_proof",
+    "ai_when_to_use": "Use after the hero when the prompt mentions clients, partners, certifications, press, or credibility.",
+    "ai_avoid_when": "Avoid if no recognizable brand logos are available."
+  },
+  "animated_counter": {
+    "schema": "{title, items: [{value, label, prefix, suffix}], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "proof_metrics",
+    "ai_when_to_use": "Use for measurable claims such as customers, years, projects, savings, success rates, or capacity.",
+    "ai_avoid_when": "Avoid if no verifiable numbers are available."
+  },
+  "social_qr": {
+    "schema": "{title, subtitle, links: [{platform: \"website\"|\"instagram\"|\"facebook\"|\"twitter\"|\"linkedin\"|\"whatsapp\", url, image_url}], card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "social_channels",
+    "ai_when_to_use": "Use when the prompt mentions Instagram, TikTok, LinkedIn, Facebook, social follow, or creator profiles.",
+    "ai_avoid_when": "Avoid for formal business pages that already use contact_info."
+  },
+  "qr_code": {
+    "schema": "{title, subtitle, qr_payload, qr_size: 100-350, card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "offline_to_online",
+    "ai_when_to_use": "Use for events, menus, flyers, storefronts, check-in, registration, and shareable offline access.",
+    "ai_avoid_when": "Avoid for standard landing pages without an offline component."
+  },
+  "whatsapp": {
+    "schema": "{title, phone_number, message, button_text, card_style, hover_effect, stagger_animations, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "direct_chat_cta",
+    "ai_when_to_use": "Use for MENA businesses, urgent booking, product orders, support, or when the prompt includes a WhatsApp number.",
+    "ai_avoid_when": "Avoid for non-MENA businesses or where WhatsApp is not the primary communication channel."
+  },
+  "basic_section": {
+    "schema": "{title, layout_direction: \"column\"|\"row\", spacing: 0-100, vertical_padding, main_axis_alignment: \"start\"|\"center\"|\"end\"|\"spaceBetween\", cross_axis_alignment: \"start\"|\"center\"|\"end\"|\"stretch\", elements: [{id, type: \"text\"|\"image\", content, url, width, height, fit, style_overrides: {}}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["column", "row"],
+    "ai_intent": "custom_layout",
+    "ai_when_to_use": "Use when the user asks for a unique composition that does not map cleanly to a specialized section.",
+    "ai_avoid_when": "Always prefer a specialized section type over basic_section."
+  },
+  "statistics_grid": {
+    "schema": "{title, subtitle, items: [{value, label, icon}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["horizontal", "withIcons"],
+    "ai_intent": "proof_metrics",
+    "ai_when_to_use": "Use to showcase company growth, satisfied customers, or project impact.",
+    "ai_avoid_when": "Avoid if animated_counter is already used on the same page."
+  },
+  "team_members": {
+    "schema": "{title, subtitle, items: [{name, role, bio, image_url, socials}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "team_showcase",
+    "ai_when_to_use": "Use for about us pages or to humanize the brand/business.",
+    "ai_avoid_when": "Avoid for solo creators or pages without team photos."
+  },
+  "service_steps": {
+    "schema": "{title, subtitle, items: [{title, description}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "ai_intent": "process_explainer",
+    "ai_when_to_use": "Use to simplify complex services into easy steps (1, 2, 3).",
+    "ai_avoid_when": "Avoid for very simple processes that can be explained in the hero or features."
+  },
+  "cta_banner": {
+    "schema": "{title, subtitle, button_text, button_url, secondary_button_text, secondary_button_url, bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding, animation: {type, duration, delay, intensity}}",
+    "allowedLayoutStyles": ["centeredGradient", "split"],
+    "ai_intent": "final_conversion",
+    "ai_when_to_use": "Use at the end of the page or between sections to drive immediate action.",
+    "ai_avoid_when": "Avoid as the very first section. Use near the bottom or as a mid-page break."
+  },
+  "comparison_table": {
+    "schema": "{title, subtitle, plans: [{name, price}], features: [{name, values: [bool_per_plan]}], bg_image_url, bg_overlay_opacity: 0-1, bg_overlay_color, bg_color, theme_override, bg_blur, vertical_padding}",
+    "allowedLayoutStyles": ["table", "cards"],
+    "ai_intent": "feature_comparison",
+    "ai_when_to_use": "Use to highlight differences between service tiers or product models.",
+    "ai_avoid_when": "Avoid if pricing section already covers the comparison."
+  }
 }

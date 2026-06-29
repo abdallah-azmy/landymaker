@@ -87,7 +87,7 @@ class HeroEditor extends StatelessWidget {
           block,
           context.translate('layout_style'),
           'layout_style',
-          ['standard', 'split', 'centered', 'glass', 'fullWidthBg', 'minimal'],
+          ['standard', 'split', 'centered', 'glass', 'fullWidthBg', 'fullWidthImage', 'gradientOnly', 'minimal'],
           (val) => cubit.updateBlockProperty(index, 'layout_style', val),
         ),
       ],

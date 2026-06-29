@@ -439,6 +439,10 @@ class _ProductsGrid extends StatelessWidget {
       return _ProductsCarousel(props: props);
     }
 
+    if (props.layoutStyle == 'list') {
+      return _ProductsList(props: props);
+    }
+
     final int columnCount = props.isMobile
         ? props.mobileColumns
         : (props.layoutStyle == 'grid_3' ? 3 : 2);
@@ -456,7 +460,7 @@ class _ProductsGrid extends StatelessWidget {
       children: rows.asMap().entries.map((rowEntry) {
         final isLastRow = rowEntry.key == rows.length - 1;
         return Padding(
-          padding: EdgeInsets.only(bottom: isLastRow ? 0 : spacing),
+          padding: EdgeInsetsDirectional.only(bottom: isLastRow ? 0 : spacing),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children:
@@ -518,6 +522,24 @@ class _ProductsCarousel extends StatelessWidget {
   }
 }
 
+/// Vertical list layout for products.
+class _ProductsList extends StatelessWidget {
+  final _ProductsProps props;
+  const _ProductsList({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: props.items.asMap().entries.map((entry) {
+        return Padding(
+          padding: EdgeInsetsDirectional.only(bottom: entry.key < props.items.length - 1 ? 16 : 0),
+          child: _ProductCard(item: entry.value, props: props),
+        );
+      }).toList(),
+    );
+  }
+}
+
 class _ProductCard extends StatefulWidget {
   final Map<String, dynamic> item;
   final _ProductsProps props;
@@ -530,6 +552,9 @@ class _ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<_ProductCard> {
   bool _hovered = false;
+
+  bool get _isMinimal => widget.props.cardStyle == 'minimal';
+  bool get _isElevated => widget.props.cardStyle == 'elevated';
 
   @override
   Widget build(BuildContext context) {
@@ -560,21 +585,24 @@ class _ProductCardState extends State<_ProductCard> {
           border: Border.all(
             color: applyGlow
                 ? widget.props.secondaryColor
-                : Theme.of(context).colorScheme.outlineVariant,
-            width: applyGlow ? 2 : 1,
+                : _isMinimal
+                    ? Colors.transparent
+                    : Theme.of(context).colorScheme.outlineVariant,
+            width: applyGlow ? 2 : 0,
           ),
-          boxShadow: (applyElevate || applyGlow)
-              ? [
-                  BoxShadow(
-                    color:
-                        (applyGlow ? widget.props.secondaryColor : Colors.black)
-                            .withValues(alpha: 0.1),
-                    blurRadius: applyGlow ? 20 : 30,
-                    spreadRadius: applyGlow ? 2 : 0,
-                    offset: applyGlow ? Offset.zero : const Offset(0, 10),
-                  ),
-                ]
-              : [],
+          boxShadow: _isMinimal
+              ? []
+              : (applyElevate || applyGlow || _isElevated)
+                  ? [
+                      BoxShadow(
+                        color: (applyGlow ? widget.props.secondaryColor : Colors.black)
+                            .withValues(alpha: _isElevated ? 0.15 : 0.1),
+                        blurRadius: _isElevated ? 40 : (applyGlow ? 20 : 30),
+                        spreadRadius: _isElevated ? 4 : (applyGlow ? 2 : 0),
+                        offset: _isElevated ? const Offset(0, 15) : (applyGlow ? Offset.zero : const Offset(0, 10)),
+                      ),
+                    ]
+                  : [],
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(

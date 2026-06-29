@@ -203,11 +203,14 @@ class _DesktopPricingLayout extends StatelessWidget {
 
   Widget _buildPlansGrid(BuildContext context) {
     final plans = props.model.items;
+    if (props.layoutStyle == 'table') {
+      return _PricingTable(props: props);
+    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: plans.map((plan) => Expanded(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 10),
           child: _PricingCard(plan: plan, props: props),
         ),
       )).toList(),
@@ -226,10 +229,174 @@ class _MobilePricingLayout extends StatelessWidget {
         _PricingHeader(props: props),
         const SizedBox(height: 32),
         ...props.model.items.map((plan) => Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: _PricingCard(plan: plan, props: props),
+          padding: const EdgeInsetsDirectional.only(bottom: 20),
+          child: props.layoutStyle == 'table'
+              ? _PricingTableRow(plan: plan, props: props)
+              : _PricingCard(plan: plan, props: props),
         )),
       ],
+    );
+  }
+}
+
+/// Comparison table layout for pricing plans.
+class _PricingTable extends StatelessWidget {
+  final _PricingProps props;
+  const _PricingTable({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    final plans = props.model.items;
+    if (plans.isEmpty) return const SizedBox.shrink();
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Table(
+        defaultColumnWidth: const IntrinsicColumnWidth(),
+        border: TableBorder.all(color: props.subTextColor.withValues(alpha: 0.1)),
+        children: [
+          TableRow(
+            children: [
+              _PricingTableCell(child: Text('')),
+              ...plans.map((plan) => _PricingTableCell(
+                child: Text(plan.name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor)),
+                isHeader: true,
+              )),
+            ],
+          ),
+          TableRow(
+            children: [
+              _PricingTableCell(child: Text('')),
+              ...plans.map((plan) => _PricingTableCell(
+                child: Column(
+                  children: [
+                    Text(PricingCalculator.formatPriceDisplay(
+                      props.model.schemaVersion, plan, props.activePeriodKey, props.lang,
+                    ), style: AppTypography.h2.copyWith(color: props.primaryColor, fontSize: 24)),
+                  ],
+                ),
+                isHeader: true,
+              )),
+            ],
+          ),
+          ...plans.expand((plan) => plan.features.map((feature) {
+            return TableRow(
+              children: [
+                _PricingTableCell(child: Text(feature, style: AppTypography.bodySmall.copyWith(color: props.textColor))),
+                ...plans.map((p) => _PricingTableCell(
+                  child: Icon(Icons.check_circle_rounded, color: props.primaryColor, size: 18),
+                )),
+              ],
+            );
+          })),
+          TableRow(
+            children: [
+              _PricingTableCell(child: Text('')),
+              ...plans.map((plan) => _PricingTableCell(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      ActionHandlerService.executeAction(
+                        context, actionType: plan.buttonActionType,
+                        actionValue: plan.buttonActionValue,
+                        pageId: props.pageId, buttonText: plan.buttonText,
+                        blockType: 'pricing',
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: props.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: Text(plan.buttonText, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                isHeader: true,
+              )),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A single table row for mobile pricing table layout.
+class _PricingTableRow extends StatelessWidget {
+  final PricingItemModel plan;
+  final _PricingProps props;
+  const _PricingTableRow({required this.plan, required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    final priceDisplay = PricingCalculator.formatPriceDisplay(
+      props.model.schemaVersion, plan, props.activePeriodKey, props.lang,
+    );
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: props.subTextColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: props.subTextColor.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        children: [
+          Text(plan.name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor)),
+          SizedBox(height: 8),
+          Text(priceDisplay, style: AppTypography.h2.copyWith(color: props.primaryColor, fontSize: 24)),
+          SizedBox(height: 16),
+          ...plan.features.map((f) => Padding(
+            padding: const EdgeInsetsDirectional.only(bottom: 8),
+            child: Row(
+              children: [
+                Icon(Icons.check_circle_rounded, color: props.primaryColor, size: 16),
+                SizedBox(width: 8),
+                Expanded(child: Text(f, style: AppTypography.bodySmall.copyWith(color: props.textColor))),
+              ],
+            ),
+          )),
+          SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                ActionHandlerService.executeAction(
+                  context, actionType: plan.buttonActionType,
+                  actionValue: plan.buttonActionValue,
+                  pageId: props.pageId, buttonText: plan.buttonText,
+                  blockType: 'pricing',
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: props.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text(plan.buttonText, style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A single cell in the pricing comparison table.
+class _PricingTableCell extends StatelessWidget {
+  final Widget child;
+  final bool isHeader;
+
+  const _PricingTableCell({required this.child, this.isHeader = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: isHeader ? Colors.white.withValues(alpha: 0.03) : null,
+      child: child,
     );
   }
 }

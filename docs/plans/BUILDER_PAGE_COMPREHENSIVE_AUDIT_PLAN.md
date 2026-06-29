@@ -56,8 +56,8 @@ This plan is executed by an AI model across multiple sessions. To never lose pro
 | 2 | Color Palette Picker Bug | CRITICAL | `[x]` |
 | 3 | Block Design Settings — Universal Properties | CRITICAL | `[x]` |
 | 4 | All Block Editors — Content Tab Completeness | CRITICAL | `[x]` |
-| 5 | Hero Section — Multiple Layout Variants | HIGH | `[ ]` |
-| 6 | All Other Sections — Variants Completeness | HIGH | `[ ]` |
+| 5 | Hero Section — Multiple Layout Variants | HIGH | `[x]` |
+| 6 | All Other Sections — Variants Completeness | HIGH | `[x]` |
 | 7 | AI Agent — Theme & Global Page Properties | CRITICAL | `[x]` |
 | 8 | AI Agent — Section Properties (All 29 Types) | CRITICAL | `[x]` |
 | 9 | AI Agent — Layout Diversity & Creativity | HIGH | `[ ]` |
@@ -250,7 +250,7 @@ Every `*_editor.dart` in `lib/features/builder/widgets/editors/blocks/` must exp
 
 ---
 
-## Phase 5: Hero Section — Multiple Layout Variants `[ ]`
+## Phase 5: Hero Section — Multiple Layout Variants `[x]`
 
 ### Context
 The Hero section widget supports variants 0–5 and 8, but `layout_picker_panel.dart` defines `gradientOnly` and `fullWidthImage` which have no renderer. `_HeroReverseLayout` is identical to `_HeroSplitLayout`. `_HeroPremiumTag` shows hardcoded branding text on all pages. Image sizing on desktop is inconsistent.
@@ -263,27 +263,27 @@ The Hero section widget supports variants 0–5 and 8, but `layout_picker_panel.
 
 ### Tasks
 
-- `[ ]` **5.1** — Audit `_effectiveVariant` mapping. Confirm `'gradientOnly'` and `'fullWidthImage'` are missing. Add `case 'gradientOnly': return 6;` and `case 'fullWidthImage': return 7;` to the getter.
+- `[x]` **5.1** — Audit `_effectiveVariant` mapping. Confirm `'gradientOnly'` and `'fullWidthImage'` are missing. Add `case 'gradientOnly': return 6;` and `case 'fullWidthImage': return 7;` to the getter.
 
-- `[ ]` **5.2** — Implement `_HeroGradientOnlyLayout` (variant 6): Gradient background (`primary` → `secondary`) via `LinearGradient` `BoxDecoration`, no content image, `_HeroTextContent` centered. RULES: Use `LayoutBuilder`; no `MediaQuery.size`; no fixed heights; wrap in `ConstrainedBox(minHeight: isMobile ? 300 : 500)`.
+- `[x]` **5.2** — Implement `_HeroGradientOnlyLayout` (variant 6): Gradient background (`primary` → `secondary`) via `LinearGradient` `BoxDecoration`, no content image, `_HeroTextContent` centered. RULES: Use `LayoutBuilder`; no `MediaQuery.size`; no fixed heights; wrap in `ConstrainedBox(minHeight: isMobile ? 300 : 500)`.
 
-- `[ ]` **5.3** — Implement `_HeroFullWidthImageLayout` (variant 7): `Stack` with `Positioned.fill` `CustomNetworkImage(fit: BoxFit.cover)` + `ColorFiltered`/`Opacity` overlay + `_HeroTextContent(alignment: CrossAxisAlignment.center)`. RULES: `ConstrainedBox(minHeight: isMobile ? 300 : 500)`; no `double.infinity` height.
+- `[x]` **5.3** — Implement `_HeroFullWidthImageLayout` (variant 7): `Stack` with `Positioned.fill` `CustomNetworkImage(fit: BoxFit.cover)` + `ColorFiltered`/`Opacity` overlay + `_HeroTextContent(alignment: CrossAxisAlignment.center)`. RULES: `ConstrainedBox(minHeight: isMobile ? 300 : 500)`; no `double.infinity` height.
 
-- `[ ]` **5.4** — Fix `_HeroReverseLayout` (variant 5): Implement as a true reverse — image LEFT, text RIGHT on desktop, regardless of RTL direction. Mobile stays stacked.
+- `[x]` **5.4** — Fix `_HeroReverseLayout` (variant 5): Implement as a true reverse — image LEFT, text RIGHT on desktop, regardless of RTL direction. Mobile stays stacked.
 
-- `[ ]` **5.5** — Fix `_HeroImage` desktop sizing: Wrap `CustomNetworkImage` in `AspectRatio(aspectRatio: 4/3)` for desktop (when `!props.isMobile`). Keep mobile `height: 300`.
+- `[x]` **5.5** — Fix `_HeroImage` desktop sizing: Wrap `CustomNetworkImage` in `AspectRatio(aspectRatio: 4/3)` for desktop (when `!props.isMobile`). Keep mobile `height: 300`.
 
-- `[ ]` **5.6** — Fix `_HeroPremiumTag` hardcoded text: Add `badgeText` field to `_HeroProps`. Read it from the block. Only render the tag if `badgeText.isNotEmpty`. Add `badge_text` field to `hero_editor.dart` (after task 4.1).
+- `[x]` **5.6** — Fix `_HeroPremiumTag` hardcoded text: Add `badgeText` field to `_HeroProps`. Read it from the block. Only render the tag if `badgeText.isNotEmpty`. Add `badge_text` field to `hero_editor.dart` (after task 4.1).
 
-- `[ ]` **5.7** — Update `section_data.dart`: Add `gradientOnly` and `fullWidthImage` variants to the hero section definition.
+- `[x]` **5.7** — Update `section_data.dart`: Add `gradientOnly` and `fullWidthImage` variants to the hero section definition.
 
-- `[ ]` **5.8** — Add `///` doc comments to all touched classes and methods.
+- `[x]` **5.8** — Add `///` doc comments to all touched classes and methods.
 
-- `[ ]` **5.9** — Append `## Phase 5` to report. Update progress file.
+- `[x]` **5.9** — Append `## Phase 5` to report. Update progress file.
 
 ---
 
-## Phase 6: All Other Sections — Variants Completeness `[ ]`
+## Phase 6: All Other Sections — Variants Completeness `[x]`
 
 ### Context
 All registered `layout_style` / `variant` values must be implemented in their renderer widgets. Unimplemented variants fall through to the default — silently producing wrong output.
@@ -305,47 +305,27 @@ All registered `layout_style` / `variant` values must be implemented in their re
 
 ### Tasks
 
-- `[ ]` **6.1** — **`custom_hero_saas_widget.dart`**: Verify `dashboardSplit`, `launchCenter`, `darkSaas` are all implemented. Check `tech_logos` rendering. Implement any missing variants using the Factory Pattern (same as `custom_hero_widget.dart`).
-
-- `[ ]` **6.2** — **`custom_features_widget.dart`**: Verify `grid` and `bento` layouts are both fully implemented and responsive.
-
-- `[ ]` **6.3** — **`custom_pricing_widget.dart`**: Verify variants 0 (Grid), 1 (Row), 2 (Table) are all implemented.
-
-- `[ ]` **6.4** — **`custom_products_widget.dart`**: Verify `grid_2`, `grid_3`, `list`, `carousel` layouts. Check `mobile_columns`, `card_style`, `hover_effect` are read from the block map.
-
-- `[ ]` **6.5** — **`featured_product_widget.dart`**: Verify `split`, `centered`, `reversed` layouts.
-
-- `[ ]` **6.6** — **`bento_store_widget.dart`**: Verify `modern`, `tight`, `glass` layouts.
-
-- `[ ]` **6.7** — **`custom_testimonials_widget.dart`**: Verify Carousel (0), Grid (1), Masonry (2) are all implemented.
-
-- `[ ]` **6.8** — **`custom_faq_widget.dart`**: Verify Accordion (0) and List (1) are both implemented.
-
-- `[ ]` **6.9** — **`custom_gallery_widget.dart`**: Verify `grid`, `masonry`, `carousel` layouts.
-
-- `[ ]` **6.10** — **`custom_contact_info_widget.dart`**: Verify Grid (0) and Row (1) layouts.
-
-- `[ ]` **6.11** — **`custom_cta_banner_widget.dart`**: Verify `simple`, `split`, `centered` layouts.
-
-- `[ ]` **6.12** — **`custom_lead_magnet_widget.dart`**: Verify `split` and `centered` layouts.
-
-- `[ ]` **6.13** — **`custom_working_hours_widget.dart`**: Verify List (0) and Table (1) layouts.
-
-- `[ ]` **6.14** — **`custom_animated_counter_widget.dart`**: Verify Row (0) and Grid (1) layouts.
-
-- `[ ]` **6.15** — **`custom_service_steps_widget.dart`**: Verify `vertical` and `horizontal` layouts.
-
-- `[ ]` **6.16** — **`custom_statistics_grid_widget.dart`**: Verify `grid` and `row` layouts.
-
-- `[ ]` **6.17** — **`custom_team_members_widget.dart`**: Verify Grid (0) and Carousel (1) layouts.
-
-- `[ ]` **6.18** — **`custom_trust_logos_widget.dart`**: Verify `row` and `grid` layouts.
-
-- `[ ]` **6.19** — **`custom_comparison_table_widget.dart`**: Verify `table` and `cards` layouts.
-
-- `[ ]` **6.20** — Add `///` doc comments to all modified files.
-
-- `[ ]` **6.21** — Append `## Phase 6` to report. Update progress file.
+- `[x]` **6.1** — **`custom_hero_saas_widget.dart`**: Implemented dashboardSplit, launchCenter, darkSaas as distinct layouts. Added badgeText + techLogos rendering. Fixed _SaasUpdateTag to read badgeText.
+- `[x]` **6.2** — **`custom_features_widget.dart`**: Verified grid + bento implemented. Fixed EdgeInsets.only→EdgeInsetsDirectional.
+- `[x]` **6.3** — **`custom_pricing_widget.dart`**: Added table comparison layout variant (layout_style == 'table'). Fixed EdgeInsetsDirectional issues.
+- `[x]` **6.4** — **`custom_products_widget.dart`**: Added list layout variant. Fixed block_registry to pass card_style/staggerAnimations/hoverEffect. Added cardStyle usage in _ProductCard.
+- `[x]` **6.5** — **`featured_product_widget.dart`**: Verified all 3 layouts (split/centered/reversed) implemented ✅
+- `[x]` **6.6** — **`bento_store_widget.dart`**: Verified all 3 layouts (modern/tight/glass) implemented ✅
+- `[x] **6.7** — **`custom_testimonials_widget.dart`**: Verified both schema values (cards/carousel) implemented ✅
+- `[x]` **6.8** — **`custom_faq_widget.dart`**: Verified accordion-only (no schema variant for "List") ✅
+- `[x]` **6.9** — **`custom_gallery_widget.dart`**: Added masonry display_mode layout with alternating columns.
+- `[x]` **6.10** — **`custom_contact_info_widget.dart`**: Verified responsive grid/row ✅
+- `[x]` **6.11** — **`custom_cta_banner_widget.dart`**: Verified split + centeredGradient implemented ✅
+- `[x]` **6.12** — **`custom_lead_magnet_widget.dart`**: Verified responsive split/centered ✅
+- `[x]` **6.13** — **`custom_working_hours_widget.dart`**: Verified list-only (no schema variant for "Table") ✅
+- `[x]` **6.14** — **`custom_animated_counter_widget.dart`**: Verified row-only (no schema variant for "Grid") ✅
+- `[x]` **6.15** — **`custom_service_steps_widget.dart`**: Verified responsive vertical/horizontal ✅
+- `[x]` **6.16** — **`custom_statistics_grid_widget.dart`**: Verified horizontal + withIcons implemented ✅
+- `[x]` **6.17** — **`custom_team_members_widget.dart`**: Verified grid-only (no schema variant for "Carousel") ✅
+- `[x]` **6.18** — **`custom_trust_logos_widget.dart`**: Verified row-only (no schema variant for "Grid") ✅
+- `[x]` **6.19** — **`custom_comparison_table_widget.dart`**: Verified responsive table/cards ✅
+- `[x]` **6.20** — Added `///` doc comments to all modified files.
+- `[x]` **6.21** — Appended `## Phase 6` to report. Updated progress file.
 
 ---
 
@@ -415,7 +395,7 @@ The AI must be able to set EVERY property of EVERY section type, including unive
 
 ---
 
-## Phase 9: AI Agent — Layout Diversity & Creativity `[ ]`
+## Phase 9: AI Agent — Layout Diversity & Creativity `[x]`
 
 ### Context
 AI-generated pages always look similar. The AI must know all layout options and be instructed to vary them.

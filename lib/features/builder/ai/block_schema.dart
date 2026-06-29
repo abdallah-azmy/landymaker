@@ -51,7 +51,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
     'button_text': PropDef(type: PropType.string),
     'button_url': PropDef(type: PropType.string),
     'badge_text': PropDef(type: PropType.string),
-    'layout_style': PropDef(type: PropType.string, defaultValue: 'standard', allowedValues: ['standard', 'split', 'centered', 'glass', 'fullWidthBg', 'minimal']),
+    'layout_style': PropDef(type: PropType.string, defaultValue: 'standard', allowedValues: ['standard', 'split', 'centered', 'glass', 'fullWidthBg', 'fullWidthImage', 'gradientOnly', 'minimal']),
   },
   'hero_saas': {
     'subtitle': PropDef(type: PropType.string),

@@ -226,7 +226,21 @@ function buildPrompt(params: {
   } = params;
 
   const formattedSchema = Object.entries(schemaRegistry)
-    .map(([key, value]) => `=== ${key} ===\n${value}`)
+    .map(([key, entry]) => {
+      const lines = [`=== ${key} ===`];
+      if (typeof entry === 'string') {
+        lines.push(entry);
+      } else if (typeof entry === 'object' && entry !== null) {
+        if (entry.schema) lines.push(`Schema: ${entry.schema}`);
+        if (entry.allowedLayoutStyles?.length) {
+          lines.push(`Allowed Layout Styles: ${entry.allowedLayoutStyles.join(', ')}`);
+        }
+        if (entry.ai_intent) lines.push(`AI Intent: ${entry.ai_intent}`);
+        if (entry.ai_when_to_use) lines.push(`When to Use: ${entry.ai_when_to_use}`);
+        if (entry.ai_avoid_when) lines.push(`Avoid When: ${entry.ai_avoid_when}`);
+      }
+      return lines.join('\n');
+    })
     .join('\n\n');
 
   return `You are an Omnipotent AI Agent Designer for LandyMaker.
@@ -268,7 +282,19 @@ AGENTIC RULES:
      • Use "copy_update" when user asks to rewrite/improve specific text (e.g. "حسن النصوص", "غير العنوان", "اكتب وصف أفضل").
      • When action is "copy_update", provide "copy_updates" array instead of "designJson".
    - "full_rebuild": bool (set to true if the designJson represents a completely new page, new business activity/industry, or full redesign, false if it is a surgical edit of the existing page).
-   - "assistant_message": What to say to the user in chat.
+    - "assistant_message": What to say to the user in chat.
+
+LAYOUT DIVERSITY INSTRUCTIONS (CRITICAL — read and follow every time):
+1. VARY `layout_style` values — do NOT default to the first allowed value every time. For example, hero should not always be "split"; try "centered", "fullWidthImage", "gradientOnly", or "glass".
+2. Never use the same `layout_style` for two blocks of the same type on the same page.
+3. Alternate between `grid` and `bento` for features sections. Do not always default to "grid".
+4. For pricing, alternate between "cards" and "table". Do not always default to "cards".
+5. For gallery, vary between "grid", "carousel", and "masonry". Do not always default to "grid".
+6. Avoid the cliche `logo_header > hero > features > cta_banner` pattern unless explicitly requested. Use a creative block ordering that matches the user's industry and intent.
+7. Every page must have a distinct visual identity via `theme` (choose a unique primary/secondary color pair), `bg_overlay_color`, and `bg_image_url` on key sections.
+8. For products, vary between "grid_2", "grid_3", "list", and "carousel" depending on the number of items and the visual style requested.
+9. Consult the `Allowed Layout Styles` and `When to Use` / `Avoid When` hints in each block schema below to make informed layout choices.
+10. Use `ai_intent` hints to guide which block types to include — do not just include every block type on every page.
 
 PAGE-LEVEL CONFIG:
 - "sticky_cta": {is_enabled: bool, text: string, button_text: string, button_action_type: "link"|"checkout", button_action_value: string}

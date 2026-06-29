@@ -70,6 +70,14 @@ final List<_SectionDefinition> _sections = [
         'bg_overlay_color': '#020617',
         'bg_overlay_opacity': 0.62,
       }),
+      _variant('تدرج لوني', 'خلفية متدرجة بدون صورة', 'gradientOnly', {
+        'variant_style': 'gradient_backdrop',
+        'vertical_padding': 48.0,
+      }),
+      _variant('خلفية صورة كاملة', 'صورة خلفية كاملة مع طبقة تعتيم', 'fullWidthImage', {
+        'variant_style': 'full_image_backdrop',
+        'vertical_padding': 48.0,
+      }),
     ],
   ),
   _section(

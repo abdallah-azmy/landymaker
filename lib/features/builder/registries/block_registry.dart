@@ -92,6 +92,7 @@ class BlockRegistry {
           buttonUrl: data['button_url'],
           variant: data['variant'] ?? 0,
           layoutStyle: data['layout_style'],
+          badgeText: data['badge_text'],
         ),
     'hero_saas': (data, theme, pageId, key, __, ___, lang) => CustomHeroSaasWidget(
           key: key,
@@ -111,6 +112,8 @@ class BlockRegistry {
           bgBlur: (data['bg_blur'] as num?)?.toDouble(),
           buttonUrl: data['button_url'],
           layoutStyle: data['layout_style'],
+          badgeText: data['badge_text'],
+          techLogos: (data['tech_logos'] as List?)?.cast<String>(),
         ),
     'features': (data, theme, _, key, __, ___, lang) => CustomFeaturesWidget(
           key: key,
@@ -222,6 +225,9 @@ class BlockRegistry {
           customCategories: data['categories'] != null
               ? List<String>.from(data['categories'])
               : null,
+          cardStyle: data['card_style'] ?? 'classic',
+          staggerAnimations: data['stagger_animations'] ?? true,
+          hoverEffect: data['hover_effect'] ?? 'scale',
           bgImageUrl: data['bg_image_url'],
           bgOverlayColor: data['bg_overlay_color'],
           bgOverlayOpacity:

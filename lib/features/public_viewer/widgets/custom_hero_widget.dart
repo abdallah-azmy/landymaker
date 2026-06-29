@@ -6,12 +6,9 @@ import '../../../core/widgets/custom_network_image.dart';
 import '../../builder/models/landing_page_theme.dart';
 import '../../../core/services/action_handler_service.dart';
 
-/// ======================================================
-/// FEATURE: Custom Hero Widget
-/// PURPOSE: Primary header section for the landing page.
-/// ARCHITECTURE: Factory Pattern - Delegates rendering to specific layout 
-/// classes based on [_effectiveVariant] and screen size.
-/// ======================================================
+/// Primary header section for the landing page.
+/// Uses a factory pattern delegating to specific layout classes
+/// based on [_effectiveVariant] and screen size (from LayoutBuilder).
 class CustomHeroWidget extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -28,6 +25,7 @@ class CustomHeroWidget extends StatelessWidget {
   final double? verticalPadding;
   final int variant;
   final String? layoutStyle;
+  final String? badgeText;
 
   const CustomHeroWidget({
     super.key,
@@ -46,8 +44,13 @@ class CustomHeroWidget extends StatelessWidget {
     this.verticalPadding,
     this.variant = 0,
     this.layoutStyle,
+    this.badgeText,
   });
 
+  /// Maps `layoutStyle` string values to int variant codes.
+  /// Variant 0 = standard, 1 = split, 2 = centered, 3 = glass,
+  /// 4 = fullWidthBg, 5 = reverse, 6 = gradientOnly, 7 = fullWidthImage,
+  /// 8 = minimal.
   int get _effectiveVariant {
     if (variant > 0) return variant;
     if (layoutStyle == null) return 0;
@@ -56,6 +59,9 @@ class CustomHeroWidget extends StatelessWidget {
       case 'centered': return 2;
       case 'glass': return 3;
       case 'fullWidthBg': return 4;
+      case 'reverse': return 5;
+      case 'gradientOnly': return 6;
+      case 'fullWidthImage': return 7;
       case 'minimal': return 8;
       default: return 0;
     }
@@ -118,6 +124,7 @@ class CustomHeroWidget extends StatelessWidget {
       subTextColor: subTextColor,
       isRtl: isRtl,
       isMobile: isMobile,
+      badgeText: badgeText,
     );
 
     switch (_effectiveVariant) {
@@ -126,6 +133,8 @@ class CustomHeroWidget extends StatelessWidget {
       case 3: return _HeroGlassLayout(props: commonProps);
       case 4: return _HeroFullWidthBGLayout(props: commonProps);
       case 5: return _HeroReverseLayout(props: commonProps);
+      case 6: return _HeroGradientOnlyLayout(props: commonProps);
+      case 7: return _HeroFullWidthImageLayout(props: commonProps);
       case 8: return _HeroMinimalLayout(props: commonProps);
       default: return _HeroStandardLayout(props: commonProps);
     }
@@ -147,6 +156,7 @@ class _HeroProps {
   final Color subTextColor;
   final bool isRtl;
   final bool isMobile;
+  final String? badgeText;
 
   const _HeroProps({
     required this.title,
@@ -162,6 +172,7 @@ class _HeroProps {
     required this.subTextColor,
     required this.isRtl,
     required this.isMobile,
+    this.badgeText,
   });
 }
 
@@ -225,14 +236,38 @@ class _HeroSplitLayout extends StatelessWidget {
   }
 }
 
-/// Reverse layout (duplicate of split currently in original code).
+/// Reverse layout: image LEFT, text RIGHT on desktop (regardless of RTL).
+/// Mobile stays stacked (text on top, image below).
 class _HeroReverseLayout extends StatelessWidget {
   final _HeroProps props;
   const _HeroReverseLayout({required this.props});
 
   @override
   Widget build(BuildContext context) {
-    return _HeroSplitLayout(props: props);
+    return ResponsiveLayout(
+      desktop: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 5,
+            child: _HeroImage(props: props),
+          ),
+          SizedBox(width: 48),
+          Expanded(
+            flex: 5,
+            child: _HeroTextContent(props: props, alignment: CrossAxisAlignment.start),
+          ),
+        ],
+      ),
+      mobile: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
+          SizedBox(height: 32),
+          _HeroImage(props: props),
+        ],
+      ),
+    );
   }
 }
 
@@ -303,6 +338,64 @@ class _HeroMinimalLayout extends StatelessWidget {
   }
 }
 
+/// Gradient background layout: primary→secondary gradient, no content image.
+class _HeroGradientOnlyLayout extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroGradientOnlyLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: props.isMobile ? 300 : 500),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [props.primary, props.secondary],
+          ),
+        ),
+        padding: const EdgeInsetsDirectional.symmetric(vertical: 48, horizontal: 24),
+        child: _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
+      ),
+    );
+  }
+}
+
+/// Full-width image background layout: image fills entire section with overlay.
+class _HeroFullWidthImageLayout extends StatelessWidget {
+  final _HeroProps props;
+  const _HeroFullWidthImageLayout({required this.props});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: props.isMobile ? 300 : 500),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomNetworkImage(
+              imageUrl: props.imageUrl,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.5),
+            ),
+          ),
+          Center(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.symmetric(vertical: 48, horizontal: 24),
+              child: _HeroTextContent(props: props, alignment: CrossAxisAlignment.center),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Renders the hero's title, subtitle, premium tag, and button.
 ///
 /// Applies `theme?.defaultFont` from the landing page theme to all text.
@@ -352,13 +445,16 @@ class _HeroTextContent extends StatelessWidget {
   }
 }
 
-/// Shared Premium Tag widget.
+/// Shared Premium Tag widget. Displays [badgeText] if provided and non-empty.
 class _HeroPremiumTag extends StatelessWidget {
   final _HeroProps props;
   const _HeroPremiumTag({required this.props});
 
   @override
   Widget build(BuildContext context) {
+    final badge = props.badgeText;
+    if (badge == null || badge.isEmpty) return const SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -367,7 +463,7 @@ class _HeroPremiumTag extends StatelessWidget {
         border: Border.all(color: props.secondary.withValues(alpha: 0.3), width: 1),
       ),
       child: Text(
-        props.isRtl ? "شريك نجاحك الرقمي" : "Your Digital Partner",
+        badge,
         style: AppTypography.caption.copyWith(
           color: props.secondary,
           fontWeight: FontWeight.bold,
@@ -425,13 +521,20 @@ class _HeroButton extends StatelessWidget {
   }
 }
 
-/// Shared Hero Image widget.
+/// Shared Hero Image widget. On desktop, wraps in AspectRatio 4/3 for consistent sizing.
 class _HeroImage extends StatelessWidget {
   final _HeroProps props;
   const _HeroImage({required this.props});
 
   @override
   Widget build(BuildContext context) {
+    final image = CustomNetworkImage(
+      imageUrl: props.imageUrl,
+      borderRadius: BorderRadius.circular(20),
+      fit: BoxFit.cover,
+      height: props.isMobile ? 300 : null,
+    );
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -443,12 +546,9 @@ class _HeroImage extends StatelessWidget {
           ),
         ],
       ),
-      child: CustomNetworkImage(
-        imageUrl: props.imageUrl,
-        borderRadius: BorderRadius.circular(20),
-        fit: BoxFit.cover,
-        height: props.isMobile ? 300 : null,
-      ),
+      child: props.isMobile
+          ? image
+          : AspectRatio(aspectRatio: 4 / 3, child: image),
     );
   }
 }

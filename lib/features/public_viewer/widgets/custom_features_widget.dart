@@ -171,7 +171,7 @@ class _GridFeaturesLayout extends StatelessWidget {
         ...rows.asMap().entries.map((rowEntry) {
           final isLastRow = rowEntry.key == rows.length - 1;
           return Padding(
-            padding: EdgeInsets.only(bottom: isLastRow ? 0 : 24.0),
+            padding: EdgeInsetsDirectional.only(bottom: isLastRow ? 0 : 24.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: rowEntry.value.asMap().entries.map((itemEntry) {

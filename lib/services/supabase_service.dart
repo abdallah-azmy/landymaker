@@ -552,6 +552,7 @@ class SupabaseService extends ChangeNotifier {
     required String subdomain,
     String? customDomain,
     required Map<String, dynamic> designMap,
+    String? designJson,
     required bool isPublished,
     String? websiteType,
     String? pageId,
@@ -561,6 +562,9 @@ class SupabaseService extends ChangeNotifier {
         ? null
         : customDomain.trim();
 
+    // Use pre-encoded JSON if provided (offloaded to background isolate upstream)
+    final encoded = designJson ?? jsonEncode(designMap);
+
     try {
       if (pageId != null) {
         await _client!
@@ -568,7 +572,7 @@ class SupabaseService extends ChangeNotifier {
             .update({
               'subdomain': subdomain,
               'custom_domain': effectiveCustomDomain,
-              'design_json': jsonEncode(designMap),
+              'design_json': encoded,
               'is_published': isPublished,
               'website_type': websiteType ?? 'landing_page',
               'updated_at': DateTime.now().toIso8601String(),
@@ -583,7 +587,7 @@ class SupabaseService extends ChangeNotifier {
               'user_id': userId,
               'subdomain': subdomain,
               'custom_domain': effectiveCustomDomain,
-              'design_json': jsonEncode(designMap),
+              'design_json': encoded,
               'is_published': isPublished,
               'website_type': websiteType ?? 'landing_page',
             })

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -1466,7 +1466,7 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
           ),
         ),
       ),
-      floatingActionButton: _isPreviewMode
+      floatingActionButton: _isPreviewMode || !kDebugMode
           ? null
           : FloatingActionButton(
               onPressed: () => _showLogoTestDialog(context),

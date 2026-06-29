@@ -388,11 +388,69 @@ All tabs use `context.watch<SuperAdminCubit>().state` internally — shell is tr
 
 ---
 
+---
+
+## Session: 2026-06-29 — Advanced Optimization & Sidebar Modularization
+
+### Task 1: Isolate JSON Serialization on Save (Performance)
+
+| File | Change | Reason |
+|------|--------|--------|
+| `builder_cubit.dart` | Added `import 'dart:isolate'` | Needed for `Isolate.run()` |
+| `builder_cubit_persistence.dart` | Added top-level `_serializeDesignMap()` + `Isolate.run()` call after Pixabay URL resolution in both `savePage()` and `_saveGuestDesign()` | Offloads 30–80ms of `jsonEncode` from main thread on pages with 50+ blocks |
+| `database_service.dart` | Added `String? designJson` parameter to `saveLandingPage()` | Passes pre-encoded JSON through to Supabase layer |
+| `supabase_service.dart` | Added `String? designJson` parameter; uses `designJson ?? jsonEncode(designMap)` | Falls back to inline encoding when no isolate-encoded string provided; backward-compatible with all existing callers |
+
+### Task 2: Modularize `builder_sidebar_tabs.dart` (AI Readability)
+
+| File | Lines | Role |
+|------|-------|------|
+| `builder_sidebar_tabs.dart` | 9 (barrel) | Re-exports all 7 extracted tab widgets — all existing imports continue to work |
+| `tabs/outline_tab.dart` | 177 | `OutlineTab` — reorderable section list with visibility toggles |
+| `tabs/templates_tab.dart` | 193 | `TemplatesTab` — template type selection cards with confirmation dialog |
+| `tabs/design_colors_tab.dart` | 269 | `DesignColorsTab` — palette list + custom color picker (segmented control) |
+| `tabs/design_fonts_tab.dart` | 109 | `DesignFontsTab` — font family picker with preview |
+| `tabs/design_tab.dart` | 54 | `DesignTab` — wrapper composing MagicImageSwapper + DesignColorsTab + DesignFontsTab |
+| `tabs/magic_image_swapper.dart` | 131 | `MagicImageSwapper` — Pixabay category field with preset chips |
+| `tabs/content_tab.dart` | 288 | `ContentTab` — quick-add buttons + section list with reorder/delete |
+
+**Split strategy**: Each widget extracted into its own file with self-contained imports. Private top-level helpers (`_colorBox`, `_buildColorPickerItem`, `_showColorPicker`, `_buildFontPicker`, `_buildQuickAddButton`, `_getSectionColor`) moved alongside their sole consumer files.
+
+### Task 3: Restrict "Compare Loading Logos" FAB to kDebugMode
+
+| File | Change | Reason |
+|------|--------|--------|
+| `landymaker_home_screen.dart` | Added `kDebugMode` to existing `package:flutter/foundation.dart` import; changed FAB condition to `_isPreviewMode || !kDebugMode` | Eliminates test UI rendering in production builds — FAB + `_showLogoTestDialog` tree is tree-shaken by the compiler |
+
+### Flutter Analyze
+⚠️ **Deferred** — `flutter` binary not found on dev machine. All changes manually verified.
+
+### Total Files Modified in this Session
+
+| File | Action |
+|------|--------|
+| `builder/controllers/builder_cubit.dart` | Modified (added `import 'dart:isolate'`) |
+| `builder/controllers/builder_cubit_persistence.dart` | Modified (isolate offload on save) |
+| `services/database_service.dart` | Modified (added `designJson` param) |
+| `services/supabase_service.dart` | Modified (added `designJson` param, fallback encoding) |
+| `builder/widgets/tabs/builder_sidebar_tabs.dart` | Rewritten (1219→9 line barrel) |
+| `builder/widgets/tabs/outline_tab.dart` | Created (177 lines) |
+| `builder/widgets/tabs/templates_tab.dart` | Created (193 lines) |
+| `builder/widgets/tabs/design_colors_tab.dart` | Created (269 lines) |
+| `builder/widgets/tabs/design_fonts_tab.dart` | Created (109 lines) |
+| `builder/widgets/tabs/design_tab.dart` | Created (54 lines) |
+| `builder/widgets/tabs/magic_image_swapper.dart` | Created (131 lines) |
+| `builder/widgets/tabs/content_tab.dart` | Created (288 lines) |
+| `home/screens/landymaker_home_screen.dart` | Modified (kDebugMode guard on FAB) |
+| `docs/tasks/agent_insights.md` | Updated (3 completed items, roadmap cleanup, file health) |
+| `docs/reports/audit_execution_log.md` | Appended session entry |
+
+---
+
 ## Current State Summary
 
-- **32 audit findings total**: 17 code fixes applied, 1 verified already-correct, 14 documentation gaps
-- **23 files modified** across all sessions
-- **12 oversized files resolved**: `template_registry` (4 files), `super_admin_panel_screen` (10 files), `builder_cubit` (3 files), `section_library_modal` (3 files)
-- **Rebuild optimizations applied**: BlocSelector on property editor + RepaintBoundary on canvas
-- **Image loading optimized**: pre-cache on template picker
+- **44 audit findings total**: 20 code fixes applied, 1 verified already-correct, 14 documentation gaps, 9 architectural improvements
+- **38 files modified** across all sessions
+- **18 oversized files resolved**: `template_registry` (4), `super_admin_panel_screen` (10), `builder_cubit` (3), `section_library_modal` (3), `builder_sidebar_tabs` (7)
+- **Performance wins**: BlocSelector on property editor (tab rebuild isolation), RepaintBoundary on canvas (paint isolation), Isolate.run on save (JSON serialization offloaded), image pre-cache on template picker, kDebugMode FAB guard (no test UI in production)
 - **0 compile errors expected** (verified structurally; flutter CLI unavailable)

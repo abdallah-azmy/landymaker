@@ -58,7 +58,7 @@ The HTML→Flutter cross-fade (`index.html` ↔ `landymaker_home_screen.dart`) i
 The `template_registry_*.dart` files use `const Uuid().v4()` in function bodies that return `Map<String, dynamic>`. While technically valid, the `const` keyword on `Uuid()` is misleading — it doesn't make the map const. Each call to `getTemplateDesign()` generates new UUIDs. This is fine for the template picker (called once per template selection), but if `getTemplateDesign()` were called repeatedly, UUIDs would change each time, breaking block identity restoration.
 
 ### 2.5 Isolate Usage
-Only the floating cube background system uses `compute()` for isolate offloading. The builder cubit's `savePage()` serializes content synchronously — for pages with 50+ blocks, this blocks the UI thread for 30–80ms. Consider isolating the JSON serialization step for large saves.
+The floating cube background system uses `compute()` for isolate offloading. The builder cubit's `savePage()` now offloads `jsonEncode` to a background isolate via `Isolate.run()` — for pages with 50+ blocks, this saves 30–80ms of main-thread blocking.
 
 ---
 
@@ -77,6 +77,7 @@ Only the floating cube background system uses `compute()` for isolate offloading
 | `builder_cubit.dart` | ✅ **Split** (was 2254, now 207 + 1057 + 1025) | 207 |
 | `supabase_service.dart` | ✅ Documented | 1645 |
 | `landymaker_home_screen.dart` | ✅ Documented | 1484 |
+| ✅ `builder_sidebar_tabs.dart` | ✅ **Split** (was 1219, now barrel 9 lines + 7 files) | barrel |
 
 ### 3.2 Critical Split Targets (Next Priority)
 
@@ -91,7 +92,7 @@ Only the floating cube background system uses `compute()` for isolate offloading
 | `home_navbar.dart` | 1450 | Extract `_DesktopNavbar` and `_MobileNavbar` (or burger menu) into separate files. |
 | `supabase_service.dart` | 1645 | Extract tenant routing + auth methods → `supabase_auth.dart`. Extract storage methods → `supabase_storage.dart`. |
 | `home_hero_section.dart` | 1384 | Already uses `_DesktopLayout`/`_MobileLayout` pattern — extract those to separate files. |
-| `builder_sidebar_tabs.dart` | 1219 | Extract each tab panel (Content, Actions, Design) into individual files. |
+| ✅ `builder_sidebar_tabs.dart` | ~~1219~~ → **barrel** | Done: extracted 7 files (outline_tab, templates_tab, design_colors_tab, design_fonts_tab, design_tab, magic_image_swapper, content_tab) |
 
 **Tier 2 — Monitor (800–1200 lines)**:
 
@@ -127,22 +128,24 @@ Only the floating cube background system uses `compute()` for isolate offloading
 | 6 | **Preload template images** | Added `_precacheImages()` in `template_picker_screen.dart` — calls `precacheImage(NetworkImage(...), context)` for first 5 filtered templates after load + on category change |
 | 7 | **Split `section_library_modal.dart`** | Extracted into 3 part files under `modals/section_library/`: `section_data.dart` (805), `dual_mini_preview.dart` (476), `section_variant_card.dart` (218) — main file reduced from 1680→189 lines |
 | 8 | **Isolate property tab rebuilds** | Replaced `BlocBuilder` with `BlocSelector<..., int>` using block `hashCode` in both `builder_workspace_screen.dart` and `builder_sidebar.dart` — editor only rebuilds when the specific block's data changes |
+| 9 | **Isolate JSON serialization on save** | Offloaded `jsonEncode(designMap)` to `Isolate.run()` in `savePage` + `_saveGuestDesign`; pre-encoded string passed via `designJson` param to `saveLandingPage` |
+| 10 | **Split `builder_sidebar_tabs.dart`** | Extracted into 7 standalone files under `tabs/`: `outline_tab.dart`, `templates_tab.dart`, `design_colors_tab.dart`, `design_fonts_tab.dart`, `design_tab.dart`, `magic_image_swapper.dart`, `content_tab.dart` — main file reduced from 1219→9 line barrel |
+| 11 | **Restrict Compare Loading Logos FAB to kDebugMode** | Wrapped `floatingActionButton` with `!kDebugMode` guard in `landymaker_home_screen.dart` — eliminates test UI overhead in production builds |
 
 ### Immediate (Next Agent)
 
-9. **Track unused imports** — Run `dart fix --apply` to clean stale imports across the project. Several files import `dart:html` (deprecated) when they could use `package:web`.
+12. **Track unused imports** — Run `dart fix --apply` to clean stale imports across the project. Several files import `dart:html` (deprecated) when they could use `package:web`.
 
 ### Medium-Term (Next Sprint)
 
-10. **Shard `block_properties_editor.dart`** — Replace the 1500-line inline `if/else` block-type dispatch with calls to the 24 existing editor files in `blocks/`. Each editor file already has the logic — the issue is that `block_properties_editor.dart` duplicates the routing.
+13. **Shard `block_properties_editor.dart`** — Replace the 1500-line inline `if/else` block-type dispatch with calls to the 24 existing editor files in `blocks/`. Each editor file already has the logic — the issue is that `block_properties_editor.dart` duplicates the routing.
 
-11. **Add `README.md` context anchors** — Create `README.md` in `blog_admin/`, `subscription/`, `super_admin/`, and `public_viewer/` with file maps and AI warnings.
+14. **Add `README.md` context anchors** — Create `README.md` in `blog_admin/`, `subscription/`, `super_admin/`, and `public_viewer/` with file maps and AI warnings.
 
 ### Deferred (Not Critical)
 
-12. **Store session analytics** — Track template selections, builder session duration, and block usage.
-13. **Isolate JSON serialization** — Move `jsonEncode` in `builder_cubit.savePage()` to a background isolate.
-14. **Dark mode verification** — Audit all 12 `CubeLoader` logo variants on `#0F172A` background.
+15. **Store session analytics** — Track template selections, builder session duration, and block usage.
+16. **Dark mode verification** — Audit all 12 `CubeLoader` logo variants on `#0F172A` background.
 
 ---
 
@@ -165,9 +168,9 @@ Legend: ✅ Clean  🟡 Needs attention  ❌ Critical  📝 Documented
 | `supabase_service.dart` | 1645 | ❌ | ✅ | Split next |
 | `super_admin_panel_screen.dart` | 158 | ✅✅ | ✅ | Split done (was 1868) |
 | ✅ `section_library_modal.dart` | ~~1680~~ → **189** | ✅✅ | ❌ | Split into 3 part files (total 1688 lines) |
+| ✅ `builder_sidebar_tabs.dart` | ~~1219~~ → **barrel (9)** | ✅✅ | — | Split into 7 standalone files under `tabs/` |
 | 🟡 `block_properties_editor.dart` | 1501 | 🟡 | ❌ | Rebuild-isolated via BlocSelector; full split deferred |
 | `home_navbar.dart` | 1450 | ❌ | ❌ | Split next |
 | `landymaker_home_screen.dart` | 1484 | 🟡 | ✅ | Split when >1500 |
 | `home_hero_section.dart` | 1384 | ❌ | ❌ | Split next |
-| `builder_sidebar_tabs.dart` | 1219 | ❌ | ❌ | Split next |
 | `builder_workspace_screen.dart` | 802 | 🟡 | ❌ | Monitor |

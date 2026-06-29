@@ -643,3 +643,98 @@ Each README includes:
 - **4 directories now AI-readable**: each has a dedicated `README.md` with file map, state management, and AI warnings
 - **New telemetry pipeline**: `TemplatePickerScreen` → `EventAnalyticsService.recordTemplateEvent()` → `SupabaseService.instance.client.rpc('record_template_event')` with graceful debugPrint fallback
 - **Remaining Tier 1 targets**: `block_properties_editor.dart` (1501 lines) — BlocSelector-isolated, full split deferred; `landymaker_home_screen.dart` (1484 lines) — monitor
+
+---
+
+## Session: 2026-06-29 — Documentation Topology Refactoring & Workspace Cleanup
+
+### Task 1: Document Archiving & File Deletion
+| Action | Details |
+|--------|---------|
+| Created `docs/plans/archive/` | New archive directory for stale plans |
+| Moved 8 stale plan files | `ai_docs_audit_plan.md`, `cube_explosion_3d_enhancement_plan.md`, `cube_transition_refinement.md`, `home_page_enhancements_plan.md`, `homepage_and_templates_plan.md`, `homepage_preview_plan.md`, `splash_logo_animation_plan.md`, `unified_brick_building_plan.md` → `archive/` |
+| Deleted `docs/tasks/TASK_TEMPLATE.md` | Obsolete task template file |
+
+### Task 2: Global Architectural Assets Updated
+| File | Changes |
+|------|---------|
+| `docs/ai/SYSTEM_MAP.md` | Documented sharded `SupabaseService` (auth/pages/storage part files), sharded `LandingPageBuilderCubit` (blocks/persistence mixins), extracted widget clusters table (navbar/, hero/, logo_test_dialog.dart, builder tabs, section library), added `JsonUtils` to services table |
+| `docs/ai/BUILDER_ARCHITECTURE.md` | Added "Sharded Cubit Architecture (Mixin Pattern)" section documenting `BuilderCubitBlocks` + `BuilderCubitPersistence` part split; added `SupabaseService` parallel split; added "Isolate-Based JSON Serialization" section documenting all 6 `jsonEncode`/`jsonDecode` isolate call sites with impact figures |
+| `docs/ai/BLOCK_SCHEMA_REGISTRY.md` | Replaced stale block-type list with full 29-type table including categories, layout controls, and key properties; fixed `variant` universal property to indicate field name varies per type |
+
+### Task 3: Parent-Child AI Context Topology
+| File | Changes |
+|------|---------|
+| `docs/ai/AI_CONTEXT.md` | Complete rewrite: 503→68 lines. Removed all detailed feature descriptions, block type lists, architecture patterns (sections 2-19). Now a lightweight entry point with: documentation index, **Topology Link Directory** (table linking all 5 feature `README.md` playbooks), project overview, critical security rules, and 6 AI agent instructions. |
+| `lib/features/builder/README.md` | Enhanced from 26 to 180+ lines: full file map (80+ files with roles), state & services section, 10 AI warnings (mixin merge prohibition, `_emitDirty` single path, `_history` criticality, isolate offloading requirement, style_registry deprecation, theme cubit binding) |
+
+### Files Modified in this Session
+| File | Action |
+|------|--------|
+| `docs/plans/archive/` (8 moved files) | Moved |
+| `docs/tasks/TASK_TEMPLATE.md` | Deleted |
+| `docs/ai/SYSTEM_MAP.md` | Modified |
+| `docs/ai/BUILDER_ARCHITECTURE.md` | Modified |
+| `docs/ai/BLOCK_SCHEMA_REGISTRY.md` | Modified |
+| `docs/ai/AI_CONTEXT.md` | Rewritten (503→68) |
+| `lib/features/builder/README.md` | Rewritten (26→180+) |
+| `docs/tasks/agent_insights.md` | Updated (completed item 15) |
+| `docs/reports/audit_execution_log.md` | Appended session entry |
+
+---
+
+## Session: 2026-06-29 — Phase 10: Global Playbooks Alignment & Directory Audits
+
+### Task 1: Playbook Audit & Enrichment
+
+| Directory | File | Action | Lines |
+|-----------|------|--------|-------|
+| Dashboard | `lib/features/dashboard/README.md` | **Rewritten** (was 22 lines) | 155 |
+| Services | `lib/services/README.md` | **Rewritten** (was 19 lines) | 130+ |
+| Auth | `lib/features/auth/README.md` | **Created** | 140+ |
+| Home | `lib/features/home/README.md` | **Created** | 150+ |
+
+Each playbook follows the unified 4-section format: Purpose ➔ File Map ➔ State & Services ➔ AI Warnings.
+
+### Key Content Per Playbook
+
+| Playbook | Sections Covered | Notable AI Warnings |
+|----------|-----------------|---------------------|
+| **Dashboard** | 9 screens, 8 controllers (5 cubits), 5 widgets | ActiveWebsiteCubit as single source of truth; StatefulShellRoute navigation; AnimatedThemeToggle removed; NotificationCubit uses Supabase Realtime |
+| **Services** | 13 dart files (sharded SupabaseService with 3 part mixins), 7 service classes | Do NOT merge part files; SupabaseService is the only class calling SupabaseClient; initialize() order strict; Edge Function proxy mandatory for leads |
+| **Auth** | 4 screens, 2 controllers (AuthCubit + AuthState with 9 states), 1 widget | CircularProgressIndicator banned; never bypass UI validators; Google OAuth consent flow; password reset token parsing |
+| **Home** | 3 screens, 15 dart files (navbar/ subfolder with 3 files, hero/ subfolder with 2 files), cross-fade transition | Do NOT modify first-load transition (precise sync params); CubeLoader is the ONLY indicator; logo_test_dialog.dart kDebugMode guard; navbar/hero subfolders not to be merged |
+
+### Task 2: Topology Link Directory Updated
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Playbooks in `AI_CONTEXT.md` table | 5 | **9** |
+| New entries | — | Dashboard, Auth, Home, Services |
+| All links verified | — | ✅ 27 file:// links resolve |
+
+### Files Created/Modified in this Session
+
+| File | Action |
+|------|--------|
+| `lib/features/dashboard/README.md` | Rewritten (22→155 lines) |
+| `lib/services/README.md` | Rewritten (19→130+ lines) |
+| `lib/features/auth/README.md` | **Created** (140+ lines) |
+| `lib/features/home/README.md` | **Created** (150+ lines) |
+| `docs/ai/AI_CONTEXT.md` | Modified (topology table: 5→9 entries) |
+| `docs/tasks/agent_insights.md` | Updated (completed item 16) |
+| `docs/reports/audit_execution_log.md` | Appended session entry |
+
+### Topology Coverage Summary
+
+| Status | Feature | Playbook |
+|--------|---------|----------|
+| ✅ | Super Admin | `lib/features/super_admin/README.md` |
+| ✅ | Blog Admin | `lib/features/blog_admin/README.md` |
+| ✅ | Subscription | `lib/features/subscription/README.md` |
+| ✅ | Public Viewer | `lib/features/public_viewer/README.md` |
+| ✅ | Builder | `lib/features/builder/README.md` |
+| ✅ | Dashboard | `lib/features/dashboard/README.md` |
+| ✅ | Auth | `lib/features/auth/README.md` |
+| ✅ | Home | `lib/features/home/README.md` |
+| ✅ | Services | `lib/services/README.md` |

@@ -136,10 +136,12 @@ The floating cube background system uses `compute()` for isolate offloading. The
 | 12 | **Isolate-based JSON decoding (Phase 6)** | Created `lib/core/utils/json_utils.dart` with `parseJsonDesign` helper; migrated 6 call sites across builder, public viewer, homepage, and dialog — all sync `jsonDecode` replaced with `await Isolate.run()`; eliminated 40–360ms UI blocking per interaction cycle |
 | 13 | **AI context anchors (READMEs)** | Created `README.md` in `blog_admin/`, `subscription/`, `super_admin/`; updated `public_viewer/README.md` — each with purpose, file map, state management, and AI warnings |
 | 14 | **Template telemetry & analytics** | Added `EventAnalyticsService.recordTemplateEvent()` with `record_template_event` RPC + graceful fallback; integrated `category_select` + `template_select` events in `template_picker_screen.dart` with locale capture |
+| 15 | **Documentation topology refactoring** | Archived 8 stale plans to `docs/plans/archive/`; deleted `TASK_TEMPLATE.md`; refactored `AI_CONTEXT.md` (503→68 lines, entry point + topology links); updated `SYSTEM_MAP.md` (Supabase shards, builder mixins, extracted widgets); updated `BUILDER_ARCHITECTURE.md` (mixin sharding + isolate offloading); updated `BLOCK_SCHEMA_REGISTRY.md` (29 active block types); enhanced `builder/README.md` |
+| 16 | **Global playbooks alignment** | Rewrote `dashboard/README.md` (22→155 lines); rewrote `services/README.md` (19→130+ lines); created `auth/README.md` (140+ lines with auth flow diagram); created `home/README.md` (150+ lines with cross-fade transition docs); updated `AI_CONTEXT.md` topology table (5→9 playbooks) |
 
 ### Immediate (Next Agent)
 
-15. **Track unused imports** — Run `dart fix --apply` to clean stale imports across the project. Several files import `dart:html` (deprecated) when they could use `package:web`.
+17. **Track unused imports** — Run `dart fix --apply` to clean stale imports across the project. Several files import `dart:html` (deprecated) when they could use `package:web`.
 
 ### Medium-Term (Next Sprint)
 

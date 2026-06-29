@@ -14,7 +14,7 @@
 
 > **LandyMaker** is an AI-powered, high-performance Landing Page and E-commerce Store Builder engineered specifically for the MENA region with native Right-to-Left (RTL) and Arabic-first support. It empowers startups, SaaS founders, small businesses, and freelancers to build, manage, host, and optimize conversion-driven pages and stores without writing any code.
 
-> 🤖 **AI Assistants & New Developers:** Please read [AI_CONTEXT.md](./AI_CONTEXT.md) as the single source of truth for project architecture, rules, and documentation before contributing.
+> 🤖 **AI Assistants & New Developers:** Please read [AI_CONTEXT.md](./docs/ai/AI_CONTEXT.md) as the single source of truth for project architecture, rules, and documentation before contributing.
 
 ---
 

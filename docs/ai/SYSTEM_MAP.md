@@ -52,6 +52,8 @@ Locate platform functionality by business purpose rather than exact filename.
 | Feature Name | Business Purpose | Main Entry / Screen | Main Controller | Main Widgets / Assets |
 | :--- | :--- | :--- | :--- | :--- |
 | **Builder** | Drag-and-drop editor workspace | `BuilderWorkspaceScreen` | `LandingPageBuilderCubit` | `BuilderCanvas`, `BuilderSidebar` |
+| **Builder (Shard)** | Block CRUD mixin (26 methods) | N/A (part file) | `BuilderCubitBlocks` (mixin) | `builder_cubit_blocks.dart` |
+| **Builder (Shard)** | Persistence, page lifecycle mixin (18 methods) | N/A (part file) | `BuilderCubitPersistence` (mixin) | `builder_cubit_persistence.dart` |
 | **Public Viewer** | Rendering live landing pages | `PublicLandingPage` | `PublicPageCubit` | `SectionRenderer` |
 | **Analytics** | High-fidelity visitor metrics | `AnalyticsScreen` | `LeadsAnalyticsCubit` | `DataCard`, `PageStatCard` |
 | **Leads** | Lead management and submission | `LeadsTrackerScreen` | N/A (Direct DB fetch) | `ResponsiveDataTable` |
@@ -78,7 +80,19 @@ Locate platform functionality by business purpose rather than exact filename.
 
 Find screens based on their business description or path.
 
-| Screen Purpose | File Path | Route | Feature |
+| Screen Purpose ### Extracted Widget Clusters
+
+Key widget clusters that were extracted from monolithic parent files for AI readability:
+
+| Cluster | Extracted From | Extracted Files | Strategy |
+|---------|---------------|----------------|----------|
+| **Navbar** | `home_navbar.dart` (1450→470) | `navbar/desktop_side_menu.dart`, `navbar/mobile_menu_popup.dart`, `navbar/user_avatar_menu.dart` | Public widgets in standalone files |
+| **Hero** | `home_hero_section.dart` (1384→870) | `hero/typewriter_text.dart`, `hero/phone_preview.dart` | Public widgets, layout methods remain in parent |
+| **Logo Test Dialog** | `landymaker_home_screen.dart` | `widgets/logo_test_dialog.dart` | Self-contained debug dialog |
+| **Builder Sidebar Tabs** | `builder_sidebar_tabs.dart` (1219→9 barrel) | `tabs/outline_tab.dart`, `tabs/templates_tab.dart`, `tabs/design_colors_tab.dart`, `tabs/design_fonts_tab.dart`, `tabs/design_tab.dart`, `tabs/magic_image_swapper.dart`, `tabs/content_tab.dart` | 7 standalone files under `tabs/` |
+| **Section Library** | `section_library_modal.dart` (1680→189) | `section_library/section_data.dart`, `section_library/dual_mini_preview.dart`, `section_library/section_variant_card.dart` | Dart `part` files preserving private access |
+
+| File Path | Route | Feature |
 | :--- | :--- | :--- | :--- |
 | **Main Landing Page** | `lib/features/home/screens/landymaker_home_screen.dart` | `/` | Home |
 | **Login Page** | `lib/features/auth/screens/login_screen.dart` | `/login` | Auth |
@@ -141,7 +155,10 @@ Global singleton services registered in `lib/injection_container.dart` via `GetI
 
 | Service Name | Purpose | Key Methods | Dependencies |
 | :--- | :--- | :--- | :--- |
-| **SupabaseService** | Raw SDK database/auth client | `register`, `login`, `saveLandingPage` | `supabase_flutter` |
+| **SupabaseService** | Raw SDK database/auth client (450 lines, split via `part/part of`) | `initialize`, `saveLandingPage`, super-admin ops, templates, homepage, SEO, notifications, bulk ops | `supabase_flutter` |
+| **SupabaseService → Auth (Shard)** | Authentication operations (108 lines) | `register`, `login`, `logout`, `sendPasswordResetEmail`, `signInWithGoogle` | `supabase/supabase_auth.dart` (part file) |
+| **SupabaseService → Pages (Shard)** | Landing page CRUD + leads + analytics (306 lines) | `getLandingPages`, `getLandingPageById`, `saveLandingPage`, `submitLead`, `recordAnalyticsEvent` | `supabase/supabase_pages.dart` (part file) |
+| **SupabaseService → Storage (Shard)** | Image upload + asset management (166 lines) | `uploadImage`, `deleteImage`, `listAssets`, `registerAsset` | `supabase/supabase_storage.dart` (part file) |
 | **DatabaseService** | Structured database business queries | `getLandingPageById`, `submitLead` | `SupabaseService` |
 | **AuthService** | Session management & Google OAuth | `signInWithGoogle`, `logout` | `SupabaseService` |
 | **TenantRouting** | Path, subdomain, and domain resolver | `getRouteMode`, `getTenantIdentifier`| `dart:html` |
@@ -153,6 +170,7 @@ Global singleton services registered in `lib/injection_container.dart` via `GetI
 | **PixelEvent** | Analytics capture and submission | `trackPageView`, `trackLead` | `dart:js` |
 | **FcmService** | Push notifications handler | `initialize`, `requestPermission` | `firebase_messaging` |
 | **DynamicFont** | Dynamic Google Fonts downloader | `loadFont`, `loadFontsFromDesign` | `http`, `FontLoader` |
+| **JsonUtils** | Isolate-based JSON decode helper | `parseJsonDesign()` — offloads `jsonDecode` to `Isolate.run()` | `dart:isolate` |
 
 ---
 

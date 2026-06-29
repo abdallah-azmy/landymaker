@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../editors/block_properties_editor.dart';
 import '../tabs/builder_sidebar_tabs.dart';
@@ -46,10 +47,22 @@ class BuilderSidebar extends StatelessWidget {
       child: state.focusedElementId != null
           ? _buildElementEditor(context)
           : (editingBlockIndex != null && editingBlockIndex! < blocksList.length
-                ? BlockPropertiesEditor(
-                    index: editingBlockIndex!,
-                    state: state,
-                    onDone: onDoneEditing,
+                ? BlocSelector<LandingPageBuilderCubit, BuilderState, int>(
+                    selector: (s) {
+                      if (s is! BuilderLoaded) return -1;
+                      final blocks = s.designMap['blocks'] as List? ?? [];
+                      if (editingBlockIndex! >= blocks.length) return -2;
+                      return blocks[editingBlockIndex!].hashCode;
+                    },
+                    builder: (context, blockHash) {
+                      if (blockHash < 0) return SizedBox.shrink();
+                      final currentState = context.read<LandingPageBuilderCubit>().state as BuilderLoaded;
+                      return BlockPropertiesEditor(
+                        index: editingBlockIndex!,
+                        state: currentState,
+                        onDone: onDoneEditing,
+                      );
+                    },
                   )
                 : _buildTabs(context)),
     );

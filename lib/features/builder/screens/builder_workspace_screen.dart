@@ -228,16 +228,23 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
       context: context,
       title: "تعديل القسم",
       initialChildSize: 0.8,
-      child: BlocBuilder<LandingPageBuilderCubit, BuilderState>(
-        builder: (context, currentState) {
-          if (currentState is! BuilderLoaded) return SizedBox.shrink();
-          final blocks = currentState.designMap['blocks'] as List? ?? [];
-          if (index >= blocks.length) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (Navigator.canPop(context)) Navigator.pop(context);
-            });
+      child: BlocSelector<LandingPageBuilderCubit, BuilderState, int>(
+        selector: (s) {
+          if (s is! BuilderLoaded) return -1;
+          final blocks = s.designMap['blocks'] as List? ?? [];
+          if (index >= blocks.length) return -2;
+          return blocks[index].hashCode;
+        },
+        builder: (context, blockHash) {
+          if (blockHash < 0) {
+            if (blockHash == -2) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (Navigator.canPop(context)) Navigator.pop(context);
+              });
+            }
             return SizedBox.shrink();
           }
+          final currentState = context.read<LandingPageBuilderCubit>().state as BuilderLoaded;
           return BlockPropertiesEditor(
             index: index,
             state: currentState,
@@ -658,12 +665,14 @@ class _CanvasContainer extends StatelessWidget {
             border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 8),
           ),
       clipBehavior: previewMode == PreviewMode.fullscreen ? Clip.none : Clip.antiAlias,
-      child: BuilderCanvas(
-        isMobile: isMobile,
-        previewMode: previewMode,
-        state: state,
-        loc: loc,
-        onBlockTapped: onBlockTapped,
+      child: RepaintBoundary(
+        child: BuilderCanvas(
+          isMobile: isMobile,
+          previewMode: previewMode,
+          state: state,
+          loc: loc,
+          onBlockTapped: onBlockTapped,
+        ),
       ),
     );
   }

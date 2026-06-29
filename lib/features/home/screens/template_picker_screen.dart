@@ -48,8 +48,17 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         .toList();
   }
 
+  void _precacheImages() {
+    for (final t in _filteredTemplates.take(5)) {
+      if (t.imageUrl.isNotEmpty) {
+        precacheImage(NetworkImage(t.imageUrl), context);
+      }
+    }
+  }
+
   void _onCategorySelected(String? category) {
     setState(() => _selectedCategory = category);
+    _precacheImages();
   }
 
   @override
@@ -74,7 +83,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
               .toList() ?? [],
           aiPromptHint: t['ai_prompt_hint'] ?? '',
         )).toList();
-        if (mounted) setState(() { _templates = mapped; _isLoading = false; });
+        if (mounted) { setState(() { _templates = mapped; _isLoading = false; }); _precacheImages(); }
         return;
       }
     } catch (_) {}
@@ -83,6 +92,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         _templates = TemplateRegistry.availableTemplates;
         _isLoading = false;
       });
+      _precacheImages();
     }
   }
 
@@ -546,6 +556,7 @@ class _TemplateCardState extends State<_TemplateCard> {
 
   @override
   Widget build(BuildContext context) {
+    final localeCode = Localizations.localeOf(context).languageCode;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -611,14 +622,14 @@ class _TemplateCardState extends State<_TemplateCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.template.name,
+                      TemplateRegistry.localizedName(widget.template, localeCode),
                       style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 4),
                     Text(
-                      widget.template.description,
+                      TemplateRegistry.localizedDescription(widget.template, localeCode),
                       style: AppTypography.bodyLarge.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

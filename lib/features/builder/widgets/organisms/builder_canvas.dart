@@ -103,7 +103,8 @@ class BuilderCanvas extends StatelessWidget {
           DynamicFontService.loadFontsFromDesign(state.designMap);
         });
 
-        return Stack(
+        return RepaintBoundary(
+          child: Stack(
           children: [
             Center(
               child: AnimatedContainer(
@@ -156,6 +157,7 @@ class BuilderCanvas extends StatelessWidget {
               ),
             ),
           ],
+        ),
         );
       },
     );

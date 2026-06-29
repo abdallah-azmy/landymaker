@@ -171,7 +171,7 @@ Current implementation: `FloatingCubeBackground` is wrapped in `RepaintBoundary`
 No Dart file may exceed 800 lines. Files approaching this limit must be split into focused sub-files before new features are added. Currently oversized files (do not add lines to these — split first):
 - `floating_cube_background.dart` — 2,475 lines
 - `builder_cubit.dart` — 2,070 lines  
-- `template_registry.dart` — 1,814 lines
+- `template_registry.dart` — ✅ **SPLIT** (now a 4-line barrel re-export). Sub-files: `template_registry_base.dart` (685 lines), `template_registry_saas.dart`, `template_registry_ecommerce.dart`, `template_registry_services.dart`.
 - `section_library_modal.dart` — 1,680 lines
 - `super_admin_panel_screen.dart` — 1,868 lines
 - `home_navbar.dart` — 1,450 lines

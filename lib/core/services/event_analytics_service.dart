@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../../services/database_service.dart';
+import '../../services/supabase_service.dart';
 import '../../injection_container.dart';
 
 class EventAnalyticsService {
@@ -76,5 +77,32 @@ class EventAnalyticsService {
   /// Records a generic page event
   static Future<void> recordPageEvent(String pageId, String eventType, {Map<String, dynamic> metadata = const {}}) async {
     await _db.recordPageEvent(landingPageId: pageId, eventType: eventType, metadata: metadata);
+  }
+
+  /// Records a template telemetry event (impression or selection).
+  ///
+  /// Attempts to call the `record_template_event` Supabase RPC. Falls back to
+  /// [debugPrint] if the RPC is not defined in the backend.
+  static Future<void> recordTemplateEvent({
+    required String eventType,
+    required String templateId,
+    required String templateName,
+    required String category,
+    required String locale,
+  }) async {
+    try {
+      final client = SupabaseService.instance.client;
+      await client.rpc('record_template_event', params: {
+        'p_template_id': templateId,
+        'p_event_type': eventType,
+        'p_locale': locale,
+        'p_category': category,
+      });
+    } catch (e) {
+      debugPrint(
+        "TEMPLATE ANALYTICS: $eventType | id=$templateId name=$templateName "
+        "cat=$category locale=$locale | (RPC unavailable: $e)",
+      );
+    }
   }
 }

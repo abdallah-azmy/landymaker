@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/router/router_extensions.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/event_analytics_service.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../../core/widgets/particles/loading_logo.dart';
 import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
@@ -59,6 +60,15 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   void _onCategorySelected(String? category) {
     setState(() => _selectedCategory = category);
     _precacheImages();
+
+    final locale = Localizations.localeOf(context).languageCode;
+    EventAnalyticsService.recordTemplateEvent(
+      eventType: 'category_select',
+      templateId: category ?? 'all',
+      templateName: category ?? 'all',
+      category: category ?? 'all',
+      locale: locale,
+    );
   }
 
   @override
@@ -546,6 +556,15 @@ class _TemplateCardState extends State<_TemplateCard> {
   void _onTemplateSelected(BuildContext context) {
     final authState = context.read<AuthCubit>().state;
     TenantRoutingService.pendingTemplateId = widget.template.id;
+
+    final locale = Localizations.localeOf(context).languageCode;
+    EventAnalyticsService.recordTemplateEvent(
+      eventType: 'template_select',
+      templateId: widget.template.id,
+      templateName: widget.template.name,
+      category: widget.template.category,
+      locale: locale,
+    );
 
     if (authState is Authenticated) {
       context.go('/dashboard');

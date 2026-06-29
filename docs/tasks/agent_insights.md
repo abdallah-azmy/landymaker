@@ -134,21 +134,21 @@ The floating cube background system uses `compute()` for isolate offloading. The
 | 10 | **Split `builder_sidebar_tabs.dart`** | Extracted into 7 standalone files under `tabs/`: `outline_tab.dart`, `templates_tab.dart`, `design_colors_tab.dart`, `design_fonts_tab.dart`, `design_tab.dart`, `magic_image_swapper.dart`, `content_tab.dart` — main file reduced from 1219→9 line barrel |
 | 11 | **Restrict Compare Loading Logos FAB to kDebugMode** | Wrapped `floatingActionButton` with `!kDebugMode` guard in `landymaker_home_screen.dart` — eliminates test UI overhead in production builds |
 | 12 | **Isolate-based JSON decoding (Phase 6)** | Created `lib/core/utils/json_utils.dart` with `parseJsonDesign` helper; migrated 6 call sites across builder, public viewer, homepage, and dialog — all sync `jsonDecode` replaced with `await Isolate.run()`; eliminated 40–360ms UI blocking per interaction cycle |
+| 13 | **AI context anchors (READMEs)** | Created `README.md` in `blog_admin/`, `subscription/`, `super_admin/`; updated `public_viewer/README.md` — each with purpose, file map, state management, and AI warnings |
+| 14 | **Template telemetry & analytics** | Added `EventAnalyticsService.recordTemplateEvent()` with `record_template_event` RPC + graceful fallback; integrated `category_select` + `template_select` events in `template_picker_screen.dart` with locale capture |
 
 ### Immediate (Next Agent)
 
-13. **Track unused imports** — Run `dart fix --apply` to clean stale imports across the project. Several files import `dart:html` (deprecated) when they could use `package:web`.
+15. **Track unused imports** — Run `dart fix --apply` to clean stale imports across the project. Several files import `dart:html` (deprecated) when they could use `package:web`.
 
 ### Medium-Term (Next Sprint)
 
-14. **Shard `block_properties_editor.dart`** — Replace the 1500-line inline `if/else` block-type dispatch with calls to the 24 existing editor files in `blocks/`. Each editor file already has the logic — the issue is that `block_properties_editor.dart` duplicates the routing.
-
-15. **Add `README.md` context anchors** — Create `README.md` in `blog_admin/`, `subscription/`, `super_admin/`, and `public_viewer/` with file maps and AI warnings.
+16. **Shard `block_properties_editor.dart`** — Replace the 1500-line inline `if/else` block-type dispatch with calls to the 24 existing editor files in `blocks/`. Each editor file already has the logic — the issue is that `block_properties_editor.dart` duplicates the routing.
 
 ### Deferred (Not Critical)
 
-16. **Store session analytics** — Track template selections, builder session duration, and block usage.
-16. **Dark mode verification** — Audit all 12 `CubeLoader` logo variants on `#0F172A` background.
+17. **Store session analytics** — Track template selections, builder session duration, and block usage.
+18. **Dark mode verification** — Audit all 12 `CubeLoader` logo variants on `#0F172A` background.
 
 ---
 

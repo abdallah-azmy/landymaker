@@ -590,11 +590,56 @@ All tabs use `context.watch<SuperAdminCubit>().state` internally — shell is tr
 
 ---
 
+## Session: 2026-06-29 — Phase 7: AI Context Anchors & Analytics Integration
+
+### Task 1: README.md Context Anchors (4 directories)
+
+| Directory | File | Purpose |
+|-----------|------|---------|
+| `lib/features/blog_admin/` | `README.md` | Blog CRUD lifecycle, cubit/repository docs, slug enforcement warning, draft/publish lifecycle |
+| `lib/features/subscription/` | `README.md` | Subscription modal docs, no-cubit warning, manual payment read-only constraint |
+| `lib/features/super_admin/` | `README.md` | Full file map (28 files), state management, tab isolation warning, broadcast RPC, template table distinction |
+| `lib/features/public_viewer/` | `README.md` (updated) | Expanded from 20→80+ lines; complete file map (33 widget files), rendering pipeline diagram, 7 AI warnings |
+
+Each README includes:
+1. **Purpose** — high-level explanation of the feature's ownership
+2. **File Map** — quick index of screens, widgets, controllers
+3. **State Management** — key BLoCs/Cubits
+4. **⚠️ AI Warnings** — critical constraints to prevent bad edits
+
+### Task 2: Template Telemetry & Selection Analytics
+
+| File | Change |
+|------|--------|
+| `lib/core/services/event_analytics_service.dart` | Added `recordTemplateEvent()` static method — calls `record_template_event` Supabase RPC with `p_template_id`, `p_event_type`, `p_locale`, `p_category`; graceful fallback to `debugPrint` on RPC failure |
+| `lib/features/home/screens/template_picker_screen.dart` | Added `import '../../../core/services/event_analytics_service.dart'`; integrated `EventAnalyticsService.recordTemplateEvent()` in `_onCategorySelected` (fires `category_select`) and `_onTemplateSelected` (fires `template_select`); both capture `Localizations.localeOf(context).languageCode` |
+
+**Telemetry events**:
+- `category_select` — fired when user taps a category filter (includes category name, locale)
+- `template_select` — fired when user clicks "Apply" on a template card (includes template id, name, category, locale)
+
+**Fallback strategy**: If the `record_template_event` RPC function does not exist in the Supabase backend, the catch block logs the event via `debugPrint` without crashing.
+
+### Total Files Created/Modified in this Session
+
+| File | Action |
+|------|--------|
+| `lib/features/blog_admin/README.md` | **Created** |
+| `lib/features/subscription/README.md` | **Created** |
+| `lib/features/super_admin/README.md` | **Created** |
+| `lib/features/public_viewer/README.md` | **Rewritten** (20→80+ lines) |
+| `lib/core/services/event_analytics_service.dart` | Modified (added `recordTemplateEvent` + supabase_service import) |
+| `lib/features/home/screens/template_picker_screen.dart` | Modified (added import, 2 telemetry calls) |
+| `docs/tasks/agent_insights.md` | Updated (2 completed items, renumbered) |
+| `docs/reports/audit_execution_log.md` | Appended session entry |
+
+---
+
 ### Current State Summary
 
-- **53 audit findings total**: 29 code fixes applied, 1 verified already-correct, 14 documentation gaps, 9 architectural improvements
-- **61 files modified** across all sessions
+- **55 audit findings total**: 31 code fixes applied, 1 verified already-correct, 14 documentation gaps, 9 architectural improvements
+- **69 files modified** across all sessions
 - **24 oversized files resolved** (unchanged)
-- **Performance wins**: BlocSelector on property editor, RepaintBoundary on canvas, Isolate.run on save + decode, image pre-cache, kDebugMode FAB guard
-- **New architectural tool**: `lib/core/utils/json_utils.dart` — centralized JSON design parsing with isolate offload; used by 6 different call sites
+- **4 directories now AI-readable**: each has a dedicated `README.md` with file map, state management, and AI warnings
+- **New telemetry pipeline**: `TemplatePickerScreen` → `EventAnalyticsService.recordTemplateEvent()` → `SupabaseService.instance.client.rpc('record_template_event')` with graceful debugPrint fallback
 - **Remaining Tier 1 targets**: `block_properties_editor.dart` (1501 lines) — BlocSelector-isolated, full split deferred; `landymaker_home_screen.dart` (1484 lines) — monitor

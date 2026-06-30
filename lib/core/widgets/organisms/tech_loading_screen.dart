@@ -18,13 +18,6 @@ class TechLoadingScreen extends StatelessWidget {
               initialState: CubeLoaderState.loading,
               showGlow: true,
             ),
-            SizedBox(height: 32),
-            const CubeLoader(
-              variant: CubeLoaderVariant.single,
-              size: 24,
-              initialState: CubeLoaderState.loading,
-              showGlow: false,
-            ),
           ],
         ),
       ),

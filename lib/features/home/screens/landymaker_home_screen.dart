@@ -1,31 +1,26 @@
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
-import '../../../core/utils/json_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../injection_container.dart';
-import '../../../services/database_service.dart';
-import '../../../core/widgets/visibility_observer.dart';
-import '../../../core/widgets/particles/cube_mode_cubit.dart';
-import '../../../core/widgets/particles/floating_cube_background.dart';
-import '../../../core/utils/js_helper.dart';
 
 import '../../../core/localization/localization_cubit.dart';
-import '../models/home_layouts.dart';
+import '../../../core/utils/js_helper.dart';
+import '../../../core/utils/json_utils.dart';
 import '../../../core/widgets/atoms/animated_cube_mode_toggle.dart';
-import '../../../core/widgets/atoms/cube_shimmer.dart';
-import '../../../core/widgets/atoms/cube_refresh_indicator.dart';
-import '../../../core/widgets/atoms/primary_button.dart';
-import '../widgets/home_navbar.dart';
-import '../widgets/home_hero_section.dart';
-import '../widgets/home_feature_bento.dart';
-import '../widgets/home_cta_section.dart';
-import '../widgets/home_footer.dart';
-import '../widgets/logo_test_dialog.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/particles/cube_loader.dart';
+import '../../../core/widgets/particles/cube_mode_cubit.dart';
+import '../../../core/widgets/particles/floating_cube_background.dart';
+import '../../../core/widgets/visibility_observer.dart';
+import '../../../injection_container.dart';
+import '../../../services/database_service.dart';
 import '../../builder/models/landing_page_theme.dart';
+import '../models/home_layouts.dart';
+import '../widgets/home_cta_section.dart';
+import '../widgets/home_feature_bento.dart';
+import '../widgets/home_footer.dart';
+import '../widgets/home_hero_section.dart';
+import '../widgets/home_navbar.dart';
+import '../widgets/logo_test_dialog.dart';
 
 /// [LandyMakerHomeScreen] — the app's main landing page StatefulWidget.
 ///
@@ -41,6 +36,7 @@ class LandyMakerHomeScreen extends StatefulWidget {
   const LandyMakerHomeScreen({super.key});
 
   static bool _isFirstAppLoad = true;
+
   /// Persists the most recent scroll offset across widget rebuilds so the
   /// user returns to the same position when navigating back.
   static double lastScrollOffset = 0.0;
@@ -517,7 +513,10 @@ class _LandyMakerHomeScreenState extends State<LandyMakerHomeScreen>
                       isActive: _particlesActive,
                       controller: _cubeController,
                       cubeMode: context.watch<CubeModeCubit>().state,
-                      initialPreBurst: _isThisTheFirstLoad && !_persistentLogoRemoved && !_isPreviewMode,
+                      initialPreBurst:
+                          _isThisTheFirstLoad &&
+                          !_persistentLogoRemoved &&
+                          !_isPreviewMode,
                     ),
                   ),
                 ),

@@ -19,6 +19,7 @@ import 'package:landymaker/injection_container.dart';
 import 'package:landymaker/services/image_media_service.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/services/dynamic_font_service.dart';
+import '../../../core/utils/json_utils.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/database_service.dart';
 import '../../../services/storage_service.dart';
@@ -172,7 +173,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState>
     if (currentState is! BuilderLoaded || _historyIndex <= 0) return;
 
     _historyIndex--;
-    final snapshot = await Isolate.run(
+    final snapshot = await runWebSafeIsolate(
       () => Map<String, dynamic>.from(jsonDecode(_history[_historyIndex])),
     );
     final restoredTheme = LandingPageTheme.fromJson(snapshot['theme']);
@@ -198,7 +199,7 @@ class LandingPageBuilderCubit extends Cubit<BuilderState>
       return;
 
     _historyIndex++;
-    final snapshot = await Isolate.run(
+    final snapshot = await runWebSafeIsolate(
       () => Map<String, dynamic>.from(jsonDecode(_history[_historyIndex])),
     );
     final restoredTheme = LandingPageTheme.fromJson(snapshot['theme']);

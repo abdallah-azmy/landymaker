@@ -97,7 +97,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
       );
       finalDesign['theme'] = currentState.theme.toJson();
 
-      final designJson = await Isolate.run(() => _serializeDesignMap(finalDesign));
+      final designJson = await runWebSafeIsolate(() => _serializeDesignMap(finalDesign));
       final savedPageId = await _databaseService.saveLandingPage(
         userId: userId,
         subdomain: subdomain,
@@ -215,7 +215,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     final dynamic rawDesign = page['design_json'];
     if (rawDesign != null) {
       if (rawDesign is String) {
-        designMap = await Isolate.run(() => _decodeDesignJson(rawDesign));
+        designMap = await runWebSafeIsolate(() => _decodeDesignJson(rawDesign));
       } else {
         designMap = Map<String, dynamic>.from(rawDesign);
       }
@@ -323,7 +323,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
       await _resolvePixabayUrlsInDesign(finalDesign);
 
       // Offload JSON encoding to background isolate (30–80ms savings)
-      final designJson = await Isolate.run(() => _serializeDesignMap(finalDesign));
+      final designJson = await runWebSafeIsolate(() => _serializeDesignMap(finalDesign));
       final savedPageId = await _databaseService.saveLandingPage(
         userId: userId,
         subdomain: sanitizedSubdomain,

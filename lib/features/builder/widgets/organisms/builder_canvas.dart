@@ -52,15 +52,17 @@ class BuilderCanvas extends StatelessWidget {
         Color? globalBgColor;
         final globalBgColorHex = state.theme.globalBgColorHex;
         if (globalBgColorHex != null && globalBgColorHex.isNotEmpty) {
-           try {
-             final hexStr = globalBgColorHex.replaceAll('#', '');
-             if (hexStr.length == 6) globalBgColor = Color(int.parse('FF$hexStr', radix: 16));
-             else if (hexStr.length == 8) globalBgColor = Color(int.parse(hexStr, radix: 16));
-           } catch (_) {}
+          try {
+            final hexStr = globalBgColorHex.replaceAll('#', '');
+            if (hexStr.length == 6)
+              globalBgColor = Color(int.parse('FF$hexStr', radix: 16));
+            else if (hexStr.length == 8)
+              globalBgColor = Color(int.parse(hexStr, radix: 16));
+          } catch (_) {}
         }
         final globalBgImage = state.theme.globalBgImageUrl;
         final globalFont = state.theme.defaultFont ?? 'Cairo';
-        
+
         final bool isInteractiveBuilder = previewMode != PreviewMode.fullscreen;
 
         Widget content = Directionality(
@@ -70,10 +72,14 @@ class BuilderCanvas extends StatelessWidget {
             blocks: blocksList,
             pageId: state.pageId ?? 'preview',
             theme: state.theme,
-            onBlockTapped: isInteractiveBuilder ? (index) {
-              context.read<LandingPageBuilderCubit>().selectSection(index);
-              onBlockTapped(index);
-            } : null,
+            onBlockTapped: isInteractiveBuilder
+                ? (index) {
+                    context.read<LandingPageBuilderCubit>().selectSection(
+                      index,
+                    );
+                    onBlockTapped(index);
+                  }
+                : null,
             isBuilder: isInteractiveBuilder,
             selectedIndex: state.focusedSectionIndex,
           ),
@@ -105,62 +111,88 @@ class BuilderCanvas extends StatelessWidget {
 
         return RepaintBoundary(
           child: Stack(
-          children: [
-            Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                width: (isMobile || previewMode == PreviewMode.fullscreen) ? constraints.maxWidth : canvasWidth,
-                height: (isMobile || previewMode == PreviewMode.fullscreen) ? constraints.maxHeight : null,
-                margin: (isMobile || previewMode == PreviewMode.fullscreen)
-                    ? EdgeInsets.zero
-                    : const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-                decoration: BoxDecoration(
-                  color: globalBgColor ?? state.theme.background,
-                  image: (globalBgImage != null && globalBgImage.isNotEmpty)
-                      ? DecorationImage(image: NetworkImage(globalBgImage), fit: BoxFit.cover)
+            children: [
+              Center(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  width: (isMobile || previewMode == PreviewMode.fullscreen)
+                      ? constraints.maxWidth
+                      : canvasWidth,
+                  height: (isMobile || previewMode == PreviewMode.fullscreen)
+                      ? constraints.maxHeight
                       : null,
-                  borderRadius: (isMobile || previewMode == PreviewMode.fullscreen) ? BorderRadius.zero : BorderRadius.circular(12),
-                  boxShadow: (isMobile || previewMode == PreviewMode.fullscreen) ? [] : [const BoxShadow(color: Colors.black26, blurRadius: 36)],
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  children: [
-                    if (previewMode != PreviewMode.fullscreen) 
-                      FakeBrowserAppbar(pageSlug: state.subdomain),
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          SingleChildScrollView(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                minHeight: constraints.maxHeight - (previewMode != PreviewMode.fullscreen && !isMobile ? 36 : 0),
-                              ),
-                              child: content,
+                  margin: (isMobile || previewMode == PreviewMode.fullscreen)
+                      ? EdgeInsets.zero
+                      : const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: globalBgColor ?? state.theme.background,
+                    image: (globalBgImage != null && globalBgImage.isNotEmpty)
+                        ? DecorationImage(
+                            image: NetworkImage(globalBgImage),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                    borderRadius:
+                        (isMobile || previewMode == PreviewMode.fullscreen)
+                        ? BorderRadius.zero
+                        : BorderRadius.circular(12),
+                    boxShadow:
+                        (isMobile || previewMode == PreviewMode.fullscreen)
+                        ? []
+                        : [
+                            const BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 36,
                             ),
-                          ),
-                          if (state.designMap['sticky_cta']?['is_enabled'] == true)
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: StickyCtaBar(
-                                config: Map<String, dynamic>.from(state.designMap['sticky_cta']),
-                                pageId: 'preview',
-                                lang: loc.isRtl ? 'ar' : 'en',
-                                primaryColor: state.theme.primary,
+                          ],
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      if (previewMode != PreviewMode.fullscreen)
+                        FakeBrowserAppbar(pageSlug: state.subdomain),
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            SingleChildScrollView(
+                              padding: EdgeInsets.zero,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight:
+                                      constraints.maxHeight -
+                                      (previewMode != PreviewMode.fullscreen &&
+                                              !isMobile
+                                          ? 36
+                                          : 0),
+                                ),
+                                child: content,
                               ),
                             ),
-                        ],
+                            if (state.designMap['sticky_cta']?['is_enabled'] ==
+                                true)
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: StickyCtaBar(
+                                  config: Map<String, dynamic>.from(
+                                    state.designMap['sticky_cta'],
+                                  ),
+                                  pageId: 'preview',
+                                  lang: loc.isRtl ? 'ar' : 'en',
+                                  primaryColor: state.theme.primary,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         );
       },
     );
   }
-
 }

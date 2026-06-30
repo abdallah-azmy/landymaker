@@ -5,6 +5,7 @@ import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 import '../../../../core/widgets/atoms/cube_spinner.dart';
 import '../../models/preview_mode.dart';
+import 'scrollable_toolbar_container.dart';
 
 class BuilderMobileToolbar extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
@@ -124,113 +125,107 @@ class BuilderMobileToolbar extends StatelessWidget {
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildMoreOptionsButton(context),
-                        const SizedBox(width: 8),
-                        // AI Assistant Button
-                        InkWell(
-                          onTap: onShowAi,
+                return ScrollableToolbarContainer(
+                  minWidth: constraints.maxWidth,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildMoreOptionsButton(context),
+                    const SizedBox(width: 8),
+                    // AI Assistant Button
+                    InkWell(
+                      onTap: onShowAi,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
                           borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
                             ),
-                            child: const Icon(
-                              Icons.auto_awesome_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        // Distinct Add Button
-                        Padding(
-                          padding: const EdgeInsetsDirectional.only(end: 4.0),
-                          child: InkWell(
-                            onTap: onAddBlock,
-                            borderRadius: BorderRadius.circular(16),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.secondary,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Theme.of(context).colorScheme.secondary.withValues(
-                                      alpha: 0.3,
-                                    ),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.add_rounded,
-                                color: Colors.white,
-                                size: 28,
-                              ),
-                            ),
-                          ),
+                        child: const Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Colors.white,
+                          size: 24,
                         ),
-                        const SizedBox(width: 4),
-                        _buildToolButton(
-                          context: context,
-                          icon: Icons.undo_rounded,
-                          onPressed: state.canUndo ? () => cubit.undo() : null,
-                          color: state.canUndo
-                              ? Theme.of(context).colorScheme.onSurface
-                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                        ),
-                        const SizedBox(width: 4),
-                        _buildToolButton(
-                          context: context,
-                          icon: Icons.redo_rounded,
-                          onPressed: state.canRedo ? () => cubit.redo() : null,
-                          color: state.canRedo
-                              ? Theme.of(context).colorScheme.onSurface
-                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                        ),
-                        const SizedBox(width: 4),
-                        _buildToolButton(
-                          context: context,
-                          icon: Icons.font_download_rounded,
-                          onPressed: onShowFonts,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        const SizedBox(width: 4),
-                        _buildToolButton(
-                          context: context,
-                          icon: Icons.color_lens_rounded,
-                          onPressed: onShowColors,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        const SizedBox(width: 4),
-                        _buildToolButton(
-                          context: context,
-                          icon: Icons.visibility_rounded,
-                          onPressed: () =>
-                              onChangePreview(PreviewMode.fullscreen),
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    // Distinct Add Button
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 4.0),
+                      child: InkWell(
+                        onTap: onAddBlock,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.secondary,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context).colorScheme.secondary.withValues(
+                                  alpha: 0.3,
+                                ),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.add_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    _buildToolButton(
+                      context: context,
+                      icon: Icons.undo_rounded,
+                      onPressed: state.canUndo ? () => cubit.undo() : null,
+                      color: state.canUndo
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                    ),
+                    const SizedBox(width: 4),
+                    _buildToolButton(
+                      context: context,
+                      icon: Icons.redo_rounded,
+                      onPressed: state.canRedo ? () => cubit.redo() : null,
+                      color: state.canRedo
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                    ),
+                    const SizedBox(width: 4),
+                    _buildToolButton(
+                      context: context,
+                      icon: Icons.font_download_rounded,
+                      onPressed: onShowFonts,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    const SizedBox(width: 4),
+                    _buildToolButton(
+                      context: context,
+                      icon: Icons.color_lens_rounded,
+                      onPressed: onShowColors,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    const SizedBox(width: 4),
+                    _buildToolButton(
+                      context: context,
+                      icon: Icons.visibility_rounded,
+                      onPressed: () =>
+                          onChangePreview(PreviewMode.fullscreen),
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ],
                 );
               },
             ),

@@ -23,17 +23,17 @@ final List<_SectionDefinition> _sections = [
         'Use as the first block when the prompt mentions a brand, store, clinic, agency, or formal company header.',
     variants: [
       _variant('وسط الصفحة', 'شعار centered بسيط', 'centered', {
-        'variant_style': 'centered',
+        'layout_style': 'centered',
         'alignment': 'center',
         'logo_height': 48.0,
       }),
       _variant('يمين/بداية', 'مناسب للعلامات الرسمية', 'split', {
-        'variant_style': 'edge_aligned',
+        'layout_style': 'edge_aligned',
         'alignment': 'right',
         'logo_height': 42.0,
       }),
       _variant('هيدر داكن', 'شريط واضح أعلى الصفحة', 'dark', {
-        'variant_style': 'dark_bar',
+        'layout_style': 'dark_bar',
         'alignment': 'center',
         'logo_height': 52.0,
         'bg_overlay_color': '#0F172A',
@@ -92,13 +92,13 @@ final List<_SectionDefinition> _sections = [
         'Use when the user asks for a unique composition that does not map cleanly to a specialized section.',
     variants: [
       _variant('عمودي', 'نصوص وعناصر تحت بعض', 'stack', {
-        'variant_style': 'vertical_stack',
+        'layout_style': 'vertical_stack',
         'layout_direction': 'column',
         'spacing': 20.0,
         'vertical_padding': 64.0,
       }),
       _variant('صفّي', 'مناسب لمقارنة أو عرض سريع', 'split', {
-        'variant_style': 'horizontal_split',
+        'layout_style': 'horizontal_split',
         'layout_direction': 'row',
         'spacing': 28.0,
         'vertical_padding': 56.0,
@@ -144,10 +144,10 @@ final List<_SectionDefinition> _sections = [
         'Use after the hero when the prompt mentions clients, partners, certifications, press, or credibility.',
     variants: [
       _variant('شريط شعارات', 'صف أفقي بسيط', 'logos', {
-        'variant_style': 'logo_strip',
+        'layout_style': 'logo_strip',
       }),
       _variant('ثقة داكنة', 'خلفية داكنة للشركات', 'dark', {
-        'variant_style': 'dark_trust',
+        'layout_style': 'dark_trust',
         'bg_overlay_color': '#111827',
         'bg_overlay_opacity': 1.0,
       }),
@@ -164,10 +164,10 @@ final List<_SectionDefinition> _sections = [
         'Use for measurable claims such as customers, years, projects, savings, success rates, or capacity.',
     variants: [
       _variant('٣ مؤشرات', 'أرقام ثقة مختصرة', 'metrics', {
-        'variant_style': 'three_metrics',
+        'layout_style': 'three_metrics',
       }),
       _variant('Impact', 'أربعة مؤشرات للحملات', 'metrics4', {
-        'variant_style': 'impact_grid',
+        'layout_style': 'impact_grid',
         'items': [
           {'value': '500', 'label': 'عميل', 'prefix': '+', 'suffix': ''},
           {'value': '98', 'label': 'رضا', 'prefix': '', 'suffix': '%'},
@@ -189,11 +189,11 @@ final List<_SectionDefinition> _sections = [
         'Use for quotes, bookings, eligibility checks, real estate inquiries, medical appointments, or complex lead qualification.',
     variants: [
       _variant('طلب تسعير', 'خطوات لتأهيل العميل', 'form_steps', {
-        'variant_style': 'quote_wizard',
+        'layout_style': 'quote_wizard',
         'title': 'طلب تسعير سريع',
       }),
       _variant('حجز موعد', 'مناسب للعيادات والخدمات', 'form_steps', {
-        'variant_style': 'appointment_wizard',
+        'layout_style': 'appointment_wizard',
         'title': 'احجز موعدك',
         'subtitle': 'أجب على الأسئلة وسنؤكد الموعد معك',
       }),
@@ -211,10 +211,10 @@ final List<_SectionDefinition> _sections = [
         'Use when the user needs a short contact, callback, demo, or newsletter form.',
     variants: [
       _variant('مركزي', 'عنوان ونموذج مباشر', 'form', {
-        'variant_style': 'centered_form',
+        'layout_style': 'centered_form',
       }),
       _variant('خلفية صورة', 'نموذج واضح فوق خلفية', 'form_dark', {
-        'variant_style': 'image_form',
+        'layout_style': 'image_form',
         'bg_image_url':
             'https://cdn.pixabay.com/photo/2017/10/10/21/47/laptop-2838921_1280.jpg',
         'bg_overlay_color': '#020617',
@@ -234,10 +234,10 @@ final List<_SectionDefinition> _sections = [
         'Use for free guides, coupons, catalogs, reports, checklists, or downloadable resources.',
     variants: [
       _variant('دليل مجاني', 'صورة + نموذج', 'split', {
-        'variant_style': 'guide_download',
+        'layout_style': 'guide_download',
       }),
       _variant('كوبون', 'عرض ترويجي سريع', 'offer', {
-        'variant_style': 'coupon_capture',
+        'layout_style': 'coupon_capture',
         'title': 'احصل على خصمك الآن',
         'subtitle': 'سجل بياناتك وسنرسل لك كود الخصم فوراً.',
       }),
@@ -255,11 +255,11 @@ final List<_SectionDefinition> _sections = [
         'Use to translate product/service capabilities into user benefits, usually 3 to 6 items.',
     variants: [
       _variant('شبكة', 'بطاقات متساوية وواضحة', 'grid', {
-        'variant_style': 'feature_grid',
+        'layout_style': 'feature_grid',
         'layout_style': 'grid',
       }),
       _variant('Bento', 'بطاقات بأحجام مختلفة', 'bento', {
-        'variant_style': 'feature_bento',
+        'layout_style': 'feature_bento',
         'layout_style': 'bento',
         'items': [
           {'title': 'ميزة رئيسية', 'description': 'اشرح أكبر فائدة هنا.'},
@@ -281,10 +281,10 @@ final List<_SectionDefinition> _sections = [
         'Use for MENA businesses, urgent booking, product orders, support, or when the prompt includes a WhatsApp number.',
     variants: [
       _variant('زر مباشر', 'دعوة بسيطة للمحادثة', 'cta', {
-        'variant_style': 'simple_chat',
+        'layout_style': 'simple_chat',
       }),
       _variant('حجز سريع', 'نص مناسب للمواعيد', 'cta_dark', {
-        'variant_style': 'booking_chat',
+        'layout_style': 'booking_chat',
         'title': 'احجز الآن عبر واتساب',
         'message': 'مرحباً، أريد حجز موعد مناسب.',
         'bg_overlay_color': '#064E3B',
@@ -304,20 +304,20 @@ final List<_SectionDefinition> _sections = [
         'Use for stores, menus, packages, property units, service bundles, or any sellable item list.',
     variants: [
       _variant('شبكة ٢', 'منتجات كبيرة وواضحة', 'grid', {
-        'variant_style': 'product_grid_2',
+        'layout_style': 'product_grid_2',
         'layout_style': 'grid_2',
       }),
       _variant('شبكة ٣', 'كاتالوج أكبر', 'grid3', {
-        'variant_style': 'product_grid_3',
+        'layout_style': 'product_grid_3',
         'layout_style': 'grid_3',
       }),
       _variant('قائمة', 'قائمة أسعار أو منيو', 'list', {
-        'variant_style': 'product_list',
+        'layout_style': 'product_list',
         'layout_style': 'list',
         'show_category_filter': false,
       }),
       _variant('شريط متحرك', 'تصفح أفقي للمنتجات', 'gallery_carousel', {
-        'variant_style': 'product_carousel',
+        'layout_style': 'product_carousel',
         'layout_style': 'carousel',
       }),
     ],
@@ -370,12 +370,12 @@ final List<_SectionDefinition> _sections = [
         'Use for subscription tiers, service packages, course plans, memberships, and clear price comparison.',
     variants: [
       _variant('شهري/سنوي', 'خطط اشتراك قابلة للمقارنة', 'pricing', {
-        'variant_style': 'toggle_pricing',
+        'layout_style': 'toggle_pricing',
         'layout_style': 'cards',
         'has_toggle': true,
       }),
       _variant('باقات ثابتة', 'خدمات أو أسعار مباشرة', 'pricing_cards', {
-        'variant_style': 'fixed_packages',
+        'layout_style': 'fixed_packages',
         'layout_style': 'cards',
         'has_toggle': false,
         'items': [
@@ -428,10 +428,10 @@ final List<_SectionDefinition> _sections = [
         'Use near the end to answer objections about pricing, delivery, refunds, booking, eligibility, or support.',
     variants: [
       _variant('مختصر', '٣ أسئلة أساسية', 'accordion', {
-        'variant_style': 'short_faq',
+        'layout_style': 'short_faq',
       }),
       _variant('اعتراضات البيع', 'أسئلة تحويل وطمأنة', 'accordion_dense', {
-        'variant_style': 'conversion_faq',
+        'layout_style': 'conversion_faq',
         'items': [
           {'question': 'هل يمكن التجربة أولاً؟', 'answer': 'نعم، تواصل معنا وسنرشدك للخطوة المناسبة.'},
           {'question': 'ما مدة التنفيذ؟', 'answer': 'تعتمد على التفاصيل، لكن نبدأ عادة خلال وقت قصير.'},
@@ -451,11 +451,11 @@ final List<_SectionDefinition> _sections = [
         'Use when the user mentions reviews, clients, success stories, outcomes, or trust-building.',
     variants: [
       _variant('بطاقات', 'آراء مختصرة', 'quotes', {
-        'variant_style': 'testimonial_cards',
+        'layout_style': 'testimonial_cards',
         'layout_style': 'masonry',
       }),
       _variant('قصص نجاح', 'نصوص أطول ونتائج', 'quotes_dense', {
-        'variant_style': 'success_stories',
+        'layout_style': 'success_stories',
         'layout_style': 'masonry',
         'items': [
           {'author': 'عميل سعيد', 'role': 'صاحب مشروع', 'quote': 'التجربة كانت واضحة وساعدتنا نزيد الطلبات بسرعة.'},
@@ -482,10 +482,10 @@ final List<_SectionDefinition> _sections = [
         'Use for physical businesses, service providers, clinics, offices, and pages that need final contact clarity.',
     variants: [
       _variant('ثلاث بطاقات', 'هاتف وبريد وموقع', 'contact_cards', {
-        'variant_style': 'contact_cards',
+        'layout_style': 'contact_cards',
       }),
       _variant('داكن', 'ختام واضح للصفحة', 'dark', {
-        'variant_style': 'dark_contact',
+        'layout_style': 'dark_contact',
         'bg_overlay_color': '#0F172A',
         'bg_overlay_opacity': 1.0,
       }),
@@ -502,10 +502,10 @@ final List<_SectionDefinition> _sections = [
         'Use for restaurants, clinics, salons, stores, gyms, events, and appointment-based businesses.',
     variants: [
       _variant('أسبوعي', 'مواعيد مختصرة', 'schedule', {
-        'variant_style': 'weekly_hours',
+        'layout_style': 'weekly_hours',
       }),
       _variant('عيادة/حجز', 'مواعيد محددة للخدمات', 'schedule_split', {
-        'variant_style': 'appointment_hours',
+        'layout_style': 'appointment_hours',
         'schedule': {
           'الأحد - الخميس': '5:00 PM - 10:00 PM',
           'الجمعة': 'مغلق',
@@ -524,10 +524,10 @@ final List<_SectionDefinition> _sections = [
         'Use when the prompt includes an address, branch, venue, showroom, clinic, restaurant, or event location.',
     variants: [
       _variant('خريطة كاملة', 'عنوان مع خريطة كبيرة', 'map', {
-        'variant_style': 'full_map',
+        'layout_style': 'full_map',
       }),
       _variant('فرع رئيسي', 'عنوان واضح قبل الخريطة', 'map_pin', {
-        'variant_style': 'branch_map',
+        'layout_style': 'branch_map',
         'title': 'زورونا في الفرع الرئيسي',
       }),
     ],
@@ -543,12 +543,12 @@ final List<_SectionDefinition> _sections = [
         'Use for demos, trailers, course previews, property tours, testimonials, and product explainers.',
     variants: [
       _variant('شرح 16:9', 'فيديو تعريفي عريض', 'video', {
-        'variant_style': 'wide_video',
+        'layout_style': 'wide_video',
         'aspect_ratio': '16:9',
         'max_width': 900,
       }),
       _variant('فيديو مركز', 'عرض أقصر وأكثر تركيزاً', 'video_compact', {
-        'variant_style': 'compact_video',
+        'layout_style': 'compact_video',
         'aspect_ratio': '4:3',
         'max_width': 720,
       }),
@@ -565,12 +565,12 @@ final List<_SectionDefinition> _sections = [
         'Use for portfolios, properties, menus, salon results, event photos, venues, and product detail visuals.',
     variants: [
       _variant('شبكة', '٣ أعمدة للصور', 'gallery_grid', {
-        'variant_style': 'gallery_grid',
+        'layout_style': 'gallery_grid',
         'display_mode': 'grid',
         'grid_columns': 3,
       }),
       _variant('Carousel', 'صورة كبيرة قابلة للتنقل', 'gallery_carousel', {
-        'variant_style': 'gallery_carousel',
+        'layout_style': 'gallery_carousel',
         'display_mode': 'carousel',
       }),
     ],
@@ -586,11 +586,11 @@ final List<_SectionDefinition> _sections = [
         'Use for events, menus, flyers, storefronts, check-in, registration, and shareable offline access.',
     variants: [
       _variant('قياسي', 'كود واضح للمشاركة', 'qr', {
-        'variant_style': 'standard_qr',
+        'layout_style': 'standard_qr',
         'qr_size': 200.0,
       }),
       _variant('كبير', 'للطباعة أو الفعاليات', 'qr_big', {
-        'variant_style': 'large_qr',
+        'layout_style': 'large_qr',
         'qr_size': 260.0,
         'bg_overlay_color': '#F8FAFC',
         'bg_overlay_opacity': 1.0,
@@ -608,10 +608,10 @@ final List<_SectionDefinition> _sections = [
         'Use when the prompt mentions Instagram, TikTok, LinkedIn, Facebook, social follow, or creator profiles.',
     variants: [
       _variant('روابط اجتماعية', 'أيقونات + QR', 'social', {
-        'variant_style': 'social_links',
+        'layout_style': 'social_links',
       }),
       _variant('Creator', 'للمؤثرين والحسابات الشخصية', 'social_creator', {
-        'variant_style': 'creator_social',
+        'layout_style': 'creator_social',
         'title': 'تابعني على المنصات',
         'links': [
           {'platform': 'instagram', 'url': 'https://instagram.com'},
@@ -735,78 +735,4 @@ final List<_SectionDefinition> _sections = [
   ),
 ];
 
-class _SectionDefinition {
-  final String type;
-  final String name;
-  final IconData icon;
-  final String category;
-  final String desc;
-  final bool popular;
-  final String aiRole;
-  final String aiWhenToUse;
-  final List<_SectionVariant> variants;
 
-  const _SectionDefinition({
-    required this.type,
-    required this.name,
-    required this.icon,
-    required this.category,
-    required this.desc,
-    required this.popular,
-    required this.aiRole,
-    required this.aiWhenToUse,
-    required this.variants,
-  });
-}
-
-class _SectionVariant {
-  final String name;
-  final String description;
-  final String preview;
-  final Map<String, dynamic> overrides;
-
-  const _SectionVariant({
-    required this.name,
-    required this.description,
-    required this.preview,
-    required this.overrides,
-  });
-}
-
-_SectionDefinition _section({
-  required String type,
-  required String name,
-  required IconData icon,
-  required String category,
-  required String desc,
-  required String aiRole,
-  required String aiWhenToUse,
-  required List<_SectionVariant> variants,
-  bool popular = false,
-}) {
-  return _SectionDefinition(
-    type: type,
-    name: name,
-    icon: icon,
-    category: category,
-    desc: desc,
-    popular: popular,
-    aiRole: aiRole,
-    aiWhenToUse: aiWhenToUse,
-    variants: variants,
-  );
-}
-
-_SectionVariant _variant(
-  String name,
-  String description,
-  String preview,
-  Map<String, dynamic> overrides,
-) {
-  return _SectionVariant(
-    name: name,
-    description: description,
-    preview: preview,
-    overrides: overrides,
-  );
-}

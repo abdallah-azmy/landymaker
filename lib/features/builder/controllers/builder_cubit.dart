@@ -29,7 +29,10 @@ import 'builder_state.dart';
 import 'builder_theme_cubit.dart';
 
 part 'builder_cubit_blocks.dart';
+part 'builder_cubit_blocks_items.dart';
 part 'builder_cubit_persistence.dart';
+part 'builder_cubit_persistence_design.dart';
+part 'builder_cubit_persistence_images.dart';
 
 /// [LandingPageBuilderCubit] — central state manager for the landing page builder.
 ///
@@ -42,7 +45,8 @@ part 'builder_cubit_persistence.dart';
 /// or the `_themeSubscription` listener — these are critical for undo/redo and
 /// theme sync. Do NOT remove `_suppressHistoryFromTheme` guard.
 class LandingPageBuilderCubit extends Cubit<BuilderState>
-    with BuilderCubitBlocks, BuilderCubitPersistence {
+    with BuilderCubitBlocks, BuilderCubitBlocksItems, BuilderCubitPersistence,
+         BuilderCubitPersistenceDesign, BuilderCubitPersistenceImages {
   /// Auth service for current user identity.
   final AuthService _authService;
 

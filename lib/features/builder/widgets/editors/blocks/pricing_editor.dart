@@ -35,6 +35,7 @@ class PricingEditor extends StatelessWidget {
           hintText: "العنوان الرئيسي",
           controller: getController("${index}_title", LocalizedTextParser.extractText(block['title'], 'ar')),
           focusNode: getFocusNode("${index}_title"),
+          maxLength: 100,
           onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
         ),
         SizedBox(height: 16),
@@ -105,6 +106,7 @@ class PricingEditor extends StatelessWidget {
                   hintText: "اسم الخطة",
                   controller: getController("${index}_pricing_${pIndex}_name", LocalizedTextParser.extractText(item['name'], 'ar')),
                   focusNode: getFocusNode("${index}_pricing_${pIndex}_name"),
+                  maxLength: 100,
                   onChanged: (val) {
                     _updateItemProp(pIndex, 'name', val);
                   },
@@ -115,6 +117,7 @@ class PricingEditor extends StatelessWidget {
                     hintText: "السعر",
                     controller: getController("${index}_pricing_${pIndex}_price", item['price'] ?? ''),
                     focusNode: getFocusNode("${index}_pricing_${pIndex}_price"),
+                    maxLength: 30,
                     onChanged: (val) => _updateItemProp(pIndex, 'price', val),
                   ),
                 ] else ...[

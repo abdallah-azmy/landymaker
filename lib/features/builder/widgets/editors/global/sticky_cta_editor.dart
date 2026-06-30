@@ -109,6 +109,7 @@ class _StickyCtaEditorState extends State<StickyCtaEditor> {
                 SizedBox(height: 8),
                 CustomTextField(
                   controller: _textController,
+                  maxLength: 300,
                   onChanged: (val) => updateLocalizedText('text', val),
                   hintText: "مثال: اشترك الآن واحصل على خصم",
                 ),
@@ -118,6 +119,7 @@ class _StickyCtaEditorState extends State<StickyCtaEditor> {
                 SizedBox(height: 8),
                 CustomTextField(
                   controller: _priceController,
+                  maxLength: 30,
                   onChanged: (val) => updateLocalizedText('price_text', val),
                   hintText: "مثال: 99 ج.م بدلاً من 150 ج.م",
                 ),
@@ -127,6 +129,7 @@ class _StickyCtaEditorState extends State<StickyCtaEditor> {
                 SizedBox(height: 8),
                 CustomTextField(
                   controller: _btnTextController,
+                  maxLength: 50,
                   onChanged: (val) => updateLocalizedText('button_text', val),
                 ),
                 SizedBox(height: 16),
@@ -159,6 +162,7 @@ class _StickyCtaEditorState extends State<StickyCtaEditor> {
                 SizedBox(height: 8),
                 CustomTextField(
                   controller: _actionValueController,
+                  maxLength: 2000,
                   onChanged: (val) => updateConfig('button_action_value', val),
                   hintText: "مثال: https://...",
                 ),

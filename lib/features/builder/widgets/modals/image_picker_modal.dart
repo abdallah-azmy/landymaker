@@ -93,9 +93,9 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
             SnackBar(
               content: Text(
                 state.message,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onError),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         } else if (state is ImagePickerPixabayError) {
@@ -103,9 +103,9 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
             SnackBar(
               content: Text(
                 state.message,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onError),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -199,8 +199,8 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
   Widget _buildTabBar() {
     return TabBar(
       controller: _tabController,
-      indicatorColor: const Color(0xFF00E5FF), // Cyan Accent
-      labelColor: const Color(0xFF00E5FF),
+      indicatorColor: Theme.of(context).colorScheme.primary,
+      labelColor: Theme.of(context).colorScheme.primary,
       unselectedLabelColor: Colors.white54,
       tabs: const [
         Tab(icon: Icon(Icons.upload_file), text: 'Upload'),
@@ -232,8 +232,8 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
             icon: Icon(Icons.photo_library),
             label: const Text('Browse Files'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00E5FF),
-              foregroundColor: Colors.black,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -259,8 +259,8 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
           current is ImagePickerGalleryError,
       builder: (context, state) {
         if (state is ImagePickerLoadingGallery) {
-          return const Center(
-            child: CubeProgress(color: Color(0xFF00E5FF)),
+          return Center(
+            child: CubeProgress(color: Theme.of(context).colorScheme.primary),
           );
         }
 
@@ -280,9 +280,9 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                   TextButton.icon(
                     onPressed: () => _tabController.animateTo(0),
                     icon:
-                        Icon(Icons.upload_file, color: Color(0xFF00E5FF)),
-                    label: const Text('Go to Upload',
-                        style: TextStyle(color: Color(0xFF00E5FF))),
+                        Icon(Icons.upload_file, color: Theme.of(context).colorScheme.primary),
+                    label: Text('Go to Upload',
+                        style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                   ),
                 ],
               ),
@@ -309,7 +309,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF1E293B)),
+                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: CustomNetworkImage(
@@ -352,13 +352,13 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                     hintText: 'Search free images...',
                     hintStyle: TextStyle(color: Colors.white38),
                     filled: true,
-                    fillColor: const Color(0xFF1E293B), // Slate 800
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide.none,
                     ),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.search, color: Color(0xFF00E5FF)),
+                      icon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
                       onPressed: () {
                         context.read<ImagePickerCubit>().searchPixabay(
                           _searchController.text,
@@ -376,17 +376,17 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedImageType,
-                    dropdownColor: const Color(0xFF1E293B),
+                    dropdownColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     style: TextStyle(color: Colors.white),
                     icon: Icon(
                       Icons.filter_list,
-                      color: Color(0xFF00E5FF),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     items: const [
                       DropdownMenuItem(value: 'all', child: Text('All')),
@@ -421,8 +421,8 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                 current is ImagePickerInitial,
             builder: (context, state) {
               if (state is ImagePickerLoadingPixabay) {
-                return const Center(
-                  child: CubeProgress(color: Color(0xFF00E5FF)),
+                return Center(
+                  child: CubeProgress(color: Theme.of(context).colorScheme.primary),
                 );
               } else if (state is ImagePickerPixabayLoaded) {
                 if (state.images.isEmpty) {
@@ -471,8 +471,8 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                     if (state.isFetchingMore)
                       Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: const CubeProgress(
-                          color: Color(0xFF00E5FF),
+                        child: CubeProgress(
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                   ],
@@ -530,7 +530,7 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
               hintText: 'https://example.com/image.jpg',
               hintStyle: TextStyle(color: Colors.white38),
               filled: true,
-              fillColor: const Color(0xFF1E293B),
+              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,
@@ -547,8 +547,8 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00E5FF),
-                foregroundColor: Colors.black,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

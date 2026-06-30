@@ -29,4 +29,4 @@ CREATE POLICY "Allow authenticated users to modify platform_seo_settings"
 
 -- Insert the default root page setting so it's ready to use
 INSERT INTO public.platform_seo_settings (route_path, meta_title, meta_description)
-VALUES ('/', 'LandyMaker | المنصة الأسهل لإنشاء صفحات الهبوط', 'أنشئ صفحات هبوط احترافية باستخدام الذكاء الاصطناعي في دقائق معدودة.');
+VALUES ('/', 'LandyMaker | لاندي ميكر | المنصة الأسهل لإنشاء صفحات الهبوط', 'LandyMaker | لاندي ميكر — المنصة الأسهل لإنشاء صفحات الهبوط والمتاجر الإلكترونية بالذكاء الاصطناعي في دقائق معدودة.');

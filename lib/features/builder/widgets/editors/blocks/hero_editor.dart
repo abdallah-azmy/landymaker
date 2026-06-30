@@ -42,6 +42,7 @@ class HeroEditor extends StatelessWidget {
             controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
             focusNode: getFocusNode("${index}_subtitle"),
             maxLines: 3,
+            maxLength: 300,
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
           ),
         ),
@@ -59,6 +60,7 @@ class HeroEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_button_text", block['button_text'] ?? ''),
             focusNode: getFocusNode("${index}_button_text"),
+            maxLength: 50,
             onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
           ),
         ),
@@ -78,6 +80,7 @@ class HeroEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_badge_text", block['badge_text'] ?? ''),
             focusNode: getFocusNode("${index}_badge_text"),
+            maxLength: 50,
             onChanged: (val) => cubit.updateBlockProperty(index, 'badge_text', val),
           ),
         ),

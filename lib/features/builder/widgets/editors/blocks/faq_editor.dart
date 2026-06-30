@@ -153,6 +153,7 @@ class FaqEditor extends StatelessWidget {
                 ),
                 CustomTextField(
                   hintText: "السؤال",
+                  maxLength: 200,
                   controller: getController(
                     "${index}_faq_${fIndex}_question",
                     item['question'] ?? '',
@@ -165,6 +166,7 @@ class FaqEditor extends StatelessWidget {
                 CustomTextField(
                   hintText: "الإجابة",
                   maxLines: 3,
+                  maxLength: 500,
                   controller: getController(
                     "${index}_faq_${fIndex}_answer",
                     item['answer'] ?? '',

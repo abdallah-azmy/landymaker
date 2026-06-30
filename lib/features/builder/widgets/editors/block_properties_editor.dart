@@ -105,6 +105,7 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
         child: CustomTextField(
           controller: _getController("${widget.index}_title", block['title'] ?? ''),
           focusNode: _getFocusNode("${widget.index}_title"),
+          maxLength: 100,
           onChanged: (val) => cubit.updateBlockProperty(widget.index, 'title', val),
         ),
       ),

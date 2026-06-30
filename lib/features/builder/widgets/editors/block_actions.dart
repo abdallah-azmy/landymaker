@@ -23,6 +23,7 @@ List<Widget> buildActionsTab({
         child: CustomTextField(
           controller: getController("${index}_button_text", block['button_text'] ?? ''),
           focusNode: getFocusNode("${index}_button_text"),
+          maxLength: 50,
           onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
         ),
       ),
@@ -33,6 +34,7 @@ List<Widget> buildActionsTab({
         child: CustomTextField(
           controller: getController("${index}_button_url", block['button_url'] ?? ''),
           focusNode: getFocusNode("${index}_button_url"),
+          maxLength: 2000,
           onChanged: (val) => cubit.updateBlockProperty(index, 'button_url', val),
         ),
       ),
@@ -46,6 +48,7 @@ List<Widget> buildActionsTab({
         child: CustomTextField(
           controller: getController("${index}_phone", block['phone_number'] ?? ''),
           focusNode: getFocusNode("${index}_phone"),
+          maxLength: 20,
           onChanged: (val) => cubit.updateBlockProperty(index, 'phone_number', val),
         ),
       ),
@@ -59,6 +62,7 @@ List<Widget> buildActionsTab({
         child: CustomTextField(
           controller: getController("${index}_btn_text", block['button_text'] ?? ''),
           focusNode: getFocusNode("${index}_btn_text"),
+          maxLength: 50,
           onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
         ),
       ),
@@ -77,6 +81,7 @@ List<Widget> buildActionsTab({
         child: CustomTextField(
           controller: getController("${index}_sec_btn_text", block['secondary_button_text'] ?? ''),
           focusNode: getFocusNode("${index}_sec_btn_text"),
+          maxLength: 50,
           onChanged: (val) => cubit.updateBlockProperty(index, 'secondary_button_text', val),
         ),
       ),

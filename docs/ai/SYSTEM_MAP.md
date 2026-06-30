@@ -51,9 +51,14 @@ Locate platform functionality by business purpose rather than exact filename.
 
 | Feature Name | Business Purpose | Main Entry / Screen | Main Controller | Main Widgets / Assets |
 | :--- | :--- | :--- | :--- | :--- |
-| **Builder** | Drag-and-drop editor workspace | `BuilderWorkspaceScreen` | `LandingPageBuilderCubit` | `BuilderCanvas`, `BuilderSidebar` |
-| **Builder (Shard)** | Block CRUD mixin (26 methods) | N/A (part file) | `BuilderCubitBlocks` (mixin) | `builder_cubit_blocks.dart` |
-| **Builder (Shard)** | Persistence, page lifecycle mixin (18 methods) | N/A (part file) | `BuilderCubitPersistence` (mixin) | `builder_cubit_persistence.dart` |
+| **Builder** | Drag-and-drop editor workspace | `BuilderWorkspaceScreen` | `LandingPageBuilderCubit` | `BuilderCanvas`, `BuilderSidebar`, `BuilderAppBar`, `BuilderMobileToolbar` |
+| **Builder (Shard)** | Block CRUD mixin (26 methods) | N/A (part file) | `BuilderCubitBlocks` (mixin) | `builder_cubit_blocks.dart` (1,054 lines — OVER 800) |
+| **Builder (Shard)** | Persistence, page lifecycle mixin (18 methods) | N/A (part file) | `BuilderCubitPersistence` (mixin) | `builder_cubit_persistence.dart` (1,045 lines — OVER 800) |
+| **Section Library** | 29-block-type catalog + variant selection | `SectionLibraryModal` | N/A (modal) | `section_data.dart` (812 lines — OVER 800), `dual_mini_preview.dart`, `section_variant_card.dart` |
+| **Content Tab Dispatcher** | Routes sidebar content tab to correct *Editor | N/A (internal) | `content_tab_dispatcher.dart` | 29 editor files under `widgets/editors/blocks/` |
+| **Draggable Modal Sheet** | Standard bottom sheet for builder modals | `DraggableModalSheet.show()` | N/A (widget) | `draggable_modal_sheet.dart` (115 lines) |
+| **Block Property Editor** | Block properties editing dispatcher (1500+ lines) | `block_properties_editor.dart` | N/A (widget) | `widgets/editors/block_properties_editor.dart`, `widgets/editors/block_actions.dart`, `widgets/editors/block_design_settings.dart` |
+| **Builder Theme** | Global design (colors, fonts, backgrounds) | N/A (Internal) | `BuilderThemeCubit` | `BuilderSidebar`, `BackgroundPickerTab`, `DesignFontsTab`, `DesignColorsTab` |
 | **Public Viewer** | Rendering live landing pages | `PublicLandingPage` | `PublicPageCubit` | `SectionRenderer` |
 | **Analytics** | High-fidelity visitor metrics | `AnalyticsScreen` | `LeadsAnalyticsCubit` | `DataCard`, `PageStatCard` |
 | **Leads** | Lead management and submission | `LeadsTrackerScreen` | N/A (Direct DB fetch) | `ResponsiveDataTable` |
@@ -90,7 +95,8 @@ Key widget clusters that were extracted from monolithic parent files for AI read
 | **Hero** | `home_hero_section.dart` (1384→870) | `hero/typewriter_text.dart`, `hero/phone_preview.dart` | Public widgets, layout methods remain in parent |
 | **Logo Test Dialog** | `landymaker_home_screen.dart` | `widgets/logo_test_dialog.dart` | Self-contained debug dialog |
 | **Builder Sidebar Tabs** | `builder_sidebar_tabs.dart` (1219→9 barrel) | `tabs/outline_tab.dart`, `tabs/templates_tab.dart`, `tabs/design_colors_tab.dart`, `tabs/design_fonts_tab.dart`, `tabs/design_tab.dart`, `tabs/magic_image_swapper.dart`, `tabs/content_tab.dart` | 7 standalone files under `tabs/` |
-| **Section Library** | `section_library_modal.dart` (1680→189) | `section_library/section_data.dart`, `section_library/dual_mini_preview.dart`, `section_library/section_variant_card.dart` | Dart `part` files preserving private access |
+| **Section Library** | `section_library_modal.dart` (1680→189) | `section_library/section_data.dart` (812 lines — OVER 800), `section_library/dual_mini_preview.dart`, `section_library/section_variant_card.dart` | Dart `part` files preserving private access |
+| **Content Tab Dispatcher** | N/A (new Phase 4) | `content_tab_dispatcher.dart` | Routes 29 block types to correct *Editor |
 
 | File Path | Route | Feature |
 | :--- | :--- | :--- | :--- |
@@ -194,6 +200,11 @@ graph LR
     C --> E[SectionRenderer]
     E --> F[BlockRegistry]
     F --> G[CustomSectionWidget]
+    H[BuilderAppBar] -->|save/publish/back| B
+    I[BuilderMobileToolbar] -->|save/publish/back| B
+    J[SectionLibraryModal] -->|addBlock| B
+    K[ContentTabDispatcher] -->|edits| B
+    L[DraggableModalSheet] -->|hosts editors| K
 ```
 
 ### Secure Lead Capturing Pipeline

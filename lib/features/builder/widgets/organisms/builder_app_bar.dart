@@ -115,56 +115,72 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       titleSpacing: 16,
       title: Row(
-        children: [
-          if (!isMobile) ...[
-            Icon(
-              Icons.auto_awesome_motion_rounded,
-              color: Theme.of(context).colorScheme.primary,
-              size: 20,
-            ),
-            SizedBox(width: 12),
-          ],
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                state.subdomain.toUpperCase(),
-                style: AppTypography.bodyLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: Theme.of(context).colorScheme.onSurface,
+          children: [
+              if (!isMobile) ...[
+                Icon(
+                  Icons.auto_awesome_motion_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              Row(
+                SizedBox(width: 12),
+              ],
+              Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: state.isPublished
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        state.subdomain.toUpperCase(),
+                        style: AppTypography.bodyLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (state.hasUnsavedChanges) ...[
+                        SizedBox(width: 6),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  SizedBox(width: 4),
-                  Text(
-                    state.isPublished ? "LIVE" : "DRAFT",
-                    style: AppTypography.caption.copyWith(
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      color: state.isPublished
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: state.isPublished
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        state.isPublished ? "LIVE" : "DRAFT",
+                        style: AppTypography.caption.copyWith(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: state.isPublished
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
           if (!isMobile) ...[
             SizedBox(width: 16),
             VerticalDivider(
@@ -284,6 +300,16 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                       onPressed: () => onChangePreview(PreviewMode.mobile),
                       tooltip: "Mobile Preview",
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.tablet_rounded,
+                        color: previewMode == PreviewMode.tablet
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      onPressed: () => onChangePreview(PreviewMode.tablet),
+                      tooltip: "Tablet Preview",
                     ),
                     IconButton(
                       icon: Icon(

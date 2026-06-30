@@ -36,6 +36,7 @@ class LocationMapEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_location_title", block['title'] ?? 'موقعنا'),
             focusNode: getFocusNode("${index}_location_title"),
+            maxLength: 100,
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
@@ -45,6 +46,7 @@ class LocationMapEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_address", block['address'] ?? ''),
             focusNode: getFocusNode("${index}_address"),
+            maxLength: 300,
             onChanged: (val) => cubit.updateBlockProperty(index, 'address', val),
           ),
         ),

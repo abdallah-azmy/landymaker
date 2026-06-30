@@ -130,3 +130,161 @@ final decoded = await Isolate.run(() => _decodeDesignJson(rawJsonString));
 The `SectionRenderer` is a shared component used by both the **Editor** and the **Public Viewer**.
 - **Editor Mode**: Wraps sections in `SectionToolbarOverlay` to show selection borders and edit handles.
 - **Public Mode**: Renders raw sections with maximum performance.
+
+---
+
+## 🧩 Section Library Modal
+
+**File**: `lib/features/builder/widgets/modals/section_library_modal.dart` (189 lines)
+**Part files**: `section_library/section_data.dart` (812 lines), `section_library/dual_mini_preview.dart` (476 lines), `section_library/section_variant_card.dart` (218 lines)
+
+The Section Library is the builder-facing catalog of all 29 addable block types:
+
+### Architecture
+- `SectionLibraryModal` is the top-level shell with a search bar, category filter chips, and a scrollable grid of `SectionVariantCard`s.
+- Category filter chips use `ListView(scrollDirection: Axis.horizontal, shrinkWrap: true)` — horizontal scrolling, no wrapping.
+- Selecting a chip filters the displayed blocks to that category; "all" shows everything.
+- Each block card shows a `_DualMiniPreview` (35% mobile + 65% desktop abstract geometry) and the block title.
+- `SectionVariantCard` displays variant options for the selected block on tap.
+
+### Dual Mini Preview
+- `_DualMiniPreview` uses abstract geometric patterns (circles, rectangles, lines) — NEVER real section content.
+- Mobile side has a colored accent border (via `Container` decoration) for visual distinction.
+- Card `childAspectRatio`: `0.62` on small screens, `0.70` on larger.
+
+### Style Registry Status
+- `StyleRegistry` (`lib/features/builder/registries/style_registry.dart`) is **deprecated** since Phase 11.
+- The `SectionVariant` class and `StyleRegistry.variants` list were removed from the UI.
+- Only `LayoutPickerPanel` (`lib/features/builder/widgets/layout_picker/layout_picker_panel.dart`) remains for variant selection.
+
+### ⚠️ Critical Rules
+- **NEVER use `variant_style` in section_data.dart hero/hero_saas entries** — use `layout_style` (Rule 42).
+- Every library entry must have a matching `BlockRegistry` renderer, `addBlock()` default, and editor path.
+- `section_data.dart` (812 lines) is over the 800-line limit — split before adding new entries.
+
+---
+
+## 🧩 Content Tab Dispatcher
+
+**File**: `lib/features/builder/widgets/editors/content_tab_dispatcher.dart` (220 lines)
+
+The Content Tab Dispatcher is the single routing point for sidebar content tab editing. When a user selects a block in the sidebar's Content tab, the dispatcher routes to the correct `*Editor` via a `switch` statement on `blockType`.
+
+### Routing Table
+| Block Type | Editor File | Notes |
+|---|---|---|
+| `hero` | `hero_editor.dart` | Shared with hero_saas via properties filter |
+| `hero_saas` | `hero_editor.dart` (via hero_saas_editor.dart wrapper) | SaaS-specific layout_style (dashboardSplit/launchCenter/darkSaas) + tech_logos |
+| All others (27 types) | `*_editor.dart` | Dedicated editor per type |
+| `whatsapp` | `whatsapp_editor.dart` | Was missing before Phase 4 fix (B4.2) |
+
+### Adding a New Block Type
+1. Create `*_editor.dart` in `lib/features/builder/widgets/editors/blocks/`
+2. Add route in `content_tab_dispatcher.dart`
+3. Add schema to `supabase/functions/shared/schema_registry.json`
+4. Add default preset in `landingpage_builder_cubit.addBlock()` (builder_cubit_blocks.dart)
+5. Add library entry in `section_data.dart`
+6. Register renderer in `block_registry.dart`
+
+---
+
+## 🧩 Desktop & Mobile Toolbar Consistency
+
+### Desktop AppBar
+**File**: `lib/features/builder/widgets/organisms/builder_app_bar.dart` (634 lines)
+
+The `BuilderAppBar` is the desktop editor toolbar with:
+- Back button → `_handleBack()` with 3 options dialog (Cancel / Exit / **Save and Exit**)
+- Page title (editable)
+- Undo/Redo buttons (with `CubeLoaderVariant.single`)
+- Preview toggle (desktop/mobile)
+- Save indicator (dirty flag + auto-save status)
+- Publish button (opens `BuilderOptionsModal`)
+- AI Chat button
+
+### Mobile Toolbar
+**File**: `lib/features/builder/widgets/molecules/builder_mobile_toolbar.dart` (325 lines)
+
+The `BuilderMobileToolbar` is the mobile bottom toolbar with:
+- Same `_handleBack()` 3-option dialog as desktop
+- Save button
+- Publish button
+- Undo/Redo buttons
+- AI Chat button
+- Uses `LayoutBuilder` + horizontal `SingleChildScrollView` to prevent overflow on small screens
+
+### Back Navigation Consistency (CRITICAL)
+Both `_handleBack()` implementations MUST offer the same 3 options:
+1. **Cancel** — dismisses the dialog, stays in editor
+2. **Exit** — discards unsaved changes, navigates back via `context.safePop()`
+3. **Save and Exit** — calls `cubit.savePage()`, then navigates back
+
+The `_onWillPop()` handler in `builder_workspace_screen.dart` (PopScope) also follows this same pattern. Fix history:
+- B11.1: Desktop `_handleBack()` had only 2 options (Cancel/Exit) — added Save and Exit
+- B12.2: Mobile `_handleBack()` had only 2 options — added Save and Exit
+- B12.3: `_onWillPop()` used `AppColors.activeGreen` — fixed to `Theme.of(context).colorScheme.primary`
+
+### Color Consistency
+All hardcoded `Colors.green` and `AppColors.activeGreen` have been replaced with `Theme.of(context).colorScheme.primary`:
+- `builder_app_bar.dart` — 11+ places (B11.2)
+- `builder_mobile_toolbar.dart` — 5 places in publish button (B12.1)
+- `builder_options_modal.dart` — 4 places in publish/save buttons (B11.3)
+- `builder_workspace_screen.dart` — `_onWillPop` (B12.3)
+
+---
+
+## 🧩 Bottom Sheets (Modals)
+
+**Standard Modal**: `DraggableModalSheet` (`lib/core/widgets/draggable_modal_sheet.dart`, 115 lines)
+
+All builder modals SHOULD use `DraggableModalSheet.show()` unless they have specific requirements preventing it.
+
+### DraggableModalSheet Defaults
+| Parameter | Default | Notes |
+|---|---|---|
+| `initialChildSize` | `0.6` | Initial height as fraction of available space |
+| `minChildSize` | `0.4` | Minimum drag-down height |
+| `maxChildSize` | `0.95` | Maximum drag-up height (near full-screen) |
+| `isScrollControlled` | `true` | Required for all builder modals |
+
+### Builder Modals Audit (Phase 14)
+| Modal | File | Lines | Uses DraggableModalSheet | Loading Widget | Status |
+|---|---|---|---|---|---|
+| Builder Options | `builder_options_modal.dart` | 403 | ✅ Yes | `CubeProgress` | ✅ Clean |
+| AI Chat | `ai_chat_modal.dart` | 452 | ❌ Native `showModalBottomSheet` | `CubeLoader` | ⚠️ Exception |
+| SEO Settings | `seo_settings_modal.dart` | 394 | ✅ Yes | `CubeLoader` | ✅ Clean |
+| Layout Picker | `layout_picker_panel.dart` | — | ✅ Yes | — | ✅ Clean |
+| Image Picker | `image_picker_modal.dart` | 567 | ✅ Yes | `CubeLoader` | ⚠️ `Color(0xFF00E5FF)` hardcoded in 11+ places |
+| Pixabay Selector | `pixabay_selector_modal.dart` | 276 | ❌ Native `showModalBottomSheet` | `CubeLoader` | ⚠️ Exception |
+| Section Library | `section_library_modal.dart` | 189 | ✅ Yes | — | ✅ Clean |
+
+### Known Issues
+- **`image_picker_modal.dart`**: Hardcoded `Color(0xFF00E5FF)` cyan accent color in 11+ places — needs to be parameterized or replaced with theme color
+- **`PixabaySelectorModal`**: Uses native `showModalBottomSheet` — does not have `DraggableModalSheet` drag handle, resize behavior, or title bar
+- **`AIChatModal`**: Uses native `showModalBottomSheet` — inconsistent UX with other modals
+
+---
+
+## ⚠️ Oversized File Warnings
+
+The following builder files exceed the 800-line AI readability limit. Do NOT add features or classes to these files without splitting first:
+
+| File | Lines | Content |
+|---|---|---|
+| `builder_cubit_blocks.dart` | 1,054 | Block CRUD mixin (26 methods) |
+| `builder_cubit_persistence.dart` | 1,045 | Persistence mixin (18 methods) |
+| `section_data.dart` | 812 | Section library definitions (part file) |
+| `builder_workspace_screen.dart` | 811 | Main editor screen + desktop/mobile layout |
+| `block_properties_editor.dart` | 1,501 | Editor dispatcher (full split deferred) |
+
+---
+
+## ✅ Phase 15 Documentation Sync
+
+The comprehensive 15-phase Builder Audit (June-July 2026) modified 80+ files and fixed ~145 bugs. Documentation updates from the audit:
+- `docs/ai/BLOCK_SCHEMA_REGISTRY.md` — hero/hero_saas layout_style values, badge_text, editor paths, renderer columns
+- `docs/ai/BUILDER_ARCHITECTURE.md` — AI Theme Application Flow (Section 5), Section Library, Bottom Sheets, toolbar consistency, oversized file warnings, Content Tab Dispatcher
+- `docs/ai/AI_DOCUMENTATION_RULES.md` — Rules 42-49 (variant keys, back navigation, content dispatcher, Section Library, bottom sheets, green→theme migration, tablet dead code, DynamicFontService loading)
+- `lib/features/builder/README.md` — hero_saas_editor, whatsapp_editor, content_tab_dispatcher file map
+- `docs/reports/builder_audit_report.md` — per-phase reports + Summary section
+- `docs/reports/BUILDER_AUDIT_PROGRESS.md` — STATUS: COMPLETE, all 15 phases checked off

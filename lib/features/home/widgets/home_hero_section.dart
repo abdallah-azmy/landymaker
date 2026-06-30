@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/draggable_modal_sheet.dart';
 import '../../../core/widgets/atoms/blur_effect.dart';
 import '../../../core/widgets/custom_network_image.dart';
 import '../../../core/animations/entrance_animation_mixin.dart';
@@ -193,11 +194,10 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
 
   void _showAiWizard(BuildContext context) {
     final currentPath = GoRouterState.of(context).uri.path;
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => AIChatModal(currentPath: currentPath),
+      child: AIChatModal(currentPath: currentPath),
+      initialChildSize: 0.85,
     );
   }
 

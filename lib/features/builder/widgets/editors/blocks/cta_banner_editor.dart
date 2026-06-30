@@ -29,6 +29,7 @@ class CtaBannerEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_title", block['title'] ?? ''),
             focusNode: getFocusNode("${index}_title"),
+            maxLength: 100,
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
@@ -38,6 +39,7 @@ class CtaBannerEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
             focusNode: getFocusNode("${index}_subtitle"),
+            maxLength: 300,
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
           ),
         ),
@@ -47,6 +49,7 @@ class CtaBannerEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_btn_text", block['button_text'] ?? ''),
             focusNode: getFocusNode("${index}_btn_text"),
+            maxLength: 50,
             onChanged: (val) => cubit.updateBlockProperty(index, 'button_text', val),
           ),
         ),

@@ -39,6 +39,7 @@ class TestimonialsEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_title", block['title'] ?? ''),
             focusNode: getFocusNode("${index}_title"),
+            maxLength: 100,
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
@@ -172,6 +173,7 @@ class TestimonialsEditor extends StatelessWidget {
                   focusNode: getFocusNode(
                     "${index}_testimonial_${tIndex}_author",
                   ),
+                  maxLength: 100,
                   onChanged: (val) =>
                       cubit.updateTestimonialItem(index, tIndex, 'author', val),
                 ),
@@ -185,6 +187,7 @@ class TestimonialsEditor extends StatelessWidget {
                   focusNode: getFocusNode(
                     "${index}_testimonial_${tIndex}_role",
                   ),
+                  maxLength: 100,
                   onChanged: (val) =>
                       cubit.updateTestimonialItem(index, tIndex, 'role', val),
                 ),
@@ -199,6 +202,7 @@ class TestimonialsEditor extends StatelessWidget {
                   focusNode: getFocusNode(
                     "${index}_testimonial_${tIndex}_quote",
                   ),
+                  maxLength: 500,
                   onChanged: (val) =>
                       cubit.updateTestimonialItem(index, tIndex, 'quote', val),
                 ),

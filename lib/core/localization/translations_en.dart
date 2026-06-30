@@ -172,6 +172,9 @@ const Map<String, String> translationsEn = {
   'seo_og_image': 'Social Share Image (Open Graph Image)',
   'seo_og_image_help':
       'This image displays when you share your site link on social media platforms like Facebook, WhatsApp, and Twitter.',
+  'favicon': 'Favicon',
+  'favicon_help':
+      'A small icon displayed in the browser tab next to the page title. A square image of 32×32 pixels is recommended.',
   'export_csv': 'Export CSV',
   'export_success': 'Data exported successfully!',
   'export_error': 'Failed to export data',

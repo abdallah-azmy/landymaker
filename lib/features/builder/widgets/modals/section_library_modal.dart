@@ -7,6 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/atoms/primary_button.dart';
 import '../../controllers/builder_cubit.dart';
 
+part 'section_library/section_data_base.dart';
 part 'section_library/section_data.dart';
 part 'section_library/section_variant_card.dart';
 part 'section_library/dual_mini_preview.dart';

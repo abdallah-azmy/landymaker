@@ -63,6 +63,7 @@ class GalleryEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_title", block['title'] ?? ''),
             focusNode: getFocusNode("${index}_title"),
+            maxLength: 100,
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),

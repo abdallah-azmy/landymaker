@@ -153,9 +153,10 @@ export default async function middleware(request) {
           const settings = await platformResponse.json();
           if (settings && settings.length > 0) {
             const seo = settings[0];
-            const title = seo.meta_title || "LandyMaker";
-            const description = seo.meta_description || "LandyMaker Platform";
+            const title = seo.meta_title || "LandyMaker | لاندي ميكر | المنصة الأسهل لإنشاء صفحات الهبوط";
+            const description = seo.meta_description || "LandyMaker | لاندي ميكر — المنصة الأسهل لإنشاء صفحات الهبوط والمتاجر الإلكترونية بالذكاء الاصطناعي في دقائق معدودة.";
             const ogImage = seo.og_image_url || "https://landymaker.com/logo_social.webp";
+            const baseUrl = cleanHost === 'localhost' || cleanHost === '127.0.0.1' ? `http://${host}` : `https://${cleanHost}`;
 
             return new Response(
               `<!DOCTYPE html>
@@ -171,6 +172,21 @@ export default async function middleware(request) {
                   <meta name="twitter:title" content="${title}">
                   <meta name="twitter:description" content="${description}">
                   <meta name="twitter:image" content="${ogImage}">
+                  
+                  <!-- Favicon -->
+                  <link rel="icon" href="${baseUrl}/favicon.ico" sizes="any">
+                  <link rel="icon" type="image/png" sizes="192x192" href="${baseUrl}/icons/Icon-192.png">
+                  <link rel="apple-touch-icon" href="${baseUrl}/icons/Icon-192.png">
+
+                  <!-- Structured Data for Google Site Name -->
+                  <script type="application/ld+json">
+                  {
+                    "@context": "https://schema.org",
+                    "@type": "WebSite",
+                    "name": "LandyMaker | لاندي ميكر",
+                    "url": "${baseUrl}/"
+                  }
+                  </script>
                 </head>
                 <body>
                   <h1>${title}</h1>
@@ -292,6 +308,12 @@ export default async function middleware(request) {
                 <meta name="twitter:title" content="${title}">
                 <meta name="twitter:description" content="${description}">
                 <meta name="twitter:image" content="${ogImage}">
+
+                <!-- Favicon -->
+                <link rel="icon" href="https://landymaker.com/favicon.ico" sizes="any">
+                <link rel="icon" type="image/png" sizes="192x192" href="https://landymaker.com/icons/Icon-192.png">
+                <link rel="apple-touch-icon" href="https://landymaker.com/icons/Icon-192.png">
+
                 <script type="application/ld+json">
                 {
                   "@context": "https://schema.org",

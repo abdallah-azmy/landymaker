@@ -38,6 +38,7 @@ class ContactInfoEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_title", block['title'] ?? ''),
             focusNode: getFocusNode("${index}_title"),
+            maxLength: 100,
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
@@ -97,6 +98,7 @@ class ContactInfoEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_email", block['email'] ?? ''),
             focusNode: getFocusNode("${index}_email"),
+            maxLength: 254,
             onChanged: (val) => cubit.updateBlockProperty(index, 'email', val),
           ),
         ),
@@ -106,6 +108,7 @@ class ContactInfoEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_phone", block['phone'] ?? ''),
             focusNode: getFocusNode("${index}_phone"),
+            maxLength: 20,
             onChanged: (val) => cubit.updateBlockProperty(index, 'phone', val),
           ),
         ),
@@ -115,6 +118,7 @@ class ContactInfoEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_location", block['location'] ?? ''),
             focusNode: getFocusNode("${index}_location"),
+            maxLength: 300,
             onChanged: (val) => cubit.updateBlockProperty(index, 'location', val),
           ),
         ),

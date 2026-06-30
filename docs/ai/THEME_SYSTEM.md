@@ -44,7 +44,7 @@ These are brand colors, NOT surface colors, and may still be referenced via `App
 - `AppColors.primary` → Use `Theme.of(context).colorScheme.primary` when possible
 - `AppColors.secondary` → Use `Theme.of(context).colorScheme.secondary` when possible
 - `AppColors.dangerRed` → Use `Theme.of(context).colorScheme.error` when possible
-- `AppColors.activeGreen` — Still used as static `Colors.green` equivalent
+- `AppColors.activeGreen` — **⚠️ PHASED OUT OF BUILDER** (replaced by `Theme.of(context).colorScheme.primary` in `builder_app_bar.dart`, `builder_mobile_toolbar.dart`, `builder_workspace_screen.dart`, `builder_options_modal.dart`). Do NOT reintroduce in builder code. May still exist outside builder.
 - `AppColors.warningOrange` — Brand-specific warning color, no M3 equivalent
 - `AppColors.primaryGradient` — Static brand gradient asset, acceptable
 

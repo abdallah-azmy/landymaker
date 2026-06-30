@@ -109,6 +109,7 @@ class TeamMembersEditor extends StatelessWidget {
                   hintText: "الاسم",
                   controller: getController("${index}_member_${i}_name", item['name'] ?? ''),
                   focusNode: getFocusNode("${index}_member_${i}_name"),
+                  maxLength: 100,
                   onChanged: (val) {
                     items[i]['name'] = val;
                     cubit.updateBlockProperty(index, 'items', items);
@@ -119,6 +120,7 @@ class TeamMembersEditor extends StatelessWidget {
                   hintText: "المسمى الوظيفي",
                   controller: getController("${index}_member_${i}_role", item['role'] ?? ''),
                   focusNode: getFocusNode("${index}_member_${i}_role"),
+                  maxLength: 100,
                   onChanged: (val) {
                     items[i]['role'] = val;
                     cubit.updateBlockProperty(index, 'items', items);

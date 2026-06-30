@@ -24,6 +24,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
   late TextEditingController _descController;
   late TextEditingController _keywordsController;
   late TextEditingController _ogImageController;
+  late TextEditingController _faviconController;
   late TextEditingController _fbPixelController;
   late TextEditingController _tiktokPixelController;
   late TextEditingController _snapPixelController;
@@ -37,6 +38,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
     _descController = TextEditingController(text: state.designMap['meta_description'] ?? '');
     _keywordsController = TextEditingController(text: state.designMap['keywords'] ?? '');
     _ogImageController = TextEditingController(text: state.designMap['og_image_url'] ?? '');
+    _faviconController = TextEditingController(text: state.designMap['favicon_url'] ?? '');
     _fbPixelController = TextEditingController(text: state.designMap['fb_pixel_id'] ?? '');
     _tiktokPixelController = TextEditingController(text: state.designMap['tiktok_pixel_id'] ?? '');
     _snapPixelController = TextEditingController(text: state.designMap['snap_pixel_id'] ?? '');
@@ -48,6 +50,7 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
     _descController.dispose();
     _keywordsController.dispose();
     _ogImageController.dispose();
+    _faviconController.dispose();
     _fbPixelController.dispose();
     _tiktokPixelController.dispose();
     _snapPixelController.dispose();
@@ -248,6 +251,81 @@ class _SeoSettingsModalState extends State<SeoSettingsModal> {
               ),
             ),
           ],
+          SizedBox(height: 24),
+          FormGroup(
+            label: loc.translate('favicon'),
+            helperText: loc.translate('favicon_help'),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CustomTextField(
+                    controller: _faviconController,
+                    onChanged: (val) {
+                      cubit.updateMetadata('favicon_url', val);
+                      setState(() {});
+                    },
+                    hintText: "https://example.com/favicon.ico",
+                  ),
+                ),
+                SizedBox(width: 12),
+                if (_faviconController.text.isNotEmpty)
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: CustomNetworkImage(
+                        imageUrl: _faviconController.text,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                if (_faviconController.text.isNotEmpty) SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final selectedData = await ImagePickerModal.show(context);
+                    if (selectedData == null) return;
+
+                    final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
+                    final oldUrl = _faviconController.text;
+
+                    _faviconController.text = uploadId;
+                    cubit.updateMetadata('favicon_url', uploadId);
+                    setState(() {});
+
+                    sl<UploadManagerCubit>().upload(
+                      uploadId: uploadId,
+                      data: selectedData,
+                      onSuccess: (finalUrl) {
+                        _faviconController.text = finalUrl;
+                        cubit.updateMetadata('favicon_url', finalUrl);
+                        setState(() {});
+                      },
+                      onCancel: () {
+                        _faviconController.text = oldUrl;
+                        cubit.updateMetadata('favicon_url', oldUrl);
+                        setState(() {});
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  icon: Icon(Icons.image_search, size: 18),
+                  label: Text(loc.translate('upload_image')),
+                ),
+              ],
+            ),
+          ),
         ] else ...[
           Text(
             loc.translate('pixel_help'),

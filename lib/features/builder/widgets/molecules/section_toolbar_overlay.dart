@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/widgets/draggable_modal_sheet.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
 import '../../controllers/builder_cubit.dart';
@@ -368,11 +369,10 @@ class _SectionToolbarOverlayState extends State<SectionToolbarOverlay> {
     final aiCubit = context.read<AIGenerationCubit>();
     aiCubit.pendingSectionIndex = widget.index;
     aiCubit.pendingSectionType = type;
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const AIChatModal(),
+      child: const AIChatModal(),
+      initialChildSize: 0.85,
     );
   }
 

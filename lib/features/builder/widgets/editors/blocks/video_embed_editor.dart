@@ -41,6 +41,7 @@ class VideoEmbedEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_title", block['title'] ?? ''),
             focusNode: getFocusNode("${index}_title"),
+            maxLength: 100,
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
@@ -50,6 +51,7 @@ class VideoEmbedEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
             focusNode: getFocusNode("${index}_subtitle"),
+            maxLength: 300,
             onChanged: (val) => cubit.updateBlockProperty(index, 'subtitle', val),
             maxLines: 2,
           ),

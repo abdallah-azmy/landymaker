@@ -62,6 +62,7 @@ class ProductsEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_title", block['title'] ?? ''),
             focusNode: getFocusNode("${index}_title"),
+            maxLength: 100,
             onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
           ),
         ),
@@ -72,6 +73,7 @@ class ProductsEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_whatsapp_number", block['whatsapp_number'] ?? ''),
             focusNode: getFocusNode("${index}_whatsapp_number"),
+            maxLength: 20,
             onChanged: (val) => cubit.updateBlockProperty(index, 'whatsapp_number', val),
             keyboardType: TextInputType.phone,
           ),
@@ -237,6 +239,7 @@ class ProductsEditor extends StatelessWidget {
                   hintText: context.translate('product_name'),
                   controller: getController("${index}_product_${pIndex}_name", item['name'] ?? ''),
                   focusNode: getFocusNode("${index}_product_${pIndex}_name"),
+                  maxLength: 100,
                   onChanged: (val) => cubit.updateProductItem(index, pIndex, 'name', val),
                 ),
                 SizedBox(height: 12),
@@ -244,6 +247,7 @@ class ProductsEditor extends StatelessWidget {
                   hintText: context.translate('price'),
                   controller: getController("${index}_product_${pIndex}_price", item['price'] ?? ''),
                   focusNode: getFocusNode("${index}_product_${pIndex}_price"),
+                  maxLength: 30,
                   onChanged: (val) => cubit.updateProductItem(index, pIndex, 'price', val),
                 ),
                 SizedBox(height: 12),

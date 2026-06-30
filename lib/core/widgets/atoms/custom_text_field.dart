@@ -21,6 +21,7 @@ class CustomTextField extends StatefulWidget {
 
   final Iterable<String>? autofillHints;
   final TextInputAction? textInputAction;
+  final int? maxLength;
 
   const CustomTextField({
     super.key,
@@ -43,6 +44,7 @@ class CustomTextField extends StatefulWidget {
     this.textDirection,
     this.autofillHints,
     this.textInputAction,
+    this.maxLength,
   });
 
   @override
@@ -90,6 +92,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           obscureText: _obscureText,
           keyboardType: widget.keyboardType,
           maxLines: widget.maxLines,
+          maxLength: widget.maxLength,
           textDirection: widget.textDirection,
           onChanged: widget.onChanged,
           onFieldSubmitted: widget.onSubmitted,

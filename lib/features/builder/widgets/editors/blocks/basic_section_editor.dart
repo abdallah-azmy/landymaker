@@ -199,6 +199,7 @@ class BasicSectionEditor extends StatelessWidget {
                     ),
                     focusNode: getFocusNode("${index}_element_${i}_content"),
                     maxLines: 3,
+                    maxLength: 300,
                     onChanged: (val) {
                       final elements = List<Map<String, dynamic>>.from(
                         block['elements'] ?? [],

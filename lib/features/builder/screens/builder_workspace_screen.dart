@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:html' as html;
-import 'dart:ui';
 import '../../../core/router/router_extensions.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/localization/localization_cubit.dart';
 import '../../auth/controllers/auth_cubit.dart';
@@ -29,6 +27,12 @@ import '../models/preview_mode.dart';
 import '../../home/screens/landymaker_home_screen.dart';
 import '../../../core/widgets/organisms/tech_loading_screen.dart';
 import '../widgets/modals/ai_chat_modal.dart';
+import 'workspace/sidebar_wrapper.dart';
+import 'workspace/canvas_container.dart';
+import 'workspace/desktop_fab.dart';
+import 'workspace/fullscreen_close_button.dart';
+import 'workspace/upload_manager_wrapper.dart';
+import 'workspace/auth_gate.dart';
 
 /// ======================================================
 /// FEATURE: Builder Workspace Screen
@@ -55,11 +59,16 @@ class BuilderWorkspaceScreen extends StatefulWidget {
 
 class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   int? _editingBlockIndex;
-  PreviewMode _previewMode = PreviewMode.desktop; // Mobile: overridden in build() via ResponsiveLayout.isMobile
+  PreviewMode _previewMode = PreviewMode.desktop;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && ResponsiveLayout.isMobile(context)) {
+        setState(() => _previewMode = PreviewMode.mobile);
+      }
+    });
     LandyMakerHomeScreen.resetScrollPosition();
     final builderCubit = context.read<LandingPageBuilderCubit>();
     if (widget.pageId != null && widget.pageId != 'new') {
@@ -130,11 +139,10 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
 
   void _showAiWizard(BuildContext context) {
     final currentPath = GoRouterState.of(context).uri.path;
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => AIChatModal(currentPath: currentPath),
+      child: AIChatModal(currentPath: currentPath),
+      initialChildSize: 0.85,
     );
   }
 
@@ -426,13 +434,13 @@ class _DesktopBuilderWorkspace extends StatelessWidget {
           ),
       floatingActionButton: previewMode == PreviewMode.fullscreen
         ? null
-        : _DesktopFab(onShowAi: onShowAi, onAddBlock: onAddBlock),
+        : DesktopFab(onShowAi: onShowAi, onAddBlock: onAddBlock),
       body: Stack(
         children: [
           Row(
             children: [
               if (previewMode != PreviewMode.fullscreen)
-                _SidebarWrapper(
+                SidebarWrapper(
                   loc: loc,
                   cubit: cubit,
                   state: state,
@@ -442,7 +450,7 @@ class _DesktopBuilderWorkspace extends StatelessWidget {
                 ),
               Expanded(
                 child: Center(
-                  child: _CanvasContainer(
+                  child: CanvasContainer(
                     previewMode: previewMode,
                     isMobile: false,
                     state: state,
@@ -457,10 +465,10 @@ class _DesktopBuilderWorkspace extends StatelessWidget {
             ],
           ),
           if (previewMode == PreviewMode.fullscreen)
-            _FullscreenCloseButton(loc: loc, onBack: () => onSetPreviewMode(PreviewMode.desktop)),
-          _UploadManagerWrapper(loc: loc, isMobile: false),
+            FullscreenCloseButton(loc: loc, onBack: () => onSetPreviewMode(PreviewMode.desktop)),
+          UploadManagerWrapper(loc: loc, isMobile: false),
           if (context.watch<AuthCubit>().state is Unauthenticated && blocksList.isNotEmpty)
-            const _AuthGate(),
+            const BuilderAuthGate(),
         ],
       ),
     );
@@ -525,7 +533,7 @@ class _MobileBuilderWorkspace extends StatelessWidget {
       body: Stack(
         children: [
           Center(
-            child: _CanvasContainer(
+            child: CanvasContainer(
               previewMode: previewMode,
               isMobile: true,
               state: state,
@@ -534,278 +542,14 @@ class _MobileBuilderWorkspace extends StatelessWidget {
             ),
           ),
           if (previewMode == PreviewMode.fullscreen)
-            _FullscreenCloseButton(loc: loc, onBack: () => onSetPreviewMode(PreviewMode.mobile)),
-          _UploadManagerWrapper(loc: loc, isMobile: true),
+            FullscreenCloseButton(loc: loc, onBack: () => onSetPreviewMode(PreviewMode.mobile)),
+          UploadManagerWrapper(loc: loc, isMobile: true),
           if (context.watch<AuthCubit>().state is Unauthenticated && blocksList.isNotEmpty)
-            const _AuthGate(),
+            const BuilderAuthGate(),
         ],
       ),
     );
   }
 }
 
-/// Shared Desktop FABs.
-class _DesktopFab extends StatelessWidget {
-  final VoidCallback onShowAi;
-  final VoidCallback onAddBlock;
 
-  const _DesktopFab({required this.onShowAi, required this.onAddBlock});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        FloatingActionButton.extended(
-          onPressed: onShowAi,
-          heroTag: 'ai_fab',
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          icon: Icon(Icons.auto_awesome_rounded, color: Colors.white),
-          label: const Text("مساعد الذكاء الاصطناعي", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        ),
-        SizedBox(height: 12),
-        FloatingActionButton.extended(
-          onPressed: onAddBlock,
-          heroTag: 'add_fab',
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          icon: Icon(Icons.add_rounded, color: Colors.white),
-          label: const Text("إضافة قسم جديد", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        ),
-      ],
-    );
-  }
-}
-
-/// Shared Sidebar Wrapper for Desktop.
-class _SidebarWrapper extends StatelessWidget {
-  final LocalizationCubit loc;
-  final LandingPageBuilderCubit cubit;
-  final BuilderLoaded state;
-  final int? editingBlockIndex;
-  final List<Map<String, dynamic>> blocksList;
-  final Function(int?) onSetEditingBlock;
-
-  const _SidebarWrapper({
-    required this.loc,
-    required this.cubit,
-    required this.state,
-    this.editingBlockIndex,
-    required this.blocksList,
-    required this.onSetEditingBlock,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 350,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          right: loc.isRtl ? BorderSide.none : BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-          left: loc.isRtl ? BorderSide(color: Theme.of(context).colorScheme.outlineVariant) : BorderSide.none,
-        ),
-      ),
-      child: BuilderSidebar(
-        editingBlockIndex: editingBlockIndex,
-        state: state,
-        loc: loc,
-        cubit: cubit,
-        blocksList: blocksList,
-        onEditBlock: (index) {
-          onSetEditingBlock(index);
-        },
-        onAddBlock: (context, cubit) => DraggableModalSheet.show(
-          context: context,
-          title: "مكتبة الأقسام",
-          initialChildSize: 0.8,
-          child: const SectionLibraryModal(),
-        ),
-        onDoneEditing: () => onSetEditingBlock(null),
-      ),
-    );
-  }
-}
-
-/// Shared Canvas Container.
-class _CanvasContainer extends StatelessWidget {
-  final PreviewMode previewMode;
-  final bool isMobile;
-  final BuilderLoaded state;
-  final LocalizationCubit loc;
-  final Function(int) onBlockTapped;
-
-  const _CanvasContainer({
-    required this.previewMode,
-    required this.isMobile,
-    required this.state,
-    required this.loc,
-    required this.onBlockTapped,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    double? width;
-    if (previewMode == PreviewMode.mobile) width = 390.0;
-    else if (previewMode == PreviewMode.tablet) width = 820.0;
-    else if (previewMode == PreviewMode.fullscreen) width = double.infinity;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOutCubic,
-      width: width,
-      height: (previewMode == PreviewMode.fullscreen || isMobile) ? double.infinity : null,
-      margin: (previewMode == PreviewMode.fullscreen || isMobile) ? EdgeInsets.zero : const EdgeInsets.symmetric(vertical: 24, horizontal: 40),
-      decoration: previewMode == PreviewMode.fullscreen 
-        ? null 
-        : BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 40, spreadRadius: 10)],
-            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 8),
-          ),
-      clipBehavior: previewMode == PreviewMode.fullscreen ? Clip.none : Clip.antiAlias,
-      child: RepaintBoundary(
-        child: BuilderCanvas(
-          isMobile: isMobile,
-          previewMode: previewMode,
-          state: state,
-          loc: loc,
-          onBlockTapped: onBlockTapped,
-        ),
-      ),
-    );
-  }
-}
-
-/// Fullscreen mode close button.
-class _FullscreenCloseButton extends StatelessWidget {
-  final LocalizationCubit loc;
-  final VoidCallback onBack;
-
-  const _FullscreenCloseButton({required this.loc, required this.onBack});
-
-  @override
-  Widget build(BuildContext context) {
-    return PositionedDirectional(
-      top: 24,
-      start: 24,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded),
-              color: Colors.white,
-              iconSize: 22,
-              padding: const EdgeInsets.all(6),
-              constraints: const BoxConstraints(),
-              onPressed: onBack,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Shared Upload Manager Wrapper.
-class _UploadManagerWrapper extends StatelessWidget {
-  final LocalizationCubit loc;
-  final bool isMobile;
-
-  const _UploadManagerWrapper({required this.loc, required this.isMobile});
-
-  @override
-  Widget build(BuildContext context) {
-    return PositionedDirectional(
-      top: isMobile ? 80 : 24,
-      end: isMobile ? 16 : 350 + 24,
-      child: const GlobalUploadManagerWidget(),
-    );
-  }
-}
-
-/// Shared Auth Gate Overlay.
-class _AuthGate extends StatelessWidget {
-  const _AuthGate();
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = context.watch<LocalizationCubit>();
-    return Positioned.fill(
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-          child: Container(
-            color: Colors.black.withValues(alpha: 0.6),
-            child: Center(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 32),
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 40, offset: const Offset(0, 8))],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _LockIcon(),
-                    SizedBox(height: 20),
-                    Text(loc.translate('auth_gate_title'), style: AppTypography.h3, textAlign: TextAlign.center),
-                    SizedBox(height: 12),
-                    Text(loc.translate('auth_gate_desc'), style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
-                    SizedBox(height: 28),
-                    _AuthButton(label: loc.translate('auth_gate_login'), onPressed: () => context.safePop(fallbackPath: '/login'), primary: true),
-                    SizedBox(height: 12),
-                    _AuthButton(label: loc.translate('auth_gate_register'), onPressed: () => context.safePop(fallbackPath: '/register'), primary: false),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LockIcon extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-      child: Icon(Icons.lock_outline_rounded, color: Theme.of(context).colorScheme.primary, size: 40),
-    );
-  }
-}
-
-class _AuthButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-  final bool primary;
-
-  const _AuthButton({required this.label, required this.onPressed, required this.primary});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: primary 
-        ? ElevatedButton(
-            onPressed: onPressed,
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-            child: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-          )
-        : OutlinedButton(
-            onPressed: onPressed,
-            style: OutlinedButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.primary, side: BorderSide(color: Theme.of(context).colorScheme.primary), padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-            child: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-    );
-  }
-}

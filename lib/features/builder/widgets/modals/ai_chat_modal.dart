@@ -8,6 +8,7 @@ import '../../../auth/controllers/auth_state.dart';
 import '../ai_chat_input.dart';
 import 'pixabay_selector_modal.dart';
 import 'image_picker_modal.dart';
+import 'package:landymaker/core/widgets/draggable_modal_sheet.dart';
 import 'package:landymaker/features/builder/controllers/ai_generation_cubit.dart';
 import 'package:landymaker/core/widgets/particles/loading_logo.dart';
 import 'package:landymaker/features/builder/controllers/builder_cubit.dart';
@@ -159,11 +160,9 @@ class _AIChatModalState extends State<AIChatModal> {
   }
 
   void _showPixabayPicker(AIGenerationPixabaySelection state) {
-    showModalBottomSheet(
+    DraggableModalSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => PixabaySelectorModal(
+      child: PixabaySelectorModal(
         initialQuery: state.query,
         initialType: state.type,
         initialOrientation: state.orientation,

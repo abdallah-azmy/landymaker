@@ -35,6 +35,7 @@ class WhatsappEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_phone", block['phone_number'] ?? ''),
             focusNode: getFocusNode("${index}_phone"),
+            maxLength: 20,
             onChanged: (val) => cubit.updateBlockProperty(index, 'phone_number', val),
             keyboardType: TextInputType.phone,
           ),
@@ -45,6 +46,7 @@ class WhatsappEditor extends StatelessWidget {
           child: CustomTextField(
             controller: getController("${index}_message", block['message'] ?? ''),
             focusNode: getFocusNode("${index}_message"),
+            maxLength: 500,
             onChanged: (val) => cubit.updateBlockProperty(index, 'message', val),
             maxLines: 3,
           ),

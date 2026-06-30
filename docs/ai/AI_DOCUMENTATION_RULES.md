@@ -100,7 +100,8 @@ Never break the systems listed in `AI_CONTEXT.md` Section 12 (Builder Workspace,
 30. **Dynamic Theme Color Enforcement (CRITICAL)**: All UI widgets MUST use `Theme.of(context).colorScheme.*` for surface, text, and border colors. NEVER use `AppColors.background`, `AppColors.cardBg`, `AppColors.border`, `AppColors.textPrimary`, `AppColors.textSecondary`, or `AppColors.textMuted` directly in widget build methods. See [THEME_SYSTEM.md](./THEME_SYSTEM.md) for the full color mapping table and migration rules.
     - **Const Stripping**: When using `Theme.of(context)` inside a constructor argument that was previously `const`, you MUST remove the `const` keyword from that constructor (e.g., `const BoxDecoration` → `BoxDecoration`).
     - **Context Propagation**: Private helper methods that build sub-widgets (e.g., `_buildCard()`) MUST receive `BuildContext context` as their first parameter when they reference `Theme.of(context)`.
-    - **Permitted Exceptions**: `AppColors.primary`, `AppColors.secondary`, `AppColors.dangerRed`, `AppColors.activeGreen`, `AppColors.warningOrange`, and `AppColors.primaryGradient` may still be used as brand/semantic colors where a `colorScheme` equivalent is not appropriate.
+     - **Permitted Exceptions**: `AppColors.primary`, `AppColors.secondary`, `AppColors.dangerRed`, `AppColors.warningOrange`, and `AppColors.primaryGradient` may still be used as brand/semantic colors where a `colorScheme` equivalent is not appropriate.
+     - **`AppColors.activeGreen` Phase-Out**: This color has been fully replaced with `Theme.of(context).colorScheme.primary` in all builder files (`builder_app_bar.dart`, `builder_workspace_screen.dart`, `builder_mobile_toolbar.dart`, `builder_options_modal.dart`). Do NOT reintroduce `AppColors.activeGreen` in builder code. It may still exist outside the builder — use `Theme.of(context).colorScheme.primary` in all new code.
 31. **AnimatedThemeToggle is REMOVED**: The `AnimatedThemeToggle` widget (`lib/core/widgets/atoms/animated_theme_toggle.dart`) and all theme-switching UI have been **removed**. Dark mode is enforced — light mode is postponed. Do NOT re-add, re-enable, or reference `AnimatedThemeToggle` or any theme-switching UI anywhere. See rule "Dark Mode is Enforced" in the Mandatory Rules section below.
 32. **Consent Dialog Barrier Rule**: Any critical confirmation dialog (e.g., Google new-user consent, section delete) MUST set `barrierDismissible: false` to prevent accidental dismissal without user choice. Inline legal links (privacy/terms) inside such dialogs MUST use `RichText` + `TapGestureRecognizer` for tappable hyperlinks — NEVER concatenate translated strings with plain `Text`.
 33. **Section Deletion Flow (CRITICAL)**: The delete action in `block_properties_editor.dart` MUST follow this flow:
@@ -180,6 +181,10 @@ No Dart file may exceed 800 lines. Files approaching this limit must be split in
 - `landymaker_home_screen.dart` — 1,367 lines
 - `block_properties_editor.dart` — 1,501 lines
 - `builder_sidebar_tabs.dart` — 1,219 lines
+- `builder_cubit_blocks.dart` — 1,054 lines (mixin)
+- `builder_cubit_persistence.dart` — 1,045 lines (mixin)
+- `section_data.dart` — 812 lines (part file of section_library_modal)
+- `builder_workspace_screen.dart` — 811 lines (main editor screen)
 
 **Rule: Document-When-You-Touch**
 When any AI agent modifies a file, it MUST add `///` doc comments to every class and public method it touches. Use this format:
@@ -194,3 +199,75 @@ The application enforces dark mode only. Light mode has been postponed. Do NOT a
 
 **Rule: CubeLoader over CircularProgressIndicator**
 Never use Flutter's default `CircularProgressIndicator`. Always use `CubeLoader` from `lib/core/widgets/particles/cube_loader.dart`. For small inline indicators, use `CubeLoaderVariant.single` with `showGlow: false`.
+
+## Mandatory Rules Added [2026-07-01] (from Builder Comprehensive Audit)
+
+**Rule 42: Section Data Variant Key Rule (CRITICAL)**
+In `section_data.dart` (`lib/features/builder/widgets/modals/section_library/section_data.dart`), hero and hero_saas block variants MUST use the `layout_style` key in their `properties` map — NOT `variant_style`. The renderers (`custom_hero_widget.dart`, `custom_hero_saas_widget.dart`) read `layout_style` to map to the correct layout via `_effectiveVariant`. Using `variant_style` causes the variant to fall through to the default layout (index 0) because the renderer never reads that key.
+- Hero `layout_style` values: `"split"`, `"centered"`, `"glass"`, `"fullWidthBg"`, `"reverse"`, `"gradientOnly"`, `"fullWidthImage"`, `"minimal"`
+- Hero SaaS `layout_style` values: `"dashboardSplit"`, `"launchCenter"`, `"darkSaas"`
+- Fix history (B10.1): 5 hero variants had `variant_style` → corrected to `layout_style`
+- Fix history (B10.2): 2 hero_saas variants had `variant_style` → corrected to `layout_style`
+
+**Rule 43: Back Navigation Save-and-Exit Consistency (CRITICAL)**
+Both desktop and mobile back navigation in the builder MUST offer a "Save and Exit" option in addition to Cancel and Exit (discard). This applies to:
+1. `BuilderAppBar._handleBack()` (desktop toolbar — `builder_app_bar.dart`) — 3 options in `AlertDialog`: Cancel, Exit, Save and Exit
+2. `BuilderMobileToolbar._handleBack()` (mobile toolbar — `builder_mobile_toolbar.dart`) — same 3 options
+3. `_onWillPop()` in `builder_workspace_screen.dart` — when system back button is pressed (PopScope), offer the same 3 options
+- The "Save and Exit" action calls `cubit.savePage()` then navigates back via `context.safePop()`
+- The "Exit" (discard) action navigates back without saving
+- Fix history (B11.1): desktop `_handleBack` added save-and-exit
+- Fix history (B12.2): mobile `_handleBack` added save-and-exit
+- Fix history (B12.3): `_onWillPop` used `AppColors.activeGreen` → fixed to theme color
+
+**Rule 44: Content Tab Dispatcher Router (CRITICAL)**
+`content_tab_dispatcher.dart` (`lib/features/builder/widgets/editors/content_tab_dispatcher.dart`) is the single routing point for all 29 block type editors when editing from the sidebar's Content tab. Its structure:
+- Hero → `HeroEditor` (shared by `hero` and `hero_saas` types — hero_saas gets SaaS-specific layout options + tech_logos via properties filter)
+- All other blocks → their matching `*Editor` in `lib/features/builder/widgets/editors/blocks/`
+- `whatsapp` → has its own `WhatsAppEditor` (no shared editor)
+- When adding a NEW block type, you MUST:
+  1. Register it in `block_registry.dart` (renderer)
+  2. Add it to `content_tab_dispatcher.dart` (editor routing)
+  3. Add its schema to `supabase/functions/shared/schema_registry.json` (AI generation)
+  4. Add its default preset in `LandingPageBuilderCubit.addBlock()` (builder_cubit_blocks.dart)
+  5. Add its library entry in `section_data.dart` (Section Library modal)
+  6. Add its editor file in `lib/features/builder/widgets/editors/blocks/`
+
+**Rule 45: Section Library Modal — Dual Mini Preview Patterns**
+`SectionLibraryModal` (`section_library_modal.dart` at 189 lines, with 3 part files at `section_library/`) exposes all 29 block types:
+- `_DualMiniPreview` uses abstract geometric patterns (colored circles, rectangles, lines) — NEVER real section content. Mobile preview at 35% width, desktop at 65% width, side-by-side with vertical divider.
+- `SectionVariantCard` shows variant options per block type with `childAspectRatio: 0.62` on small screens, `0.70` on larger.
+- Category filter chips (`_CategoryFilterChip`) scroll horizontally with no wrapping — uses `ListView(scrollDirection: Axis.horizontal, shrinkWrap: true)`.
+- Category `"all"` filter shows all blocks; selecting a specific category filters to matching types.
+- `SectionLibrary` is closed via `Navigator.pop()` after selection.
+- The deprecated `StyleRegistry` (`lib/features/builder/registries/style_registry.dart`) has been replaced by `LayoutPickerPanel` — do NOT import or restore StyleRegistry.
+
+**Rule 46: DraggableModalSheet Defaults and Usage Patterns**
+`DraggableModalSheet` (`lib/core/widgets/draggable_modal_sheet.dart`, 115 lines) is the standard modal for builder editors:
+- Default sizes: `initialChildSize: 0.6`, `minChildSize: 0.4`, `maxChildSize: 0.95`
+- MUST use `isScrollControlled: true` for all builder modals
+- MUST use `CubeLoader`/`CubeProgress` for all loading states — NEVER `CircularProgressIndicator`
+- All 10 call sites use meaningful titles matching the modal function
+- Known exceptions NOT using DraggableModalSheet:
+  - `PixabaySelectorModal` — still uses native `showModalBottomSheet`
+  - `AIChatModal` — still uses native `showModalBottomSheet`
+- `image_picker_modal.dart` (567 lines) has hardcoded `Color(0xFF00E5FF)` accent in 11+ places — needs parameterization
+
+**Rule 47: Colors.green → Theme Primary Migration (Builder)**
+All hardcoded `Colors.green` references in builder files have been migrated to `Theme.of(context).colorScheme.primary`:
+- `builder_mobile_toolbar.dart` — 5 places (publish button, icons) → FIXED (B12.1)
+- `builder_options_modal.dart` — 4 places (publish/save buttons) → FIXED (B11.3)
+- `builder_app_bar.dart` — `AppColors.activeGreen` in 11+ places → FIXED (B11.2)
+- `builder_workspace_screen.dart` — `AppColors.activeGreen` in `_onWillPop` → FIXED (B12.3)
+Do NOT reintroduce `Colors.green` or `AppColors.activeGreen` in builder code.
+
+**Rule 48: PreviewMode.tablet Dead Code Warning**
+`PreviewMode` enum (`lib/features/builder/models/preview_mode.dart`) defines 3 values: `desktop`, `mobile`, `tablet`. The `tablet` value is NEVER used in any UI toggle — no button, no switch. It is dead code. If implementing a tablet preview toggle, add an `IconButton` with `Icons.tablet_mac_rounded` in both `GuestPreviewScreen` and the builder preview controls, following the existing `isDesktopWidth` pattern from `GuestPreviewScreen`.
+
+**Rule 49: DynamicFontService Loading After AI/Theme Apply**
+`DynamicFontService.loadFontsFromDesign()` MUST be called after every theme/design application to load the custom font from the design JSON. The 4 required call sites in `builder_cubit_persistence.dart`:
+1. `_handleLoadedPage()` — after initial page load
+2. `applyTemplate()` — after template selection
+3. `applyCustomDesign()` — after custom design import
+4. `applyDesignJson()` — after AI generation
+Missing this call at any site causes the font picker to have no visible effect on the canvas (BUG B1.1-B1.4). The `applyDesignJson` method reads both `designJson['theme']` and `designJson['global_theme']` keys with hex prefix correction, and uses `_suppressHistoryFromTheme` to prevent double-recording in undo history.

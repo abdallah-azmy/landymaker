@@ -4,15 +4,18 @@ The LandyMaker Builder is a sophisticated, reactive system for visual web creati
 
 ## 🧬 Sharded Cubit Architecture (Mixin Pattern)
 
-`LandingPageBuilderCubit` (207 lines) is the central state manager, but its methods are split across two mixin part files to keep each file under the AI-friendly 800-line limit:
+`LandingPageBuilderCubit` (217 lines) is the central state manager, split across **5 mixin part files** to keep each under the AI-friendly 800-line limit:
 
-| File | Lines | Role |
-|------|-------|------|
-| `builder_cubit.dart` | 207 | Main class: fields, constructor, `_history`/`_historyIndex` for undo/redo, `_emitDirty`, `_saveToHistory`, `close()` |
-| `builder_cubit_blocks.dart` | 1057 | `BuilderCubitBlocks` mixin — 26 block CRUD methods: `addBlock()`, `removeBlock()`, `duplicateBlock()`, `moveBlock()`, `updateBlockProperty()`, etc. |
-| `builder_cubit_persistence.dart` | 1025 | `BuilderCubitPersistence` mixin — 18 persistence & page management methods: `loadPage()`, `savePage()`, `_saveGuestDesign()`, `_handleLoadedPage()`, `importTemplateAssets()`, etc. |
+| File | Lines | Member | Role |
+|------|-------|--------|------|
+| `builder_cubit.dart` | 217 | (main class) | Fields, constructor, `_history`/`_historyIndex` for undo/redo, `_emitDirty`, `_saveToHistory`, `close()` |
+| `builder_cubit_blocks.dart` | 702 | `BuilderCubitBlocks` | Block structure CRUD — `addBlock()`, `deleteBlock()`, `duplicateBlock()`, `moveBlock()`, `reorderBlocks()`, `toggleBlockVisibility()`, `updateBlockProperty()`, `updateElementProperty()`, `updateMetadata()`, `selectSection()`, `focusElement()`, `updateStickyCta()`, `updatePricingPlan()` |
+| `builder_cubit_blocks_items.dart` | 361 | `BuilderCubitBlocksItems` | Sub-item CRUD — `addFaqItem()`, `deleteFaqItem()`, `updateFaqItem()`, `addTestimonialItem()`, `deleteTestimonialItem()`, `updateTestimonialItem()`, `addGalleryImage()`, `deleteGalleryImage()`, `updateFeatureItem()`, `addProductItem()`, `deleteProductItem()`, `updateProductItem()` |
+| `builder_cubit_persistence.dart` | 656 | `BuilderCubitPersistence` | Page lifecycle — `loadForCurrentUser()`, `saveForCurrentUser()`, `claimGuestDesign()`, `loadPageForUser()`, `loadPageById()`, `initializeNewPage()`, `_handleLoadedPage()`, `savePage()`, `updateSettings()`, `_resolvePixabayUrlsInDesign()`, `updatePropertyByUploadId()`, `applyTemplate()`, `applyCustomDesign()`, `clearMessages()` |
+| `builder_cubit_persistence_design.dart` | 263 | `BuilderCubitPersistenceDesign` | AI/external design merge — `applyDesignJson()`, `_cleanIncomingMap()` |
+| `builder_cubit_persistence_images.dart` | 219 | `BuilderCubitPersistenceImages` | Image batch operations — `magicReplaceImages()`, `importTemplateAssets()` |
 
-**How it works**: The main class `LandingPageBuilderCubit extends Cubit<BuilderState> with BuilderCubitBlocks, BuilderCubitPersistence`. Each mixin declares abstract members for private fields it needs (e.g., `_authService`, `_databaseService`, `_emitDirty()`) which are satisfied by the main cubit. This preserves private member access without exposing internals to the public API.
+**How it works**: The main class `LandingPageBuilderCubit extends Cubit<BuilderState> with BuilderCubitBlocks, BuilderCubitBlocksItems, BuilderCubitPersistence, BuilderCubitPersistenceDesign, BuilderCubitPersistenceImages`. Each mixin declares abstract members for private fields it needs (e.g., `_authService`, `_databaseService`, `_emitDirty()`) which are satisfied by the main cubit. This preserves private member access without exposing internals to the public API. Sub-mixins (e.g. `BuilderCubitPersistenceDesign`) can use `on BuilderCubitPersistence` to inherit abstract declarations from the parent mixin.
 
 ### SupabaseService Parallel Split
 
@@ -62,7 +65,7 @@ Global design properties (colors, fonts, backgrounds) are managed by a **separat
 ### 5. AI Theme Application Flow
 When the AI edits a page (`AIGenerationCubit.processUserMessage`), the theme is applied via `applyDesignJson`:
 1. `AIGenerationCubit` validates the AI response via `AIResponseValidator` (hex prefix correction, schema validation).
-2. Validated design is passed to `LandingPageBuilderCubit.applyDesignJson()` in `builder_cubit_persistence.dart`.
+2. Validated design is passed to `LandingPageBuilderCubit.applyDesignJson()` in `builder_cubit_persistence_design.dart` (`BuilderCubitPersistenceDesign` mixin).
 3. `applyDesignJson()` reads `designJson['theme'] ?? designJson['global_theme']` to extract the theme object.
 4. A `LandingPageTheme` is created via `LandingPageTheme.fromJson()` and applied via `_themeCubit.replaceTheme()`.
 5. The `_suppressHistoryFromTheme` flag prevents the theme subscription callback from double-recording into history.
@@ -100,7 +103,7 @@ When the AI edits a page (`AIGenerationCubit.processUserMessage`), the theme is 
 To prevent UI jank from blocking JSON operations, all `jsonEncode` and `jsonDecode` in the builder and viewer pipelines are offloaded to background isolates:
 
 ### `jsonEncode` (Save Path)
-- **File**: `builder_cubit_persistence.dart`
+- **File**: `builder_cubit_persistence.dart` (`BuilderCubitPersistence`)
 - **Helper**: Top-level `_serializeDesignMap()` function
 - **Usage**: `await Isolate.run(() => _serializeDesignMap(designMap))` in both `savePage()` and `_saveGuestDesign()`
 - **Impact**: Eliminates 30–80ms of main-thread blocking on pages with 50+ blocks
@@ -109,11 +112,11 @@ To prevent UI jank from blocking JSON operations, all `jsonEncode` and `jsonDeco
 - **File**: `lib/core/utils/json_utils.dart`
 - **Helper**: `parseJsonDesign(dynamic rawDesign)` — reusable helper that handles String/Map/null inputs
 - **Usage**: Called from 6 call sites:
-  1. `public_page_cubit.dart` — page load decode (8–50ms saved)
-  2. `builder_cubit_persistence.dart` — editor page load decode (15–40ms saved)
-  3. `create_page_modal.dart` — template init decode (8–30ms saved)
-  4. `landymaker_home_screen.dart` — homepage carousel decode (8–30ms saved)
-  5. `builder_cubit.dart` — `undo()`/`redo()` history decode (15–40ms saved)
+   1. `public_page_cubit.dart` — page load decode (8–50ms saved)
+   2. `builder_cubit_persistence.dart` — editor page load decode via `_handleLoadedPage()` (15–40ms saved)
+   3. `create_page_modal.dart` — template init decode (8–30ms saved)
+   4. `landymaker_home_screen.dart` — homepage carousel decode (8–30ms saved)
+   5. `builder_cubit.dart` — `undo()`/`redo()` history decode (15–40ms saved)
 - **Impact**: Eliminates 40–360ms total UI blocking per interaction cycle
 
 ### Pattern
@@ -158,9 +161,9 @@ The Section Library is the builder-facing catalog of all 29 addable block types:
 - Only `LayoutPickerPanel` (`lib/features/builder/widgets/layout_picker/layout_picker_panel.dart`) remains for variant selection.
 
 ### ⚠️ Critical Rules
-- **NEVER use `variant_style` in section_data.dart hero/hero_saas entries** — use `layout_style` (Rule 42).
+- **NEVER use `variant_style` in section_data.dart hero/hero_saas entries** — use `layout_style` (fully migrated — zero `variant_style` references remain).
 - Every library entry must have a matching `BlockRegistry` renderer, `addBlock()` default, and editor path.
-- `section_data.dart` (812 lines) is over the 800-line limit — split before adding new entries.
+- `section_data.dart` (738 lines) is under the 800-line limit ✅. `section_data_base.dart` (77 lines) is the companion part file.
 
 ---
 
@@ -191,16 +194,18 @@ The Content Tab Dispatcher is the single routing point for sidebar content tab e
 ## 🧩 Desktop & Mobile Toolbar Consistency
 
 ### Desktop AppBar
-**File**: `lib/features/builder/widgets/organisms/builder_app_bar.dart` (634 lines)
+**File**: `lib/features/builder/widgets/organisms/builder_app_bar.dart` (660 lines)
 
 The `BuilderAppBar` is the desktop editor toolbar with:
 - Back button → `_handleBack()` with 3 options dialog (Cancel / Exit / **Save and Exit**)
 - Page title (editable)
+- Unsaved changes indicator (red dot)
 - Undo/Redo buttons (with `CubeLoaderVariant.single`)
-- Preview toggle (desktop/mobile)
+- Preview toggle (mobile/tablet/desktop/fullscreen)
 - Save indicator (dirty flag + auto-save status)
 - Publish button (opens `BuilderOptionsModal`)
 - AI Chat button
+- Open-as-guest button
 
 ### Mobile Toolbar
 **File**: `lib/features/builder/widgets/molecules/builder_mobile_toolbar.dart` (325 lines)
@@ -251,30 +256,28 @@ All builder modals SHOULD use `DraggableModalSheet.show()` unless they have spec
 | Modal | File | Lines | Uses DraggableModalSheet | Loading Widget | Status |
 |---|---|---|---|---|---|
 | Builder Options | `builder_options_modal.dart` | 403 | ✅ Yes | `CubeProgress` | ✅ Clean |
-| AI Chat | `ai_chat_modal.dart` | 452 | ❌ Native `showModalBottomSheet` | `CubeLoader` | ⚠️ Exception |
-| SEO Settings | `seo_settings_modal.dart` | 394 | ✅ Yes | `CubeLoader` | ✅ Clean |
+| AI Chat | `ai_chat_modal.dart` | 451 | ✅ Yes (Phase 16) | `CubeLoader` | ✅ Clean |
+| SEO Settings | `seo_settings_modal.dart` | 472 | ✅ Yes | `CubeLoader` | ✅ Clean (Favicon added Phase 16) |
 | Layout Picker | `layout_picker_panel.dart` | — | ✅ Yes | — | ✅ Clean |
-| Image Picker | `image_picker_modal.dart` | 567 | ✅ Yes | `CubeLoader` | ⚠️ `Color(0xFF00E5FF)` hardcoded in 11+ places |
-| Pixabay Selector | `pixabay_selector_modal.dart` | 276 | ❌ Native `showModalBottomSheet` | `CubeLoader` | ⚠️ Exception |
-| Section Library | `section_library_modal.dart` | 189 | ✅ Yes | — | ✅ Clean |
+| Image Picker | `image_picker_modal.dart` | 567 | ✅ Yes | `CubeLoader` | ✅ Clean (Theme colors fixed Phase 16) |
+| Pixabay Selector | `pixabay_selector_modal.dart` | 276 | ✅ Yes (Phase 16) | `CubeLoader` | ✅ Clean |
+| Section Library | `section_library_modal.dart` | 190 | ✅ Yes | — | ✅ Clean |
 
 ### Known Issues
-- **`image_picker_modal.dart`**: Hardcoded `Color(0xFF00E5FF)` cyan accent color in 11+ places — needs to be parameterized or replaced with theme color
-- **`PixabaySelectorModal`**: Uses native `showModalBottomSheet` — does not have `DraggableModalSheet` drag handle, resize behavior, or title bar
-- **`AIChatModal`**: Uses native `showModalBottomSheet` — inconsistent UX with other modals
+- (none — all builder modals now use `DraggableModalSheet.show()` with theme-compliant colors and `CubeLoader`/`CubeProgress`)
 
 ---
 
 ## ⚠️ Oversized File Warnings
 
-The following builder files exceed the 800-line AI readability limit. Do NOT add features or classes to these files without splitting first:
+All builder controller files are now under 800 lines ✅. Do NOT add features or classes to these files without splitting first:
 
 | File | Lines | Content |
 |---|---|---|
-| `builder_cubit_blocks.dart` | 1,054 | Block CRUD mixin (26 methods) |
-| `builder_cubit_persistence.dart` | 1,045 | Persistence mixin (18 methods) |
-| `section_data.dart` | 812 | Section library definitions (part file) |
-| `builder_workspace_screen.dart` | 811 | Main editor screen + desktop/mobile layout |
+| `builder_cubit_blocks.dart` | 702 | Block CRUD mixin (split Phase 16 — items extracted to `builder_cubit_blocks_items.dart`) |
+| `builder_cubit_persistence.dart` | 656 | Persistence mixin (split Phase 16 — design/image methods extracted) |
+| `section_data.dart` | 738 | Section library definitions (split Phase 16 — base types extracted to `section_data_base.dart`) |
+| `builder_workspace_screen.dart` | 555 | Main editor screen (split Phase 16 — 6 widgets extracted to `screens/workspace/`) |
 | `block_properties_editor.dart` | 1,501 | Editor dispatcher (full split deferred) |
 
 ---
@@ -288,3 +291,19 @@ The comprehensive 15-phase Builder Audit (June-July 2026) modified 80+ files and
 - `lib/features/builder/README.md` — hero_saas_editor, whatsapp_editor, content_tab_dispatcher file map
 - `docs/reports/builder_audit_report.md` — per-phase reports + Summary section
 - `docs/reports/BUILDER_AUDIT_PROGRESS.md` — STATUS: COMPLETE, all 15 phases checked off
+
+## 🆕 Phase 16 — Architecture Cleanup & UX Polish
+
+Phase 16 further splits all oversized controller files and adds UX guardrails:
+- **Cubit re-shard**: `builder_cubit_blocks.dart` (1054→702 lines) — extracted 12 item CRUD methods to `builder_cubit_blocks_items.dart` (`BuilderCubitBlocksItems`)
+- **Cubit re-shard**: `builder_cubit_persistence.dart` (1045→656 lines) — extracted `applyDesignJson`/`_cleanIncomingMap` to `builder_cubit_persistence_design.dart` (`BuilderCubitPersistenceDesign`); extracted `magicReplaceImages`/`importTemplateAssets` to `builder_cubit_persistence_images.dart` (`BuilderCubitPersistenceImages`)
+- **Workspace re-shard**: `builder_workspace_screen.dart` (811→555 lines) — extracted 6 widgets to `screens/workspace/`
+- **Section data re-shard**: `section_data.dart` (812→738 lines) — extracted `_SectionDefinition`/`_SectionVariant` to `section_data_base.dart`
+- **maxLength**: Added `maxLength` param to `CustomTextField`; applied 33 constraints across 18 editor files
+- **Tablet preview**: Added `PreviewMode.tablet` icon button in `BuilderAppBar`
+- **Bottom sheets standardization**: Converted `AIChatModal` (3 call sites) and `PixabaySelectorModal` to `DraggableModalSheet.show()`
+- **Mobile default**: `_previewMode` defaults to `PreviewMode.mobile` on small screens
+- **Favicon**: Added `favicon_url` field to SEO settings modal with 32×32 preview
+- **Unsaved changes**: Red dot indicator next to subdomain title in `BuilderAppBar`
+- **Image Picker theme**: Replaced all 11+ `Color(0xFF00E5FF)` with `Theme.of(context).colorScheme.primary`
+- **variant_style purge**: All 43 `variant_style`→`layout_style` in section_data.dart — zero references remain

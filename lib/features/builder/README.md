@@ -6,9 +6,12 @@ The core drag-and-drop landing page editor. Manages the entire editing lifecycle
 
 | Path | Role |
 |------|------|
-| `controllers/builder_cubit.dart` | `LandingPageBuilderCubit` — main cubit (207 lines): fields, constructor, `_history`/`_historyIndex`, `_emitDirty`, undo/redo |
-| `controllers/builder_cubit_blocks.dart` | `BuilderCubitBlocks` mixin — 26 block CRUD methods (addBlock, removeBlock, duplicateBlock, moveBlock, updateBlockProperty, etc.) |
-| `controllers/builder_cubit_persistence.dart` | `BuilderCubitPersistence` mixin — 18 persistence methods (loadPage, savePage, _saveGuestDesign, _handleLoadedPage, importTemplateAssets) |
+| `controllers/builder_cubit.dart` | `LandingPageBuilderCubit` — main cubit (217 lines): fields, constructor, `_history`/`_historyIndex`, `_emitDirty`, undo/redo, part directives for 5 mixin files |
+| `controllers/builder_cubit_blocks.dart` | `BuilderCubitBlocks` mixin — 13 block CRUD methods (addBlock, deleteBlock, duplicateBlock, moveBlock, reorderBlocks, updateBlockProperty, updateElementProperty, etc.) — 702 lines |
+| `controllers/builder_cubit_blocks_items.dart` | `BuilderCubitBlocksItems` mixin — 12 sub-item CRUD methods (addFaqItem, deleteFaqItem, addTestimonialItem, addGalleryImage, updateFeatureItem, addProductItem, etc.) — 361 lines |
+| `controllers/builder_cubit_persistence.dart` | `BuilderCubitPersistence` mixin — 14 persistence methods (loadForCurrentUser, savePage, _handleLoadedPage, claimGuestDesign, applyTemplate, etc.) — 656 lines |
+| `controllers/builder_cubit_persistence_design.dart` | `BuilderCubitPersistenceDesign` mixin — `applyDesignJson`, `_cleanIncomingMap` — 263 lines |
+| `controllers/builder_cubit_persistence_images.dart` | `BuilderCubitPersistenceImages` mixin — `magicReplaceImages`, `importTemplateAssets` — 219 lines |
 | `controllers/builder_state.dart` | `BuilderState` — sealed class: `BuilderInitial`, `BuilderLoading`, `BuilderLoaded(designMap, theme, pageId, ...)`, `BuilderFailure` |
 | `controllers/builder_theme_cubit.dart` | `BuilderThemeCubit` — separate cubit managing `LandingPageTheme`; main cubit subscribes to its stream |
 | `controllers/ai_generation_cubit.dart` | `AIGenerationCubit` — AI chat session scoped per page (`ai_session_$pageId`) |
@@ -25,7 +28,7 @@ The core drag-and-drop landing page editor. Manages the entire editing lifecycle
 | `registries/template_registry_services.dart` | Services/Local Business template designs (11 functions) |
 | `registries/font_registry.dart` | Available Google Fonts for design |
 | `models/landing_page_theme.dart` | `LandingPageTheme` — colors, fonts, backgrounds |
-| `models/preview_mode.dart` | `PreviewMode` enum (desktop/mobile) |
+| `models/preview_mode.dart` | `PreviewMode` enum (mobile/tablet/desktop/fullscreen) |
 | `models/selected_image_data.dart` | Image selection data class |
 | `widgets/organisms/builder_canvas.dart` | Visual editing area with RepaintBoundary |
 | `widgets/organisms/builder_sidebar.dart` | Sidebar shell with tab switching |
@@ -59,7 +62,7 @@ The core drag-and-drop landing page editor. Manages the entire editing lifecycle
 
 ## State & Services
 
-- `LandingPageBuilderCubit` — central state manager, split into 2 mixins (blocks + persistence)
+- `LandingPageBuilderCubit` — central state manager, split into 5 mixins (blocks, blocks_items, persistence, persistence_design, persistence_images)
 - `BuilderThemeCubit` — owns `LandingPageTheme`, main cubit subscribes via stream
 - `AIGenerationCubit` — per-page AI chat sessions
 - `UploadManagerCubit` — image upload queue management
@@ -67,11 +70,13 @@ The core drag-and-drop landing page editor. Manages the entire editing lifecycle
 
 ## ⚠️ AI Warnings
 
-- **DO NOT merge mixin part files** — `builder_cubit_blocks.dart` and `builder_cubit_persistence.dart` are deliberately separated to stay under the 800-line AI readability limit.
+- **DO NOT merge mixin part files** — the 5 mixins + main file are deliberately separated to stay under the 800-line AI readability limit. All 6 controller files are now under 800 lines. Create a new mixin if adding enough methods to push one over 800.
 - **`_emitDirty`** is the single emit-path — always call it instead of `emit()` directly. It handles history + dirty flag.
 - **`_history` / `_historyIndex`** are critical for undo/redo. Do NOT modify the history logic.
 - **`_suppressHistoryFromTheme`** prevents double-recording when undo/redo restores theme. Do NOT remove this guard.
 - **`block_properties_editor.dart`** (1500 lines) is rebuild-isolated via `BlocSelector` but full split is deferred. Do NOT add new block type handlers inside it — use an existing or new `blocks/*_editor.dart` file.
+- **`builder_workspace_screen.dart`** (555 lines) was split in Phase 16 — 6 widgets extracted to `screens/workspace/`. Keep new workspace widgets there.
+- **`CustomTextField`** (core widget, 137 lines) now supports `maxLength`. Always pass sensible limits (title=100, URL=2000, phone=20, etc.).
 - **`style_registry.dart`** is deprecated. Do NOT import or restore it.
 - **29 block types** are registered in `BlockRegistry`. Do NOT generate a new type unless renderer, editor, default preset, and `schema_registry.json` entry all exist.
 - **Isolate offloading**: All `jsonEncode`/`jsonDecode` must use `Isolate.run()` — never call them synchronously on the main thread.

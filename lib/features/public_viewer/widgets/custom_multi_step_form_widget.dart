@@ -393,6 +393,8 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
               fontWeight: FontWeight.bold,
               color: textColor,
             ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 8),
         ],
@@ -400,6 +402,8 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
           Text(
             subtitle,
             style: TextStyle(fontSize: isMobile ? 14 : 16, color: subTextColor),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 24),
         ],
@@ -428,6 +432,8 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
           Text(
             stepTitle,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 16),
         ],
@@ -456,6 +462,8 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
           Text(
             _errorMessage!,
             style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 14, fontWeight: FontWeight.bold),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
 
@@ -518,6 +526,8 @@ class _CustomMultiStepFormWidgetState extends State<CustomMultiStepFormWidget> {
           msg,
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

@@ -76,11 +76,11 @@ class CustomStatisticsGridWidget extends StatelessWidget {
               child: Column(
                 children: [
                   if (props.title.isNotEmpty) ...[
-                    Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center),
+                    Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
                     SizedBox(height: 12),
                   ],
                   if (props.subtitle.isNotEmpty) ...[
-                    Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18), textAlign: TextAlign.center),
+                    Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
                     SizedBox(height: 48),
                   ],
                   if (props.isMobile)
@@ -272,7 +272,7 @@ class _StatCard extends StatelessWidget {
           ],
           Text(item['value'] ?? '0', style: AppTypography.h1.copyWith(color: props.accentColor, fontSize: props.isMobile ? 28 : 36, fontWeight: FontWeight.w900)),
           SizedBox(height: 4),
-          Text(item['label'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          Text(item['label'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
       ),
     );

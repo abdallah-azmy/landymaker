@@ -240,6 +240,8 @@ class _ProductContent extends StatelessWidget {
               fontWeight: FontWeight.bold,
               fontSize: 20,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(height: 16),
@@ -251,6 +253,8 @@ class _ProductContent extends StatelessWidget {
             fontWeight: FontWeight.w900,
           ),
           textAlign: isCentered ? TextAlign.center : TextAlign.start,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 16),
         Text(
@@ -260,6 +264,8 @@ class _ProductContent extends StatelessWidget {
             height: 1.6,
           ),
           textAlign: isCentered ? TextAlign.center : TextAlign.start,
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 40),
         SizedBox(

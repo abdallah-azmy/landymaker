@@ -62,11 +62,11 @@ class CustomServiceStepsWidget extends StatelessWidget {
               child: Column(
                 children: [
                   if (props.title.isNotEmpty) ...[
-                    Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center),
+                    Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
                     SizedBox(height: 12),
                   ],
                   if (props.subtitle.isNotEmpty) ...[
-                    Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18), textAlign: TextAlign.center),
+                    Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
                     SizedBox(height: 64),
                   ],
                   if (props.isMobile)
@@ -148,11 +148,11 @@ class _DesktopServiceStepsLayout extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 24),
-              Text(item['title'] ?? '', style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 18), textAlign: TextAlign.center),
+              Text(item['title'] ?? '', style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 18), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
               SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(item['description'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.subTextColor), textAlign: TextAlign.center),
+                child: Text(item['description'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.subTextColor), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
               ),
             ],
           ),
@@ -197,9 +197,9 @@ class _MobileServiceStepsLayout extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text(item['title'] ?? '', style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 18)),
+                      Text(item['title'] ?? '', style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 18), maxLines: 2, overflow: TextOverflow.ellipsis),
                       SizedBox(height: 8),
-                      Text(item['description'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.subTextColor)),
+                      Text(item['description'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.subTextColor), maxLines: 4, overflow: TextOverflow.ellipsis),
                     ],
                   ),
                 ),

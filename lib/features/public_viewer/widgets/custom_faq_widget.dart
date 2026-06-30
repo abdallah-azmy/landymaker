@@ -159,6 +159,8 @@ class _FaqHeader extends StatelessWidget {
       props.title,
       style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32),
       textAlign: TextAlign.center,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
@@ -188,6 +190,8 @@ class _FaqItem extends StatelessWidget {
             color: props.textColor,
             fontSize: props.isMobile ? 14 : 16,
           ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
         ),
         iconColor: props.secondaryColor,
         collapsedIconColor: props.subTextColor,
@@ -197,6 +201,8 @@ class _FaqItem extends StatelessWidget {
             child: Text(
               item['answer'] ?? 'Answer goes here.',
               style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.4, fontSize: props.isMobile ? 12 : 14),
+              maxLines: 10,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

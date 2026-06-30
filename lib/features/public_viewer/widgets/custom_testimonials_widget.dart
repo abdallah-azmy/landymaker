@@ -131,6 +131,8 @@ class _TestimonialsHeader extends StatelessWidget {
       props.title,
       style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32),
       textAlign: TextAlign.center,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
@@ -251,6 +253,8 @@ class _TestimonialCard extends StatelessWidget {
           Text(
             item['quote'] ?? 'Testimonial quote goes here.',
             style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontStyle: FontStyle.italic, fontSize: props.isMobile ? 12 : 14, height: 1.4),
+            maxLines: 5,
+            overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 16),
           Row(

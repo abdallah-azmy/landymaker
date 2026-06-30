@@ -30,8 +30,8 @@ This registry defines the "Readable Language" used between the Builder and the A
 
 | Block Type | Category | Layout Control | Key Properties |
 |-----------|----------|---------------|----------------|
-| `hero` | Content | `variant` (0:Standard, 1:Split, 2:Centered) | title, subtitle, button_text, button_url, image_url |
-| `hero_saas` | Content | `variant` (0:Standard, 1:Split, 2:Centered) | title, subtitle, badge_text, tech_logos, button_text |
+| `hero` | Content | `layout_style` ("split"|"centered"|"glass"|"fullWidthBg"|"reverse"|"gradientOnly"|"fullWidthImage"|"minimal") | title, subtitle, button_text, button_url, image_url, badge_text |
+| `hero_saas` | Content | `layout_style` ("dashboardSplit"|"launchCenter"|"darkSaas") | title, subtitle, badge_text, tech_logos, button_text |
 | `features` | Content | `layout_style` ("grid"\|"bento") | items[{title, description, image_url, link_url}] |
 | `pricing` | Commerce | `variant` (0:Grid, 1:Row, 2:Table) | items[{name, prices{monthly,yearly}, currency, features[], button_text, is_popular}] |
 | `products` | Commerce | `layout_style` ("grid_2"\|"grid_3"\|"list"\|"carousel") | items[{id, name, price, description, image_url, button_text}], mobile_columns, card_style, hover_effect |

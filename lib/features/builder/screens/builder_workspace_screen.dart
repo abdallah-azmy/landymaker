@@ -55,7 +55,7 @@ class BuilderWorkspaceScreen extends StatefulWidget {
 
 class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   int? _editingBlockIndex;
-  PreviewMode _previewMode = PreviewMode.desktop;
+  PreviewMode _previewMode = PreviewMode.desktop; // Mobile: overridden in build() via ResponsiveLayout.isMobile
 
   @override
   void initState() {
@@ -105,7 +105,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
             child: const Text("إلغاء"),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.activeGreen),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
             onPressed: () => Navigator.pop(context, 'save'),
             child: const Text("حفظ وخروج"),
           ),

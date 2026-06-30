@@ -239,19 +239,19 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                     style: AppTypography.caption,
                   ),
                   value: widget.state.isPublished,
-                  activeThumbColor: Colors.green,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                   onChanged: (val) {
                     widget.cubit.updateSettings(isPublished: val);
                   },
                   secondary: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: (widget.state.isPublished ? Colors.green : Theme.of(context).colorScheme.onSurfaceVariant).withValues(alpha: 0.1),
+                      color: (widget.state.isPublished ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       widget.state.isPublished ? Icons.public_rounded : Icons.public_off_rounded,
-                      color: widget.state.isPublished ? Colors.green : Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: widget.state.isPublished ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -317,11 +317,11 @@ class _BuilderOptionsModalState extends State<BuilderOptionsModal> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 4,
-                  shadowColor: Colors.green.withValues(alpha: 0.4),
+                  shadowColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

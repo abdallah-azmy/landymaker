@@ -365,9 +365,9 @@ class _LeadMagnetContent extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Offstage(child: TextField(controller: props.honeypotController, decoration: const InputDecoration(labelText: 'Spam check'))),
-          Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 22 : 32)),
+          Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 22 : 32), maxLines: 3, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 12),
-          Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.5)),
+          Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.5), maxLines: 3, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 32),
           if (props.successMessage != null) _StatusBanner(message: props.successMessage!, color: Colors.green, isMobile: props.isMobile),
           if (props.errorMessage != null) _StatusBanner(message: props.errorMessage!, color: Theme.of(context).colorScheme.error, isMobile: props.isMobile),
@@ -406,7 +406,7 @@ class _StatusBanner extends StatelessWidget {
         children: [
           Icon(color == Colors.green ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
           const SizedBox(width: 10),
-          Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14))),
+          Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14), maxLines: 3, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );

@@ -312,6 +312,8 @@ class _SaasTitle extends StatelessWidget {
     final color = useLightText ? Colors.white : props.textColor;
     return Text(
       props.title,
+      maxLines: 4,
+      overflow: TextOverflow.ellipsis,
       style: AppTypography.h1.copyWith(
         color: color,
         fontWeight: FontWeight.w900,
@@ -342,6 +344,8 @@ class _SaasSubtitle extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 700),
       child: Text(
         props.subtitle,
+        maxLines: 4,
+        overflow: TextOverflow.ellipsis,
         style: AppTypography.bodyLarge.copyWith(
           color: color,
           fontSize: fontSize,
@@ -383,7 +387,7 @@ class _SaasActionButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 8,
       ),
-      child: Text(props.buttonText, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
+      child: Text(props.buttonText, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
     );
   }
 }

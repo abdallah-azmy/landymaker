@@ -53,17 +53,17 @@ final List<_SectionDefinition> _sections = [
         'Use once near the top to express the core offer, audience, CTA, and primary image.',
     variants: [
       _variant('نص وصورة', 'العرض التقليدي الأكثر وضوحاً', 'split', {
-        'variant_style': 'split_visual',
+        'layout_style': 'split',
         'vertical_padding': 88.0,
       }),
       _variant('Hero كثيف', 'مناسب للحملات الإعلانية', 'centered', {
-        'variant_style': 'compact_center',
+        'layout_style': 'centered',
         'vertical_padding': 48.0,
         'bg_overlay_color': '#111827',
         'bg_overlay_opacity': 0.08,
       }),
       _variant('خلفية قوية', 'صورة كاملة مع طبقة داكنة', 'immersive', {
-        'variant_style': 'image_backdrop',
+        'layout_style': 'fullWidthBg',
         'vertical_padding': 108.0,
         'bg_image_url':
             'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
@@ -71,11 +71,11 @@ final List<_SectionDefinition> _sections = [
         'bg_overlay_opacity': 0.62,
       }),
       _variant('تدرج لوني', 'خلفية متدرجة بدون صورة', 'gradientOnly', {
-        'variant_style': 'gradient_backdrop',
+        'layout_style': 'gradientOnly',
         'vertical_padding': 48.0,
       }),
       _variant('خلفية صورة كاملة', 'صورة خلفية كاملة مع طبقة تعتيم', 'fullWidthImage', {
-        'variant_style': 'full_image_backdrop',
+        'layout_style': 'fullWidthImage',
         'vertical_padding': 48.0,
       }),
     ],
@@ -116,17 +116,16 @@ final List<_SectionDefinition> _sections = [
         'Use for software, dashboards, apps, subscriptions, and B2B technology offers.',
     variants: [
       _variant('Dashboard', 'لقطة منتج مع CTA', 'split', {
-        'variant_style': 'dashboard_split',
         'vertical_padding': 86.0,
       }),
       _variant('Launch', 'عرض إطلاق منتج سريع', 'centered', {
-        'variant_style': 'launch_center',
+        'layout_style': 'launchCenter',
         'vertical_padding': 68.0,
         'bg_overlay_color': '#EEF2FF',
         'bg_overlay_opacity': 1.0,
       }),
       _variant('Dark SaaS', 'نمط تقني داكن', 'dark', {
-        'variant_style': 'dark_saas',
+        'layout_style': 'darkSaas',
         'vertical_padding': 96.0,
         'bg_overlay_color': '#030712',
         'bg_overlay_opacity': 1.0,

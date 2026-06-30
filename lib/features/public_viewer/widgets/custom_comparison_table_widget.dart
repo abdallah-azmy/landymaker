@@ -68,6 +68,8 @@ class CustomComparisonTableWidget extends StatelessWidget {
                       props.title,
                       style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32),
                       textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 12),
                   ],
@@ -76,6 +78,8 @@ class CustomComparisonTableWidget extends StatelessWidget {
                       props.subtitle,
                       style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18),
                       textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 48),
                   ],
@@ -173,6 +177,8 @@ class _DesktopComparisonTableLayout extends StatelessWidget {
                       Text(
                         plan['name'] ?? '',
                         style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 18),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       if (plan['price'] != null)
                         Text(
@@ -197,7 +203,7 @@ class _DesktopComparisonTableLayout extends StatelessWidget {
                 TableCell(
                   child: Padding(
                     padding: const EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 20),
-                    child: Text(featureName, style: AppTypography.bodyMedium.copyWith(color: props.textColor, fontWeight: FontWeight.bold)),
+                    child: Text(featureName, style: AppTypography.bodyMedium.copyWith(color: props.textColor, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
                   ),
                 ),
                 ...List.generate(props.plans.length, (index) {
@@ -242,7 +248,7 @@ class _MobileComparisonTableLayout extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(plan['name'] ?? '', style: AppTypography.h3.copyWith(color: props.accentColor)),
+              Text(plan['name'] ?? '', style: AppTypography.h3.copyWith(color: props.accentColor), maxLines: 2, overflow: TextOverflow.ellipsis),
               SizedBox(height: 16),
               ...props.features.map((feature) {
                 final values = feature['values'] ?? [];
@@ -253,7 +259,7 @@ class _MobileComparisonTableLayout extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(feature['name'] ?? '', style: AppTypography.bodySmall.copyWith(color: props.subTextColor)),
+                      Text(feature['name'] ?? '', style: AppTypography.bodySmall.copyWith(color: props.subTextColor), maxLines: 2, overflow: TextOverflow.ellipsis),
                       _ComparisonFeatureValue(value: value, accentColor: props.accentColor, subTextColor: props.subTextColor),
                     ],
                   ),
@@ -295,6 +301,8 @@ class _ComparisonFeatureValue extends StatelessWidget {
     return Text(
       value?.toString() ?? '-',
       style: AppTypography.bodyMedium.copyWith(color: subTextColor),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

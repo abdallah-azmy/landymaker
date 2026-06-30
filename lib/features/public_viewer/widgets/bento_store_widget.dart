@@ -63,6 +63,8 @@ class BentoStoreWidget extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 48),
                   ],
@@ -273,6 +275,8 @@ class _BentoItemState extends State<_BentoItem> {
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(

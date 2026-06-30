@@ -249,6 +249,8 @@ class _FeaturesHeader extends StatelessWidget {
       props.title,
       style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 36),
       textAlign: TextAlign.center,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
@@ -282,9 +284,9 @@ class _FeatureCard extends StatelessWidget {
             child: Icon(Icons.flash_on_rounded, color: props.secondaryColor, size: 24),
           ),
           const SizedBox(height: 24),
-          Text(title, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor, fontSize: isLarge ? 24 : 18)),
+          Text(title, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor, fontSize: isLarge ? 24 : 18), maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 12),
-          Text(desc, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.5)),
+          Text(desc, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, height: 1.5), maxLines: 4, overflow: TextOverflow.ellipsis),
           if (url != null && url.isNotEmpty) ...[
             const SizedBox(height: 20),
             TextButton(

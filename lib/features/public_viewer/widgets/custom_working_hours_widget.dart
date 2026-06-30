@@ -138,7 +138,7 @@ class _DesktopWorkingHoursLayout extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 24))),
+                  Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 24), maxLines: 2, overflow: TextOverflow.ellipsis)),
                   const SizedBox(width: 8),
                   _WorkingHoursStatusBadge(isOpen: props.isOpen),
                 ],
@@ -209,7 +209,7 @@ class _MobileWorkingHoursLayout extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20))),
+                  Expanded(child: Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20), maxLines: 2, overflow: TextOverflow.ellipsis)),
                   const SizedBox(width: 8),
                   _WorkingHoursStatusBadge(isOpen: props.isOpen),
                 ],

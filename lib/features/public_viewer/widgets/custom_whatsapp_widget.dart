@@ -180,7 +180,7 @@ class _WhatsappContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(props.title, style: AppTypography.h2.copyWith(fontSize: props.isMobile ? 24 : 32, color: props.textColor), textAlign: TextAlign.center),
+        Text(props.title, style: AppTypography.h2.copyWith(fontSize: props.isMobile ? 24 : 32, color: props.textColor), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
         const SizedBox(height: 24),
         _WhatsappButton(props: props),
       ],

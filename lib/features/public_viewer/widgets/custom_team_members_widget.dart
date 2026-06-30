@@ -66,11 +66,11 @@ class CustomTeamMembersWidget extends StatelessWidget {
               child: Column(
                 children: [
                   if (props.title.isNotEmpty) ...[
-                    Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center),
+                    Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
                     SizedBox(height: 12),
                   ],
                   if (props.subtitle.isNotEmpty) ...[
-                    Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18), textAlign: TextAlign.center),
+                    Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 16 : 18), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
                     SizedBox(height: 48),
                   ],
                   if (props.isMobile)
@@ -223,12 +223,12 @@ class _TeamMemberCard extends StatelessWidget {
           ),
         ),
         SizedBox(height: 16),
-        Text(item['name'] ?? '', style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20), textAlign: TextAlign.center),
+        Text(item['name'] ?? '', style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
         SizedBox(height: 4),
-        Text(item['role'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.accentColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+        Text(item['role'] ?? '', style: AppTypography.bodyMedium.copyWith(color: props.accentColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
         if (item['bio'] != null && (item['bio'] as String).isNotEmpty) ...[
           SizedBox(height: 8),
-          Text(item['bio'], style: AppTypography.caption.copyWith(color: props.subTextColor), textAlign: TextAlign.center),
+          Text(item['bio'], style: AppTypography.caption.copyWith(color: props.subTextColor), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
         ],
         SizedBox(height: 16),
         _TeamSocialLinks(socials: item['socials'], accentColor: props.accentColor),

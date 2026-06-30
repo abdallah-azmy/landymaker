@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:html' as html;
 import '../../models/preview_mode.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
 // import '../../../../core/widgets/atoms/animated_theme_toggle.dart';
@@ -79,6 +78,23 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                cubit.saveForCurrentUser();
+                onBack();
+              },
+              child: Text(
+                loc.translate('save_and_exit'),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ],
         ),
       );
@@ -130,7 +146,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: state.isPublished
-                          ? AppColors.activeGreen
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
@@ -141,7 +157,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                       color: state.isPublished
-                          ? AppColors.activeGreen
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
@@ -367,26 +383,29 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: canSave
-                ? AppColors.activeGreen.withValues(alpha: 0.15)
-                : AppColors.activeGreen.withValues(alpha: 0.05),
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+                : Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: canSave
-                  ? AppColors.activeGreen
+                  ? Theme.of(context).colorScheme.primary
                   : Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
           child: state.isSaving
-              ? CubeSpinner(size: 20, color: AppColors.activeGreen)
+              ? CubeSpinner(
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                )
               : Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       Icons.rocket_launch_rounded,
                       color: canSave
-                          ? AppColors.activeGreen
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.5),
@@ -397,7 +416,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       loc.translate('publish'),
                       style: AppTypography.bodyMedium.copyWith(
                         color: canSave
-                            ? AppColors.activeGreen
+                            ? Theme.of(context).colorScheme.primary
                             : Theme.of(
                                 context,
                               ).colorScheme.onSurface.withValues(alpha: 0.5),
@@ -428,7 +447,10 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         child: state.isSaving
-            ? CubeSpinner(size: 20, color: Theme.of(context).colorScheme.primary)
+            ? CubeSpinner(
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              )
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -477,12 +499,14 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.activeGreen.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.public_rounded,
-                color: AppColors.activeGreen,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(width: 12),
@@ -515,10 +539,10 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.lock,
                     size: 14,
-                    color: AppColors.activeGreen,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -557,7 +581,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.activeGreen,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

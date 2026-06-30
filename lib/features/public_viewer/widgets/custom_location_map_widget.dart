@@ -148,13 +148,13 @@ class _DesktopLocationMapLayout extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 22)),
+              Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 22), maxLines: 2, overflow: TextOverflow.ellipsis),
               SizedBox(height: 12),
               Row(
                 children: [
                   Icon(Icons.location_on_rounded, color: props.secondaryColor, size: 20),
                   SizedBox(width: 8),
-                  Expanded(child: Text(props.address, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 15))),
+                  Expanded(child: Text(props.address, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 15), maxLines: 2, overflow: TextOverflow.ellipsis)),
                 ],
               ),
               SizedBox(height: 24),
@@ -202,13 +202,13 @@ class _MobileLocationMapLayout extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20)),
+              Text(props.title, style: AppTypography.h3.copyWith(color: props.textColor, fontSize: 20), maxLines: 2, overflow: TextOverflow.ellipsis),
               SizedBox(height: 12),
               Row(
                 children: [
                   Icon(Icons.location_on_rounded, color: props.secondaryColor, size: 20),
                   SizedBox(width: 8),
-                  Expanded(child: Text(props.address, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14))),
+                  Expanded(child: Text(props.address, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14), maxLines: 2, overflow: TextOverflow.ellipsis)),
                 ],
               ),
               SizedBox(height: 24),

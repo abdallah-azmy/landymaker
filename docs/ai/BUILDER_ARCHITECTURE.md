@@ -59,6 +59,17 @@ Global design properties (colors, fonts, backgrounds) are managed by a **separat
 - `LandingPageBuilderCubit` subscribes to `BuilderThemeCubit.stream` via a listener that syncs the theme back into `BuilderLoaded.theme` — keeping the 40+ existing widgets that read `state.theme` unchanged.
 - Theme changes are included in the undo/redo history via a `_suppressHistoryFromTheme` flag that prevents double-recording.
 
+### 5. AI Theme Application Flow
+When the AI edits a page (`AIGenerationCubit.processUserMessage`), the theme is applied via `applyDesignJson`:
+1. `AIGenerationCubit` validates the AI response via `AIResponseValidator` (hex prefix correction, schema validation).
+2. Validated design is passed to `LandingPageBuilderCubit.applyDesignJson()` in `builder_cubit_persistence.dart`.
+3. `applyDesignJson()` reads `designJson['theme'] ?? designJson['global_theme']` to extract the theme object.
+4. A `LandingPageTheme` is created via `LandingPageTheme.fromJson()` and applied via `_themeCubit.replaceTheme()`.
+5. The `_suppressHistoryFromTheme` flag prevents the theme subscription callback from double-recording into history.
+6. Blocks are replaced entirely: `_emitDirty(copyWith(designMap: newDesign))`.
+7. `DynamicFontService.loadFontsFromDesign()` is called to load the theme's `defaultFont` before the canvas rebuilds.
+8. Theme is synced into `BuilderLoaded.theme` via the existing `BuilderThemeCubit.stream` subscription.
+
 ## 🛠 Advanced Features
 
 ### 🕒 Undo / Redo

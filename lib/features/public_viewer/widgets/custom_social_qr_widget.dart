@@ -187,9 +187,9 @@ class _DesktopSocialQrLayout extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Column(
             children: [
-              Text(props.title, style: AppTypography.h2.copyWith(fontSize: 32, color: props.textColor), textAlign: TextAlign.center),
+              Text(props.title, style: AppTypography.h2.copyWith(fontSize: 32, color: props.textColor), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 8),
-              Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14), textAlign: TextAlign.center),
+              Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 64),
               Wrap(
                 spacing: 40,
@@ -234,9 +234,9 @@ class _MobileSocialQrLayout extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Column(
             children: [
-              Text(props.title, style: AppTypography.h2.copyWith(fontSize: 24, color: props.textColor), textAlign: TextAlign.center),
+              Text(props.title, style: AppTypography.h2.copyWith(fontSize: 24, color: props.textColor), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 8),
-              Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 12), textAlign: TextAlign.center),
+              Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 12), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 32),
               Wrap(
                 spacing: 24,
@@ -427,6 +427,8 @@ class _SocialLinkItem extends StatelessWidget {
                 child: Text(
                   platform.toUpperCase(),
                   style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: textColor, fontSize: isMobile ? 13 : 14),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Icon(Icons.arrow_forward_ios_rounded, size: 12, color: subTextColor),

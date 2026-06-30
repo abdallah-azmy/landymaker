@@ -456,7 +456,7 @@ class _HeroPremiumTag extends StatelessWidget {
     if (badge == null || badge.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: props.secondary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),

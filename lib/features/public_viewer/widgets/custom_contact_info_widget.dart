@@ -183,7 +183,7 @@ class _ContactHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center);
+    return Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis);
   }
 }
 
@@ -214,7 +214,7 @@ class _ContactCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(label, style: AppTypography.bodySmall.copyWith(color: props.subTextColor)),
           const SizedBox(height: 8),
-          Text(value, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor), textAlign: TextAlign.center),
+          Text(value, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
       ),
     );

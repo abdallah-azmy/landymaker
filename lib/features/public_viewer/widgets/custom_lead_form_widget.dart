@@ -332,7 +332,7 @@ class _LeadFormContainer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Offstage(child: TextField(controller: props.honeypotController, decoration: const InputDecoration(labelText: 'Leave this field empty'))),
-          Text(props.title, style: AppTypography.h2.copyWith(fontSize: props.isMobile ? 22 : 26, fontWeight: FontWeight.bold, color: props.textColor)),
+          Text(props.title, style: AppTypography.h2.copyWith(fontSize: props.isMobile ? 22 : 26, fontWeight: FontWeight.bold, color: props.textColor), maxLines: 3, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 8),
           Text(context.translate('form_subtitle'), style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: props.isMobile ? 12 : 14)),
           SizedBox(height: props.isMobile ? 24 : 32),
@@ -374,7 +374,7 @@ class _StatusBanner extends StatelessWidget {
         children: [
           Icon(color == Colors.green ? Icons.check_circle_rounded : Icons.error_outline_rounded, color: color, size: 20),
           const SizedBox(width: 10),
-          Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14))),
+          Expanded(child: Text(message, style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14), maxLines: 3, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );

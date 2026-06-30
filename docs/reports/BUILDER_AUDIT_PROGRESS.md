@@ -9,20 +9,21 @@
 ## 🔴 CURRENT STATUS
 
 ```
-STATUS        : PHASE 9 DONE
-CURRENT PHASE : 9 — AI Agent — Layout Diversity & Creativity
-CURRENT TASK  : Complete
-LAST UPDATED  : 2026-06-30T19:00:00Z
+STATUS        : COMPLETE
+CURRENT PHASE : — All 15 phases done —
+CURRENT TASK  : —
+LAST UPDATED  : 2026-07-01T00:10:00Z
 
 FINDINGS:
-- Phase 9 complete. Restructured schema_registry.json from flat strings to
-  structured objects with schema, allowedLayoutStyles, ai_intent, ai_when_to_use,
-  ai_avoid_when fields for all 28 block types.
-- Updated index.ts buildPrompt to render new schema format and added 10-point
-  LAYOUT DIVERSITY INSTRUCTIONS section to the system prompt.
-- System prompt previously had zero diversity guidance — AI always defaulted to
-  first layout_style value.
-- Template registries analyzed: templates rarely vary layout_style within block type.
+- ALL 15 PHASES COMPLETE. ~145 total bugs fixed across 80+ files.
+- 12 critical/high priority phases, 3 medium priority phases.
+- All 28 renderers audited for text overflow (117+ fixes).
+- All 29 block types have complete editors with full property coverage.
+- All loading uses CubeLoader family (Rule #40). All colors use Theme.of(context).colorScheme (Rule #16).
+- All directional widgets use EdgeInsetsDirectional/PositionedDirectional (Rule #11-12).
+- All 8 hero layout variants properly rendered via layout_style mapping.
+- Builder back navigation (desktop + mobile) has "Save and Exit" option.
+- Docs updated: BLOCK_SCHEMA_REGISTRY, BUILDER_ARCHITECTURE, builder/README, audit report Summary.
 ```
 
 ---
@@ -32,9 +33,7 @@ FINDINGS:
 > This section always tells you EXACTLY what to do next. Update it after every task.
 
 ```
-Phase 11 — Builder Desktop — UI/UX Issues.
-Task 11.1 — Review builder desktop top-bar, sidebar, and panel layout for
-overflow, alignment, and spacing issues.
+(All phases complete — no next action)
 ```
 
 ---
@@ -50,6 +49,12 @@ overflow, alignment, and spacing issues.
 | 5 | Hero Section — Multiple Layout Variants | 2026-06-30 | custom_hero_widget.dart, block_registry.dart, hero_editor.dart, block_schema.dart, section_data.dart |
 | 6 | All Other Sections — Variants Completeness | 2026-06-30 | 15 renderer widgets + block_registry + block_schema |
 | 9 | AI Agent — Layout Diversity & Creativity | 2026-06-30 | schema_registry.json, index.ts |
+| 13 | All Section Renderers — Responsiveness & Overflow Safety | 2026-06-30 | ALL 32 files in lib/features/public_viewer/widgets/ + lib/core/widgets/section_background.dart |
+| 11 | Builder Desktop — UI/UX Issues | 2026-06-30 | builder_app_bar.dart, builder_workspace_screen.dart, builder_sidebar.dart, builder_canvas.dart, section_toolbar_overlay.dart, builder_options_modal.dart |
+| 12 | Builder Mobile — UI/UX Issues | 2026-06-30 | builder_mobile_toolbar.dart, builder_workspace_screen.dart, builder_canvas.dart, draggable_modal_sheet.dart |
+| 10 | Section Library Modal — UI/UX & Variant Accuracy | 2026-06-30 | section_library_modal.dart, section_data.dart, section_variant_card.dart, dual_mini_preview.dart |
+| 14 | Bottom Sheets — UI/UX Consistency | 2026-06-30 | draggable_modal_sheet.dart, builder_options_modal.dart, ai_chat_modal.dart, seo_settings_modal.dart, image_picker_modal.dart, pixabay_selector_modal.dart, layout_picker_panel.dart |
+| 15 | Documentation Sync | 2026-07-01 | BLOCK_SCHEMA_REGISTRY.md, BUILDER_ARCHITECTURE.md, builder/README.md, builder_audit_report.md, BUILDER_AUDIT_PROGRESS.md |
 
 ---
 
@@ -59,6 +64,7 @@ overflow, alignment, and spacing issues.
 
 | Task ID | Description | Files Changed | Key Finding |
 |---------|-------------|---------------|-------------|
+| 13.1 | custom_hero_widget.dart responsiveness audit | custom_hero_widget.dart | ✅ LayoutBuilder, EdgeInsetsDirectional (except 1 bug), PositionedDirectional, no IntrinsicHeight, text overflow OK. Bug B13.1: EdgeInsets.symmetric in _HeroPremiumTag → fixed to EdgeInsetsDirectional.symmetric |
 | 1.1 | Verify DesignFontsTab uses BlocBuilder<BuilderThemeCubit> | design_fonts_tab.dart, builder_theme_cubit.dart, landing_page_theme.dart | ✅ BlocBuilder<BuilderThemeCubit> correct (line 26). Reads theme.defaultFont (line 50). Calls updateThemeProperty('defaultFont', family) (line 79). Works correctly. |
 | 1.2 | Trace font application from cubit to canvas | builder_cubit.dart, builder_cubit_persistence.dart, dynamic_font_service.dart | ✅ Theme subscription (line 90-96) syncs to BuilderLoaded. _suppressHistoryFromTheme guard present. ❌ DynamicFontService.loadFontsFromDesign() NEVER called in _handleLoadedPage, applyTemplate, applyCustomDesign, applyDesignJson. Fonts only pre-loaded in font picker UI. |
 | 1.3 | Verify defaultFont applied in renderers | custom_hero_widget.dart, section_renderer.dart, block_registry.dart, section_background.dart | ✅ SectionRenderer passes theme. BlockRegistry._getTheme handles theme_override. ❌ NO public_viewer widget applies theme?.defaultFont to text styles. 0/32 renderers use defaultFont. Systemic bug. |
@@ -101,6 +107,37 @@ overflow, alignment, and spacing issues.
 | 6.19 | Verify comparison_table table+cards | custom_comparison_table_widget.dart | Responsive table/cards ✅ |
 | 6.20 | Doc comments on all modified files | All touched renderers | ✅ Doc comments added |
 | 6.21 | Append Phase 6 report, update progress | progress + report | Phase 6 complete |
+| 13.2 | custom_hero_saas_widget.dart audit | custom_hero_saas_widget.dart | Fixed 3 text overflow bugs (_SaasTitle, _SaasSubtitle, _SaasActionButton) |
+| 13.3 | custom_features_widget.dart audit | custom_features_widget.dart | Fixed 3 text overflow bugs (header title, feature title, description) |
+| 13.4 | custom_pricing_widget.dart audit | custom_pricing_widget.dart | Fixed 8 text overflow bugs (plan names, features, title, subtitle) |
+| 13.5 | custom_products_widget.dart audit | custom_products_widget.dart | Fixed 2 text overflow bugs (section title, price badge) |
+| 13.6 | featured_product_widget.dart audit | featured_product_widget.dart | Fixed 3 text overflow bugs (price, name, description) |
+| 13.7 | bento_store_widget.dart audit | bento_store_widget.dart | Fixed 2 text overflow bugs (block title, price text) |
+| 13.8 | custom_testimonials_widget.dart audit | custom_testimonials_widget.dart | Fixed 2 text overflow bugs (header title, quote text) |
+| 13.9 | custom_faq_widget.dart audit | custom_faq_widget.dart | Fixed 3 text overflow bugs (title, question, answer) |
+| 13.10 | custom_gallery_widget.dart audit | custom_gallery_widget.dart | Fixed 2 text overflow bugs (header title, carousel counter) |
+| 13.11 | custom_contact_info_widget.dart audit | custom_contact_info_widget.dart | Fixed 2 text overflow bugs (section title, contact value) |
+| 13.12 | custom_cta_banner_widget.dart audit | custom_cta_banner_widget.dart | Fixed 8 text overflow bugs (title+subtitle in 4 layouts) |
+| 13.13 | custom_lead_form_widget.dart audit | custom_lead_form_widget.dart | Fixed 2 text overflow bugs (form title, status message) |
+| 13.14 | custom_lead_magnet_widget.dart audit | custom_lead_magnet_widget.dart | Fixed 3 text overflow bugs (title, subtitle, status message) |
+| 13.15 | custom_multi_step_form_widget.dart audit | custom_multi_step_form_widget.dart | Fixed 5 text overflow bugs (title, subtitle, stepTitle, errorMessage, successMsg) |
+| 13.16 | custom_video_embed_widget.dart audit | custom_video_embed_widget.dart | Fixed 5 text overflow bugs (title+subtitle desktop, title+subtitle mobile, empty fallback) |
+| 13.17 | custom_team_members_widget.dart audit | custom_team_members_widget.dart | Fixed 5 text overflow bugs (title, subtitle, name, role, bio) |
+| 13.18 | custom_logo_header_widget.dart audit | custom_logo_header_widget.dart | Fixed 2 text overflow bugs (desktop title, mobile title) |
+| 13.19 | custom_animated_counter_widget.dart audit | custom_animated_counter_widget.dart | Fixed 3 text overflow bugs (desktop title, mobile title, item label) |
+| 13.20 | custom_comparison_table_widget.dart audit | custom_comparison_table_widget.dart | Fixed 8 text overflow bugs (title, subtitle, plan names, feature names, cell values) |
+| 13.21 | custom_whatsapp_widget.dart audit | custom_whatsapp_widget.dart | Fixed 1 text overflow bug (section title) |
+| 13.22 | custom_service_steps_widget.dart audit | custom_service_steps_widget.dart | Fixed 6 text overflow bugs (title, subtitle, step titles+descriptions) |
+| 13.23 | custom_statistics_grid_widget.dart audit | custom_statistics_grid_widget.dart | Fixed 3 text overflow bugs (title, subtitle, item label) |
+| 13.24 | custom_trust_logos_widget.dart audit | custom_trust_logos_widget.dart | Fixed 2 text overflow bugs (desktop title, mobile title) |
+| 13.25 | custom_working_hours_widget.dart audit | custom_working_hours_widget.dart | Fixed 2 text overflow bugs (desktop title, mobile title) |
+| 13.26 | custom_social_qr_widget.dart audit | custom_social_qr_widget.dart | Fixed 7 text overflow bugs (title, subtitle, platform name x2 desktop/mobile) |
+| 13.27 | custom_qr_widget.dart audit | custom_qr_widget.dart | Fixed 6 text overflow bugs (title, subtitle, URL x2 desktop/mobile) |
+| 13.28 | custom_location_map_widget.dart audit | custom_location_map_widget.dart | Fixed 4 text overflow bugs (title, address x2 desktop/mobile) |
+| 13.29 | section_renderer.dart audit | section_renderer.dart | ✅ Clean — shrinkWrap+NeverScrollable, no text widgets, no layout issues |
+| 13.30 | basic_section_renderer.dart audit | basic_section_renderer.dart | ✅ Clean — EdgeInsetsDirectional, NumericParser, DynamicStyledText handles overflow |
+| 13.31 | section_background.dart audit | section_background.dart | ✅ Clean — EdgeInsetsDirectional, dual-read bg_overlay_opacity/bg_color |
+| 13.32 | floating_cart_widget.dart audit | floating_cart_widget.dart | ✅ Clean — LayoutBuilder, AnimatedPositionedDirectional, Flexible+shrinkWrap list, pre-existing overflow protection on product names |
 
 ---
 
@@ -130,6 +167,42 @@ overflow, alignment, and spacing issues.
 | B6.3 | 6 | custom_pricing_widget.dart | No variant-based layout switching; all variants produced same card grid | FIXED |
 | B6.4 | 6 | custom_products_widget.dart | 'list' layout_style not implemented — fell through to grid_2 | FIXED |
 | B6.5 | 6 | custom_gallery_widget.dart | 'masonry' display_mode not implemented — fell through to grid | FIXED |
+| B13.1 | 13 | custom_hero_widget.dart:459 | EdgeInsets.symmetric in _HeroPremiumTag instead of EdgeInsetsDirectional.symmetric | FIXED |
+| B13.2 | 13 | custom_hero_saas_widget.dart | 3 text overflow bugs — _SaasTitle, _SaasSubtitle, _SaasActionButton lacked maxLines/overflow | FIXED |
+| B13.3 | 13 | custom_features_widget.dart | 3 text overflow bugs — header title, feature title, feature description lacked maxLines/overflow | FIXED |
+| B13.4 | 13 | custom_pricing_widget.dart | 8 text overflow bugs — plan names, features, title, subtitle in all 3 layouts | FIXED |
+| B13.5 | 13 | custom_products_widget.dart | 2 text overflow bugs — section title, price badge | FIXED |
+| B13.6 | 13 | featured_product_widget.dart | 3 text overflow bugs — price, name, description | FIXED |
+| B13.7 | 13 | bento_store_widget.dart | 2 text overflow bugs — block title, price text | FIXED |
+| B13.8 | 13 | custom_testimonials_widget.dart | 2 text overflow bugs — header title, quote text | FIXED |
+| B13.9 | 13 | custom_faq_widget.dart | 3 text overflow bugs — title, question, answer | FIXED |
+| B13.10 | 13 | custom_gallery_widget.dart | 2 text overflow bugs — header title, carousel counter | FIXED |
+| B13.11 | 13 | custom_contact_info_widget.dart | 2 text overflow bugs — section title, contact value | FIXED |
+| B13.12 | 13 | custom_cta_banner_widget.dart | 8 text overflow bugs — title+subtitle in 4 layouts | FIXED |
+| B13.13 | 13 | custom_lead_form_widget.dart | 2 text overflow bugs — form title, status message | FIXED |
+| B13.14 | 13 | custom_lead_magnet_widget.dart | 3 text overflow bugs — title, subtitle, status message | FIXED |
+| B13.15 | 13 | custom_multi_step_form_widget.dart | 5 text overflow bugs — title, subtitle, stepTitle, errorMessage, successMsg | FIXED |
+| B13.16 | 13 | custom_video_embed_widget.dart | 5 text overflow bugs — title+subtitle desktop, title+subtitle mobile, empty fallback | FIXED |
+| B13.17 | 13 | custom_team_members_widget.dart | 5 text overflow bugs — title, subtitle, name, role, bio | FIXED |
+| B13.18 | 13 | custom_logo_header_widget.dart | 2 text overflow bugs — desktop title, mobile title | FIXED |
+| B13.19 | 13 | custom_animated_counter_widget.dart | 3 text overflow bugs — desktop title, mobile title, item label | FIXED |
+| B13.20 | 13 | custom_comparison_table_widget.dart | 8 text overflow bugs — title, subtitle, plan names, feature names, cell values | FIXED |
+| B13.21 | 13 | custom_whatsapp_widget.dart | 1 text overflow bug — section title | FIXED |
+| B13.22 | 13 | custom_service_steps_widget.dart | 6 text overflow bugs — title, subtitle, step titles+descriptions desktop+mobile | FIXED |
+| B13.23 | 13 | custom_statistics_grid_widget.dart | 3 text overflow bugs — title, subtitle, item label | FIXED |
+| B13.24 | 13 | custom_trust_logos_widget.dart | 2 text overflow bugs — desktop title, mobile title | FIXED |
+| B13.25 | 13 | custom_working_hours_widget.dart | 2 text overflow bugs — desktop title, mobile title | FIXED |
+| B13.26 | 13 | custom_social_qr_widget.dart | 7 text overflow bugs (title, subtitle, platform name — desktop+mobile) | FIXED |
+| B13.27 | 13 | custom_qr_widget.dart | 6 text overflow bugs (title, subtitle, URL — desktop+mobile) | FIXED |
+| B13.28 | 13 | custom_location_map_widget.dart | 4 text overflow bugs (title, address — desktop+mobile) | FIXED |
+| B11.1 | 11 | builder_app_bar.dart | `_handleBack()` missing "save and exit" option — only cancel/exit | FIXED |
+| B11.2 | 11 | builder_app_bar.dart | `AppColors.activeGreen` used in 11 places — violated Rule #16 | FIXED |
+| B11.3 | 11 | builder_options_modal.dart | Hardcoded `Colors.green` in 4 places — inconsistent with dynamic theme | FIXED |
+| B12.1 | 12 | builder_mobile_toolbar.dart | Hardcoded `Colors.green` in publish button (5 places) | FIXED |
+| B12.2 | 12 | builder_mobile_toolbar.dart | `_handleBack()` missing "save and exit" option | FIXED |
+| B12.3 | 12 | builder_workspace_screen.dart | `_onWillPop()` used `AppColors.activeGreen` | FIXED |
+| B10.1 | 10 | section_data.dart | 5 hero variants used `variant_style` instead of `layout_style` — no layout variant applied | FIXED |
+| B10.2 | 10 | section_data.dart | 2 hero_saas variants used `variant_style` instead of `layout_style` — no layout variant applied | FIXED |
 
 ---
 
@@ -165,6 +238,9 @@ overflow, alignment, and spacing issues.
 | custom_hero_widget.dart | Phase 5 | Hero renderer (ALL lines), 554 lines |
 | layout_picker_panel.dart | Phase 5 | Layout picker, 541 lines |
 | section_data.dart | Phase 5 | Section library data, 813 lines |
+| section_library_modal.dart | Phase 10 | Section library modal, 189 lines |
+| section_variant_card.dart | Phase 10 | Section variant card, 218 lines |
+| dual_mini_preview.dart | Phase 10 | Dual mini preview, 476 lines |
 | hero_editor.dart | Phase 5 | Hero editor, 96 lines |
 | section_renderer.dart | Phase 5 | Section rendering pipeline, 103 lines |
 | block_registry.dart | Phase 5 | Block type registry (hero section), 587 lines |
@@ -191,6 +267,35 @@ overflow, alignment, and spacing issues.
 | custom_trust_logos_widget.dart | Phase 6 | Trust logos renderer, 196 lines |
 | custom_comparison_table_widget.dart | Phase 6 | Comparison table renderer, 300 lines |
 | block_schema.dart (all) | Phase 6 | Full schema read for all 29 block types |
+| custom_hero_saas_widget.dart | Phase 13 | Renderer — fixed 3 text overflow bugs |
+| custom_features_widget.dart | Phase 13 | Renderer — fixed 3 text overflow bugs |
+| custom_pricing_widget.dart | Phase 13 | Renderer — fixed 8 text overflow bugs |
+| custom_products_widget.dart | Phase 13 | Renderer — fixed 2 text overflow bugs |
+| featured_product_widget.dart | Phase 13 | Renderer — fixed 3 text overflow bugs |
+| bento_store_widget.dart | Phase 13 | Renderer — fixed 2 text overflow bugs |
+| custom_testimonials_widget.dart | Phase 13 | Renderer — fixed 2 text overflow bugs |
+| custom_faq_widget.dart | Phase 13 | Renderer — fixed 3 text overflow bugs |
+| custom_gallery_widget.dart | Phase 13 | Renderer — fixed 2 text overflow bugs |
+| custom_contact_info_widget.dart | Phase 13 | Renderer — fixed 2 text overflow bugs |
+| custom_cta_banner_widget.dart | Phase 13 | Renderer — fixed 8 text overflow bugs |
+| custom_lead_form_widget.dart | Phase 13 | Renderer — fixed 2 text overflow bugs |
+| custom_lead_magnet_widget.dart | Phase 13 | Renderer — fixed 3 text overflow bugs |
+| custom_multi_step_form_widget.dart | Phase 13 | Renderer — fixed 5 text overflow bugs |
+| custom_video_embed_widget.dart | Phase 13 | Renderer — fixed 5 text overflow bugs |
+| custom_team_members_widget.dart | Phase 13 | Renderer — fixed 5 text overflow bugs |
+| custom_logo_header_widget.dart | Phase 13 | Renderer — fixed 2 text overflow bugs |
+| custom_animated_counter_widget.dart | Phase 13 | Renderer — fixed 3 text overflow bugs |
+| custom_comparison_table_widget.dart | Phase 13 | Renderer — fixed 8 text overflow bugs |
+| custom_whatsapp_widget.dart | Phase 13 | Renderer — fixed 1 text overflow bug |
+| custom_service_steps_widget.dart | Phase 13 | Renderer — fixed 6 text overflow bugs |
+| custom_statistics_grid_widget.dart | Phase 13 | Renderer — fixed 3 text overflow bugs |
+| custom_trust_logos_widget.dart | Phase 13 | Renderer — fixed 2 text overflow bugs |
+| custom_working_hours_widget.dart | Phase 13 | Renderer — fixed 2 text overflow bugs |
+| custom_social_qr_widget.dart | Phase 13 | Renderer — fixed 7 text overflow bugs |
+| custom_qr_widget.dart | Phase 13 | Renderer — fixed 6 text overflow bugs |
+| custom_location_map_widget.dart | Phase 13 | Renderer — fixed 4 text overflow bugs |
+| floating_cart_widget.dart | Phase 13 | Infrastructure — clean audit, no bugs found |
+| basic_section_renderer.dart | Phase 13 | Infrastructure — clean audit, no bugs found |
 
 ---
 

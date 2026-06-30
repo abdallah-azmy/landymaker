@@ -160,6 +160,8 @@ class _DesktopCtaCenteredGradientLayout extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
               if (props.subtitle.isNotEmpty) ...[
                 SizedBox(height: 16),
@@ -170,6 +172,8 @@ class _DesktopCtaCenteredGradientLayout extends StatelessWidget {
                     fontSize: 18,
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
               SizedBox(height: 40),
@@ -237,6 +241,8 @@ class _MobileCtaCenteredGradientLayout extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
               if (props.subtitle.isNotEmpty) ...[
                 SizedBox(height: 16),
@@ -247,6 +253,8 @@ class _MobileCtaCenteredGradientLayout extends StatelessWidget {
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
               SizedBox(height: 40),
@@ -306,10 +314,10 @@ class _DesktopCtaSplitLayout extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(props.title, style: AppTypography.h2.copyWith(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)),
+                    Text(props.title, style: AppTypography.h2.copyWith(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900), maxLines: 3, overflow: TextOverflow.ellipsis),
                     if (props.subtitle.isNotEmpty) ...[
                       SizedBox(height: 12),
-                      Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: Colors.white.withValues(alpha: 0.9))),
+                      Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: Colors.white.withValues(alpha: 0.9)), maxLines: 2, overflow: TextOverflow.ellipsis),
                     ],
                   ],
                 ),
@@ -366,10 +374,10 @@ class _MobileCtaSplitLayout extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(props.title, style: AppTypography.h2.copyWith(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w900), textAlign: TextAlign.center),
+              Text(props.title, style: AppTypography.h2.copyWith(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w900), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
               if (props.subtitle.isNotEmpty) ...[
                 SizedBox(height: 12),
-                Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: Colors.white.withValues(alpha: 0.9)), textAlign: TextAlign.center),
+                Text(props.subtitle, style: AppTypography.bodyLarge.copyWith(color: Colors.white.withValues(alpha: 0.9)), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
               SizedBox(height: 32),
               _CtaButtonRow(props: props),

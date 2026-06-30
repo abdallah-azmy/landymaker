@@ -153,7 +153,7 @@ class _DesktopLogoHeaderLayout extends StatelessWidget {
                 if (props.logoUrl != null && props.logoUrl!.isNotEmpty && props.title.isNotEmpty)
                   SizedBox(width: 12),
                 if (props.title.isNotEmpty)
-                  Text(props.title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: props.textColor)),
+                  Text(props.title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: props.textColor), maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             ),
             SizedBox(height: 16),
@@ -198,7 +198,7 @@ class _MobileLogoHeaderLayout extends StatelessWidget {
                 if (props.logoUrl != null && props.logoUrl!.isNotEmpty && props.title.isNotEmpty)
                   SizedBox(width: 12),
                 if (props.title.isNotEmpty)
-                  Text(props.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: props.textColor)),
+                  Text(props.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: props.textColor), maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             ),
             SizedBox(height: 16),

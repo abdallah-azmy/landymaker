@@ -67,6 +67,18 @@ class BuilderMobileToolbar extends StatelessWidget {
                 style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.bold),
               ),
             ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                cubit.saveForCurrentUser();
+                onBack();
+              },
+              child: Text(
+                loc.translate('save_and_exit'),
+                style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
+              ),
+            ),
           ],
         ),
       );
@@ -257,22 +269,22 @@ class BuilderMobileToolbar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: canPublish
-              ? Colors.green.withValues(alpha: 0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: canPublish ? Colors.green : Theme.of(context).colorScheme.outline,
-          ),
+            color: canPublish
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: canPublish ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline,
+            ),
         ),
         child: state.isSaving
-            ? const CubeSpinner(size: 16, color: Colors.green)
+            ? CubeSpinner(size: 16, color: Theme.of(context).colorScheme.primary)
             : Row(
                 children: [
                   Icon(
                     Icons.rocket_launch_rounded,
                     color: canPublish
-                        ? Colors.green
+                        ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                     size: 20,
                   ),
@@ -281,7 +293,7 @@ class BuilderMobileToolbar extends StatelessWidget {
                     Text(
                       loc.translate('publish'),
                       style: AppTypography.bodyMedium.copyWith(
-                        color: Colors.green,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

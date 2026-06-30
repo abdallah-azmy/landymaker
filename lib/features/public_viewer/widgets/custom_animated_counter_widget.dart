@@ -130,7 +130,7 @@ class _DesktopAnimatedCounterLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (props.title.isNotEmpty) ...[
-                Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontWeight: FontWeight.w800, fontSize: 32), textAlign: TextAlign.center),
+                Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontWeight: FontWeight.w800, fontSize: 32), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
                 SizedBox(height: 64),
               ],
               Wrap(
@@ -174,7 +174,7 @@ class _MobileAnimatedCounterLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (props.title.isNotEmpty) ...[
-                Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontWeight: FontWeight.w800, fontSize: 24), textAlign: TextAlign.center),
+                Text(props.title, style: AppTypography.h2.copyWith(color: props.textColor, fontWeight: FontWeight.w800, fontSize: 24), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
                 SizedBox(height: 40),
               ],
               Wrap(
@@ -226,7 +226,7 @@ class _AnimatedCounterCard extends StatelessWidget {
             },
           ),
           SizedBox(height: 12),
-          Text(item['label'] ?? '', style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16), textAlign: TextAlign.center),
+          Text(item['label'] ?? '', style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, fontSize: props.isMobile ? 14 : 16), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
       ),
     );

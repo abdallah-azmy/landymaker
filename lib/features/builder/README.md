@@ -42,8 +42,9 @@ The core drag-and-drop landing page editor. Manages the entire editing lifecycle
 | `widgets/editors/block_properties_editor.dart` | 1500-line editor dispatcher — routes block type to correct `*Editor` |
 | `widgets/editors/block_actions.dart` | Block action settings |
 | `widgets/editors/block_design_settings.dart` | Block design overrides (bg_color, theme_override, padding, animation) |
-| `widgets/editors/blocks/` | 24 individual block editor files (hero_editor, pricing_editor, etc.) |
+| `widgets/editors/blocks/` | 26 individual block editor files (hero_editor, hero_saas_editor, pricing_editor, whatsapp_editor, etc.) |
 | `widgets/editors/common/dynamic_list_editor.dart` | Safe array-based property editor |
+| `widgets/editors/content_tab_dispatcher.dart` | Routes content tab selections to the correct block editor |
 | `widgets/modals/section_library_modal.dart` | Shell (189 lines) + 3 part files (section_data, dual_mini_preview, section_variant_card) |
 | `widgets/modals/builder_options_modal.dart` | Save, publish, SEO options |
 | `widgets/modals/ai_chat_modal.dart` | AI conversational editor modal |

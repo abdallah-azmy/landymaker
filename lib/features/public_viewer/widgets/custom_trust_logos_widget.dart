@@ -124,7 +124,7 @@ class _DesktopTrustLogosLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (props.title.isNotEmpty) ...[
-                Text(props.title, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14), textAlign: TextAlign.center),
+                Text(props.title, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
                 SizedBox(height: 32),
               ],
               Wrap(
@@ -173,7 +173,7 @@ class _MobileTrustLogosLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (props.title.isNotEmpty) ...[
-                Text(props.title, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12), textAlign: TextAlign.center),
+                Text(props.title, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
                 SizedBox(height: 24),
               ],
               Wrap(

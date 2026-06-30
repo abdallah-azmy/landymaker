@@ -259,7 +259,7 @@ class _PricingTable extends StatelessWidget {
             children: [
               _PricingTableCell(child: Text('')),
               ...plans.map((plan) => _PricingTableCell(
-                child: Text(plan.name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor)),
+                child: Text(plan.name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor), maxLines: 2, overflow: TextOverflow.ellipsis),
                 isHeader: true,
               )),
             ],
@@ -282,7 +282,7 @@ class _PricingTable extends StatelessWidget {
           ...plans.expand((plan) => plan.features.map((feature) {
             return TableRow(
               children: [
-                _PricingTableCell(child: Text(feature, style: AppTypography.bodySmall.copyWith(color: props.textColor))),
+                _PricingTableCell(child: Text(feature, style: AppTypography.bodySmall.copyWith(color: props.textColor), maxLines: 2, overflow: TextOverflow.ellipsis)),
                 ...plans.map((p) => _PricingTableCell(
                   child: Icon(Icons.check_circle_rounded, color: props.primaryColor, size: 18),
                 )),
@@ -343,7 +343,7 @@ class _PricingTableRow extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(plan.name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor)),
+          Text(plan.name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor), maxLines: 2, overflow: TextOverflow.ellipsis),
           SizedBox(height: 8),
           Text(priceDisplay, style: AppTypography.h2.copyWith(color: props.primaryColor, fontSize: 24)),
           SizedBox(height: 16),
@@ -353,7 +353,7 @@ class _PricingTableRow extends StatelessWidget {
               children: [
                 Icon(Icons.check_circle_rounded, color: props.primaryColor, size: 16),
                 SizedBox(width: 8),
-                Expanded(child: Text(f, style: AppTypography.bodySmall.copyWith(color: props.textColor))),
+                Expanded(child: Text(f, style: AppTypography.bodySmall.copyWith(color: props.textColor), maxLines: 3, overflow: TextOverflow.ellipsis)),
               ],
             ),
           )),
@@ -409,10 +409,10 @@ class _PricingHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(props.model.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 36), textAlign: TextAlign.center),
+        Text(props.model.title, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 36), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
         if (props.model.subtitle.isNotEmpty) ...[
           const SizedBox(height: 12),
-          Text(props.model.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor), textAlign: TextAlign.center),
+          Text(props.model.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
         if (props.model.hasToggle) ...[
           const SizedBox(height: 32),
@@ -507,7 +507,7 @@ class _PricingCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
           ],
-          Text(plan.name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor)),
+          Text(plan.name, style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: props.textColor), maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 8),
           Text(priceDisplay, style: AppTypography.h2.copyWith(color: props.primaryColor, fontSize: 32)),
           const SizedBox(height: 24),
@@ -517,7 +517,7 @@ class _PricingCard extends StatelessWidget {
               children: [
                 Icon(Icons.check_circle_rounded, color: props.primaryColor, size: 18),
                 const SizedBox(width: 10),
-                Expanded(child: Text(f, style: AppTypography.bodySmall.copyWith(color: props.textColor))),
+                Expanded(child: Text(f, style: AppTypography.bodySmall.copyWith(color: props.textColor), maxLines: 3, overflow: TextOverflow.ellipsis)),
               ],
             ),
           )),

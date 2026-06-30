@@ -140,9 +140,9 @@ class _DesktopQrLayout extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            Text(props.title, style: AppTypography.h2.copyWith(fontSize: 28, color: props.textColor), textAlign: TextAlign.center),
+            Text(props.title, style: AppTypography.h2.copyWith(fontSize: 28, color: props.textColor), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
             SizedBox(height: 8),
-            Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14), textAlign: TextAlign.center),
+            Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 14), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
             SizedBox(height: 48),
             Container(
               padding: const EdgeInsets.all(24),
@@ -165,6 +165,8 @@ class _DesktopQrLayout extends StatelessWidget {
               props.finalPayload.replaceFirst('https://', '').replaceFirst('http://', ''),
               style: AppTypography.caption.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold, letterSpacing: 1.1, fontSize: 12),
               textDirection: TextDirection.ltr,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -196,9 +198,9 @@ class _MobileQrLayout extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            Text(props.title, style: AppTypography.h2.copyWith(fontSize: 24, color: props.textColor), textAlign: TextAlign.center),
+            Text(props.title, style: AppTypography.h2.copyWith(fontSize: 24, color: props.textColor), textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis),
             SizedBox(height: 8),
-            Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 12), textAlign: TextAlign.center),
+            Text(props.subtitle, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontSize: 12), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
             SizedBox(height: 32),
             Container(
               padding: const EdgeInsets.all(16),
@@ -221,6 +223,8 @@ class _MobileQrLayout extends StatelessWidget {
               props.finalPayload.replaceFirst('https://', '').replaceFirst('http://', ''),
               style: AppTypography.caption.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold, letterSpacing: 1.1, fontSize: 10),
               textDirection: TextDirection.ltr,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

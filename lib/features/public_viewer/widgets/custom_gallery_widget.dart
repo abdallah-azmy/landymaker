@@ -187,6 +187,8 @@ class _GalleryHeader extends StatelessWidget {
       props.title,
       style: AppTypography.h2.copyWith(color: props.textColor, fontSize: props.isMobile ? 24 : 32),
       textAlign: TextAlign.center,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
@@ -388,7 +390,7 @@ class _CarouselIndicators extends StatelessWidget {
         SizedBox(width: 16),
         Column(
           children: [
-            Text("${props.currentIndex + 1} / ${props.items.length}", style: AppTypography.caption.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold)),
+            Text("${props.currentIndex + 1} / ${props.items.length}", style: AppTypography.caption.copyWith(color: props.secondaryColor, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
             SizedBox(height: 8),
             Row(
               mainAxisSize: MainAxisSize.min,

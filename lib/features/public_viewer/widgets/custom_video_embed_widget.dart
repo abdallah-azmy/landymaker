@@ -219,11 +219,11 @@ class _DesktopVideoEmbedLayout extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (props.title.isNotEmpty) ...[
-                Text(props.title, textAlign: TextAlign.center, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 40, fontWeight: FontWeight.bold)),
+                Text(props.title, textAlign: TextAlign.center, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 40, fontWeight: FontWeight.bold), maxLines: 3, overflow: TextOverflow.ellipsis),
                 SizedBox(height: 16),
               ],
               if (props.subtitle.isNotEmpty) ...[
-                Text(props.subtitle, textAlign: TextAlign.center, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, height: 1.5)),
+                Text(props.subtitle, textAlign: TextAlign.center, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, height: 1.5), maxLines: 2, overflow: TextOverflow.ellipsis),
                 SizedBox(height: 40),
               ],
               _VideoPlayerArea(props: props),
@@ -260,11 +260,11 @@ class _MobileVideoEmbedLayout extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (props.title.isNotEmpty) ...[
-                Text(props.title, textAlign: TextAlign.center, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 28, fontWeight: FontWeight.bold)),
+                Text(props.title, textAlign: TextAlign.center, style: AppTypography.h2.copyWith(color: props.textColor, fontSize: 28, fontWeight: FontWeight.bold), maxLines: 3, overflow: TextOverflow.ellipsis),
                 SizedBox(height: 16),
               ],
               if (props.subtitle.isNotEmpty) ...[
-                Text(props.subtitle, textAlign: TextAlign.center, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, height: 1.5)),
+                Text(props.subtitle, textAlign: TextAlign.center, style: AppTypography.bodyLarge.copyWith(color: props.subTextColor, height: 1.5), maxLines: 2, overflow: TextOverflow.ellipsis),
                 SizedBox(height: 40),
               ],
               _VideoPlayerArea(props: props),
@@ -302,7 +302,7 @@ class _VideoPlayerArea extends StatelessWidget {
             children: [
               Icon(Icons.video_library_rounded, size: 48, color: props.subTextColor.withValues(alpha: 0.5)),
               SizedBox(height: 16),
-              Text('قم بإضافة رابط الفيديو من لوحة التحكم', style: TextStyle(color: props.subTextColor)),
+              Text('قم بإضافة رابط الفيديو من لوحة التحكم', style: TextStyle(color: props.subTextColor), maxLines: 2, overflow: TextOverflow.ellipsis),
             ],
           ),
         ),

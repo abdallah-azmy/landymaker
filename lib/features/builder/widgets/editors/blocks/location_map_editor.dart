@@ -32,16 +32,6 @@ class LocationMapEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FormGroup(
-          label: "العنوان (Title)",
-          child: CustomTextField(
-            controller: getController("${index}_location_title", block['title'] ?? 'موقعنا'),
-            focusNode: getFocusNode("${index}_location_title"),
-            maxLength: 100,
-            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
-          ),
-        ),
-        SizedBox(height: 16),
-        FormGroup(
           label: "العنوان التفصيلي (Address)",
           child: CustomTextField(
             controller: getController("${index}_address", block['address'] ?? ''),

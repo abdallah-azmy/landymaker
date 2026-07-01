@@ -37,16 +37,6 @@ class VideoEmbedEditor extends StatelessWidget {
         ),
         SizedBox(height: 16),
         FormGroup(
-          label: "العنوان (Title)",
-          child: CustomTextField(
-            controller: getController("${index}_title", block['title'] ?? ''),
-            focusNode: getFocusNode("${index}_title"),
-            maxLength: 100,
-            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
-          ),
-        ),
-        SizedBox(height: 16),
-        FormGroup(
           label: "وصف فرعي (Subtitle)",
           child: CustomTextField(
             controller: getController("${index}_subtitle", block['subtitle'] ?? ''),

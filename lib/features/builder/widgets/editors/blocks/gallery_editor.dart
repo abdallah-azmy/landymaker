@@ -64,16 +64,6 @@ class GalleryEditor extends StatelessWidget {
         ),
         SizedBox(height: 16),
         FormGroup(
-          label: context.translate('title'),
-          child: CustomTextField(
-            controller: getController("${index}_title", block['title'] ?? ''),
-            focusNode: getFocusNode("${index}_title"),
-            maxLength: 100,
-            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
-          ),
-        ),
-        SizedBox(height: 16),
-        FormGroup(
           label: 'أعمدة سطح المكتب',
           child: SegmentedButton<int>(
             segments: const [

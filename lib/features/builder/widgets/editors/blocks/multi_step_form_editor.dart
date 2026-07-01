@@ -29,15 +29,6 @@ class MultiStepFormEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FormGroup(
-          label: "عنوان النموذج (Title)",
-          child: CustomTextField(
-            controller: getController("${index}_title", block['title'] ?? ''),
-            focusNode: getFocusNode("${index}_title"),
-            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
-          ),
-        ),
-        SizedBox(height: 16),
-        FormGroup(
           label: "وصف فرعي (Subtitle)",
           child: CustomTextField(
             controller: getController("${index}_subtitle", block['subtitle'] ?? ''),

@@ -32,14 +32,6 @@ class PricingEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomTextField(
-          hintText: "العنوان الرئيسي",
-          controller: getController("${index}_title", LocalizedTextParser.extractText(block['title'], 'ar')),
-          focusNode: getFocusNode("${index}_title"),
-          maxLength: 100,
-          onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
-        ),
-        SizedBox(height: 16),
-        CustomTextField(
           hintText: "العنوان الفرعي",
           controller: getController("${index}_subtitle", block['subtitle'] ?? ''),
           focusNode: getFocusNode("${index}_subtitle"),

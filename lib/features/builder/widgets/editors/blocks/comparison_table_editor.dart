@@ -33,15 +33,6 @@ class ComparisonTableEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FormGroup(
-          label: 'العنوان الرئيسي',
-          child: CustomTextField(
-            controller: getController("${index}_title", block['title'] ?? ''),
-            focusNode: getFocusNode("${index}_title"),
-            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
-          ),
-        ),
-        SizedBox(height: 16),
-        FormGroup(
           label: 'نوع التخطيط',
           child: DropdownButtonFormField<String>(
             initialValue: (block['layout_style'] as String?) ?? 'table',

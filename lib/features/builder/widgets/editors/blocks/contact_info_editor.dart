@@ -34,16 +34,6 @@ class ContactInfoEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FormGroup(
-          label: 'العنوان الرئيسي',
-          child: CustomTextField(
-            controller: getController("${index}_title", block['title'] ?? ''),
-            focusNode: getFocusNode("${index}_title"),
-            maxLength: 100,
-            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
-          ),
-        ),
-        SizedBox(height: 16),
-        FormGroup(
           label: 'نوع العرض',
           child: SegmentedButton<int>(
             segments: const [

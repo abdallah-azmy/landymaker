@@ -33,15 +33,6 @@ class WorkingHoursEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FormGroup(
-          label: "عنوان القسم (Title)",
-          child: CustomTextField(
-            controller: getController("${index}_working_hours_title", block['title'] ?? 'مواعيد العمل'),
-            focusNode: getFocusNode("${index}_working_hours_title"),
-            onChanged: (val) => cubit.updateBlockProperty(index, 'title', val),
-          ),
-        ),
-        SizedBox(height: 16),
-        FormGroup(
           label: 'نوع العرض',
           child: SegmentedButton<int>(
             segments: const [

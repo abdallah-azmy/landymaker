@@ -352,10 +352,11 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
       blockToAdd = {
         'type': 'trust_logos',
         'title': 'شركاء نعتز بهم',
+        'subtitle': 'نفتخر بثقة عملائنا وشركائنا',
         'items': [
-          'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
-          'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
-          'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg',
+          AppConstants.placeholderImageUrl,
+          AppConstants.placeholderImageUrl,
+          AppConstants.placeholderImageUrl,
         ],
       };
     } else if (type == 'animated_counter') {

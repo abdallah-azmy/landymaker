@@ -26,13 +26,13 @@ final List<_SectionDefinition> _sections = [
         'layout_style': 'centered',
         'alignment': 'center',
         'logo_height': 48.0,
-        'logo_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+        'logo_url': AppConstants.placeholderImageUrl,
       }),
       _variant('يمين/بداية', 'مناسب للعلامات الرسمية', 'split', {
         'layout_style': 'edge_aligned',
         'alignment': 'right',
         'logo_height': 42.0,
-        'logo_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+        'logo_url': AppConstants.placeholderImageUrl,
       }),
       _variant('هيدر داكن', 'شريط واضح أعلى الصفحة', 'dark', {
         'layout_style': 'dark_bar',
@@ -40,7 +40,7 @@ final List<_SectionDefinition> _sections = [
         'logo_height': 52.0,
         'bg_overlay_color': '#0F172A',
         'bg_overlay_opacity': 1.0,
-        'logo_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+        'logo_url': AppConstants.placeholderImageUrl,
       }),
     ],
   ),
@@ -69,7 +69,7 @@ final List<_SectionDefinition> _sections = [
         'layout_style': 'fullWidthBg',
         'vertical_padding': 108.0,
         'bg_image_url':
-            'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+            AppConstants.placeholderLargeImageUrl,
         'bg_overlay_color': '#020617',
         'bg_overlay_opacity': 0.62,
       }),
@@ -219,7 +219,7 @@ final List<_SectionDefinition> _sections = [
       _variant('خلفية صورة', 'نموذج واضح فوق خلفية', 'form_dark', {
         'layout_style': 'image_form',
         'bg_image_url':
-            'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+            AppConstants.placeholderLargeImageUrl,
         'bg_overlay_color': '#020617',
         'bg_overlay_opacity': 0.68,
       }),
@@ -665,8 +665,8 @@ final List<_SectionDefinition> _sections = [
     variants: [
       _variant('بطاقات الفريق', 'صور وأسماء الفريق', 'grid', {
         'items': [
-          {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
-          {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
+          {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': AppConstants.placeholderImageUrl},
+          {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': AppConstants.placeholderImageUrl},
         ],
       }),
     ],

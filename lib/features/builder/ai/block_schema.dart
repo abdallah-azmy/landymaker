@@ -1,6 +1,8 @@
 /// Block property schema definition — single source of truth for AI validation.
 /// Defines allowed properties, their types, defaults, and valid ranges per block type.
 
+import '../../../core/constants/app_constants.dart';
+
 enum PropType { string, int, doubleNum, boolean, stringList, mapList, map, dynamic }
 
 class PropDef {
@@ -47,7 +49,7 @@ const Map<String, PropDef> _globalProps = {
 const Map<String, Map<String, PropDef>> _blockSchemas = {
   'hero': {
     'subtitle': PropDef(type: PropType.string),
-    'image_url': PropDef(type: PropType.string),
+    'image_url': PropDef(type: PropType.string, defaultValue: AppConstants.placeholderLargeImageUrl),
     'button_text': PropDef(type: PropType.string),
     'button_url': PropDef(type: PropType.string),
     'badge_text': PropDef(type: PropType.string),
@@ -55,7 +57,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
   },
   'hero_saas': {
     'subtitle': PropDef(type: PropType.string),
-    'image_url': PropDef(type: PropType.string),
+    'image_url': PropDef(type: PropType.string, defaultValue: AppConstants.placeholderLargeImageUrl),
     'button_text': PropDef(type: PropType.string),
     'button_url': PropDef(type: PropType.string),
     'badge_text': PropDef(type: PropType.string),
@@ -63,7 +65,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
     'layout_style': PropDef(type: PropType.string, defaultValue: 'dashboardSplit', allowedValues: ['dashboardSplit', 'launchCenter', 'darkSaas']),
   },
   'logo_header': {
-    'logo_url': PropDef(type: PropType.string),
+    'logo_url': PropDef(type: PropType.string, defaultValue: AppConstants.placeholderImageUrl),
     'logo_height': PropDef(type: PropType.doubleNum, defaultValue: 48.0),
     'alignment': PropDef(type: PropType.string, defaultValue: 'center', allowedValues: ['right', 'center', 'left']),
   },
@@ -84,7 +86,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
   'lead_magnet': {
     'subtitle': PropDef(type: PropType.string),
     'button_text': PropDef(type: PropType.string),
-    'image_url': PropDef(type: PropType.string),
+    'image_url': PropDef(type: PropType.string, defaultValue: AppConstants.placeholderLargeImageUrl),
     'whatsapp_auto_open': PropDef(type: PropType.boolean, defaultValue: false),
     'whatsapp_number': PropDef(type: PropType.string),
     'whatsapp_message_template': PropDef(type: PropType.string),
@@ -149,7 +151,7 @@ const Map<String, Map<String, PropDef>> _blockSchemas = {
     'name': PropDef(type: PropType.string),
     'price': PropDef(type: PropType.string),
     'description': PropDef(type: PropType.string),
-    'image_url': PropDef(type: PropType.string),
+    'image_url': PropDef(type: PropType.string, defaultValue: AppConstants.placeholderLargeImageUrl),
     'button_text': PropDef(type: PropType.string),
     'badge_text': PropDef(type: PropType.string),
     'layout_style': PropDef(type: PropType.string, defaultValue: 'split', allowedValues: ['split', 'centered', 'reversed']),

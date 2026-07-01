@@ -35,13 +35,19 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
             ? 'نظام متكامل يجمع كل ما تحتاجه لإدارة مشروعك بكفاءة.'
             : 'اكتب هنا عرض القيمة الأساسي لخدمتك أو منتجك.',
         'button_text': 'ابدأ الآن مجاناً',
-        'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+        'image_url': AppConstants.placeholderLargeImageUrl,
+        'badge_text': type == 'hero_saas' ? 'مميز' : 'جديد',
+        if (type == 'hero_saas')
+          'tech_logos': [
+            'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
+            'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
+          ],
       };
     } else if (type == 'logo_header') {
       blockToAdd = {
         'type': 'logo_header',
         'title': 'اسم العلامة التجارية',
-        'logo_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+        'logo_url': AppConstants.placeholderImageUrl,
         'alignment': 'center',
         'logo_height': 48.0,
       };
@@ -51,8 +57,8 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'title': 'لماذا نحن؟',
         'layout_style': 'grid',
         'items': [
-          {'title': 'ميزة 1', 'description': 'اشرح فوائد هذه الميزة هنا.', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
-          {'title': 'ميزة 2', 'description': 'سلط الضوء على أهمية هذا البند.', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
+          {'title': 'ميزة 1', 'description': 'اشرح فوائد هذه الميزة هنا.', 'image_url': AppConstants.placeholderImageUrl},
+          {'title': 'ميزة 2', 'description': 'سلط الضوء على أهمية هذا البند.', 'image_url': AppConstants.placeholderImageUrl},
         ],
       };
     } else if (type == 'lead_form') {
@@ -92,7 +98,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
             'سجل الآن لتحصل على نسخة مجانية من الدليل الشامل لزيادة مبيعاتك بنسبة 300%.',
         'button_text': 'أرسل الدليل الآن',
         'image_url':
-            'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+            AppConstants.placeholderLargeImageUrl,
         'fields': [
           {
             'field_id': 'name',
@@ -121,7 +127,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
       blockToAdd = {
         'type': 'whatsapp',
         'title': 'تواصل معنا عبر واتساب',
-        'phone_number': '',
+        'phone_number': '+201234567890',
         'message': 'أهلاً بك! أريد الاستفسار عن...',
         'button_text': 'إرسال رسالة',
       };
@@ -138,7 +144,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
             'category': 'عام',
             'description': 'وصف مختصر للمنتج.',
             'image_url':
-                'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+                AppConstants.placeholderImageUrl,
             'button_text': 'اشترِ الآن',
           },
         ],
@@ -207,7 +213,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'price': '0.00',
         'description': 'وصف مختصر للمنتج يبرز أهم مميزاته.',
         'image_url':
-            'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+            AppConstants.placeholderLargeImageUrl,
         'button_text': 'إضافة للسلة',
         'layout_style': 'split',
       };
@@ -221,14 +227,14 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
             'name': 'منتج 1',
             'price': '0 EGP',
             'image_url':
-                'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+                AppConstants.placeholderLargeImageUrl,
           },
           {
             'id': const Uuid().v4(),
             'name': 'منتج 2',
             'price': '0 EGP',
             'image_url':
-                'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+                AppConstants.placeholderLargeImageUrl,
           },
         ],
         'layout_style': 'modern',
@@ -246,7 +252,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'type': 'testimonials',
         'title': 'قالوا عنا',
         'items': [
-          {'author': 'الاسم', 'role': 'الوظيفة', 'quote': 'رأيه هنا.', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
+          {'author': 'الاسم', 'role': 'الوظيفة', 'quote': 'رأيه هنا.', 'image_url': AppConstants.placeholderImageUrl},
         ],
       };
     } else if (type == 'contact_info') {
@@ -279,7 +285,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'type': 'gallery',
         'title': 'معرض الصور',
         'items': [
-          'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+          AppConstants.placeholderLargeImageUrl,
         ],
       };
     } else if (type == 'multi_step_lead_form') {
@@ -370,6 +376,18 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'main_axis_alignment': 'center',
         'cross_axis_alignment': 'center',
         'spacing': 20.0,
+        'elements': [
+          {
+            'id': const Uuid().v4(),
+            'type': 'text',
+            'content': 'اكتب النص هنا',
+          },
+          {
+            'id': const Uuid().v4(),
+            'type': 'text',
+            'content': 'نص إضافي يمكنك تعديله',
+          },
+        ],
       };
     } else if (type == 'team_members') {
       blockToAdd = {
@@ -382,8 +400,55 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
             'name': 'الاسم الكامل',
             'role': 'المسمى الوظيفي',
             'bio': 'نبذة مختصرة توضح دور هذا الشخص وخبرته.',
-            'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+            'image_url': AppConstants.placeholderImageUrl,
           },
+        ],
+      };
+    } else if (type == 'statistics_grid') {
+      blockToAdd = {
+        'type': 'statistics_grid',
+        'title': 'إحصائياتنا',
+        'subtitle': 'أرقام تتحدث عن نجاحنا',
+        'layout_style': 'horizontal',
+        'items': [
+          {'value': '500+', 'label': 'عميل سعيد', 'icon': 'people'},
+          {'value': '12', 'label': 'سنة خبرة', 'icon': 'star'},
+          {'value': '24/7', 'label': 'دعم فني', 'icon': 'speed'},
+          {'value': '100%', 'label': 'جودة مضمونة', 'icon': 'check'},
+        ],
+      };
+    } else if (type == 'service_steps') {
+      blockToAdd = {
+        'type': 'service_steps',
+        'title': 'خطوات العمل',
+        'subtitle': 'ثلاث خطوات بسيطة للبدء',
+        'items': [
+          {'title': 'الخطوة الأولى', 'description': 'تواصل معنا وسجل طلبك'},
+          {'title': 'الخطوة الثانية', 'description': 'اختر الباقة المناسبة لاحتياجك'},
+          {'title': 'الخطوة الثالثة', 'description': 'استلم خدمتك وانطلق'},
+        ],
+      };
+    } else if (type == 'cta_banner') {
+      blockToAdd = {
+        'type': 'cta_banner',
+        'title': 'هل أنت جاهز للبدء؟',
+        'subtitle': 'انضم إلينا اليوم واحصل على عرض خاص.',
+        'button_text': 'سجل الآن',
+        'layout_style': 'centeredGradient',
+      };
+    } else if (type == 'comparison_table') {
+      blockToAdd = {
+        'type': 'comparison_table',
+        'title': 'جدول المقارنة',
+        'subtitle': 'قارن بين الباقات واختر الأنسب لك',
+        'plans': [
+          {'name': 'الباقة الأساسية', 'price': 'مجاني'},
+          {'name': 'الباقة الاحترافية', 'price': '99\$'},
+        ],
+        'features': [
+          {'name': 'الميزة الأولى', 'values': [true, true]},
+          {'name': 'الميزة الثانية', 'values': [false, true]},
+          {'name': 'الدعم الفني', 'values': ['بريد إلكتروني', 'دعم هاتفي']},
         ],
       };
     }

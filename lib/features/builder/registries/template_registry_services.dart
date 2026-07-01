@@ -11,6 +11,7 @@ Map<String, dynamic> professionalDesign() {
         'button_text': 'احجز استشارة مجانية',
         'image_url':
             'https://cdn.pixabay.com/photo/2017/08/01/01/33/business-1971987_1280.jpg',
+        'badge_text': 'جديد',
       },
       {
         'type': 'lead_form',
@@ -37,6 +38,7 @@ Map<String, dynamic> realEstateDesign() {
         'button_text': 'Browse Units',
         'image_url':
             'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
+        'badge_text': 'جديد',
       },
       {
         'type': 'features',
@@ -82,6 +84,7 @@ Map<String, dynamic> restaurantDesign() {
         'button_url': 'https://wa.me/201000000000',
         'image_url':
             'https://cdn.pixabay.com/photo/2019/07/15/13/22/restaurant-4497194_1280.jpg',
+        'badge_text': 'جديد',
         'ai_intent': 'food_offer',
         'ai_slots': [
           'restaurant_name',
@@ -171,6 +174,7 @@ Map<String, dynamic> clinicDesign() {
         'button_text': 'احجز موعدك',
         'image_url':
             'https://cdn.pixabay.com/photo/2014/12/10/21/01/doctor-563428_1280.jpg',
+        'badge_text': 'جديد',
         'ai_intent': 'healthcare_trust_offer',
         'ai_slots': ['clinic_name', 'specialty', 'appointment_cta'],
         'animation': {'type': 'fadeIn', 'duration': 1000},
@@ -313,6 +317,7 @@ Map<String, dynamic> beautySalonDesign() {
         'button_url': 'https://wa.me/201000000000',
         'image_url':
             'https://cdn.pixabay.com/photo/2016/03/23/15/00/massage-1274935_1280.jpg',
+        'badge_text': 'جديد',
         'ai_intent': 'beauty_booking_offer',
       },
       {
@@ -387,6 +392,7 @@ Map<String, dynamic> gymFitnessDesign() {
         'button_text': 'اشترك الآن',
         'image_url':
             'https://cdn.pixabay.com/photo/2017/09/09/16/33/dumbbells-2465478_1280.jpg',
+        'badge_text': 'جديد',
         'ai_intent': 'fitness_transformation_offer',
       },
       {
@@ -478,6 +484,7 @@ Map<String, dynamic> eventDesign() {
         'button_text': 'Get Your Ticket',
         'image_url':
             'https://cdn.pixabay.com/photo/2016/11/18/22/29/vacation-1837135_1280.jpg',
+        'badge_text': 'جديد',
       },
       {
         'type': 'qr_code',
@@ -505,6 +512,7 @@ Map<String, dynamic> solarEnergyDesign() {
         'subtitle': 'وفر في فواتير الكهرباء وساهم في حماية البيئة مع أنظمة الطاقة الشمسية الأكثر كفاءة.',
         'button_text': 'احصل على عرض سعر مجاني',
         'image_url': 'https://cdn.pixabay.com/photo/2016/08/11/23/48/solar-panels-1477986_1280.jpg',
+        'badge_text': 'جديد',
         'animation': {'type': 'zoomIn', 'duration': 1000},
       },
       {
@@ -547,6 +555,7 @@ Map<String, dynamic> luxuryResortDesign() {
         'subtitle': 'استمتع بتجربة إقامة استثنائية في قلب الطبيعة الخلابة مع أرقى الخدمات العالمية.',
         'button_text': 'احجز جناحك الآن',
         'image_url': 'https://cdn.pixabay.com/photo/2019/03/04/17/30/pool-3962981_1280.jpg',
+        'badge_text': 'جديد',
         'animation': {'type': 'slideInLeft', 'duration': 1000},
       },
       {
@@ -587,6 +596,7 @@ Map<String, dynamic> architectureDesign() {
         'subtitle': 'استوديو عمارة وتصميم داخلي يدمج بين الوظيفة والجمال لخلق بيئات فريدة.',
         'button_text': 'استشرنا في مشروعك',
         'image_url': 'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
+        'badge_text': 'جديد',
       },
       {
         'type': 'gallery',
@@ -629,6 +639,7 @@ Map<String, dynamic> nonprofitCampaignDesign() {
         'button_text': 'انضم للحملة',
         'image_url':
             'https://cdn.pixabay.com/photo/2017/04/20/08/21/hands-1838658_1280.jpg',
+        'badge_text': 'جديد',
         'ai_intent': 'mission_led_offer',
       },
       {

@@ -6,7 +6,6 @@ import '../../modals/image_picker_modal.dart';
 import '../../../controllers/upload_manager_cubit.dart';
 import '../../../../../injection_container.dart';
 import '../common/dynamic_list_editor.dart';
-import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
 import '../../molecules/custom_image_field.dart';
@@ -60,29 +59,6 @@ class BentoStoreEditor extends StatelessWidget {
             onChanged: (val) => cubit.updateBlockProperty(index, 'whatsapp_number', val),
             keyboardType: TextInputType.phone,
           ),
-        ),
-        const SizedBox(height: 16),
-        FormGroup(
-          label: context.translate('hover_effect'),
-          child: SegmentedButton<String>(
-            segments: [
-              ButtonSegment(value: 'none', label: Text(context.translate('anim_none'))),
-              ButtonSegment(value: 'scale', label: Text(context.translate('scale'))),
-              ButtonSegment(value: 'elevate', label: Text(context.translate('elevate'))),
-              const ButtonSegment(value: 'glow', label: Text('وهج')),
-            ],
-            selected: {block['hover_effect'] ?? 'scale'},
-            onSelectionChanged: (val) => cubit.updateBlockProperty(index, 'hover_effect', val.first),
-            style: const ButtonStyle(visualDensity: VisualDensity.compact),
-          ),
-        ),
-        const SizedBox(height: 16),
-        SwitchListTile(
-          value: block['stagger_animations'] ?? true,
-          onChanged: (val) => cubit.updateBlockProperty(index, 'stagger_animations', val),
-          title: Text(context.translate('stagger_animations'), style: AppTypography.bodyMedium),
-          contentPadding: EdgeInsets.zero,
-          activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
         DynamicListEditor(
           title: context.translate('product_list'),

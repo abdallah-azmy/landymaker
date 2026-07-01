@@ -2,6 +2,7 @@ import '../models/landing_page_theme.dart';
 import 'template_registry_saas.dart';
 import 'template_registry_ecommerce.dart';
 import 'template_registry_services.dart';
+import 'template_registry_comprehensive.dart';
 
 /// TemplateRegistry — Central registry for all landing page templates.
 ///
@@ -417,6 +418,8 @@ class TemplateRegistry {
 
   static Map<String, dynamic> getTemplateDesign(String templateType) {
     switch (templateType) {
+      case 'comprehensive':
+        return comprehensiveDesign();
       case 'saas_startup':
         return saasStartupDesign();
       case 'store':
@@ -466,6 +469,10 @@ class TemplateRegistry {
 
   static LandingPageTheme getTemplateTheme(String templateType) {
     switch (templateType) {
+      case 'comprehensive':
+        return LandingPageTheme.palettes.firstWhere(
+          (e) => e.name == 'Tech Indigo',
+        );
       case 'saas_startup':
         return LandingPageTheme.palettes.firstWhere(
           (e) => e.name == 'Tech Indigo',

@@ -26,6 +26,7 @@ const Map<String, String> translationsEn = {
   'subtitle': 'Subtitle',
   'description': 'Description',
   'button_text': 'Button Text',
+  'badge_text': 'Badge Text',
   'image_url': 'Image URL',
   'upload_image': 'Upload Image',
   'views': 'Views',

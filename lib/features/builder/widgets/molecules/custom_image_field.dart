@@ -55,7 +55,9 @@ class CustomImageField extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                style: AppTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             if (hasImage && onClear != null)
@@ -181,7 +183,7 @@ class CustomImageField extends StatelessWidget {
                     ),
                   ),
 
-                if (canPersist && !isUploading)
+                if (hasImage && canPersist && !isUploading)
                   Positioned(
                     top: 8,
                     right: 8,

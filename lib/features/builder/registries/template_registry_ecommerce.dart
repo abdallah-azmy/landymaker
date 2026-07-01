@@ -11,6 +11,7 @@ Map<String, dynamic> storeDesign() {
         'button_text': 'تسوق الآن',
         'image_url':
             'https://cdn.pixabay.com/photo/2017/04/06/12/46/shopping-2153849_1280.jpg',
+        'badge_text': 'جديد',
       },
       {
         'type': 'products',
@@ -41,6 +42,7 @@ Map<String, dynamic> fashionStoreDesign() {
         'subtitle': 'أحدث صيحات الموضة العالمية المختارة بعناية لتناسب ذوقك الرفيع.',
         'button_text': 'تسوقي المجموعة الجديدة',
         'image_url': 'https://cdn.pixabay.com/photo/2016/09/21/15/27/clothes-1766891_1280.jpg',
+        'badge_text': 'جديد',
       },
       {
         'type': 'products',
@@ -97,6 +99,7 @@ Map<String, dynamic> boutiqueStoreDesign() {
         'subtitle': 'قطع مصممة بعناية لتمنحك الأناقة التي تستحقينها في كل لحظة.',
         'button_text': 'اكتشفي المجموعة',
         'image_url': 'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+        'badge_text': 'جديد',
         'animation': {'type': 'fadeIn', 'duration': 1200},
       },
       {

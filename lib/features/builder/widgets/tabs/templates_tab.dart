@@ -11,7 +11,14 @@ class TemplatesTab extends StatelessWidget {
 
   final BuilderLoaded state;
 
-  const TemplatesTab({super.key, required this.cubit, required this.state});
+  final bool isSuperAdmin;
+
+  const TemplatesTab({
+    super.key,
+    required this.cubit,
+    required this.state,
+    this.isSuperAdmin = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +37,15 @@ class TemplatesTab extends StatelessWidget {
                 style: AppTypography.caption,
               ),
               const SizedBox(height: 24),
+              if (isSuperAdmin)
+                _buildTemplateCard(
+                  context,
+                  dynamicState,
+                  'comprehensive',
+                  "القالب الشامل",
+                  Icons.dashboard_customize_rounded,
+                  "يحتوي على جميع الأقسام لاختبارها (للمشرفين فقط).",
+                ),
               _buildTemplateCard(
                 context,
                 dynamicState,

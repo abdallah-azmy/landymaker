@@ -158,6 +158,8 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
   }
 
   void _showTemplatesMenu(BuildContext context, LandingPageBuilderCubit cubit) {
+    final authState = context.read<AuthCubit>().state;
+    final isSuperAdmin = authState is Authenticated && authState.role == 'super_admin';
     DraggableModalSheet.show(
       context: context,
       title: "القوالب الجاهزة",
@@ -165,7 +167,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
       child: BlocBuilder<LandingPageBuilderCubit, BuilderState>(
         builder: (context, state) {
           if (state is! BuilderLoaded) return SizedBox.shrink();
-          return TemplatesTab(cubit: cubit, state: state);
+          return TemplatesTab(cubit: cubit, state: state, isSuperAdmin: isSuperAdmin);
         },
       ),
     );

@@ -26,6 +26,7 @@ const Map<String, String> translationsAr = {
   'subtitle': 'العنوان الفرعي',
   'description': 'الوصف',
   'button_text': 'نص الزر',
+  'badge_text': 'نص الوسم',
   'image_url': 'رابط الصورة',
   'upload_image': 'رفع صورة',
   'views': 'الزيارات',

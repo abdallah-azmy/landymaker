@@ -6,14 +6,12 @@ import '../../../controllers/builder_state.dart';
 import '../../molecules/custom_image_field.dart';
 import '../../modals/image_picker_modal.dart';
 import '../../../controllers/upload_manager_cubit.dart';
-import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../injection_container.dart';
 import '../common/dynamic_list_editor.dart';
 
 /// Editor for the testimonials block type.
-/// Exposes title, layout_style (cards/carousel), card_style, hover_effect,
-/// stagger_animations, and items with author, role, quote, image_url.
+/// Exposes title, layout_style (cards/carousel), and items with author, role, quote, image_url.
 class TestimonialsEditor extends StatelessWidget {
   final LandingPageBuilderCubit cubit;
   final Map<String, dynamic> block;
@@ -49,43 +47,6 @@ class TestimonialsEditor extends StatelessWidget {
             ],
             onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
           ),
-        ),
-        SizedBox(height: 16),
-        FormGroup(
-          label: 'نوع البطاقة',
-          child: SegmentedButton<String>(
-            segments: [
-              ButtonSegment(value: 'classic', label: Text('كلاسيكي')),
-              ButtonSegment(value: 'modern', label: Text('حديث')),
-              ButtonSegment(value: 'minimal', label: Text('بسيط')),
-            ],
-            selected: {block['card_style'] ?? 'classic'},
-            onSelectionChanged: (val) => cubit.updateBlockProperty(index, 'card_style', val.first),
-            style: const ButtonStyle(visualDensity: VisualDensity.compact),
-          ),
-        ),
-        SizedBox(height: 16),
-        FormGroup(
-          label: 'تأثير التحويم',
-          child: SegmentedButton<String>(
-            segments: [
-              ButtonSegment(value: 'none', label: Text('بدون')),
-              ButtonSegment(value: 'scale', label: Text('تكبير')),
-              ButtonSegment(value: 'elevate', label: Text('رفع')),
-              const ButtonSegment(value: 'glow', label: Text('وهج')),
-            ],
-            selected: {block['hover_effect'] ?? 'scale'},
-            onSelectionChanged: (val) => cubit.updateBlockProperty(index, 'hover_effect', val.first),
-            style: const ButtonStyle(visualDensity: VisualDensity.compact),
-          ),
-        ),
-        SizedBox(height: 16),
-        SwitchListTile(
-          value: block['stagger_animations'] ?? true,
-          onChanged: (val) => cubit.updateBlockProperty(index, 'stagger_animations', val),
-          title: Text('تحريك متدرج', style: AppTypography.bodyMedium),
-          contentPadding: EdgeInsets.zero,
-          activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
         SizedBox(height: 16),
         DynamicListEditor(

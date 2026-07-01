@@ -11,6 +11,7 @@ Map<String, dynamic> saasStartupDesign() {
         'button_text': 'اطلب نسختك التجريبية',
         'image_url':
             'https://cdn.pixabay.com/photo/2018/03/22/02/37/smart-3248678_1280.png',
+        'badge_text': 'مميز',
         'animation': {'type': 'fadeIn', 'duration': 1000},
       },
       {
@@ -124,6 +125,7 @@ Map<String, dynamic> mobileAppSaasDesign() {
         'button_url': '#demo',
         'image_url':
             'https://pixabay.com/get/g6e5b0e0c0f0e0d0c0b0a09080706050403020100_1280.png',
+        'badge_text': 'مميز',
         'ai_intent': 'saas_product_offer',
         'ai_slots': ['product_name', 'core_problem', 'main_cta'],
         'animation': {'type': 'slideInDown', 'duration': 1000},
@@ -236,6 +238,7 @@ Map<String, dynamic> fintechCryptoDesign() {
         'subtitle': 'منصة آمنة، سريعة، وسهلة الاستخدام لتداول وإدارة محفظتك المالية الحديثة.',
         'button_text': 'ابدأ الآن مجانًا',
         'image_url': 'https://cdn.pixabay.com/photo/2017/03/14/12/15/bitcoin-2007769_1280.jpg',
+        'badge_text': 'مميز',
         'animation': {'type': 'zoomIn', 'duration': 1200},
       },
       {
@@ -280,6 +283,7 @@ Map<String, dynamic> digitalCourseDesign() {
         'button_text': 'Enroll Now',
         'image_url':
             'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+        'badge_text': 'جديد',
       },
       {
         'type': 'pricing',
@@ -323,6 +327,7 @@ Map<String, dynamic> bookLaunchDesign() {
         'button_text': 'احصل على الفصل الأول',
         'image_url':
             'https://cdn.pixabay.com/photo/2016/03/31/19/42/books-1163695_1280.jpg',
+        'badge_text': 'جديد',
         'ai_intent': 'digital_product_launch',
       },
       {
@@ -409,6 +414,7 @@ Map<String, dynamic> creativeAgencyDesign() {
         'button_text': 'ابدأ مشروعك',
         'image_url':
             'https://cdn.pixabay.com/photo/2018/10/15/12/35/designer-3703431_1280.jpg',
+        'badge_text': 'جديد',
         'ai_intent': 'agency_value_proposition',
       },
       {
@@ -475,6 +481,7 @@ Map<String, dynamic> personalDesign() {
         'button_text': 'شاهد أعمالي',
         'image_url':
             'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg',
+        'badge_text': 'جديد',
       },
       {
         'type': 'social_qr',

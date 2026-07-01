@@ -215,6 +215,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'image_url':
             AppConstants.placeholderLargeImageUrl,
         'button_text': 'إضافة للسلة',
+        'badge_text': 'جديد',
         'layout_style': 'split',
       };
     } else if (type == 'bento_store') {

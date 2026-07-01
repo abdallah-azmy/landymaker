@@ -227,7 +227,7 @@ const Map<String, String> translationsAr = {
   'column': 'عمودي',
   'row': 'أفقي',
   'visible': 'عرض القسم',
-  'section_title': 'عنوان السكشن',
+  'section_title': 'العنوان الرئيسي',
   'edit_element': 'تعديل العنصر',
   'choose_image': 'اختر صورة',
   'default_font': 'الخط الافتراضي',

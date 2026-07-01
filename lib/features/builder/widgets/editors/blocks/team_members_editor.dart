@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import '../../../../../../core/theme/app_typography.dart';
 import '../../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
+import '../../../controllers/builder_state.dart';
 import '../../../controllers/builder_cubit.dart';
 import '../../molecules/custom_image_field.dart';
+import '../../modals/image_picker_modal.dart';
+import '../../../controllers/upload_manager_cubit.dart';
+import '../../../../../injection_container.dart';
+import '../common/dynamic_list_editor.dart';
 import '../editor_types.dart';
 
 /// Editor for the team_members block type.
@@ -67,94 +72,124 @@ class TeamMembersEditor extends StatelessWidget {
           ),
         ),
         SizedBox(height: 24),
-        Text("أعضاء الفريق", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-        SizedBox(height: 12),
-        ...List.generate(items.length, (i) {
-          final item = items[i];
-          final String imageUrl = item['image_url'] ?? '';
-          final isUploading = imageUrl.startsWith('upload://');
+        DynamicListEditor(
+          title: "أعضاء الفريق",
+          addLabel: "إضافة عضو",
+          itemCount: items.length,
+          itemTitleBuilder: (i) => (items[i]['name'] ?? '').isEmpty ? 'عضو جديد' : items[i]['name'],
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final List items = List.from(block['items'] ?? []);
+            final item = items.removeAt(oldIndex);
+            items.insert(newIndex, item);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          onAdd: () async {
+            final selectedData = await ImagePickerModal.show(context);
+            if (selectedData == null) return;
 
-          return Container(
-            margin: const EdgeInsets.only(bottom: 20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-            ),
-            child: Column(
+            final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
+            
+            // Add a temporary upload:// item so the UI shows the loading spinner!
+            final List freshItems = List.from(block['items'] ?? []);
+            final int tIndex = freshItems.length;
+            freshItems.add({
+              'name': 'عضو جديد',
+              'role': 'مسمى وظيفي',
+              'bio': '',
+              'image_url': uploadId,
+              'socials': []
+            });
+            cubit.updateBlockProperty(index, 'items', freshItems);
+
+            sl<UploadManagerCubit>().upload(
+              uploadId: uploadId,
+              data: selectedData,
+              onSuccess: (finalUrl) {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems2 = List.from(freshBlock['items'] ?? []);
+                  if (tIndex < freshItems2.length) {
+                    freshItems2[tIndex] = Map<String, dynamic>.from(freshItems2[tIndex])..['image_url'] = finalUrl;
+                    cubit.updateBlockProperty(index, 'items', freshItems2);
+                  }
+                }
+              },
+              onCancel: () {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems2 = List.from(freshBlock['items'] ?? []);
+                  if (tIndex < freshItems2.length) {
+                    freshItems2.removeAt(tIndex);
+                    cubit.updateBlockProperty(index, 'items', freshItems2);
+                  }
+                }
+              },
+            );
+          },
+          onDelete: (i) {
+            final List updated = List.from(block['items'] ?? []);
+            updated.removeAt(i);
+            cubit.updateBlockProperty(index, 'items', updated);
+          },
+          itemBuilder: (context, i, onDelete) {
+            final item = items[i];
+            final String imageUrl = item['image_url'] ?? '';
+            final isUploading = imageUrl.startsWith('upload://');
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomImageField(
-                        label: 'صورة العضو',
-                        imageUrl: imageUrl,
-                        isUploading: isUploading,
-                        onAction: () => pickImage(cubit, index, itemIndex: i, itemKey: 'image_url'),
-                        onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: i, itemKey: 'image_url'),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete_outline, color: Colors.redAccent),
-                      onPressed: () {
-                        items.removeAt(i);
-                        cubit.updateBlockProperty(index, 'items', items);
-                      },
-                    ),
-                  ],
+                CustomImageField(
+                  label: 'صورة العضو',
+                  imageUrl: imageUrl,
+                  isUploading: isUploading,
+                  onAction: () => pickImage(cubit, index, itemIndex: i, itemKey: 'image_url'),
+                  onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: i, itemKey: 'image_url'),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 CustomTextField(
                   hintText: "الاسم",
                   controller: getController("${index}_member_${i}_name", item['name'] ?? ''),
                   focusNode: getFocusNode("${index}_member_${i}_name"),
                   maxLength: 100,
                   onChanged: (val) {
-                    items[i]['name'] = val;
-                    cubit.updateBlockProperty(index, 'items', items);
+                    final List freshItems = List.from(block['items'] ?? []);
+                    freshItems[i]['name'] = val;
+                    cubit.updateBlockProperty(index, 'items', freshItems);
                   },
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 CustomTextField(
                   hintText: "المسمى الوظيفي",
                   controller: getController("${index}_member_${i}_role", item['role'] ?? ''),
                   focusNode: getFocusNode("${index}_member_${i}_role"),
                   maxLength: 100,
                   onChanged: (val) {
-                    items[i]['role'] = val;
-                    cubit.updateBlockProperty(index, 'items', items);
+                    final List freshItems = List.from(block['items'] ?? []);
+                    freshItems[i]['role'] = val;
+                    cubit.updateBlockProperty(index, 'items', freshItems);
                   },
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 CustomTextField(
                   hintText: "نبذة مختصرة",
                   maxLines: 2,
                   controller: getController("${index}_member_${i}_bio", item['bio'] ?? ''),
                   focusNode: getFocusNode("${index}_member_${i}_bio"),
                   onChanged: (val) {
-                    items[i]['bio'] = val;
-                    cubit.updateBlockProperty(index, 'items', items);
+                    final List freshItems = List.from(block['items'] ?? []);
+                    freshItems[i]['bio'] = val;
+                    cubit.updateBlockProperty(index, 'items', freshItems);
                   },
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 _buildSocialsEditor(i, item['socials'] ?? []),
               ],
-            ),
-          );
-        }),
-        SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: () {
-            items.add({'name': 'عضو جديد', 'role': 'مسمى وظيفي', 'bio': '', 'image_url': 'https://cdn.pixabay.com/photo/2016/11/21/14/53/man-1845814_1280.jpg', 'socials': []});
-            cubit.updateBlockProperty(index, 'items', items);
+            );
           },
-          icon: Icon(Icons.add),
-          label: const Text("إضافة عضو"),
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
         ),
       ],
     );

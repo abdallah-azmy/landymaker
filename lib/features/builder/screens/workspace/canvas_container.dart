@@ -23,9 +23,9 @@ class CanvasContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     double? width;
     if (previewMode == PreviewMode.mobile)
-      width = 390.0;
+      width = 383.0; // 375 screen + 8 bezel padding
     else if (previewMode == PreviewMode.tablet)
-      width = 820.0;
+      width = 776.0; // 768 screen + 8 bezel padding
     else if (previewMode == PreviewMode.fullscreen)
       width = double.infinity;
 

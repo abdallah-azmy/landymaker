@@ -3,7 +3,11 @@ import '../../../../../../core/theme/app_typography.dart';
 import '../../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
 import '../../../controllers/builder_cubit.dart';
+import '../../../controllers/builder_state.dart';
 import '../../molecules/custom_image_field.dart';
+import '../../modals/image_picker_modal.dart';
+import '../../../controllers/upload_manager_cubit.dart';
+import '../../../../../injection_container.dart';
 import '../common/dynamic_list_editor.dart';
 import '../editor_types.dart';
 
@@ -49,10 +53,16 @@ class TrustLogosEditor extends StatelessWidget {
         FormGroup(
           label: 'نوع التخطيط',
           child: DropdownButtonFormField<String>(
-            initialValue: (block['layout_style'] as String?) ?? 'row',
+            initialValue: () {
+              final String currentStyle = block['layout_style'] ?? 'row';
+              const allowedStyles = ['row', 'grid', 'logo_strip', 'dark_trust'];
+              return allowedStyles.contains(currentStyle) ? currentStyle : 'row';
+            }(),
             items: const [
               DropdownMenuItem(value: 'row', child: Text('صف')),
               DropdownMenuItem(value: 'grid', child: Text('شبكة')),
+              DropdownMenuItem(value: 'logo_strip', child: Text('شريط شعارات')),
+              DropdownMenuItem(value: 'dark_trust', child: Text('ثقة داكنة')),
             ],
             onChanged: (val) => cubit.updateBlockProperty(index, 'layout_style', val),
             decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
@@ -101,10 +111,51 @@ class TrustLogosEditor extends StatelessWidget {
           addLabel: "أضف شعار",
           addIcon: Icons.add_photo_alternate_rounded,
           itemCount: ((block['items'] as List?) ?? []).length,
-          itemTitleBuilder: null,
-          onAdd: () {
+          onAdd: () async {
+            final selectedData = await ImagePickerModal.show(context);
+            if (selectedData == null) return;
+
+            final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
+            
+            // Add a temporary upload:// item so the UI shows the loading spinner!
             final List items = List.from(block['items'] ?? []);
-            items.add('https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg');
+            final int tIndex = items.length;
+            items.add(uploadId);
+            cubit.updateBlockProperty(index, 'items', items);
+
+            sl<UploadManagerCubit>().upload(
+              uploadId: uploadId,
+              data: selectedData,
+              onSuccess: (finalUrl) {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems = List.from(freshBlock['items'] ?? []);
+                  if (tIndex < freshItems.length) {
+                    freshItems[tIndex] = finalUrl;
+                    cubit.updateBlockProperty(index, 'items', freshItems);
+                  }
+                }
+              },
+              onCancel: () {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems = List.from(freshBlock['items'] ?? []);
+                  if (tIndex < freshItems.length) {
+                    freshItems.removeAt(tIndex);
+                    cubit.updateBlockProperty(index, 'items', freshItems);
+                  }
+                }
+              },
+            );
+          },
+          itemTitleBuilder: (tIndex) => "شعار رقم ${tIndex + 1}",
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final items = List.from(block['items'] ?? []);
+            final item = items.removeAt(oldIndex);
+            items.insert(newIndex, item);
             cubit.updateBlockProperty(index, 'items', items);
           },
           onDelete: (tIndex) {
@@ -117,17 +168,6 @@ class TrustLogosEditor extends StatelessWidget {
             final isUploading = url.startsWith('upload://');
             return Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("شعار رقم ${tIndex + 1}", style: AppTypography.bodySmall),
-                    IconButton(
-                      icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 18),
-                      onPressed: onDelete,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
                 CustomImageField(
                   label: "",
                   imageUrl: url,
@@ -135,7 +175,6 @@ class TrustLogosEditor extends StatelessWidget {
                   onAction: () => pickImage(cubit, index, itemIndex: tIndex, itemKey: 'items_array'),
                   onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: tIndex, itemKey: 'items_array'),
                 ),
-                SizedBox(height: 12),
               ],
             );
           },

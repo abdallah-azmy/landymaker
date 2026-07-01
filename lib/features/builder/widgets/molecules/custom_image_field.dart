@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/custom_network_image.dart';
-
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/atoms/cube_progress.dart';
+import '../../../dashboard/controllers/media_gallery_cubit.dart';
+import '../../../dashboard/controllers/media_gallery_state.dart';
 
 class CustomImageField extends StatelessWidget {
   final String? imageUrl;
@@ -23,15 +25,27 @@ class CustomImageField extends StatelessWidget {
 
   bool _isTemplateAsset(String? url) {
     if (url == null || url.isEmpty) return false;
+    final lower = url.toLowerCase();
     // Template assets are usually external (pixabay, etc.)
-    // LandyMaker hosted assets usually have 'supabase' in the URL or the specific project ID
-    return !url.contains('supabase.co');
+    // If it contains supabase.co or ibb.co, it is already persistent user/ImgBB storage.
+    return !lower.contains('supabase.co') && !lower.contains('ibb.co');
   }
 
   @override
   Widget build(BuildContext context) {
     final bool hasImage = imageUrl != null && imageUrl!.isNotEmpty;
-    final bool canPersist = hasImage && onSaveTemplateAsset != null && _isTemplateAsset(imageUrl);
+    final bool canPersist =
+        hasImage && onSaveTemplateAsset != null && _isTemplateAsset(imageUrl);
+
+    bool isAlreadySaved = false;
+    if (canPersist) {
+      final galleryState = context.watch<MediaGalleryCubit>().state;
+      if (galleryState is MediaGalleryLoaded) {
+        isAlreadySaved = galleryState.images.any(
+          (img) => img['source_url'] == imageUrl || img['url'] == imageUrl,
+        );
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,7 +56,9 @@ class CustomImageField extends StatelessWidget {
         ),
         SizedBox(height: 8),
         InkWell(
-          onTap: onAction,
+          onTap: (isUploading || (imageUrl?.startsWith('upload://') == true))
+              ? null
+              : onAction,
           borderRadius: BorderRadius.circular(16),
           child: Container(
             height: 120,
@@ -50,7 +66,10 @@ class CustomImageField extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                width: 2,
+              ),
             ),
             child: Stack(
               fit: StackFit.expand,
@@ -68,47 +87,67 @@ class CustomImageField extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_photo_alternate_rounded, size: 32, color: Colors.white24),
+                        Icon(
+                          Icons.add_photo_alternate_rounded,
+                          size: 32,
+                          color: Colors.white24,
+                        ),
                         SizedBox(height: 8),
-                        Text(context.translate('choose_image') ?? "اختر صورة", style: TextStyle(color: Colors.white24, fontSize: 12)),
+                        Text(
+                          context.translate('choose_image') ?? "اختر صورة",
+                          style: TextStyle(color: Colors.white24, fontSize: 12),
+                        ),
                       ],
                     ),
                   ),
-                
-                // Overlay for Action
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: hasImage ? 0.3 : 0),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white24),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            hasImage ? Icons.edit_rounded : Icons.add_rounded, 
-                            size: 16, 
-                            color: const Color(0xFF00E5FF),
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            hasImage ? (context.translate('edit') ?? "تغيير") : (context.translate('upload_image') ?? "رفع صورة"),
-                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+
+                if (!isUploading &&
+                    (imageUrl == null || !imageUrl!.startsWith('upload://')))
+                  // Overlay for Action
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: hasImage ? 0.3 : 0),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white24),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              hasImage ? Icons.edit_rounded : Icons.add_rounded,
+                              size: 16,
+                              color: const Color(0xFF00E5FF),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              hasImage
+                                  ? (context.translate('edit') ?? "تغيير")
+                                  : (context.translate('upload_image') ??
+                                        "رفع صورة"),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                if (isUploading)
+                if (isUploading &&
+                    (imageUrl == null || !imageUrl!.startsWith('upload://')))
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.7),
@@ -123,27 +162,62 @@ class CustomImageField extends StatelessWidget {
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: Tooltip(
-                      message: context.translate('save_to_gallery') ?? "حفظ في المعرض",
-                      child: InkWell(
-                        onTap: onSaveTemplateAsset,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF00E5FF).withValues(alpha: 0.9),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 8,
-                              )
-                            ],
+                    child: isAlreadySaved
+                        ? Tooltip(
+                            message:
+                                "محفوظ في معرضك" ?? "Saved in your gallery",
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade600.withValues(
+                                  alpha: 0.95,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.cloud_done_rounded,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        : Tooltip(
+                            message:
+                                context.translate('save_to_gallery') ??
+                                "حفظ في المعرض",
+                            child: InkWell(
+                              onTap: onSaveTemplateAsset,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF00E5FF,
+                                  ).withValues(alpha: 0.9),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.download_for_offline_rounded,
+                                  size: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
                           ),
-                          child: Icon(Icons.download_for_offline_rounded, size: 20, color: Colors.black),
-                        ),
-                      ),
-                    ),
                   ),
               ],
             ),

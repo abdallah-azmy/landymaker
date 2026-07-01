@@ -110,86 +110,19 @@ class _ImagePickerModalContentState extends State<_ImagePickerModalContent>
           );
         }
       },
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // Dynamic sizing based on screen constraints (Responsive)
-          final isMobile = constraints.maxWidth < 600;
-          final sheetHeight =
-              MediaQuery.of(context).size.height * (isMobile ? 0.9 : 0.7);
-          final sheetWidth = isMobile ? constraints.maxWidth : 600.0;
-
-          return Center(
-            child: Container(
-              width: sheetWidth,
-              height: sheetHeight,
-              margin: isMobile ? EdgeInsets.zero : const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: isMobile
-                    ? BorderRadius.vertical(top: Radius.circular(20))
-                    : BorderRadius.circular(20),
-                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black54,
-                    blurRadius: 24,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: isMobile
-                    ? BorderRadius.vertical(top: Radius.circular(20))
-                    : BorderRadius.circular(20),
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        _buildHeader(),
-                        _buildTabBar(),
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: [
-                              _buildLocalUploadTab(),
-                              _buildUserGalleryTab(),
-                              _buildPixabayTab(),
-                              _buildUrlTab(),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          Text(
-            'Select Media',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          _buildTabBar(),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildLocalUploadTab(),
+                _buildUserGalleryTab(),
+                _buildPixabayTab(),
+                _buildUrlTab(),
+              ],
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            onPressed: () => Navigator.of(context).pop(),
           ),
         ],
       ),

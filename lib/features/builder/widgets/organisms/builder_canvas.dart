@@ -42,7 +42,7 @@ class BuilderCanvas extends StatelessWidget {
             canvasWidth = 768;
             break;
           case PreviewMode.desktop:
-            canvasWidth = constraints.maxWidth.clamp(0.0, 1000.0);
+            canvasWidth = constraints.maxWidth - 8.0;
             break;
           case PreviewMode.fullscreen:
             canvasWidth = constraints.maxWidth;

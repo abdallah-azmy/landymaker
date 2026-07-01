@@ -70,6 +70,13 @@ class PricingEditor extends StatelessWidget {
           addLabel: "أضف خطة",
           itemCount: ((block['items'] as List?) ?? []).length,
           itemTitleBuilder: (pIndex) => "الخطة #${pIndex + 1}",
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final items = List.from(block['items'] ?? []);
+            final item = items.removeAt(oldIndex);
+            items.insert(newIndex, item);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
           onAdd: () {
             final items = List.from(block['items'] ?? []);
             items.add({
@@ -171,7 +178,31 @@ class PricingEditor extends StatelessWidget {
                     ),
                   ],
                 ],
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  hintText: "نص زر الاشتراك",
+                  controller: getController("${index}_pricing_${pIndex}_btn_text", item['button_text'] ?? 'اشترك الآن'),
+                  focusNode: getFocusNode("${index}_pricing_${pIndex}_btn_text"),
+                  onChanged: (val) => _updateItemProp(pIndex, 'button_text', val),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: ['link', 'whatsapp'].contains(item['button_action_type']) ? item['button_action_type'] : 'link',
+                  decoration: const InputDecoration(labelText: "إجراء الزر"),
+                  items: const [
+                    DropdownMenuItem(value: 'link', child: Text('رابط خارجي (Link)')),
+                    DropdownMenuItem(value: 'whatsapp', child: Text('واتساب (WhatsApp)')),
+                  ],
+                  onChanged: (val) => _updateItemProp(pIndex, 'button_action_type', val),
+                ),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  hintText: (item['button_action_type'] ?? 'link') == 'whatsapp' ? "رقم الواتساب (مثال: 2010...)" : "رابط التوجيه (https://...)",
+                  controller: getController("${index}_pricing_${pIndex}_btn_val", item['button_action_value'] ?? ''),
+                  focusNode: getFocusNode("${index}_pricing_${pIndex}_btn_val"),
+                  onChanged: (val) => _updateItemProp(pIndex, 'button_action_value', val),
+                ),
+                const SizedBox(height: 12),
                 SwitchListTile(
                   title: Text("خطة مميزة؟", style: AppTypography.caption),
                   value: item['is_popular'] ?? false,

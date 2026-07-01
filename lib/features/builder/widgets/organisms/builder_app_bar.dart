@@ -3,7 +3,6 @@ import 'dart:html' as html;
 import '../../models/preview_mode.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
-import '../../../../core/widgets/atoms/cube_spinner.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
 import '../molecules/scrollable_toolbar_container.dart';
@@ -215,38 +214,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             Expanded(
               child: ScrollableToolbarContainer(
                 children: [
-                  _buildActionButton(
-                    context,
-                    icon: state.isPublished
-                        ? Icons.visibility_off_rounded
-                        : Icons.language_rounded,
-                    label: state.isPublished
-                        ? loc.translate('draft')
-                        : loc.translate('go_live'),
-                    onPressed: () {
-                      cubit.updateSettings(isPublished: !state.isPublished);
-                      cubit.saveForCurrentUser();
-                    },
-                    color: state.isPublished
-                        ? Theme.of(context).colorScheme.onSurface
-                        : Theme.of(context).colorScheme.primary,
-                  ),
-                  if (!state.isPublished)
-                    _buildActionButton(
-                      context,
-                      icon: Icons.save_rounded,
-                      label: loc.translate('save_draft'),
-                      onPressed: state.hasUnsavedChanges
-                          ? () => cubit.saveForCurrentUser()
-                          : null,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  VerticalDivider(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    indent: 12,
-                    endIndent: 12,
-                    width: 32,
-                  ),
+
                   _buildActionButton(
                     context,
                     icon: Icons.auto_awesome_rounded,
@@ -334,7 +302,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       vertical: 8,
                       horizontal: 8,
                     ),
-                    child: _buildPublishButton(context),
+                    child: _buildActionHub(context),
                   ),
                 ],
               ),
@@ -378,117 +346,108 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildPublishButton(BuildContext context) {
+  Widget _buildActionHub(BuildContext context) {
     final bool canSave = state.hasUnsavedChanges && !state.isSaving;
-    final bool isDraft = !state.isPublished;
 
-    if (isDraft) {
-      return InkWell(
-        onTap: canSave
-            ? () => _showPublishConfirmation(context, loc, cubit, state)
-            : null,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: canSave
-                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
-                : Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: canSave
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 1. Status Toggle (Draft vs Live Switch)
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              state.isPublished ? "منشور مباشر" : "مسودة",
+              style: AppTypography.bodySmall.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: state.isPublished
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Transform.scale(
+              scale: 0.85,
+              child: Switch(
+                value: state.isPublished,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: state.isSaving
+                    ? null
+                    : (val) {
+                        if (val) {
+                          // Turn Live: Show confirmation
+                          _showPublishConfirmation(context, loc, cubit, state);
+                        } else {
+                          // Turn Draft: Revert and save
+                          cubit.updateSettings(isPublished: false);
+                          cubit.saveForCurrentUser();
+                        }
+                      },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 8),
+
+        // 2. Action Button (Save Draft / Publish Changes)
+        // Disabled if no unsaved changes are present.
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            disabledBackgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
+            disabledForegroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: state.isSaving
-              ? CubeSpinner(
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
+          onPressed: canSave ? () => cubit.saveForCurrentUser() : null,
+          icon: state.isSaving
+              ? SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
                 )
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.rocket_launch_rounded,
-                      color: canSave
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.5),
-                      size: 18,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      loc.translate('publish'),
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: canSave
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+              : Icon(
+                  state.isPublished
+                      ? Icons.cloud_done_rounded
+                      : Icons.cloud_upload_outlined,
+                  size: 16,
                 ),
-        ),
-      );
-    }
-
-    // Published state — show Save Changes
-    return InkWell(
-      onTap: canSave ? () => cubit.saveForCurrentUser() : null,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: canSave
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: canSave
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.outlineVariant,
+          label: Text(
+            state.isPublished ? "نشر التغييرات" : "حفظ مسودة",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
           ),
         ),
-        child: state.isSaving
-            ? CubeSpinner(
-                size: 20,
-                color: Theme.of(context).colorScheme.primary,
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.cloud_done_rounded,
-                    color: canSave
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.5),
-                    size: 18,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    canSave
-                        ? loc.translate('save_changes')
-                        : loc.translate('published'),
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: canSave
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.5),
-                      fontWeight: canSave ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                ],
+
+        // 3. View Live Site Button (Directly visible next to actions if Live)
+        if (state.isPublished) ...[
+          const SizedBox(width: 8),
+          TextButton.icon(
+            onPressed: () {
+              html.window.open('/${state.subdomain}', '_blank');
+            },
+            icon: const Icon(Icons.open_in_new_rounded, size: 16),
+            label: const Text("زيارة الموقع"),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
-      ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 

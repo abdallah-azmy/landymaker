@@ -33,8 +33,10 @@ class CustomTrustLogosWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
-    final subTextColor = theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    final textColor =
+        theme?.textPrimary ?? Theme.of(context).colorScheme.onSurface;
+    final subTextColor =
+        theme?.textSecondary ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -116,7 +118,10 @@ class _DesktopTrustLogosLayout extends StatelessWidget {
       backgroundColorHex: props.backgroundColorHex,
       verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
-      padding: const EdgeInsetsDirectional.symmetric(vertical: 80, horizontal: 24),
+      padding: const EdgeInsetsDirectional.symmetric(
+        vertical: 80,
+        horizontal: 24,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1000),
@@ -124,7 +129,18 @@ class _DesktopTrustLogosLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (props.title.isNotEmpty) ...[
-                Text(props.title, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(
+                  props.title,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: props.subTextColor,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 SizedBox(height: 32),
               ],
               Wrap(
@@ -132,9 +148,10 @@ class _DesktopTrustLogosLayout extends StatelessWidget {
                 spacing: 48,
                 runSpacing: 32,
                 children: props.logoUrls.map((url) {
-                  return ColorFiltered(
-                    colorFilter: ColorFilter.mode(props.textColor.withValues(alpha: 0.5), BlendMode.srcIn),
-                    child: CustomNetworkImage(imageUrl: url, height: 40, fit: BoxFit.contain),
+                  return CustomNetworkImage(
+                    imageUrl: url,
+                    height: 40,
+                    fit: BoxFit.contain,
                   );
                 }).toList(),
               ),
@@ -165,7 +182,10 @@ class _MobileTrustLogosLayout extends StatelessWidget {
       backgroundColorHex: props.backgroundColorHex,
       verticalPaddingOverride: props.verticalPadding,
       theme: props.theme,
-      padding: const EdgeInsetsDirectional.symmetric(vertical: 40, horizontal: 24),
+      padding: const EdgeInsetsDirectional.symmetric(
+        vertical: 40,
+        horizontal: 24,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1000),
@@ -173,7 +193,18 @@ class _MobileTrustLogosLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (props.title.isNotEmpty) ...[
-                Text(props.title, style: AppTypography.bodyMedium.copyWith(color: props.subTextColor, fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(
+                  props.title,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: props.subTextColor,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 SizedBox(height: 24),
               ],
               Wrap(
@@ -181,9 +212,10 @@ class _MobileTrustLogosLayout extends StatelessWidget {
                 spacing: 24,
                 runSpacing: 16,
                 children: props.logoUrls.map((url) {
-                  return ColorFiltered(
-                    colorFilter: ColorFilter.mode(props.textColor.withValues(alpha: 0.5), BlendMode.srcIn),
-                    child: CustomNetworkImage(imageUrl: url, height: 32, fit: BoxFit.contain),
+                  return CustomNetworkImage(
+                    imageUrl: url,
+                    height: 32,
+                    fit: BoxFit.contain,
                   );
                 }).toList(),
               ),

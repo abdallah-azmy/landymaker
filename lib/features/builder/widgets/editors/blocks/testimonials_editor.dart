@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:landymaker/core/widgets/molecules/form_group.dart';
 import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
+import '../../../controllers/builder_state.dart';
+import '../../molecules/custom_image_field.dart';
+import '../../modals/image_picker_modal.dart';
+import '../../../controllers/upload_manager_cubit.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
-import '../../molecules/custom_image_field.dart';
+import '../../../../../injection_container.dart';
+import '../common/dynamic_list_editor.dart';
 
 /// Editor for the testimonials block type.
 /// Exposes title, layout_style (cards/carousel), card_style, hover_effect,
@@ -93,59 +98,75 @@ class TestimonialsEditor extends StatelessWidget {
           activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
         SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "آراء العملاء (Testimonials)",
-              style: AppTypography.bodyLarge.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextButton.icon(
-              onPressed: () => cubit.addTestimonialItem(index),
-              icon: Icon(Icons.add_rounded, size: 16),
-              label: const Text("أضف رأي"),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        ...List.generate(((block['items'] as List?) ?? []).length, (tIndex) {
-          final item =
-              ((block['items'] as List?) ?? [])[tIndex] as Map<String, dynamic>;
-          final String imageUrl = item['image_url'] ?? '';
-          final isUploading = imageUrl.startsWith('upload://');
+        DynamicListEditor(
+          title: "آراء العملاء (Testimonials)",
+          addLabel: "أضف رأي",
+          itemCount: ((block['items'] as List?) ?? []).length,
+          itemTitleBuilder: (i) {
+            final List items = block['items'] ?? [];
+            return (items[i]['author'] ?? '').isEmpty ? 'رأي جديد' : items[i]['author'];
+          },
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final List items = List.from(block['items'] ?? []);
+            final item = items.removeAt(oldIndex);
+            items.insert(newIndex, item);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          onAdd: () async {
+            final selectedData = await ImagePickerModal.show(context);
+            if (selectedData == null) return;
 
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-            ),
-            child: Column(
+            final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
+            
+            // Add a temporary upload:// item so the UI shows the loading spinner!
+            final List freshItems = List.from(block['items'] ?? []);
+            final int tIndex = freshItems.length;
+            freshItems.add({
+              'author': 'اسم العميل',
+              'role': 'المنصب/الوصف',
+              'quote': '',
+              'image_url': uploadId,
+            });
+            cubit.updateBlockProperty(index, 'items', freshItems);
+
+            sl<UploadManagerCubit>().upload(
+              uploadId: uploadId,
+              data: selectedData,
+              onSuccess: (finalUrl) {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems2 = List.from(freshBlock['items'] ?? []);
+                  if (tIndex < freshItems2.length) {
+                    freshItems2[tIndex] = Map<String, dynamic>.from(freshItems2[tIndex])..['image_url'] = finalUrl;
+                    cubit.updateBlockProperty(index, 'items', freshItems2);
+                  }
+                }
+              },
+              onCancel: () {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems2 = List.from(freshBlock['items'] ?? []);
+                  if (tIndex < freshItems2.length) {
+                    freshItems2.removeAt(tIndex);
+                    cubit.updateBlockProperty(index, 'items', freshItems2);
+                  }
+                }
+              },
+            );
+          },
+          onDelete: (i) => cubit.deleteTestimonialItem(index, i),
+          itemBuilder: (context, tIndex, onDelete) {
+            final items = (block['items'] as List?) ?? [];
+            final item = items[tIndex] as Map<String, dynamic>;
+            final String imageUrl = item['image_url'] ?? '';
+            final isUploading = imageUrl.startsWith('upload://');
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "رأي #${tIndex + 1}",
-                      style: AppTypography.caption.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline_rounded,
-                        color: Theme.of(context).colorScheme.error,
-                        size: 20,
-                      ),
-                      onPressed: () =>
-                          cubit.deleteTestimonialItem(index, tIndex),
-                    ),
-                  ],
-                ),
                 CustomImageField(
                   label: "صورة العميل (Avatar)",
                   imageUrl: imageUrl,
@@ -163,7 +184,7 @@ class TestimonialsEditor extends StatelessWidget {
                     itemKey: 'image_url',
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 CustomTextField(
                   hintText: "الاسم",
                   controller: getController(
@@ -177,7 +198,7 @@ class TestimonialsEditor extends StatelessWidget {
                   onChanged: (val) =>
                       cubit.updateTestimonialItem(index, tIndex, 'author', val),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 CustomTextField(
                   hintText: "المنصب/الوصف",
                   controller: getController(
@@ -191,7 +212,7 @@ class TestimonialsEditor extends StatelessWidget {
                   onChanged: (val) =>
                       cubit.updateTestimonialItem(index, tIndex, 'role', val),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 CustomTextField(
                   hintText: "الرأي",
                   maxLines: 3,
@@ -207,9 +228,9 @@ class TestimonialsEditor extends StatelessWidget {
                       cubit.updateTestimonialItem(index, tIndex, 'quote', val),
                 ),
               ],
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ],
     );
   }

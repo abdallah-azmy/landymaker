@@ -227,7 +227,7 @@ const Map<String, String> translationsEn = {
   'column': 'Column',
   'row': 'Row',
   'visible': 'Show Section',
-  'section_title': 'Section Title',
+  'section_title': 'Main Title',
   'edit_element': 'Edit Element',
   'choose_image': 'Choose Image',
   'default_font': 'Default Font',

@@ -26,11 +26,13 @@ final List<_SectionDefinition> _sections = [
         'layout_style': 'centered',
         'alignment': 'center',
         'logo_height': 48.0,
+        'logo_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
       }),
       _variant('يمين/بداية', 'مناسب للعلامات الرسمية', 'split', {
         'layout_style': 'edge_aligned',
         'alignment': 'right',
         'logo_height': 42.0,
+        'logo_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
       }),
       _variant('هيدر داكن', 'شريط واضح أعلى الصفحة', 'dark', {
         'layout_style': 'dark_bar',
@@ -38,6 +40,7 @@ final List<_SectionDefinition> _sections = [
         'logo_height': 52.0,
         'bg_overlay_color': '#0F172A',
         'bg_overlay_opacity': 1.0,
+        'logo_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
       }),
     ],
   ),
@@ -66,7 +69,7 @@ final List<_SectionDefinition> _sections = [
         'layout_style': 'fullWidthBg',
         'vertical_padding': 108.0,
         'bg_image_url':
-            'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+            'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
         'bg_overlay_color': '#020617',
         'bg_overlay_opacity': 0.62,
       }),
@@ -216,7 +219,7 @@ final List<_SectionDefinition> _sections = [
       _variant('خلفية صورة', 'نموذج واضح فوق خلفية', 'form_dark', {
         'layout_style': 'image_form',
         'bg_image_url':
-            'https://cdn.pixabay.com/photo/2017/10/10/21/47/laptop-2838921_1280.jpg',
+            'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
         'bg_overlay_color': '#020617',
         'bg_overlay_opacity': 0.68,
       }),
@@ -662,8 +665,8 @@ final List<_SectionDefinition> _sections = [
     variants: [
       _variant('بطاقات الفريق', 'صور وأسماء الفريق', 'grid', {
         'items': [
-          {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://cdn.pixabay.com/photo/2016/11/21/14/53/man-1845814_1280.jpg'},
-          {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://cdn.pixabay.com/photo/2017/08/30/12/45/girl-2696947_1280.jpg'},
+          {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
+          {'name': 'الاسم الكامل', 'role': 'المسمى الوظيفي', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
         ],
       }),
     ],

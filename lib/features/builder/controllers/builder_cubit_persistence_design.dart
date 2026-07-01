@@ -216,7 +216,9 @@ mixin BuilderCubitPersistenceDesign on Cubit<BuilderState> {
     if (newTheme != null) {
       _suppressHistoryFromTheme = true;
       _themeCubit.replaceTheme(newTheme);
-      _suppressHistoryFromTheme = false;
+      Future.microtask(() {
+        _suppressHistoryFromTheme = false;
+      });
     }
     DynamicFontService.loadFontsFromDesign(newDesignMap);
     _emitDirty(

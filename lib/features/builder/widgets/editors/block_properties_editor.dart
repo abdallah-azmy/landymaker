@@ -12,7 +12,6 @@ import '../layout_picker/layout_picker_panel.dart';
 import 'blocks/editor_utils.dart';
 import 'editor_media_helper.dart';
 import 'content_tab_dispatcher.dart';
-import 'block_actions.dart';
 import 'block_design_settings.dart';
 
 class BlockPropertiesEditor extends StatefulWidget {
@@ -99,18 +98,26 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
     Map<String, dynamic> block,
     String type,
   ) {
-    final list = <Widget>[
-      FormGroup(
-        label: loc.translate('section_title'),
-        child: CustomTextField(
-          controller: _getController("${widget.index}_title", block['title'] ?? ''),
-          focusNode: _getFocusNode("${widget.index}_title"),
-          maxLength: 100,
-          onChanged: (val) => cubit.updateBlockProperty(widget.index, 'title', val),
+    final list = <Widget>[];
+
+    if (type != 'trust_logos') {
+      list.add(
+        FormGroup(
+          label: loc.translate('section_title'),
+          child: CustomTextField(
+            controller: _getController(
+              "${widget.index}_title",
+              block['title'] ?? '',
+            ),
+            focusNode: _getFocusNode("${widget.index}_title"),
+            maxLength: 100,
+            onChanged: (val) =>
+                cubit.updateBlockProperty(widget.index, 'title', val),
+          ),
         ),
-      ),
-      SizedBox(height: 16),
-    ];
+      );
+      list.add(const SizedBox(height: 16));
+    }
 
     final editor = buildContentEditor(
       type: type,
@@ -145,16 +152,13 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
     List<Widget> activeWidgets;
     if (_activeTab == 0) {
       activeWidgets = _buildContentTab(loc, cubit, block, type);
-    } else if (_activeTab == 1) {
-      activeWidgets = buildActionsTab(
-        loc: loc, cubit: cubit, block: block, type: type,
-        index: widget.index,
-        getController: _getController, getFocusNode: _getFocusNode,
-      );
     } else {
       activeWidgets = [
         BlockDesignSettings(
-          cubit: cubit, block: block, type: type, index: widget.index,
+          cubit: cubit,
+          block: block,
+          type: type,
+          index: widget.index,
           onPickMedia: (c, idx, {isBackground = false}) =>
               pickMedia(context, c, idx, isBackground: isBackground),
           onPersistAsset: (c, idx, {isBackground = false}) =>
@@ -187,8 +191,10 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
           SizedBox(height: 24),
           if (widget.isBottomSheet) ...[
             PrimaryButton(
-              text: loc.translate('delete'), icon: Icons.delete_rounded,
-              isSecondary: true, width: double.infinity,
+              text: loc.translate('delete'),
+              icon: Icons.delete_rounded,
+              isSecondary: true,
+              width: double.infinity,
               onPressed: () {
                 showDialog(
                   context: context,
@@ -226,16 +232,28 @@ class _BlockPropertiesEditorState extends State<BlockPropertiesEditor> {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
             ),
             child: Row(
               children: [
-                buildTabButton(context, _activeTab, 0, loc.translate('content'), Icons.edit_note_rounded,
-                  () => setState(() => _activeTab = 0)),
-                buildTabButton(context, _activeTab, 1, loc.translate('actions'), Icons.touch_app_rounded,
-                  () => setState(() => _activeTab = 1)),
-                buildTabButton(context, _activeTab, 2, loc.translate('design'), Icons.palette_rounded,
-                  () => setState(() => _activeTab = 2)),
+                 buildTabButton(
+                  context,
+                  _activeTab,
+                  0,
+                  loc.translate('content'),
+                  Icons.edit_note_rounded,
+                  () => setState(() => _activeTab = 0),
+                ),
+                buildTabButton(
+                  context,
+                  _activeTab,
+                  1,
+                  loc.translate('design'),
+                  Icons.palette_rounded,
+                  () => setState(() => _activeTab = 1),
+                ),
               ],
             ),
           ),

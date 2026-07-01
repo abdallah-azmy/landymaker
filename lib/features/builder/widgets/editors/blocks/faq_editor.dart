@@ -6,6 +6,7 @@ import '../../../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
 import '../../../controllers/builder_cubit.dart';
 import '../editor_types.dart';
+import '../common/dynamic_list_editor.dart';
 
 /// Editor for the faq block type.
 /// Exposes title, variant (0=Accordion/1=List), card_style, hover_effect,
@@ -97,60 +98,29 @@ class FaqEditor extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
-        SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "الأسئلة الشائعة (FAQ Items)",
-              style: AppTypography.bodyLarge.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextButton.icon(
-              onPressed: () => cubit.addFaqItem(index),
-              icon: Icon(Icons.add_rounded, size: 16),
-              label: const Text("أضف سؤال"),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        ...List.generate(((block['items'] as List?) ?? []).length, (fIndex) {
-          final item =
-              ((block['items'] as List?) ?? [])[fIndex] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant,
-              ),
-            ),
-            child: Column(
+        DynamicListEditor(
+          title: "الأسئلة الشائعة (FAQ Items)",
+          addLabel: "أضف سؤال",
+          itemCount: ((block['items'] as List?) ?? []).length,
+          itemTitleBuilder: (i) {
+            final List items = block['items'] ?? [];
+            return (items[i]['question'] ?? '').isEmpty ? 'سؤال جديد' : items[i]['question'];
+          },
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final List items = List.from(block['items'] ?? []);
+            final item = items.removeAt(oldIndex);
+            items.insert(newIndex, item);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          onAdd: () => cubit.addFaqItem(index),
+          onDelete: (i) => cubit.deleteFaqItem(index, i),
+          itemBuilder: (context, fIndex, onDelete) {
+            final items = (block['items'] as List?) ?? [];
+            final item = items[fIndex] as Map<String, dynamic>;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "سؤال #${fIndex + 1}",
-                      style: AppTypography.caption.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline_rounded,
-                        color: Theme.of(context).colorScheme.error,
-                        size: 20,
-                      ),
-                      onPressed: () => cubit.deleteFaqItem(index, fIndex),
-                    ),
-                  ],
-                ),
                 CustomTextField(
                   hintText: "السؤال",
                   maxLength: 200,
@@ -162,7 +132,7 @@ class FaqEditor extends StatelessWidget {
                   onChanged: (val) =>
                       cubit.updateFaqItem(index, fIndex, 'question', val),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 CustomTextField(
                   hintText: "الإجابة",
                   maxLines: 3,
@@ -175,7 +145,7 @@ class FaqEditor extends StatelessWidget {
                   onChanged: (val) =>
                       cubit.updateFaqItem(index, fIndex, 'answer', val),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 PrimaryButton(
                   text: "ابحث في الصور (Stock Images)",
                   icon: Icons.search_rounded,
@@ -189,9 +159,9 @@ class FaqEditor extends StatelessWidget {
                   width: double.infinity,
                 ),
               ],
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ],
     );
   }

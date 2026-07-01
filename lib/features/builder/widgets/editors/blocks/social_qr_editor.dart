@@ -8,6 +8,7 @@ import '../../../../../core/widgets/atoms/primary_button.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
 import 'package:flutter/services.dart';
 import '../../../../../core/utils/toast_service.dart';
+import '../common/dynamic_list_editor.dart';
 
 /// Editor for the social_qr block type.
 /// Exposes live page URL, subtitle, card_style, hover_effect,
@@ -107,36 +108,38 @@ class SocialQrEditor extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
-        SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "روابط التواصل",
-              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () {
-                final List links = List.from(block['links'] ?? []);
-                links.add({'platform': 'website', 'url': 'https://'});
-                cubit.updateBlockProperty(index, 'links', links);
-              },
-              icon: Icon(Icons.add_link_rounded, size: 16),
-              label: const Text("أضف رابط"),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        ...List.generate(((block['links'] as List?) ?? []).length, (lIndex) {
-          final link = ((block['links'] as List?) ?? [])[lIndex] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
+        DynamicListEditor(
+          title: "روابط التواصل",
+          addLabel: "أضف رابط",
+          itemCount: ((block['links'] as List?) ?? []).length,
+          itemTitleBuilder: (i) {
+            final List links = block['links'] ?? [];
+            final String platform = links[i]['platform'] ?? 'website';
+            final String url = links[i]['url'] ?? '';
+            return '$platform ($url)';
+          },
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final List links = List.from(block['links'] ?? []);
+            final item = links.removeAt(oldIndex);
+            links.insert(newIndex, item);
+            cubit.updateBlockProperty(index, 'links', links);
+          },
+          onAdd: () {
+            final List links = List.from(block['links'] ?? []);
+            links.add({'platform': 'website', 'url': 'https://'});
+            cubit.updateBlockProperty(index, 'links', links);
+          },
+          onDelete: (i) {
+            final List links = List.from(block['links'] ?? []);
+            links.removeAt(i);
+            cubit.updateBlockProperty(index, 'links', links);
+          },
+          itemBuilder: (context, lIndex, onDelete) {
+            final links = (block['links'] as List?) ?? [];
+            final link = links[lIndex] as Map<String, dynamic>;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -163,14 +166,6 @@ class SocialQrEditor extends StatelessWidget {
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 20),
-                      onPressed: () {
-                        final List links = List.from(block['links']);
-                        links.removeAt(lIndex);
-                        cubit.updateBlockProperty(index, 'links', links);
-                      },
-                    ),
                   ],
                 ),
                 CustomTextField(
@@ -185,7 +180,7 @@ class SocialQrEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'links', links);
                   },
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 PrimaryButton(
                   text: "ابحث في الصور (Stock Images)",
                   icon: Icons.search_rounded,
@@ -199,9 +194,9 @@ class SocialQrEditor extends StatelessWidget {
                   width: double.infinity,
                 ),
               ],
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ],
     );
   }

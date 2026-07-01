@@ -35,14 +35,13 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
             ? 'نظام متكامل يجمع كل ما تحتاجه لإدارة مشروعك بكفاءة.'
             : 'اكتب هنا عرض القيمة الأساسي لخدمتك أو منتجك.',
         'button_text': 'ابدأ الآن مجاناً',
-        'image_url': type == 'hero_saas'
-            ? 'https://cdn.pixabay.com/photo/2016/11/19/14/00/code-1839406_1280.jpg'
-            : 'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+        'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
       };
     } else if (type == 'logo_header') {
       blockToAdd = {
         'type': 'logo_header',
         'title': 'اسم العلامة التجارية',
+        'logo_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
         'alignment': 'center',
         'logo_height': 48.0,
       };
@@ -52,8 +51,8 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'title': 'لماذا نحن؟',
         'layout_style': 'grid',
         'items': [
-          {'title': 'ميزة 1', 'description': 'اشرح فوائد هذه الميزة هنا.'},
-          {'title': 'ميزة 2', 'description': 'سلط الضوء على أهمية هذا البند.'},
+          {'title': 'ميزة 1', 'description': 'اشرح فوائد هذه الميزة هنا.', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
+          {'title': 'ميزة 2', 'description': 'سلط الضوء على أهمية هذا البند.', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
         ],
       };
     } else if (type == 'lead_form') {
@@ -93,7 +92,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
             'سجل الآن لتحصل على نسخة مجانية من الدليل الشامل لزيادة مبيعاتك بنسبة 300%.',
         'button_text': 'أرسل الدليل الآن',
         'image_url':
-            'https://cdn.pixabay.com/photo/2016/02/19/11/19/office-1209640_1280.jpg',
+            'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
         'fields': [
           {
             'field_id': 'name',
@@ -139,7 +138,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
             'category': 'عام',
             'description': 'وصف مختصر للمنتج.',
             'image_url':
-                'https://cdn.pixabay.com/photo/2014/07/31/23/00/watch-407092_1280.jpg',
+                'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
             'button_text': 'اشترِ الآن',
           },
         ],
@@ -208,7 +207,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'price': '0.00',
         'description': 'وصف مختصر للمنتج يبرز أهم مميزاته.',
         'image_url':
-            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+            'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
         'button_text': 'إضافة للسلة',
         'layout_style': 'split',
       };
@@ -222,14 +221,14 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
             'name': 'منتج 1',
             'price': '0 EGP',
             'image_url':
-                'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+                'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
           },
           {
             'id': const Uuid().v4(),
             'name': 'منتج 2',
             'price': '0 EGP',
             'image_url':
-                'https://cdn.pixabay.com/photo/2017/04/06/12/46/shopping-2153849_1280.jpg',
+                'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
           },
         ],
         'layout_style': 'modern',
@@ -247,7 +246,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'type': 'testimonials',
         'title': 'قالوا عنا',
         'items': [
-          {'author': 'الاسم', 'role': 'الوظيفة', 'quote': 'رأيه هنا.'},
+          {'author': 'الاسم', 'role': 'الوظيفة', 'quote': 'رأيه هنا.', 'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png'},
         ],
       };
     } else if (type == 'contact_info') {
@@ -280,7 +279,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'type': 'gallery',
         'title': 'معرض الصور',
         'items': [
-          'https://cdn.pixabay.com/photo/2015/07/17/22/43/student-849825_1280.jpg',
+          'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
         ],
       };
     } else if (type == 'multi_step_lead_form') {
@@ -372,6 +371,21 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
         'cross_axis_alignment': 'center',
         'spacing': 20.0,
       };
+    } else if (type == 'team_members') {
+      blockToAdd = {
+        'type': 'team_members',
+        'title': 'فريق العمل',
+        'subtitle': 'تعرف على المبدعين خلف نجاح هذا المشروع.',
+        'layout_style': 'grid',
+        'items': [
+          {
+            'name': 'الاسم الكامل',
+            'role': 'المسمى الوظيفي',
+            'bio': 'نبذة مختصرة توضح دور هذا الشخص وخبرته.',
+            'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
+          },
+        ],
+      };
     }
 
     if (blockToAdd == null) return;
@@ -384,7 +398,7 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
     _emitDirty(currentState.copyWith(designMap: newDesign));
 
     // Trigger import for new block assets (background images, etc. in overrides)
-    importTemplateAssets(sl<UploadManagerCubit>());
+    // importTemplateAssets(sl<UploadManagerCubit>());
   }
 
   /// Deep-merges [overrides] into [base] map (recursive for nested maps).

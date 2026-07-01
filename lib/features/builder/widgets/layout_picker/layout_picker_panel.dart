@@ -466,23 +466,6 @@ class _LayoutPickerPanelState extends State<LayoutPickerPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'مُنتقي التخطيط',
-                style: AppTypography.h3,
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  loc.translate('close'),
-                  style: AppTypography.button.copyWith(color: Theme.of(context).colorScheme.secondary),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8),
           Text(
             'اختر تخطيطاً للقسم ثم خصص عناصره',
             style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),

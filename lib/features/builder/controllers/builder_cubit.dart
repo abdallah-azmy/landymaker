@@ -179,7 +179,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState>
     final restoredTheme = LandingPageTheme.fromJson(snapshot['theme']);
     _suppressHistoryFromTheme = true;
     _themeCubit.replaceTheme(restoredTheme);
-    _suppressHistoryFromTheme = false;
+    Future.microtask(() {
+      _suppressHistoryFromTheme = false;
+    });
     _emitDirty(
       currentState.copyWith(
         designMap: snapshot['designMap'],
@@ -205,7 +207,9 @@ class LandingPageBuilderCubit extends Cubit<BuilderState>
     final restoredTheme = LandingPageTheme.fromJson(snapshot['theme']);
     _suppressHistoryFromTheme = true;
     _themeCubit.replaceTheme(restoredTheme);
-    _suppressHistoryFromTheme = false;
+    Future.microtask(() {
+      _suppressHistoryFromTheme = false;
+    });
     _emitDirty(
       currentState.copyWith(
         designMap: snapshot['designMap'],

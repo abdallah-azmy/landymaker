@@ -72,12 +72,20 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
     emit(UploadManagerState(currentUploads));
 
     try {
-      String finalUrl = '';
+       String finalUrl = '';
       Uint8List? imageBytes;
 
       if (data.source == SelectedImageSource.local && data.bytes != null) {
         imageBytes = data.bytes;
       } else if (data.source == SelectedImageSource.pixabay && data.webformatUrl != null) {
+        // Pre-check by sourceUrl to avoid downloading image bytes entirely!
+        final existingUrlBySource = await _storageService.findAssetBySourceUrl(data.webformatUrl!);
+        if (existingUrlBySource != null) {
+          onSuccess(existingUrlBySource);
+          _removeTask(uploadId);
+          return;
+        }
+
         imageBytes = await _mediaService.downloadImageBytes(
           data.webformatUrl!,
           cancelToken: cancelToken,
@@ -94,6 +102,15 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
         final hash = CryptoUtils.calculateHash(imageBytes);
         final existingUrl = await _storageService.findAssetByHash(hash);
         if (existingUrl != null) {
+          if (data.source == SelectedImageSource.pixabay && data.webformatUrl != null) {
+            // Also map it to this source URL for future lookups
+            await _storageService.registerExternalAsset(
+              existingUrl,
+              'img_${DateTime.now().millisecondsSinceEpoch}.jpg',
+              hash: hash,
+              sourceUrl: data.webformatUrl,
+            );
+          }
           onSuccess(existingUrl);
           _removeTask(uploadId);
           return;
@@ -112,6 +129,7 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
           finalUrl,
           'img_${DateTime.now().millisecondsSinceEpoch}.jpg',
           hash: hash,
+          sourceUrl: data.source == SelectedImageSource.pixabay ? data.webformatUrl : null,
         );
       }
 
@@ -156,7 +174,15 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
     currentUploads[uploadId] = newTask;
     emit(UploadManagerState(currentUploads));
 
-    try {
+     try {
+      // 0. Pre-check: has this exact external URL already been uploaded/registered?
+      final existingUrlBySource = await _storageService.findAssetBySourceUrl(externalUrl);
+      if (existingUrlBySource != null) {
+        onSuccess(existingUrlBySource);
+        _removeTask(uploadId);
+        return;
+      }
+
       // 1. Download image into bytes
       final Uint8List imageBytes = await _mediaService.downloadImageBytes(
         externalUrl,
@@ -167,6 +193,13 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
       final hash = CryptoUtils.calculateHash(imageBytes);
       final existingUrl = await _storageService.findAssetByHash(hash);
       if (existingUrl != null) {
+        // Also map it to this source URL for future lookups
+        await _storageService.registerExternalAsset(
+          existingUrl,
+          'import_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          hash: hash,
+          sourceUrl: externalUrl,
+        );
         onSuccess(existingUrl);
         _removeTask(uploadId);
         return;
@@ -185,6 +218,7 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
         imgbbUrl,
         'import_${DateTime.now().millisecondsSinceEpoch}.jpg',
         hash: hash,
+        sourceUrl: externalUrl,
       );
 
       if (!isClosed) {

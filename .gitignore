@@ -50,7 +50,7 @@ app.*.map.json
 .vercel/
 
 # AI & Agent Artifacts
-AI_CONTEXT.md
+# AI_CONTEXT.md
 docs/ai/*_PLAN.md
 docs/ai/*_PROMPT.md
 docs/archive/

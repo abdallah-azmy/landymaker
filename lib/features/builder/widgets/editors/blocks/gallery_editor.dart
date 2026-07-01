@@ -4,7 +4,12 @@ import '../../../../../../core/theme/app_typography.dart';
 import '../../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
 import '../../../controllers/builder_cubit.dart';
+import '../../../controllers/builder_state.dart';
 import '../../molecules/custom_image_field.dart';
+import '../../modals/image_picker_modal.dart';
+import '../../../controllers/upload_manager_cubit.dart';
+import '../../../../../injection_container.dart';
+import '../common/dynamic_list_editor.dart';
 import '../editor_types.dart';
 
 // Note: items in the gallery block schema is a stringList of image URLs.
@@ -144,63 +149,83 @@ class GalleryEditor extends StatelessWidget {
           activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
         SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              context.translate('gallery'),
-              style: AppTypography.bodyLarge.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextButton.icon(
-              onPressed: () => cubit.addGalleryImage(index),
-              icon: Icon(Icons.add_photo_alternate_rounded, size: 16),
-              label: Text(context.translate('add_image')),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        ...List.generate(((block['items'] as List?) ?? []).length, (gIndex) {
-          final String imageUrl = ((block['items'] as List?) ?? [])[gIndex];
-          final List galleryLinks = List.from(block['gallery_links'] ?? []);
-          while (galleryLinks.length <= gIndex) galleryLinks.add('');
-          final String linkVal = galleryLinks[gIndex];
-          final isUploading = imageUrl.startsWith('upload://');
+        DynamicListEditor(
+          title: context.translate('gallery'),
+          addLabel: context.translate('add_image'),
+          addIcon: Icons.add_photo_alternate_rounded,
+          itemCount: ((block['items'] as List?) ?? []).length,
+          itemTitleBuilder: (gIndex) => "صورة رقم ${gIndex + 1}",
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            
+            final items = List.from(block['items'] ?? []);
+            final item = items.removeAt(oldIndex);
+            items.insert(newIndex, item);
+            cubit.updateBlockProperty(index, 'items', items);
 
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant,
-              ),
-            ),
-            child: Column(
+            final links = List.from(block['gallery_links'] ?? []);
+            while (links.length <= oldIndex) links.add('');
+            while (links.length <= newIndex) links.add('');
+            final link = links.removeAt(oldIndex);
+            links.insert(newIndex, link);
+            cubit.updateBlockProperty(index, 'gallery_links', links);
+          },
+          onAdd: () async {
+            final selectedData = await ImagePickerModal.show(context);
+            if (selectedData == null) return;
+
+            final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
+            
+            // Add a temporary upload:// item so the UI shows the loading spinner!
+            final List items = List.from(block['items'] ?? []);
+            final List galleryLinks = List.from(block['gallery_links'] ?? []);
+            final int gIndex = items.length;
+            
+            items.add(uploadId);
+            galleryLinks.add('');
+            cubit.updateBlockProperty(index, 'items', items);
+            cubit.updateBlockProperty(index, 'gallery_links', galleryLinks);
+
+            sl<UploadManagerCubit>().upload(
+              uploadId: uploadId,
+              data: selectedData,
+              onSuccess: (finalUrl) {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems = List.from(freshBlock['items'] ?? []);
+                  if (gIndex < freshItems.length) {
+                    freshItems[gIndex] = finalUrl;
+                    cubit.updateBlockProperty(index, 'items', freshItems);
+                  }
+                }
+              },
+              onCancel: () {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems = List.from(freshBlock['items'] ?? []);
+                  final List freshLinks = List.from(freshBlock['gallery_links'] ?? []);
+                  if (gIndex < freshItems.length) {
+                    freshItems.removeAt(gIndex);
+                    freshLinks.removeAt(gIndex);
+                    cubit.updateBlockProperty(index, 'items', freshItems);
+                    cubit.updateBlockProperty(index, 'gallery_links', freshLinks);
+                  }
+                }
+              },
+            );
+          },
+          onDelete: (gIndex) => cubit.deleteGalleryImage(index, gIndex),
+          itemBuilder: (context, gIndex, onDelete) {
+            final String imageUrl = ((block['items'] as List?) ?? [])[gIndex];
+            final List galleryLinks = List.from(block['gallery_links'] ?? []);
+            while (galleryLinks.length <= gIndex) galleryLinks.add('');
+            final String linkVal = galleryLinks[gIndex];
+            final isUploading = imageUrl.startsWith('upload://');
+
+            return Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "صورة رقم ${gIndex + 1}",
-                      style: AppTypography.bodySmall,
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline_rounded,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      onPressed: () => cubit.deleteGalleryImage(index, gIndex),
-                      padding: EdgeInsets.zero,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
                 CustomImageField(
                   label: "",
                   imageUrl: imageUrl,
@@ -218,7 +243,7 @@ class GalleryEditor extends StatelessWidget {
                     itemKey: 'items_array',
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 CustomTextField(
                   hintText: context.translate('redirect_url'),
                   controller: getController(
@@ -237,9 +262,9 @@ class GalleryEditor extends StatelessWidget {
                   },
                 ),
               ],
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ],
     );
   }

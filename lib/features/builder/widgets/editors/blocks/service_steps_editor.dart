@@ -3,6 +3,7 @@ import '../../../../../../core/theme/app_typography.dart';
 import '../../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../../core/widgets/molecules/form_group.dart';
 import '../../../controllers/builder_cubit.dart';
+import '../common/dynamic_list_editor.dart';
 
 /// Editor for the service_steps block type.
 /// Exposes title, subtitle, layout_style (vertical/horizontal),
@@ -60,70 +61,58 @@ class ServiceStepsEditor extends StatelessWidget {
             decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
           ),
         ),
-        SizedBox(height: 24),
-        Text("خطوات العمل", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-        SizedBox(height: 12),
-        ...List.generate(items.length, (i) {
-          final item = items[i];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-            ),
-            child: Column(
+        DynamicListEditor(
+          title: "خطوات العمل",
+          addLabel: "إضافة خطوة",
+          itemCount: items.length,
+          itemTitleBuilder: (i) => (items[i]['title'] ?? '').isEmpty ? 'الخطوة ${i + 1}' : items[i]['title'],
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final List items = List.from(block['items'] ?? []);
+            final item = items.removeAt(oldIndex);
+            items.insert(newIndex, item);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          onAdd: () {
+            final List items = List.from(block['items'] ?? []);
+            items.add({'title': 'خطوة جديدة', 'description': 'اشرح ماذا يحدث في هذه المرحلة.'});
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          onDelete: (i) {
+            final List items = List.from(block['items'] ?? []);
+            items.removeAt(i);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          itemBuilder: (context, i, onDelete) {
+            final item = items[i];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("الخطوة ${i + 1}", style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold)),
-                    IconButton(
-                      icon: Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
-                      onPressed: () {
-                        items.removeAt(i);
-                        cubit.updateBlockProperty(index, 'items', items);
-                      },
-                    ),
-                  ],
-                ),
                 CustomTextField(
                   hintText: "العنوان",
                   controller: getController("${index}_step_${i}_title", item['title'] ?? ''),
                   focusNode: getFocusNode("${index}_step_${i}_title"),
                   onChanged: (val) {
+                    final List items = List.from(block['items'] ?? []);
                     items[i]['title'] = val;
                     cubit.updateBlockProperty(index, 'items', items);
                   },
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 CustomTextField(
                   hintText: "الشرح",
                   maxLines: 2,
                   controller: getController("${index}_step_${i}_desc", item['description'] ?? ''),
                   focusNode: getFocusNode("${index}_step_${i}_desc"),
                   onChanged: (val) {
+                    final List items = List.from(block['items'] ?? []);
                     items[i]['description'] = val;
                     cubit.updateBlockProperty(index, 'items', items);
                   },
                 ),
               ],
-            ),
-          );
-        }),
-        SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: () {
-            items.add({'title': 'خطوة جديدة', 'description': 'اشرح ماذا يحدث في هذه المرحلة.'});
-            cubit.updateBlockProperty(index, 'items', items);
+            );
           },
-          icon: Icon(Icons.add),
-          label: const Text("إضافة خطوة"),
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
         ),
       ],
     );

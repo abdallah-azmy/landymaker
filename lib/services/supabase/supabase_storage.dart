@@ -58,6 +58,7 @@ mixin SupabaseServiceStorage on ChangeNotifier {
           'created_at': a['created_at'],
           'source': 'imgbb',
           'hash': a['image_hash'],
+          'source_url': a['source_url'],
         };
       }).toList();
 
@@ -66,6 +67,19 @@ mixin SupabaseServiceStorage on ChangeNotifier {
     } catch (e) {
       debugPrint("Error listing user images: $e");
       return [];
+    }
+  }
+
+  Future<String?> findAssetBySourceUrl(String sourceUrl) async {
+    try {
+      final res = await _client!
+          .from(DbConstants.userAssetsTable)
+          .select('url')
+          .eq('source_url', sourceUrl)
+          .maybeSingle();
+      return res?['url'] as String?;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -82,7 +96,7 @@ mixin SupabaseServiceStorage on ChangeNotifier {
     }
   }
 
-  Future<void> registerExternalAsset(String url, String name, {String? hash}) async {
+  Future<void> registerExternalAsset(String url, String name, {String? hash, String? sourceUrl}) async {
     try {
       final userId = _currentUserId;
       if (userId == null) return;
@@ -93,6 +107,7 @@ mixin SupabaseServiceStorage on ChangeNotifier {
         'name': name,
         'source': 'imgbb',
         'image_hash': hash,
+        'source_url': sourceUrl,
       });
     } catch (e) {
       debugPrint("Error registering external asset: $e");

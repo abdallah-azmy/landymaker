@@ -97,6 +97,9 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
       );
       finalDesign['theme'] = currentState.theme.toJson();
 
+      // Upload any external URLs to ImgBB before saving
+      await _resolvePixabayUrlsInDesign(finalDesign);
+
       final designJson = await runWebSafeIsolate(() => _serializeDesignMap(finalDesign));
       final savedPageId = await _databaseService.saveLandingPage(
         userId: userId,
@@ -111,7 +114,11 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
 
       if (savedPageId != null) {
         _emitDirty(
-          currentState.copyWith(pageId: savedPageId, subdomain: subdomain),
+          currentState.copyWith(
+            pageId: savedPageId,
+            subdomain: subdomain,
+            designMap: finalDesign,
+          ),
           isClean: true,
         );
       }
@@ -170,7 +177,11 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     _historyIndex = -1;
 
     final initialTheme = LandingPageTheme.palettes.last;
+    _suppressHistoryFromTheme = true;
     _themeCubit.replaceTheme(initialTheme);
+    Future.microtask(() {
+      _suppressHistoryFromTheme = false;
+    });
     _emitDirty(
       BuilderLoaded(
         designMap: {'blocks': []},
@@ -223,7 +234,11 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     final loadedTheme = designMap['theme'] != null
         ? LandingPageTheme.fromJson(designMap['theme'])
         : LandingPageTheme.palettes.last;
+    _suppressHistoryFromTheme = true;
     _themeCubit.replaceTheme(loadedTheme);
+    Future.microtask(() {
+      _suppressHistoryFromTheme = false;
+    });
     DynamicFontService.loadFontsFromDesign(designMap);
     _emitDirty(
       BuilderLoaded(
@@ -319,7 +334,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
       );
       finalDesign['theme'] = currentState.theme.toJson();
 
-      // Upload any remaining Pixabay URLs to ImgBB before saving
+      // Upload any remaining external URLs to ImgBB before saving
       await _resolvePixabayUrlsInDesign(finalDesign);
 
       // Offload JSON encoding to background isolate (30–80ms savings)
@@ -339,6 +354,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
         currentState.copyWith(
           pageId: savedPageId ?? currentState.pageId,
           subdomain: sanitizedSubdomain,
+          designMap: finalDesign,
           isSaving: false,
           successMessage: "تم الحفظ والنشر بنجاح!",
         ),
@@ -452,22 +468,35 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
   /// ImgBB (persistent storage). Each unique URL is resolved with a 30-second timeout.
   /// Called from `savePage()`.
   Future<void> _resolvePixabayUrlsInDesign(Map<String, dynamic> design) async {
-    final pixabayUrls = <String>[];
+    final externalUrls = <String>[];
     final replacements = <String, String>{};
+
+    bool isExternalImageUrl(String url) {
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        return false;
+      }
+      final lower = url.toLowerCase();
+      if (lower.contains('supabase.co') ||
+          lower.contains('imgbb.com') ||
+          lower.contains('ibb.co')) {
+        return false;
+      }
+      return true;
+    }
 
     void scan(Object? node) {
       if (node is Map<String, dynamic>) {
         for (final val in node.values) {
-          if (val is String && val.contains('pixabay.com')) {
-            pixabayUrls.add(val);
+          if (val is String && isExternalImageUrl(val)) {
+            externalUrls.add(val);
           } else {
             scan(val);
           }
         }
       } else if (node is List) {
         for (final item in node) {
-          if (item is String && item.contains('pixabay.com')) {
-            pixabayUrls.add(item);
+          if (item is String && isExternalImageUrl(item)) {
+            externalUrls.add(item);
           } else {
             scan(item);
           }
@@ -476,10 +505,10 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     }
 
     scan(design);
-    if (pixabayUrls.isEmpty) return;
+    if (externalUrls.isEmpty) return;
 
     final uploadManager = sl<UploadManagerCubit>();
-    final uniqueUrls = pixabayUrls.toSet();
+    final uniqueUrls = externalUrls.toSet();
 
     await Future.wait(
       uniqueUrls.map((url) async {
@@ -496,7 +525,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
         try {
           final imgbbUrl = await completer.future.timeout(
             const Duration(seconds: 30),
-            onTimeout: () => url, // fallback to original Pixabay URL
+            onTimeout: () => url, // fallback to original URL
           );
           replacements[url] = imgbbUrl;
         } catch (_) {
@@ -600,7 +629,11 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     final newDesign = TemplateRegistry.getTemplateDesign(templateType);
     final newTheme = TemplateRegistry.getTemplateTheme(templateType);
 
+    _suppressHistoryFromTheme = true;
     _themeCubit.replaceTheme(newTheme);
+    Future.microtask(() {
+      _suppressHistoryFromTheme = false;
+    });
     DynamicFontService.loadFontsFromDesign(newDesign);
     _emitDirty(
       currentState.copyWith(
@@ -611,7 +644,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     );
 
     // Automatically trigger import of external assets into user's account
-    importTemplateAssets(sl<UploadManagerCubit>());
+    // importTemplateAssets(sl<UploadManagerCubit>());
   }
 
   /// Applies a fully custom design map (blocks + theme) from external input.
@@ -628,7 +661,11 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     final newDesign = {'blocks': blocksRaw};
     final newTheme = LandingPageTheme.fromJson(themeRaw);
 
+    _suppressHistoryFromTheme = true;
     _themeCubit.replaceTheme(newTheme);
+    Future.microtask(() {
+      _suppressHistoryFromTheme = false;
+    });
     DynamicFontService.loadFontsFromDesign(newDesign);
     _emitDirty(
       currentState.copyWith(
@@ -639,7 +676,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
     );
 
     // Automatically trigger import of external assets into user's account
-    importTemplateAssets(sl<UploadManagerCubit>());
+    // importTemplateAssets(sl<UploadManagerCubit>());
   }
 
   /// Clears both `errorMessage` and `successMessage` from the current state.

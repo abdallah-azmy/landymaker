@@ -162,6 +162,8 @@ class _AIChatModalState extends State<AIChatModal> {
   void _showPixabayPicker(AIGenerationPixabaySelection state) {
     DraggableModalSheet.show(
       context: context,
+      title: "اختر صورة من Pixabay",
+      initialChildSize: 0.8,
       child: PixabaySelectorModal(
         initialQuery: state.query,
         initialType: state.type,

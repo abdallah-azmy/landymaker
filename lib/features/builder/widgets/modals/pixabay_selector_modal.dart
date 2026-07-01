@@ -76,40 +76,20 @@ class _PixabaySelectorModalState extends State<PixabaySelectorModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
-          SizedBox(height: 24),
           _buildSearchArea(),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildFilters(),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           if (_suggestedKeywords.isNotEmpty) _buildSuggestions(),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Expanded(child: _buildGrid()),
         ],
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text("اختر صورة من Pixabay", style: AppTypography.h3),
-        IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.close_rounded),
-        ),
-      ],
     );
   }
 

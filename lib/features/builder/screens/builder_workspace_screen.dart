@@ -23,6 +23,7 @@ import '../widgets/organisms/global_upload_manager_widget.dart';
 import '../widgets/tabs/builder_sidebar_tabs.dart';
 import '../widgets/molecules/builder_mobile_toolbar.dart';
 import '../../dashboard/widgets/empty_workspace_state.dart';
+import '../../dashboard/controllers/media_gallery_cubit.dart';
 import '../models/preview_mode.dart';
 import '../../home/screens/landymaker_home_screen.dart';
 import '../../../core/widgets/organisms/tech_loading_screen.dart';
@@ -71,6 +72,7 @@ class _BuilderWorkspaceScreenState extends State<BuilderWorkspaceScreen> {
     });
     LandyMakerHomeScreen.resetScrollPosition();
     final builderCubit = context.read<LandingPageBuilderCubit>();
+    context.read<MediaGalleryCubit>().loadImages();
     if (widget.pageId != null && widget.pageId != 'new') {
       builderCubit.loadPageById(widget.pageId!);
     } else {

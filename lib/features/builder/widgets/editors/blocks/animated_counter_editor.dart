@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:landymaker/core/widgets/molecules/form_group.dart';
 import '../../../controllers/builder_cubit.dart';
+import '../common/dynamic_list_editor.dart';
 import '../editor_types.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
@@ -93,65 +94,44 @@ class AnimatedCounterEditor extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
-        SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "العدادات (Counters)",
-              style: AppTypography.bodyLarge.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextButton.icon(
-              onPressed: () {
-                final List items = List.from(block['items'] ?? []);
-                items.add({
-                  'value': '100',
-                  'label': 'تسمية جديدة',
-                  'prefix': '',
-                  'suffix': '',
-                });
-                cubit.updateBlockProperty(index, 'items', items);
-              },
-              icon: Icon(Icons.add_rounded, size: 16),
-              label: const Text("أضف عداد"),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        ...List.generate(((block['items'] as List?) ?? []).length, (tIndex) {
-          final Map<String, dynamic> item =
-              ((block['items'] as List?) ?? [])[tIndex];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
+        DynamicListEditor(
+          title: "العدادات (Counters)",
+          addLabel: "أضف عداد",
+          itemCount: ((block['items'] as List?) ?? []).length,
+          itemTitleBuilder: (i) {
+            final List items = block['items'] ?? [];
+            final String valueStr = items[i]['value']?.toString() ?? '';
+            final String labelStr = items[i]['label'] ?? '';
+            return labelStr.isEmpty ? 'عداد #$i' : '$labelStr ($valueStr)';
+          },
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final List items = List.from(block['items'] ?? []);
+            final item = items.removeAt(oldIndex);
+            items.insert(newIndex, item);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          onAdd: () {
+            final List items = List.from(block['items'] ?? []);
+            items.add({
+              'value': '100',
+              'label': 'تسمية جديدة',
+              'prefix': '',
+              'suffix': '',
+            });
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          onDelete: (i) {
+            final List items = List.from(block['items'] ?? []);
+            items.removeAt(i);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          itemBuilder: (context, tIndex, onDelete) {
+            final items = (block['items'] as List?) ?? [];
+            final Map<String, dynamic> item = items[tIndex];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("عداد #${tIndex + 1}", style: AppTypography.caption),
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline_rounded,
-                        color: Theme.of(context).colorScheme.error,
-                        size: 20,
-                      ),
-                      onPressed: () {
-                        final List items = List.from(block['items'] ?? []);
-                        items.removeAt(tIndex);
-                        cubit.updateBlockProperty(index, 'items', items);
-                      },
-                    ),
-                  ],
-                ),
                 CustomTextField(
                   hintText: "القيمة (الرقم)",
                   controller: getController(
@@ -170,7 +150,7 @@ class AnimatedCounterEditor extends StatelessWidget {
                   },
                   keyboardType: TextInputType.number,
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 CustomTextField(
                   hintText: "التسمية (مثال: عميل سعيد)",
                   controller: getController(
@@ -188,7 +168,7 @@ class AnimatedCounterEditor extends StatelessWidget {
                     cubit.updateBlockProperty(index, 'items', items);
                   },
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
@@ -212,7 +192,7 @@ class AnimatedCounterEditor extends StatelessWidget {
                         },
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: CustomTextField(
                         hintText: "خاتمة (Suffix)",
@@ -237,9 +217,9 @@ class AnimatedCounterEditor extends StatelessWidget {
                   ],
                 ),
               ],
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ],
     );
   }

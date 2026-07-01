@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/builder_cubit.dart';
+import '../../../controllers/builder_state.dart';
 import '../editor_types.dart';
+import '../../modals/image_picker_modal.dart';
+import '../../../controllers/upload_manager_cubit.dart';
+import '../../../../../injection_container.dart';
+import '../common/dynamic_list_editor.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/atoms/custom_text_field.dart';
 import '../../../../../core/widgets/molecules/form_group.dart';
@@ -88,42 +93,72 @@ class BentoStoreEditor extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           activeThumbColor: Theme.of(context).colorScheme.primary,
         ),
-        const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(context.translate('product_list'), style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
-            TextButton.icon(
-              onPressed: () => cubit.addProductItem(index),
-              icon: const Icon(Icons.add_circle_outline_rounded, size: 16),
-              label: Text(context.translate('add_product')),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...List.generate(((block['items'] as List?) ?? []).length, (pIndex) {
-          final item = ((block['items'] as List?) ?? [])[pIndex] as Map<String, dynamic>;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-            ),
-            child: Column(
+        DynamicListEditor(
+          title: context.translate('product_list'),
+          addLabel: context.translate('add_product'),
+          itemCount: ((block['items'] as List?) ?? []).length,
+          itemTitleBuilder: (i) {
+            final List items = block['items'] ?? [];
+            return (items[i]['name'] ?? '').isEmpty ? 'منتج جديد' : items[i]['name'];
+          },
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final List items = List.from(block['items'] ?? []);
+            final item = items.removeAt(oldIndex);
+            items.insert(newIndex, item);
+            cubit.updateBlockProperty(index, 'items', items);
+          },
+          onAdd: () async {
+            final selectedData = await ImagePickerModal.show(context);
+            if (selectedData == null) return;
+
+            final uploadId = 'upload://${DateTime.now().millisecondsSinceEpoch}';
+            
+            // Add a temporary upload:// item so the UI shows the loading spinner!
+            final List freshItems = List.from(block['items'] ?? []);
+            final int tIndex = freshItems.length;
+            freshItems.add({
+              'id': 'bento_${DateTime.now().millisecondsSinceEpoch}',
+              'name': 'منتج جديد',
+              'price': '',
+              'image_url': uploadId,
+            });
+            cubit.updateBlockProperty(index, 'items', freshItems);
+
+            sl<UploadManagerCubit>().upload(
+              uploadId: uploadId,
+              data: selectedData,
+              onSuccess: (finalUrl) {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems2 = List.from(freshBlock['items'] ?? []);
+                  if (tIndex < freshItems2.length) {
+                    freshItems2[tIndex] = Map<String, dynamic>.from(freshItems2[tIndex])..['image_url'] = finalUrl;
+                    cubit.updateBlockProperty(index, 'items', freshItems2);
+                  }
+                }
+              },
+              onCancel: () {
+                final currentState = cubit.state;
+                if (currentState is BuilderLoaded) {
+                  final freshBlock = currentState.designMap['blocks'][index];
+                  final List freshItems2 = List.from(freshBlock['items'] ?? []);
+                  if (tIndex < freshItems2.length) {
+                    freshItems2.removeAt(tIndex);
+                    cubit.updateBlockProperty(index, 'items', freshItems2);
+                  }
+                }
+              },
+            );
+          },
+          onDelete: (i) => cubit.deleteProductItem(index, i),
+          itemBuilder: (context, pIndex, onDelete) {
+            final items = (block['items'] as List?) ?? [];
+            final item = items[pIndex] as Map<String, dynamic>;
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("#${pIndex + 1}", style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold)),
-                    IconButton(
-                      icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 20),
-                      onPressed: () => cubit.deleteProductItem(index, pIndex),
-                    ),
-                  ],
-                ),
                 CustomTextField(
                   hintText: context.translate('product_name'),
                   controller: getController("${index}_bento_${pIndex}_name", item['name'] ?? ''),
@@ -146,9 +181,9 @@ class BentoStoreEditor extends StatelessWidget {
                   onSaveTemplateAsset: () => persistAsset(cubit, index, itemIndex: pIndex, itemKey: 'image_url'),
                 ),
               ],
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ],
     );
   }

@@ -99,6 +99,7 @@ mixin BuilderCubitBlocksItems on Cubit<BuilderState> {
         'author': 'عميل جديد',
         'role': 'وظيفة',
         'quote': 'رأي العميل هنا.',
+        'image_url': 'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
       });
       updatedBlock['items'] = items;
       blocks[blockIndex] = updatedBlock;
@@ -184,7 +185,7 @@ mixin BuilderCubitBlocksItems on Cubit<BuilderState> {
       );
       final List items = List.from(updatedBlock['items'] ?? []);
       items.add(
-        'https://cdn.pixabay.com/photo/2016/03/26/13/09/workspace-1280538_1280.jpg',
+        'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
       );
       updatedBlock['items'] = items;
 
@@ -289,7 +290,7 @@ mixin BuilderCubitBlocksItems on Cubit<BuilderState> {
         'price': '0.00 EGP',
         'description': 'وصف قصير للمنتج.',
         'image_url':
-            'https://cdn.pixabay.com/photo/2014/07/31/23/00/watch-407092_1280.jpg',
+            'https://zajcnkpcdsvswfmsmqpt.supabase.co/storage/v1/object/public/landing-assets/app_icon_source.png',
         'button_text': 'اشترِ الآن',
       });
       updatedBlock['items'] = items;

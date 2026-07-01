@@ -12,6 +12,7 @@ class CustomImageField extends StatelessWidget {
   final String label;
   final VoidCallback onAction;
   final VoidCallback? onSaveTemplateAsset;
+  final VoidCallback? onClear;
   final bool isUploading;
 
   const CustomImageField({
@@ -20,14 +21,13 @@ class CustomImageField extends StatelessWidget {
     required this.label,
     required this.onAction,
     this.onSaveTemplateAsset,
+    this.onClear,
     this.isUploading = false,
   });
 
   bool _isTemplateAsset(String? url) {
     if (url == null || url.isEmpty) return false;
     final lower = url.toLowerCase();
-    // Template assets are usually external (pixabay, etc.)
-    // If it contains supabase.co or ibb.co, it is already persistent user/ImgBB storage.
     return !lower.contains('supabase.co') && !lower.contains('ibb.co');
   }
 
@@ -50,9 +50,32 @@ class CustomImageField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            if (hasImage && onClear != null)
+              InkWell(
+                onTap: onClear,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.delete_outline_rounded,
+                    size: 18,
+                    color: Colors.red.shade400,
+                  ),
+                ),
+              ),
+          ],
         ),
         SizedBox(height: 8),
         InkWell(

@@ -68,7 +68,7 @@ class BuilderCanvas extends StatelessWidget {
         Widget content = Directionality(
           textDirection: loc.isRtl ? TextDirection.rtl : TextDirection.ltr,
           child: SectionRenderer(
-            key: ValueKey(blocksList.hashCode ^ state.theme.hashCode),
+            key: ValueKey('canvas_${blocksList.length}_${state.theme.hashCode}'),
             blocks: blocksList,
             pageId: state.pageId ?? 'preview',
             theme: state.theme,

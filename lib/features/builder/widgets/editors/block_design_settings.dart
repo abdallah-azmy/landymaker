@@ -19,8 +19,10 @@ class BlockDesignSettings extends StatelessWidget {
   final Map<String, dynamic> block;
   final String type;
   final int index;
-  final void Function(LandingPageBuilderCubit, int, {bool isBackground}) onPickMedia;
-  final void Function(LandingPageBuilderCubit, int, {bool isBackground}) onPersistAsset;
+  final void Function(LandingPageBuilderCubit, int, {bool isBackground})
+  onPickMedia;
+  final void Function(LandingPageBuilderCubit, int, {bool isBackground})
+  onPersistAsset;
   final VoidCallback onShowLayoutPicker;
 
   const BlockDesignSettings({
@@ -57,7 +59,9 @@ class BlockDesignSettings extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
               ),
               child: Row(
                 children: [
@@ -65,10 +69,16 @@ class BlockDesignSettings extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.dashboard_customize_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
+                    child: Icon(
+                      Icons.dashboard_customize_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
                   ),
                   SizedBox(width: 12),
                   Expanded(
@@ -77,16 +87,27 @@ class BlockDesignSettings extends StatelessWidget {
                       children: [
                         Text(
                           'مُنتقي التخطيط',
-                          style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                          style: AppTypography.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                         Text(
                           'اختر تخطيطاً وخصّص العناصر',
-                          style: AppTypography.caption.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          style: AppTypography.caption.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  Icon(Icons.chevron_left_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    size: 20,
+                  ),
                 ],
               ),
             ),
@@ -99,7 +120,9 @@ class BlockDesignSettings extends StatelessWidget {
         if (type == 'gallery') ...[
           Text(
             loc.translate('display_mode'),
-            style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+            style: AppTypography.bodyMedium.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           SizedBox(height: 12),
           Row(
@@ -109,7 +132,8 @@ class BlockDesignSettings extends StatelessWidget {
                 isSelected: (block['display_mode'] ?? 'grid') == 'grid',
                 icon: Icons.grid_view_rounded,
                 label: loc.translate('grid'),
-                onTap: () => cubit.updateBlockProperty(index, 'display_mode', 'grid'),
+                onTap: () =>
+                    cubit.updateBlockProperty(index, 'display_mode', 'grid'),
               ),
               SizedBox(width: 8),
               buildAdvancedOption(
@@ -117,7 +141,11 @@ class BlockDesignSettings extends StatelessWidget {
                 isSelected: (block['display_mode'] ?? 'grid') == 'carousel',
                 icon: Icons.view_carousel_rounded,
                 label: loc.translate('carousel'),
-                onTap: () => cubit.updateBlockProperty(index, 'display_mode', 'carousel'),
+                onTap: () => cubit.updateBlockProperty(
+                  index,
+                  'display_mode',
+                  'carousel',
+                ),
               ),
             ],
           ),
@@ -128,13 +156,19 @@ class BlockDesignSettings extends StatelessWidget {
 
         if (type == 'basic_section') ...[
           buildDropdown(
-            context, block,
+            context,
+            block,
             loc.translate('layout_direction'),
             'layout_direction',
             ['column', 'row'],
             (val) => cubit.updateBlockProperty(index, 'layout_direction', val),
           ),
-          buildSlider(context, loc.translate('spacing'), 'spacing', 0, 100,
+          buildSlider(
+            context,
+            loc.translate('spacing'),
+            'spacing',
+            0,
+            100,
             (val) => cubit.updateBlockProperty(index, 'spacing', val),
             block: block,
           ),
@@ -149,7 +183,8 @@ class BlockDesignSettings extends StatelessWidget {
         ),
         SizedBox(height: 16),
         buildDropdown(
-          context, block,
+          context,
+          block,
           loc.translate('anim_type'),
           'animation.type',
           BlockAnimationType.values.map((e) => e.name).toList(),
@@ -161,7 +196,12 @@ class BlockDesignSettings extends StatelessWidget {
           translateItem: (item) => loc.translate('anim_$item'),
         ),
         if ((anim['type'] ?? 'none') != 'none') ...[
-          buildSlider(context, loc.translate('anim_duration'), 'animation.duration', 100, 3000,
+          buildSlider(
+            context,
+            loc.translate('anim_duration'),
+            'animation.duration',
+            100,
+            3000,
             (val) {
               final newAnim = Map<String, dynamic>.from(anim);
               newAnim['duration'] = val.toInt();
@@ -169,7 +209,12 @@ class BlockDesignSettings extends StatelessWidget {
             },
             currentValue: (anim['duration'] ?? 800).toDouble(),
           ),
-          buildSlider(context, loc.translate('anim_delay'), 'animation.delay', 0, 2000,
+          buildSlider(
+            context,
+            loc.translate('anim_delay'),
+            'animation.delay',
+            0,
+            2000,
             (val) {
               final newAnim = Map<String, dynamic>.from(anim);
               newAnim['delay'] = val.toInt();
@@ -177,7 +222,12 @@ class BlockDesignSettings extends StatelessWidget {
             },
             currentValue: (anim['delay'] ?? 0).toDouble(),
           ),
-          buildSlider(context, loc.translate('anim_intensity'), 'animation.intensity', 0.1, 2.0,
+          buildSlider(
+            context,
+            loc.translate('anim_intensity'),
+            'animation.intensity',
+            0.1,
+            2.0,
             (val) {
               final newAnim = Map<String, dynamic>.from(anim);
               newAnim['intensity'] = val;
@@ -191,46 +241,80 @@ class BlockDesignSettings extends StatelessWidget {
         SizedBox(height: 16),
 
         buildDropdown(
-          context, block,
+          context,
+          block,
           loc.translate('font_family'),
           'fontFamily',
-          ['Default', ...LandingPageTheme.availableFonts.map((f) => f['family']!)],
-          (val) => cubit.updateBlockProperty(index, 'fontFamily', val == 'Default' ? null : val),
+          [
+            'Default',
+            ...LandingPageTheme.availableFonts.map((f) => f['family']!),
+          ],
+          (val) => cubit.updateBlockProperty(
+            index,
+            'fontFamily',
+            val == 'Default' ? null : val,
+          ),
           translateItem: (item) => item,
         ),
         buildDropdown(
-          context, block,
+          context,
+          block,
           'قالب القسم (Theme Override)',
           'theme_override',
           ['Default', ...LandingPageTheme.palettes.map((p) => p.name)],
-          (val) => cubit.updateBlockProperty(index, 'theme_override', val == 'Default' ? null : val),
+          (val) => cubit.updateBlockProperty(
+            index,
+            'theme_override',
+            val == 'Default' ? null : val,
+          ),
         ),
         SizedBox(height: 16),
         buildColorPickerItem(
           context,
           "لون خلفية القسم",
-          LandingPageTheme.parseColor(block['bg_color'] ?? block['background_color'], null) ?? Colors.transparent,
+          LandingPageTheme.parseColor(
+                block['bg_color'] ?? block['background_color'],
+                null,
+              ) ??
+              Colors.transparent,
           () => showBlockColorPicker(
             context,
             cubit,
             index,
             'bg_color',
-            LandingPageTheme.parseColor(block['bg_color'] ?? block['background_color'], null) ?? Colors.transparent,
+            LandingPageTheme.parseColor(
+                  block['bg_color'] ?? block['background_color'],
+                  null,
+                ) ??
+                Colors.transparent,
           ),
         ),
         SizedBox(height: 16),
-        buildSlider(context, loc.translate('vertical_padding'), 'vertical_padding', 0, 300,
+        buildSlider(
+          context,
+          loc.translate('vertical_padding'),
+          'vertical_padding',
+          0,
+          300,
           (val) => cubit.updateBlockProperty(index, 'vertical_padding', val),
           block: block,
         ),
         SizedBox(height: 16),
         if (const {
-          'features', 'pricing', 'testimonials', 'products', 'faq',
-          'team_members', 'animated_counter', 'statistics_grid',
-          'contact_info', 'trust_logos',
+          'features',
+          'pricing',
+          'testimonials',
+          'products',
+          'faq',
+          'team_members',
+          'animated_counter',
+          'statistics_grid',
+          'contact_info',
+          'trust_logos',
         }.contains(type))
           buildDropdown(
-            context, block,
+            context,
+            block,
             'طريقة توزيع البطاقات',
             'card_layout_mode',
             ['auto', 'equal'],
@@ -240,21 +324,27 @@ class BlockDesignSettings extends StatelessWidget {
         CustomImageField(
           label: loc.translate('bg_image_url'),
           imageUrl: block['bg_image_url'],
-          isUploading: (block['bg_image_url'] ?? '').toString().startsWith('upload://'),
+          isUploading: (block['bg_image_url'] ?? '').toString().startsWith(
+            'upload://',
+          ),
           onAction: () => onPickMedia(cubit, index, isBackground: true),
-          onSaveTemplateAsset: () => onPersistAsset(cubit, index, isBackground: true),
+          onSaveTemplateAsset: () =>
+              onPersistAsset(cubit, index, isBackground: true),
+          onClear: () => cubit.updateBlockProperty(index, 'bg_image_url', null),
         ),
         SizedBox(height: 16),
         buildColorPickerItem(
           context,
           "لون طبقة التعتيم",
-          LandingPageTheme.parseColor(block['bg_overlay_color'], null) ?? Colors.transparent,
+          LandingPageTheme.parseColor(block['bg_overlay_color'], null) ??
+              Colors.transparent,
           () => showBlockColorPicker(
             context,
             cubit,
             index,
             'bg_overlay_color',
-            LandingPageTheme.parseColor(block['bg_overlay_color'], null) ?? Colors.transparent,
+            LandingPageTheme.parseColor(block['bg_overlay_color'], null) ??
+                Colors.transparent,
           ),
         ),
         SizedBox(height: 16),
@@ -263,7 +353,12 @@ class BlockDesignSettings extends StatelessWidget {
           child: Column(
             children: [
               Slider(
-                value: ((block['overlay_opacity'] ?? block['bg_overlay_opacity'] ?? 0.4) as num).toDouble(),
+                value:
+                    ((block['overlay_opacity'] ??
+                                block['bg_overlay_opacity'] ??
+                                0.4)
+                            as num)
+                        .toDouble(),
                 min: 0.0,
                 max: 1.0,
                 divisions: 10,
@@ -277,7 +372,12 @@ class BlockDesignSettings extends StatelessWidget {
           ),
         ),
         SizedBox(height: 16),
-        buildSlider(context, 'تمويه الخلفية', 'bg_blur', 0.0, 20.0,
+        buildSlider(
+          context,
+          'تمويه الخلفية',
+          'bg_blur',
+          0.0,
+          20.0,
           (val) => cubit.updateBlockProperty(index, 'bg_blur', val),
           block: block,
         ),
@@ -286,7 +386,8 @@ class BlockDesignSettings extends StatelessWidget {
           title: Text(loc.translate('visible')),
           value: block['is_visible'] ?? true,
           activeThumbColor: Theme.of(context).colorScheme.primary,
-          onChanged: (val) => cubit.updateBlockProperty(index, 'is_visible', val),
+          onChanged: (val) =>
+              cubit.updateBlockProperty(index, 'is_visible', val),
         ),
       ],
     );

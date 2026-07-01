@@ -458,6 +458,14 @@ mixin BuilderCubitBlocks on Cubit<BuilderState> {
     if (presetOverrides != null && presetOverrides.isNotEmpty) {
       blockToAdd = _mergeBlockPreset(blockToAdd, presetOverrides);
     }
+    if (blockToAdd['animation'] == null) {
+      blockToAdd['animation'] = {
+        'type': 'fadeIn',
+        'duration': 800,
+        'delay': 0,
+        'intensity': 1.0,
+      };
+    }
     blocks.add(blockToAdd);
 
     newDesign['blocks'] = blocks;

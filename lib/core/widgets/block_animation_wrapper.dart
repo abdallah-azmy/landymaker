@@ -88,18 +88,38 @@ class _BlockAnimationWrapperState extends State<BlockAnimationWrapper>
       duration: widget.settings.duration,
     );
 
-    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: widget.settings.curve),
-    );
-
-    _offset = _getOffsetAnimation();
-    _scale = _getScaleAnimation();
+    _setupAnimations();
 
     if (widget.trigger) {
       Future.delayed(widget.settings.delay, () {
         if (mounted) _controller.forward();
       });
     }
+  }
+
+  @override
+  void didUpdateWidget(covariant BlockAnimationWrapper oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final typeChanged = oldWidget.settings.type != widget.settings.type;
+    final durationChanged = oldWidget.settings.duration != widget.settings.duration;
+    final delayChanged = oldWidget.settings.delay != widget.settings.delay;
+    final intensityChanged = oldWidget.settings.intensity != widget.settings.intensity;
+    if (typeChanged || durationChanged || delayChanged || intensityChanged) {
+      _controller.duration = widget.settings.duration;
+      _setupAnimations();
+      _controller.reset();
+      Future.delayed(widget.settings.delay, () {
+        if (mounted) _controller.forward();
+      });
+    }
+  }
+
+  void _setupAnimations() {
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: widget.settings.curve),
+    );
+    _offset = _getOffsetAnimation();
+    _scale = _getScaleAnimation();
   }
 
   Animation<Offset> _getOffsetAnimation() {

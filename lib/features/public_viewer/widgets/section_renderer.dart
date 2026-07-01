@@ -69,7 +69,7 @@ class SectionRenderer extends StatelessWidget {
         // Use pre-computed original index (O(1) instead of O(n))
         final int originalIndex = originalIndices[index];
         
-        final Key sectionKey = ValueKey("${type}_${originalIndex}_${block.hashCode}");
+        final Key sectionKey = ValueKey("${type}_${originalIndex}");
 
         Widget section = BlockRegistry.render(
           type,

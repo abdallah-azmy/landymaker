@@ -146,7 +146,9 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       height: 8,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.error.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -214,7 +216,6 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             Expanded(
               child: ScrollableToolbarContainer(
                 children: [
-
                   _buildActionButton(
                     context,
                     icon: Icons.auto_awesome_rounded,
@@ -285,17 +286,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     onPressed: () => onChangePreview(PreviewMode.fullscreen),
                     tooltip: "Full Screen Preview",
                   ),
-                  SizedBox(width: 8),
-                  IconButton(
-                    icon: Icon(
-                      Icons.open_in_new_rounded,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () {
-                      html.window.open('/${state.subdomain}', '_blank');
-                    },
-                    tooltip: loc.translate('view_as_guest'),
-                  ),
+
                   SizedBox(width: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -396,8 +387,12 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            disabledBackgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
-            disabledForegroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+            disabledBackgroundColor: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.12),
+            disabledForegroundColor: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.38),
             elevation: 0,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             shape: RoundedRectangleBorder(
@@ -422,10 +417,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
           label: Text(
             state.isPublished ? "نشر التغييرات" : "حفظ مسودة",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           ),
         ),
 

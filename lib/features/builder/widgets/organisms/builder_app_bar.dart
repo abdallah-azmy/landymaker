@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:html' as html;
 import '../../models/preview_mode.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/localization/localization_cubit.dart';
+import '../../../../core/widgets/atoms/cube_progress.dart';
+import '../../../../injection_container.dart';
 import '../../controllers/builder_cubit.dart';
 import '../../controllers/builder_state.dart';
+import '../../controllers/upload_manager_cubit.dart';
 import '../molecules/scrollable_toolbar_container.dart';
 
 class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -34,6 +38,58 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onShowFonts,
     required this.onShowSeo,
   });
+
+  /// Scans all blocks for empty/invalid image URLs.
+  /// Returns a map: blockIndex -> list of field names with issues.
+  /// Issues: null, empty, or 'upload://' placeholders (pending uploads).
+  Map<int, List<String>> _validateImageFields(BuilderLoaded state) {
+    final issues = <int, List<String>>{};
+    final blocks = (state.designMap['blocks'] as List? ?? []);
+    
+    for (int i = 0; i < blocks.length; i++) {
+      final block = blocks[i] as Map<String, dynamic>?;
+      if (block == null) continue;
+      
+      final fields = <String>[];
+      
+      void checkField(String key) {
+        final val = block[key];
+        if (val == null || (val is String && val.isEmpty)) {
+          fields.add(key);
+        } else if (val is String && val.startsWith('upload://')) {
+          fields.add(key);
+        }
+      }
+      
+      void checkItems() {
+        final items = block['items'];
+        if (items is List) {
+          for (int j = 0; j < items.length; j++) {
+            final item = items[j];
+            if (item is Map<String, dynamic>) {
+              final itemVal = item['image_url'];
+              if (itemVal == null || (itemVal is String && itemVal.isEmpty)) {
+                fields.add('items[$j].image_url');
+              } else if (itemVal is String && itemVal.startsWith('upload://')) {
+                fields.add('items[$j].image_url');
+              }
+            } else if (item is String && (item.isEmpty || item.startsWith('upload://'))) {
+              fields.add('items[$j]');
+            }
+          }
+        }
+      }
+      
+      checkField('image_url');
+      checkField('bg_image_url');
+      checkItems();
+      
+      if (fields.isNotEmpty) {
+        issues[i] = fields;
+      }
+    }
+    return issues;
+  }
 
   void _handleBack(BuildContext context) {
     if (state.hasUnsavedChanges) {
@@ -100,6 +156,134 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
     } else {
       onBack();
     }
+  }
+
+  void _saveWithValidation(BuildContext context) {
+    final issues = _validateImageFields(state);
+    if (issues.isNotEmpty) {
+      _showImageValidationWarning(context, issues);
+    } else {
+      cubit.saveForCurrentUser();
+    }
+  }
+
+  void _showImageValidationWarning(
+    BuildContext context,
+    Map<int, List<String>> issues,
+  ) {
+    final totalFields = issues.values.fold<int>(0, (sum, fields) => sum + fields.length);
+    final loc = this.loc;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.image_not_supported_rounded,
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                loc.translate('save_validation_title'),
+                style: AppTypography.h3.copyWith(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              loc.translate('save_validation_desc'),
+              style: AppTypography.bodyMedium.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    loc.translate('save_validation_count')
+                        .replaceAll('{count}', totalFields.toString()),
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...issues.entries.map((entry) {
+                    final blockIndex = entry.key;
+                    final fields = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        '• القسم #${blockIndex + 1}: ${fields.join('، ')}',
+                        style: AppTypography.caption.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 11,
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              loc.translate('save_validation_cancel'),
+              style: AppTypography.bodyMedium.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              cubit.saveForCurrentUser();
+            },
+            child: Text(
+              loc.translate('save_validation_continue'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -338,108 +522,111 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildActionHub(BuildContext context) {
-    final bool canSave = state.hasUnsavedChanges && !state.isSaving;
+    return BlocBuilder<UploadManagerCubit, UploadManagerState>(
+      bloc: sl<UploadManagerCubit>(),
+      builder: (context, uploadState) {
+        final hasPendingUploads = uploadState.uploads.isNotEmpty;
+        final bool canSave = state.hasUnsavedChanges && !state.isSaving && !hasPendingUploads;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // 1. Status Toggle (Draft vs Live Switch)
-        Row(
+        return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              state.isPublished ? "منشور مباشر" : "مسودة",
-              style: AppTypography.bodySmall.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                color: state.isPublished
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Transform.scale(
-              scale: 0.85,
-              child: Switch(
-                value: state.isPublished,
-                activeThumbColor: Theme.of(context).colorScheme.primary,
-                onChanged: state.isSaving
-                    ? null
-                    : (val) {
-                        if (val) {
-                          // Turn Live: Show confirmation
-                          _showPublishConfirmation(context, loc, cubit, state);
-                        } else {
-                          // Turn Draft: Revert and save
-                          cubit.updateSettings(isPublished: false);
-                          cubit.saveForCurrentUser();
-                        }
-                      },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(width: 8),
-
-        // 2. Action Button (Save Draft / Publish Changes)
-        // Disabled if no unsaved changes are present.
-        ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            disabledBackgroundColor: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.12),
-            disabledForegroundColor: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.38),
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          onPressed: canSave ? () => cubit.saveForCurrentUser() : null,
-          icon: state.isSaving
-              ? SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.onPrimary,
+            // 1. Status Toggle (Draft vs Live Switch)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  state.isPublished ? "منشور مباشر" : "مسودة",
+                  style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: state.isPublished
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                )
-              : Icon(
-                  state.isPublished
-                      ? Icons.cloud_done_rounded
-                      : Icons.cloud_upload_outlined,
-                  size: 16,
                 ),
-          label: Text(
-            state.isPublished ? "نشر التغييرات" : "حفظ مسودة",
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          ),
-        ),
+                const SizedBox(width: 4),
+                Transform.scale(
+                  scale: 0.85,
+                  child: Switch(
+                    value: state.isPublished,
+                    activeThumbColor: Theme.of(context).colorScheme.primary,
+                    onChanged: (state.isSaving || hasPendingUploads)
+                        ? null
+                        : (val) {
+                            if (val) {
+                              _showPublishConfirmation(context, loc, cubit, state);
+                            } else {
+                              cubit.updateSettings(isPublished: false);
+                              cubit.saveForCurrentUser();
+                            }
+                          },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 8),
 
-        // 3. View Live Site Button (Directly visible next to actions if Live)
-        if (state.isPublished) ...[
-          const SizedBox(width: 8),
-          TextButton.icon(
-            onPressed: () {
-              html.window.open('/${state.subdomain}', '_blank');
-            },
-            icon: const Icon(Icons.open_in_new_rounded, size: 16),
-            label: const Text("زيارة الموقع"),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            // 2. Action Button (Save Draft / Publish Changes)
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                disabledBackgroundColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.12),
+                disabledForegroundColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.38),
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: canSave ? () => _saveWithValidation(context) : null,
+              icon: state.isSaving || hasPendingUploads
+                  ? CubeProgress(
+                      size: 14,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    )
+                  : Icon(
+                      state.isPublished
+                          ? Icons.cloud_done_rounded
+                          : Icons.cloud_upload_outlined,
+                      size: 16,
+                    ),
+              label: Text(
+                hasPendingUploads
+                    ? loc.translate('upload_in_progress')
+                    : state.isPublished
+                        ? "نشر التغييرات"
+                        : "حفظ مسودة",
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
               ),
             ),
-          ),
-        ],
-      ],
+
+            // 3. View Live Site Button (Directly visible next to actions if Live)
+            if (state.isPublished) ...[
+              const SizedBox(width: 8),
+              TextButton.icon(
+                onPressed: () {
+                  html.window.open('/${state.subdomain}', '_blank');
+                },
+                icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                label: const Text("زيارة الموقع"),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 
@@ -551,7 +738,7 @@ class BuilderAppBar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: () {
               Navigator.pop(ctx);
               cubit.updateSettings(isPublished: true);
-              cubit.saveForCurrentUser();
+              _saveWithValidation(context);
             },
             child: Text(
               loc.translate('publish_confirm_go'),

@@ -278,27 +278,85 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
       return;
     }
 
-    // Safety Guard: Don't save if there are active background uploads/imports
-    final designStr = jsonEncode(currentState.designMap);
-    if (designStr.contains('upload://')) {
-      _emitDirty(
-        currentState.copyWith(
-          isSaving: false,
-          errorMessage: "يرجى الانتظار حتى اكتمال تحميل جميع الصور.",
-        ),
-      );
-      return;
-    }
-
     emit(currentState.copyWith(isSaving: true));
+
+    final uploadManager = sl<UploadManagerCubit>();
+
+    // Start save process overlay (unified with upload manager)
+    uploadManager.startSaveProcess(
+      subdomain: sanitizedSubdomain,
+      pageId: currentState.pageId,
+    );
+
     try {
-      // 1. Check Route Availability
+      // ── Phase 1: Wait for pending user uploads ──
+      final designStr = jsonEncode(currentState.designMap);
+      if (designStr.contains('upload://')) {
+        uploadManager.updateSaveStatus(
+          SavePhase.uploadingImages,
+          "جاري رفع الصور... لا تغلق هذه النافذة",
+        );
+
+        final deadline = DateTime.now().add(const Duration(minutes: 3));
+        bool timedOut = true;
+        while (uploadManager.state.uploads.isNotEmpty) {
+          await Future.delayed(const Duration(milliseconds: 200));
+          if (isClosed) return;
+          if (DateTime.now().isAfter(deadline)) break;
+        }
+        timedOut = DateTime.now().isAfter(deadline);
+
+        // Check if upload:// still exists (some uploads may have failed)
+        // We re-read the latest designMap from the current state
+        // since upload callbacks may have updated it.
+        final currentDesign = state is BuilderLoaded ? (state as BuilderLoaded).designMap : currentState.designMap;
+        final updatedDesignStr = jsonEncode(currentDesign);
+        
+        if (updatedDesignStr.contains('upload://')) {
+          uploadManager.updateSaveStatus(
+            SavePhase.error,
+            "تعذر رفع بعض الصور. يمكنك معاودة المحاولة من النافذة.",
+          );
+          _emitDirty(
+            currentState.copyWith(
+              isSaving: false,
+              errorMessage: "فشل رفع بعض الصور، يرجى التحقق من الصور ومعاودة المحاولة.",
+            ),
+          );
+          return;
+        }
+
+        if (timedOut) {
+          uploadManager.updateSaveStatus(
+            SavePhase.error,
+            "انتهت مهلة رفع الصور، يرجى المحاولة مرة أخرى.",
+          );
+          _emitDirty(
+            currentState.copyWith(
+              isSaving: false,
+              errorMessage: "انتهت مهلة رفع الصور. يرجى المحاولة مرة أخرى.",
+            ),
+          );
+          return;
+        }
+      }
+
+      // ── Phase 2: Check Route Availability ──
+      uploadManager.updateSaveStatus(
+        SavePhase.savingToDb,
+        "جاري التحقق من الرابط...",
+      );
+
       final isAvailable = await _databaseService.isRouteAvailable(
         sanitizedSubdomain,
         excludePageId: currentState.pageId,
       );
 
       if (!isAvailable) {
+        uploadManager.updateSaveStatus(
+          SavePhase.error,
+          "الرابط $sanitizedSubdomain محجوز بالفعل.",
+        );
         _emitDirty(
           currentState.copyWith(
             isSaving: false,
@@ -309,7 +367,7 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
         return;
       }
 
-      // 2. Check Multi-Page Guard with Super Admin Bypass
+      // ── Phase 3: Check Multi-Page Guard with Super Admin Bypass ──
       if (currentState.pageId == null) {
         final profile = await _databaseService.getProfile(userId);
         final String tier = profile?['tier'] ?? 'free';
@@ -318,6 +376,10 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
         );
 
         if (reachedLimit) {
+          uploadManager.updateSaveStatus(
+            SavePhase.error,
+            "لقد وصلت للحد الأقصى من الصفحات في خطتك ($tier).",
+          );
           _emitDirty(
             currentState.copyWith(
               isSaving: false,
@@ -329,6 +391,12 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
         }
       }
 
+      // ── Phase 4: Prepare Design & Resolve External URLs ──
+      uploadManager.updateSaveStatus(
+        SavePhase.uploadingImages,
+        "جاري تحميل الصور من المصادر الخارجية...",
+      );
+
       final Map<String, dynamic> finalDesign = Map<String, dynamic>.from(
         currentState.designMap,
       );
@@ -336,6 +404,12 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
 
       // Upload any remaining external URLs to ImgBB before saving
       await _resolvePixabayUrlsInDesign(finalDesign);
+
+      // ── Phase 5: Save to Database ──
+      uploadManager.updateSaveStatus(
+        SavePhase.savingToDb,
+        "جاري حفظ بيانات صفحة $sanitizedSubdomain...",
+      );
 
       // Offload JSON encoding to background isolate (30–80ms savings)
       final designJson = await runWebSafeIsolate(() => _serializeDesignMap(finalDesign));
@@ -350,6 +424,12 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
         pageId: currentState.pageId,
       );
 
+      // ── Phase 6: Complete ──
+      uploadManager.updateSaveStatus(
+        SavePhase.completed,
+        "تم حفظ ونشر صفحة $sanitizedSubdomain بنجاح! 🎉",
+      );
+
       _emitDirty(
         currentState.copyWith(
           pageId: savedPageId ?? currentState.pageId,
@@ -361,6 +441,10 @@ mixin BuilderCubitPersistence on Cubit<BuilderState> {
         isClean: true,
       );
     } catch (e) {
+      uploadManager.updateSaveStatus(
+        SavePhase.error,
+        "فشل حفظ الصفحة: ${e.toString().replaceAll('Exception: ', '').length > 60 ? '${e.toString().replaceAll('Exception: ', '').substring(0, 60)}...' : e.toString().replaceAll('Exception: ', '')}",
+      );
       _emitDirty(
         currentState.copyWith(
           isSaving: false,

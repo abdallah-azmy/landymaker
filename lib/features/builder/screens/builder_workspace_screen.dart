@@ -470,7 +470,7 @@ class _DesktopBuilderWorkspace extends StatelessWidget {
           ),
           if (previewMode == PreviewMode.fullscreen)
             FullscreenCloseButton(loc: loc, onBack: () => onSetPreviewMode(PreviewMode.desktop)),
-          UploadManagerWrapper(loc: loc, isMobile: false),
+          UploadManagerWrapper(isMobile: false),
           if (context.watch<AuthCubit>().state is Unauthenticated && blocksList.isNotEmpty)
             const BuilderAuthGate(),
         ],
@@ -547,7 +547,7 @@ class _MobileBuilderWorkspace extends StatelessWidget {
           ),
           if (previewMode == PreviewMode.fullscreen)
             FullscreenCloseButton(loc: loc, onBack: () => onSetPreviewMode(PreviewMode.mobile)),
-          UploadManagerWrapper(loc: loc, isMobile: true),
+          UploadManagerWrapper(isMobile: true),
           if (context.watch<AuthCubit>().state is Unauthenticated && blocksList.isNotEmpty)
             const BuilderAuthGate(),
         ],

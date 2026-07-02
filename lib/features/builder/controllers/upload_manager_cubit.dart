@@ -36,9 +36,45 @@ class UploadTask {
   }
 }
 
+enum SavePhase { idle, uploadingImages, savingToDb, completed, error }
+
+class SaveProcessState {
+  final SavePhase phase;
+  final String statusText;
+  final String subdomain;
+  final String? pageId;
+  final String? errorMessage;
+
+  const SaveProcessState({
+    required this.phase,
+    required this.statusText,
+    required this.subdomain,
+    this.pageId,
+    this.errorMessage,
+  });
+
+  SaveProcessState copyWith({
+    SavePhase? phase,
+    String? statusText,
+    String? subdomain,
+    String? pageId,
+    String? errorMessage,
+    bool clearError = false,
+  }) {
+    return SaveProcessState(
+      phase: phase ?? this.phase,
+      statusText: statusText ?? this.statusText,
+      subdomain: subdomain ?? this.subdomain,
+      pageId: pageId ?? this.pageId,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+    );
+  }
+}
+
 class UploadManagerState {
   final Map<String, UploadTask> uploads;
-  UploadManagerState(this.uploads);
+  final SaveProcessState? saveProcess;
+  UploadManagerState(this.uploads, {this.saveProcess});
 }
 
 class UploadManagerCubit extends Cubit<UploadManagerState> {
@@ -50,7 +86,7 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
     StorageService? storageService,
   })  : _mediaService = mediaService ?? sl<ImageMediaService>(),
         _storageService = storageService ?? sl<StorageService>(),
-        super(UploadManagerState({}));
+        super(UploadManagerState({}, saveProcess: null));
 
   Future<void> upload({
     required String uploadId, // e.g. "upload://uuid"
@@ -69,7 +105,7 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
 
     final currentUploads = Map<String, UploadTask>.from(state.uploads);
     currentUploads[uploadId] = newTask;
-    emit(UploadManagerState(currentUploads));
+    emit(UploadManagerState(currentUploads, saveProcess: state.saveProcess));
 
     try {
        String finalUrl = '';
@@ -145,7 +181,7 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
         // Strip exception prefix
         String errMsg = e.toString().replaceAll('Exception: ', '');
         currentUploads[uploadId] = currentUploads[uploadId]!.copyWith(error: errMsg);
-        emit(UploadManagerState(currentUploads));
+        emit(UploadManagerState(currentUploads, saveProcess: state.saveProcess));
       }
     }
   }
@@ -172,7 +208,7 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
 
     final currentUploads = Map<String, UploadTask>.from(state.uploads);
     currentUploads[uploadId] = newTask;
-    emit(UploadManagerState(currentUploads));
+    emit(UploadManagerState(currentUploads, saveProcess: state.saveProcess));
 
      try {
       // 0. Pre-check: has this exact external URL already been uploaded/registered?
@@ -231,7 +267,7 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
       if (currentUploads.containsKey(uploadId)) {
         String errMsg = e.toString().replaceAll('Exception: ', '');
         currentUploads[uploadId] = currentUploads[uploadId]!.copyWith(error: errMsg);
-        emit(UploadManagerState(currentUploads));
+        emit(UploadManagerState(currentUploads, saveProcess: state.saveProcess));
       }
     }
   }
@@ -241,7 +277,7 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
     final currentUploads = Map<String, UploadTask>.from(state.uploads);
     if (currentUploads.containsKey(uploadId)) {
       currentUploads[uploadId] = currentUploads[uploadId]!.copyWith(progress: progress);
-      emit(UploadManagerState(currentUploads));
+      emit(UploadManagerState(currentUploads, saveProcess: state.saveProcess));
     }
   }
 
@@ -268,7 +304,58 @@ class UploadManagerCubit extends Cubit<UploadManagerState> {
     if (isClosed) return;
     final currentUploads = Map<String, UploadTask>.from(state.uploads);
     currentUploads.remove(uploadId);
-    emit(UploadManagerState(currentUploads));
+    emit(UploadManagerState(currentUploads, saveProcess: state.saveProcess));
+  }
+
+  // ──────────────────────────────────────────────
+  // Save Process Management
+  // ──────────────────────────────────────────────
+
+  void startSaveProcess({
+    required String subdomain,
+    String? pageId,
+  }) {
+    if (isClosed) return;
+    emit(UploadManagerState(
+      Map<String, UploadTask>.from(state.uploads),
+      saveProcess: SaveProcessState(
+        phase: SavePhase.uploadingImages,
+        statusText: '',
+        subdomain: subdomain,
+        pageId: pageId,
+      ),
+    ));
+  }
+
+  void updateSaveStatus(SavePhase phase, String statusText) {
+    if (isClosed || state.saveProcess == null) return;
+    emit(UploadManagerState(
+      Map<String, UploadTask>.from(state.uploads),
+      saveProcess: state.saveProcess!.copyWith(
+        phase: phase,
+        statusText: statusText,
+        clearError: true,
+      ),
+    ));
+  }
+
+  void completeSaveProcess({String? errorMessage}) {
+    if (isClosed || state.saveProcess == null) return;
+    emit(UploadManagerState(
+      Map<String, UploadTask>.from(state.uploads),
+      saveProcess: state.saveProcess!.copyWith(
+        phase: errorMessage != null ? SavePhase.error : SavePhase.completed,
+        errorMessage: errorMessage,
+      ),
+    ));
+  }
+
+  void clearSaveProcess() {
+    if (isClosed) return;
+    emit(UploadManagerState(
+      Map<String, UploadTask>.from(state.uploads),
+      saveProcess: null,
+    ));
   }
 
   @override
